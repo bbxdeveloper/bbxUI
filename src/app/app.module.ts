@@ -1,25 +1,51 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
+import { HttpClientModule } from '@angular/common/http';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NbThemeModule, NbLayoutModule } from '@nebular/theme';
-import { NbEvaIconsModule } from '@nebular/eva-icons';
+import { NbThemeModule, NbLayoutModule, NbDatepickerModule, NbDialogModule, NbMenuModule, NbSidebarModule, NbToastrModule, NbSidebarService } from '@nebular/theme';
+import { CoreModule } from './modules/core/core.module';
+import { NgxElectronModule } from 'ngx-electron';
+import { IConfig, NgxMaskModule } from 'ngx-mask';
+
+const maskConfig: Partial<IConfig> = {
+  validation: true,
+};
 
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
+    // Default
     BrowserModule,
     AppRoutingModule,
+    NgxElectronModule,
     BrowserAnimationsModule,
-    NbThemeModule.forRoot({ name: 'cosmic' }),
+    HttpClientModule,
+    // Misc
+    NgxMaskModule.forRoot(maskConfig),
+    // Nebular
     NbLayoutModule,
-    NbEvaIconsModule
+    NbMenuModule.forRoot(),
+    NbDialogModule.forRoot(),
+    NbSidebarModule.forRoot(),
+    NbThemeModule.forRoot({ name: 'cosmic' }),
+    NbToastrModule.forRoot(),
+    NbDatepickerModule.forRoot(),
+    // Custom
+    CoreModule
   ],
-  providers: [],
+  exports: [
+    NbLayoutModule,
+    NgxMaskModule
+  ],
+  providers: [
+    NbSidebarService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
