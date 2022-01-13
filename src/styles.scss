@@ -6,3 +6,51 @@
   @include nb-theme-global();
 };
 /* You can add global styles to this file, and also import other style files */
+
+body, html {
+  height: 100%;
+  overflow: hidden;
+}
+
+.layout {
+  min-height: 10vh !important;
+  padding: 0px !important;
+}
+
+nb-layout-column {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-bottom: 0px !important;
+
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+
+    margin-top: 5px !important;
+    padding-top: 0px !important;
+}
+
+::ng-deep nb-card-header {
+    font-size: 2rem !important;
+}
+
+nb-layout-footer.custom {
+  nav {
+    padding: 0px !important;
+    background: none !important;
+  }
+}
+
+input, label, th, td {
+    font-size: 1.2rem;
+}
+
+.disable-select {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}

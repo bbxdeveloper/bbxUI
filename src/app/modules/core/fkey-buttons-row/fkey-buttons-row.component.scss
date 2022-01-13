@@ -1,0 +1,42 @@
+nb-action {
+    @media (max-width: 1749px) {
+        .fkey-key {
+            margin-right: 5px;
+
+            font-size: 1.1rem;
+            color: yellow;
+        }
+        .fkey-value {
+            min-height: 26px;
+            min-width: fit-content;
+
+            padding: 2.5px;
+
+            font-size: 1.1rem;
+
+            background-color: rgba(150, 150, 150, 0.5);
+
+            &:empty {
+                min-width: 50px;
+            }
+        }
+    }
+    @media (min-width: 1750px) {
+        .fkey-key {
+            margin-right: 15px;
+
+            font-size: 1.1rem;
+            color: yellow;
+        }
+        .fkey-value {
+            min-height: 26px;
+            min-width: 100px;
+
+            padding: 5px;
+
+            font-size: 1.1rem;
+
+            background-color: rgba(150, 150, 150, 0.5);
+        }
+    }
+}

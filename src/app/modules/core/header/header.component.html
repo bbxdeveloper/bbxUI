@@ -1,1 +1,37 @@
-<p id="asd">header works!</p>
+<nb-actions size="medium" (keydown.escape)="handleEscape()">
+
+    <nb-action tabIndex="-1" class="disable-select"><img src="assets/svg/bbx_logo.svg"></nb-action>
+
+    <nb-action id="header-home" class="cl-header-menu" tabIndex="1" icon="home-outline" link="/" (click)="goTo('/')"
+        [disabled]="InProgress"></nb-action>
+
+    <nb-action id="header-user" class="cl-header-menu" tabIndex="2" icon="person-outline"></nb-action>
+
+    <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
+
+    <nb-action id="header-prod" class="cl-header-menu" tabIndex="4" disabled>Termékek</nb-action>
+
+    <nb-action id="header-invo" class="cl-header-menu" tabIndex="5" disabled>Számlázás</nb-action>
+
+    <nb-action id="header-orde" class="cl-header-menu" tabIndex="6" disabled>Megrendelés</nb-action>
+    
+    <nb-action id="header-info" class="cl-header-menu" tabIndex="7" disabled>Információ</nb-action>
+
+    <nb-action id="header-list" class="cl-header-menu" tabIndex="8" disabled>Listák</nb-action>
+
+    <nb-action id="header-serv" class="cl-header-menu" tabIndex="9" disabled>Szolgáltatások</nb-action>
+
+    <nb-action id="header-shut" class="cl-header-menu" tabIndex="10" icon="power-outline" *ngIf="isElectron"
+        [disabled]="InProgress" (click)="quit($event)">
+        Kilépés
+    </nb-action>
+
+    <nb-action class="nb-action-storage-title">Hely: 001 Központi Raktár</nb-action>
+
+    <nb-action disabled class="tag-wrapper">
+        <nb-tag-list>
+            <nb-tag appearance="outline" [text]="keyboardMode" [status]="keyboardModeStatus"></nb-tag>
+        </nb-tag-list>
+    </nb-action>
+
+</nb-actions>

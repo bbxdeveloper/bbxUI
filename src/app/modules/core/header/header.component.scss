@@ -1,0 +1,25 @@
+nb-action {
+  font-size: 1.2rem !important;
+}
+
+nb-action.nb-action-storage-title, nb-tag {
+  font-size: 1rem !important;
+}
+
+nb-action.tag-wrapper {
+  nb-tag {
+    line-height: 1rem !important;
+  }
+}
+
+@media (max-height: 1000px) {
+  ::ng-deep nb-layout-header {
+    nav {
+      max-height: 50px !important;
+    }
+  }
+}
+
+.card-body-submenu-button {
+  align-self: center;
+}

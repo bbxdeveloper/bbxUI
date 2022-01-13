@@ -1,0 +1,8 @@
+<nb-card>
+    <nb-card-header>{{msg}}</nb-card-header>
+    <nb-card-footer>
+        <button nbButton (click)="close(true)" status="primary" tabindex="-1"
+            id="confirm-dialog-button-yes">Yes</button>
+        <button nbButton (click)="close(false)" status="danger" tabindex="-1" id="confirm-dialog-button-no">No</button>
+    </nb-card-footer>
+</nb-card>

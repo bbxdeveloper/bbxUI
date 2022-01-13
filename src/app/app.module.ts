@@ -10,6 +10,7 @@ import { NbThemeModule, NbLayoutModule, NbDatepickerModule, NbDialogModule, NbMe
 import { CoreModule } from './modules/core/core.module';
 import { NgxElectronModule } from 'ngx-electron';
 import { IConfig, NgxMaskModule } from 'ngx-mask';
+import { SharedModule } from './modules/shared/shared.module';
 
 const maskConfig: Partial<IConfig> = {
   validation: true,
@@ -37,6 +38,7 @@ const maskConfig: Partial<IConfig> = {
     NbToastrModule.forRoot(),
     NbDatepickerModule.forRoot(),
     // Custom
+    SharedModule,
     CoreModule
   ],
   exports: [
