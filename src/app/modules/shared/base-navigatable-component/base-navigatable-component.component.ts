@@ -22,12 +22,20 @@ export class BaseNavigatableComponentComponent implements OnInit, Navigatable.IN
 
   LeftNeighbour?: Navigatable.INavigatable | undefined;
   RightNeighbour?: Navigatable.INavigatable | undefined;
-  DownNeighbours?: Navigatable.INavigatable[] | undefined;
-  TopNeighbours?: Navigatable.INavigatable[] | undefined;
+  DownNeighbour?: Navigatable.INavigatable | undefined;
+  UpNeighbour?: Navigatable.INavigatable | undefined;
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  public GenerateAndSetNavMatrices(): void { }
+
+  public ClearNeighbours(): void {
+    this.LeftNeighbour = undefined;
+    this.RightNeighbour = undefined;
+    this.DownNeighbour = undefined;
+    this.UpNeighbour = undefined;
+  }
 }

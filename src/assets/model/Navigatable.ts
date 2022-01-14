@@ -24,8 +24,11 @@ export module Navigatable {
 
         LeftNeighbour?: INavigatable;
         RightNeighbour?: INavigatable;
-        DownNeighbours?: INavigatable[];
-        TopNeighbours?: INavigatable[];
+        DownNeighbour?: INavigatable;
+        UpNeighbour?: INavigatable;
+
+        ClearNeighbours(): void;
+        GenerateAndSetNavMatrices(): void;
     }
 
     export interface NavigatableTable extends INavigatable {
@@ -36,6 +39,8 @@ export module Navigatable {
 
     export class NullNavigatable implements INavigatable {
         Matrix: string[][] = [[]];
+        LastX?: number | undefined = undefined;
+        LastY?: number | undefined = undefined;
         HasSubMapping: boolean = false;
         SubMapping?: { [id: string]: string[][]; } | undefined;
         IsDialog: boolean = false;
@@ -43,12 +48,16 @@ export module Navigatable {
         OuterJump: boolean = false;
         LeftNeighbour?: INavigatable | undefined;
         RightNeighbour?: INavigatable | undefined;
-        DownNeighbours?: INavigatable[] | undefined;
-        TopNeighbours?: INavigatable[] | undefined;
+        DownNeighbour?: INavigatable | undefined;
+        UpNeighbour?: INavigatable | undefined;
 
         private static _instance: NullNavigatable = new NullNavigatable();
-        
-        private constructor() {};
+
+        private constructor() { }
+
+        ClearNeighbours(): void {}
+
+        GenerateAndSetNavMatrices(): void {}
 
         public static get Instance(): NullNavigatable { return this._instance; }
     }
@@ -57,6 +66,9 @@ export module Navigatable {
 
     export class NavigatableForm implements INavigatable {
         Matrix: string[][] = [[]];
+
+        LastX?: number | undefined;
+        LastY?: number | undefined;
 
         HasSubMapping: boolean = false;
         SubMapping?: { [id: string]: string[][]; } = undefined;
@@ -68,8 +80,8 @@ export module Navigatable {
 
         LeftNeighbour?: INavigatable;
         RightNeighbour?: INavigatable;
-        DownNeighbours?: INavigatable[];
-        TopNeighbours?: INavigatable[];
+        DownNeighbour?: INavigatable;
+        UpNeighbour?: INavigatable;
 
         buyerForm: FormGroup;
         kbS: KeyboardNavigationService;
@@ -102,7 +114,7 @@ export module Navigatable {
 
         handleAutoCompleteSelect(event: any, key: string): void {
             if (event === "") {
-                Object.keys(this.buyerForm.controls).forEach( (x: string) => {
+                Object.keys(this.buyerForm.controls).forEach((x: string) => {
                     if (x !== key) {
                         this.buyerForm.controls[x].setValue("");
                     }
@@ -126,5 +138,13 @@ export module Navigatable {
             // }
         }
 
+        ClearNeighbours(): void {
+            throw new Error('Method not implemented.');
+        }
+        
+        GenerateAndSetNavMatrices(): void {
+            throw new Error('Method not implemented.');
+        }
     }
+
 }

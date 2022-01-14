@@ -135,17 +135,11 @@ export class KeyboardNavigationService {
   public Attach(n: Nav.INavigatable, direction: Nav.AttachDirection): void {
     switch(direction) {
       case Nav.AttachDirection.DOWN: {
-        if (!!!this.CurrentNavigatable.DownNeighbours) {
-          this.CurrentNavigatable.DownNeighbours = [];
-        }
-        this.CurrentNavigatable.DownNeighbours.push(n);
+        this.CurrentNavigatable.DownNeighbour = n;
         break;
       }
       case Nav.AttachDirection.UP: {
-        if (!!!this.CurrentNavigatable.TopNeighbours) {
-          this.CurrentNavigatable.TopNeighbours = [];
-        }
-        this.CurrentNavigatable.TopNeighbours.push(n);
+        this.CurrentNavigatable.UpNeighbour = n;
         break;
       }
       case Nav.AttachDirection.LEFT: {
@@ -165,44 +159,24 @@ export class KeyboardNavigationService {
       return;
     }
 
-    if (!!this.CurrentNavigatable.TopNeighbours && this.CurrentNavigatable.TopNeighbours.length > 0) {
-      let temp = this.CurrentNavigatable.TopNeighbours[0];
-
-      this.CurrentNavigatable.TopNeighbours = [];
-      this.CurrentNavigatable.DownNeighbours = [];
-      this.CurrentNavigatable.LeftNeighbour = undefined;
-      this.CurrentNavigatable.RightNeighbour = undefined;
-
+    if (!!this.CurrentNavigatable.UpNeighbour) {
+      let temp = this.CurrentNavigatable.UpNeighbour;
+      this.CurrentNavigatable.ClearNeighbours();
       this.CurrentNavigatable = temp;
     }
     else if (!!this.CurrentNavigatable.LeftNeighbour) {
       let temp = this.CurrentNavigatable.LeftNeighbour;
-
-      this.CurrentNavigatable.TopNeighbours = [];
-      this.CurrentNavigatable.DownNeighbours = [];
-      this.CurrentNavigatable.LeftNeighbour = undefined;
-      this.CurrentNavigatable.RightNeighbour = undefined;
-
+      this.CurrentNavigatable.ClearNeighbours();
       this.CurrentNavigatable = temp;
     }
     else if (!!this.CurrentNavigatable.RightNeighbour) {
       let temp = this.CurrentNavigatable.RightNeighbour;
-
-      this.CurrentNavigatable.TopNeighbours = [];
-      this.CurrentNavigatable.DownNeighbours = [];
-      this.CurrentNavigatable.LeftNeighbour = undefined;
-      this.CurrentNavigatable.RightNeighbour = undefined;
-
+      this.CurrentNavigatable.ClearNeighbours();
       this.CurrentNavigatable = temp;
     }
-    else if (!!this.CurrentNavigatable.DownNeighbours && this.CurrentNavigatable.DownNeighbours.length > 0) {
-      let temp = this.CurrentNavigatable.DownNeighbours[0];
-
-      this.CurrentNavigatable.TopNeighbours = [];
-      this.CurrentNavigatable.DownNeighbours = [];
-      this.CurrentNavigatable.LeftNeighbour = undefined;
-      this.CurrentNavigatable.RightNeighbour = undefined;
-
+    else if (!!this.CurrentNavigatable.DownNeighbour) {
+      let temp = this.CurrentNavigatable.DownNeighbour;
+      this.CurrentNavigatable.ClearNeighbours();
       this.CurrentNavigatable = temp;
     } else {
       this.CurrentNavigatable = this.Root;

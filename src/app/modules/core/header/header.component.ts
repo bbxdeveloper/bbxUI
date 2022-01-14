@@ -71,7 +71,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     this.kbS.SelectFirstTile();
   }
 
-  private GenerateAndSetNavMatrices(): void {
+  public override GenerateAndSetNavMatrices(): void {
     // Get menus
     const headerMenusRaw = $(".cl-header-menu");
 
@@ -140,7 +140,6 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         break;
       }
       case KeyBindings.edit: {
-        console.log("HEADER HANDLING KEYBOARD ACTION");
         if (!this.kbS.isEditModeActivated) {
           event.preventDefault();
         }
@@ -156,7 +155,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   goTo(link: string): void {
-    this.router.navigate([link]/*, { relativeTo: this.route }*/);
+    this.router.navigate([link]);
   }
 
   quit(event: any): void {
