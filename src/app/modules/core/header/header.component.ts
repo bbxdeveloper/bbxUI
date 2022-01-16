@@ -6,9 +6,10 @@ import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
-import * as $ from 'jquery'
+import * as $ from 'jquery';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { LoginDialogComponent } from '../../auth/login-dialog/login-dialog.component';
 
 @Component({
   selector: 'app-header',
@@ -67,11 +68,11 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   ngAfterViewInit(): void {
-    this.GenerateAndSetNavMatrices();
+    this.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
   }
 
-  public override GenerateAndSetNavMatrices(): void {
+  public override GenerateAndSetNavMatrices(attach: boolean): void {
     // Get menus
     const headerMenusRaw = $(".cl-header-menu");
 
@@ -167,6 +168,16 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     dialogRef.onClose.subscribe(res => {
       if (res) {
         window.close();
+      }
+    });
+  }
+
+  login(event: any): void {
+    event.preventDefault();
+    const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {} });
+    dialogRef.onClose.subscribe(res => {
+      if (res) {
+        console.log("Logged in!");
       }
     });
   }

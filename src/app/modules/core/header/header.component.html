@@ -5,7 +5,9 @@
     <nb-action id="header-home" class="cl-header-menu" tabIndex="1" icon="home-outline" link="/" (click)="goTo('/')"
         [disabled]="InProgress"></nb-action>
 
-    <nb-action id="header-user" class="cl-header-menu" tabIndex="2" icon="person-outline"></nb-action>
+    <nb-action id="header-user" class="cl-header-menu" tabIndex="2" icon="person-outline"
+             (click)="login($event)">
+    </nb-action>
 
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
 

@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Navigatable } from 'src/assets/model/Navigatable';
+import { Nav } from 'src/assets/model/Navigatable';
 
 @Component({
   selector: 'app-base-navigatable-component',
   templateUrl: './base-navigatable-component.component.html',
   styleUrls: ['./base-navigatable-component.component.scss']
 })
-export class BaseNavigatableComponentComponent implements OnInit, Navigatable.INavigatable {
+export class BaseNavigatableComponentComponent implements OnInit, Nav.INavigatable {
   Matrix: string[][] = [[]];
 
   LastX?: number;
@@ -20,17 +20,17 @@ export class BaseNavigatableComponentComponent implements OnInit, Navigatable.IN
   InnerJumpOnEnter: boolean = false;
   OuterJump: boolean = false;
 
-  LeftNeighbour?: Navigatable.INavigatable | undefined;
-  RightNeighbour?: Navigatable.INavigatable | undefined;
-  DownNeighbour?: Navigatable.INavigatable | undefined;
-  UpNeighbour?: Navigatable.INavigatable | undefined;
+  LeftNeighbour?: Nav.INavigatable | undefined;
+  RightNeighbour?: Nav.INavigatable | undefined;
+  DownNeighbour?: Nav.INavigatable | undefined;
+  UpNeighbour?: Nav.INavigatable | undefined;
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  public GenerateAndSetNavMatrices(): void { }
+  public GenerateAndSetNavMatrices(attach: boolean): void {}
 
   public ClearNeighbours(): void {
     this.LeftNeighbour = undefined;
@@ -38,4 +38,7 @@ export class BaseNavigatableComponentComponent implements OnInit, Navigatable.IN
     this.DownNeighbour = undefined;
     this.UpNeighbour = undefined;
   }
+  
+  Attach(): void {}
+  Detach(): void {}
 }

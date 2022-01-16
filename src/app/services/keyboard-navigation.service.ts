@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as $ from 'jquery'
-import { Navigatable as Nav } from 'src/assets/model/Navigatable';
+import { Nav as Nav } from 'src/assets/model/Navigatable';
+import { environment } from 'src/environments/environment';
 
 interface MatrixCoordinate {
   x: number;
@@ -83,48 +84,119 @@ export class KeyboardNavigationService {
     this.SelectCurrentElement();
   }
 
-  public MoveLeft(select: boolean = true, altKey: boolean = false): void {
+  private LogMoveStats(
+    attemptedDirection: Nav.AttachDirection,
+    select: boolean = true, altKey: boolean = false,
+    canJumpToNeighbourMatrix: boolean = false): void {
+    if (environment.debug) {
+      console.log("\n\n+---- NAV DATA ----+");
+      console.log(`Time: ${Date.now().toLocaleString()}`);
+      
+      console.log(`Current X: ${this.p.x}`);
+      console.log(`Current Y: ${this.p.y}`);
+
+      console.log(`Current World Length: ${this.CurrentNavigatable.Matrix[0].length}`);
+      console.log(`Current World Height: ${this.CurrentNavigatable.Matrix.length}`);
+      
+      console.log(`Current Max X: ${this.maxCurrentWorldX}`);
+      console.log(`Current Max Y: ${this.maxCurrentWorldY}`);
+
+      console.log(`[PARAM] Should select tile after moving: ${select}`);
+      console.log(`[PARAM] Alt-key pressed: ${altKey}`);
+      console.log(`[PARAM] Should jump to neighbour: ${canJumpToNeighbourMatrix}`);
+      
+      console.log(`Attempted direction: ${Nav.AttachDirection[attemptedDirection]}`);
+      
+      console.log(`Neighbour to DOWN: ${!!this.CurrentNavigatable.DownNeighbour ? 'detected' : 'none'}`);
+      console.log(`Neighbour to LEFT: ${!!this.CurrentNavigatable.LeftNeighbour ? 'detected' : 'none'}`);
+      console.log(`Neighbour to RIGHT: ${!!this.CurrentNavigatable.RightNeighbour ? 'detected' : 'none'}`);
+      console.log(`Neighbour to UP: ${!!this.CurrentNavigatable.UpNeighbour ? 'detected' : 'none'}`);
+      console.log("+------------------+\n\n");
+    }
+  }
+
+  public MoveLeft(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+    this.LogMoveStats(Nav.AttachDirection.LEFT, select, altKey, canJumpToNeighbourMatrix);
+
     // At left bound
     if (this.p.x === 0) {
-      if (this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.LeftNeighbour) {
+      if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.LeftNeighbour) {
         this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
         this.p.y = 0;
         this.p.x = this.maxCurrentWorldX;
         this.SelectCurrentElement();
       } else {
-        return;
+        return false;
       }
     // Not at left bound
     } else {
       this.p.x--;
       this.SelectCurrentElement();
     }
+    return true;
   }
 
-  public MoveRight(select: boolean = true, altKey: boolean = false): void {
+  public MoveRight(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+    this.LogMoveStats(Nav.AttachDirection.RIGHT, select, altKey, canJumpToNeighbourMatrix);
+
     // At right bound
     if (this.p.x === this.maxCurrentWorldX) {
-      if (this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.RightNeighbour) {
+      if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.RightNeighbour) {
         this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
         this.p.y = 0;
         this.p.x = 0;
         this.SelectCurrentElement();
       } else {
-        return;
+        return false;
       }
     // Not at right bound
     } else {
       this.p.x++;
       this.SelectCurrentElement();
     }
+    return true;
   }
 
-  public MoveUp(select: boolean = true, altKey: boolean = false): void {
+  public MoveUp(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+    this.LogMoveStats(Nav.AttachDirection.UP, select, altKey, canJumpToNeighbourMatrix);
 
+    // At upper bound
+    if (this.p.y === 0) {
+      if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.UpNeighbour) {
+        this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
+        this.p.y = this.maxCurrentWorldY;
+        this.p.x = 0;
+        this.SelectCurrentElement();
+      } else {
+        return false;
+      }
+      // Not at upper bound
+    } else {
+      this.p.y--;
+      this.SelectCurrentElement();
+    }
+    return true;
   }
 
-  public MoveDown(select: boolean = true, altKey: boolean = false): void {
+  public MoveDown(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+    this.LogMoveStats(Nav.AttachDirection.DOWN, select, altKey, canJumpToNeighbourMatrix);
 
+    // At lower bound
+    if (this.p.y === this.maxCurrentWorldY) {
+      if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.DownNeighbour) {
+        this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
+        this.p.y = 0;
+        this.p.x = 0;
+        this.SelectCurrentElement();
+      } else {
+        return false;
+      }
+      // Not at lower bound
+    } else {
+      this.p.y++;
+      this.SelectCurrentElement();
+    }
+    return true;
   }
 
   public SetRoot(n: Nav.INavigatable): void {
@@ -136,18 +208,22 @@ export class KeyboardNavigationService {
     switch(direction) {
       case Nav.AttachDirection.DOWN: {
         this.CurrentNavigatable.DownNeighbour = n;
+        n.UpNeighbour = this.CurrentNavigatable;
         break;
       }
       case Nav.AttachDirection.UP: {
         this.CurrentNavigatable.UpNeighbour = n;
+        n.DownNeighbour = this.CurrentNavigatable;
         break;
       }
       case Nav.AttachDirection.LEFT: {
         this.CurrentNavigatable.LeftNeighbour = n;
+        n.RightNeighbour = this.CurrentNavigatable;
         break;
       }
       case Nav.AttachDirection.RIGHT: {
         this.CurrentNavigatable.RightNeighbour = n;
+        n.LeftNeighbour = this.CurrentNavigatable;
         break;
       }
     }

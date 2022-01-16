@@ -11,6 +11,7 @@ import { CoreModule } from './modules/core/core.module';
 import { NgxElectronModule } from 'ngx-electron';
 import { IConfig, NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from './modules/shared/shared.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 const maskConfig: Partial<IConfig> = {
   validation: true,
@@ -39,6 +40,7 @@ const maskConfig: Partial<IConfig> = {
     NbDatepickerModule.forRoot(),
     // Custom
     SharedModule,
+    AuthModule,
     CoreModule
   ],
   exports: [

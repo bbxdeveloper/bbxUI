@@ -1,8 +1,13 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { setupTestingRouter } from '@angular/router/testing';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import * as $ from 'jquery';
+import { environment } from 'src/environments/environment';
 
-export module Navigatable {
+export module Nav {
+
+    export const TileCssClass: string = 'navmatrix-tile';
 
     export enum AttachDirection { DOWN, LEFT, RIGHT, UP };
 
@@ -28,7 +33,9 @@ export module Navigatable {
         UpNeighbour?: INavigatable;
 
         ClearNeighbours(): void;
-        GenerateAndSetNavMatrices(): void;
+        GenerateAndSetNavMatrices(attach: boolean): void;
+        Attach(): void;
+        Detach(): void;
     }
 
     export interface NavigatableTable extends INavigatable {
@@ -57,7 +64,9 @@ export module Navigatable {
 
         ClearNeighbours(): void {}
 
-        GenerateAndSetNavMatrices(): void {}
+        GenerateAndSetNavMatrices(attach: boolean): void { }
+        Attach(): void { }
+        Detach(): void { }
 
         public static get Instance(): NullNavigatable { return this._instance; }
     }
@@ -83,68 +92,164 @@ export module Navigatable {
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
 
-        buyerForm: FormGroup;
+        form: FormGroup;
         kbS: KeyboardNavigationService;
         cdref: ChangeDetectorRef;
 
         _data: any[];
 
-        constructor(f: FormGroup, kbs: KeyboardNavigationService, cdr: ChangeDetectorRef, data: any[]) {
-            this.buyerForm = f;
+        attachDirection: AttachDirection;
+
+        formId: string;
+
+        constructor(
+            f: FormGroup,
+            kbs: KeyboardNavigationService,
+            cdr: ChangeDetectorRef,
+            data: any[],
+            formId: string,
+            attachDirection: AttachDirection = AttachDirection.DOWN
+        ) {
+            this.form = f;
             this.kbS = kbs;
             this.cdref = cdr;
             this._data = data;
+            this.attachDirection = attachDirection;
+            this.formId = formId;
         }
 
-        handleFormEscape(): void {
+        HandleFormEscape(): void {
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.cdref.detectChanges();
         }
 
-        private feelBuyerForm(selectedValue: string, objectKey: string) {
+        private FeelFormAfterValueSelect(selectedValue: string, objectKey: string) {
             let buyer = this._data.find(b => b[objectKey] === selectedValue);
             if (!!buyer) {
-                Object.keys(this.buyerForm.controls).forEach((x: string) => {
+                Object.keys(this.form.controls).forEach((x: string) => {
                     if (x !== objectKey) {
-                        this.buyerForm.controls[x].setValue(buyer[x]);
+                        this.form.controls[x].setValue(buyer[x]);
                     }
                 });
             }
         }
 
-        handleAutoCompleteSelect(event: any, key: string): void {
+        private MoveNext(): void {
+            if (!this.kbS.MoveRight(true, false, false)) {
+                this.kbS.MoveLeft(true, false, false);
+            }
+        }
+
+        HandleAutoCompleteSelect(event: any, key: string): void {
             if (event === "") {
-                Object.keys(this.buyerForm.controls).forEach((x: string) => {
+                Object.keys(this.form.controls).forEach((x: string) => {
                     if (x !== key) {
-                        this.buyerForm.controls[x].setValue("");
+                        this.form.controls[x].setValue("");
                     }
                 });
             } else {
-                this.feelBuyerForm(event, key);
+                this.FeelFormAfterValueSelect(event, key);
             }
-            // TODO
-            // if (!this.kbS.isEditModeActivated) {
-            //     let oldMy = this.kbS.worldPos.Y;
-            //     this.kbS.moveNextInForm();
-            //     // TODO: navigációs mátrixhoz típust rendelni, pl. "táblázat"
-            //     if (oldMy < this.kbS.worldPos.Y) {
-            //         console.log(this.kbS.getCurrentTile());
-            //         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            //         this.gridNavHandler.handleGridEnter(this.productsData[0], 0, this.colDefs[0].objectKey, 0);
-            //     } else {
-            //         this.kbS.clickCurrentTile();
-            //         this.kbS.toggleEdit();
-            //     }
-            // }
+            if (!this.kbS.isEditModeActivated) {
+                this.MoveNext();
+                this.kbS.ClickCurrentElement();
+                this.kbS.toggleEdit();
+            }
+        }
+
+        HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+            if (toggleEditMode) {
+                this.kbS.toggleEdit();
+            }
+            if (jumpNext) {
+                this.MoveNext();
+                this.kbS.ClickCurrentElement();
+                if (!this.kbS.isEditModeActivated) {
+                    this.kbS.toggleEdit();
+                }
+            }
         }
 
         ClearNeighbours(): void {
-            throw new Error('Method not implemented.');
+            this.LeftNeighbour = undefined;
+            this.RightNeighbour = undefined;
+            this.DownNeighbour = undefined;
+            this.UpNeighbour = undefined;
+        }
+
+        private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
+            if (environment.debug) {
+                console.log("\n\n+---- MATRIX GEN ----+");
+                console.log(`Time: ${Date.now().toLocaleString()}`);
+
+                console.log(`Current node: ${node}`);
+                console.log(`Parent: ${parent}`);
+                console.log(`Grandparent: ${grandParent}`);
+
+                console.log(`CSS Class: ${cssClass}`);
+
+                console.log(`Total tiles: ${totalTiles}`);
+                
+                console.log("+------------------+\n\n");
+            }
         }
         
-        GenerateAndSetNavMatrices(): void {
-            throw new Error('Method not implemented.');
+        GenerateAndSetNavMatrices(attach: boolean): void {
+            // Get tiles
+            const tiles = $('.' + TileCssClass, '#' + this.formId);
+
+            if (environment.debug) {
+                console.log('[GenerateAndSetNavMatrices]', this.formId, tiles, '.' + TileCssClass, '#' + this.formId);
+            }
+
+            let currentParent = '';
+            
+            // Prepare matrix
+            this.Matrix = [[]];
+            let currentMatrixIndex = 0;
+
+            // Getting tiles, rows for navigation matrix
+            for (let i = 0; i < tiles.length; i++) {
+                const next = tiles[i];
+
+                this.LogMatrixGenerationCycle(
+                    TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
+                );
+
+                // Usually all form elements are in a nb-form-field
+                // So we must examine the parent of that element to be sure two form element
+                // is not in the same block
+                if (!!next?.parentElement?.parentElement) {
+                    const pE = next?.parentElement?.parentElement.nodeName;
+                    if (pE !== currentParent) {
+                        // currentParent was already initailized,
+                        // so this parent name change must mean the tile is in another row
+                        if (currentParent !== '') {
+                            this.Matrix.push([]);
+                            ++currentMatrixIndex;
+                        }
+                        currentParent = next.parentElement.nodeName;
+                    }
+                }
+
+                next.id = TileCssClass + '-' + Math.floor(Date.now() * Math.random());
+                this.Matrix[currentMatrixIndex].push(next.id);
+            }
+
+            if (environment.debug) {
+                console.log('[GenerateAndSetNavMatrices]', this.Matrix);
+            }
+
+            if (attach) {
+                this.kbS.Attach(this, this.attachDirection);
+            }
         }
+
+        Attach(): void {
+            this.kbS.Attach(this, this.attachDirection);
+        }
+
+        Detach(): void {}
     }
 
 }

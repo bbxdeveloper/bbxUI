@@ -1,0 +1,19 @@
+<nb-card>
+    <nb-card-header>{{title}}</nb-card-header>
+    <nb-card-body class="form-col-1" (keydown.enter)="loginFormNav.HandleFormEnter($event)">
+        <form id="loginForm" [formGroup]="loginFormNav.form" (keydown.enter)="$event.preventDefault()" #formDirective="ngForm"
+            (keydown.escape)="loginFormNav.HandleFormEscape()">
+            <nb-form-field>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName='username' required="true">
+            </nb-form-field>
+    
+            <nb-form-field>
+                <input class="{{TileCssClass}}" nbInput type="password" formControlName='password' required="true">
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+    <nb-card-footer>
+        <button class="{{TileCssClass}}" id="login-button-login" nbButton (click)="close(true)" status="primary" tabindex="-1">Login</button>
+        <button class="{{TileCssClass}}" id="login-button-cancel" nbButton (click)="close(false)" status="danger" tabindex="-1">Cancel</button>
+    </nb-card-footer>
+</nb-card>
