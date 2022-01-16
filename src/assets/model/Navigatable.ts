@@ -1,7 +1,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { setupTestingRouter } from '@angular/router/testing';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService, MoveRes } from 'src/app/services/keyboard-navigation.service';
 import * as $ from 'jquery';
 import { environment } from 'src/environments/environment';
 
@@ -134,9 +134,28 @@ export module Nav {
             }
         }
 
-        private MoveNext(): void {
-            if (!this.kbS.MoveRight(true, false, false)) {
-                this.kbS.MoveLeft(true, false, false);
+        private MoveNext(): MoveRes {
+            let moveRes = this.kbS.MoveRight(true, false, false);
+            if (!moveRes.moved) {
+                moveRes = this.kbS.MoveDown(true, false, true);
+            } 
+            return moveRes;
+        }
+
+        private JumpToNextInput(event?: Event): void {
+            const moveRes = this.MoveNext();
+            // We can't know if we should click the first element if we moved to another navigation-matrix.
+            if (!moveRes.jumped) {
+                this.kbS.ClickCurrentElement();
+                if (!this.kbS.isEditModeActivated) {
+                    this.kbS.toggleEdit();
+                }
+            } else {
+                // For example in case if we just moved onto a confirmation button in the next nav-matrix,
+                // we don't want to automatically press it until the user directly presses enter after selecting it.
+                if (!!event) {
+                    event.stopImmediatePropagation();
+                }
             }
         }
 
@@ -151,9 +170,7 @@ export module Nav {
                 this.FeelFormAfterValueSelect(event, key);
             }
             if (!this.kbS.isEditModeActivated) {
-                this.MoveNext();
-                this.kbS.ClickCurrentElement();
-                this.kbS.toggleEdit();
+                this.JumpToNextInput(event);
             }
         }
 
@@ -161,12 +178,9 @@ export module Nav {
             if (toggleEditMode) {
                 this.kbS.toggleEdit();
             }
-            if (jumpNext) {
-                this.MoveNext();
-                this.kbS.ClickCurrentElement();
-                if (!this.kbS.isEditModeActivated) {
-                    this.kbS.toggleEdit();
-                }
+            // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+            if (!this.kbS.isEditModeActivated && jumpNext) {
+                this.JumpToNextInput(event);
             }
         }
 

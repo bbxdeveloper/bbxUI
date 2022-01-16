@@ -12,6 +12,11 @@ export enum KeyboardModes {
   NAVIGATION, EDIT
 }
 
+export interface MoveRes {
+  moved: boolean;
+  jumped: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -115,8 +120,10 @@ export class KeyboardNavigationService {
     }
   }
 
-  public MoveLeft(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+  public MoveLeft(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
     this.LogMoveStats(Nav.AttachDirection.LEFT, select, altKey, canJumpToNeighbourMatrix);
+
+    const res = { moved: false, jumped: false } as MoveRes;
 
     // At left bound
     if (this.p.x === 0) {
@@ -124,20 +131,33 @@ export class KeyboardNavigationService {
         this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
         this.p.y = 0;
         this.p.x = this.maxCurrentWorldX;
-        this.SelectCurrentElement();
+
+        if (select) {
+          this.SelectCurrentElement();
+        }
+
+        res.moved = true;
+        res.jumped = true;
       } else {
-        return false;
+        return res;
       }
     // Not at left bound
     } else {
       this.p.x--;
-      this.SelectCurrentElement();
+
+      if (select) {
+        this.SelectCurrentElement();
+      }
+      
+      res.moved = true;
     }
-    return true;
+    return res;
   }
 
-  public MoveRight(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+  public MoveRight(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
     this.LogMoveStats(Nav.AttachDirection.RIGHT, select, altKey, canJumpToNeighbourMatrix);
+
+    const res = { moved: false, jumped: false } as MoveRes;
 
     // At right bound
     if (this.p.x === this.maxCurrentWorldX) {
@@ -145,20 +165,33 @@ export class KeyboardNavigationService {
         this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
         this.p.y = 0;
         this.p.x = 0;
-        this.SelectCurrentElement();
+
+        if (select) {
+          this.SelectCurrentElement();
+        }
+
+        res.moved = true;
+        res.jumped = true;
       } else {
-        return false;
+        return res;
       }
     // Not at right bound
     } else {
       this.p.x++;
-      this.SelectCurrentElement();
+
+      if (select) {
+        this.SelectCurrentElement();
+      }
+
+      res.moved = true;
     }
-    return true;
+    return res;
   }
 
-  public MoveUp(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+  public MoveUp(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
     this.LogMoveStats(Nav.AttachDirection.UP, select, altKey, canJumpToNeighbourMatrix);
+
+    const res = { moved: false, jumped: false } as MoveRes;
 
     // At upper bound
     if (this.p.y === 0) {
@@ -166,20 +199,33 @@ export class KeyboardNavigationService {
         this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
         this.p.y = this.maxCurrentWorldY;
         this.p.x = 0;
-        this.SelectCurrentElement();
+
+        if (select) {
+          this.SelectCurrentElement();
+        }
+
+        res.moved = true;
+        res.jumped = true;
       } else {
-        return false;
+        return res;
       }
       // Not at upper bound
     } else {
       this.p.y--;
-      this.SelectCurrentElement();
+
+      if (select) {
+        this.SelectCurrentElement();
+      }
+
+      res.moved = true;
     }
-    return true;
+    return res;
   }
 
-  public MoveDown(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): boolean {
+  public MoveDown(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
     this.LogMoveStats(Nav.AttachDirection.DOWN, select, altKey, canJumpToNeighbourMatrix);
+
+    const res = { moved: false, jumped: false } as MoveRes;
 
     // At lower bound
     if (this.p.y === this.maxCurrentWorldY) {
@@ -187,16 +233,27 @@ export class KeyboardNavigationService {
         this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
         this.p.y = 0;
         this.p.x = 0;
-        this.SelectCurrentElement();
+
+        if (select) {
+          this.SelectCurrentElement();
+        }
+
+        res.moved = true;
+        res.jumped = true;
       } else {
-        return false;
+        return res;
       }
       // Not at lower bound
     } else {
       this.p.y++;
-      this.SelectCurrentElement();
+
+      if (select) {
+        this.SelectCurrentElement();
+      }
+
+      res.moved = true;
     }
-    return true;
+    return res;
   }
 
   public SetRoot(n: Nav.INavigatable): void {
