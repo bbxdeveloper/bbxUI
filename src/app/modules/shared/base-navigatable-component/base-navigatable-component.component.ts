@@ -1,3 +1,4 @@
+import { ThisReceiver } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { Nav } from 'src/assets/model/Navigatable';
 
@@ -13,7 +14,7 @@ export class BaseNavigatableComponentComponent implements OnInit, Nav.INavigatab
   LastY?: number;
 
   HasSubMapping: boolean = false;
-  SubMapping?: { [id: string]: string[][]; } | undefined;
+  SubMapping?: { [id: string]: Nav.INavigatable; } | undefined;
 
   IsDialog: boolean = false;
 
@@ -25,7 +26,9 @@ export class BaseNavigatableComponentComponent implements OnInit, Nav.INavigatab
   DownNeighbour?: Nav.INavigatable | undefined;
   UpNeighbour?: Nav.INavigatable | undefined;
 
-  constructor() { }
+  IsSubMapping: boolean = false;
+
+  constructor() {}
 
   ngOnInit(): void {
   }

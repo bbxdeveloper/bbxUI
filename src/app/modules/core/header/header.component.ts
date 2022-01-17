@@ -10,6 +10,7 @@ import * as $ from 'jquery';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { LoginDialogComponent } from '../../auth/login-dialog/login-dialog.component';
+import { Nav } from 'src/assets/model/Navigatable';
 
 @Component({
   selector: 'app-header',
@@ -95,12 +96,12 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           const nextSubId = subItems[o];
 
           // If no available mapping for the menu, initialize it
-          if (!(!!this.SubMapping[nextId] && this.SubMapping[nextId].length > 0)) {
-            this.SubMapping[nextId] = [];
+          if (!!!this.SubMapping[nextId]) {
+            this.SubMapping[nextId] = new Nav.SubMappingNavigatable();
           }
 
           // Adding submenu id to the mapping of the current menu
-          this.SubMapping[nextId].push([nextSubId]);
+          this.SubMapping[nextId].Matrix.push([nextSubId]);
         }
       }
     }

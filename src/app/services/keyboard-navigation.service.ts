@@ -1,3 +1,4 @@
+import { ThisReceiver } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import * as $ from 'jquery'
 import { Nav as Nav } from 'src/assets/model/Navigatable';
@@ -29,7 +30,8 @@ export class KeyboardNavigationService {
 
   private Root: Nav.INavigatable = Nav.NullNavigatable.Instance;
   private CurrentNavigatable: Nav.INavigatable = Nav.NullNavigatable.Instance;
-  private CacheDuringDialog?: Nav.INavigatable;
+  private CurrentSubMappingRootKey?: string;
+  private NavigatableStack: Nav.INavigatable[] = [];
 
   private _currentKeyboardMode: KeyboardModes = KeyboardModes.NAVIGATION;
   get currentKeyboardMode() {
@@ -42,9 +44,14 @@ export class KeyboardNavigationService {
   get AroundHere(): string[][] {
     return this.CurrentNavigatable.Matrix;
   }
-
   get Here(): string {
     return this.CurrentNavigatable.Matrix[this.p.y][this.p.x];
+  }
+  get CurrentSubMapping(): { [id: string]: Nav.INavigatable; } | undefined {
+    return this.CurrentNavigatable.SubMapping;
+  }
+  get LocalSubMapping(): Nav.INavigatable | undefined {
+    return this.CurrentNavigatable.SubMapping![this.Here];
   }
 
   private get maxCurrentWorldX() {
@@ -195,7 +202,14 @@ export class KeyboardNavigationService {
 
     // At upper bound
     if (this.p.y === 0) {
-      if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.UpNeighbour) {
+      if (this.CurrentNavigatable.IsSubMapping) {
+        this.RemoveWidgetNavigatable();
+        res.moved = true;
+        res.jumped = true;
+        this.SelectCurrentElement();
+        this.CurrentSubMappingRootKey = undefined;
+      }
+      else if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.UpNeighbour) {
         this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
         this.p.y = this.maxCurrentWorldY;
         this.p.x = 0;
@@ -229,7 +243,14 @@ export class KeyboardNavigationService {
 
     // At lower bound
     if (this.p.y === this.maxCurrentWorldY) {
-      if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.DownNeighbour) {
+      if (!!this.CurrentSubMapping && !!this.LocalSubMapping) {
+        this.CurrentSubMappingRootKey = this.Here;
+        this.SetWidgetNavigatable(this.LocalSubMapping);
+        res.moved = true;
+        res.jumped = true;
+        this.SelectFirstTile();
+      }
+      else if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.DownNeighbour) {
         this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
         this.p.y = 0;
         this.p.x = 0;
@@ -287,6 +308,10 @@ export class KeyboardNavigationService {
     this.CurrentNavigatable = n;
   }
 
+  public ResetToRoot(): void {
+    this.CurrentNavigatable = this.Root;
+  }
+
   public Detach(): void {
     if (this.CurrentNavigatable === this.Root) {
       return;
@@ -316,22 +341,29 @@ export class KeyboardNavigationService {
     }
   }
 
-  public SetActiveDialog(n: Nav.INavigatable): void {
+  public SetWidgetNavigatable(n: Nav.INavigatable): void {
     this.CurrentNavigatable.LastX = this.p.x;
     this.CurrentNavigatable.LastY = this.p.y;
 
-    this.CacheDuringDialog = this.CurrentNavigatable;
+    this.NavigatableStack.push(this.CurrentNavigatable);
 
     this.CurrentNavigatable = n;
   }
 
-  public RemoveActiveDialog(): void {
-    this.CurrentNavigatable = this.CacheDuringDialog ?? this.Root;
+  public RemoveWidgetNavigatable(): void {
+    this.CurrentNavigatable = this.NavigatableStack.pop() ?? this.Root;
     
     this.p.x = this.CurrentNavigatable.LastX!;
     this.p.y = this.CurrentNavigatable.LastY!;
 
-    this.CacheDuringDialog = undefined;
+    if (this.CurrentNavigatable.IsSubMapping) {
+      // Trigger opening the submenu
+      this.SelectElement(this.CurrentSubMappingRootKey!);
+      // Wait for submenu to open then focus the correct menu
+      setInterval(() => { this.SelectCurrentElement() }, 100);
+    } else {
+      this.SelectCurrentElement();
+    }
   }
 
 }

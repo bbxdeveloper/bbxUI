@@ -69,6 +69,7 @@ export class UserManagerComponent implements OnInit {
     // public gridNavHandler: ProductsGridNavigationService,
     private toastrService: NbToastrService
   ) {
+    this.kbS.ResetToRoot();
     this.Setup();
   }
 

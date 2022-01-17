@@ -6,8 +6,23 @@
         [disabled]="InProgress"></nb-action>
 
     <nb-action id="header-user" class="cl-header-menu" tabIndex="2" icon="person-outline"
-             (click)="login($event)">
+             nbPopoverTrigger="focus" nbPopoverPlacement="bottom" [nbPopover]="sub_user"
+              data-sub="header-user-sub-1,header-user-sub-2">
     </nb-action>
+    <ng-template #sub_user let-data>
+        <nb-card>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="login($event)">
+                    Bejelentkezés
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-user-sub-2" [disabled]="InProgress" link="admin/users" (click)="goTo('admin/users')">
+                    Felhasználók kezelése
+                </button>
+            </nb-card-body>
+        </nb-card>
+    </ng-template>
 
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
 

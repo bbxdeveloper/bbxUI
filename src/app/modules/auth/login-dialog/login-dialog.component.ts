@@ -45,20 +45,20 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
   }
 
   ngAfterViewInit(): void {
-    this.kBs.SetActiveDialog(this);
+    this.kBs.SetWidgetNavigatable(this);
     this.loginFormNav.GenerateAndSetNavMatrices(true);
     this.kBs.SelectFirstTile();
   }
 
   ngOnDestroy(): void {
     if (!this.closedManually) {
-      this.kBs.RemoveActiveDialog();
+      this.kBs.RemoveWidgetNavigatable();
     }
   }
 
   close(answer: boolean) {
     this.closedManually = true;
-    this.kBs.RemoveActiveDialog();
+    this.kBs.RemoveWidgetNavigatable();
     this.dialogRef.close(answer);
   }
 }

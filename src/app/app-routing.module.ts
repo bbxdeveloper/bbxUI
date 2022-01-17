@@ -6,7 +6,16 @@ import { DashboardComponent } from './modules/core/dashboard/dashboard.component
 const routes: Routes = [
   {
     path: '',
-    component: UserManagerComponent // DashboardComponent
+    component: DashboardComponent
+  },
+  {
+    path: 'admin',
+    children: [
+      {
+        path: "users",
+        component: UserManagerComponent,
+      }
+    ]
   },
   // otherwise redirect to stations
   { path: '**', redirectTo: '' }

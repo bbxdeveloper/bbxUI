@@ -27,9 +27,11 @@ export module Nav {
         LastY?: number;
 
         HasSubMapping: boolean;
-        SubMapping?: { [id: string]: string[][]; };
+        SubMapping?: { [id: string]: INavigatable; };
 
         IsDialog: boolean;
+
+        IsSubMapping: boolean;
 
         InnerJumpOnEnter: boolean;
         OuterJump: boolean;
@@ -52,7 +54,7 @@ export module Nav {
         LastX?: number | undefined = undefined;
         LastY?: number | undefined = undefined;
         HasSubMapping: boolean = false;
-        SubMapping?: { [id: string]: string[][]; } | undefined;
+        SubMapping?: { [id: string]: INavigatable; } | undefined;
         IsDialog: boolean = false;
         InnerJumpOnEnter: boolean = false;
         OuterJump: boolean = false;
@@ -60,6 +62,8 @@ export module Nav {
         RightNeighbour?: INavigatable | undefined;
         DownNeighbour?: INavigatable | undefined;
         UpNeighbour?: INavigatable | undefined;
+
+        IsSubMapping: boolean = false;
 
         private static _instance: NullNavigatable = new NullNavigatable();
 
@@ -76,6 +80,31 @@ export module Nav {
 
     // Classes
 
+    export class SubMappingNavigatable implements INavigatable {
+        Matrix: string[][] = [];
+        LastX?: number | undefined = undefined;
+        LastY?: number | undefined = undefined;
+        HasSubMapping: boolean = false;
+        SubMapping?: { [id: string]: INavigatable; } | undefined;
+        IsDialog: boolean = false;
+        InnerJumpOnEnter: boolean = false;
+        OuterJump: boolean = true;
+        LeftNeighbour?: INavigatable | undefined;
+        RightNeighbour?: INavigatable | undefined;
+        DownNeighbour?: INavigatable | undefined;
+        UpNeighbour?: INavigatable | undefined;
+
+        IsSubMapping: boolean = true;
+
+        constructor() { }
+
+        ClearNeighbours(): void { }
+
+        GenerateAndSetNavMatrices(attach: boolean): void { }
+        Attach(): void { }
+        Detach(): void { }
+    }
+
     export class NavigatableTable<T extends IEditable> implements INavigatable {
         Matrix: string[][] = [[]];
 
@@ -83,7 +112,7 @@ export module Nav {
         LastY?: number | undefined;
 
         HasSubMapping: boolean = false;
-        SubMapping?: { [id: string]: string[][]; } = undefined;
+        SubMapping?: { [id: string]: INavigatable; } = undefined;
 
         IsDialog: boolean = false;
 
@@ -94,6 +123,8 @@ export module Nav {
         RightNeighbour?: INavigatable;
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
+
+        IsSubMapping: boolean = false;
 
         inlineForm: FormGroup;
         kbS: KeyboardNavigationService;
@@ -453,7 +484,7 @@ export module Nav {
         LastY?: number | undefined;
 
         HasSubMapping: boolean = false;
-        SubMapping?: { [id: string]: string[][]; } = undefined;
+        SubMapping?: { [id: string]: INavigatable; } = undefined;
 
         IsDialog: boolean = false;
 
@@ -464,6 +495,8 @@ export module Nav {
         RightNeighbour?: INavigatable;
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
+
+        IsSubMapping: boolean = false;
 
         form: FormGroup;
         kbS: KeyboardNavigationService;
