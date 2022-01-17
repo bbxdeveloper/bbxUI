@@ -79,6 +79,7 @@ export class UserManagerComponent implements OnInit {
       this.userTableForm, this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
       () => new User()
     );
+    this.userTable.OuterJump = true;
     this.Refresh();
   }
 

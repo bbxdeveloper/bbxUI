@@ -61,6 +61,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private router: Router,
     private sts: StatusService) {
       super();
+      this.OuterJump = true;
   }
 
   override ngOnInit(): void {
