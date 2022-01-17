@@ -6,10 +6,13 @@ import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabse
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
+import { UserManagerComponent } from './user-manager/user-manager.component';
+import { AuthService } from './services/auth.service';
 
 @NgModule({
   declarations: [
-    LoginDialogComponent
+    LoginDialogComponent,
+    UserManagerComponent
   ],
   imports: [
     CommonModule,
@@ -30,7 +33,8 @@ import { SharedModule } from '../shared/shared.module';
     SharedModule
   ],
   exports: [
-    LoginDialogComponent
+    LoginDialogComponent,
+    UserManagerComponent
   ],
   providers: [
     LoginDialogComponent
