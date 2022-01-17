@@ -6,12 +6,14 @@ import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-
 import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
+import { HeadLineComponent } from './head-line/head-line.component';
 
 
 @NgModule({
   declarations: [
     BaseNavigatableComponentComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    HeadLineComponent
   ],
   imports: [
     CommonModule,
@@ -32,7 +34,8 @@ import { NgxMaskModule } from 'ngx-mask';
   ],
   exports: [
     BaseNavigatableComponentComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    HeadLineComponent
   ],
   providers: [
     ConfirmationDialogComponent
