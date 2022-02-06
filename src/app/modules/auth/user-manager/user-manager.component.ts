@@ -9,6 +9,8 @@ import { User } from '../models/User';
 import { UserService } from '../services/user.service';
 import { Nav } from 'src/assets/model/Navigatable';
 import { FormControl, FormGroup } from '@angular/forms';
+import { GetUsersResponse } from '../models/GetUsersResponse';
+import { GetUserResponse } from '../models/GetUserResponse';
 
 @Component({
   selector: 'app-user-manager',
@@ -26,8 +28,7 @@ export class UserManagerComponent implements OnInit {
   usersTableEditId = "user-cell-edit-input";
 
   colsToIgnore: string[] = [];
-  // allColumns = ['ProductCode', 'Name', 'Measure', 'Amount', 'Price', 'Value'];
-  allColumns = ['Id', 'UserName'];
+  allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
   colDefs: ColDef[] = [
     // { label: 'Termékkód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
     // { label: 'Megnevezés', objectKey: 'Name', colKey: 'Name', defaultValue: '', type: 'string', mask: "", colWidth: "30%", textAlign: "left" },
@@ -35,8 +36,12 @@ export class UserManagerComponent implements OnInit {
     // { label: 'Mennyiség', objectKey: 'Amount', colKey: 'Amount', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
     // { label: 'Ár', objectKey: 'Price', colKey: 'Price', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
     // { label: 'Érték', objectKey: 'Value', colKey: 'Value', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
-    { label: 'ID', objectKey: 'Id', colKey: 'Id', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Név', objectKey: 'UserName', colKey: 'UserName', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'string', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
@@ -85,19 +90,30 @@ export class UserManagerComponent implements OnInit {
   }
 
   private Refresh(): void {
-    this.seInv.GetUsers().subscribe((data: User[]) => {
-      if (!!data) {
-        this.users = data.map(x => { return { data: new User(x.Id, x.UserName), uid: this.nextUid() }; });
-        this.usersDataSrc.setData(this.users);
-      }
-      this.userTable.Setup(
-        this.users, this.usersDataSrc,
-        this.allColumns, this.colDefs,
-        this.cdref,
-        this.colsToIgnore
-      );
-      this.userTable.GenerateAndSetNavMatrices(false);
+    console.log('Refreshing'); // TODO: only for debug
+    this.seInv.GetUsers().subscribe({
+      next: d => this.ProcessGetUsersResponse(d),
+      error: e => this.ProcessErrorRespones(e)
     });
+  }
+
+  private ProcessGetUsersResponse(resp: GetUsersResponse): void {
+    console.log('GetUsers response: ', resp); // TODO: only for debug
+    if (!!resp) {
+      this.users = resp.data.map(x => { return { data: new User(x.id, x.name, x.loginName, x.email, x.comment, x.active), uid: this.nextUid() }; });
+      this.usersDataSrc.setData(this.users);
+    }
+    this.userTable.Setup(
+      this.users, this.usersDataSrc,
+      this.allColumns, this.colDefs,
+      this.cdref,
+      this.colsToIgnore
+    );
+    this.userTable.GenerateAndSetNavMatrices(false);
+  }
+
+  private ProcessErrorRespones(err: any): void {
+    console.log(err);
   }
 
   ngOnInit(): void {
