@@ -8,4 +8,6 @@ export interface ColDef {
     colWidth?: string;
     textAlign?: string;
     navMatrixCssClass?: string;
+    fRequired?: boolean;
+    fInputType?: string;
 }

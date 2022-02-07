@@ -8,9 +8,11 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { User } from '../models/User';
 import { UserService } from '../services/user.service';
 import { Nav } from 'src/assets/model/Navigatable';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { GetUsersResponse } from '../models/GetUsersResponse';
 import { GetUserResponse } from '../models/GetUserResponse';
+import { NbSidebarService } from '@nebular/theme';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -23,7 +25,7 @@ export class UserManagerComponent implements OnInit {
   userTableForm!: FormGroup;
   users!: TreeGridNode<User>[];
   usersDataSrc!: NbTreeGridDataSource<TreeGridNode<User>>;
-  userTable!: Nav.NavigatableTable<User>;
+  userTable!: Nav.FlatDesignNavigatableTable<User>;
   usersTableId = 'usermanager-table';
   usersTableEditId = "user-cell-edit-input";
 
@@ -36,12 +38,12 @@ export class UserManagerComponent implements OnInit {
     // { label: 'Mennyiség', objectKey: 'Amount', colKey: 'Amount', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
     // { label: 'Ár', objectKey: 'Price', colKey: 'Price', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
     // { label: 'Érték', objectKey: 'Value', colKey: 'Value', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
-    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'string', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
@@ -72,7 +74,9 @@ export class UserManagerComponent implements OnInit {
     private cdref: ChangeDetectorRef,
     private kbS: KeyboardNavigationService,
     // public gridNavHandler: ProductsGridNavigationService,
-    private toastrService: NbToastrService
+    private toastrService: NbToastrService,
+    private sidebarService: NbSidebarService,
+    private sidebarFormService: SideBarFormService
   ) {
     this.kbS.ResetToRoot();
     this.Setup();
@@ -81,11 +85,20 @@ export class UserManagerComponent implements OnInit {
   private Setup(): void {
     this.users = [];
     this.usersDataSrc = this.dataSourceBuilder.create(this.users);
-    this.userTable = new Nav.NavigatableTable(
+    this.userTableForm = new FormGroup({
+      id: new FormControl(undefined, [Validators.required]),
+      name: new FormControl(undefined, [Validators.required]),
+      loginName: new FormControl(undefined, [Validators.required]),
+      email: new FormControl(undefined, [Validators.required]),
+      comment: new FormControl(undefined, []),
+      active: new FormControl(undefined, [Validators.required]),
+    });
+    this.userTable = new Nav.FlatDesignNavigatableTable(
       this.userTableForm, this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
-      () => new User()
+      () => new User(), 'sideBarForm', Nav.AttachDirection.LEFT, this.sidebarService, this.sidebarFormService
     );
     this.userTable.OuterJump = true;
+    this.sidebarService.collapse();
     this.Refresh();
   }
 
@@ -109,7 +122,9 @@ export class UserManagerComponent implements OnInit {
       this.cdref,
       this.colsToIgnore
     );
-    this.userTable.GenerateAndSetNavMatrices(false);
+    setTimeout(() => {
+      this.userTable.GenerateAndSetNavMatrices(false);  
+    }, 200);
   }
 
   private ProcessErrorRespones(err: any): void {

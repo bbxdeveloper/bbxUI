@@ -1,13 +1,14 @@
-@use 'themes' as *;
+@use "themes" as *;
 
-@use '@nebular/theme/styles/globals' as *;
+@use "@nebular/theme/styles/globals" as *;
 
 @include nb-install() {
   @include nb-theme-global();
-};
+}
 /* You can add global styles to this file, and also import other style files */
 
-body, html {
+body,
+html {
   height: 100%;
   overflow: hidden;
 }
@@ -18,20 +19,20 @@ body, html {
 }
 
 nb-layout-column {
-    margin-left: 0px !important;
-    margin-right: 0px !important;
-    margin-bottom: 0px !important;
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
 
-    padding-left: 0px !important;
-    padding-right: 0px !important;
-    padding-bottom: 0px !important;
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  padding-bottom: 0px !important;
 
-    margin-top: 5px !important;
-    padding-top: 0px !important;
+  margin-top: 5px !important;
+  padding-top: 0px !important;
 }
 
 ::ng-deep nb-card-header {
-    font-size: 2rem !important;
+  font-size: 2rem !important;
 }
 
 nb-layout-footer.custom {
@@ -41,16 +42,44 @@ nb-layout-footer.custom {
   }
 }
 
-input, label, th, td {
-    font-size: 1.2rem;
+input,
+label,
+th,
+td {
+  font-size: 1.2rem;
 }
 
 .disable-select {
   -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+}
+
+// Flat Design
+
+.bbx-fd-sidebar {
+  top: 0px !important;
+
+  .bbx-fd-app-sidebar-form {
+    form {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      align-content: flex-start;
+      flex-wrap: wrap;
+
+      nb-form-field {
+        input {
+          margin-top: 8px;
+          margin-bottom: 20px;
+        }
+      }
+    }
+  }
 }

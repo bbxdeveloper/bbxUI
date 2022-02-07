@@ -1,0 +1,10 @@
+<form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" (keydown.enter)="$event.preventDefault()" #formDirective="ngForm"
+    (keydown.escape)="currentForm.HandleFormEscape()">
+
+    <nb-form-field *ngFor="let it of currentForm.colDefs; let colPos = index">
+        <ng-container [ngSwitch]="it.fInputType">
+            <label>{{it.label}}</label>
+            <input *ngSwitchCase="'text'" class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey" [required]="it.fRequired ?? false">
+        </ng-container>
+    </nb-form-field>
+</form>

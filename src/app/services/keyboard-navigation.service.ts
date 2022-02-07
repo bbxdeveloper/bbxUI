@@ -78,6 +78,17 @@ export class KeyboardNavigationService {
     $('#' + id).trigger('focus');
   }
 
+  /**
+   * No jump, boundary or any safety check, so use it with caution!
+   * @param x New X coordinate.
+   * @param y New Y coordinate.
+   */
+  public SelectElementByCoordinate(x: number, y: number): void {
+    this.p.x = x;
+    this.p.y = y;
+    this.SelectCurrentElement();
+  }
+
   public ClickElement(id: string): void {
     $('#' + id).trigger('click');
   }
@@ -101,9 +112,12 @@ export class KeyboardNavigationService {
     select: boolean = true, altKey: boolean = false,
     canJumpToNeighbourMatrix: boolean = false): void {
     if (environment.debug) {
+      
       console.log("\n\n+---- NAV DATA ----+");
       console.log(`Time: ${Date.now().toLocaleString()}`);
       
+      console.log(`Current INavigatable: ${this.CurrentNavigatable.constructor.name}`);
+
       console.log(`Current X: ${this.p.x}`);
       console.log(`Current Y: ${this.p.y}`);
 
@@ -116,6 +130,7 @@ export class KeyboardNavigationService {
       console.log(`[PARAM] Should select tile after moving: ${select}`);
       console.log(`[PARAM] Alt-key pressed: ${altKey}`);
       console.log(`[PARAM] Should jump to neighbour: ${canJumpToNeighbourMatrix}`);
+      console.log(`[NAVIGATABLE] OuterJump: ${this.CurrentNavigatable.OuterJump}`);
       
       console.log(`Attempted direction: ${Nav.AttachDirection[attemptedDirection]}`);
       
@@ -125,6 +140,64 @@ export class KeyboardNavigationService {
       console.log(`Neighbour to UP: ${!!this.CurrentNavigatable.UpNeighbour ? 'detected' : 'none'}`);
       console.log("+------------------+\n\n");
     }
+  }
+
+  public Jump(direction: Nav.AttachDirection): MoveRes {
+    const res = { moved: false, jumped: false } as MoveRes;
+
+    switch(direction) {
+      case Nav.AttachDirection.DOWN:
+        if (!!this.CurrentNavigatable.DownNeighbour) {
+          this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
+          this.p.y = 0;
+          this.p.x = 0;
+
+          this.SelectCurrentElement();
+
+          res.moved = true;
+          res.jumped = true;
+        }
+        break;
+      case Nav.AttachDirection.LEFT:
+        if (!!this.CurrentNavigatable.LeftNeighbour) {
+          this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
+          this.p.y = 0;
+          this.p.x = 0;
+
+          this.SelectCurrentElement();
+
+          res.moved = true;
+          res.jumped = true;
+        }
+        break;
+      case Nav.AttachDirection.RIGHT:
+        if (!!this.CurrentNavigatable.RightNeighbour) {
+          this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
+          this.p.y = 0;
+          this.p.x = 0;
+
+          this.SelectCurrentElement();
+
+          res.moved = true;
+          res.jumped = true;
+        }
+        break;
+      default:
+      case Nav.AttachDirection.UP:
+        if (!!this.CurrentNavigatable.UpNeighbour) {
+          this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
+          this.p.y = 0;
+          this.p.x = 0;
+
+          this.SelectCurrentElement();
+
+          res.moved = true;
+          res.jumped = true;
+        }
+        break;
+    }
+
+    return res;
   }
 
   public MoveLeft(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
@@ -282,7 +355,7 @@ export class KeyboardNavigationService {
     this.CurrentNavigatable = n;
   }
 
-  public Attach(n: Nav.INavigatable, direction: Nav.AttachDirection): void {
+  public Attach(n: Nav.INavigatable, direction: Nav.AttachDirection, setAsCurrentNavigatable: boolean = true): void {
     switch(direction) {
       case Nav.AttachDirection.DOWN: {
         this.CurrentNavigatable.DownNeighbour = n;
@@ -305,14 +378,23 @@ export class KeyboardNavigationService {
         break;
       }
     }
-    this.CurrentNavigatable = n;
+    if (setAsCurrentNavigatable) {
+      this.CurrentNavigatable = n;
+      this.SelectFirstTile();
+    }
   }
 
   public ResetToRoot(): void {
     this.CurrentNavigatable = this.Root;
   }
 
-  public Detach(): void {
+  /**
+   * 
+   * @param newX New X coordinate after detach.
+   * @param newY New Y coordinate after detach.
+   * @returns 
+   */
+  public Detach(newX?: number, newY?: number): void {
     if (this.CurrentNavigatable === this.Root) {
       return;
     }
@@ -338,6 +420,12 @@ export class KeyboardNavigationService {
       this.CurrentNavigatable = temp;
     } else {
       this.CurrentNavigatable = this.Root;
+    }
+
+    if (newX !== undefined && newY !== undefined) {
+      this.p.x = newX;
+      this.p.y = newY;
+      this.SelectCurrentElement();
     }
   }
 

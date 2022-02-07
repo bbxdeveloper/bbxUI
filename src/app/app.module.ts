@@ -38,6 +38,7 @@ const maskConfig: Partial<IConfig> = {
     NbThemeModule.forRoot({ name: 'cosmic' }),
     NbToastrModule.forRoot(),
     NbDatepickerModule.forRoot(),
+    NbSidebarModule.forRoot(),
     // Custom
     SharedModule,
     AuthModule,
