@@ -33,4 +33,6 @@ export enum KeyBindings {
     F8 = 'F8',
     F9 = 'F9',
     F10 = 'F10',
+    F11 = 'F11',
+    F12 = 'F12',
 }

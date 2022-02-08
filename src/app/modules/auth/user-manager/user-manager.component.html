@@ -21,8 +21,9 @@
                             [class.table-cell-edited]="userTable.editedRowPos == rowPos && userTable.editedProperty == it.objectKey"
                             (keydown.escape)="userTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
                             (keydown)="userTable.handleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
-                            (keydown.enter)="userTable.handleGridEnter(row, rowPos, it.objectKey, colPos, usersTableEditId)"
+                            (keydown.f12)="userTable.handleGridEnter(row, rowPos, it.objectKey, colPos, usersTableEditId)"
                             (keydown.delete)="userTable.handleGridDelete($event, row, rowPos, it.objectKey)"
+                            (keydown.tab)="userTable.handleGridTab($event)"
                             [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                             class="{{it.navMatrixCssClass}}">
 

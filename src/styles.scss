@@ -67,12 +67,15 @@ td {
   .bbx-fd-app-sidebar-form {
     form {
       min-height: 80vh;
+
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      flex-wrap: wrap;
+
       align-items: flex-start;
       align-content: flex-start;
-      flex-wrap: wrap;
+
+      margin-top: 25px; // justify-content: center;
 
       nb-form-field {
         input {
@@ -81,5 +84,19 @@ td {
         }
       }
     }
+  }
+
+  .bbx-fd-sidebar-functions {
+    display: flex;
+
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    align-content: stretch;
+    align-items: stretch;
+
+    justify-content: space-between;
+
+    row-gap: 10px;
   }
 }

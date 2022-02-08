@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ColDef } from 'src/assets/model/ColDef';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { NbDialogService, NbGlobalPhysicalPosition, NbSortDirection, NbSortRequest, NbTable, NbToastrService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
@@ -13,13 +13,19 @@ import { GetUsersResponse } from '../models/GetUsersResponse';
 import { GetUserResponse } from '../models/GetUserResponse';
 import { NbSidebarService } from '@nebular/theme';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { IUpdater } from 'src/assets/model/IUpdater';
+import { IGridPutRequest } from 'src/assets/model/IUpdatable';
+import { CreateUserRequest } from '../models/CreateUserRequest';
+import { UpdateUserRequest } from '../models/UpdateUserRequest';
+import { DeleteUserRequest } from '../models/DeleteUserRequest';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-user-manager',
   templateUrl: './user-manager.component.html',
   styleUrls: ['./user-manager.component.scss']
 })
-export class UserManagerComponent implements OnInit {
+export class UserManagerComponent implements OnInit, IUpdater<User> {
   @ViewChild('table') table?: NbTable<any>;
 
   userTableForm!: FormGroup;
@@ -33,11 +39,6 @@ export class UserManagerComponent implements OnInit {
   allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
   colDefs: ColDef[] = [
     // { label: 'Termékkód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
-    // { label: 'Megnevezés', objectKey: 'Name', colKey: 'Name', defaultValue: '', type: 'string', mask: "", colWidth: "30%", textAlign: "left" },
-    // { label: 'Mértékegység', objectKey: 'Measure', colKey: 'Measure', defaultValue: '', type: 'string', mask: "", colWidth: "5%", textAlign: "left" },
-    // { label: 'Mennyiség', objectKey: 'Amount', colKey: 'Amount', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
-    // { label: 'Ár', objectKey: 'Price', colKey: 'Price', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
-    // { label: 'Érték', objectKey: 'Value', colKey: 'Value', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
     { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
@@ -73,13 +74,57 @@ export class UserManagerComponent implements OnInit {
     private seInv: UserService,
     private cdref: ChangeDetectorRef,
     private kbS: KeyboardNavigationService,
-    // public gridNavHandler: ProductsGridNavigationService,
     private toastrService: NbToastrService,
     private sidebarService: NbSidebarService,
     private sidebarFormService: SideBarFormService
   ) {
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  ActionNew(data?: IGridPutRequest<User>): void {
+    if (!!data && !!data.data) {
+      console.log("ActionNew: ", data.data);
+      this.seInv.CreateUser({
+        name: data.data.name,
+        email: data.data.email,
+        loginName: data.data.loginName,
+        passwor: '',
+        comment: data.data.comment
+      } as CreateUserRequest).subscribe({
+        next: d => { console.log(d); },
+        error: err => { console.log(err); }
+      });
+    }
+  }
+  ActionReset(data?: IGridPutRequest<User>): void {
+    console.log("ActionReset: ", data?.data);
+  }
+  ActionPut(data?: IGridPutRequest<User>): void {
+    if (!!data && !!data.data) {
+      console.log("ActionPut: ", data.data);
+      this.seInv.UpdateUser({
+        name: data.data.name,
+        email: data.data.email,
+        loginName: data.data.loginName,
+        passwor: '',
+        comment: data.data.comment
+      } as UpdateUserRequest).subscribe({
+        next: d => { console.log(d); },
+        error: err => { console.log(err); }
+      });
+    }
+  }
+  ActionDelete(data?: IGridPutRequest<User>): void {
+    if (!!data && data.rowIndex !== undefined) {
+      console.log("ActionDelete: ", data.rowIndex);
+      this.seInv.DeleteUser({
+        id: this.users[data.rowIndex].data.id
+      } as DeleteUserRequest).subscribe({
+        next: d => { console.log(d); },
+        error: err => { console.log(err); }
+      });
+    }
   }
 
   private Setup(): void {
@@ -95,8 +140,9 @@ export class UserManagerComponent implements OnInit {
     });
     this.userTable = new Nav.FlatDesignNavigatableTable(
       this.userTableForm, this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
-      () => new User(), 'sideBarForm', Nav.AttachDirection.LEFT, this.sidebarService, this.sidebarFormService
+      () => new User(), 'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
     );
+    this.userTable.pushFooterCommandList();
     this.userTable.OuterJump = true;
     this.sidebarService.collapse();
     this.Refresh();
@@ -163,5 +209,18 @@ export class UserManagerComponent implements OnInit {
       this.fS.pushCommands(this.commands);
     }
   }
+
+  // @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+  //   // if (event.code === 'Tab') {
+  //   //   event.preventDefault();
+  //   // }
+  //   switch (event.key) {
+  //     case KeyBindings.F12: {
+  //       event.preventDefault();
+  //       break;
+  //     }
+  //     default: { }
+  //   }
+  // }
 
 }

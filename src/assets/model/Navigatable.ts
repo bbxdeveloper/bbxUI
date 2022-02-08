@@ -13,6 +13,8 @@ import { IEditable } from './IEditable';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IGridPutRequest, IUpdatable } from './IUpdatable';
+import { IUpdater } from './IUpdater';
+import { TouchBarScrubber } from 'electron';
 
 /// <reference path='./INavigatable.ts'/>
 /// <reference path='./NullNavigatable.ts'/>
@@ -109,7 +111,7 @@ export module Nav {
         Detach(): void { }
     }
 
-    export class FlatDesignNavigatableTable<T extends IEditable> implements INavigatable, IUpdatable {
+    export class FlatDesignNavigatableTable<T extends IEditable> implements INavigatable, IUpdatable<T> {
         Matrix: string[][] = [[]];
 
         LastX?: number | undefined;
@@ -157,7 +159,7 @@ export module Nav {
 
         productCreatorRow: TreeGridNode<T>;
 
-        flatDesignForm: FlatDesignNavigatableForm;
+        flatDesignForm: FlatDesignNavigatableForm<T>;
 
         getBlankInstance: () => T;
         get GenerateCreatorRow(): TreeGridNode<T> {
@@ -166,8 +168,19 @@ export module Nav {
             };
         }
 
-        readonly commandsOnTable: FooterCommandInfo[] = [];
-        readonly commandsOnTableEditMode: FooterCommandInfo[] = [];
+        readonly commandsOnTable: FooterCommandInfo[] = [
+            { key: 'F3', value: '', disabled: false },
+            { key: 'F4', value: '', disabled: false },
+            { key: 'F5', value: '', disabled: false },
+            { key: 'F6', value: '', disabled: false },
+            { key: 'F7', value: '', disabled: false },
+            { key: 'F8', value: '', disabled: false },
+            { key: 'F9', value: '', disabled: false },
+            { key: 'F10', value: '', disabled: false },
+            { key: 'F11', value: '', disabled: false },
+            { key: 'F12', value: 'Tétellap', disabled: false }
+        ];
+        readonly commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
 
         constructor(
             f: FormGroup,
@@ -182,7 +195,8 @@ export module Nav {
             formId: string,
             formAttachDirection: AttachDirection,
             private sidebarService: NbSidebarService,
-            private sidebarFormService: SideBarFormService
+            private sidebarFormService: SideBarFormService,
+            private updater: IUpdater<T>
         ) {
             this.inlineForm = f;
             this.kbS = kbs;
@@ -201,23 +215,40 @@ export module Nav {
             this.productCreatorRow = this.GenerateCreatorRow;
 
             this.flatDesignForm = new FlatDesignNavigatableForm(
-                f, kbs, cdr, data, formId, formAttachDirection, this.colDefs, this.sidebarService, this.sidebarFormService, this
+                f, kbs, cdr, data, formId, formAttachDirection, this.colDefs, this.sidebarService, this.sidebarFormService, this, this.fS
             );
         }
 
+        New(data?: IGridPutRequest): void {
+            this.updater.ActionNew(data);
+            this.pushFooterCommandList();
+            // if (data?.rowIndex === this.data.length - 1) {
+            //     const creatorRow = this.data.pop();
+            //     this.data.push({ data: data?.data! });
+            //     this.data.push(creatorRow!);
+            //     this.dataSource.setData(this.data);
+            //     // this.productCreatorRow = this.GenerateCreatorRow;
+            //     this.GenerateAndSetNavMatrices(false);
+            //     // this.isUnfinishedRowDeletable = true;
+            // } else {
+            //     this.data[data?.rowIndex!].data = data?.data!;
+            //     this.dataSource.setData(this.data);
+            // }
+        }
+
+        Reset(data?: IGridPutRequest): void {
+            this.updater.ActionReset(data);
+            this.pushFooterCommandList();
+        }
+
         Put(data?: IGridPutRequest): void {
-            if (data?.rowIndex === this.data.length - 1) {
-                const creatorRow = this.data.pop();
-                this.data.push({ data: data?.data! });
-                this.data.push(creatorRow!);
-                this.dataSource.setData(this.data);
-                // this.productCreatorRow = this.GenerateCreatorRow;
-                this.GenerateAndSetNavMatrices(false);
-                // this.isUnfinishedRowDeletable = true;
-            } else {
-                this.data[data?.rowIndex!].data = data?.data!;
-                this.dataSource.setData(this.data);
-            }
+            this.updater.ActionPut(data);
+            this.pushFooterCommandList();
+        }
+
+        Delete(data?: IGridPutRequest): void {
+            this.updater.ActionDelete(data);
+            this.pushFooterCommandList();
         }
 
         public ClearNeighbours(): void {
@@ -251,6 +282,7 @@ export module Nav {
             this.dataSource.setData(this.data);
 
             this.flatDesignForm.colDefs = this.colDefs;
+            this.flatDesignForm.OuterJump = true;
 
             this.resetEdit();
         }
@@ -415,8 +447,12 @@ export module Nav {
             this.flatDesignForm.PreviousYOnGrid = this.kbS.p.y;
             
             setTimeout(() => {
-                this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
+                this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
             }, 200);
+        }
+
+        handleGridTab(event: Event): void {
+            this.kbS.Jump(this.flatDesignForm.attachDirection);
         }
 
         handleGridDelete(event: Event, row: TreeGridNode<T>, rowPos: number, col: string): void {
@@ -455,7 +491,7 @@ export module Nav {
         }
     }
 
-    export class FlatDesignNavigatableForm implements INavigatable {
+    export class FlatDesignNavigatableForm<T extends IEditable = any> implements INavigatable, IUpdater<T> {
         Matrix: string[][] = [[]];
 
         LastX?: number | undefined;
@@ -494,6 +530,19 @@ export module Nav {
         private DataRowIndex: number = -1;
         private DataToEdit?: TreeGridNode<any>;
 
+        readonly commandsOnForm: FooterCommandInfo[] = [
+            { key: 'F3', value: '', disabled: false },
+            { key: 'F4', value: '', disabled: false },
+            { key: 'F5', value: '', disabled: false },
+            { key: 'F6', value: '', disabled: false },
+            { key: 'F7', value: '', disabled: false },
+            { key: 'F8', value: 'Új', disabled: false },
+            { key: 'F9', value: 'Alaphelyzet', disabled: false },
+            { key: 'F10', value: 'Mentés', disabled: false },
+            { key: 'F11', value: 'Törlés', disabled: false },
+            { key: 'F12', value: 'Tétellap', disabled: false }
+        ];
+
         constructor(
             f: FormGroup,
             kbs: KeyboardNavigationService,
@@ -504,7 +553,8 @@ export module Nav {
             colDefs: ColDef[],
             private sidebarService: NbSidebarService,
             private sidebarFormSercie: SideBarFormService,
-            private grid: IUpdatable
+            private grid: IUpdatable,
+            private fS: FooterService
         ) {
             this.form = f;
             this.kbS = kbs;
@@ -515,19 +565,48 @@ export module Nav {
             this.colDefs = colDefs;
 
             console.log("[ctor FlatDesignNavigatableForm] Params in order (without services): ", f, data, attachDirection, formId, colDefs); // TODO: only for debug
+
+            this.sidebarService.onCollapse().subscribe({
+                next: value => {
+                    if (!!this.LeftNeighbour || !!this.RightNeighbour || !!this.DownNeighbour || !!this.UpNeighbour) {
+                        this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
+                    }
+                }
+            });
+        }
+        
+        ActionNew(): void {
+            this.sidebarService.collapse();
+
+            this.grid.New({
+                data: this.FillObjectWithForm(),
+                rowIndex: this.DataRowIndex
+            } as IGridPutRequest);
+        }
+        ActionReset(): void {
+            this.sidebarService.collapse();
+
+            this.grid.Reset({
+                rowIndex: this.DataRowIndex
+            } as IGridPutRequest);
+        }
+        ActionPut(): void {
+            this.sidebarService.collapse();
+
+            this.grid.Put({
+                data: this.FillObjectWithForm(),
+                rowIndex: this.DataRowIndex
+            } as IGridPutRequest);
+        }
+        ActionDelete(): void {
+            this.sidebarService.collapse();
+
+            this.grid.Delete({
+                rowIndex: this.DataRowIndex
+            } as IGridPutRequest);
         }
 
         HandleFormEscape(): void {
-            if (!this.kbS.isEditModeActivated) {
-                this.grid.Put({
-                    data: this.FillObjectWithForm(),
-                    rowIndex: this.DataRowIndex
-                } as IGridPutRequest);
-                console.log(this.PreviousXOnGrid, this.PreviousYOnGrid);
-                this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
-                this.sidebarService.collapse();
-                return;
-            }
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.cdref.detectChanges();
         }
@@ -617,6 +696,10 @@ export module Nav {
             if (!this.kbS.isEditModeActivated && jumpNext) {
                 this.JumpToNextInput(event);
             }
+        }
+
+        pushFooterCommandList(): void {
+            this.fS.pushCommands(this.commandsOnForm);
         }
 
         ClearNeighbours(): void {
