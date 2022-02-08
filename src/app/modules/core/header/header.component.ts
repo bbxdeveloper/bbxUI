@@ -78,6 +78,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   ngAfterViewInit(): void {
     this.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
+    this.login(undefined);
   }
 
   public override GenerateAndSetNavMatrices(attach: boolean): void {
@@ -181,7 +182,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   login(event: any): void {
-    event.preventDefault();
+    event?.preventDefault();
     const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {} });
     dialogRef.onClose.subscribe(res => {
       if (res) {
