@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { ColDef } from 'src/assets/model/ColDef';
+import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { ModelFieldDescriptor } from 'src/assets/model/ColDef';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { NbDialogService, NbGlobalPhysicalPosition, NbSortDirection, NbSortRequest, NbTable, NbToastrService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -10,15 +10,12 @@ import { UserService } from '../services/user.service';
 import { Nav } from 'src/assets/model/Navigatable';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { GetUsersResponse } from '../models/GetUsersResponse';
-import { GetUserResponse } from '../models/GetUserResponse';
 import { NbSidebarService } from '@nebular/theme';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { IUpdater } from 'src/assets/model/IUpdater';
-import { IGridPutRequest } from 'src/assets/model/IUpdatable';
+import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
 import { CreateUserRequest } from '../models/CreateUserRequest';
 import { UpdateUserRequest } from '../models/UpdateUserRequest';
 import { DeleteUserRequest } from '../models/DeleteUserRequest';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-user-manager',
@@ -37,7 +34,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
 
   colsToIgnore: string[] = [];
   allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
-  colDefs: ColDef[] = [
+  colDefs: ModelFieldDescriptor[] = [
     // { label: 'Termékkód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
     { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
@@ -82,7 +79,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     this.Setup();
   }
 
-  ActionNew(data?: IGridPutRequest<User>): void {
+  ActionNew(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
       console.log("ActionNew: ", data.data);
       this.seInv.CreateUser({
@@ -97,10 +94,10 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       });
     }
   }
-  ActionReset(data?: IGridPutRequest<User>): void {
+  ActionReset(data?: IUpdateRequest<User>): void {
     console.log("ActionReset: ", data?.data);
   }
-  ActionPut(data?: IGridPutRequest<User>): void {
+  ActionPut(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
       console.log("ActionPut: ", data.data);
       this.seInv.UpdateUser({
@@ -115,7 +112,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       });
     }
   }
-  ActionDelete(data?: IGridPutRequest<User>): void {
+  ActionDelete(data?: IUpdateRequest<User>): void {
     if (!!data && data.rowIndex !== undefined) {
       console.log("ActionDelete: ", data.rowIndex);
       this.seInv.DeleteUser({
@@ -140,7 +137,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     });
     this.userTable = new Nav.FlatDesignNavigatableTable(
       this.userTableForm, this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
-      () => new User(), 'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
+      'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
     );
     this.userTable.pushFooterCommandList();
     this.userTable.OuterJump = true;
@@ -165,7 +162,6 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     this.userTable.Setup(
       this.users, this.usersDataSrc,
       this.allColumns, this.colDefs,
-      this.cdref,
       this.colsToIgnore
     );
     setTimeout(() => {
@@ -184,6 +180,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.userTable.GenerateAndSetNavMatrices(true);
+    this.userTable.pushFooterCommandList();
 
     this.kbS.SelectFirstTile();
   }
@@ -209,18 +206,4 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       this.fS.pushCommands(this.commands);
     }
   }
-
-  // @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-  //   // if (event.code === 'Tab') {
-  //   //   event.preventDefault();
-  //   // }
-  //   switch (event.key) {
-  //     case KeyBindings.F12: {
-  //       event.preventDefault();
-  //       break;
-  //     }
-  //     default: { }
-  //   }
-  // }
-
 }
