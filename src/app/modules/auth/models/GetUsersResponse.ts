@@ -9,6 +9,6 @@ export interface GetUsersResponse {
     /** string */
     "message": any,
     /** string[] ? */
-    "errors": any,
+    "errors"?: string[],
     "data": User[]
 }

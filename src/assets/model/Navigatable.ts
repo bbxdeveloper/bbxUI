@@ -1,6 +1,6 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { KeyboardModes, KeyboardNavigationService, MoveRes } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService, MoveRes, PreferredSelectionMethod } from 'src/app/services/keyboard-navigation.service';
 import * as $ from 'jquery';
 import { environment } from 'src/environments/environment';
 import { NbSidebarService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
@@ -43,6 +43,8 @@ export module Nav {
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
 
+        TileSelectionMethod: PreferredSelectionMethod;
+
         ClearNeighbours(): void;
         GenerateAndSetNavMatrices(attach: boolean): void;
         Attach(): void;
@@ -65,11 +67,15 @@ export module Nav {
         DownNeighbour?: INavigatable | undefined;
         UpNeighbour?: INavigatable | undefined;
 
+        // Here it throws an error if we want to initialize it via
+        // PreferredSelectionMethod.focus
+        TileSelectionMethod: PreferredSelectionMethod = 0;
+
         IsSubMapping: boolean = false;
 
         private static _instance: NullNavigatable = new NullNavigatable();
 
-        private constructor() { }
+        private constructor() {}
 
         ClearNeighbours(): void { }
 
@@ -95,6 +101,7 @@ export module Nav {
         RightNeighbour?: INavigatable | undefined;
         DownNeighbour?: INavigatable | undefined;
         UpNeighbour?: INavigatable | undefined;
+        TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
 
         IsSubMapping: boolean = true;
 
@@ -125,6 +132,8 @@ export module Nav {
         RightNeighbour?: INavigatable;
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
+
+        TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.both;
 
         IsSubMapping: boolean = false;
 
@@ -255,6 +264,18 @@ export module Nav {
             this.pushFooterCommandList();
         }
 
+        handleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+            this.flatDesignForm.SetDataForEdit(row, rowPos, col);
+            this.sidebarFormService.SetCurrentForm(this.flatDesignForm);
+
+            this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
+            this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
+
+            setTimeout(() => {
+                this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
+            }, 200);
+        }
+
         private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
             if (environment.debug) {
                 console.log("\n\n+---- MATRIX GEN ----+");
@@ -359,6 +380,8 @@ export module Nav {
         RightNeighbour?: INavigatable;
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
+
+        TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
 
         IsSubMapping: boolean = false;
 
@@ -654,6 +677,8 @@ export module Nav {
         RightNeighbour?: INavigatable;
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
+
+        TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
 
         IsSubMapping: boolean = false;
 
@@ -1026,6 +1051,8 @@ export module Nav {
         RightNeighbour?: INavigatable;
         DownNeighbour?: INavigatable;
         UpNeighbour?: INavigatable;
+
+        TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
 
         IsSubMapping: boolean = false;
 

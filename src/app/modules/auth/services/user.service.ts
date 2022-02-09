@@ -9,7 +9,9 @@ import { GetUsersParamListModel } from '../models/GetUsersParamListModel';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetUserParamListModel } from '../models/GetUserParamListModel';
-import { GetUserResponse } from '../models/GetUserResponse';
+import { CreateUserResponse } from '../models/CreateUserResponse';
+import { UpdateUserResponse } from '../models/UpdateUserResponse';
+import { DeleteUserResponse } from '../models/DeleteUserResponse';
 
 const MOCK_USERS = {
   "pageNumber": 1,
@@ -17,8 +19,6 @@ const MOCK_USERS = {
   "recordsFiltered": 2,
   "recordsTotal": 2,
   "succeeded": true,
-  "message": null,
-  "errors": null,
   "data": [
     new User(2, "string", "string", "a@mmm", "string", true),
     new User(3, "AAstring", "string", "a@mmm", "string", true),
@@ -62,7 +62,7 @@ export class UserService {
     return this.http.get<GetUsersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  GetUser(params?: GetUserParamListModel): Observable<GetUserResponse> {
+  GetUser(params?: GetUserParamListModel): Observable<User> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -81,18 +81,18 @@ export class UserService {
     }
 
     // Get
-    return this.http.get<GetUserResponse>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<User>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  CreateUser(req: CreateUserRequest): Observable<any> {
-    return this.http.post(this.BaseUrl, req);
+  CreateUser(req: CreateUserRequest): Observable<CreateUserResponse> {
+    return this.http.post<CreateUserResponse>(this.BaseUrl, req);
   }
 
-  UpdateUser(req: UpdateUserRequest): Observable<any> {
-    return this.http.put(this.BaseUrl, req);
+  UpdateUser(req: UpdateUserRequest): Observable<UpdateUserResponse> {
+    return this.http.put<UpdateUserResponse>(this.BaseUrl, req);
   }
 
-  DeleteUser(req: DeleteUserRequest): Observable<any> {
-    return this.http.delete(this.BaseUrl, { body: req });
+  DeleteUser(req: DeleteUserRequest): Observable<DeleteUserResponse> {
+    return this.http.delete<DeleteUserResponse>(this.BaseUrl, { body: req });
   }
 }

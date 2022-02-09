@@ -9,13 +9,14 @@ import { User } from '../models/User';
 import { UserService } from '../services/user.service';
 import { Nav } from 'src/assets/model/Navigatable';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { GetUsersResponse } from '../models/GetUsersResponse';
 import { NbSidebarService } from '@nebular/theme';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
 import { CreateUserRequest } from '../models/CreateUserRequest';
 import { UpdateUserRequest } from '../models/UpdateUserRequest';
 import { DeleteUserRequest } from '../models/DeleteUserRequest';
+import { Constants } from 'src/assets/util/Constants';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -36,12 +37,13 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
   colDefs: ModelFieldDescriptor[] = [
     // { label: 'Termékkód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
-    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Jelszó', objectKey: 'password', colKey: 'password', defaultValue: '', type: 'password', fInputType: 'password', mask: "", colWidth: "", textAlign: "", navMatrixCssClass: Nav.TileCssClass }
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
@@ -73,7 +75,8 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     private kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
     private sidebarService: NbSidebarService,
-    private sidebarFormService: SideBarFormService
+    private sidebarFormService: SideBarFormService,
+    private cs: CommonService
   ) {
     this.kbS.ResetToRoot();
     this.Setup();
@@ -89,8 +92,16 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
         passwor: '',
         comment: data.data.comment
       } as CreateUserRequest).subscribe({
-        next: d => { console.log(d); },
-        error: err => { console.log(err); }
+        next: d => {
+          if (d.succeeded && !!d.data) {
+            this.users.push({ data: d.data.ToUser() } as TreeGridNode<User>);
+            this.RefreshTable();
+          } else {
+            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
+            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          }
+        },
+        error: err => this.cs.HandleError(err)
       });
     }
   }
@@ -101,14 +112,22 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     if (!!data && !!data.data) {
       console.log("ActionPut: ", data.data);
       this.seInv.UpdateUser({
+        id: data.data.id,
         name: data.data.name,
         email: data.data.email,
         loginName: data.data.loginName,
         passwor: '',
         comment: data.data.comment
       } as UpdateUserRequest).subscribe({
-        next: d => { console.log(d); },
-        error: err => { console.log(err); }
+        next: d => {
+          if (d.succeeded && !!d.data) {
+            this.users[data.rowIndex] = { data: d.data.ToUser() } as TreeGridNode<User>;
+            this.RefreshTable();
+          } else {
+            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          }
+        },
+        error: err => this.cs.HandleError(err)
       });
     }
   }
@@ -118,8 +137,16 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       this.seInv.DeleteUser({
         id: this.users[data.rowIndex].data.id
       } as DeleteUserRequest).subscribe({
-        next: d => { console.log(d); },
-        error: err => { console.log(err); }
+        next: d => {
+          if (d.succeeded && !!d.data) {
+            const di = this.users.findIndex(x => x.data.id === data.data.id);
+            this.users.splice(di, 1);
+            this.RefreshTable();
+          } else {
+            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          }
+        },
+        error: err => this.cs.HandleError(err)
       });
     }
   }
@@ -148,29 +175,31 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   private Refresh(): void {
     console.log('Refreshing'); // TODO: only for debug
     this.seInv.GetUsers().subscribe({
-      next: d => this.ProcessGetUsersResponse(d),
-      error: e => this.ProcessErrorRespones(e)
+      next: d => {
+        if (d.succeeded && !!d.data) {
+          console.log('GetUsers response: ', d); // TODO: only for debug
+          if (!!d) {
+            this.users = d.data.map(x => { return { data: new User(x.id, x.name, x.loginName, x.email, x.comment, x.active), uid: this.nextUid() }; });
+            this.usersDataSrc.setData(this.users);
+          }
+          this.RefreshTable();
+        } else {
+          this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        }
+      },
+      error: err => this.cs.HandleError(err)
     });
   }
 
-  private ProcessGetUsersResponse(resp: GetUsersResponse): void {
-    console.log('GetUsers response: ', resp); // TODO: only for debug
-    if (!!resp) {
-      this.users = resp.data.map(x => { return { data: new User(x.id, x.name, x.loginName, x.email, x.comment, x.active), uid: this.nextUid() }; });
-      this.usersDataSrc.setData(this.users);
-    }
+  private RefreshTable(): void {
     this.userTable.Setup(
       this.users, this.usersDataSrc,
       this.allColumns, this.colDefs,
       this.colsToIgnore
     );
     setTimeout(() => {
-      this.userTable.GenerateAndSetNavMatrices(false);  
+      this.userTable.GenerateAndSetNavMatrices(false);
     }, 200);
-  }
-
-  private ProcessErrorRespones(err: any): void {
-    console.log(err);
   }
 
   ngOnInit(): void {

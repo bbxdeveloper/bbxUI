@@ -1,4 +1,3 @@
-import { ThisReceiver } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import * as $ from 'jquery'
 import { Nav as Nav } from 'src/assets/model/Navigatable';
@@ -11,6 +10,10 @@ interface MatrixCoordinate {
 
 export enum KeyboardModes {
   NAVIGATION, EDIT
+}
+
+export enum PreferredSelectionMethod {
+  focus, click, both
 }
 
 export interface MoveRes {
@@ -75,7 +78,19 @@ export class KeyboardNavigationService {
   }
 
   public SelectElement(id: string): void {
-    $('#' + id).trigger('focus');
+    switch (this.CurrentNavigatable.TileSelectionMethod) {
+      case PreferredSelectionMethod.both:
+        $('#' + id).trigger('focus');
+        $('#' + id).trigger('click');
+        break;
+      case PreferredSelectionMethod.click:
+        $('#' + id).trigger('click');
+        break;
+      case PreferredSelectionMethod.focus:
+      default:
+        $('#' + id).trigger('focus');
+        break;
+    }
   }
 
   /**

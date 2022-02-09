@@ -8,7 +8,9 @@ export class User implements IEditable {
     comment?: string;
     active?: boolean;
 
-    constructor(Id?: number, Name?: string, LoginName?: string, Email?: string, Comment?: string, Active?: boolean) {
+    password?: string;
+
+    constructor(Id?: number, Name?: string, LoginName?: string, Email?: string, Comment?: string, Active?: boolean, password?: string) {
         this.id = Id;
         this.name = Name;
         this.loginName = LoginName;

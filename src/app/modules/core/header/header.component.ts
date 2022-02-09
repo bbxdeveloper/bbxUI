@@ -78,7 +78,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   ngAfterViewInit(): void {
     this.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
-    this.login(undefined);
+    //this.login(undefined);
   }
 
   public override GenerateAndSetNavMatrices(attach: boolean): void {

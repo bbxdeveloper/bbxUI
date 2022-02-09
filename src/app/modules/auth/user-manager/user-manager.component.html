@@ -22,6 +22,7 @@
                             (keydown.escape)="userTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
                             (keydown.f12)="userTable.handleGridEnter(row, rowPos, it.objectKey, colPos, usersTableEditId)"
                             (keydown.tab)="userTable.handleGridTab($event)"
+                            (click)="userTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
                             [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                             class="{{it.navMatrixCssClass}}">
                             <div>

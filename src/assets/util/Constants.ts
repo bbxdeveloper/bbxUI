@@ -1,7 +1,24 @@
+import { NbToastrConfig } from "@nebular/theme";
 import { ProcessStatus } from "../model/ProcessStatus";
 
 export module Constants {
+    // Messages
+
     export const MSG_CONFIRMATION_QUIT = "Biztosan szeretne kiléni az alkalmazásból?";
+
+    export const TITLE_ERROR: string = 'Hiba';
+    export const TITLE_WARNING: string = 'Figyelmeztetés';
+    export const TITLE_INFO: string = 'Információ';
+
+    // Toastr Configs
+
+    export const TOASTR_ERROR: Partial<NbToastrConfig> = 
+        { status: 'danger', icon: 'warning' };
+    export const TOASTR_INFO: Partial<NbToastrConfig> =
+        { status: 'info', icon: 'info' };
+
+
+    // Util
 
     export enum FileExtensions {
         PDF = "pdf",
@@ -34,6 +51,8 @@ export module Constants {
     ];
 
     export const BlankProcessStatus: ProcessStatus = { value: -1 } as ProcessStatus;
+
+    // Types
 
     export type Dct = { [id: string]: any; };
 }

@@ -1,5 +1,5 @@
-import { ThisReceiver } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
+import { PreferredSelectionMethod } from 'src/app/services/keyboard-navigation.service';
 import { Nav } from 'src/assets/model/Navigatable';
 
 @Component({
@@ -25,6 +25,8 @@ export class BaseNavigatableComponentComponent implements OnInit, Nav.INavigatab
   RightNeighbour?: Nav.INavigatable | undefined;
   DownNeighbour?: Nav.INavigatable | undefined;
   UpNeighbour?: Nav.INavigatable | undefined;
+
+  TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
 
   IsSubMapping: boolean = false;
 
