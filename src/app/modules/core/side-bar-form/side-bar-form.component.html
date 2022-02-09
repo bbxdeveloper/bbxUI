@@ -13,13 +13,15 @@
     #formDirective="ngForm" (keydown.escape)="currentForm.HandleFormEscape()">
 
     <nb-form-field *ngFor="let it of currentForm.colDefs; let colPos = index">
-        <ng-container [ngSwitch]="it.fInputType">
-            <label>{{it.label}}</label>
-            <input *ngSwitchCase="'text'" class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey"
-                (keydown.f12)="close()" [required]="it.fRequired ?? false">
-            <input *ngSwitchCase="'readonly'" nbInput type="text" [formControlName]="it.objectKey" readonly>
-            <input *ngSwitchCase="'password'" class="{{TileCssClass}}" nbInput type="password"
-                [formControlName]="it.objectKey" (keydown.f12)="close()" [required]="it.fRequired ?? false">
-        </ng-container>
+        <div class="bbx-fd-form-field-inner-div">
+            <ng-container [ngSwitch]="it.fInputType">
+                <label>{{it.label}}</label>
+                <input *ngSwitchCase="'text'" class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey"
+                    (keydown.f12)="close()" [required]="it.fRequired ?? false">
+                <input *ngSwitchCase="'readonly'" nbInput type="text" [formControlName]="it.objectKey" readonly>
+                <input *ngSwitchCase="'password'" class="{{TileCssClass}}" nbInput type="password"
+                    [formControlName]="it.objectKey" (keydown.f12)="close()" [required]="it.fRequired ?? false">
+            </ng-container>
+        </div>
     </nb-form-field>
 </form>
