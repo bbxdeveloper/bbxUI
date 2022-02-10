@@ -78,27 +78,51 @@ td {
 
       margin-top: 25px; // justify-content: center;
 
-      nb-form-field {
-        .bbx-fd-form-field-inner-div {
-          display: flex;
+      .bbx-fd-form-field-inner-div {
+        display: flex;
 
-          flex-direction: row;
-          flex-wrap: nowrap;
+        flex-direction: row;
+        flex-wrap: nowrap;
 
-          align-content: center;
-          justify-content: space-evenly;
-          align-items: baseline;
+        align-content: center;
+        justify-content: space-evenly;
+        align-items: baseline;
 
-          column-gap: 20px;
-          
-          width: 300px;
+        column-gap: 20px;
 
-          input {
-            margin-top: 8px;
-            margin-bottom: 20px;
-          }
+        width: 300px;
+
+        input {
+          margin-top: 8px;
+          margin-bottom: 20px;
         }
       }
+    }
+
+    .bbx-fd-checkbox-outer-div {
+      display: flex;
+
+      flex-direction: row;
+      flex-wrap: nowrap;
+
+      align-content: center;
+      align-items: baseline;
+
+      column-gap: 20px;
+
+      width: 300px;
+
+      margin-bottom: 10px;
+
+      // .bbx-fd-checkbox {
+      //   background-color: #252547;
+      //   border-color: #13132b;
+
+      //   :focus {
+      //     background-color: #323259;
+      //     border-color: #a16eff;
+      //   }
+      // }
     }
   }
 

@@ -11,6 +11,8 @@ import { TreeGridNode } from './TreeGridNode';
 import { IEditable } from './IEditable';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest, IUpdatable, IUpdater } from './UpdaterInterfaces';
+import { TouchBarScrubber } from 'electron';
+import { KeyBindings } from '../util/KeyBindings';
 
 /// <reference path='./INavigatable.ts'/>
 /// <reference path='./NullNavigatable.ts'/>
@@ -159,6 +161,8 @@ export module Nav {
         flatDesignForm: FlatDesignNavigatableForm<T>;
 
         readonly commandsOnTable: FooterCommandInfo[] = [
+            { key: 'F1', value: '', disabled: false },
+            { key: 'F2', value: '', disabled: false },
             { key: 'F3', value: '', disabled: false },
             { key: 'F4', value: '', disabled: false },
             { key: 'F5', value: '', disabled: false },
@@ -171,6 +175,11 @@ export module Nav {
             { key: 'F12', value: 'Tétellap', disabled: false }
         ];
         readonly commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
+
+        private prevSelectedRow?: TreeGridNode<T>;
+        private prevSelectedRowPos?: number;
+        private prevSelectedCol?: string;
+        private prevSelectedColPos?: number;
 
         constructor(
             f: FormGroup,
@@ -229,6 +238,15 @@ export module Nav {
             this.UpNeighbour = undefined;
         }
 
+        ResetForm(): void {
+            this.handleGridClick(
+                this.prevSelectedRow!,
+                this.prevSelectedRowPos!,
+                this.prevSelectedCol!,
+                this.prevSelectedColPos!
+            );
+        }
+
         Attach(): void { }
         Detach(): void { }
 
@@ -246,7 +264,6 @@ export module Nav {
             this.dataSource.setData(this.data);
 
             this.flatDesignForm.colDefs = this.colDefs;
-            this.flatDesignForm.OuterJump = true;
         }
 
         pushFooterCommandList(): void {
@@ -265,6 +282,11 @@ export module Nav {
         }
 
         handleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+            this.prevSelectedRow = row;
+            this.prevSelectedRowPos = rowPos;
+            this.prevSelectedCol = col;
+            this.prevSelectedColPos = colPos;
+
             this.flatDesignForm.SetDataForEdit(row, rowPos, col);
             this.sidebarFormService.SetCurrentForm(this.flatDesignForm);
 
@@ -343,17 +365,15 @@ export module Nav {
             }
         }
 
-        handleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
-            this.flatDesignForm.SetDataForEdit(row, rowPos, col);
-            this.sidebarFormService.SetCurrentForm(this.flatDesignForm);
-            this.sidebarService.expand();
-
-            this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
-            this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
-            
-            setTimeout(() => {
-                this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
-            }, 200);
+        HandleKey(event: any): void {
+            switch (event.key) {
+                case KeyBindings.F12: {
+                    event.preventDefault();
+                    this.sidebarService.toggle();
+                    break;
+                }
+                default: { }
+            }
         }
 
         handleGridTab(event: Event): void {
@@ -402,6 +422,8 @@ export module Nav {
         private DataToEdit?: TreeGridNode<any>;
 
         readonly commandsOnForm: FooterCommandInfo[] = [
+            { key: 'F1', value: '', disabled: false },
+            { key: 'F2', value: '', disabled: false },
             { key: 'F3', value: '', disabled: false },
             { key: 'F4', value: '', disabled: false },
             { key: 'F5', value: '', disabled: false },
@@ -446,8 +468,6 @@ export module Nav {
         }
         
         ActionNew(): void {
-            this.sidebarService.collapse();
-
             this.grid.New({
                 data: this.FillObjectWithForm(),
                 rowIndex: this.DataRowIndex
@@ -455,16 +475,12 @@ export module Nav {
         }
 
         ActionReset(): void {
-            this.sidebarService.collapse();
-
             this.grid.Reset({
                 rowIndex: this.DataRowIndex
             } as IUpdateRequest);
         }
 
         ActionPut(): void {
-            this.sidebarService.collapse();
-
             this.grid.Put({
                 data: this.FillObjectWithForm(),
                 rowIndex: this.DataRowIndex
@@ -472,8 +488,6 @@ export module Nav {
         }
 
         ActionDelete(): void {
-            this.sidebarService.collapse();
-
             this.grid.Delete({
                 rowIndex: this.DataRowIndex
             } as IUpdateRequest);
@@ -496,6 +510,7 @@ export module Nav {
             Object.keys(this.form.controls).forEach((x: string) => {
                 data[x] = this.form.controls[x].value;
             });
+            console.log("Data from form: ", data);
             return data;
         }
 
@@ -571,6 +586,41 @@ export module Nav {
             }
         }
 
+        HandleKey(event: any): void {
+            switch (event.key) {
+                case KeyBindings.F8: {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.ActionNew();
+                    break;
+                }
+                case KeyBindings.F9: {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.ActionReset();
+                    break;
+                }
+                case KeyBindings.F10: {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.ActionPut();
+                    break;
+                }
+                case KeyBindings.F11: {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.ActionDelete();
+                    break;
+                }
+                case KeyBindings.F12: {
+                    event.preventDefault();
+                    this.sidebarService.collapse();
+                    break;
+                }
+                default: { }
+            }
+        }
+
         pushFooterCommandList(): void {
             this.fS.pushCommands(this.commandsOnForm);
         }
@@ -621,21 +671,12 @@ export module Nav {
                     TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
                 );
 
-                // Usually all form elements are in a nb-form-field
-                // So we must examine the parent of that element to be sure two form element
-                // is not in the same block
-                if (!!next?.parentElement?.parentElement) {
-                    const pE = next?.parentElement?.parentElement.nodeName;
-                    if (pE !== currentParent) {
-                        // currentParent was already initailized,
-                        // so this parent name change must mean the tile is in another row
-                        if (currentParent !== '') {
-                            this.Matrix.push([]);
-                            ++currentMatrixIndex;
-                        }
-                        currentParent = next.parentElement.nodeName;
-                    }
+                // Flat Design forms are always vertical
+                if (currentParent !== '') {
+                    this.Matrix.push([]);
+                    ++currentMatrixIndex;
                 }
+                currentParent = next.parentElement!.nodeName;
 
                 next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
                 this.Matrix[currentMatrixIndex].push(next.id);

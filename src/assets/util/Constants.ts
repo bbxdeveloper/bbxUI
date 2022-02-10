@@ -1,21 +1,25 @@
-import { NbToastrConfig } from "@nebular/theme";
+import { NbGlobalPhysicalPosition, NbToastrConfig } from "@nebular/theme";
 import { ProcessStatus } from "../model/ProcessStatus";
 
 export module Constants {
     // Messages
 
-    export const MSG_CONFIRMATION_QUIT = "Biztosan szeretne kiléni az alkalmazásból?";
+    export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
+    export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
     export const TITLE_INFO: string = 'Információ';
 
+    export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
+    export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
+
     // Toastr Configs
 
     export const TOASTR_ERROR: Partial<NbToastrConfig> = 
-        { status: 'danger', icon: 'warning' };
-    export const TOASTR_INFO: Partial<NbToastrConfig> =
-        { status: 'info', icon: 'info' };
+        { status: 'danger', icon: 'warning', position: NbGlobalPhysicalPosition.BOTTOM_RIGHT };
+    export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
+        { status: 'success', icon: 'success', position: NbGlobalPhysicalPosition.BOTTOM_RIGHT };
 
 
     // Util

@@ -24,52 +24,52 @@ export class SideBarFormComponent implements OnInit {
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
   }
 
-  @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-    if (event.code === 'Tab') {
-      event.preventDefault();
-    }
-    switch (event.key) {
-      case KeyBindings.F8: {
-        if (!!this.currentForm) {
-          event.preventDefault();
-          event.stopPropagation();
-          this.currentForm.ActionNew();
-        }
-        break;
-      }
-      case KeyBindings.F9: {
-        if (!!this.currentForm) {
-          event.preventDefault();
-          event.stopPropagation();
-          this.currentForm.ActionReset();
-        }
-        break;
-      }
-      case KeyBindings.F10: {
-        if (!!this.currentForm) {
-          event.preventDefault();
-          event.stopPropagation();
-          this.currentForm.ActionPut();
-        }
-        break;
-      }
-      case KeyBindings.F11: {
-        if (!!this.currentForm) {
-          event.preventDefault();
-          event.stopPropagation();
-          this.currentForm.ActionDelete();
-        }
-        break;
-      }
-      case KeyBindings.F12: {
-        if (!!this.currentForm) {
-          event.preventDefault();
-        }
-        break;
-      }
-      default: { }
-    }
-  }
+  // @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+  //   if (event.code === 'Tab') {
+  //     event.preventDefault();
+  //   }
+  //   switch (event.key) {
+  //     case KeyBindings.F8: {
+  //       if (!!this.currentForm) {
+  //         event.preventDefault();
+  //         event.stopPropagation();
+  //         this.currentForm.ActionNew();
+  //       }
+  //       break;
+  //     }
+  //     case KeyBindings.F9: {
+  //       if (!!this.currentForm) {
+  //         event.preventDefault();
+  //         event.stopPropagation();
+  //         this.currentForm.ActionReset();
+  //       }
+  //       break;
+  //     }
+  //     case KeyBindings.F10: {
+  //       if (!!this.currentForm) {
+  //         event.preventDefault();
+  //         event.stopPropagation();
+  //         this.currentForm.ActionPut();
+  //       }
+  //       break;
+  //     }
+  //     case KeyBindings.F11: {
+  //       if (!!this.currentForm) {
+  //         event.preventDefault();
+  //         event.stopPropagation();
+  //         this.currentForm.ActionDelete();
+  //       }
+  //       break;
+  //     }
+  //     case KeyBindings.F12: {
+  //       if (!!this.currentForm) {
+  //         event.preventDefault();
+  //       }
+  //       break;
+  //     }
+  //     default: { }
+  //   }
+  // }
 
   close(): void {
     this.sb.collapse();

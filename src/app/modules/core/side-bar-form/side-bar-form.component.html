@@ -1,27 +1,66 @@
 <nb-actions *ngIf="!!currentForm" size="medium">
-    <nb-action class="{{TileCssClass}}" id="fd-form-new" class="cl-header-menu" tabIndex="1"
+    <nb-action class="{{TileCssClass}}" id="fd-form-new" class="cl-header-menu" tabIndex="1" nbTooltip="Új" nbTooltipStatus="primary"
         [icon]="{ icon: 'plus-circle-outline', pack: 'eva' }" (click)="currentForm.ActionNew()"></nb-action>
-    <nb-action class="{{TileCssClass}}" id="fd-form-reset" class="cl-header-menu" tabIndex="2"
+    <nb-action class="{{TileCssClass}}" id="fd-form-reset" class="cl-header-menu" tabIndex="2" nbTooltip="Alaphelyzet" nbTooltipStatus="primary"
         [icon]="{ icon: 'flip-2-outline', pack: 'eva' }" (click)="currentForm.ActionReset()"></nb-action>
-    <nb-action class="{{TileCssClass}}" id="fd-form-edit" class="cl-header-menu" tabIndex="3"
+    <nb-action class="{{TileCssClass}}" id="fd-form-edit" class="cl-header-menu" tabIndex="3" nbTooltip="Mentés" nbTooltipStatus="primary"
         [icon]="{ icon: 'save-outline', pack: 'eva' }" (click)="currentForm.ActionPut()"></nb-action>
-    <nb-action class="{{TileCssClass}}" id="fd-form-delete" class="cl-header-menu" tabIndex="4"
+    <nb-action class="{{TileCssClass}}" id="fd-form-delete" class="cl-header-menu" tabIndex="4" nbTooltip="Törlés" nbTooltipStatus="primary"
         [icon]="{ icon: 'trash-2-outline', pack: 'eva' }" (click)="currentForm.ActionDelete()"></nb-action>
 </nb-actions>
 
 <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" (keydown.enter)="$event.preventDefault()"
-    #formDirective="ngForm" (keydown.escape)="currentForm.HandleFormEscape()">
+    #formDirective="ngForm" (keydown.escape)="currentForm.HandleFormEscape()"
+    (click)="currentForm.pushFooterCommandList()"
+    (keydown.f8)="currentForm.HandleKey($event)"
+    (keydown.f9)="currentForm.HandleKey($event)"
+    (keydown.f10)="currentForm.HandleKey($event)"
+    (keydown.f11)="currentForm.HandleKey($event)"
+    (keydown.f12)="currentForm.HandleKey($event)">
 
-    <nb-form-field *ngFor="let it of currentForm.colDefs; let colPos = index">
-        <div class="bbx-fd-form-field-inner-div">
-            <ng-container [ngSwitch]="it.fInputType">
-                <label>{{it.label}}</label>
-                <input *ngSwitchCase="'text'" class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey"
-                    (keydown.f12)="close()" [required]="it.fRequired ?? false">
-                <input *ngSwitchCase="'readonly'" nbInput type="text" [formControlName]="it.objectKey" readonly>
-                <input *ngSwitchCase="'password'" class="{{TileCssClass}}" nbInput type="password"
-                    [formControlName]="it.objectKey" (keydown.f12)="close()" [required]="it.fRequired ?? false">
-            </ng-container>
+    <ng-container *ngFor="let it of currentForm.colDefs; let colPos = index" [ngSwitch]="it.fInputType">
+        <ng-container *ngSwitchCase="'text'">
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <ng-container [ngSwitch]="it.fInputType">
+                        <label>{{it.label}}</label>
+
+                        <input class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey"
+                            (keydown.f12)="close()" [required]="it.fRequired ?? false">
+                    </ng-container>
+                </div>
+            </nb-form-field>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'readonly'">
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <ng-container [ngSwitch]="it.fInputType">
+                        <label>{{it.label}}</label>
+
+                        <input nbInput type="text" [formControlName]="it.objectKey" readonly>
+                    </ng-container>
+                </div>
+            </nb-form-field>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'password'">
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <ng-container [ngSwitch]="it.fInputType">
+                        <label>{{it.label}}</label>
+
+                        <input class="{{TileCssClass}}" nbInput type="password" [formControlName]="it.objectKey"
+                            (keydown.f12)="close()" [required]="it.fRequired ?? false">
+                    </ng-container>
+                </div>
+            </nb-form-field>
+        </ng-container>
+
+        <div class="bbx-fd-checkbox-outer-div" *ngSwitchCase="'bool'">
+            <label>{{it.label}}</label>
+
+            <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" [formControlName]="it.objectKey">
         </div>
-    </nb-form-field>
+    </ng-container>
 </form>

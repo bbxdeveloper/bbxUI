@@ -2,6 +2,6 @@ export interface CreateUserRequest {
     name: string,
     email: string,
     loginName: string,
-    passwor: string,
+    password: string,
     comment: string
 }

@@ -3,8 +3,8 @@
 <nb-card>
     <nb-card-body>
         <form>
-            <table class="card-table-wrapper" [id]="usersTableId" [nbTreeGrid]="usersDataSrc" [trackBy]="trackRows" equalColumnsWidth
-                (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+            <table class="card-table-wrapper" [id]="usersTableId" [nbTreeGrid]="usersDataSrc" [trackBy]="trackRows"
+                equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
 
                 <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
                 <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
@@ -16,19 +16,36 @@
                             {{it.label}}
                         </th>
 
-                        <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
-                            *nbTreeGridCellDef="let row; let rowPos = index"
-                            [class.table-cell-edited]="userTable.editedRowPos == rowPos && userTable.editedProperty == it.objectKey"
-                            (keydown.escape)="userTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
-                            (keydown.f12)="userTable.handleGridEnter(row, rowPos, it.objectKey, colPos, usersTableEditId)"
-                            (keydown.tab)="userTable.handleGridTab($event)"
-                            (click)="userTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
-                            [style.width]="it.colWidth" [style.text-align]="it.textAlign"
-                            class="{{it.navMatrixCssClass}}">
-                            <div>
-                                {{ row.data[it.objectKey] }}
-                            </div>
-                        </td>
+                        <ng-container *ngSwitchCase="'string'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                *nbTreeGridCellDef="let row; let rowPos = index"
+                                [class.table-cell-edited]="userTable.editedRowPos == rowPos && userTable.editedProperty == it.objectKey"
+                                (keydown.escape)="userTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.f12)="userTable.HandleKey($event)"
+                                (keydown.tab)="userTable.handleGridTab($event)"
+                                (click)="userTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'bool'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                [class.table-cell-edited]="userTable.editedRowPos == rowPos && userTable.editedProperty == it.objectKey"
+                                (keydown.escape)="userTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.f12)="userTable.HandleKey($event)"
+                                (keydown.tab)="userTable.handleGridTab($event)"
+                                (click)="userTable.handleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
                     </ng-container>
                 </ng-container>
             </table>

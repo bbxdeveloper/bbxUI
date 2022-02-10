@@ -17,6 +17,9 @@ import { UpdateUserRequest } from '../models/UpdateUserRequest';
 import { DeleteUserRequest } from '../models/DeleteUserRequest';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { CreateUserResponseDataToUser } from '../models/CreateUserResponse';
+import { UpdateUserResponseDataToUser } from '../models/UpdateUserResponse';
 
 @Component({
   selector: 'app-user-manager',
@@ -42,7 +45,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'bool', fInputType: 'bool', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Jelszó', objectKey: 'password', colKey: 'password', defaultValue: '', type: 'password', fInputType: 'password', mask: "", colWidth: "", textAlign: "", navMatrixCssClass: Nav.TileCssClass }
   ]
   customMaskPatterns = {
@@ -54,16 +57,18 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   private uid = 0;
 
   readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: 'Súgó', disabled: false },
-    { key: 'F2', value: 'Keresés', disabled: false },
-    { key: 'F3', value: 'Új Partner', disabled: false },
-    { key: 'F4', value: 'Számolás', disabled: false },
-    { key: 'F5', value: 'Adóalany', disabled: false },
-    { key: 'F6', value: 'Módosítás', disabled: false },
-    { key: 'F7', value: 'GdprNy', disabled: false },
-    { key: 'F8', value: 'GdprAd', disabled: false },
+    { key: 'F1', value: '', disabled: false },
+    { key: 'F2', value: '', disabled: false },
+    { key: 'F3', value: '', disabled: false },
+    { key: 'F4', value: '', disabled: false },
+    { key: 'F5', value: '', disabled: false },
+    { key: 'F6', value: '', disabled: false },
+    { key: 'F7', value: '', disabled: false },
+    { key: 'F8', value: '', disabled: false },
     { key: 'F9', value: '', disabled: false },
     { key: 'F10', value: '', disabled: false },
+    { key: 'F11', value: '', disabled: false },
+    { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
   constructor(
@@ -89,13 +94,14 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
         name: data.data.name,
         email: data.data.email,
         loginName: data.data.loginName,
-        passwor: '',
+        password: data.data.password,
         comment: data.data.comment
       } as CreateUserRequest).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
-            this.users.push({ data: d.data.ToUser() } as TreeGridNode<User>);
+            this.users.push({ data: CreateUserResponseDataToUser(d.data) } as TreeGridNode<User>);
             this.RefreshTable();
+            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
@@ -106,7 +112,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     }
   }
   ActionReset(data?: IUpdateRequest<User>): void {
-    console.log("ActionReset: ", data?.data);
+    this.userTable.ResetForm();
   }
   ActionPut(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
@@ -116,13 +122,14 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
         name: data.data.name,
         email: data.data.email,
         loginName: data.data.loginName,
-        passwor: '',
+        password: data.data.password,
         comment: data.data.comment
       } as UpdateUserRequest).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
-            this.users[data.rowIndex] = { data: d.data.ToUser() } as TreeGridNode<User>;
+            this.users[data.rowIndex] = { data: UpdateUserResponseDataToUser(d.data) } as TreeGridNode<User>;
             this.RefreshTable();
+            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
           } else {
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           }
@@ -132,28 +139,38 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     }
   }
   ActionDelete(data?: IUpdateRequest<User>): void {
-    if (!!data && data.rowIndex !== undefined) {
-      console.log("ActionDelete: ", data.rowIndex);
-      this.seInv.DeleteUser({
-        id: this.users[data.rowIndex].data.id
-      } as DeleteUserRequest).subscribe({
-        next: d => {
-          if (d.succeeded && !!d.data) {
-            const di = this.users.findIndex(x => x.data.id === data.data.id);
-            this.users.splice(di, 1);
-            this.RefreshTable();
-          } else {
-            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-          }
-        },
-        error: err => this.cs.HandleError(err)
-      });
-    }
+    const dialogRef = this.dialogService.open(
+      ConfirmationDialogComponent,
+      { context: { msg: Constants.MSG_CONFIRMATION_DELETE } }
+    );
+    dialogRef.onClose.subscribe(res => {
+      if (res) {
+        if (!!data && data.data?.id !== undefined) {
+          console.log("ActionDelete: ", data.rowIndex);
+          this.seInv.DeleteUser({
+            id: data.data?.id
+          } as DeleteUserRequest).subscribe({
+            next: d => {
+              if (d.succeeded && !!d.data) {
+                const di = this.users.findIndex(x => x.data.id === data.data.id);
+                this.users.splice(di, 1);
+                this.RefreshTable();
+                this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+              } else {
+                this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+              }
+            },
+            error: err => this.cs.HandleError(err)
+          });
+        }
+      }
+    });
   }
 
   private Setup(): void {
     this.users = [];
     this.usersDataSrc = this.dataSourceBuilder.create(this.users);
+    // TODO: FormGroup generator
     this.userTableForm = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
       name: new FormControl(undefined, [Validators.required]),
@@ -161,6 +178,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       email: new FormControl(undefined, [Validators.required]),
       comment: new FormControl(undefined, []),
       active: new FormControl(undefined, [Validators.required]),
+      password: new FormControl(undefined, [])
     });
     this.userTable = new Nav.FlatDesignNavigatableTable(
       this.userTableForm, this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
