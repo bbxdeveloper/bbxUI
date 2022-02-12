@@ -12,6 +12,7 @@ import { NgxElectronModule } from 'ngx-electron';
 import { IConfig, NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from './modules/shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CustomerModule } from './modules/customer/customer.module';
 
 const maskConfig: Partial<IConfig> = {
   validation: true,
@@ -42,6 +43,7 @@ const maskConfig: Partial<IConfig> = {
     // Custom
     SharedModule,
     AuthModule,
+    CustomerModule,
     CoreModule
   ],
   exports: [

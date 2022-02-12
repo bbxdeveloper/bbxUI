@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { UserManagerComponent } from './modules/auth/user-manager/user-manager.component';
 import { DashboardComponent } from './modules/core/dashboard/dashboard.component';
+import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
 
 const routes: Routes = [
   {
@@ -14,6 +15,15 @@ const routes: Routes = [
       {
         path: "users",
         component: UserManagerComponent,
+      }
+    ]
+  },
+  {
+    path: 'manage',
+    children: [
+      {
+        path: "customers",
+        component: CustomerManagerComponent,
       }
     ]
   },

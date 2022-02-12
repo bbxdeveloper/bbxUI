@@ -1,0 +1,56 @@
+<app-head-line msg="Ügyfelek kezelése"></app-head-line>
+
+<nb-card>
+    <nb-card-body>
+        <form>
+            <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
+                equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+
+                <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+                <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+
+                <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+                    <ng-container [ngSwitch]="it.type">
+
+                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
+                            {{it.label}}
+                        </th>
+
+                        <ng-container *ngSwitchCase="'string'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                *nbTreeGridCellDef="let row; let rowPos = index"
+                                [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
+                                (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.f12)="dbDataTable.HandleKey($event)"
+                                (keydown.tab)="dbDataTable.handleGridTab($event)"
+                                (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'bool'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                *nbTreeGridCellDef="let row; let rowPos = index"
+                                [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
+                                (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.f12)="dbDataTable.HandleKey($event)"
+                                (keydown.tab)="dbDataTable.handleGridTab($event)"
+                                (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                    </ng-container>
+                </ng-container>
+            </table>
+        </form>
+    </nb-card-body>
+</nb-card>

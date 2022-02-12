@@ -26,7 +26,21 @@
 
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
 
-    <nb-action id="header-prod" class="cl-header-menu" tabIndex="4" disabled>Termékek</nb-action>
+    <nb-action id="header-customer" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
+        nbPopoverPlacement="bottom" [nbPopover]="sub_customer" data-sub="header-customer-sub-1">Ügyfelek
+    </nb-action>
+    <ng-template #sub_customer let-data>
+        <nb-card>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-customer-sub-1" [disabled]="InProgress" link="admin/users"
+                    (click)="goTo('manage/customers')">
+                    Ügyfelek kezelése
+                </button>
+            </nb-card-body>
+        </nb-card>
+    </ng-template>
+
+    <!-- <nb-action id="header-prod" class="cl-header-menu" tabIndex="4" disabled>Termékek</nb-action> -->
 
     <nb-action id="header-invo" class="cl-header-menu" tabIndex="5" disabled>Számlázás</nb-action>
 

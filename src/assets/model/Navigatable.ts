@@ -116,7 +116,7 @@ export module Nav {
         Detach(): void { }
     }
 
-    export class FlatDesignNavigatableTable<T extends IEditable> implements INavigatable, IUpdatable<T> {
+    export class FlatDesignNavigatableTable<T> implements INavigatable, IUpdatable<T> {
         Matrix: string[][] = [[]];
 
         LastX?: number | undefined;
@@ -385,7 +385,7 @@ export module Nav {
         }
     }
 
-    export class FlatDesignNavigatableForm<T extends IEditable = any> implements INavigatable, IUpdater<T> {
+    export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
         Matrix: string[][] = [[]];
 
         LastX?: number | undefined;
