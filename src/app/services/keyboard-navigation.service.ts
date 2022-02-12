@@ -78,6 +78,7 @@ export class KeyboardNavigationService {
   }
 
   public SelectElement(id: string): void {
+    console.log(`[SelectElement] X: ${this.p.x}, Y: ${this.p.y}, ID: ${this.Here}`);
     switch (this.CurrentNavigatable.TileSelectionMethod) {
       case PreferredSelectionMethod.both:
         $('#' + id).trigger('focus');
@@ -104,6 +105,23 @@ export class KeyboardNavigationService {
     this.SelectCurrentElement();
   }
 
+  public SetPosition(x: number, y: number): void {
+    this.p.x = x;
+    this.p.y = y;
+  }
+
+  public SetPositionById(tileValue: string): boolean {
+    for (let y = 0; y < this.CurrentNavigatable.Matrix.length; y++) {
+      for (let x = 0; x < this.CurrentNavigatable.Matrix[y].length; x++) {
+        if (this.CurrentNavigatable.Matrix[y][x] === tileValue) {
+          this.SelectElementByCoordinate(x, y);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   public ClickElement(id: string): void {
     $('#' + id).trigger('click');
   }
@@ -122,6 +140,44 @@ export class KeyboardNavigationService {
     this.SelectCurrentElement();
   }
 
+  private LogGeneralStats(): void {
+    console.log(`Time: ${Date.now().toLocaleString()}`);
+    console.log(`Current INavigatable: ${this.CurrentNavigatable.constructor.name}`);
+  }
+
+  private LogPositionStats(): void {
+    console.log(`Current X: ${this.p.x}`);
+    console.log(`Current Y: ${this.p.y}`);
+
+    console.log(`Current World Length: ${this.CurrentNavigatable.Matrix[0].length}`);
+    console.log(`Current World Height: ${this.CurrentNavigatable.Matrix.length}`);
+
+    console.log(`Current Max X: ${this.maxCurrentWorldX}`);
+    console.log(`Current Max Y: ${this.maxCurrentWorldY}`);
+  }
+
+  private LogNeighbourStats(): void {
+    console.log(`Neighbour to DOWN: ${!!this.CurrentNavigatable.DownNeighbour ? 'detected' : 'none'}`);
+    console.log(`Neighbour to LEFT: ${!!this.CurrentNavigatable.LeftNeighbour ? 'detected' : 'none'}`);
+    console.log(`Neighbour to RIGHT: ${!!this.CurrentNavigatable.RightNeighbour ? 'detected' : 'none'}`);
+    console.log(`Neighbour to UP: ${!!this.CurrentNavigatable.UpNeighbour ? 'detected' : 'none'}`);
+  }
+
+  private LogMatrix(): void {
+    console.log(`2D Navigation matrix:`)
+
+    let matrixString = "";
+
+    for (let y = 0; y < this.CurrentNavigatable.Matrix.length; y++) {
+      for (let x = 0; x < this.CurrentNavigatable.Matrix[y].length; x++) {
+        matrixString += this.CurrentNavigatable.Matrix[y][x];
+      }
+      matrixString += "\n";
+    }
+
+    console.log(matrixString);
+  }
+
   private LogMoveStats(
     attemptedDirection: Nav.AttachDirection,
     select: boolean = true, altKey: boolean = false,
@@ -129,18 +185,10 @@ export class KeyboardNavigationService {
     if (environment.debug) {
       
       console.log("\n\n+---- NAV DATA ----+");
-      console.log(`Time: ${Date.now().toLocaleString()}`);
-      
-      console.log(`Current INavigatable: ${this.CurrentNavigatable.constructor.name}`);
 
-      console.log(`Current X: ${this.p.x}`);
-      console.log(`Current Y: ${this.p.y}`);
+      this.LogGeneralStats();
 
-      console.log(`Current World Length: ${this.CurrentNavigatable.Matrix[0].length}`);
-      console.log(`Current World Height: ${this.CurrentNavigatable.Matrix.length}`);
-      
-      console.log(`Current Max X: ${this.maxCurrentWorldX}`);
-      console.log(`Current Max Y: ${this.maxCurrentWorldY}`);
+      this.LogPositionStats();
 
       console.log(`[PARAM] Should select tile after moving: ${select}`);
       console.log(`[PARAM] Alt-key pressed: ${altKey}`);
@@ -149,25 +197,41 @@ export class KeyboardNavigationService {
       
       console.log(`Attempted direction: ${Nav.AttachDirection[attemptedDirection]}`);
       
-      console.log(`Neighbour to DOWN: ${!!this.CurrentNavigatable.DownNeighbour ? 'detected' : 'none'}`);
-      console.log(`Neighbour to LEFT: ${!!this.CurrentNavigatable.LeftNeighbour ? 'detected' : 'none'}`);
-      console.log(`Neighbour to RIGHT: ${!!this.CurrentNavigatable.RightNeighbour ? 'detected' : 'none'}`);
-      console.log(`Neighbour to UP: ${!!this.CurrentNavigatable.UpNeighbour ? 'detected' : 'none'}`);
+      this.LogNeighbourStats();
+
       console.log("+------------------+\n\n");
     }
   }
 
-  public Jump(direction: Nav.AttachDirection): MoveRes {
+  private LogNavAndMatrix(): void {
+    console.log("\n\n+--- NAV MATRIX ---+");
+
+    this.LogGeneralStats();
+
+    this.LogPositionStats();
+
+    this.LogMatrix();
+
+    console.log("+------------------+\n\n");
+  }
+
+  /**
+   * Tile selection is set with a 200ms delay.
+   * Additional edit mode selection should be included with the parameters due to the delay.
+   * @param direction 
+   * @param setEdit 
+   * @returns 
+   */
+  public Jump(direction: Nav.AttachDirection, setEdit: boolean = false): MoveRes {
     const res = { moved: false, jumped: false } as MoveRes;
 
     switch(direction) {
       case Nav.AttachDirection.DOWN:
         if (!!this.CurrentNavigatable.DownNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
+
           this.p.y = 0;
           this.p.x = 0;
-
-          this.SelectCurrentElement();
 
           res.moved = true;
           res.jumped = true;
@@ -176,10 +240,9 @@ export class KeyboardNavigationService {
       case Nav.AttachDirection.LEFT:
         if (!!this.CurrentNavigatable.LeftNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
+
           this.p.y = 0;
           this.p.x = 0;
-
-          this.SelectCurrentElement();
 
           res.moved = true;
           res.jumped = true;
@@ -188,10 +251,9 @@ export class KeyboardNavigationService {
       case Nav.AttachDirection.RIGHT:
         if (!!this.CurrentNavigatable.RightNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
+
           this.p.y = 0;
           this.p.x = 0;
-
-          this.SelectCurrentElement();
 
           res.moved = true;
           res.jumped = true;
@@ -201,16 +263,24 @@ export class KeyboardNavigationService {
       case Nav.AttachDirection.UP:
         if (!!this.CurrentNavigatable.UpNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
+
           this.p.y = 0;
           this.p.x = 0;
-
-          this.SelectCurrentElement();
 
           res.moved = true;
           res.jumped = true;
         }
         break;
     }
+
+    setTimeout(() => {
+      this.SelectCurrentElement();
+      if (setEdit) {
+        this.setEditMode(KeyboardModes.EDIT);
+      }
+    }, 100);
+
+    this.LogNavAndMatrix();
 
     return res;
   }

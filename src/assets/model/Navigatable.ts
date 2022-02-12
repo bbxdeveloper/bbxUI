@@ -282,6 +282,9 @@ export module Nav {
         }
 
         handleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+            // In case user clicks with mouse, we adjust our coordinate to the click
+            this.kbs.SetPosition(colPos, rowPos);
+
             this.prevSelectedRow = row;
             this.prevSelectedRowPos = rowPos;
             this.prevSelectedCol = col;
@@ -377,7 +380,7 @@ export module Nav {
         }
 
         handleGridTab(event: Event): void {
-            this.kbs.Jump(this.flatDesignForm.attachDirection);
+            this.kbs.Jump(this.flatDesignForm.attachDirection, true);
             this.flatDesignForm.pushFooterCommandList();
         }
     }
@@ -498,6 +501,15 @@ export module Nav {
             this.cdref.detectChanges();
         }
 
+        HandleFormClick(): void {
+            this.pushFooterCommandList();
+        }
+
+        HandleFormFieldClick(event: any): void {
+            this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.SetPositionById(event.target?.id);
+        }
+
         public SetDataForEdit(row: TreeGridNode<any>, rowPos: number, objectKey: string): void {
             console.log("Form: ", this.form, ", row: ", row); // TODO: only for debug
             this.DataRowIndex = rowPos;
@@ -577,9 +589,12 @@ export module Nav {
         }
 
         HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+            event.preventDefault();
+
             if (toggleEditMode) {
                 this.kbS.toggleEdit();
             }
+
             // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
             if (!this.kbS.isEditModeActivated && jumpNext) {
                 this.JumpToNextInput(event);
@@ -653,9 +668,9 @@ export module Nav {
             // Get tiles
             const tiles = $('.' + TileCssClass, '#' + this.formId);
 
-            if (environment.debug) {
-                console.log('[GenerateAndSetNavMatrices]', this.formId, tiles, '.' + TileCssClass, '#' + this.formId);
-            }
+            // if (environment.debug) {
+            //     console.log('[GenerateAndSetNavMatrices]', this.formId, tiles, '.' + TileCssClass, '#' + this.formId);
+            // }
 
             let currentParent = '';
 
@@ -667,9 +682,9 @@ export module Nav {
             for (let i = 0; i < tiles.length; i++) {
                 const next = tiles[i];
 
-                this.LogMatrixGenerationCycle(
-                    TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
-                );
+                // this.LogMatrixGenerationCycle(
+                //     TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
+                // );
 
                 // Flat Design forms are always vertical
                 if (currentParent !== '') {
@@ -682,9 +697,9 @@ export module Nav {
                 this.Matrix[currentMatrixIndex].push(next.id);
             }
 
-            if (environment.debug) {
-                console.log('[GenerateAndSetNavMatrices]', this.Matrix);
-            }
+            // if (environment.debug) {
+            //     console.log('[GenerateAndSetNavMatrices]', this.Matrix);
+            // }
 
             if (attach) {
                 this.kbS.Attach(this, this.attachDirection, setAsCurrentNavigatable);
