@@ -15,6 +15,7 @@
 
 <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
     (keydown.enter)="currentForm.HandleFormEnter($event)" (keydown.escape)="currentForm.HandleFormEscape()"
+    (keydown.tab)="currentForm.HandleFormEnter($event)"
     (click)="currentForm.HandleFormClick()" (keydown.f8)="currentForm.HandleKey($event)"
     (keydown.f9)="currentForm.HandleKey($event)" (keydown.f10)="currentForm.HandleKey($event)"
     (keydown.f11)="currentForm.HandleKey($event)" (keydown.f12)="currentForm.HandleKey($event)">
