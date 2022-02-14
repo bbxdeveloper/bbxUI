@@ -7,13 +7,15 @@ import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabse
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 import { HeadLineComponent } from './head-line/head-line.component';
+import { FlatDesignTableComponent } from './flat-design-table/flat-design-table.component';
 
 
 @NgModule({
   declarations: [
     BaseNavigatableComponentComponent,
     ConfirmationDialogComponent,
-    HeadLineComponent
+    HeadLineComponent,
+    FlatDesignTableComponent
   ],
   imports: [
     CommonModule,
@@ -35,7 +37,8 @@ import { HeadLineComponent } from './head-line/head-line.component';
   exports: [
     BaseNavigatableComponentComponent,
     ConfirmationDialogComponent,
-    HeadLineComponent
+    HeadLineComponent,
+    FlatDesignTableComponent
   ],
   providers: [
     ConfirmationDialogComponent

@@ -1,16 +1,6 @@
-<app-head-line msg="Ügyfelek kezelése"></app-head-line>
-
-<!-- <app-flat-design-table
- [allColumns]="allColumns" [colDefs]="colDefs"
- [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
- [dbDataTableId]="dbDataTableId"
- (focusInTable)="focusOnTable(true)"
- (focusOutTable)="focusOnTable(false)">
-</app-flat-design-table> -->
-
 <nb-card>
     <nb-card-body>
-        <form>
+        <form *ngIf="!!dbDataTable">
             <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
                 equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
 
