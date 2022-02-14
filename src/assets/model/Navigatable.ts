@@ -601,6 +601,21 @@ export module Nav {
             }
         }
 
+        HandleFormTab(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+
+            if (toggleEditMode) {
+                this.kbS.toggleEdit();
+            }
+
+            // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+            if (!this.kbS.isEditModeActivated && jumpNext) {
+                this.JumpToNextInput(event);
+            }
+        }
+
         HandleKey(event: any): void {
             switch (event.key) {
                 case KeyBindings.F8: {
