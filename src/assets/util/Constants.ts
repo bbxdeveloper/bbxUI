@@ -1,4 +1,4 @@
-import { NbGlobalPhysicalPosition, NbToastrConfig } from "@nebular/theme";
+import { NbGlobalPhysicalPosition, NbIconConfig, NbToastrConfig } from "@nebular/theme";
 import { ProcessStatus } from "../model/ProcessStatus";
 
 export module Constants {
@@ -14,12 +14,17 @@ export module Constants {
     export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
 
+    export const MSG_LOGIN_SUCCESFUL: string = 'Sikeres bejelentkezés!'
+    export const MSG_LOGIN_FAILED: string = 'Sikertelen bejelentkezés!'
+    export const MSG_LOGOUT_SUCCESFUL: string = 'Sikeres kijelentkezés!'
+    export const MSG_LOGOUT_FAILED: string = 'Sikertelen kijelentkezés!'
+
     // Toastr Configs
 
-    export const TOASTR_ERROR: Partial<NbToastrConfig> = 
-        { status: 'danger', icon: 'warning', position: NbGlobalPhysicalPosition.BOTTOM_RIGHT };
-    export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
-        { status: 'success', icon: 'success', position: NbGlobalPhysicalPosition.BOTTOM_RIGHT };
+    export const TOASTR_ERROR: Partial<NbIconConfig> = 
+        { status: 'danger', icon: 'alert-circle-outline', pack: 'eva' };
+    export const TOASTR_SUCCESS: Partial<NbIconConfig> =
+        { status: 'info', icon: 'checkmark-outline', pack: 'eva' };
 
 
     // Util

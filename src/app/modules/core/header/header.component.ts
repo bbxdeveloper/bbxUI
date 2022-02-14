@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbDialogService, NbIconConfig } from '@nebular/theme';
+import { NbDialogService, NbIconConfig, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -11,6 +11,9 @@ import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { LoginDialogComponent } from '../../auth/login-dialog/login-dialog.component';
 import { Nav } from 'src/assets/model/Navigatable';
+import { LoginDialogResponse } from '../../auth/models/LoginDialogResponse';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -23,6 +26,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   settingsIconConfig: NbIconConfig = { icon: 'settings-2-outline', pack: 'eva' };
 
   isElectron: boolean = false;
+
+  get isLoggedIn(): boolean { return this.tokenService.isLoggedIn; };
 
   get InProgress(): boolean { return this.sts.InProgress; }
 
@@ -60,7 +65,10 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private dialogService: NbDialogService,
     private kbS: KeyboardNavigationService,
     private router: Router,
-    private sts: StatusService) {
+    private sts: StatusService,
+    private authService: AuthService,
+    private tokenService: TokenStorageService,
+    private toastrService: NbToastrService) {
     super();
     this.OuterJump = true;
     $(document).keydown(function (event) {
@@ -76,12 +84,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   ngAfterViewInit(): void {
-    this.GenerateAndSetNavMatrices(true);
+    this.GenerateAndSetNavMatrices();
     this.kbS.SelectFirstTile();
-    //this.login(undefined);
+    if (!this.isLoggedIn) {
+      this.login(undefined);
+    }
   }
 
-  public override GenerateAndSetNavMatrices(attach: boolean): void {
+  public override GenerateAndSetNavMatrices(attach: boolean = true): void {
     // Get menus
     const headerMenusRaw = $(".cl-header-menu");
 
@@ -184,9 +194,38 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   login(event: any): void {
     event?.preventDefault();
     const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {} });
-    dialogRef.onClose.subscribe(res => {
-      if (res) {
-        console.log("Logged in!");
+    dialogRef.onClose.subscribe({
+      next: (res: LoginDialogResponse) => {
+      if(!!res && res.answer) {
+        this.authService.login(
+          res.name, res.pswd
+        ).subscribe({
+          next: res => {
+            this.tokenService.token = res.token;
+            this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            this.GenerateAndSetNavMatrices();
+            this.kbS.SelectFirstTile();
+          },
+          error: err => {
+            this.toastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          }
+        });
+      }
+    }
+    });
+  }
+
+  logout(event: any): void {
+    event?.preventDefault();
+    this.authService.logout().subscribe({
+      next: res => {
+        this.toastrService.show(Constants.MSG_LOGOUT_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+        this.tokenService.signOut();
+        this.GenerateAndSetNavMatrices();
+        this.kbS.SelectFirstTile();
+      },
+      error: err => {
+        this.toastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
       }
     });
   }

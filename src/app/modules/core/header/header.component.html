@@ -12,12 +12,15 @@
     <ng-template #sub_user let-data>
         <nb-card>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="login($event)">
+                <button *ngIf="!isLoggedIn" nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="login($event)">
                     Bejelentkezés
                 </button>
+                <button *ngIf="isLoggedIn" nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="logout($event)">
+                    Kijelentkezés
+                </button>
             </nb-card-body>
-            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-user-sub-2" [disabled]="InProgress" link="admin/users" (click)="goTo('admin/users')">
+            <nb-card-body *ngIf="isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-user-sub-2" [disabled]="InProgress && !isLoggedIn" link="admin/users" (click)="goTo('admin/users')">
                     Felhasználók kezelése
                 </button>
             </nb-card-body>

@@ -469,6 +469,10 @@ export module Nav {
                 }
             });
         }
+
+        GetValue(formFieldName: string): any {
+            return this.form.controls[formFieldName].value;
+        }
         
         ActionNew(): void {
             this.grid.New({
@@ -1151,6 +1155,10 @@ export module Nav {
             this._data = data;
             this.attachDirection = attachDirection;
             this.formId = formId;
+        }
+
+        GetValue(formFieldName: string): any {
+            return this.form.controls[formFieldName].value;
         }
 
         HandleFormEscape(): void {
