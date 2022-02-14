@@ -264,6 +264,7 @@ export module Nav {
             this.dataSource.setData(this.data);
 
             this.flatDesignForm.colDefs = this.colDefs;
+            this.flatDesignForm.OuterJump = true;
         }
 
         pushFooterCommandList(): void {

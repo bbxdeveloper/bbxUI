@@ -36,22 +36,19 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
 
   colsToIgnore: string[] = [];
   allColumns = [
-    'id', 'customerName', 'customerBankAccountNumber', 'customerVatStatus', 'taxpayerId', 'vatCode',
-    'thirdStateTaxId', 'countryCode', 'region', 'postalCode', 'city', 'additionalAddressDetail', 'comment'
+    'id', 'customerName', 'taxPayerNumber'
   ];
   colDefs: ModelFieldDescriptor[] = [
     { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Vat', objectKey: 'customerVatStatus', colKey: 'customerVatStatus', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Adó Törzsszám', objectKey: 'taxpayerId', colKey: 'taxpayerId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Áfakód', objectKey: 'vatCode', colKey: 'vatCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Harmadik Orsz. Beli Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Orsz. kódja', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Régió', objectKey: 'region', colKey: 'region', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Ir.szám', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Belföldi Adószám', objectKey: 'taxPayerNumber', colKey: 'taxPayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "XX", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
   ]
   customMaskPatterns = {
@@ -96,7 +93,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   ActionNew(data?: IUpdateRequest<Customer>): void {
     if (!!data && !!data.data) {
       console.log("ActionNew: ", data.data);
-      this.seInv.CreateCustomer(data.data as CreateCustomerRequest).subscribe({
+      this.seInv.CreateCustomer(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
             this.dbData.push({ data: d.data } as TreeGridNode<Customer>);

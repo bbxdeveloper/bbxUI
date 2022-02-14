@@ -78,7 +78,7 @@ export class CustomerService {
     return this.http.get<Customer>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  CreateCustomer(req: CreateCustomerRequest): Observable<CreateCustomerResponse> {
+  CreateCustomer(req: Customer): Observable<CreateCustomerResponse> {
     return this.http.post<CreateCustomerResponse>(this.BaseUrl, req);
   }
 
