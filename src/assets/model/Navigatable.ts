@@ -9,10 +9,10 @@ import { ModelFieldDescriptor } from './ColDef';
 import { FooterCommandInfo } from './FooterCommandInfo';
 import { TreeGridNode } from './TreeGridNode';
 import { IEditable } from './IEditable';
-import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest, IUpdatable, IUpdater } from './UpdaterInterfaces';
-import { TouchBarScrubber } from 'electron';
 import { KeyBindings } from '../util/KeyBindings';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 
 /// <reference path='./INavigatable.ts'/>
 /// <reference path='./NullNavigatable.ts'/>
@@ -181,8 +181,11 @@ export module Nav {
         private prevSelectedCol?: string;
         private prevSelectedColPos?: number;
 
+        private tag: string = '';
+
         constructor(
             f: FormGroup,
+            tag: string,
             private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
             private kbs: KeyboardNavigationService,
             private fS: FooterService,
@@ -192,7 +195,7 @@ export module Nav {
             attachDirection: AttachDirection = AttachDirection.DOWN,
             formId: string,
             formAttachDirection: AttachDirection,
-            private sidebarService: NbSidebarService,
+            private sidebarService: BbxSidebarService,
             private sidebarFormService: SideBarFormService,
             private updater: IUpdater<T>
         ) {
@@ -209,6 +212,8 @@ export module Nav {
             this.flatDesignForm = new FlatDesignNavigatableForm(
                 f, this.kbs, this.cdr, data, formId, formAttachDirection, this.colDefs, this.sidebarService, this.sidebarFormService, this, this.fS
             );
+
+            this.tag = tag;
         }
 
         New(data?: IUpdateRequest): void {
@@ -284,7 +289,12 @@ export module Nav {
 
         handleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
             // In case user clicks with mouse, we adjust our coordinate to the click
-            this.kbs.SetPosition(colPos, rowPos);
+            
+            // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
+            // the list of displayed rows.
+            colPos = this.allColumns.findIndex(x => x === col);
+
+            this.kbs.SetPosition(colPos, rowPos, this);
 
             this.prevSelectedRow = row;
             this.prevSelectedRowPos = rowPos;
@@ -292,7 +302,7 @@ export module Nav {
             this.prevSelectedColPos = colPos;
 
             this.flatDesignForm.SetDataForEdit(row, rowPos, col);
-            this.sidebarFormService.SetCurrentForm(this.flatDesignForm);
+            this.sidebarFormService.SetCurrentForm([this.tag ,this.flatDesignForm]);
 
             this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
             this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
@@ -367,6 +377,8 @@ export module Nav {
             if (attach) {
                 this.kbs.Attach(this, this.attachDirection);
             }
+
+            // this.kbs.LogMatrix();
         }
 
         HandleKey(event: any): void {
@@ -381,6 +393,10 @@ export module Nav {
         }
 
         handleGridTab(event: Event): void {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+
             this.kbs.Jump(this.flatDesignForm.attachDirection, true);
             this.flatDesignForm.pushFooterCommandList();
         }
@@ -448,7 +464,7 @@ export module Nav {
             formId: string,
             attachDirection: AttachDirection = AttachDirection.DOWN,
             colDefs: ModelFieldDescriptor[],
-            private sidebarService: NbSidebarService,
+            private sidebarService: BbxSidebarService,
             private sidebarFormSercie: SideBarFormService,
             private grid: FlatDesignNavigatableTable<T>,
             private fS: FooterService

@@ -374,3 +374,32 @@ nb-card-header {
         }
     }
 }
+
+.bbx-fd-div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    align-content: center;
+
+    .bbx-fd-col-left {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-content: stretch;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .bbx-fd-col-right {
+        min-width: 300px;
+    }
+}
+
+.bbx-customer-sidebar {
+    position: fixed;
+    right: 0px;
+    height: 100vh;
+    overflow: scroll;
+}

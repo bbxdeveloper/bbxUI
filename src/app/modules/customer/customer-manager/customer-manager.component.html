@@ -1,64 +1,79 @@
-<app-head-line msg="Ügyfelek kezelése"></app-head-line>
+<div class="bbx-fd-div">
+    <div class="bbx-fd-col-left">
+        <app-head-line msg="Ügyfelek kezelése"></app-head-line>
 
-<!-- <app-flat-design-table
- [allColumns]="allColumns" [colDefs]="colDefs"
- [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
- [dbDataTableId]="dbDataTableId"
- (focusInTable)="focusOnTable(true)"
- (focusOutTable)="focusOnTable(false)">
-</app-flat-design-table> -->
+        <!-- <app-flat-design-table
+        [allColumns]="allColumns" [colDefs]="colDefs"
+        [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
+        [dbDataTableId]="dbDataTableId"
+        (focusInTable)="focusOnTable(true)"
+        (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table> -->
 
-<nb-card>
-    <nb-card-body>
-        <form>
-            <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
-                equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+        <nb-card>
+            <nb-card-header>
+                <label class="search-label" for="search">Keresés név alapján:</label>
+                <input nbInput id="active-prod-search" class="search-input"
+                    (keyup)="refreshFilter($event)" autocomplete="off">
+                <!-- <button nbButton class="btn-util" id="btn-search-customer" (click)="search()">Keresés</button> -->
+            </nb-card-header>
+            <nb-card-body>
+                <form>
+                    <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc"
+                        [trackBy]="trackRows" equalColumnsWidth (focusin)="focusOnTable(true)"
+                        (focusout)="focusOnTable(false)">
 
-                <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
-                <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+                        <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+                        <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
 
-                <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
-                    <ng-container [ngSwitch]="it.type">
+                        <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+                            <ng-container [ngSwitch]="it.type">
 
-                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
-                            {{it.label}}
-                        </th>
+                                <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
+                                    {{it.label}}
+                                </th>
 
-                        <ng-container *ngSwitchCase="'string'">
-                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
-                                *nbTreeGridCellDef="let row; let rowPos = index"
-                                [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
-                                (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
-                                (keydown.f12)="dbDataTable.HandleKey($event)"
-                                (keydown.tab)="dbDataTable.handleGridTab($event)"
-                                (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
-                                class="{{it.navMatrixCssClass}}">
-                                <div>
-                                    {{ row.data[it.objectKey] }}
-                                </div>
-                            </td>
+                                <ng-container *ngSwitchCase="'string'">
+                                    <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                        *nbTreeGridCellDef="let row; let rowPos = index"
+                                        (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                        (keydown.f12)="dbDataTable.HandleKey($event)"
+                                        (keydown.tab)="dbDataTable.handleGridTab($event)"
+                                        (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
+                                        [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                        class="{{it.navMatrixCssClass}}">
+                                        <div>
+                                            {{ row.data[it.objectKey] }}
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'bool'">
+                                    <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                        *nbTreeGridCellDef="let row; let rowPos = index"
+                                        (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                        (keydown.f12)="dbDataTable.HandleKey($event)"
+                                        (keydown.tab)="dbDataTable.handleGridTab($event)"
+                                        (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
+                                        [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                        class="{{it.navMatrixCssClass}}">
+                                        <div>
+                                            {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                            </ng-container>
                         </ng-container>
-
-                        <ng-container *ngSwitchCase="'bool'">
-                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
-                                *nbTreeGridCellDef="let row; let rowPos = index"
-                                [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
-                                (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
-                                (keydown.f12)="dbDataTable.HandleKey($event)"
-                                (keydown.tab)="dbDataTable.handleGridTab($event)"
-                                (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
-                                class="{{it.navMatrixCssClass}}">
-                                <div>
-                                    {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
-                                </div>
-                            </td>
-                        </ng-container>
-
-                    </ng-container>
-                </ng-container>
-            </table>
-        </form>
-    </nb-card-body>
-</nb-card>
+                    </table>
+                </form>
+            </nb-card-body>
+            <nb-card-footer>
+                <span *ngIf="this.dbData.length === 0" class="msg">Nincs megjeleníthető adat!</span>
+            </nb-card-footer>
+        </nb-card>
+    </div>
+    <div class="bbx-fd-col-right" [hidden]="!isSideBarOpened">
+        <app-customer-side-bar-form class="bbx-customer-sidebar"></app-customer-side-bar-form>
+    </div>
+</div>

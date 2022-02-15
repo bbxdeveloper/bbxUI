@@ -18,6 +18,7 @@ import { CustomerService } from '../services/customer.service';
 import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { DeleteCustomerRequest } from '../models/DeleteCustomerRequest';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 
 @Component({
   selector: 'app-customer-manager',
@@ -31,7 +32,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   dbData!: TreeGridNode<Customer>[];
   dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<Customer>>;
   dbDataTable!: Nav.FlatDesignNavigatableTable<Customer>;
-  dbDataTableId = 'usermanager-table';
+  dbDataTableId = 'customer-table';
   dbDataTableEditId = "user-cell-edit-input";
 
   colsToIgnore: string[] = [];
@@ -40,21 +41,17 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   ];
   colDefs: ModelFieldDescriptor[] = [
     { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Belföldi Adószám', objectKey: 'taxPayerNumber', colKey: 'taxPayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "SS00 0000 0000 0000 0000 0000 0000||SSSSSSSS-SSSSSSSS-SSSSSSSS", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Belföldi Adószám', objectKey: 'taxPayerNumber', colKey: 'taxPayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "XX", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "SS", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
   ]
-  customMaskPatterns = {
-    A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') }
-  };
 
   tableIsFocused: boolean = false;
   private uid = 0;
@@ -74,6 +71,10 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
+  get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
+
+  searchString: string = '';
+
   constructor(
     @Optional() private dialogService: NbDialogService,
     private fS: FooterService,
@@ -82,7 +83,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     private cdref: ChangeDetectorRef,
     private kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
-    private sidebarService: NbSidebarService,
+    private sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService
   ) {
@@ -156,6 +157,21 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
       }
     });
   }
+  
+  refreshFilter(event: any): void {
+    this.searchString = event.target.value;
+    console.log("Search: ", this.searchString);
+    this.search();
+  }
+
+  search(): void {
+    // console.log("Search: ", this.searchString);
+    if (this.searchString.length === 0) {
+      this.Refresh();
+    } else {
+      this.Refresh(this.searchString);
+    }
+  }
 
   private Setup(): void {
     this.dbData = [];
@@ -163,15 +179,19 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     // TODO: FormGroup generator
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
-      name: new FormControl(undefined, [Validators.required]),
-      loginName: new FormControl(undefined, [Validators.required]),
-      email: new FormControl(undefined, [Validators.required]),
+      customerName: new FormControl(undefined, [Validators.required]),
+      customerBankAccountNumber: new FormControl(undefined, []),
+      taxPayerNumber: new FormControl(undefined, []),
+      thirdStateTaxId: new FormControl(undefined, []),
+      countryCode: new FormControl('HU', [Validators.required]),
+      postalCode: new FormControl(undefined, []),
+      city: new FormControl(undefined, [Validators.required]),
+      additionalAddressDetail: new FormControl(undefined, [Validators.required]),
+      privatePerson: new FormControl(false, [Validators.required]),
       comment: new FormControl(undefined, []),
-      active: new FormControl(undefined, [Validators.required]),
-      password: new FormControl(undefined, [])
     });
     this.dbDataTable = new Nav.FlatDesignNavigatableTable(
-      this.dbDataTableForm, this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.dbData, this.dbDataTableId, Nav.AttachDirection.DOWN,
+      this.dbDataTableForm, 'Customer', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.dbData, this.dbDataTableId, Nav.AttachDirection.DOWN,
       'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
     );
     this.dbDataTable.pushFooterCommandList();
@@ -180,9 +200,9 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     this.Refresh();
   }
 
-  private Refresh(): void {
+  private Refresh(searchString?: string): void {
     console.log('Refreshing'); // TODO: only for debug
-    this.seInv.GetCustomers().subscribe({
+    this.seInv.GetCustomers(!!searchString ? { 'CustomerName': searchString } : undefined).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug
@@ -207,6 +227,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false);
+      this.kbS.SelectFirstTile();
     }, 200);
   }
 

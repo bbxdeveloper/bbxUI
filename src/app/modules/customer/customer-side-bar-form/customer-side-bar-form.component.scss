@@ -1,0 +1,58 @@
+.bbx-fd-ncb {
+    margin-top: 50px !important;
+}
+
+form {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    align-items: flex-start;
+    align-content: flex-start;
+
+    margin-top: 25px; // justify-content: center;
+
+    .bbx-fd-form-field-inner-div {
+        display: flex;
+
+        flex-direction: row;
+        flex-wrap: nowrap;
+
+        align-content: center;
+        justify-content: space-between;
+        align-items: baseline;
+
+        column-gap: 20px;
+
+        width: 600px;
+
+        input {
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
+    }
+}
+
+.bbx-fd-checkbox-outer-div {
+    display: flex;
+
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    align-content: center;
+    align-items: baseline;
+
+    column-gap: 20px;
+
+    width: 600px;
+
+    margin-bottom: 10px;
+}
+
+.bbx-fd-sidebar-functions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

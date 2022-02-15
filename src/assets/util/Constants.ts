@@ -1,4 +1,4 @@
-import { NbGlobalPhysicalPosition, NbIconConfig, NbToastrConfig } from "@nebular/theme";
+import { NbIconConfig } from "@nebular/theme";
 import { ProcessStatus } from "../model/ProcessStatus";
 
 export module Constants {

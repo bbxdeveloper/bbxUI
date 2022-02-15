@@ -20,6 +20,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { CreateUserResponseDataToUser } from '../models/CreateUserResponse';
 import { UpdateUserResponseDataToUser } from '../models/UpdateUserResponse';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -71,6 +72,8 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
+  get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
+
   constructor(
     @Optional() private dialogService: NbDialogService,
     private fS: FooterService,
@@ -79,7 +82,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     private cdref: ChangeDetectorRef,
     private kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
-    private sidebarService: NbSidebarService,
+    private sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService
   ) {
@@ -178,10 +181,10 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       email: new FormControl(undefined, [Validators.required]),
       comment: new FormControl(undefined, []),
       active: new FormControl(undefined, [Validators.required]),
-      password: new FormControl(undefined, [])
+      password: new FormControl(undefined, []),
     });
     this.userTable = new Nav.FlatDesignNavigatableTable(
-      this.userTableForm, this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
+      this.userTableForm, 'User', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
       'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
     );
     this.userTable.pushFooterCommandList();
@@ -217,6 +220,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     );
     setTimeout(() => {
       this.userTable.GenerateAndSetNavMatrices(false);
+      this.kbS.SelectFirstTile();
     }, 200);
   }
 

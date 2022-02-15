@@ -105,9 +105,12 @@ export class KeyboardNavigationService {
     this.SelectCurrentElement();
   }
 
-  public SetPosition(x: number, y: number): void {
+  public SetPosition(x: number, y: number, n?: Nav.INavigatable): void {
     this.p.x = x;
     this.p.y = y;
+    if (!!n && this.CurrentNavigatable !== n) {
+      this.CurrentNavigatable = n;
+    }
   }
 
   public SetPositionById(tileValue: string): boolean {
@@ -163,7 +166,7 @@ export class KeyboardNavigationService {
     console.log(`Neighbour to UP: ${!!this.CurrentNavigatable.UpNeighbour ? 'detected' : 'none'}`);
   }
 
-  private LogMatrix(): void {
+  public LogMatrix(): void {
     console.log(`2D Navigation matrix:`)
 
     let matrixString = "";

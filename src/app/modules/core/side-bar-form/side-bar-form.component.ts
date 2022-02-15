@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { Nav } from 'src/assets/model/Navigatable';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
@@ -19,8 +19,17 @@ export class SideBarFormComponent implements OnInit {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f)});
   }
 
-  private SetNewForm(form?: Nav.FlatDesignNavigatableForm): void {
-    this.currentForm = form;
+  // private SetNewForm(form?: Nav.FlatDesignNavigatableForm): void {
+  //   this.currentForm = form;
+  //   console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+  // }
+
+  private SetNewForm(form?: FormSubject): void {
+    if ((!!form && form[0] !== 'User') || !!!form) {
+      return;
+    }
+
+    this.currentForm = form[1];
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
   }
 
