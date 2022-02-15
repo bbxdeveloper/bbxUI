@@ -1,38 +1,36 @@
-<div class="bbx-fd-div">
-    <div class="bbx-fd-col-left">
+<as-split direction="horizontal">
+    <as-split-area [size]="50">
         <app-head-line msg="Ügyfelek kezelése"></app-head-line>
-
+        
         <!-- <app-flat-design-table
-        [allColumns]="allColumns" [colDefs]="colDefs"
-        [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
-        [dbDataTableId]="dbDataTableId"
-        (focusInTable)="focusOnTable(true)"
-        (focusOutTable)="focusOnTable(false)">
-        </app-flat-design-table> -->
-
+                [allColumns]="allColumns" [colDefs]="colDefs"
+                [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
+                [dbDataTableId]="dbDataTableId"
+                (focusInTable)="focusOnTable(true)"
+                (focusOutTable)="focusOnTable(false)">
+                </app-flat-design-table> -->
+        
         <nb-card>
             <nb-card-header>
                 <label class="search-label" for="search">Keresés név alapján:</label>
-                <input nbInput id="active-prod-search" class="search-input"
-                    (keyup)="refreshFilter($event)" autocomplete="off">
+                <input nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)" autocomplete="off">
                 <!-- <button nbButton class="btn-util" id="btn-search-customer" (click)="search()">Keresés</button> -->
             </nb-card-header>
             <nb-card-body>
                 <form>
-                    <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc"
-                        [trackBy]="trackRows" equalColumnsWidth (focusin)="focusOnTable(true)"
-                        (focusout)="focusOnTable(false)">
-
+                    <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
+                        equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+        
                         <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
                         <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
-
+        
                         <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                             <ng-container [ngSwitch]="it.type">
-
+        
                                 <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
                                     {{it.label}}
                                 </th>
-
+        
                                 <ng-container *ngSwitchCase="'string'">
                                     <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                         *nbTreeGridCellDef="let row; let rowPos = index"
@@ -47,7 +45,7 @@
                                         </div>
                                     </td>
                                 </ng-container>
-
+        
                                 <ng-container *ngSwitchCase="'bool'">
                                     <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                         *nbTreeGridCellDef="let row; let rowPos = index"
@@ -62,7 +60,7 @@
                                         </div>
                                     </td>
                                 </ng-container>
-
+        
                             </ng-container>
                         </ng-container>
                     </table>
@@ -72,8 +70,8 @@
                 <span *ngIf="this.dbData.length === 0" class="msg">Nincs megjeleníthető adat!</span>
             </nb-card-footer>
         </nb-card>
-    </div>
-    <div class="bbx-fd-col-right" [hidden]="!isSideBarOpened">
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
         <app-customer-side-bar-form class="bbx-customer-sidebar"></app-customer-side-bar-form>
-    </div>
-</div>
+    </as-split-area>
+</as-split>

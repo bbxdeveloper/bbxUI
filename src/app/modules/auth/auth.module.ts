@@ -9,6 +9,7 @@ import { SharedModule } from '../shared/shared.module';
 import { UserManagerComponent } from './user-manager/user-manager.component';
 import { UserSideBarFormComponent } from './user-side-bar-form/user-side-bar-form.component';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
+import { AngularSplitModule } from 'angular-split';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
     NbTagModule,
     NbCheckboxModule,
     NbTooltipModule,
+    AngularSplitModule,
     SharedModule,
   ],
   exports: [
