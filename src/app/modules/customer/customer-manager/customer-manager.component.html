@@ -1,20 +1,26 @@
 <as-split direction="horizontal">
     <as-split-area [size]="50">
         <app-head-line msg="Ügyfelek kezelése"></app-head-line>
-        
+
         <!-- <app-flat-design-table
-                [allColumns]="allColumns" [colDefs]="colDefs"
-                [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
-                [dbDataTableId]="dbDataTableId"
-                (focusInTable)="focusOnTable(true)"
-                (focusOutTable)="focusOnTable(false)">
-                </app-flat-design-table> -->
-        
+            [allColumns]="allColumns"
+            [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc"
+            [dbDataTable]="dbDataTable"
+            [dbDataTableId]="dbDataTableId"
+            (focusInTable)="focusOnTable(true)"
+            (focusOutTable)="focusOnTable(false)">
+            <label class="search-label" for="search">Keresés név alapján:</label>
+            <input nbInput id="active-prod-search" class="search-input"
+                (keydown.enter)="searchInputNavigatable.HandleFormEnter($event)" (keyup)="refreshFilter($event)" autocomplete="off">
+        </app-flat-design-table> -->
+
         <nb-card>
             <nb-card-header>
                 <label class="search-label" for="search">Keresés név alapján:</label>
-                <input nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)" autocomplete="off">
-                <!-- <button nbButton class="btn-util" id="btn-search-customer" (click)="search()">Keresés</button> -->
+                <input nbInput id="active-prod-search" class="search-input"
+                    (keyup)="refreshFilter($event)"
+                    autocomplete="off"> <!--(keydown.enter)="searchInputNavigatable.HandleFormEnter($event)" -->
             </nb-card-header>
             <nb-card-body>
                 <form>
@@ -67,9 +73,17 @@
                 </form>
             </nb-card-body>
             <nb-card-footer>
+                <div>
+                    <span (click)="dbDataTable.firstPage()">&lt;&lt;</span>
+                    <span (click)="dbDataTable.previousPage()">&lt;</span>
+                    <span>{{dbDataTable.currentPage}} / {{dbDataTable.allPages}}</span>
+                    <span (click)="dbDataTable.nextPage()">&gt;&gt;</span>
+                    <span (click)="dbDataTable.lastPage()">&gt;</span>
+                </div>
                 <span *ngIf="this.dbData.length === 0" class="msg">Nincs megjeleníthető adat!</span>
             </nb-card-footer>
         </nb-card>
+
     </as-split-area>
     <as-split-area [size]="50" *ngIf="isSideBarOpened">
         <app-customer-side-bar-form class="bbx-customer-sidebar"></app-customer-side-bar-form>

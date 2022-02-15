@@ -13,6 +13,7 @@ import { IUpdateRequest, IUpdatable, IUpdater } from './UpdaterInterfaces';
 import { KeyBindings } from '../util/KeyBindings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { SimplePaginator } from './SimplePaginator';
 
 /// <reference path='./INavigatable.ts'/>
 /// <reference path='./NullNavigatable.ts'/>
@@ -116,7 +117,7 @@ export module Nav {
         Detach(): void { }
     }
 
-    export class FlatDesignNavigatableTable<T> implements INavigatable, IUpdatable<T> {
+    export class FlatDesignNavigatableTable<T> extends SimplePaginator implements INavigatable, IUpdatable<T> {
         Matrix: string[][] = [[]];
 
         LastX?: number | undefined;
@@ -183,6 +184,14 @@ export module Nav {
 
         private tag: string = '';
 
+        /*
+        <span (click)="dbDataTable.firstPage()">&lt;&lt;</span>
+        <span (click)="dbDataTable.previousPage()">&lt;</span>
+        <span>{{dbDataTable.currentPage}} / {{dbDataTable.allPages}}</span>
+        <span (click)="dbDataTable.nextPage()">&gt;&gt;</span>
+        <span (click)="dbDataTable.lastPage()">&gt;</span>
+        */
+
         constructor(
             f: FormGroup,
             tag: string,
@@ -199,6 +208,8 @@ export module Nav {
             private sidebarFormService: SideBarFormService,
             private updater: IUpdater<T>
         ) {
+            super();
+            
             this._data = data;
             this.attachDirection = attachDirection;
             this.tableId = tableId;
@@ -401,7 +412,7 @@ export module Nav {
             this.flatDesignForm.pushFooterCommandList();
         }
     }
-
+    
     export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
         Matrix: string[][] = [[]];
 
@@ -737,6 +748,165 @@ export module Nav {
             //     console.log('[GenerateAndSetNavMatrices]', this.Matrix);
             // }
 
+            if (attach) {
+                this.kbS.Attach(this, this.attachDirection, setAsCurrentNavigatable);
+            }
+        }
+
+        Attach(): void {
+            this.kbS.Attach(this, this.attachDirection);
+        }
+
+        Detach(x?: number, y?: number): void {
+            this.kbS.Detach(x, y);
+        }
+    }
+
+    export class NavigatableInput implements INavigatable {
+        Matrix: string[][] = [[]];
+
+        LastX?: number | undefined;
+        LastY?: number | undefined;
+
+        HasSubMapping: boolean = false;
+        SubMapping?: { [id: string]: INavigatable; } = undefined;
+
+        IsDialog: boolean = false;
+
+        InnerJumpOnEnter: boolean = true;
+        OuterJump: boolean = true;
+
+        LeftNeighbour?: INavigatable;
+        RightNeighbour?: INavigatable;
+        DownNeighbour?: INavigatable;
+        UpNeighbour?: INavigatable;
+
+        TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
+
+        IsSubMapping: boolean = false;
+
+        attachDirection: AttachDirection;
+
+        inputId: string;
+
+        readonly commandsOnForm: FooterCommandInfo[] = [
+            { key: 'F1', value: '', disabled: false },
+            { key: 'F2', value: '', disabled: false },
+            { key: 'F3', value: '', disabled: false },
+            { key: 'F4', value: '', disabled: false },
+            { key: 'F5', value: '', disabled: false },
+            { key: 'F6', value: '', disabled: false },
+            { key: 'F7', value: '', disabled: false },
+            { key: 'F8', value: 'Új', disabled: false },
+            { key: 'F9', value: 'Alaphelyzet', disabled: false },
+            { key: 'F10', value: 'Mentés', disabled: false },
+            { key: 'F11', value: 'Törlés', disabled: false },
+            { key: 'F12', value: 'Tétellap', disabled: false }
+        ];
+
+        constructor(
+            inputId: string,
+            attachDirection: AttachDirection = AttachDirection.DOWN,
+            private kbS: KeyboardNavigationService,
+            private cdref: ChangeDetectorRef,
+            private fS: FooterService
+        ) {
+            this.attachDirection = attachDirection;
+            this.inputId = inputId;
+        }
+
+        GetValue(): any {
+            return $('#' + this.inputId).val();
+        }
+
+        HandleFormEscape(): void {
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.cdref.detectChanges();
+        }
+
+        HandleFormClick(): void {
+            this.pushFooterCommandList();
+        }
+
+        HandleFormFieldClick(event: any): void {
+            this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.SetPositionById(event.target?.id);
+        }
+
+        private MoveNext(): MoveRes {
+            let moveRes = this.kbS.MoveRight(true, false, false);
+            if (!moveRes.moved) {
+                moveRes = this.kbS.MoveDown(true, false, true);
+            }
+            return moveRes;
+        }
+
+        private JumpToNextInput(event?: Event): void {
+            const moveRes = this.MoveNext();
+            // We can't know if we should click the first element if we moved to another navigation-matrix.
+            if (!moveRes.jumped) {
+                this.kbS.ClickCurrentElement();
+                if (!this.kbS.isEditModeActivated) {
+                    this.kbS.toggleEdit();
+                }
+            } else {
+                // For example in case if we just moved onto a confirmation button in the next nav-matrix,
+                // we don't want to automatically press it until the user directly presses enter after selecting it.
+                if (!!event) {
+                    event.stopImmediatePropagation();
+                }
+                // We jumped back to the grid we've just edited with this form
+                this.Detach();
+            }
+        }
+
+        HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+            event.preventDefault();
+
+            if (toggleEditMode) {
+                this.kbS.toggleEdit();
+            }
+
+            // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+            if (!this.kbS.isEditModeActivated && jumpNext) {
+                this.JumpToNextInput(event);
+            }
+        }
+
+        HandleFormTab(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+
+            if (toggleEditMode) {
+                this.kbS.toggleEdit();
+            }
+
+            // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+            if (!this.kbS.isEditModeActivated && jumpNext) {
+                this.JumpToNextInput(event);
+            }
+        }
+
+        HandleKey(event: any): void {
+            switch (event.key) {
+                default: { }
+            }
+        }
+
+        pushFooterCommandList(): void {
+            this.fS.pushCommands(this.commandsOnForm);
+        }
+
+        ClearNeighbours(): void {
+            this.LeftNeighbour = undefined;
+            this.RightNeighbour = undefined;
+            this.DownNeighbour = undefined;
+            this.UpNeighbour = undefined;
+        }
+
+        GenerateAndSetNavMatrices(attach: boolean = false, setAsCurrentNavigatable: boolean = false): void {
+            this.Matrix = [[this.inputId]];
             if (attach) {
                 this.kbS.Attach(this, this.attachDirection, setAsCurrentNavigatable);
             }

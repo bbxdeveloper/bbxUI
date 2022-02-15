@@ -19,6 +19,7 @@ import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { DeleteCustomerRequest } from '../models/DeleteCustomerRequest';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { GetCustomersParamListModel } from '../models/GetCustomersParamListModel';
 
 @Component({
   selector: 'app-customer-manager',
@@ -74,6 +75,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
 
   searchString: string = '';
+  // searchInputNavigatable!: Nav.NavigatableInput;
 
   constructor(
     @Optional() private dialogService: NbDialogService,
@@ -169,13 +171,15 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     if (this.searchString.length === 0) {
       this.Refresh();
     } else {
-      this.Refresh(this.searchString);
+      this.Refresh({ 'CustomerName': this.searchString });
     }
   }
 
   private Setup(): void {
     this.dbData = [];
+    
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
+    
     // TODO: FormGroup generator
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
@@ -190,25 +194,39 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
       privatePerson: new FormControl(false, [Validators.required]),
       comment: new FormControl(undefined, []),
     });
+    
     this.dbDataTable = new Nav.FlatDesignNavigatableTable(
       this.dbDataTableForm, 'Customer', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.dbData, this.dbDataTableId, Nav.AttachDirection.DOWN,
       'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
     );
     this.dbDataTable.pushFooterCommandList();
     this.dbDataTable.OuterJump = true;
+    this.dbDataTable.NewPageSelected.subscribe({
+      next: (newPageNumber: number) => {
+        this.Refresh({ 'PageNumber': (newPageNumber + '') });
+      }
+    });
+    
     this.sidebarService.collapse();
+
+    // this.searchInputNavigatable = new Nav.NavigatableInput(
+    //   'active-prod-search', Nav.AttachDirection.DOWN,
+    //   this.kbS, this.cdref, this.fS
+    // );
+
     this.Refresh();
   }
 
-  private Refresh(searchString?: string): void {
+  private Refresh(params?: GetCustomersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
-    this.seInv.GetCustomers(!!searchString ? { 'CustomerName': searchString } : undefined).subscribe({
+    this.seInv.GetCustomers(params).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map(x => { return { data: x, uid: this.nextUid() }; });
             this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.currentPage = d.pageNumber;
           }
           this.RefreshTable();
         } else {
@@ -227,6 +245,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false);
+      // this.kbS.InsertNavigatable(this.dbDataTable, Nav.AttachDirection.UP, this.searchInputNavigatable);
       this.kbS.SelectFirstTile();
     }, 200);
   }

@@ -281,7 +281,7 @@ export class KeyboardNavigationService {
       if (setEdit) {
         this.setEditMode(KeyboardModes.EDIT);
       }
-    }, 100);
+    }, 200);
 
     this.LogNavAndMatrix();
 
@@ -539,6 +539,59 @@ export class KeyboardNavigationService {
       setInterval(() => { this.SelectCurrentElement() }, 100);
     } else {
       this.SelectCurrentElement();
+    }
+  }
+
+  public InsertNavigatable(center: Nav.INavigatable, direction: Nav.AttachDirection, toInsert: Nav.INavigatable): void {
+    switch (direction) {
+      case Nav.AttachDirection.DOWN: {
+        if (!!center.DownNeighbour) {
+          let temp = center.DownNeighbour;
+          
+          center.DownNeighbour = toInsert;
+          toInsert.UpNeighbour = center;
+
+          temp.UpNeighbour = toInsert;
+          toInsert.DownNeighbour = temp;
+        }
+        break;
+      }
+      case Nav.AttachDirection.UP: {
+        if (!!center.UpNeighbour) {
+          let temp = center.UpNeighbour;
+
+          center.UpNeighbour = toInsert;
+          toInsert.DownNeighbour = center;
+
+          temp.DownNeighbour = toInsert;
+          toInsert.UpNeighbour = temp;
+        }
+        break;
+      }
+      case Nav.AttachDirection.LEFT: {
+        if (!!center.LeftNeighbour) {
+          let temp = center.LeftNeighbour;
+
+          center.LeftNeighbour = toInsert;
+          toInsert.RightNeighbour = center;
+
+          temp.RightNeighbour = toInsert;
+          toInsert.LeftNeighbour = temp;
+        }
+        break;
+      }
+      case Nav.AttachDirection.RIGHT: {
+        if (!!center.RightNeighbour) {
+          let temp = center.RightNeighbour;
+
+          center.RightNeighbour = toInsert;
+          toInsert.LeftNeighbour = center;
+
+          temp.LeftNeighbour = toInsert;
+          toInsert.RightNeighbour = temp;
+        }
+        break;
+      }
     }
   }
 

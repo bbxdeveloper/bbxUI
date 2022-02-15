@@ -1,4 +1,7 @@
 <nb-card>
+    <nb-card-header>
+        <ng-content></ng-content>
+    </nb-card-header>
     <nb-card-body>
         <form *ngIf="!!dbDataTable">
             <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
