@@ -20,13 +20,17 @@ nb-card {
     margin: 0px;
 }
 
+.card-table-wrapper-form {
+    display: flex;
+}
+
 .card-table-wrapper {
     display: block;
 
     position: sticky;
     top: 0;
 
-    margin: auto;
+    margin-left: 25%;
 
     @media (max-height: 1000px) {
         max-height: 255px !important;
@@ -154,54 +158,6 @@ nb-card {
     .td-focusable:focus {
         background: darkblue;
     }
-
-    // tr:last-child {
-    //     background-color: #524469 !important;
-
-    //     th,
-    //     td {
-    //         height: 50px;
-
-    //         &.table-cell-edited {
-    //             padding: 0px;
-
-    //             background-color: rgb(75, 75, 121) !important;
-
-    //             .input-table-cell {
-    //                 width: 100%;
-
-    //                 border: none;
-    //                 background: none;
-    //                 text-align: left;
-
-    //                 padding: 0px;
-
-    //                 @media (max-height: 1000px) {
-    //                     padding-left: 0px;
-    //                 }
-    //                 @media (min-height: 1001px) {
-    //                     padding-left: 20px;
-    //                 }
-
-    //                 font-size: 1.2rem !important;
-
-    //                 color: #ffffff;
-    //                 font-family: Open Sans, sans-serif;
-    //                 font-weight: 400;
-    //                 line-height: 1.25rem;
-    //             }
-
-    //             div {
-    //                 @media (max-height: 1000px) {
-    //                     padding-left: 0px;
-    //                 }
-    //                 @media (min-height: 1001px) {
-    //                     padding-left: 20px;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 ::-webkit-scrollbar {

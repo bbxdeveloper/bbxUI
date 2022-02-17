@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { BaseNavigatableComponentComponent } from './base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
-import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule } from '@nebular/theme';
+import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule, NbCheckboxModule, NbContextMenuModule, NbMenuModule, NbPopoverModule, NbTagModule, NbTooltipModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 import { HeadLineComponent } from './head-line/head-line.component';
 import { FlatDesignTableComponent } from './flat-design-table/flat-design-table.component';
 import { PaginatorComponent } from './paginator/paginator.component';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 
 @NgModule({
@@ -35,7 +36,14 @@ import { PaginatorComponent } from './paginator/paginator.component';
     NbFormFieldModule,
     NbInputModule,
     NgxMaskModule.forChild(),
-    NbActionsModule
+    NbActionsModule,
+    NbContextMenuModule,
+    NbEvaIconsModule,
+    NbPopoverModule,
+    NbMenuModule,
+    NbTagModule,
+    NbCheckboxModule,
+    NbTooltipModule,
   ],
   exports: [
     BaseNavigatableComponentComponent,

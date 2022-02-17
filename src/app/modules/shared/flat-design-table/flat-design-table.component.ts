@@ -20,8 +20,7 @@ export class FlatDesignTableComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   focusOnTable(focusIn: boolean): void {
     if (focusIn) {
