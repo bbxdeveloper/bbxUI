@@ -38,19 +38,19 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
 
   colsToIgnore: string[] = [];
   allColumns = [
-    'id', 'customerName', 'taxPayerNumber'
+    'id', 'customerName', 'taxpayerNumber'
   ];
   colDefs: ModelFieldDescriptor[] = [
     { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "SS00 0000 0000 0000 0000 0000 0000||SSSSSSSS-SSSSSSSS-SSSSSSSS", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Belföldi Adószám', objectKey: 'taxPayerNumber', colKey: 'taxPayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "SS", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: false, mask: "SS", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: true, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
   ]
 
@@ -94,8 +94,8 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   }
 
   ActionNew(data?: IUpdateRequest<Customer>): void {
+    console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
-      console.log("ActionNew: ", data.data);
       this.seInv.CreateCustomer(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
@@ -115,9 +115,9 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     this.dbDataTable.ResetForm();
   }
   ActionPut(data?: IUpdateRequest<Customer>): void {
+    console.log("ActionPut: ", data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
-      console.log("ActionPut: ", data.data);
-      this.seInv.UpdateCustomer(data.data as UpdateCustomerRequest).subscribe({
+      this.seInv.UpdateCustomer(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
             this.dbData[data.rowIndex] = { data: d.data } as TreeGridNode<Customer>;
@@ -138,14 +138,15 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     );
     dialogRef.onClose.subscribe(res => {
       if (res) {
-        if (!!data && data.data?.id !== undefined) {
-          console.log("ActionDelete: ", data.rowIndex);
+        const id = data?.data?.id;
+        console.log("ActionDelete: ", id);
+        if (id !== undefined) {
           this.seInv.DeleteCustomer({
-            id: data.data?.id
+            id: id
           } as DeleteCustomerRequest).subscribe({
             next: d => {
               if (d.succeeded && !!d.data) {
-                const di = this.dbData.findIndex(x => x.data.id === data.data.id);
+                const di = this.dbData.findIndex(x => x.data.id === id);
                 this.dbData.splice(di, 1);
                 this.RefreshTable();
                 this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
@@ -182,16 +183,16 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     
     // TODO: FormGroup generator
     this.dbDataTableForm = new FormGroup({
-      id: new FormControl(undefined, [Validators.required]),
+      id: new FormControl(undefined, []),
       customerName: new FormControl(undefined, [Validators.required]),
       customerBankAccountNumber: new FormControl(undefined, []),
-      taxPayerNumber: new FormControl(undefined, []),
+      taxpayerNumber: new FormControl(undefined, []),
       thirdStateTaxId: new FormControl(undefined, []),
-      countryCode: new FormControl('HU', [Validators.required]),
+      countryCode: new FormControl('HU', []),
       postalCode: new FormControl(undefined, []),
       city: new FormControl(undefined, [Validators.required]),
       additionalAddressDetail: new FormControl(undefined, [Validators.required]),
-      privatePerson: new FormControl(false, [Validators.required]),
+      privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
     });
     

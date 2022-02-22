@@ -13,28 +13,28 @@ import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { DeleteCustomerRequest } from '../models/DeleteCustomerRequest';
 import { DeleteCustomerResponse } from '../models/DeleteCustomerResponse';
 
-// 'id', 'customerName', 'taxPayerNumber'
+// 'id', 'customerName', 'taxpayerNumber'
 const MOCK_DATA: Customer[] = [
-  { id: 0, customerName: "Mock 1", taxPayerNumber:  "1237567-8-90" } as Customer,
-  { id: 1, customerName: "Mock 2", taxPayerNumber:  "1233567-8-90" } as Customer,
-  { id: 2, customerName: "Mock 3", taxPayerNumber:  "1238567-8-90" } as Customer,
-  { id: 3, customerName: "Mock 4", taxPayerNumber:  "1234234-8-90" } as Customer,
-  { id: 4, customerName: "Mock 5", taxPayerNumber:  "1234867-8-90" } as Customer,
-  { id: 5, customerName: "Mock 6", taxPayerNumber:  "9234567-8-90" } as Customer,
-  { id: 6, customerName: "Mock 7", taxPayerNumber:  "1134567-8-90" } as Customer,
-  { id: 7, customerName: "Mock 8", taxPayerNumber:  "1234567-8-93" } as Customer,
-  { id: 8, customerName: "Mock 9", taxPayerNumber:  "1234567-8-67" } as Customer,
-  { id: 9, customerName: "Mock 10", taxPayerNumber:  "1234567-8-97" } as Customer,
-  { id: 10, customerName: "Mock 11", taxPayerNumber:  "1234567-8-30" } as Customer,
-  { id: 11, customerName: "Mock 12", taxPayerNumber:  "1234567-8-91" } as Customer,
-  { id: 12, customerName: "Mock 13", taxPayerNumber:  "1234567-8-70" } as Customer,
-  { id: 13, customerName: "Mock 14", taxPayerNumber:  "1234567-4-90" } as Customer,
-  { id: 14, customerName: "Mock 15", taxPayerNumber:  "1234567-6-90" } as Customer,
-  { id: 15, customerName: "Mock 16", taxPayerNumber:  "1234567-2-90" } as Customer,
-  { id: 16, customerName: "Mock 17", taxPayerNumber:  "1234567-1-90" } as Customer,
-  { id: 17, customerName: "Mock 18", taxPayerNumber:  "1234567-0-90" } as Customer,
-  { id: 18, customerName: "Mock 19", taxPayerNumber:  "1234567-9-90" } as Customer,
-  { id: 19, customerName: "Mock 20", taxPayerNumber:  "1231510-0-01" } as Customer
+  { id: 0, customerName: "Mock 1", taxpayerNumber:  "1237567-8-90" } as Customer,
+  { id: 1, customerName: "Mock 2", taxpayerNumber:  "1233567-8-90" } as Customer,
+  { id: 2, customerName: "Mock 3", taxpayerNumber:  "1238567-8-90" } as Customer,
+  { id: 3, customerName: "Mock 4", taxpayerNumber:  "1234234-8-90" } as Customer,
+  { id: 4, customerName: "Mock 5", taxpayerNumber:  "1234867-8-90" } as Customer,
+  { id: 5, customerName: "Mock 6", taxpayerNumber:  "9234567-8-90" } as Customer,
+  { id: 6, customerName: "Mock 7", taxpayerNumber:  "1134567-8-90" } as Customer,
+  { id: 7, customerName: "Mock 8", taxpayerNumber:  "1234567-8-93" } as Customer,
+  { id: 8, customerName: "Mock 9", taxpayerNumber:  "1234567-8-67" } as Customer,
+  { id: 9, customerName: "Mock 10", taxpayerNumber:  "1234567-8-97" } as Customer,
+  { id: 10, customerName: "Mock 11", taxpayerNumber:  "1234567-8-30" } as Customer,
+  { id: 11, customerName: "Mock 12", taxpayerNumber:  "1234567-8-91" } as Customer,
+  { id: 12, customerName: "Mock 13", taxpayerNumber:  "1234567-8-70" } as Customer,
+  { id: 13, customerName: "Mock 14", taxpayerNumber:  "1234567-4-90" } as Customer,
+  { id: 14, customerName: "Mock 15", taxpayerNumber:  "1234567-6-90" } as Customer,
+  { id: 15, customerName: "Mock 16", taxpayerNumber:  "1234567-2-90" } as Customer,
+  { id: 16, customerName: "Mock 17", taxpayerNumber:  "1234567-1-90" } as Customer,
+  { id: 17, customerName: "Mock 18", taxpayerNumber:  "1234567-0-90" } as Customer,
+  { id: 18, customerName: "Mock 19", taxpayerNumber:  "1234567-9-90" } as Customer,
+  { id: 19, customerName: "Mock 20", taxpayerNumber:  "1231510-0-01" } as Customer
 ];
 
 const MOCK_CUSTOMERS = {

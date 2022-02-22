@@ -503,6 +503,9 @@ export module Nav {
         }
         
         ActionNew(): void {
+            if(this.form.invalid) {
+                return;
+            }
             this.grid.New({
                 data: this.FillObjectWithForm(),
                 rowIndex: this.DataRowIndex
@@ -516,6 +519,9 @@ export module Nav {
         }
 
         ActionPut(): void {
+            if (this.form.invalid) {
+                return;
+            }
             this.grid.Put({
                 data: this.FillObjectWithForm(),
                 rowIndex: this.DataRowIndex
@@ -524,6 +530,7 @@ export module Nav {
 
         ActionDelete(): void {
             this.grid.Delete({
+                data: this.DataToEdit?.data,
                 rowIndex: this.DataRowIndex
             } as IUpdateRequest);
         }
@@ -562,6 +569,7 @@ export module Nav {
             if (!!data) {
                 Object.keys(this.form.controls).forEach((x: string) => {
                     this.form.controls[x].setValue(data[x]);
+                    console.log(`[FillFormWithObject] ${x}, ${data[x]}, ${this.form.controls[x].value}`);
                 });
             }
         }

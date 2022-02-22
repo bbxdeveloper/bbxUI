@@ -5,7 +5,7 @@ export interface Customer {
      * Not required!
      * 0000000-0-00
      */
-    "taxPayerNumber"?: string;
+    "taxpayerNumber"?: string;
     "customerName": string;
     /**
      * xxxxxxxx-yyyyyyyy-zzzzzzzz or XX99 9999 9999 9999 9999 9999 9999

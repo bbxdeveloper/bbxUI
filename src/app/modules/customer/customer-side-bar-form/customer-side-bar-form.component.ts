@@ -4,6 +4,9 @@ import { BehaviorSubject } from 'rxjs';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { Nav } from 'src/assets/model/Navigatable';
 
+const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
+const defaultPattern: string = '00000000-00000000-00000000';
+
 @Component({
   selector: 'app-customer-side-bar-form',
   templateUrl: './customer-side-bar-form.component.html',
@@ -16,6 +19,11 @@ export class CustomerSideBarFormComponent implements OnInit {
   TileCssClass = Nav.TileCssClass;
 
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+
+  get privatePersonDefaultValue(): Boolean {
+    return (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
+      (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
+  }
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService) { }
 
@@ -33,39 +41,40 @@ export class CustomerSideBarFormComponent implements OnInit {
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
 
     if (!!this.currentForm) {
-      if ((this.currentForm.GetValue('taxPayerNumber') === undefined || this.currentForm.GetValue('taxPayerNumber') === '') &&
-        (this.currentForm.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '')) {
-        this.currentForm.form.controls['privatePerson'].setValue(true);
-      }
+      this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
 
       this.currentForm.form.controls['customerBankAccountNumber'].valueChanges.subscribe({
         next: val => {
           const currentTypeBankAccountNumber = val;
-          const isIbanStarted = currentTypeBankAccountNumber.length > 2 && (currentTypeBankAccountNumber.charAt(2) >= '0' && currentTypeBankAccountNumber.charAt(2) <= '9');
-          if (currentTypeBankAccountNumber.length > 3) {
+          const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
+          if (currentTypeBankAccountNumber.length > 1) {
             return;
           }
-          this.bankAccountMask.next(isIbanStarted ? 'SS00 0000 0000 0000 0000 0000 0000' : 'SSSSSSSS-SSSSSSSS-SSSSSSSS');
+          this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
         }
       });
     }
   }
 
+  private checkIfIbanStarted(typedVal: string): boolean {
+    return typedVal.length > 0 && (typedVal.charAt(0) <= '0' || typedVal.charAt(0) >= '9');
+  }
+
   GetBankAccountMask(): string {
     const currentTypeBankAccountNumber = this.currentForm!.GetValue('customerBankAccountNumber') as string;
-    const isIbanStarted = currentTypeBankAccountNumber.length > 2 && (currentTypeBankAccountNumber.charAt(2) >= '0' && currentTypeBankAccountNumber.charAt(2) <= '9');
-    return isIbanStarted ? 'SS00 0000 0000 0000 0000 0000 0000' : 'SSSSSSSS-SSSSSSSS-SSSSSSSS';
+    const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
+    return isIbanStarted ? ibanPattern : defaultPattern;
   }
 
   checkBankAccountKeydownValue(event: any): void {
-    console.log(this.currentForm!.GetValue('customerBankAccountNumber'), event.key)
     const currentTypeBankAccountNumber = (this.currentForm!.GetValue('customerBankAccountNumber') as string).concat(event.key);
-    if (currentTypeBankAccountNumber.length > 3) {
+    console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
+    if (currentTypeBankAccountNumber.length > 1) {
       return;
     }
-    const isIbanStarted = currentTypeBankAccountNumber.length > 2 && (currentTypeBankAccountNumber.charAt(2) >= '0' && currentTypeBankAccountNumber.charAt(2) <= '9');
-    console.log(isIbanStarted, currentTypeBankAccountNumber.length > 2, currentTypeBankAccountNumber.charAt(2) >= '0', currentTypeBankAccountNumber.charAt(2) <= '9');
-    this.bankAccountMask.next(isIbanStarted ? 'SS00 0000 0000 0000 0000 0000 0000' : 'SSSSSSSS-SSSSSSSS-SSSSSSSS');
+    const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
+    console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
+    this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
     //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
   }
 

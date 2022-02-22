@@ -12,6 +12,8 @@ export enum KeyBindings {
     right = 'ArrowRight',
     home = 'Home',
     end = 'End',
+    pgUp = 'PageUp',
+    pgDown = 'PageDown',
     // CRUD
     edit = 'Enter',
     delete = 'Delete',
