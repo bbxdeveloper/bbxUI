@@ -25,12 +25,12 @@ nb-card {
 }
 
 .card-table-wrapper {
-    display: block;
+    display: table;
 
     position: sticky;
     top: 0;
 
-    margin-left: 25%;
+    // margin-left: 25%;
 
     @media (max-height: 1000px) {
         max-height: 255px !important;
