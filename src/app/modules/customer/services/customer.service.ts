@@ -77,14 +77,16 @@ export class CustomerService {
     // console.log(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : '')); // TODO: only for debug
 
     // Get
-    return of({
-      pageSize: 20,
-      pageNumber: 1,
-      succeeded: true,
-      data: MOCK_DATA,
-      recordsTotal: 20,
-      recordsFiltered: 0
-    } as GetCustomersResponse);
+    
+    // return of({
+    //   pageSize: 20,
+    //   pageNumber: 1,
+    //   succeeded: true,
+    //   data: MOCK_DATA,
+    //   recordsTotal: 20,
+    //   recordsFiltered: 0
+    // } as GetCustomersResponse);
+    
     return this.http.get<GetCustomersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
