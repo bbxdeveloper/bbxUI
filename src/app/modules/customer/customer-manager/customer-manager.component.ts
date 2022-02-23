@@ -5,9 +5,7 @@ import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSource, NbTree
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { Nav } from 'src/assets/model/Navigatable';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NbSidebarService } from '@nebular/theme';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
@@ -15,11 +13,10 @@ import { CommonService } from 'src/app/services/common.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { BlankCustomer, Customer } from '../models/Customer';
 import { CustomerService } from '../services/customer.service';
-import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
-import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { DeleteCustomerRequest } from '../models/DeleteCustomerRequest';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { GetCustomersParamListModel } from '../models/GetCustomersParamListModel';
+import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 
 @Component({
   selector: 'app-customer-manager',
@@ -32,7 +29,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   dbDataTableForm!: FormGroup;
   dbData!: TreeGridNode<Customer>[];
   dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<Customer>>;
-  dbDataTable!: Nav.FlatDesignNavigatableTable<Customer>;
+  dbDataTable!: FlatDesignNavigatableTable<Customer>;
   dbDataTableId = 'customer-table';
   dbDataTableEditId = "user-cell-edit-input";
 
@@ -41,17 +38,17 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     'id', 'customerName', 'taxpayerNumber'
   ];
   colDefs: ModelFieldDescriptor[] = [
-    { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: false, mask: "SS", colWidth: "25%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: Nav.TileCssClass },
+    { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: false, mask: "SS", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
   ]
 
   tableIsFocused: boolean = false;
@@ -77,7 +74,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
 
   searchString: string = '';
-  // searchInputNavigatable!: Nav.NavigatableInput;
+  // searchInputNavigatable!: NavigatableInput;
 
   constructor(
     @Optional() private dialogService: NbDialogService,
@@ -198,9 +195,9 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
       comment: new FormControl(undefined, []),
     });
     
-    this.dbDataTable = new Nav.FlatDesignNavigatableTable(
-      this.dbDataTableForm, 'Customer', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.dbData, this.dbDataTableId, Nav.AttachDirection.DOWN,
-      'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
+    this.dbDataTable = new FlatDesignNavigatableTable(
+      this.dbDataTableForm, 'Customer', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.dbData, this.dbDataTableId, AttachDirection.DOWN,
+      'sideBarForm', AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
       () => { return BlankCustomer(); }
     );
     this.dbDataTable.PushFooterCommandList();
@@ -213,8 +210,8 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     
     this.sidebarService.collapse();
 
-    // this.searchInputNavigatable = new Nav.NavigatableInput(
-    //   'active-prod-search', Nav.AttachDirection.DOWN,
+    // this.searchInputNavigatable = new NavigatableInput(
+    //   'active-prod-search', AttachDirection.DOWN,
     //   this.kbS, this.cdref, this.fS
     // );
 
@@ -251,7 +248,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, Nav.AttachDirection.UP, this.searchInputNavigatable);
+      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
       this.kbS.SelectFirstTile();
     }, 200);
   }

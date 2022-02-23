@@ -3,8 +3,8 @@ import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Nav } from 'src/assets/model/Navigatable';
 import { LoginDialogResponse } from '../models/LoginDialogResponse';
+import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 
 @Component({
   selector: 'app-login-dialog',
@@ -15,9 +15,9 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
   title: string = "Bejelentkezés";
   closedManually = false;
 
-  loginFormNav!: Nav.NavigatableForm;
+  loginFormNav!: NavigatableForm;
 
-  TileCssClass = Nav.TileCssClass;
+  TileCssClass = TileCssClass;
 
   constructor(
     private cdrf: ChangeDetectorRef,
@@ -37,7 +37,7 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
       password: new FormControl('', [Validators.required]),
     });
 
-    this.loginFormNav = new Nav.NavigatableForm(loginForm, this.kBs, this.cdrf, [], 'loginForm', Nav.AttachDirection.UP);
+    this.loginFormNav = new NavigatableForm(loginForm, this.kBs, this.cdrf, [], 'loginForm', AttachDirection.UP);
 
     // We can move onto the confirmation buttons from the form.
     this.loginFormNav.OuterJump = true;

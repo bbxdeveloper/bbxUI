@@ -7,9 +7,7 @@ import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keybo
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { User } from '../models/User';
 import { UserService } from '../services/user.service';
-import { Nav } from 'src/assets/model/Navigatable';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NbSidebarService } from '@nebular/theme';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
 import { CreateUserRequest } from '../models/CreateUserRequest';
@@ -21,6 +19,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 import { CreateUserResponseDataToUser } from '../models/CreateUserResponse';
 import { UpdateUserResponseDataToUser } from '../models/UpdateUserResponse';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 
 @Component({
   selector: 'app-user-manager',
@@ -33,7 +32,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   userTableForm!: FormGroup;
   users!: TreeGridNode<User>[];
   usersDataSrc!: NbTreeGridDataSource<TreeGridNode<User>>;
-  userTable!: Nav.FlatDesignNavigatableTable<User>;
+  userTable!: FlatDesignNavigatableTable<User>;
   usersTableId = 'usermanager-table';
   usersTableEditId = "user-cell-edit-input";
 
@@ -41,13 +40,13 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
   colDefs: ModelFieldDescriptor[] = [
     // { label: 'Termékkód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
-    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'bool', fInputType: 'bool', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: Nav.TileCssClass },
-    { label: 'Jelszó', objectKey: 'password', colKey: 'password', defaultValue: '', type: 'password', fInputType: 'password', mask: "", colWidth: "", textAlign: "", navMatrixCssClass: Nav.TileCssClass }
+    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'bool', fInputType: 'bool', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Jelszó', objectKey: 'password', colKey: 'password', defaultValue: '', type: 'password', fInputType: 'password', mask: "", colWidth: "", textAlign: "", navMatrixCssClass: TileCssClass }
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
@@ -185,9 +184,9 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       active: new FormControl(undefined, [Validators.required]),
       password: new FormControl(undefined, []),
     });
-    this.userTable = new Nav.FlatDesignNavigatableTable(
-      this.userTableForm, 'User', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
-      'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
+    this.userTable = new FlatDesignNavigatableTable(
+      this.userTableForm, 'User', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, AttachDirection.DOWN,
+      'sideBarForm', AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
       () => { return new User(); }
     );
     this.userTable.PushFooterCommandList();

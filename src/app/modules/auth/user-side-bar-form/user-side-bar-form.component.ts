@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { Nav } from 'src/assets/model/Navigatable';
+import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 
 @Component({
   selector: 'app-user-side-bar-form',
@@ -9,8 +9,8 @@ import { Nav } from 'src/assets/model/Navigatable';
   styleUrls: ['./user-side-bar-form.component.scss']
 })
 export class UserSideBarFormComponent implements OnInit {
-  currentForm?: Nav.FlatDesignNavigatableForm;
-  TileCssClass = Nav.TileCssClass;
+  currentForm?: FlatDesignNavigatableForm;
+  TileCssClass = TileCssClass;
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService) { }
 

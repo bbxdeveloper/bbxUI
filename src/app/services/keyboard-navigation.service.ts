@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as $ from 'jquery'
-import { Nav as Nav } from 'src/assets/model/Navigatable';
+import { AttachDirection, INavigatable, NullNavigatable } from 'src/assets/model/navigation/Nav';
 import { environment } from 'src/environments/environment';
 
 interface MatrixCoordinate {
@@ -31,10 +31,10 @@ export class KeyboardNavigationService {
   /** Active submap key, if there is a focused submap tile. */
   activeSubKey: string = "";
 
-  private Root: Nav.INavigatable = Nav.NullNavigatable.Instance;
-  private CurrentNavigatable: Nav.INavigatable = Nav.NullNavigatable.Instance;
+  private Root: INavigatable = NullNavigatable.Instance;
+  private CurrentNavigatable: INavigatable = NullNavigatable.Instance;
   private CurrentSubMappingRootKey?: string;
-  private NavigatableStack: Nav.INavigatable[] = [];
+  private NavigatableStack: INavigatable[] = [];
 
   private _currentKeyboardMode: KeyboardModes = KeyboardModes.NAVIGATION;
   get currentKeyboardMode() {
@@ -50,10 +50,10 @@ export class KeyboardNavigationService {
   get Here(): string {
     return this.CurrentNavigatable.Matrix[this.p.y][this.p.x];
   }
-  get CurrentSubMapping(): { [id: string]: Nav.INavigatable; } | undefined {
+  get CurrentSubMapping(): { [id: string]: INavigatable; } | undefined {
     return this.CurrentNavigatable.SubMapping;
   }
-  get LocalSubMapping(): Nav.INavigatable | undefined {
+  get LocalSubMapping(): INavigatable | undefined {
     return this.CurrentNavigatable.SubMapping![this.Here];
   }
 
@@ -105,7 +105,7 @@ export class KeyboardNavigationService {
     this.SelectCurrentElement();
   }
 
-  public SetPosition(x: number, y: number, n?: Nav.INavigatable): void {
+  public SetPosition(x: number, y: number, n?: INavigatable): void {
     this.p.x = x;
     this.p.y = y;
     if (!!n && this.CurrentNavigatable !== n) {
@@ -143,7 +143,7 @@ export class KeyboardNavigationService {
     this.SelectCurrentElement();
   }
 
-  IsCurrentNavigatable(potentialNavigatable: Nav.INavigatable): boolean {
+  IsCurrentNavigatable(potentialNavigatable: INavigatable): boolean {
     return this.CurrentNavigatable.constructor.name === potentialNavigatable.constructor.name;
   }
 
@@ -186,7 +186,7 @@ export class KeyboardNavigationService {
   }
 
   private LogMoveStats(
-    attemptedDirection: Nav.AttachDirection,
+    attemptedDirection: AttachDirection,
     select: boolean = true, altKey: boolean = false,
     canJumpToNeighbourMatrix: boolean = false): void {
     if (environment.debug) {
@@ -202,7 +202,7 @@ export class KeyboardNavigationService {
       console.log(`[PARAM] Should jump to neighbour: ${canJumpToNeighbourMatrix}`);
       console.log(`[NAVIGATABLE] OuterJump: ${this.CurrentNavigatable.OuterJump}`);
       
-      console.log(`Attempted direction: ${Nav.AttachDirection[attemptedDirection]}`);
+      console.log(`Attempted direction: ${AttachDirection[attemptedDirection]}`);
       
       this.LogNeighbourStats();
 
@@ -229,11 +229,11 @@ export class KeyboardNavigationService {
    * @param setEdit 
    * @returns 
    */
-  public Jump(direction: Nav.AttachDirection, setEdit: boolean = false): MoveRes {
+  public Jump(direction: AttachDirection, setEdit: boolean = false): MoveRes {
     const res = { moved: false, jumped: false } as MoveRes;
 
     switch(direction) {
-      case Nav.AttachDirection.DOWN:
+      case AttachDirection.DOWN:
         if (!!this.CurrentNavigatable.DownNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
 
@@ -244,7 +244,7 @@ export class KeyboardNavigationService {
           res.jumped = true;
         }
         break;
-      case Nav.AttachDirection.LEFT:
+      case AttachDirection.LEFT:
         if (!!this.CurrentNavigatable.LeftNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
 
@@ -255,7 +255,7 @@ export class KeyboardNavigationService {
           res.jumped = true;
         }
         break;
-      case Nav.AttachDirection.RIGHT:
+      case AttachDirection.RIGHT:
         if (!!this.CurrentNavigatable.RightNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
 
@@ -267,7 +267,7 @@ export class KeyboardNavigationService {
         }
         break;
       default:
-      case Nav.AttachDirection.UP:
+      case AttachDirection.UP:
         if (!!this.CurrentNavigatable.UpNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
 
@@ -293,7 +293,7 @@ export class KeyboardNavigationService {
   }
 
   public MoveLeft(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
-    this.LogMoveStats(Nav.AttachDirection.LEFT, select, altKey, canJumpToNeighbourMatrix);
+    this.LogMoveStats(AttachDirection.LEFT, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
 
@@ -327,7 +327,7 @@ export class KeyboardNavigationService {
   }
 
   public MoveRight(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
-    this.LogMoveStats(Nav.AttachDirection.RIGHT, select, altKey, canJumpToNeighbourMatrix);
+    this.LogMoveStats(AttachDirection.RIGHT, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
 
@@ -361,7 +361,7 @@ export class KeyboardNavigationService {
   }
 
   public MoveUp(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
-    this.LogMoveStats(Nav.AttachDirection.UP, select, altKey, canJumpToNeighbourMatrix);
+    this.LogMoveStats(AttachDirection.UP, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
 
@@ -402,7 +402,7 @@ export class KeyboardNavigationService {
   }
 
   public MoveDown(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
-    this.LogMoveStats(Nav.AttachDirection.DOWN, select, altKey, canJumpToNeighbourMatrix);
+    this.LogMoveStats(AttachDirection.DOWN, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
 
@@ -442,29 +442,29 @@ export class KeyboardNavigationService {
     return res;
   }
 
-  public SetRoot(n: Nav.INavigatable): void {
+  public SetRoot(n: INavigatable): void {
     this.Root = n;
     this.CurrentNavigatable = n;
   }
 
-  public Attach(n: Nav.INavigatable, direction: Nav.AttachDirection, setAsCurrentNavigatable: boolean = true): void {
+  public Attach(n: INavigatable, direction: AttachDirection, setAsCurrentNavigatable: boolean = true): void {
     switch(direction) {
-      case Nav.AttachDirection.DOWN: {
+      case AttachDirection.DOWN: {
         this.CurrentNavigatable.DownNeighbour = n;
         n.UpNeighbour = this.CurrentNavigatable;
         break;
       }
-      case Nav.AttachDirection.UP: {
+      case AttachDirection.UP: {
         this.CurrentNavigatable.UpNeighbour = n;
         n.DownNeighbour = this.CurrentNavigatable;
         break;
       }
-      case Nav.AttachDirection.LEFT: {
+      case AttachDirection.LEFT: {
         this.CurrentNavigatable.LeftNeighbour = n;
         n.RightNeighbour = this.CurrentNavigatable;
         break;
       }
-      case Nav.AttachDirection.RIGHT: {
+      case AttachDirection.RIGHT: {
         this.CurrentNavigatable.RightNeighbour = n;
         n.LeftNeighbour = this.CurrentNavigatable;
         break;
@@ -521,7 +521,7 @@ export class KeyboardNavigationService {
     }
   }
 
-  public SetWidgetNavigatable(n: Nav.INavigatable): void {
+  public SetWidgetNavigatable(n: INavigatable): void {
     this.CurrentNavigatable.LastX = this.p.x;
     this.CurrentNavigatable.LastY = this.p.y;
 
@@ -546,9 +546,9 @@ export class KeyboardNavigationService {
     }
   }
 
-  public InsertNavigatable(center: Nav.INavigatable, direction: Nav.AttachDirection, toInsert: Nav.INavigatable): void {
+  public InsertNavigatable(center: INavigatable, direction: AttachDirection, toInsert: INavigatable): void {
     switch (direction) {
-      case Nav.AttachDirection.DOWN: {
+      case AttachDirection.DOWN: {
         if (!!center.DownNeighbour) {
           let temp = center.DownNeighbour;
           
@@ -560,7 +560,7 @@ export class KeyboardNavigationService {
         }
         break;
       }
-      case Nav.AttachDirection.UP: {
+      case AttachDirection.UP: {
         if (!!center.UpNeighbour) {
           let temp = center.UpNeighbour;
 
@@ -572,7 +572,7 @@ export class KeyboardNavigationService {
         }
         break;
       }
-      case Nav.AttachDirection.LEFT: {
+      case AttachDirection.LEFT: {
         if (!!center.LeftNeighbour) {
           let temp = center.LeftNeighbour;
 
@@ -584,7 +584,7 @@ export class KeyboardNavigationService {
         }
         break;
       }
-      case Nav.AttachDirection.RIGHT: {
+      case AttachDirection.RIGHT: {
         if (!!center.RightNeighbour) {
           let temp = center.RightNeighbour;
 
