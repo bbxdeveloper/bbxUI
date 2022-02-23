@@ -11,7 +11,7 @@
             [trackRows]="trackRows"
             (focusInTable)="focusOnTable(true)"
             (focusOutTable)="focusOnTable(false)">
-            <label class="search-label" for="search">Keresés név alapján:</label>
+            <label class="search-label" for="search">Név / adószám:</label>
             <input nbInput id="active-prod-search" class="search-input"
                 (keyup)="refreshFilter($event)" autocomplete="off">
         </app-flat-design-table>

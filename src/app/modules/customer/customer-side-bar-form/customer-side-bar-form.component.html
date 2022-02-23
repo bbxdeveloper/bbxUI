@@ -26,16 +26,16 @@
 
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>ID</label>
-                    <input nbInput type="text" formControlName="id"
-                        (click)="currentForm.HandleFormFieldClick($event)" readonly>
+                    <label>Azonosító</label>
+                    <input nbInput type="text" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
+                        readonly>
                 </div>
             </nb-form-field>
 
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Név</label>
-            
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
@@ -44,20 +44,22 @@
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Bankszámla</label>
-                    
+
                     <!--[mask]="GetBankAccountMask()"-->
                     <!-- <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber"
                         mask="SS00 0000 0000 0000 0000 0000 0000" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)"> -->
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber" [mask]="bankAccountMask | async"
-                        (keydown)="checkBankAccountKeydownValue($event)"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true" (click)="currentForm.HandleFormFieldClick($event)">
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber"
+                        [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
 
-            </nb-form-field><nb-form-field>
+            </nb-form-field>
+            <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Belföldi Adószám</label>
-            
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber"
                         mask="0000000-0-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
@@ -67,17 +69,18 @@
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Külföldi Adószám</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="thirdStateTaxId" (click)="currentForm.HandleFormFieldClick($event)">
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="thirdStateTaxId"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </nb-form-field>
 
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Országkód</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="countryCode"
-                    mask="SS" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="countryCode" mask="SS"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
             </nb-form-field>
@@ -85,28 +88,31 @@
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Irsz.</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="postalCode" (click)="currentForm.HandleFormFieldClick($event)">
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="postalCode"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Város</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="city"
-                        (click)="currentForm.HandleFormFieldClick($event)" required>
-                </div>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field>
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label>Város</label>
 
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Cím</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
-                        (click)="currentForm.HandleFormFieldClick($event)" required>
-                </div>
-            </nb-form-field>
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="city"
+                            (click)="currentForm.HandleFormFieldClick($event)" required>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label>Cím</label>
+
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
+                            (click)="currentForm.HandleFormFieldClick($event)" required>
+                    </div>
+                </nb-form-field>
+            </div>
 
             <div class="bbx-fd-checkbox-outer-div">
                 <label>Magánszemély</label>
@@ -118,7 +124,7 @@
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
-            
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
