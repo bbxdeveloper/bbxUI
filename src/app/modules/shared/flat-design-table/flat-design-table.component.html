@@ -1,11 +1,11 @@
-<nb-card *ngIf="!!dbDataTable">
-    <nb-card-header>
+<nb-card [nbSpinner]="isLoading">
+    <nb-card-header *ngIf="!!dbDataTable">
         <ng-content></ng-content>
     </nb-card-header>
-    <nb-card-body>
+    <nb-card-body *ngIf="!!dbDataTable">
         <form class="card-table-wrapper-form">
             <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
-                equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+                 *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
 
                 <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
                 <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
@@ -20,10 +20,9 @@
                         <ng-container *ngSwitchCase="'string'">
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                 *nbTreeGridCellDef="let row; let rowPos = index"
-                                (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
-                                (keydown.f12)="dbDataTable.HandleKey($event)"
-                                (keydown.tab)="dbDataTable.handleGridTab($event)"
-                                (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.HandleGridTab($event)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div>
@@ -35,10 +34,9 @@
                         <ng-container *ngSwitchCase="'bool'">
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                 *nbTreeGridCellDef="let row; let rowPos = index"
-                                (keydown.escape)="dbDataTable.handleGridEscape(row, rowPos, it.objectKey, colPos)"
-                                (keydown.f12)="dbDataTable.HandleKey($event)"
-                                (keydown.tab)="dbDataTable.handleGridTab($event)"
-                                (click)="dbDataTable.handleGridClick(row, rowPos, it.objectKey, colPos)"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.HandleGridTab($event)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div>
@@ -52,8 +50,8 @@
             </table>
         </form>
     </nb-card-body>
-    <nb-card-footer>
-        <app-paginator [paginator]="dbDataTable"></app-paginator>
-        <span *ngIf="this.dbDataDataSrc.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
+    <nb-card-footer *ngIf="!!dbDataTable">
+        <app-paginator *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" [paginator]="dbDataTable"></app-paginator>
+        <span *ngIf="!!dbDataTable && !isLoading && dbDataTable.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
     </nb-card-footer>
 </nb-card>

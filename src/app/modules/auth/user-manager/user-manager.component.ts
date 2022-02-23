@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
-import { ModelFieldDescriptor } from 'src/assets/model/ColDef';
+import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
@@ -56,6 +56,8 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
 
   tableIsFocused: boolean = false;
   private uid = 0;
+
+  isLoading: boolean = true;
 
   readonly commands: FooterCommandInfo[] = [
     { key: 'F1', value: '', disabled: false },
@@ -175,7 +177,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     this.usersDataSrc = this.dataSourceBuilder.create(this.users);
     // TODO: FormGroup generator
     this.userTableForm = new FormGroup({
-      id: new FormControl(undefined, [Validators.required]),
+      id: new FormControl(undefined, []),
       name: new FormControl(undefined, [Validators.required]),
       loginName: new FormControl(undefined, [Validators.required]),
       email: new FormControl(undefined, [Validators.required]),
@@ -185,9 +187,10 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     });
     this.userTable = new Nav.FlatDesignNavigatableTable(
       this.userTableForm, 'User', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, Nav.AttachDirection.DOWN,
-      'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
+      'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
+      () => { return new User(); }
     );
-    this.userTable.pushFooterCommandList();
+    this.userTable.PushFooterCommandList();
     this.userTable.OuterJump = true;
     this.sidebarService.collapse();
     this.Refresh();
@@ -195,6 +198,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
 
   private Refresh(): void {
     console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
     this.seInv.GetUsers().subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
@@ -208,7 +212,8 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
           this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
-      error: err => this.cs.HandleError(err)
+      error: err => this.cs.HandleError(err),
+      complete: () => { this.isLoading = false; }
     });
   }
 
@@ -231,7 +236,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.userTable.GenerateAndSetNavMatrices(true);
-    this.userTable.pushFooterCommandList();
+    this.userTable.PushFooterCommandList();
 
     this.kbS.SelectFirstTile();
   }
@@ -252,7 +257,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   focusOnTable(focusIn: boolean): void {
     this.tableIsFocused = focusIn;
     if (focusIn) {
-      this.userTable.pushFooterCommandList();
+      this.userTable.PushFooterCommandList();
     } else {
       this.fS.pushCommands(this.commands);
     }

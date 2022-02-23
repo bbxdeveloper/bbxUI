@@ -3,9 +3,9 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService, MoveRes, PreferredSelectionMethod } from 'src/app/services/keyboard-navigation.service';
 import * as $ from 'jquery';
 import { environment } from 'src/environments/environment';
-import { NbSidebarService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
-import { ModelFieldDescriptor } from './ColDef';
+import { ModelFieldDescriptor } from './ModelFieldDescriptor';
 import { FooterCommandInfo } from './FooterCommandInfo';
 import { TreeGridNode } from './TreeGridNode';
 import { IEditable } from './IEditable';
@@ -15,8 +15,6 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { SimplePaginator } from './SimplePaginator';
 
-/// <reference path='./INavigatable.ts'/>
-/// <reference path='./NullNavigatable.ts'/>
 export module Nav {
 
     export const TileCssClass: string = 'navmatrix-tile';
@@ -184,13 +182,12 @@ export module Nav {
 
         private tag: string = '';
 
-        /*
-        <span (click)="dbDataTable.firstPage()">&lt;&lt;</span>
-        <span (click)="dbDataTable.previousPage()">&lt;</span>
-        <span>{{dbDataTable.currentPage}} / {{dbDataTable.allPages}}</span>
-        <span (click)="dbDataTable.nextPage()">&gt;&gt;</span>
-        <span (click)="dbDataTable.lastPage()">&gt;</span>
-        */
+        getBlankInstance: () => T;
+        get GenerateCreatorRow(): TreeGridNode<T> {
+            return {
+                data: this.getBlankInstance()
+            };
+        }
 
         constructor(
             f: FormGroup,
@@ -206,7 +203,8 @@ export module Nav {
             formAttachDirection: AttachDirection,
             private sidebarService: BbxSidebarService,
             private sidebarFormService: SideBarFormService,
-            private updater: IUpdater<T>
+            private updater: IUpdater<T>,
+            getBlankInstance: () => T
         ) {
             super();
             
@@ -225,26 +223,28 @@ export module Nav {
             );
 
             this.tag = tag;
+
+            this.getBlankInstance = getBlankInstance;
         }
 
         New(data?: IUpdateRequest): void {
             this.updater.ActionNew(data);
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
         Reset(data?: IUpdateRequest): void {
             this.updater.ActionReset(data);
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
         Put(data?: IUpdateRequest): void {
             this.updater.ActionPut(data);
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
         Delete(data?: IUpdateRequest): void {
             this.updater.ActionDelete(data);
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
         public ClearNeighbours(): void {
@@ -255,7 +255,7 @@ export module Nav {
         }
 
         ResetForm(): void {
-            this.handleGridClick(
+            this.HandleGridClick(
                 this.prevSelectedRow!,
                 this.prevSelectedRowPos!,
                 this.prevSelectedCol!,
@@ -283,7 +283,7 @@ export module Nav {
             this.flatDesignForm.OuterJump = true;
         }
 
-        pushFooterCommandList(): void {
+        PushFooterCommandList(): void {
             if (this.kbs.isEditModeActivated) {
                 this.fS.pushCommands(this.commandsOnTableEditMode);
             } else {
@@ -291,14 +291,42 @@ export module Nav {
             }
         }
 
-        handleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        HandleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
             this.kbs.setEditMode(KeyboardModes.NAVIGATION);
             this.cdr!.detectChanges();
             this.kbs.SelectCurrentElement();
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
-        handleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        private SetBlankInstanceForForm(openSideBar: boolean): void {
+            const creatorRow = this.GenerateCreatorRow;
+
+            console.log(`Blank instance: ${creatorRow}`);
+
+            this.prevSelectedRow = creatorRow;
+            this.prevSelectedRowPos = -1;
+            this.prevSelectedCol = '';
+            this.prevSelectedColPos = -1;
+
+            this.flatDesignForm.SetDataForEdit(creatorRow, -1, '');
+            this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
+
+            this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
+            this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
+
+            setTimeout(() => {
+                this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
+                
+                if (openSideBar) {
+                    this.sidebarService.toggle();
+                }
+
+                this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+                this.flatDesignForm.PushFooterCommandList();
+            }, 200);
+        }
+
+        HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
             // In case user clicks with mouse, we adjust our coordinate to the click
             
             // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
@@ -396,20 +424,24 @@ export module Nav {
             switch (event.key) {
                 case KeyBindings.F12: {
                     event.preventDefault();
-                    this.sidebarService.toggle();
+                    if (this.data.length === 0) {
+                        this.SetBlankInstanceForForm(true);
+                    } else {
+                        this.sidebarService.toggle();
+                    }
                     break;
                 }
                 default: { }
             }
         }
 
-        handleGridTab(event: Event): void {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            event.stopPropagation();
+        HandleGridTab(event?: Event): void {
+            event?.preventDefault();
+            event?.stopImmediatePropagation();
+            event?.stopPropagation();
 
             this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-            this.flatDesignForm.pushFooterCommandList();
+            this.flatDesignForm.PushFooterCommandList();
         }
     }
     
@@ -492,7 +524,7 @@ export module Nav {
                 next: value => {
                     if (!!this.LeftNeighbour || !!this.RightNeighbour || !!this.DownNeighbour || !!this.UpNeighbour) {
                         this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
-                        this.grid.pushFooterCommandList();
+                        this.grid.PushFooterCommandList();
                     }
                 }
             });
@@ -541,11 +573,15 @@ export module Nav {
         }
 
         HandleFormClick(): void {
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
         HandleFormFieldClick(event: any): void {
-            this.kbS.setEditMode(KeyboardModes.EDIT);
+            if (this.kbS.IsCurrentNavigatable(this.grid)) {
+                this.grid.HandleGridTab();
+            } else {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+            }
             this.kbS.SetPositionById(event.target?.id);
         }
 
@@ -691,7 +727,7 @@ export module Nav {
             }
         }
 
-        pushFooterCommandList(): void {
+        PushFooterCommandList(): void {
             this.fS.pushCommands(this.commandsOnForm);
         }
 
@@ -833,7 +869,7 @@ export module Nav {
         }
 
         HandleFormClick(): void {
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
         HandleFormFieldClick(event: any): void {
@@ -902,7 +938,7 @@ export module Nav {
             }
         }
 
-        pushFooterCommandList(): void {
+        PushFooterCommandList(): void {
             this.fS.pushCommands(this.commandsOnForm);
         }
 
@@ -978,13 +1014,6 @@ export module Nav {
         colsToIgnore: string[];
 
         productCreatorRow: TreeGridNode<T>;
-        
-        // private newDataInstance<A>(t: { new(): A; }): A { return new t(); }
-        // get GenerateCreatorRow(): TreeGridNode<T> {
-        //     return {
-        //         data: this.newDataInstance(T)
-        //     };
-        // }
 
         getBlankInstance: () => T;
         get GenerateCreatorRow(): TreeGridNode<T> {
@@ -1055,10 +1084,10 @@ export module Nav {
 
             this.dataSource.setData(this.data);
 
-            this.resetEdit();
+            this.ResetEdit();
         }
 
-        pushFooterCommandList(): void {
+        PushFooterCommandList(): void {
             if (this.kbS.isEditModeActivated) {
                 this.fS.pushCommands(this.commandsOnTableEditMode);
             } else {
@@ -1070,24 +1099,16 @@ export module Nav {
             if (!!newRowData && !!this.editedRow) {
                 this.editedRow.data = newRowData.data;
             }
-            // if (!!newRowData && !!this.editedRow) {
-            //     this.editedRow.data.ProductCode = newRowData.data.ProductCode;
-            //     this.editedRow.data.Name = newRowData.data.Name;
-            //     this.editedRow.data.Amount = newRowData.data.Amount;
-            //     this.editedRow.data.Measure = newRowData.data.Measure;
-            //     this.editedRow.data.Price = newRowData.data.Price;
-            //     this.editedRow.data.Value = newRowData.data.Value;
-            // }
         }
 
-        resetEdit(): void {
+        ResetEdit(): void {
             this.inlineForm = new FormGroup({});
             this.editedProperty = undefined;
             this.editedRow = undefined;
             this.editedRowPos = undefined;
         }
 
-        edit(row: TreeGridNode<T>, rowPos: number, col: string) {
+        Edit(row: TreeGridNode<T>, rowPos: number, col: string) {
             this.inlineForm = new FormGroup({
                 edited: new FormControl((row.data as any)[col])
             });
@@ -1096,12 +1117,12 @@ export module Nav {
             this.editedRowPos = rowPos;
         }
 
-        handleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        HandleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.resetEdit();
+            this.ResetEdit();
             this.cdref!.detectChanges();
             this.kbS.SelectCurrentElement();
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
         }
 
         private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -1170,7 +1191,7 @@ export module Nav {
             }
         }
 
-        handleGridMovement(event: KeyboardEvent, row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, upward: boolean): void {
+        HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, upward: boolean): void {
             // Új sorokat generáló sort nem dobhatjuk el.
             if (rowPos !== this.data.length - 1) {
                 // Csak befejezetlen sort dobhatunk el, amikor nincs szerkesztésmód.
@@ -1208,7 +1229,7 @@ export module Nav {
             }
         }
 
-        handleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
+        HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
             //debugger;
 
             // Switch between nav and edit mode
@@ -1231,21 +1252,21 @@ export module Nav {
                 }
 
                 // this.kbS.toggleEdit();
-                this.resetEdit();
+                this.ResetEdit();
                 this.cdref!.detectChanges();
 
-                let newX = this.moveNextInTable();
+                let newX = this.MoveNextInTable();
                 if (wasEditActivatedPreviously) {
                     if (newX < colPos) {
                         this.isUnfinishedRowDeletable = false;
                     }
                     let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
                     let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                    this.handleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                    this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
                 }
             } else {
                 // Entering edit mode
-                this.edit(row, rowPos, col);
+                this.Edit(row, rowPos, col);
                 this.cdref!.detectChanges();
                 this.kbS.SelectElement(inputId);
                 const _input = document.getElementById(inputId) as HTMLInputElement;
@@ -1262,12 +1283,12 @@ export module Nav {
                 }
             }
 
-            this.pushFooterCommandList();
+            this.PushFooterCommandList();
 
             console.log((this.data[rowPos].data as any)[col]);
         }
 
-        handleGridDelete(event: Event, row: TreeGridNode<T>, rowPos: number, col: string): void {
+        HandleGridDelete(event: Event, row: TreeGridNode<T>, rowPos: number, col: string): void {
             if (rowPos !== this.data.length - 1 && !this.kbS.isEditModeActivated) {
                 this.data.splice(rowPos, 1);
                 this.dataSource.setData(this.data);
@@ -1285,13 +1306,13 @@ export module Nav {
             return this.kbS.isEditModeActivated && !!this.editedRow && this.editedRowPos == rowIndex && this.editedProperty == col;
         }
 
-        clearEdit(): void {
+        ClearEdit(): void {
             this.editedRow = undefined;
             this.editedProperty = undefined;
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         }
 
-        moveNextInTable(): number {
+        MoveNextInTable(): number {
             let moveRes = this.kbS.MoveRight(true, false, false);
             if (!moveRes.moved) {
                 moveRes = this.kbS.MoveDown(true, false, false);

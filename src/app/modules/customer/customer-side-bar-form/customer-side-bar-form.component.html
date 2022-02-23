@@ -45,10 +45,6 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Bankszámla</label>
 
-                    <!--[mask]="GetBankAccountMask()"-->
-                    <!-- <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber"
-                        mask="SS00 0000 0000 0000 0000 0000 0000" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        (click)="currentForm.HandleFormFieldClick($event)"> -->
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber"
                         [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true"

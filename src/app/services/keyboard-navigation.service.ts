@@ -143,6 +143,10 @@ export class KeyboardNavigationService {
     this.SelectCurrentElement();
   }
 
+  IsCurrentNavigatable(potentialNavigatable: Nav.INavigatable): boolean {
+    return this.CurrentNavigatable.constructor.name === potentialNavigatable.constructor.name;
+  }
+
   private LogGeneralStats(): void {
     console.log(`Time: ${Date.now().toLocaleString()}`);
     console.log(`Current INavigatable: ${this.CurrentNavigatable.constructor.name}`);

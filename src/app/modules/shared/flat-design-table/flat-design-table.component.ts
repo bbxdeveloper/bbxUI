@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { ModelFieldDescriptor } from 'src/assets/model/ColDef';
+import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
+import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Nav } from 'src/assets/model/Navigatable';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-flat-design-table',
@@ -14,11 +15,12 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() dbDataTableId: any;
   @Input() dbDataDataSrc: any;
   @Input() trackRows: any;
+  @Input() isLoading: boolean = true;
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {}
 
@@ -27,6 +29,23 @@ export class FlatDesignTableComponent implements OnInit {
       this.focusInTable.emit('focusInTable');
     } else {
       this.focusOutTable.emit('focusOutTable');
+    }
+  }
+
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    switch (event.key) {
+      case KeyBindings.F12: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`F12 Pressed: ${event}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      default: { }
     }
   }
 

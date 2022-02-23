@@ -71,12 +71,6 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private toastrService: NbToastrService) {
     super();
     this.OuterJump = true;
-    $(document).keydown(function (event) {
-      if (event.keyCode == 123) { // Prevent F12
-        return false;
-      }
-      return true;
-    });
   }
 
   override ngOnInit(): void {
@@ -127,9 +121,6 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-    // if (event.code === 'Tab') {
-    //   event.preventDefault();
-    // }
     switch (event.key) {
       case KeyBindings.up: {
         if (!this.kbS.isEditModeActivated) {

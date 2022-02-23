@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
-import { ModelFieldDescriptor } from 'src/assets/model/ColDef';
+import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
@@ -13,7 +13,7 @@ import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
-import { Customer } from '../models/Customer';
+import { BlankCustomer, Customer } from '../models/Customer';
 import { CustomerService } from '../services/customer.service';
 import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
@@ -56,6 +56,8 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
 
   tableIsFocused: boolean = false;
   private uid = 0;
+
+  isLoading: boolean = true;
 
   readonly commands: FooterCommandInfo[] = [
     { key: 'F1', value: '', disabled: false },
@@ -198,9 +200,10 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     
     this.dbDataTable = new Nav.FlatDesignNavigatableTable(
       this.dbDataTableForm, 'Customer', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.dbData, this.dbDataTableId, Nav.AttachDirection.DOWN,
-      'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this
+      'sideBarForm', Nav.AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
+      () => { return BlankCustomer(); }
     );
-    this.dbDataTable.pushFooterCommandList();
+    this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
@@ -220,6 +223,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
 
   private Refresh(params?: GetCustomersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
     this.seInv.GetCustomers(params).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
@@ -234,7 +238,8 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
           this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
-      error: err => this.cs.HandleError(err)
+      error: err => this.cs.HandleError(err),
+      complete: () => { this.isLoading = false; }
     });
   }
 
@@ -258,7 +263,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.pushFooterCommandList();
+    this.dbDataTable.PushFooterCommandList();
 
     this.kbS.SelectFirstTile();
   }
@@ -279,7 +284,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   focusOnTable(focusIn: boolean): void {
     this.tableIsFocused = focusIn;
     if (focusIn) {
-      this.dbDataTable.pushFooterCommandList();
+      this.dbDataTable.PushFooterCommandList();
     } else {
       this.fS.pushCommands(this.commands);
     }

@@ -24,3 +24,23 @@ export interface Customer {
     "updateTime"?: string;
     "deleted"?: boolean;
 }
+
+export function BlankCustomer(): Customer {
+    return {
+        id: 0,
+        taxpayerNumber: '',
+        customerName: '',
+        customerBankAccountNumber: '',
+        customerVatStatus: '',
+        privatePerson: false,
+        thirdStateTaxId: '',
+        region: '',
+        postalCode: '',
+        city: '',
+        additionalAddressDetail: '',
+        comment: '',
+        createTime: '',
+        updateTime: '',
+        deleted: false
+    } as Customer;
+}

@@ -6,7 +6,6 @@ import { HeaderComponent } from './header/header.component';
 import { NbActionsModule, NbButtonGroupModule, NbButtonModule, NbCardModule, NbCheckboxModule, NbContextMenuModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbLayoutModule, NbMenuModule, NbMenuService, NbPopoverModule, NbTagModule, NbToggleModule, NbTooltipModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.component';
-import { SideBarFormComponent } from './side-bar-form/side-bar-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 
@@ -17,8 +16,7 @@ import { NgxMaskModule } from 'ngx-mask';
     DashboardComponent,
     FKeyButtonsRowComponent,
     StatusAndSpinnerComponent,
-    HeaderComponent,
-    SideBarFormComponent,
+    HeaderComponent
   ],
   imports: [
     CommonModule,
@@ -46,8 +44,7 @@ import { NgxMaskModule } from 'ngx-mask';
     DashboardComponent,
     FKeyButtonsRowComponent,
     StatusAndSpinnerComponent,
-    HeaderComponent,
-    SideBarFormComponent
+    HeaderComponent
   ],
   providers: [
     NbMenuService
