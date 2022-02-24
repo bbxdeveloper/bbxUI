@@ -140,3 +140,9 @@ td {
     row-gap: 10px;
   }
 }
+
+// Placing toastr popups to bottom center
+.toastr-overlay-container {
+  justify-content: center !important;
+  align-items: end !important;
+}

@@ -194,6 +194,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           next: res => {
             this.tokenService.token = res.token;
             this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            // this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, { duration: 0 });
             this.GenerateAndSetNavMatrices();
             this.kbS.SelectFirstTile();
           },
