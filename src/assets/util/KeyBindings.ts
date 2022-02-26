@@ -37,4 +37,9 @@ export enum KeyBindings {
     F10 = 'F10',
     F11 = 'F11',
     F12 = 'F12',
+    // QUICK CRUD
+    crudNew = F8,
+    crudReset = F9,
+    crudSave = F10,
+    crudDelete = F11,
 }

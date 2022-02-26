@@ -198,7 +198,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.PushFooterCommandList();
     }
 
-    private SetBlankInstanceForForm(openSideBar: boolean): void {
+    SetBlankInstanceForForm(openSideBar: boolean, jump: boolean = true): void {
         const creatorRow = this.GenerateCreatorRow;
 
         console.log(`Blank instance: ${creatorRow}`);
@@ -221,7 +221,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
             this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
 
-            this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+            if (jump) {
+                this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+            }
+
             this.flatDesignForm.PushFooterCommandList();
         }, 200);
     }

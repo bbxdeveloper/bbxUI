@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-user-side-bar-form',
@@ -11,6 +12,10 @@ import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/naviga
 export class UserSideBarFormComponent implements OnInit {
   currentForm?: FlatDesignNavigatableForm;
   TileCssClass = TileCssClass;
+
+  public get keyBindings(): typeof KeyBindings {
+    return KeyBindings;
+  }
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService) { }
 

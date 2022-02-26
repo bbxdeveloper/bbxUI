@@ -3,6 +3,7 @@ import { NbSidebarService } from '@nebular/theme';
 import { BehaviorSubject } from 'rxjs';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
 const defaultPattern: string = '00000000-00000000-00000000';
@@ -15,6 +16,10 @@ const defaultPattern: string = '00000000-00000000-00000000';
 export class CustomerSideBarFormComponent implements OnInit {
   // TODO: @Input() ?
   currentForm?: FlatDesignNavigatableForm;
+
+  public get keyBindings(): typeof KeyBindings {
+    return KeyBindings;
+  }
 
   TileCssClass = TileCssClass;
 

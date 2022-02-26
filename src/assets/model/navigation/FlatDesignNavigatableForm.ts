@@ -1,9 +1,12 @@
+import { ThrowStmt } from "@angular/compiler";
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
+import { NbFormControlState } from "@nebular/theme";
 import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
+import { Constants } from "src/assets/util/Constants";
 import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
@@ -67,6 +70,10 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         { key: 'F12', value: 'Tétellap', disabled: false }
     ];
 
+    formMode: Constants.FormState = Constants.FormState.default;
+
+    get isDeleteDisabled() { return this.formMode === Constants.FormState.new; }
+
     constructor(
         f: FormGroup,
         private kbS: KeyboardNavigationService,
@@ -110,6 +117,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             data: this.FillObjectWithForm(),
             rowIndex: this.DataRowIndex
         } as IUpdateRequest);
+        this.formMode = Constants.FormState.default;
     }
 
     ActionReset(): void {
@@ -133,6 +141,46 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             data: this.DataToEdit?.data,
             rowIndex: this.DataRowIndex
         } as IUpdateRequest);
+    }
+
+    HandleFunctionKey(event: Event | KeyBindings): void {
+        const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+        switch (val) {
+            // NEW
+            case KeyBindings.crudNew:
+                switch (this.formMode) {
+                    case Constants.FormState.new:
+                    case Constants.FormState.default:
+                    default:
+                        this.grid.SetBlankInstanceForForm(false, false);
+                        this.formMode = Constants.FormState.new;
+                        break;
+                }
+                break;
+            // RESET
+            case KeyBindings.crudReset:
+                this.ActionReset();
+                break;
+            // SAVE
+            case KeyBindings.crudSave:
+                switch (this.formMode) {
+                    case Constants.FormState.new:
+                        this.ActionNew();
+                        break;
+                    case Constants.FormState.default:
+                        this.ActionPut();
+                        break;
+                }
+                break;
+            // DELETE
+            case KeyBindings.crudDelete:
+                switch (this.formMode) {
+                    case Constants.FormState.default:
+                        this.ActionDelete();
+                        break;
+                }
+                break;
+        }
     }
 
     HandleFormEscape(): void {
