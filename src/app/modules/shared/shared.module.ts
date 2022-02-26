@@ -10,6 +10,7 @@ import { HeadLineComponent } from './head-line/head-line.component';
 import { FlatDesignTableComponent } from './flat-design-table/flat-design-table.component';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
+import { CrudButtonsComponent } from './crud-buttons/crud-buttons.component';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
     ConfirmationDialogComponent,
     HeadLineComponent,
     FlatDesignTableComponent,
-    PaginatorComponent
+    PaginatorComponent,
+    CrudButtonsComponent
   ],
   imports: [
     CommonModule,
@@ -50,7 +52,8 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
     ConfirmationDialogComponent,
     HeadLineComponent,
     FlatDesignTableComponent,
-    PaginatorComponent
+    PaginatorComponent,
+    CrudButtonsComponent
   ],
   providers: [
     ConfirmationDialogComponent
