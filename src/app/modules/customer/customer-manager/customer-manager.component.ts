@@ -74,7 +74,6 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
 
   searchString: string = '';
-  // searchInputNavigatable!: NavigatableInput;
 
   constructor(
     @Optional() private dialogService: NbDialogService,
@@ -167,7 +166,6 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   }
 
   search(): void {
-    // console.log("Search: ", this.searchString);
     if (this.searchString.length === 0) {
       this.Refresh();
     } else {
@@ -180,7 +178,6 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
     
-    // TODO: FormGroup generator
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
       customerName: new FormControl(undefined, [Validators.required]),
@@ -209,11 +206,6 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     });
     
     this.sidebarService.collapse();
-
-    // this.searchInputNavigatable = new NavigatableInput(
-    //   'active-prod-search', AttachDirection.DOWN,
-    //   this.kbS, this.cdref, this.fS
-    // );
 
     this.Refresh();
   }

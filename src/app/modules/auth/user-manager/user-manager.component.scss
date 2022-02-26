@@ -20,24 +20,28 @@ nb-card {
     margin: 0px;
 }
 
+.card-table-wrapper-form {
+    display: flex;
+}
+
 .card-table-wrapper {
     display: block;
 
     position: sticky;
     top: 0;
 
-    margin: auto;
+    margin-left: 25%;
 
     @media (max-height: 1000px) {
-        max-height: 255px !important;    
+        max-height: 255px !important;
     }
     @media (min-height: 1001px) {
         max-height: 305px !important;
     }
-    
+
     @media (max-height: 1000px) {
         td {
-            padding: 0.0rem 1.25rem !important;
+            padding: 0rem 1.25rem !important;
         }
     }
 
@@ -390,16 +394,46 @@ nb-card-header {
         align-content: stretch;
         justify-content: flex-start;
         align-items: flex-start;
+        min-width: 50%;
     }
 
     .bbx-fd-col-right {
-        min-width: 300px;
+        min-width: 50%;
     }
 }
 
 .bbx-customer-sidebar {
-    position: fixed;
+    // position: fixed;
     right: 0px;
     height: 100vh;
     overflow: scroll;
+}
+
+.search-label {
+    margin-left: 35px;
+}
+
+.search-input {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 20px;
+
+    &:focus {
+        background-color: rgb(219, 159, 206);
+    }
+}
+
+.btn-util {
+    height: 20px;
+}
+
+.msg {
+    display: flex;
+    max-width: 800px;
+    margin: 10px;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    min-height: 50px;
+    align-items: self-end;
 }

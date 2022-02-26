@@ -12,6 +12,9 @@
             [isLoading]="isLoading"
             (focusInTable)="focusOnTable(true)"
             (focusOutTable)="focusOnTable(false)">
+            <label class="search-label" for="search">Név:</label>
+            <input nbInput id="active-prod-search" class="search-input"
+                (keyup)="refreshFilter($event)" autocomplete="off">
         </app-flat-design-table>
         
     </as-split-area>

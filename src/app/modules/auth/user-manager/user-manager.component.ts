@@ -20,6 +20,7 @@ import { CreateUserResponseDataToUser } from '../models/CreateUserResponse';
 import { UpdateUserResponseDataToUser } from '../models/UpdateUserResponse';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { GetUsersParamListModel } from '../models/GetUsersParamListModel';
 
 @Component({
   selector: 'app-user-manager',
@@ -74,6 +75,8 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   ];
 
   get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
+
+  searchString: string = '';
 
   constructor(
     @Optional() private dialogService: NbDialogService,
@@ -171,6 +174,20 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     });
   }
 
+  refreshFilter(event: any): void {
+    this.searchString = event.target.value;
+    console.log("Search: ", this.searchString);
+    this.search();
+  }
+
+  search(): void {
+    if (this.searchString.length === 0) {
+      this.Refresh();
+    } else {
+      this.Refresh({ 'Name': this.searchString });
+    }
+  }
+
   private Setup(): void {
     this.users = [];
     this.usersDataSrc = this.dataSourceBuilder.create(this.users);
@@ -195,10 +212,10 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     this.Refresh();
   }
 
-  private Refresh(): void {
+  private Refresh(params?: GetUsersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.seInv.GetUsers().subscribe({
+    this.seInv.GetUsers(params).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
           console.log('GetUsers response: ', d); // TODO: only for debug
