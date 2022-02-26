@@ -146,11 +146,12 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
     HandleFormFieldClick(event: any): void {
         if (this.kbS.IsCurrentNavigatable(this.grid)) {
-            this.grid.HandleGridTab();
+            this.GenerateAndSetNavMatrices(false);
+            this.grid.JumpToFlatDesignForm();
         } else {
             this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.SetPositionById(event.target?.id);
         }
-        this.kbS.SetPositionById(event.target?.id);
     }
 
     public SetDataForEdit(row: TreeGridNode<any>, rowPos: number, objectKey: string): void {
@@ -327,9 +328,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
 
-        // if (environment.debug) {
-        //     console.log('[GenerateAndSetNavMatrices]', this.formId, tiles, '.' + TileCssClass, '#' + this.formId);
-        // }
+        if (environment.debug) {
+            console.log('[GenerateAndSetNavMatrices]', this.formId, tiles, '.' + TileCssClass, '#' + this.formId);
+        }
 
         let currentParent = '';
 
@@ -341,9 +342,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         for (let i = 0; i < tiles.length; i++) {
             const next = tiles[i];
 
-            // this.LogMatrixGenerationCycle(
-            //     TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
-            // );
+            this.LogMatrixGenerationCycle(
+                TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
+            );
 
             // Flat Design forms are always vertical
             if (currentParent !== '') {
@@ -356,9 +357,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             this.Matrix[currentMatrixIndex].push(next.id);
         }
 
-        // if (environment.debug) {
-        //     console.log('[GenerateAndSetNavMatrices]', this.Matrix);
-        // }
+        if (environment.debug) {
+            console.log('[GenerateAndSetNavMatrices]', this.Matrix);
+        }
 
         if (attach) {
             this.kbS.Attach(this, this.attachDirection, setAsCurrentNavigatable);

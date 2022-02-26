@@ -171,7 +171,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
     if (this.searchString.length === 0) {
       this.Refresh();
     } else {
-      this.Refresh({ 'CustomerName': this.searchString });
+      this.Refresh({ 'SearchString': this.searchString });
     }
   }
 

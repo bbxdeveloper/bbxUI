@@ -213,13 +213,13 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
-
+        
         setTimeout(() => {
-            this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
-
             if (openSideBar) {
                 this.sidebarService.toggle();
             }
+
+            this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
 
             this.kbs.Jump(this.flatDesignForm.attachDirection, true);
             this.flatDesignForm.PushFooterCommandList();
@@ -335,10 +335,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    HandleGridTab(event?: Event): void {
-        event?.preventDefault();
-        event?.stopImmediatePropagation();
-        event?.stopPropagation();
+    JumpToFlatDesignForm(tabKeyDownEvent?: Event): void {
+        tabKeyDownEvent?.preventDefault();
+        tabKeyDownEvent?.stopImmediatePropagation();
+        tabKeyDownEvent?.stopPropagation();
 
         this.kbs.Jump(this.flatDesignForm.attachDirection, true);
         this.flatDesignForm.PushFooterCommandList();

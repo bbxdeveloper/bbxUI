@@ -1,6 +1,6 @@
 export interface GetCustomersParamListModel {
     Name?: string;
-    CustomerName?: string;
+    SearchString?: string;
     OrderBy?: string;
     Fields?: string;
     PageSize?: string;
