@@ -1,5 +1,5 @@
 export interface UpdateProductGroupRequest {
-    "id": string,
+    "id": number,
     "productGroupCode": string,
     "productGroupDescription": string
 }

@@ -1,3 +1,3 @@
 export interface DeleteOriginRequest {
-    id: number;
+    id: any;
 }

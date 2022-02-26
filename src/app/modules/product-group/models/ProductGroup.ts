@@ -6,3 +6,14 @@ export interface ProductGroup {
     "updateTime"?: string,
     "deleted"?: boolean
 }
+
+export function BlankProductGroup(): ProductGroup {
+    return {
+        id: 0,
+        productGroupCode: '',
+        productGroupDescription: '',
+        createTime: '',
+        updateTime: '',
+        deleted: false
+    } as ProductGroup;
+}

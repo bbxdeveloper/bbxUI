@@ -1,1 +1,17 @@
-<p>product-group-manager works!</p>
+<as-split direction="horizontal">
+    <as-split-area [size]="50">
+        <app-head-line msg="Termékcsoportok kezelése"></app-head-line>
+
+        <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+            <label class="search-label" for="search">Kód / leírás:</label>
+            <input nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)"
+                autocomplete="off">
+        </app-flat-design-table>
+
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+        <app-product-group-side-bar-form class="bbx-sidebar"></app-product-group-side-bar-form>
+    </as-split-area>
+</as-split>

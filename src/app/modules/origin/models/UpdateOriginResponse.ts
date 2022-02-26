@@ -4,5 +4,5 @@ export interface UpdateOriginResponse {
     "succeeded": boolean,
     "message"?: string,
     "errors"?: string[],
-    "data"?: Origin[]
+    "data"?: Origin
 }
