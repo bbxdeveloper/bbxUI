@@ -15,13 +15,8 @@
                 <button *ngIf="!isLoggedIn" nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="login($event)">
                     Bejelentkezés
                 </button>
-                <button *ngIf="isLoggedIn" nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="logout($event)">
+                <button *ngIf="isLoggedIn" nbButton status="primary" id="header-user-sub-2" [disabled]="InProgress" (click)="logout($event)">
                     Kijelentkezés
-                </button>
-            </nb-card-body>
-            <nb-card-body *ngIf="isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-user-sub-2" [disabled]="InProgress && !isLoggedIn" link="admin/users" (click)="goTo('admin/users')">
-                    Felhasználók kezelése
                 </button>
             </nb-card-body>
         </nb-card>
@@ -29,15 +24,39 @@
 
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
 
-    <nb-action id="header-customer" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        nbPopoverPlacement="bottom" [nbPopover]="sub_customer" data-sub="header-customer-sub-1">Ügyfelek
+    <nb-action id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
+        nbPopoverPlacement="bottom" [nbPopover]="sub_customer" data-sub="header-customer-sub-1">Törzsek
     </nb-action>
     <ng-template #sub_customer let-data>
         <nb-card>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-customer-sub-1" [disabled]="InProgress" link="admin/users"
+                <button nbButton status="primary" id="header-base-sub-1" [disabled]="InProgress"
                     (click)="goTo('manage/customers')">
                     Ügyfelek kezelése
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-base-sub-2" [disabled]="InProgress"
+                    (click)="goTo('manage/origin')">
+                    Származások kezelése
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-base-sub-3" [disabled]="InProgress"
+                    (click)="goTo('manage/product-group')">
+                    Termékcsoportok kezelése
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-base-sub-4" [disabled]="InProgress"
+                    (click)="goTo('manage/product')">
+                    Termékek kezelése
+                </button>
+            </nb-card-body>
+            <nb-card-body *ngIf="isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-base-sub-5" [disabled]="InProgress && !isLoggedIn"
+                    (click)="goTo('admin/users')">
+                    Felhasználók kezelése
                 </button>
             </nb-card-body>
         </nb-card>
