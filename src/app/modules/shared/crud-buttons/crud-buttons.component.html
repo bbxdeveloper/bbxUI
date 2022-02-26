@@ -1,6 +1,7 @@
 <nb-actions *ngIf="!!currentForm" size="medium" class="bbx-fd-sidebar-functions">
     <nb-action class="{{TileCssClass}}" id="fd-form-new" class="cl-header-menu" tabIndex="1" nbTooltip="Új"
         nbTooltipStatus="primary" [icon]="{ icon: 'plus-circle-outline', pack: 'eva' }"
+        [disabled]="currentForm.form.invalid"
         (click)="currentForm.HandleFunctionKey(keyBindings.crudNew)"></nb-action>
     <nb-action class="{{TileCssClass}}" id="fd-form-reset" class="cl-header-menu" tabIndex="2" nbTooltip="Alaphelyzet"
         nbTooltipStatus="primary" [icon]="{ icon: 'flip-2-outline', pack: 'eva' }"
