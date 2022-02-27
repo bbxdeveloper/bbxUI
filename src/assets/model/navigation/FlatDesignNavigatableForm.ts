@@ -281,6 +281,34 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         }
     }
 
+    /*
+    HandleAutoCompleteSelect(event: any): void {
+        if (event === "") {
+        // this.buyerForm.controls["name"].setValue("");
+        this.buyerForm.controls["zipCodeCity"].setValue("");
+        this.buyerForm.controls["street"].setValue("");
+        this.buyerForm.controls["invoiceNum"].setValue("");
+        this.buyerForm.controls["taxNum"].setValue("");
+        this.buyerForm.controls["note"].setValue("");
+        } else {
+        this.feelBuyerForm(event);
+        }
+        if (this.isEditModeOff) {
+        let oldMy = this.kbS.worldPos.Y;
+        this.kbS.moveNextInForm();
+        // TODO: navigációs mátrixhoz típust rendelni, pl. "táblázat"
+        if (oldMy < this.kbS.worldPos.Y) {
+            console.log(this.kbS.getCurrentTile());
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.gridNavHandler.handleGridEnter(this.productsData[0], 0, this.colDefs[0].objectKey, 0);
+        } else {
+            this.kbS.clickCurrentTile();
+            this.kbS.toggleEdit();
+        }
+        }
+    }
+    */
+
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
         event.preventDefault();
 

@@ -1,0 +1,24 @@
+<as-split direction="horizontal">
+    <as-split-area [size]="50">
+        <app-head-line msg="POC MANAGER"></app-head-line>
+
+        <app-flat-design-table
+            [allColumns]="allColumns"
+            [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc"
+            [dbDataTable]="dbDataTable"
+            [dbDataTableId]="dbDataTableId"
+            [trackRows]="trackRows"
+            [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)"
+            (focusOutTable)="focusOnTable(false)">
+            <label class="search-label" for="search">Név:</label>
+            <input nbInput id="active-prod-search" class="search-input"
+                (keyup)="refreshFilter($event)" autocomplete="off">
+        </app-flat-design-table>
+
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+        <app-poc-side-bar-form class="bbx-sidebar"></app-poc-side-bar-form>
+    </as-split-area>
+</as-split>
