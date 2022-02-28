@@ -94,3 +94,15 @@ form {
 
     margin-bottom: 10px;
 }
+
+$colSizeLimit: 80;
+
+@for $i from 0 through $colSizeLimit {
+    .bbx-fd-form-field-#{$i} {
+        width: (0% + $i) !important;
+    }
+}
+
+.bbx-fd-form-field-30 {
+    width: 30% !important;
+}
