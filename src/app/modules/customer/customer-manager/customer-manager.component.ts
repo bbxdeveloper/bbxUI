@@ -94,7 +94,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   ActionNew(data?: IUpdateRequest<Customer>): void {
     console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
-      this.seInv.CreateCustomer(data.data).subscribe({
+      this.seInv.Create(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
             this.dbData.push({ data: d.data } as TreeGridNode<Customer>);
@@ -115,7 +115,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   ActionPut(data?: IUpdateRequest<Customer>): void {
     console.log("ActionPut: ", data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
-      this.seInv.UpdateCustomer(data.data).subscribe({
+      this.seInv.Update(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
             this.dbData[data.rowIndex] = { data: d.data } as TreeGridNode<Customer>;
@@ -139,7 +139,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
         const id = data?.data?.id;
         console.log("ActionDelete: ", id);
         if (id !== undefined) {
-          this.seInv.DeleteCustomer({
+          this.seInv.Delete({
             id: id
           } as DeleteCustomerRequest).subscribe({
             next: d => {
@@ -213,7 +213,7 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   private Refresh(params?: GetCustomersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.seInv.GetCustomers(params).subscribe({
+    this.seInv.GetAll(params).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug

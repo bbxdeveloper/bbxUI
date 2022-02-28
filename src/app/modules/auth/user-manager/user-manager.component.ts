@@ -97,7 +97,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   ActionNew(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
       console.log("ActionNew: ", data.data);
-      this.seInv.CreateUser({
+      this.seInv.Create({
         name: data.data.name,
         email: data.data.email,
         loginName: data.data.loginName,
@@ -124,7 +124,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   ActionPut(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
       console.log("ActionPut: ", data.data);
-      this.seInv.UpdateUser({
+      this.seInv.Update({
         id: data.data.id,
         name: data.data.name,
         email: data.data.email,
@@ -154,7 +154,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       if (res) {
         if (!!data && data.data?.id !== undefined) {
           console.log("ActionDelete: ", data.rowIndex);
-          this.seInv.DeleteUser({
+          this.seInv.Delete({
             id: data.data?.id
           } as DeleteUserRequest).subscribe({
             next: d => {
@@ -215,7 +215,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   private Refresh(params?: GetUsersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.seInv.GetUsers(params).subscribe({
+    this.seInv.GetAll(params).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
           console.log('GetUsers response: ', d); // TODO: only for debug

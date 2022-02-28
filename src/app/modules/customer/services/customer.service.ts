@@ -56,7 +56,7 @@ export class CustomerService {
 
   constructor(private http: HttpClient) { }
 
-  GetCustomers(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {
+  GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -90,7 +90,7 @@ export class CustomerService {
     return this.http.get<GetCustomersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  GetCustomer(params?: GetCustomerParamListModel): Observable<Customer> {
+  Get(params?: GetCustomerParamListModel): Observable<Customer> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -112,15 +112,15 @@ export class CustomerService {
     return this.http.get<Customer>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  CreateCustomer(req: Customer): Observable<CreateCustomerResponse> {
+  Create(req: Customer): Observable<CreateCustomerResponse> {
     return this.http.post<CreateCustomerResponse>(this.BaseUrl, req);
   }
 
-  UpdateCustomer(req: UpdateCustomerRequest): Observable<UpdateCustomerResponse> {
+  Update(req: UpdateCustomerRequest): Observable<UpdateCustomerResponse> {
     return this.http.put<UpdateCustomerResponse>(this.BaseUrl, req);
   }
 
-  DeleteCustomer(req: DeleteCustomerRequest): Observable<DeleteCustomerResponse> {
+  Delete(req: DeleteCustomerRequest): Observable<DeleteCustomerResponse> {
     return this.http.delete<DeleteCustomerResponse>(this.BaseUrl, { body: req });
   }
 }

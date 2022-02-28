@@ -38,7 +38,7 @@ export class UserService {
   //   return of(MOCK_USERS);
   // }
 
-  GetUsers(params?: GetUsersParamListModel): Observable<GetUsersResponse> {
+  GetAll(params?: GetUsersParamListModel): Observable<GetUsersResponse> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -62,7 +62,7 @@ export class UserService {
     return this.http.get<GetUsersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  GetUser(params?: GetUserParamListModel): Observable<User> {
+  Get(params?: GetUserParamListModel): Observable<User> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -84,15 +84,15 @@ export class UserService {
     return this.http.get<User>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  CreateUser(req: CreateUserRequest): Observable<CreateUserResponse> {
+  Create(req: CreateUserRequest): Observable<CreateUserResponse> {
     return this.http.post<CreateUserResponse>(this.BaseUrl, req);
   }
 
-  UpdateUser(req: UpdateUserRequest): Observable<UpdateUserResponse> {
+  Update(req: UpdateUserRequest): Observable<UpdateUserResponse> {
     return this.http.put<UpdateUserResponse>(this.BaseUrl, req);
   }
 
-  DeleteUser(req: DeleteUserRequest): Observable<DeleteUserResponse> {
+  Delete(req: DeleteUserRequest): Observable<DeleteUserResponse> {
     return this.http.delete<DeleteUserResponse>(this.BaseUrl, { body: req });
   }
 }
