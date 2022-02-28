@@ -78,7 +78,7 @@ export class KeyboardNavigationService {
   }
 
   public SelectElement(id: string): void {
-    console.log(`[SelectElement] X: ${this.p.x}, Y: ${this.p.y}, ID: ${this.Here}`);
+    this.LogSelectElement();
     switch (this.CurrentNavigatable.TileSelectionMethod) {
       case PreferredSelectionMethod.both:
         $('#' + id).trigger('focus');
@@ -148,11 +148,19 @@ export class KeyboardNavigationService {
   }
 
   private LogGeneralStats(): void {
+    if (!environment.debug) {
+      return;
+    }
+
     console.log(`Time: ${Date.now().toLocaleString()}`);
     console.log(`Current INavigatable: ${this.CurrentNavigatable.constructor.name}`);
   }
 
   private LogPositionStats(): void {
+    if (!environment.debug) {
+      return;
+    }
+
     console.log(`Current X: ${this.p.x}`);
     console.log(`Current Y: ${this.p.y}`);
 
@@ -164,6 +172,10 @@ export class KeyboardNavigationService {
   }
 
   private LogNeighbourStats(): void {
+    if (!environment.debug) {
+      return;
+    }
+
     console.log(`Neighbour to DOWN: ${!!this.CurrentNavigatable.DownNeighbour ? 'detected' : 'none'}`);
     console.log(`Neighbour to LEFT: ${!!this.CurrentNavigatable.LeftNeighbour ? 'detected' : 'none'}`);
     console.log(`Neighbour to RIGHT: ${!!this.CurrentNavigatable.RightNeighbour ? 'detected' : 'none'}`);
@@ -171,6 +183,10 @@ export class KeyboardNavigationService {
   }
 
   public LogMatrix(): void {
+    if (!environment.debug) {
+      return;
+    }
+
     console.log(`2D Navigation matrix:`)
 
     let matrixString = "";
@@ -189,28 +205,33 @@ export class KeyboardNavigationService {
     attemptedDirection: AttachDirection,
     select: boolean = true, altKey: boolean = false,
     canJumpToNeighbourMatrix: boolean = false): void {
-    if (environment.debug) {
-      
-      console.log("\n\n+---- NAV DATA ----+");
-
-      this.LogGeneralStats();
-
-      this.LogPositionStats();
-
-      console.log(`[PARAM] Should select tile after moving: ${select}`);
-      console.log(`[PARAM] Alt-key pressed: ${altKey}`);
-      console.log(`[PARAM] Should jump to neighbour: ${canJumpToNeighbourMatrix}`);
-      console.log(`[NAVIGATABLE] OuterJump: ${this.CurrentNavigatable.OuterJump}`);
-      
-      console.log(`Attempted direction: ${AttachDirection[attemptedDirection]}`);
-      
-      this.LogNeighbourStats();
-
-      console.log("+------------------+\n\n");
+    if (!environment.debug) {
+      return;
     }
+
+    console.log("\n\n+---- NAV DATA ----+");
+
+    this.LogGeneralStats();
+
+    this.LogPositionStats();
+
+    console.log(`[PARAM] Should select tile after moving: ${select}`);
+    console.log(`[PARAM] Alt-key pressed: ${altKey}`);
+    console.log(`[PARAM] Should jump to neighbour: ${canJumpToNeighbourMatrix}`);
+    console.log(`[NAVIGATABLE] OuterJump: ${this.CurrentNavigatable.OuterJump}`);
+    
+    console.log(`Attempted direction: ${AttachDirection[attemptedDirection]}`);
+    
+    this.LogNeighbourStats();
+
+    console.log("+------------------+\n\n");
   }
 
   private LogNavAndMatrix(): void {
+    if (!environment.debug) {
+      return;
+    }
+
     console.log("\n\n+--- NAV MATRIX ---+");
 
     this.LogGeneralStats();
@@ -220,6 +241,14 @@ export class KeyboardNavigationService {
     this.LogMatrix();
 
     console.log("+------------------+\n\n");
+  }
+
+  private LogSelectElement(): void {
+    if (!environment.debug) {
+      return;
+    }
+
+    console.log(`[SelectElement] X: ${this.p.x}, Y: ${this.p.y}, ID: ${this.Here}`);
   }
 
   /**

@@ -7,7 +7,7 @@ export const environment = {
   electron: false,
   apiUrl: "https://bbxbe.azurewebsites.net/", // https://localhost:44378/
   apiVersion: "/v1/",
-  debug: true
+  debug: false
 };
 
 /*

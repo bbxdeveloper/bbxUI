@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, startWith } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
@@ -22,7 +22,8 @@ export class PocSideBarFormComponent implements OnInit {
 
   TileCssClass = TileCssClass;
 
-  pocTypes$: Observable<PocType[]> = of([]);
+  pocTypes: PocType[] = [];
+  filteredPocTypes$: Observable<PocType[]> | undefined = of([]);
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
@@ -32,13 +33,20 @@ export class PocSideBarFormComponent implements OnInit {
     private seInv: PocService, private kbS: KeyboardNavigationService) {
       this.seInv.GetPocTypes().subscribe({
         next: data => {
-          this.pocTypes$ = of(data.data!);
+          this.pocTypes = data.data!;
+          this.filteredPocTypes$ = of(this.pocTypes);
         }
       });
   }
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+
+    this.filteredPocTypes$ = this.currentForm?.form.controls['pocType'].valueChanges
+      .pipe(
+        startWith(''),
+        map(filterString => this.filter(filterString)),
+      );
   }
 
   private SetNewForm(form?: FormSubject): void {
@@ -49,6 +57,11 @@ export class PocSideBarFormComponent implements OnInit {
 
     this.currentForm = form[1];
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+  }
+
+  private filter(value: string): PocType[] {
+    const filterValue = value.toLowerCase();
+    return this.pocTypes.filter(optionValue => optionValue.code.toLowerCase().includes(filterValue));
   }
 
 }

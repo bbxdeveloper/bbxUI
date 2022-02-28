@@ -203,7 +203,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     public SetDataForEdit(row: TreeGridNode<any>, rowPos: number, objectKey: string): void {
-        console.log("Form: ", this.form, ", row: ", row); // TODO: only for debug
+        if (environment.debug) {
+            console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
+        }
         this.DataRowIndex = rowPos;
         this.DataToEdit = row;
         this.FillFormWithObject(this.DataToEdit?.data);
@@ -214,7 +216,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         Object.keys(this.form.controls).forEach((x: string) => {
             data[x] = this.form.controls[x].value;
         });
-        console.log("Data from form: ", data);
+        if (environment.debug) {
+            console.log("Data from form: ", data);
+        }
         return data;
     }
 
@@ -222,7 +226,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         if (!!data) {
             Object.keys(this.form.controls).forEach((x: string) => {
                 this.form.controls[x].setValue(data[x]);
-                console.log(`[FillFormWithObject] ${x}, ${data[x]}, ${this.form.controls[x].value}`);
+                if (environment.debug) {
+                    console.log(`[FillFormWithObject] ${x}, ${data[x]}, ${this.form.controls[x].value}`);
+                }
             });
         }
     }
@@ -267,6 +273,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     HandleAutoCompleteSelect(event: any, key: string): void {
+        console.log(`[HandleAutoCompleteSelect] ${event}`);
         if (event === "") {
             Object.keys(this.form.controls).forEach((x: string) => {
                 if (x !== key) {
@@ -310,7 +317,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     */
 
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
-        event.preventDefault();
+        // event.preventDefault();
 
         if (toggleEditMode) {
             this.kbS.toggleEdit();
@@ -384,20 +391,22 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
-            console.log("\n\n+---- MATRIX GEN ----+");
-            console.log(`Time: ${Date.now().toLocaleString()}`);
-
-            console.log(`Current node: ${node}`);
-            console.log(`Parent: ${parent}`);
-            console.log(`Grandparent: ${grandParent}`);
-
-            console.log(`CSS Class: ${cssClass}`);
-
-            console.log(`Total tiles: ${totalTiles}`);
-
-            console.log("+------------------+\n\n");
+        if (!environment.debug) {
+            return;
         }
+
+        console.log("\n\n+---- MATRIX GEN ----+");
+        console.log(`Time: ${Date.now().toLocaleString()}`);
+
+        console.log(`Current node: ${node}`);
+        console.log(`Parent: ${parent}`);
+        console.log(`Grandparent: ${grandParent}`);
+
+        console.log(`CSS Class: ${cssClass}`);
+
+        console.log(`Total tiles: ${totalTiles}`);
+
+        console.log("+------------------+\n\n");
     }
 
     GenerateAndSetNavMatrices(attach: boolean, setAsCurrentNavigatable: boolean = true): void {
