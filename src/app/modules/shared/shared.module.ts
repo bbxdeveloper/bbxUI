@@ -11,6 +11,7 @@ import { FlatDesignTableComponent } from './flat-design-table/flat-design-table.
 import { PaginatorComponent } from './paginator/paginator.component';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { CrudButtonsComponent } from './crud-buttons/crud-buttons.component';
+import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.component';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { CrudButtonsComponent } from './crud-buttons/crud-buttons.component';
     HeadLineComponent,
     FlatDesignTableComponent,
     PaginatorComponent,
-    CrudButtonsComponent
+    CrudButtonsComponent,
+    FKeyButtonsRowComponent,
   ],
   imports: [
     CommonModule,
@@ -53,7 +55,8 @@ import { CrudButtonsComponent } from './crud-buttons/crud-buttons.component';
     HeadLineComponent,
     FlatDesignTableComponent,
     PaginatorComponent,
-    CrudButtonsComponent
+    CrudButtonsComponent,
+    FKeyButtonsRowComponent,
   ],
   providers: [
     ConfirmationDialogComponent

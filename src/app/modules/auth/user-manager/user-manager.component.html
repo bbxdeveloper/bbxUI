@@ -17,6 +17,8 @@
                 (keyup)="refreshFilter($event)" autocomplete="off">
         </app-flat-design-table>
         
+        <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+        
     </as-split-area>
     <as-split-area [size]="30" *ngIf="isSideBarOpened">
         <app-user-side-bar-form class="bbx-sidebar"></app-user-side-bar-form>

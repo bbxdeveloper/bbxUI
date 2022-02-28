@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -10,6 +10,8 @@ import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
   styleUrls: ['./fkey-buttons-row.component.scss']
 })
 export class FKeyButtonsRowComponent implements OnInit {
+  @Input() flexWrap: boolean = false;
+
   commands$: Observable<FooterCommandInfo[]>;
 
   constructor(

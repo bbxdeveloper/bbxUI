@@ -1,4 +1,4 @@
-<nb-actions tabIndex="-1" size="medium">
+<nb-actions tabIndex="-1" size="medium" [ngClass]="flexWrap ? 'fkey-row-wrap' : 'fkey-row-nowrap'">
     <nb-action tabIndex="-1" class="disable-select" *ngFor="let command of commands$ | async"
         [disabled]="command.disabled">
         <span tabIndex="-1" class="fkey-key">{{command.key}}</span>

@@ -5,7 +5,6 @@ import { StatusAndSpinnerComponent } from './status-and-spinner/status-and-spinn
 import { HeaderComponent } from './header/header.component';
 import { NbActionsModule, NbButtonGroupModule, NbButtonModule, NbCardModule, NbCheckboxModule, NbContextMenuModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbLayoutModule, NbMenuModule, NbMenuService, NbPopoverModule, NbTagModule, NbToggleModule, NbTooltipModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
-import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 
@@ -14,7 +13,6 @@ import { NgxMaskModule } from 'ngx-mask';
 @NgModule({
   declarations: [
     DashboardComponent,
-    FKeyButtonsRowComponent,
     StatusAndSpinnerComponent,
     HeaderComponent
   ],
@@ -42,7 +40,6 @@ import { NgxMaskModule } from 'ngx-mask';
   ],
   exports: [
     DashboardComponent,
-    FKeyButtonsRowComponent,
     StatusAndSpinnerComponent,
     HeaderComponent
   ],
