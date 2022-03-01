@@ -4,13 +4,13 @@
         </app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
-            (keydown.enter)="currentForm.HandleFormEnter($event)" (keydown.escape)="currentForm.HandleFormEscape()"
+            (keydown.escape)="currentForm.HandleFormEscape()"
             (keydown.tab)="currentForm.HandleFormTab($event)" (click)="currentForm.HandleFormClick()"
             (keydown.f8)="currentForm.HandleFunctionKey($event)" (keydown.f9)="currentForm.HandleFunctionKey($event)"
             (keydown.f10)="currentForm.HandleFunctionKey($event)" (keydown.f11)="currentForm.HandleFunctionKey($event)"
             (keydown.f12)="currentForm.HandleFunctionKey($event)">
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Azonosító</label>
                     <input nbInput type="text" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
@@ -18,96 +18,157 @@
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Név</label>
+                    <label>Kód</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="ProductCode"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Bankszámla</label>
+                    <label>Megnevezés</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber"
-                        [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        (click)="currentForm.HandleFormFieldClick($event)">
-                </div>
-
-            </nb-form-field>
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Belföldi Adószám</label>
-
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber"
-                        mask="0000000-0-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        (click)="currentForm.HandleFormFieldClick($event)" required>
-                </div>
-            </nb-form-field>
-
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Külföldi Adószám</label>
-
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="thirdStateTaxId"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="description"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Országkód</label>
+                    <label>Csoport</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="countryCode" mask="SS"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        (click)="currentForm.HandleFormFieldClick($event)" required>
+                    <input class="{{TileCssClass}}" formControlName="productGroupID" nbInput type="text"
+                        [nbAutocomplete]="autoProductGroup" [readonly]="isEditModeOff" autocomplete="off" />
+                    <!-- AUTOCOMPLETE -->
+                    <nb-autocomplete #autoProductGroup [activeFirst]="false"
+                        (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'productGroupID')">
+                        <nb-option *ngFor="let option of filteredProductGroups$ | async; let i = index"
+                            [value]="option.productGroupCode">
+                            {{ option.productGroupDescription }}
+                        </nb-option>
+                    </nb-autocomplete>
+                </div>
+            </nb-form-field>
+            
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Utolsó beszár</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </nb-form-field>
 
-            <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field class="bbx-fd-form-field-40">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Irsz.</label>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Eredet</label>
 
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="postalCode"
-                            (click)="currentForm.HandleFormFieldClick($event)">
-                    </div>
-                </nb-form-field>
+                    <input class="{{TileCssClass}}" formControlName="originID" nbInput type="text"
+                        [nbAutocomplete]="autoOrigin" [readonly]="isEditModeOff" autocomplete="off" />
+                    <!-- AUTOCOMPLETE -->
+                    <nb-autocomplete #autoOrigin [activeFirst]="false"
+                        (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'originID')">
+                        <nb-option *ngFor="let option of filteredOrigins$ | async; let i = index"
+                            [value]="option.originCode">
+                            {{ option.originDescription }}
+                        </nb-option>
+                    </nb-autocomplete>
+                </div>
+            </nb-form-field>
+            
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Környezetvédelmi termékdíj</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="productFee"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+            </nb-form-field>
 
-                <nb-form-field class="bbx-fd-form-field-60">
-                    <div class="bbx-fd-form-field-inner-div-2">
-                        <label>Város</label>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Me.e.</label>
 
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="city"
-                            (click)="currentForm.HandleFormFieldClick($event)" required>
-                    </div>
-                </nb-form-field>
+                    <input class="{{TileCssClass}}" formControlName="unitOfMeasure" nbInput type="text"
+                        [nbAutocomplete]="autoAom" [readonly]="isEditModeOff" autocomplete="off" />
+                    <!-- AUTOCOMPLETE -->
+                    <nb-autocomplete #autoAom [activeFirst]="false"
+                        (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'unitOfMeasure')">
+                        <nb-option *ngFor="let option of filteredUom$ | async; let i = index"
+                            [value]="option.value">
+                            {{ option.text }}
+                        </nb-option>
+                    </nb-autocomplete>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Elad ár 1</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice1"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Elad ár 2</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+            </nb-form-field>
+
+            <div class="bbx-fd-checkbox-outer-div" (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <label>Készletes?</label>
+
+                <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isStock"
+                    (click)="currentForm.HandleFormFieldClick($event)">
             </div>
-
-            <nb-form-field>
+            
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Cím</label>
-
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
-                        (click)="currentForm.HandleFormFieldClick($event)" required>
+                    <label>Minimum készlet</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="minStock"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </nb-form-field>
 
-            <div class="bbx-fd-checkbox-outer-div">
-                <label>Magánszemély</label>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Rendelési egység</label>
 
-                <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="privatePerson"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+            </nb-form-field>
+
+            <div class="bbx-fd-checkbox-outer-div" (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <label>Aktív?</label>
+
+                <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
                     (click)="currentForm.HandleFormFieldClick($event)">
             </div>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Megjegyzés</label>
+                    <label>VTSZ</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="VTSZ"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>EAN</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="EAN"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </nb-form-field>

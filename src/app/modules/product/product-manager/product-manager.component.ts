@@ -35,20 +35,15 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
 
   colsToIgnore: string[] = [];
   allColumns = [
-    'id', 'productName', 'taxpayerNumber'
+    'ProductCode', 'description', 'productGroupID', 'unitOfMeasure', 'unitPrice1', 'unitPrice2', 
   ];
   colDefs: ModelFieldDescriptor[] = [
-    { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Név', objectKey: 'productName', colKey: 'productName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Számlaszám', objectKey: 'productBankAccountNumber', colKey: 'productBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: false, mask: "SS", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Kód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Megnevezés', objectKey: 'description', colKey: 'description', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Csoport', objectKey: 'productGroupID', colKey: 'productGroupID', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Me.e.', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Elad ár 1', objectKey: 'unitPrice1', colKey: 'unitPrice1', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Elad ár 2', objectKey: 'unitPrice2', colKey: 'unitPrice2', defaultValue: '', type: 'string', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
   ]
 
   tableIsFocused: boolean = false;
@@ -180,16 +175,21 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
 
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
-      productName: new FormControl(undefined, [Validators.required]),
-      productBankAccountNumber: new FormControl(undefined, []),
-      taxpayerNumber: new FormControl(undefined, []),
-      thirdStateTaxId: new FormControl(undefined, []),
-      countryCode: new FormControl('HU', []),
-      postalCode: new FormControl(undefined, []),
-      city: new FormControl(undefined, [Validators.required]),
-      additionalAddressDetail: new FormControl(undefined, [Validators.required]),
-      privatePerson: new FormControl(false, []),
-      comment: new FormControl(undefined, []),
+      ProductCode: new FormControl(undefined, [Validators.required]),
+      description: new FormControl(undefined, [Validators.required]),
+      productGroupID: new FormControl(undefined, [Validators.required]),
+      originID: new FormControl(undefined, []),
+      unitOfMeasure: new FormControl(undefined, [Validators.required]),
+      unitPrice1: new FormControl(undefined, []),
+      unitPrice2: new FormControl(undefined, []),
+      latestSupplyPrice: new FormControl(undefined, []),
+      isStock: new FormControl(false, []),
+      minStock: new FormControl(undefined, []),
+      ordUnit: new FormControl(undefined, []),
+      productFee: new FormControl(undefined, []),
+      active: new FormControl(false, []),
+      VTSZ: new FormControl(undefined, [Validators.required]),
+      EAN: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -213,7 +213,7 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
   private Refresh(params?: GetProductsParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.seInv.GetProducts(params).subscribe({
+    this.seInv.GetAll(params).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug

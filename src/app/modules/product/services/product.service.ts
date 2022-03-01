@@ -12,6 +12,7 @@ import { UpdateProductResponse } from '../models/UpdateProductResponse';
 import { UpdateProductRequest } from '../models/UpdateProductRequest';
 import { DeleteProductRequest } from '../models/DeleteProductRequest';
 import { DeleteProductResponse } from '../models/DeleteProductResponse';
+import { UnitOfMeasure } from '../models/UnitOfMeasure';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,10 @@ export class ProductService {
   private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Product';
 
   constructor(private http: HttpClient) { }
+
+  GetAllUnitOfMeasures(): Observable<UnitOfMeasure> {
+    return this.http.get<UnitOfMeasure>(this.BaseUrl + '/unitofmeasure');
+  }
 
   GetAll(params?: GetProductsParamListModel): Observable<GetProductsResponse> {
     // Process params

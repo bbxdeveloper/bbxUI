@@ -19,7 +19,7 @@ export interface Product {
 
 export function BlankProduct(): Product {
     return {
-        "id": 2,
+        "id": 0,
         "ProductCode": null,
         "description": "",
         "productGroupID": 0,

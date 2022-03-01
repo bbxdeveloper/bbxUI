@@ -1,28 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-
-@Component({
-  selector: 'app-product-side-bar-form',
-  templateUrl: './product-side-bar-form.component.html',
-  styleUrls: ['./product-side-bar-form.component.scss']
-})
-export class ProductSideBarFormComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
-}
-
-import { Component, Input, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject } from 'rxjs';
+import { map, Observable, of, startWith } from 'rxjs';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-
-const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
-const defaultPattern: string = '00000000-00000000-00000000';
+import { Origin } from '../../origin/models/Origin';
+import { OriginService } from '../../origin/services/origin.service';
+import { ProductGroup } from '../../product-group/models/ProductGroup';
+import { ProductGroupService } from '../../product-group/services/product-group.service';
+import { UnitOfMeasure } from '../models/UnitOfMeasure';
+import { ProductService } from '../services/product.service';
 
 @Component({
   selector: 'app-product-side-bar-form',
@@ -39,17 +27,71 @@ export class ProductSideBarFormComponent implements OnInit {
 
   TileCssClass = TileCssClass;
 
-  bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  // ProductGroup
+  productGroups: ProductGroup[] = [];
+  filteredProductGroups$: Observable<ProductGroup[]> | undefined = of([]);
 
-  get privatePersonDefaultValue(): Boolean {
-    return (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
-      (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
+  // UnitOfMeasure
+  uom: UnitOfMeasure[] = [];
+  filteredUom$: Observable<UnitOfMeasure[]> | undefined = of([]);
+
+  // Origin
+  origins: Origin[] = [];
+  filteredOrigins$: Observable<Origin[]> | undefined = of([]);
+
+  get isEditModeOff() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) { }
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService,
+    private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService) {
+    this.refreshComboboxData();
+  }
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+
+    this.filteredProductGroups$ = this.currentForm?.form.controls['productGroupID'].valueChanges
+      .pipe(
+        startWith(''),
+        map(filterString => this.filterProductGroup(filterString)),
+      );
+    this.filteredOrigins$ = this.currentForm?.form.controls['originID'].valueChanges
+      .pipe(
+        startWith(''),
+        map(filterString => this.filterOrigin(filterString)),
+      );
+    this.filteredUom$ = this.currentForm?.form.controls['unitOfMeasure'].valueChanges
+      .pipe(
+        startWith(''),
+        map(filterString => this.filterUom(filterString)),
+      );
+  }
+
+  private refreshComboboxData(): void {
+    // ProductGroups
+    this.productGroupApi.GetAll().subscribe({
+      next: data => {
+        this.productGroups = data.data!;
+        this.filteredProductGroups$ = of(this.productGroups);
+      }
+    });
+
+    // UnitOfMeasure
+    this.productApi.GetAllUnitOfMeasures().subscribe({
+      next: data => {
+        this.uom = data.data!;
+        this.filteredUom$ = of(this.uom);
+      }
+    });
+
+    // Origin
+    this.originApi.GetAll().subscribe({
+      next: data => {
+        this.origins = data.data!;
+        this.filteredOrigins$ = of(this.origins);
+      }
+    });
   }
 
   private SetNewForm(form?: FormSubject): void {
@@ -60,44 +102,21 @@ export class ProductSideBarFormComponent implements OnInit {
 
     this.currentForm = form[1];
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
-    if (!!this.currentForm) {
-      this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
-
-      this.currentForm.form.controls['productBankAccountNumber'].valueChanges.subscribe({
-        next: val => {
-          const currentTypeBankAccountNumber = val;
-          const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-          if (currentTypeBankAccountNumber.length > 1) {
-            return;
-          }
-          this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
-        }
-      });
-    }
   }
 
-  private checkIfIbanStarted(typedVal: string): boolean {
-    return typedVal.length > 0 && (typedVal.charAt(0) <= '0' || typedVal.charAt(0) >= '9');
+  private filterProductGroup(value: string): ProductGroup[] {
+    const filterValue = value.toLowerCase();
+    return this.productGroups.filter(optionValue => optionValue.productGroupDescription.toLowerCase().includes(filterValue));
   }
 
-  GetBankAccountMask(): string {
-    const currentTypeBankAccountNumber = this.currentForm!.GetValue('productBankAccountNumber') as string;
-    const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-    return isIbanStarted ? ibanPattern : defaultPattern;
+  private filterUom(value: string): UnitOfMeasure[] {
+    const filterValue = value.toLowerCase();
+    return this.uom.filter(optionValue => optionValue.text.toLowerCase().includes(filterValue));
   }
 
-  checkBankAccountKeydownValue(event: any): void {
-    const currentTypeBankAccountNumber = (this.currentForm!.GetValue('productBankAccountNumber') as string).concat(event.key);
-    console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('productBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
-    if (currentTypeBankAccountNumber.length > 1) {
-      return;
-    }
-    const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-    console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-    this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
-    //this.currentForm!.form.controls['productBankAccountNumber'].setValue(currentTypeBankAccountNumber);
+  private filterOrigin(value: string): Origin[] {
+    const filterValue = value.toLowerCase();
+    return this.origins.filter(optionValue => optionValue.originDescription.toLowerCase().includes(filterValue));
   }
 
 }
-3

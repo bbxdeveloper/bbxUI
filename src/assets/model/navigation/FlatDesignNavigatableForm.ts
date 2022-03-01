@@ -274,15 +274,15 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
     HandleAutoCompleteSelect(event: any, key: string): void {
         console.log(`[HandleAutoCompleteSelect] ${event}`);
-        if (event === "") {
-            Object.keys(this.form.controls).forEach((x: string) => {
-                if (x !== key) {
-                    this.form.controls[x].setValue("");
-                }
-            });
-        } else {
-            this.FillFormAfterValueSelect(event, key);
-        }
+        // if (event === "") {
+        //     Object.keys(this.form.controls).forEach((x: string) => {
+        //         if (x !== key) {
+        //             this.form.controls[x].setValue("");
+        //         }
+        //     });
+        // } else {
+        //     this.FillFormAfterValueSelect(event, key);
+        // }
         if (!this.kbS.isEditModeActivated) {
             this.JumpToNextInput(event);
         }
