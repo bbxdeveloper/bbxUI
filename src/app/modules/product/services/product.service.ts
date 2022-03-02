@@ -22,8 +22,8 @@ export class ProductService {
 
   constructor(private http: HttpClient) { }
 
-  GetAllUnitOfMeasures(): Observable<UnitOfMeasure> {
-    return this.http.get<UnitOfMeasure>(this.BaseUrl + '/unitofmeasure');
+  GetAllUnitOfMeasures(): Observable<UnitOfMeasure[]> {
+    return this.http.get<UnitOfMeasure[]>(this.BaseUrl + '/unitofmeasure');
   }
 
   GetAll(params?: GetProductsParamListModel): Observable<GetProductsResponse> {

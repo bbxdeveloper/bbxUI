@@ -17,6 +17,11 @@ import { DeleteProductRequest } from '../models/DeleteProductRequest';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { GetProductsParamListModel } from '../models/GetProductsParamListModel';
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { Origin, OriginCodeToDescription, OriginDescriptionToCode } from '../../origin/models/Origin';
+import { OriginService } from '../../origin/services/origin.service';
+import { ProductGroup, ProductGroupCodeToDescription, ProductGroupDescriptionToCode } from '../../product-group/models/ProductGroup';
+import { ProductGroupService } from '../../product-group/services/product-group.service';
+import { UnitOfMeasure, UnitOfMeasureTextToValue, UnitOfMeasureValueToText } from '../models/UnitOfMeasure';
 
 @Component({
   selector: 'app-product-manager',
@@ -35,12 +40,12 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
 
   colsToIgnore: string[] = [];
   allColumns = [
-    'ProductCode', 'description', 'productGroupID', 'unitOfMeasure', 'unitPrice1', 'unitPrice2', 
+    'ProductCode', 'description', 'productGroup', 'unitOfMeasure', 'unitPrice1', 'unitPrice2',
   ];
   colDefs: ModelFieldDescriptor[] = [
     { label: 'Kód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
     { label: 'Megnevezés', objectKey: 'description', colKey: 'description', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Csoport', objectKey: 'productGroupID', colKey: 'productGroupID', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Csoport', objectKey: 'productGroup', colKey: 'productGroup', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Me.e.', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Elad ár 1', objectKey: 'unitPrice1', colKey: 'unitPrice1', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Elad ár 2', objectKey: 'unitPrice2', colKey: 'unitPrice2', defaultValue: '', type: 'string', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
@@ -70,6 +75,13 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
 
   searchString: string = '';
 
+  // ProductGroup
+  productGroups: ProductGroup[] = [];
+  // UnitOfMeasure
+  uom: UnitOfMeasure[] = [];
+  // Origin
+  origins: Origin[] = [];
+
   constructor(
     @Optional() private dialogService: NbDialogService,
     private fS: FooterService,
@@ -80,18 +92,43 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     private toastrService: NbToastrService,
     private sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private productGroupApi: ProductGroupService,
+    private originApi: OriginService
   ) {
     this.kbS.ResetToRoot();
     this.Setup();
   }
 
+  private ConvertCombosForPost(data: Product): Product {
+    if (data.productGroup !== undefined && this.productGroups.length > 0)
+      data.productGroup = ProductGroupDescriptionToCode(data.productGroup, this.productGroups);
+    // if (data.origin !== undefined && this.origins.length > 0)
+    //   data.origin = OriginDescriptionToCode(data.origin, this.origins);
+    if (data.unitOfMeasure !== undefined && this.uom.length > 0)
+      data.unitOfMeasure = UnitOfMeasureValueToText(data.unitOfMeasure, this.uom);
+    return data;
+  }
+
+  private ConvertCombosForGet(data: Product): Product {
+    // if (data.productGroup !== undefined && this.productGroups.length > 0)
+    //   data.productGroup = ProductGroupCodeToDescription(data.productGroup, this.productGroups);
+    // if (data.origin !== undefined && this.origins.length > 0)
+    //   data.origin = OriginCodeToDescription(data.origin, this.origins);
+    if (data.unitOfMeasure !== undefined && this.uom.length > 0)
+      data.unitOfMeasure = UnitOfMeasureValueToText(data.unitOfMeasure, this.uom);
+    console.log(`[ConvertCombosForGet] result: `, data);
+    return data;
+  }
+
   ActionNew(data?: IUpdateRequest<Product>): void {
     console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
+      data.data = this.ConvertCombosForPost(data.data);
       this.seInv.Create(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
+            d.data = this.ConvertCombosForGet(d.data);
             this.dbData.push({ data: d.data } as TreeGridNode<Product>);
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
@@ -110,9 +147,11 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
   ActionPut(data?: IUpdateRequest<Product>): void {
     console.log("ActionPut: ", data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
+      data.data = this.ConvertCombosForPost(data.data);
       this.seInv.Update(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
+            d.data = this.ConvertCombosForGet(d.data);
             this.dbData[data.rowIndex] = { data: d.data } as TreeGridNode<Product>;
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
@@ -177,8 +216,8 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
       id: new FormControl(undefined, []),
       ProductCode: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
-      productGroupID: new FormControl(undefined, [Validators.required]),
-      originID: new FormControl(undefined, []),
+      productGroup: new FormControl(undefined, [Validators.required]),
+      origin: new FormControl(undefined, []),
       unitOfMeasure: new FormControl(undefined, [Validators.required]),
       unitPrice1: new FormControl(undefined, []),
       unitPrice2: new FormControl(undefined, []),
@@ -207,7 +246,7 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
 
     this.sidebarService.collapse();
 
-    this.Refresh();
+    this.RefreshAll();
   }
 
   private Refresh(params?: GetProductsParamListModel): void {
@@ -218,7 +257,8 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
-            this.dbData = d.data.map(x => { return { data: x, uid: this.nextUid() }; });
+            const tempData = d.data.map(x => { return { data: this.ConvertCombosForGet(x), uid: this.nextUid() }; });
+            this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
           }
@@ -259,6 +299,37 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+  }
+
+  private RefreshAll(params?: GetProductsParamListModel): void {
+    // ProductGroups
+    this.productGroupApi.GetAll().subscribe({
+      next: data => {
+        if (!!data.data)
+          this.productGroups = data.data;
+      },
+      complete: () => {
+        // UnitOfMeasure
+        this.seInv.GetAllUnitOfMeasures().subscribe({
+          next: data => {
+            if (!!data)
+              this.uom = data;
+          },
+          complete: () => {
+            // Origin
+            this.originApi.GetAll().subscribe({
+              next: data => {
+                if (!!data.data)
+                  this.origins = data.data;
+              },
+              complete: () => {
+                this.Refresh(params);
+              }
+            });
+          }
+        });
+      }
+    });
   }
 
   private nextUid() {

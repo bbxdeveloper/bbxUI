@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
 import { map, Observable, of, startWith } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -28,51 +28,36 @@ export class ProductSideBarFormComponent implements OnInit {
   TileCssClass = TileCssClass;
 
   // ProductGroup
-  productGroups: ProductGroup[] = [];
-  filteredProductGroups$: Observable<ProductGroup[]> | undefined = of([]);
+  productGroups: string[] = [];
+  filteredProductGroups$: Observable<string[]> | undefined = of([]);
 
   // UnitOfMeasure
-  uom: UnitOfMeasure[] = [];
-  filteredUom$: Observable<UnitOfMeasure[]> | undefined = of([]);
+  uom: string[] = [];
+  filteredUom$: Observable<string[]> | undefined = of([]);
 
   // Origin
-  origins: Origin[] = [];
-  filteredOrigins$: Observable<Origin[]> | undefined = of([]);
+  origins: string[] = [];
+  filteredOrigins$: Observable<string[]> | undefined = of([]);
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService,
-    private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService) {
+    private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
+    private cdref: ChangeDetectorRef) {
     this.refreshComboboxData();
   }
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
-
-    this.filteredProductGroups$ = this.currentForm?.form.controls['productGroupID'].valueChanges
-      .pipe(
-        startWith(''),
-        map(filterString => this.filterProductGroup(filterString)),
-      );
-    this.filteredOrigins$ = this.currentForm?.form.controls['originID'].valueChanges
-      .pipe(
-        startWith(''),
-        map(filterString => this.filterOrigin(filterString)),
-      );
-    this.filteredUom$ = this.currentForm?.form.controls['unitOfMeasure'].valueChanges
-      .pipe(
-        startWith(''),
-        map(filterString => this.filterUom(filterString)),
-      );
   }
 
   private refreshComboboxData(): void {
     // ProductGroups
     this.productGroupApi.GetAll().subscribe({
       next: data => {
-        this.productGroups = data.data!;
+        this.productGroups = data?.data?.map(x => x.productGroupDescription) ?? [];
         this.filteredProductGroups$ = of(this.productGroups);
       }
     });
@@ -80,7 +65,7 @@ export class ProductSideBarFormComponent implements OnInit {
     // UnitOfMeasure
     this.productApi.GetAllUnitOfMeasures().subscribe({
       next: data => {
-        this.uom = data.data!;
+        this.uom = data?.map(x => x.text) ?? [];
         this.filteredUom$ = of(this.uom);
       }
     });
@@ -88,7 +73,7 @@ export class ProductSideBarFormComponent implements OnInit {
     // Origin
     this.originApi.GetAll().subscribe({
       next: data => {
-        this.origins = data.data!;
+        this.origins = data?.data?.map(x => x.originDescription) ?? [];
         this.filteredOrigins$ = of(this.origins);
       }
     });
@@ -102,21 +87,39 @@ export class ProductSideBarFormComponent implements OnInit {
 
     this.currentForm = form[1];
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+
+    this.cdref.detectChanges();
+
+    this.filteredProductGroups$ = this.currentForm?.form.controls['productGroup'].valueChanges
+      .pipe(
+        startWith(''),
+        map(filterString => this.filterProductGroup(filterString)),
+      );
+    this.filteredOrigins$ = this.currentForm?.form.controls['origin'].valueChanges
+      .pipe(
+        startWith(''),
+        map(filterString => this.filterOrigin(filterString)),
+      );
+    this.filteredUom$ = this.currentForm?.form.controls['unitOfMeasure'].valueChanges
+      .pipe(
+        startWith(''),
+        map(filterString => this.filterUom(filterString)),
+      );
   }
 
-  private filterProductGroup(value: string): ProductGroup[] {
+  private filterProductGroup(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.productGroups.filter(optionValue => optionValue.productGroupDescription.toLowerCase().includes(filterValue));
+    return this.productGroups.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 
-  private filterUom(value: string): UnitOfMeasure[] {
+  private filterUom(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.uom.filter(optionValue => optionValue.text.toLowerCase().includes(filterValue));
+    return this.uom.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 
-  private filterOrigin(value: string): Origin[] {
+  private filterOrigin(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.origins.filter(optionValue => optionValue.originDescription.toLowerCase().includes(filterValue));
+    return this.origins.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 
 }

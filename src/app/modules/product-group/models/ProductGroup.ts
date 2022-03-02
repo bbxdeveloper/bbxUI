@@ -17,3 +17,11 @@ export function BlankProductGroup(): ProductGroup {
         deleted: false
     } as ProductGroup;
 }
+
+export function ProductGroupDescriptionToCode(productGroupDescription: string, data: ProductGroup[]): string {
+    return data.filter(x => x.productGroupDescription === productGroupDescription)[0].productGroupCode;
+}
+
+export function ProductGroupCodeToDescription(productGroupCode: string, data: ProductGroup[]): string {
+    return data.filter(x => x.productGroupCode === productGroupCode)[0].productGroupDescription;
+}
