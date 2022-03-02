@@ -1,6 +1,6 @@
 export interface Product {
     "id": number,
-    "ProductCode"?: any,
+    "productCode"?: any,
     "description"?: string,
     "productGroup"?: any,
     "origin"?: any,
@@ -21,7 +21,7 @@ export interface Product {
 export function BlankProduct(): Product {
     return {
         "id": 0,
-        "ProductCode": null,
+        "productCode": null,
         "description": "",
         "productGroup": 0,
         "origin": 0,

@@ -40,7 +40,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   colsToIgnore: string[] = [];
   allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
   colDefs: ModelFieldDescriptor[] = [
-    // { label: 'Termékkód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
+    // { label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
     { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
     { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
     { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },

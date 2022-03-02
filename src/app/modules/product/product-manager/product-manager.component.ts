@@ -40,10 +40,10 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
 
   colsToIgnore: string[] = [];
   allColumns = [
-    'ProductCode', 'description', 'productGroup', 'unitOfMeasure', 'unitPrice1', 'unitPrice2',
+    'productCode', 'description', 'productGroup', 'unitOfMeasure', 'unitPrice1', 'unitPrice2',
   ];
   colDefs: ModelFieldDescriptor[] = [
-    { label: 'Kód', objectKey: 'ProductCode', colKey: 'ProductCode', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
+    { label: 'Kód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
     { label: 'Megnevezés', objectKey: 'description', colKey: 'description', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Csoport', objectKey: 'productGroup', colKey: 'productGroup', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Me.e.', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
@@ -214,7 +214,7 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
 
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
-      ProductCode: new FormControl(undefined, [Validators.required]),
+      productCode: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
       productGroup: new FormControl(undefined, [Validators.required]),
       origin: new FormControl(undefined, []),
