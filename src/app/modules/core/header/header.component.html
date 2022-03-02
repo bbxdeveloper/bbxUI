@@ -25,7 +25,8 @@
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
 
     <nb-action id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        nbPopoverPlacement="bottom" [nbPopover]="sub_customer" data-sub="header-customer-sub-1">Törzsek
+        data-sub="header-base-sub-1,header-base-sub-2,header-base-sub-3,header-base-sub-4,header-base-sub-5,"
+        nbPopoverPlacement="bottom" [nbPopover]="sub_customer">Törzsek
     </nb-action>
     <ng-template #sub_customer let-data>
         <nb-card>

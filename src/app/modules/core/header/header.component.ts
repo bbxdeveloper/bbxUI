@@ -117,6 +117,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       }
     }
 
+    if (environment.debug)
+      console.log("[HeaderComponent] Generated header matrix: ", this.Matrix, "\nSubmapping: ", this.SubMapping);
+
     this.kbS.SetRoot(this);
   }
 
