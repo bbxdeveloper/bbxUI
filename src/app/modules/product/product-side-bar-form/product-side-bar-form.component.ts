@@ -90,21 +90,31 @@ export class ProductSideBarFormComponent implements OnInit {
 
     this.cdref.detectChanges();
 
-    this.filteredProductGroups$ = this.currentForm?.form.controls['productGroup'].valueChanges
-      .pipe(
-        startWith(''),
-        map(filterString => this.filterProductGroup(filterString)),
-      );
-    this.filteredOrigins$ = this.currentForm?.form.controls['origin'].valueChanges
-      .pipe(
-        startWith(''),
-        map(filterString => this.filterOrigin(filterString)),
-      );
-    this.filteredUom$ = this.currentForm?.form.controls['unitOfMeasure'].valueChanges
-      .pipe(
-        startWith(''),
-        map(filterString => this.filterUom(filterString)),
-      );
+    this.currentForm?.form.controls['productGroup'].valueChanges.subscribe({
+      next: filterString => { this.filteredProductGroups$ = of(this.filterProductGroup(filterString)); }
+    });
+    this.currentForm?.form.controls['origin'].valueChanges.subscribe({
+      next: filterString => { this.filteredOrigins$ = of(this.filterOrigin(filterString)); }
+    });
+    this.currentForm?.form.controls['unitOfMeasure'].valueChanges.subscribe({
+      next: filterString => { this.filteredUom$ = of(this.filterUom(filterString)); }
+    });
+
+    // this.filteredProductGroups$ = this.currentForm?.form.controls['productGroup'].valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(filterString => this.filterProductGroup(filterString)),
+    //   );
+    // this.filteredOrigins$ = this.currentForm?.form.controls['origin'].valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(filterString => this.filterOrigin(filterString)),
+    //   );
+    // this.filteredUom$ = this.currentForm?.form.controls['unitOfMeasure'].valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(filterString => this.filterUom(filterString)),
+    //   );
   }
 
   private filterProductGroup(value: string): string[] {
