@@ -26,10 +26,11 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   settingsIconConfig: NbIconConfig = { icon: 'settings-2-outline', pack: 'eva' };
 
   isElectron: boolean = false;
+  isLoading: boolean = false;
 
   get isLoggedIn(): boolean { return this.tokenService.isLoggedIn; };
 
-  get InProgress(): boolean { return this.sts.InProgress; }
+  get InProgress(): boolean { return this.sts.InProgress || this.isLoading; }
 
   get keyboardMode(): string {
     var mode = this.kbS.currentKeyboardMode;
@@ -117,7 +118,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       }
     }
 
-    if (environment.debug)
+    //if (environment.debug)
       console.log("[HeaderComponent] Generated header matrix: ", this.Matrix, "\nSubmapping: ", this.SubMapping);
 
     this.kbS.SetRoot(this);
@@ -188,6 +189,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   login(event: any): void {
     event?.preventDefault();
     const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {} });
+    this.isLoading = true;
     dialogRef.onClose.subscribe({
       next: (res: LoginDialogResponse) => {
       if(!!res && res.answer) {
@@ -198,11 +200,22 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
             this.tokenService.token = res.token;
             this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             // this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, { duration: 0 });
-            this.GenerateAndSetNavMatrices();
-            this.kbS.SelectFirstTile();
+            setTimeout(() => {
+              this.GenerateAndSetNavMatrices();
+              this.kbS.SelectFirstTile();
+              this.isLoading = false;
+            }, 200);
           },
           error: err => {
             this.toastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+          },
+          complete: () => {
+            setTimeout(() => {
+              if (this.isLoading) {
+                this.isLoading = false;
+              }
+            }, 200);
           }
         });
       }
@@ -212,15 +225,27 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   logout(event: any): void {
     event?.preventDefault();
+    this.isLoading = true;
     this.authService.logout().subscribe({
       next: res => {
         this.toastrService.show(Constants.MSG_LOGOUT_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
         this.tokenService.signOut();
-        this.GenerateAndSetNavMatrices();
-        this.kbS.SelectFirstTile();
+        setTimeout(() => {
+          this.GenerateAndSetNavMatrices();
+          this.kbS.SelectFirstTile();
+          this.isLoading = false;
+        }, 200);
       },
       error: err => {
         this.toastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        this.isLoading = false;
+      },
+      complete: () => {
+        setTimeout(() => {
+          if (this.isLoading) {
+            this.isLoading = false;
+          }
+        }, 200);
       }
     });
   }

@@ -5,9 +5,13 @@
     <nb-action id="header-home" class="cl-header-menu" tabIndex="1" icon="home-outline" link="/" (click)="goTo('/')"
         [disabled]="InProgress"></nb-action>
 
-    <nb-action id="header-user" class="cl-header-menu" tabIndex="2" icon="person-outline"
-             nbPopoverTrigger="focus" nbPopoverPlacement="bottom" [nbPopover]="sub_user"
-              data-sub="header-user-sub-1,header-user-sub-2">
+    <nb-action *ngIf="!isLoggedIn" id="header-user" class="cl-header-menu" tabIndex="2" icon="person-outline"
+            nbPopoverTrigger="focus" [disabled]="InProgress"
+        nbPopoverPlacement="bottom" [nbPopover]="sub_user" data-sub="header-user-sub-1">
+    </nb-action>
+    <nb-action *ngIf="isLoggedIn" id="header-user" class="cl-header-menu" tabIndex="2" icon="person-outline"
+             nbPopoverTrigger="focus" nbPopoverPlacement="bottom" [nbPopover]="sub_user" [disabled]="InProgress"
+              data-sub="header-user-sub-2">
     </nb-action>
     <ng-template #sub_user let-data>
         <nb-card>
@@ -24,9 +28,13 @@
 
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
 
-    <nb-action id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        data-sub="header-base-sub-1,header-base-sub-2,header-base-sub-3,header-base-sub-4,header-base-sub-5,"
-        nbPopoverPlacement="bottom" [nbPopover]="sub_customer">Törzsek
+    <nb-action *ngIf="isLoggedIn" id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
+        data-sub="header-base-sub-1,header-base-sub-2,header-base-sub-3,header-base-sub-4,header-base-sub-5"
+        nbPopoverPlacement="bottom" [nbPopover]="sub_customer" [disabled]="InProgress">Törzsek
+    </nb-action>
+    <nb-action *ngIf="!isLoggedIn" id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
+        data-sub="header-base-sub-1,header-base-sub-2,header-base-sub-3,header-base-sub-4"
+        nbPopoverPlacement="bottom" [nbPopover]="sub_customer" [disabled]="InProgress">Törzsek
     </nb-action>
     <ng-template #sub_customer let-data>
         <nb-card>
