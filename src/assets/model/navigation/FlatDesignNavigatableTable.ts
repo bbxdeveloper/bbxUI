@@ -184,6 +184,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     PushFooterCommandList(): void {
+        if (this.sidebarService.sideBarOpened) {
+            return;
+        }
         if (this.kbs.isEditModeActivated) {
             this.fS.pushCommands(this.commandsOnTableEditMode);
         } else {
@@ -327,7 +330,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         switch (event.key) {
             case KeyBindings.F12: {
                 event.preventDefault();
-                if (this.data.length === 0) {
+                if (!this.sidebarService.sideBarOpened) {
+                    this.flatDesignForm.PushFooterCommandList();
+                } else {
+                    this.PushFooterCommandList();
+                }
+                if (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this)) {
                     this.SetBlankInstanceForForm(true);
                 } else {
                     this.sidebarService.toggle();

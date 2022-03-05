@@ -12,7 +12,6 @@ import { BaseSideBarFormComponent } from "../../shared/base-side-bar-form/base-s
   styleUrls: ['./ware-house-side-bar-form.component.scss']
 })
 export class WareHouseSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
-  currentForm?: FlatDesignNavigatableForm;
   TileCssClass = TileCssClass;
 
   public get keyBindings(): typeof KeyBindings {

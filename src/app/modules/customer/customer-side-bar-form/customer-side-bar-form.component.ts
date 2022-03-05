@@ -15,9 +15,6 @@ const defaultPattern: string = '00000000-00000000-00000000';
   styleUrls: ['./customer-side-bar-form.component.scss']
 })
 export class CustomerSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
-  // TODO: @Input() ?
-  currentForm?: FlatDesignNavigatableForm;
-
   customPatterns: any = { 'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' } };
 
   public get keyBindings(): typeof KeyBindings {

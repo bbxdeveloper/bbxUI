@@ -126,30 +126,6 @@ export class ProductManagerComponent
     },
   ];
 
-  tableIsFocused: boolean = false;
-  private uid = 0;
-
-  isLoading: boolean = true;
-
-  readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
-    { key: 'F2', value: '', disabled: false },
-    { key: 'F3', value: '', disabled: false },
-    { key: 'F4', value: '', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-    { key: 'F11', value: '', disabled: false },
-    { key: 'F12', value: 'Tétellap', disabled: false },
-  ];
-
-  get isSideBarOpened(): boolean {
-    return this.sidebarService.sideBarOpened;
-  }
-
   searchString: string = '';
 
   // ProductGroup
@@ -161,21 +137,19 @@ export class ProductManagerComponent
 
   constructor(
     @Optional() dialogService: NbDialogService,
-    private fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<
-      TreeGridNode<Product>
-    >,
+    fS: FooterService,
+    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
     private seInv: ProductService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
-    private sidebarService: BbxSidebarService,
+    sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService,
     private productGroupApi: ProductGroupService,
     private originApi: OriginService
   ) {
-    super(dialogService, kbS);
+    super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
     this.kbS.ResetToRoot();
     this.Setup();
@@ -487,23 +461,5 @@ export class ProductManagerComponent
         });
       },
     });
-  }
-
-  private nextUid() {
-    ++this.uid;
-    return this.uid;
-  }
-
-  trackRows(index: number, row: any) {
-    return row.uid;
-  }
-
-  focusOnTable(focusIn: boolean): void {
-    this.tableIsFocused = focusIn;
-    if (focusIn) {
-      this.dbDataTable.PushFooterCommandList();
-    } else {
-      this.fS.pushCommands(this.commands);
-    }
   }
 }

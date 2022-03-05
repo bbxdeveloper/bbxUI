@@ -4,10 +4,7 @@
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
             (keydown.escape)="currentForm.HandleFormEscape()"
-            (click)="currentForm.HandleFormClick()"
-            (keydown.f8)="currentForm.HandleFunctionKey($event)" (keydown.f9)="currentForm.HandleFunctionKey($event)"
-            (keydown.f10)="currentForm.HandleFunctionKey($event)" (keydown.f11)="currentForm.HandleFunctionKey($event)"
-            (keydown.f12)="currentForm.HandleFunctionKey($event)">
+            (click)="currentForm.HandleFormClick()">
 
             <ng-container *ngFor="let it of currentForm.colDefs; let rowPos = index" [ngSwitch]="it.fInputType">
                 <ng-container *ngSwitchCase="'text'">

@@ -16,9 +16,6 @@ import { ProductService } from '../services/product.service';
   styleUrls: ['./product-side-bar-form.component.scss']
 })
 export class ProductSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
-  // TODO: @Input() ?
-  currentForm?: FlatDesignNavigatableForm;
-
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }

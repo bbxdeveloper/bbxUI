@@ -15,8 +15,6 @@ import { PocService } from '../services/poc.service';
   styleUrls: ['./poc-side-bar-form.component.scss']
 })
 export class PocSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
-  currentForm?: FlatDesignNavigatableForm;
-
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }

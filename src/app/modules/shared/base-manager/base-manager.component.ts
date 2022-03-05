@@ -1,7 +1,10 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
@@ -22,9 +25,42 @@ export class BaseManagerComponent<T> {
   dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<T>>;
   dbDataTable!: FlatDesignNavigatableTable<T>;
 
+  tableIsFocused: boolean = false;
+  
+  isLoading: boolean = true;
+  
+  get isSideBarOpened(): boolean {
+    return this.sidebarService.sideBarOpened;
+  }
+  
+  private uid = 0;
+  protected nextUid() {
+    ++this.uid;
+    return this.uid;
+  }
+
+  commands: FooterCommandInfo[] = [
+    { key: 'F1', value: '', disabled: false },
+    { key: 'F2', value: '', disabled: false },
+    { key: 'F3', value: '', disabled: false },
+    { key: 'F4', value: '', disabled: false },
+    { key: 'F5', value: '', disabled: false },
+    { key: 'F6', value: '', disabled: false },
+    { key: 'F7', value: '', disabled: false },
+    { key: 'F8', value: '', disabled: false },
+    { key: 'F9', value: '', disabled: false },
+    { key: 'F10', value: '', disabled: false },
+    { key: 'F11', value: '', disabled: false },
+    { key: 'F12', value: 'Tétellap', disabled: false },
+  ];
+
   constructor(
     @Optional() protected dialogService: NbDialogService,
-    protected kbS: KeyboardNavigationService) {}
+    protected kbS: KeyboardNavigationService,
+    protected fS: FooterService,
+    protected sidebarService: BbxSidebarService) {
+
+  }
 
   ActionNew(data?: IUpdateRequest<T>): void {
     console.log("ActionNew: ", data);
@@ -42,7 +78,7 @@ export class BaseManagerComponent<T> {
       this.ProcessActionNew(data);
     }
   }
-  ProcessActionNew(data?: IUpdateRequest<T>): void {}
+  ProcessActionNew(data?: IUpdateRequest<T>): void { }
 
   ActionReset(data?: IUpdateRequest<T>): void {
     this.ProcessActionReset(data);
@@ -78,11 +114,11 @@ export class BaseManagerComponent<T> {
       );
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ActionDelete(data);
+          this.ProcessActionDelete(data);
         }
       });
     } else {
-      this.ActionDelete(data);
+      this.ProcessActionDelete(data);
     }
   }
   ProcessActionDelete(data?: IUpdateRequest<T>): void { }
@@ -100,6 +136,22 @@ export class BaseManagerComponent<T> {
         break;
       }
       default: { }
+    }
+  }
+
+  trackRows(index: number, row: any) {
+    return row.uid;
+  }
+
+  focusOnTable(focusIn: boolean): void {
+    this.tableIsFocused = focusIn;
+    if (this.isSideBarOpened) {
+      return;
+    }
+    if (focusIn) {
+      this.dbDataTable.PushFooterCommandList();
+    } else {
+      this.fS.pushCommands(this.commands);
     }
   }
 

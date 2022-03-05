@@ -3,21 +3,23 @@ import { NbSidebarService } from '@nebular/theme';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 
 @Component({
   selector: 'app-user-side-bar-form',
   templateUrl: './user-side-bar-form.component.html',
   styleUrls: ['./user-side-bar-form.component.scss']
 })
-export class UserSideBarFormComponent implements OnInit {
-  currentForm?: FlatDesignNavigatableForm;
+export class UserSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
   TileCssClass = TileCssClass;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) { }
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) {
+    super();
+  }
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });

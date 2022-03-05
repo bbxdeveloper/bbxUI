@@ -48,43 +48,21 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
   ]
 
-  tableIsFocused: boolean = false;
-  private uid = 0;
-
-  isLoading: boolean = true;
-
-  readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
-    { key: 'F2', value: '', disabled: false },
-    { key: 'F3', value: '', disabled: false },
-    { key: 'F4', value: '', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-    { key: 'F11', value: '', disabled: false },
-    { key: 'F12', value: 'Tétellap', disabled: false },
-  ];
-
-  get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
-
   searchString: string = '';
 
   constructor(
     @Optional() dialogService: NbDialogService,
-    private fS: FooterService,
+    fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Customer>>,
     private seInv: CustomerService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
-    private sidebarService: BbxSidebarService,
+    sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService
   ) {
-    super(dialogService, kbS);
+    super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = "active-prod-search";
     this.kbS.ResetToRoot();
     this.Setup();
@@ -249,23 +227,5 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
-  }
-
-  private nextUid() {
-    ++this.uid
-    return this.uid;
-  }
-
-  trackRows(index: number, row: any) {
-    return row.uid;
-  }
-
-  focusOnTable(focusIn: boolean): void {
-    this.tableIsFocused = focusIn;
-    if (focusIn) {
-      this.dbDataTable.PushFooterCommandList();
-    } else {
-      this.fS.pushCommands(this.commands);
-    }
   }
 }
