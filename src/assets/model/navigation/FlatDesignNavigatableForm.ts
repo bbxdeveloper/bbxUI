@@ -405,6 +405,8 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     GenerateAndSetNavMatrices(attach: boolean, setAsCurrentNavigatable: boolean = true): void {
+        console.log("[FlatDesignNavigatableForm] START");
+
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
 
@@ -444,6 +446,8 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         if (attach) {
             this.kbS.Attach(this, this.attachDirection, setAsCurrentNavigatable);
         }
+
+        console.log("[FlatDesignNavigatableForm] END");
     }
 
     Attach(): void {

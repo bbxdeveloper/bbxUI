@@ -11,7 +11,7 @@
 
             <ng-container *ngFor="let it of currentForm.colDefs; let rowPos = index" [ngSwitch]="it.fInputType">
                 <ng-container *ngSwitchCase="'text'">
-                    <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormEnter($event) : currentForm.HandleFormLastEnter($event)">
+                    <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                         <div class="bbx-fd-form-field-inner-div">
                             <ng-container [ngSwitch]="it.fInputType">
                                 <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
@@ -26,7 +26,7 @@
                 </ng-container>
 
                 <ng-container *ngSwitchCase="'readonly'">
-                    <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormEnter($event) : currentForm.HandleFormLastEnter($event)">
+                    <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                         <div class="bbx-fd-form-field-inner-div">
                             <ng-container [ngSwitch]="it.fInputType">
                                 <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
@@ -40,7 +40,7 @@
                 </ng-container>
 
                 <ng-container *ngSwitchCase="'password'">
-                    <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormEnter($event) : currentForm.HandleFormLastEnter($event)">
+                    <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                         <div class="bbx-fd-form-field-inner-div">
                             <ng-container [ngSwitch]="it.fInputType">
                                 <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
@@ -54,7 +54,7 @@
                     <app-form-control-error [form]="currentForm" [controlName]="it.objectKey"></app-form-control-error>
                 </ng-container>
 
-                <div class="bbx-fd-checkbox-outer-div" *ngSwitchCase="'bool'" (keydown.enter)="it.fLast ? currentForm.HandleFormEnter($event) : currentForm.HandleFormLastEnter($event)">
+                <div class="bbx-fd-checkbox-outer-div" *ngSwitchCase="'bool'" (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                     <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"

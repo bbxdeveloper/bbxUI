@@ -21,7 +21,7 @@
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                 *nbTreeGridCellDef="let row; let rowPos = index"
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
-                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
@@ -35,7 +35,7 @@
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                 *nbTreeGridCellDef="let row; let rowPos = index"
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
-                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">

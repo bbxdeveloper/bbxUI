@@ -251,9 +251,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
 
-        setTimeout(() => {
-            this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
-        }, 200);
+        this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -340,11 +338,15 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    JumpToFlatDesignForm(tabKeyDownEvent?: Event): void {
+    JumpToFlatDesignForm(tabKeyDownEvent?: Event, row?: TreeGridNode<T>, rowPos?: number, col?: string, colPos?: number): void {
         tabKeyDownEvent?.preventDefault();
         tabKeyDownEvent?.stopImmediatePropagation();
         tabKeyDownEvent?.stopPropagation();
-
+        
+        if (row !== undefined && rowPos !== undefined && col !== undefined && colPos !== undefined) {
+            this.HandleGridClick(row, rowPos, col, colPos);
+        }
+        
         this.kbs.Jump(this.flatDesignForm.attachDirection, true);
         this.flatDesignForm.PushFooterCommandList();
     }
