@@ -29,7 +29,7 @@
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"></nb-action>
 
     <nb-action *ngIf="isLoggedIn" id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        data-sub="header-base-sub-1,header-base-sub-2,header-base-sub-3,header-base-sub-4,header-base-sub-5"
+        data-sub="header-base-sub-1,header-base-sub-2,header-base-sub-3,header-base-sub-4,header-base-sub-5,header-base-sub-6"
         nbPopoverPlacement="bottom" [nbPopover]="sub_customer" [disabled]="InProgress">Törzsek
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
@@ -62,8 +62,14 @@
                     Termékek kezelése
                 </button>
             </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-base-sub-5" [disabled]="InProgress"
+                    (click)="goTo('manage/warehouse')">
+                    Raktárak kezelése
+                </button>
+            </nb-card-body>
             <nb-card-body *ngIf="isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-base-sub-5" [disabled]="InProgress && !isLoggedIn"
+                <button nbButton status="primary" id="header-base-sub-6" [disabled]="InProgress && !isLoggedIn"
                     (click)="goTo('admin/dbData')">
                     Felhasználók kezelése
                 </button>

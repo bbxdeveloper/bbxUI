@@ -17,6 +17,7 @@ import { OriginModule } from './modules/origin/origin.module';
 import { ProductModule } from './modules/product/product.module';
 import { ProductGroupModule } from './modules/product-group/product-group.module';
 import { PocModule } from './modules/poc/poc.module';
+import { WarehouseModule } from './modules/warehouse/warehouse.module';
 
 const maskConfig: Partial<IConfig> = {
   validation: false,
@@ -52,6 +53,7 @@ const maskConfig: Partial<IConfig> = {
     ProductGroupModule,
     ProductModule,
     PocModule,
+    WarehouseModule,
     CoreModule
   ],
   exports: [
