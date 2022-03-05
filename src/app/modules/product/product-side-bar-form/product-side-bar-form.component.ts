@@ -1,17 +1,13 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { EventManager } from 'out/bbx-ui-win32-x64/resources/app/node_modules/@angular/platform-browser/platform-browser';
-import { map, Observable, of, startWith } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
-import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
-import { UnitOfMeasure } from '../models/UnitOfMeasure';
 import { ProductService } from '../services/product.service';
 
 @Component({
