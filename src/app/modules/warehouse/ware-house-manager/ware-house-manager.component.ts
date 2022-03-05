@@ -1,16 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { NbDialogService, NbTable, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbTable, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
+import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { DeleteWareHouseRequest } from '../models/DeleteWareHouseRequest';
@@ -204,9 +202,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
       warehouseCode: new FormControl(undefined, [Validators.required]),
-      warehouseDescription: new FormControl(undefined, [
-        Validators.required,
-      ]),
+      warehouseDescription: new FormControl(undefined, [Validators.required]),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(

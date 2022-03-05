@@ -16,7 +16,7 @@
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Név</label>
+                    <label>Név*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
@@ -81,7 +81,7 @@
                 
                 <nb-form-field class="bbx-fd-form-field-60" (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label>Város</label>
+                        <label>Város*</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="city"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
@@ -93,7 +93,7 @@
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Cím</label>
+                    <label>Cím*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
                         (click)="currentForm.HandleFormFieldClick($event)" required>

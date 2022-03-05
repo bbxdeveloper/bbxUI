@@ -62,6 +62,7 @@ export class UserManagerComponent
       colWidth: '15%',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
+      fRequired: true
     },
     {
       label: 'Felhasználónév',
@@ -74,6 +75,7 @@ export class UserManagerComponent
       colWidth: '15%',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
+      fRequired: true
     },
     {
       label: 'Email',
@@ -86,6 +88,7 @@ export class UserManagerComponent
       colWidth: '25%',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
+      fRequired: true
     },
     {
       label: 'Megjegyzés',
@@ -110,6 +113,7 @@ export class UserManagerComponent
       colWidth: '10%',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
+      fRequired: true
     },
     {
       label: 'Jelszó',
