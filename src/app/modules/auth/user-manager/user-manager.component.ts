@@ -168,15 +168,18 @@ export class UserManagerComponent
         .subscribe({
           next: (d) => {
             if (d.succeeded && !!d.data) {
-              this.dbData.push({
+              const newRow = {
                 data: CreateUserResponseDataToUser(d.data),
-              } as TreeGridNode<User>);
+              } as TreeGridNode<User>;
+              this.dbDataTable.SetDataForForm(newRow, false, false);
+              this.dbData.push(newRow);
               this.RefreshTable();
               this.toastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
+              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
             } else {
               console.log(
                 d.errors!,
@@ -210,15 +213,18 @@ export class UserManagerComponent
         .subscribe({
           next: (d) => {
             if (d.succeeded && !!d.data) {
-              this.dbData[data.rowIndex] = {
+              const newRow = {
                 data: UpdateUserResponseDataToUser(d.data),
               } as TreeGridNode<User>;
+              this.dbData[data.rowIndex] = newRow;
+              this.dbDataTable.SetDataForForm(newRow, false, false);
               this.RefreshTable();
               this.toastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
+              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
@@ -252,6 +258,7 @@ export class UserManagerComponent
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
+              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),

@@ -121,6 +121,6 @@ export class CustomerService {
   }
 
   Delete(req: DeleteCustomerRequest): Observable<DeleteCustomerResponse> {
-    return this.http.delete<DeleteCustomerResponse>(this.BaseUrl, { body: req });
+    return this.http.delete<DeleteCustomerResponse>(this.BaseUrl + '?ID=' + req.id);
   }
 }

@@ -74,6 +74,6 @@ export class WareHouseService {
   }
 
   Delete(req: DeleteWareHouseRequest): Observable<DeleteWareHouseResponse> {
-    return this.http.delete<DeleteWareHouseResponse>(this.BaseUrl, { body: req });
+    return this.http.delete<DeleteWareHouseResponse>(this.BaseUrl + '?ID=' + req.id);
   }
 }

@@ -102,13 +102,16 @@ export class OriginManagerComponent
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            this.dbData.push({ data: d.data } as TreeGridNode<Origin>);
+            const newRow = { data: d.data } as TreeGridNode<Origin>;
+            this.dbData.push(newRow);
+            this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
@@ -129,15 +132,18 @@ export class OriginManagerComponent
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            this.dbData[data.rowIndex] = {
+            const newRow = {
               data: d.data,
-            } as TreeGridNode<Origin>;
+            } as TreeGridNode<Origin>
+            this.dbData[data.rowIndex] = newRow;
+            this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
@@ -170,6 +176,7 @@ export class OriginManagerComponent
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
+              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),

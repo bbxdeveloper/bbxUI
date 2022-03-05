@@ -197,14 +197,25 @@ export class ProductManagerComponent
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            d.data = this.ConvertCombosForGet(d.data);
-            this.dbData.push({ data: d.data } as TreeGridNode<Product>);
-            this.RefreshTable();
-            this.toastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS
-            );
+            this.seInv.Get({ ID: d.data.id }).subscribe({
+              next: newData => {
+                if (!!newData) {
+                  d.data = this.ConvertCombosForGet(newData);
+                  console.log("New product: ", d.data);
+                  const newRow = { data: newData } as TreeGridNode<Product>;
+                  this.dbData.push(newRow);
+                  this.dbDataTable.SetDataForForm(newRow, false, false);
+                  this.RefreshTable();
+                  this.toastrService.show(
+                    Constants.MSG_SAVE_SUCCESFUL,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS
+                  );
+                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                }
+              },
+              error: (err) => this.cs.HandleError(err),
+            });
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
@@ -227,15 +238,18 @@ export class ProductManagerComponent
         next: (d) => {
           if (d.succeeded && !!d.data) {
             d.data = this.ConvertCombosForGet(d.data);
-            this.dbData[data.rowIndex] = {
+            const newRow = {
               data: d.data,
-            } as TreeGridNode<Product>;
+            } as TreeGridNode<Product>
+            this.dbData[data.rowIndex] = newRow;
+            this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
@@ -268,6 +282,7 @@ export class ProductManagerComponent
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
+              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),

@@ -234,6 +234,37 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }, 200);
     }
 
+    SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
+        console.log(`Data: ${row}`);
+
+        this.prevSelectedRow = row;
+        // this.prevSelectedRowPos = 0;
+        // this.prevSelectedCol = '';
+        // this.prevSelectedColPos = 0;
+
+        this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!, this.prevSelectedCol!);
+        this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
+
+        // this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
+        // this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
+
+        this.flatDesignForm.SetClean();
+
+        setTimeout(() => {
+            if (openSideBar) {
+                this.sidebarService.toggle();
+            }
+
+            this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
+
+            if (jump) {
+                this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+            }
+
+            this.flatDesignForm.PushFooterCommandList();
+        }, 200);
+    }
+
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
         // In case user clicks with mouse, we adjust our coordinate to the click
 

@@ -73,9 +73,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       this.seInv.Create(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
-            this.dbData.push({ data: d.data } as TreeGridNode<Customer>);
+            const newRow = { data: d.data } as TreeGridNode<Customer>;
+            this.dbData.push(newRow);
+            this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
@@ -92,9 +95,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       this.seInv.Update(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
-            this.dbData[data.rowIndex] = { data: d.data } as TreeGridNode<Customer>;
+            const newRow = { data: d.data } as TreeGridNode<Customer>;
+            this.dbData[data.rowIndex] = newRow;
+            this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           }
@@ -117,6 +123,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.dbData.splice(di, 1);
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           }

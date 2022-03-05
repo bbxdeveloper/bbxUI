@@ -99,13 +99,17 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            this.dbData.push({ data: d.data } as TreeGridNode<WareHouse>);
+            const newRow = { data: d.data } as TreeGridNode<WareHouse>;
+            this.dbData.push(newRow);
+            this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
+            this.dbDataTable.SetDataForForm
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
@@ -126,15 +130,18 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            this.dbData[data.rowIndex] = {
+            const newRow = {
               data: d.data,
             } as TreeGridNode<WareHouse>;
+            this.dbData[data.rowIndex] = newRow;
+            this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
+            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
@@ -167,6 +174,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
+              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),

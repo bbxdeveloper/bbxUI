@@ -123,6 +123,10 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         });
     }
 
+    SetFormStateToDefault(): void {
+        this.formMode = Constants.FormState.default;
+    }
+
     ActionNew(data?: IUpdateRequest<T>): void {
         if (this.form.invalid) {
             return;
@@ -132,7 +136,6 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             rowIndex: this.DataRowIndex,
             needConfirmation: data?.needConfirmation ?? false
         } as IUpdateRequest);
-        this.formMode = Constants.FormState.default;
     }
 
     ActionReset(data?: IUpdateRequest<T>): void {
@@ -151,7 +154,6 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             rowIndex: this.DataRowIndex,
             needConfirmation: data?.needConfirmation ?? false
         } as IUpdateRequest);
-        this.formMode = Constants.FormState.default;
     }
 
     ActionDelete(data?: IUpdateRequest<T>): void {

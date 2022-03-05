@@ -73,6 +73,6 @@ export class OriginService {
   }
 
   Delete(req: DeleteOriginRequest): Observable<DeleteOriginResponse> {
-    return this.http.delete<DeleteOriginResponse>(this.BaseUrl, { body: req });
+    return this.http.delete<DeleteOriginResponse>(this.BaseUrl + '?ID=' + req.id);
   }
 }

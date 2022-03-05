@@ -42,7 +42,7 @@
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber"
                         mask="0000000-0-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        (click)="currentForm.HandleFormFieldClick($event)" required>
+                        (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="taxpayerNumber"></app-form-control-error>
             </nb-form-field>
@@ -64,7 +64,7 @@
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="countryCode" mask="YY"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [patterns]="customPatterns"
-                        (click)="currentForm.HandleFormFieldClick($event)" required>
+                        (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="countryCode"></app-form-control-error>
             </nb-form-field>

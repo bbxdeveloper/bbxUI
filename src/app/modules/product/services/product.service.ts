@@ -78,6 +78,6 @@ export class ProductService {
   }
 
   Delete(req: DeleteProductRequest): Observable<DeleteProductResponse> {
-    return this.http.delete<DeleteProductResponse>(this.BaseUrl, { body: req });
+    return this.http.delete<DeleteProductResponse>(this.BaseUrl + '?ID=' + req.id);
   }
 }
