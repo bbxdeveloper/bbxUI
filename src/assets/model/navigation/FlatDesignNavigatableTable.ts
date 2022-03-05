@@ -358,4 +358,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.kbs.Jump(this.flatDesignForm.attachDirection, true);
         this.flatDesignForm.PushFooterCommandList();
     }
+
+    JumpToFlatDesignFormByForm(formInputId: string): void {
+        this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+        this.flatDesignForm.PushFooterCommandList();
+        this.kbs.SetPositionById(formInputId);
+    }
 }

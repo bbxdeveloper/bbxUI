@@ -214,7 +214,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     HandleFormFieldClick(event: any): void {
         if (this.kbS.IsCurrentNavigatable(this.grid)) {
             this.GenerateAndSetNavMatrices(false);
-            this.grid.JumpToFlatDesignForm();
+            this.grid.JumpToFlatDesignFormByForm(event.target?.id);
         } else {
             this.kbS.setEditMode(KeyboardModes.EDIT);
             this.kbS.SetPositionById(event.target?.id);
