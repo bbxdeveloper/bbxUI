@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef, NbToastrService } from '@nebular/theme';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { NbDialogRef } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';

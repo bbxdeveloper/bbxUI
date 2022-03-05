@@ -1,4 +1,4 @@
-import { NbIconConfig } from "@nebular/theme";
+import { NbIconConfig, NbToastrConfig } from "@nebular/theme";
 import { ProcessStatus } from "../model/ProcessStatus";
 import { Actions, KeyBindings } from "./KeyBindings";
 
@@ -23,10 +23,15 @@ export module Constants {
 
     // Toastr Configs
 
-    export const TOASTR_ERROR: Partial<NbIconConfig> = 
-        { status: 'danger', icon: 'alert-circle-outline', pack: 'eva' };
-    export const TOASTR_SUCCESS: Partial<NbIconConfig> =
-        { status: 'info', icon: 'checkmark-outline', pack: 'eva' };
+    // export const TOASTR_ERROR: Partial<NbIconConfig> = 
+    //     { status: 'danger', icon: 'alert-circle-outline', pack: 'eva' };
+    // export const TOASTR_SUCCESS: Partial<NbIconConfig> =
+    //     { status: 'info', icon: 'checkmark-outline', pack: 'eva' };
+
+    export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'primary' };
+    export const TOASTR_ERROR: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'danger' };
 
 
     // Util

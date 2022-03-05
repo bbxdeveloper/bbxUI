@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { NbToastrService } from '@nebular/theme';
 import { Constants } from 'src/assets/util/Constants';
+import { BbxToastrService } from './bbx-toastr-service.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommonService {
 
-  constructor(private toastrService: NbToastrService) { }
+  constructor(private toastrService: BbxToastrService) { }
 
   HandleError(err: any): void {
     const errors: string =

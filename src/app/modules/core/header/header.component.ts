@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbDialogService, NbIconConfig, NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbIconConfig } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -14,6 +14,7 @@ import { LoginDialogResponse } from '../../auth/models/LoginDialogResponse';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-header',
@@ -69,7 +70,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private sts: StatusService,
     private authService: AuthService,
     private tokenService: TokenStorageService,
-    private toastrService: NbToastrService) {
+    private toastrService: BbxToastrService) {
     super();
     this.OuterJump = true;
   }
@@ -125,6 +126,16 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (this.toastrService.IsToastrOpened) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+
+      this.toastrService.close();
+
+      return;
+    }
+
     switch (event.key) {
       case KeyBindings.up: {
         if (!this.kbS.isEditModeActivated) {

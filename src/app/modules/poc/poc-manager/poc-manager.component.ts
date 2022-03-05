@@ -1,20 +1,19 @@
 import { Component, OnInit, ViewChild, Optional, ChangeDetectorRef } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { NbTable, NbTreeGridDataSource, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from "@nebular/theme";
+import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from "@nebular/theme";
 import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
+import { BbxToastrService } from "src/app/services/bbx-toastr-service.service";
 import { CommonService } from "src/app/services/common.service";
 import { FooterService } from "src/app/services/footer.service";
 import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
-import { FooterCommandInfo } from "src/assets/model/FooterCommandInfo";
 import { ModelFieldDescriptor } from "src/assets/model/ModelFieldDescriptor";
 import { FlatDesignNavigatableTable } from "src/assets/model/navigation/FlatDesignNavigatableTable";
 import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
 import { TreeGridNode } from "src/assets/model/TreeGridNode";
-import { IUpdater, IUpdateRequest } from "src/assets/model/UpdaterInterfaces";
+import { IUpdateRequest } from "src/assets/model/UpdaterInterfaces";
 import { Constants } from "src/assets/util/Constants";
 import { BaseManagerComponent } from "../../shared/base-manager/base-manager.component";
-import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/confirmation-dialog.component";
 import { DeletePocRequest } from "../models/DeletePocRequest";
 import { GetPocsParamListModel } from "../models/GetPocsParamListModel";
 import { Poc, BlankPoc } from "../models/Poc";
@@ -52,7 +51,7 @@ export class PocManagerComponent extends BaseManagerComponent<Poc> implements On
     private seInv: PocService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: NbToastrService,
+    private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService

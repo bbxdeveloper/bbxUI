@@ -1,16 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbTable, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
+import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Product } from '../models/Product';
 import { ProductService } from '../services/product.service';
 import { DeleteProductRequest } from '../models/DeleteProductRequest';
@@ -23,6 +21,7 @@ import { ProductGroup, ProductGroupDescriptionToCode } from '../../product-group
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { UnitOfMeasure, UnitOfMeasureTextToValue, UnitOfMeasureValueToText } from '../models/UnitOfMeasure';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-product-manager',
@@ -142,7 +141,7 @@ export class ProductManagerComponent
     private seInv: ProductService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: NbToastrService,
+    private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService,

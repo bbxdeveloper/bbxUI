@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbTable, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -18,6 +18,7 @@ import { GetWareHousesParamListModel } from '../models/GetWareHousesParamListMod
 import { BlankWareHouse, WareHouse } from '../models/WareHouse';
 import { WareHouseService } from '../services/ware-house.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-ware-house-manager',
@@ -83,7 +84,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     private seInv: WareHouseService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: NbToastrService,
+    private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService
