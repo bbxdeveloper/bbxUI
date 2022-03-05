@@ -437,3 +437,12 @@ nb-card-header {
     min-height: 50px;
     align-items: self-end;
 }
+
+.as-split-area {
+    max-height: 100vh;
+    overflow-y: hidden !important;
+}
+
+.as-split-gutter {
+    background-color: #1d4a70 !important;
+}
