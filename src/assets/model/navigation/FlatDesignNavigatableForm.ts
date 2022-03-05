@@ -53,7 +53,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     PreviousYOnGrid: number = -1;
 
     private DataRowIndex: number = -1;
-    private DataToEdit?: TreeGridNode<any>;
+    DataToEdit?: TreeGridNode<any>;
 
     readonly commandsOnForm: FooterCommandInfo[] = [
         { key: 'F1', value: '', disabled: false },
@@ -101,6 +101,10 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
                     this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
                     this.grid.PushFooterCommandList();
                 }
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            },
+            complete: () => {
+                this.kbS.isEditModeLocked = false;
             }
         });
     }
@@ -373,6 +377,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             }
             case KeyBindings.F12: {
                 event.preventDefault();
+                this.kbS.isEditModeLocked = true;
                 this.sidebarService.collapse();
                 break;
             }

@@ -98,16 +98,25 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   }
 
   private filterProductGroup(value: string): string[] {
+    if (value === undefined) {
+      return this.productGroups;
+    }
     const filterValue = value.toLowerCase();
     return this.productGroups.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 
   private filterUom(value: string): string[] {
+    if (value === undefined) {
+      return this.uom;
+    }
     const filterValue = value.toLowerCase();
     return this.uom.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 
   private filterOrigin(value: string): string[] {
+    if (value === undefined) {
+      return this.origins;
+    }
     const filterValue = value.toLowerCase();
     return this.origins.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }

@@ -366,7 +366,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 } else {
                     this.PushFooterCommandList();
                 }
-                if (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this)) {
+                if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
                     this.SetBlankInstanceForForm(true);
                 } else {
                     this.sidebarService.toggle();

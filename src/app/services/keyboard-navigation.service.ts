@@ -44,11 +44,18 @@ export class KeyboardNavigationService {
     return this._currentKeyboardMode === KeyboardModes.EDIT;
   }
 
+  isEditModeLocked: boolean = false;
+
   get AroundHere(): string[][] {
     return this.CurrentNavigatable.Matrix;
   }
   get Here(): string {
-    return this.CurrentNavigatable.Matrix[this.p.y][this.p.x];
+    const tmp = this.CurrentNavigatable.Matrix[this.p.y][this.p.x];
+    if (tmp === undefined) {
+      this.p.x = 0;
+      this.p.y = 0;
+    }
+    return tmp;
   }
   get CurrentSubMapping(): { [id: string]: INavigatable; } | undefined {
     return this.CurrentNavigatable.SubMapping;
@@ -70,10 +77,16 @@ export class KeyboardNavigationService {
   constructor() { }
 
   toggleEdit(): void {
+    if (this.isEditModeLocked) {
+      return;
+    }
     this._currentKeyboardMode = this._currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
   }
 
   setEditMode(mode: KeyboardModes): void {
+    if (this.isEditModeLocked) {
+      return;
+    }
     this._currentKeyboardMode = mode;
   }
 
