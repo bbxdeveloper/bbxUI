@@ -4,13 +4,14 @@ import { SideBarFormService, FormSubject } from "src/app/services/side-bar-form.
 import { FlatDesignNavigatableForm } from "src/assets/model/navigation/FlatDesignNavigatableForm";
 import { TileCssClass } from "src/assets/model/navigation/Navigatable";
 import { KeyBindings } from "src/assets/util/KeyBindings";
+import { BaseSideBarFormComponent } from "../../shared/base-side-bar-form/base-side-bar-form.component";
 
 @Component({
   selector: 'app-origin-side-bar-form',
   templateUrl: './origin-side-bar-form.component.html',
   styleUrls: ['./origin-side-bar-form.component.scss']
 })
-export class OriginSideBarFormComponent implements OnInit {
+export class OriginSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
   currentForm?: FlatDesignNavigatableForm;
   TileCssClass = TileCssClass;
 
@@ -18,7 +19,9 @@ export class OriginSideBarFormComponent implements OnInit {
     return KeyBindings;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) { }
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) {
+    super();
+  }
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });

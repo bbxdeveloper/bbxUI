@@ -5,6 +5,7 @@ import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keybo
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { PocType } from '../models/PocType';
 import { PocService } from '../services/poc.service';
 
@@ -13,7 +14,7 @@ import { PocService } from '../services/poc.service';
   templateUrl: './poc-side-bar-form.component.html',
   styleUrls: ['./poc-side-bar-form.component.scss']
 })
-export class PocSideBarFormComponent implements OnInit {
+export class PocSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
   currentForm?: FlatDesignNavigatableForm;
 
   public get keyBindings(): typeof KeyBindings {
@@ -31,6 +32,7 @@ export class PocSideBarFormComponent implements OnInit {
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService,
     private seInv: PocService, private kbS: KeyboardNavigationService) {
+      super();
       this.seInv.GetPocTypes().subscribe({
         next: data => {
           this.pocTypes = data.data!;

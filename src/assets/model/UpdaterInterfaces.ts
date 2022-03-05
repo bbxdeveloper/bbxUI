@@ -15,4 +15,5 @@ export interface IUpdater<T = any> {
 export interface IUpdateRequest<T = any> {
     data: T;
     rowIndex: number;
+    needConfirmation?: boolean;
 }

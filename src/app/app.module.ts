@@ -19,7 +19,7 @@ import { ProductGroupModule } from './modules/product-group/product-group.module
 import { PocModule } from './modules/poc/poc.module';
 
 const maskConfig: Partial<IConfig> = {
-  validation: true,
+  validation: false,
 };
 
 @NgModule({

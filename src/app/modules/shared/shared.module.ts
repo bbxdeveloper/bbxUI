@@ -12,6 +12,9 @@ import { PaginatorComponent } from './paginator/paginator.component';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { CrudButtonsComponent } from './crud-buttons/crud-buttons.component';
 import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.component';
+import { BaseManagerComponent } from './base-manager/base-manager.component';
+import { BaseSideBarFormComponent } from './base-side-bar-form/base-side-bar-form.component';
+import { FormControlErrorComponent } from './form-control-error/form-control-error.component';
 
 
 @NgModule({
@@ -23,6 +26,9 @@ import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.com
     PaginatorComponent,
     CrudButtonsComponent,
     FKeyButtonsRowComponent,
+    BaseManagerComponent,
+    BaseSideBarFormComponent,
+    FormControlErrorComponent,
   ],
   imports: [
     CommonModule,
@@ -57,6 +63,9 @@ import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.com
     PaginatorComponent,
     CrudButtonsComponent,
     FKeyButtonsRowComponent,
+    BaseManagerComponent,
+    BaseSideBarFormComponent,
+    FormControlErrorComponent
   ],
   providers: [
     ConfirmationDialogComponent

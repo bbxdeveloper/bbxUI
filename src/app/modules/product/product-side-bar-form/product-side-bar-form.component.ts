@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
+import { EventManager } from 'out/bbx-ui-win32-x64/resources/app/node_modules/@angular/platform-browser/platform-browser';
 import { map, Observable, of, startWith } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
@@ -9,6 +10,7 @@ import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
 import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
+import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { UnitOfMeasure } from '../models/UnitOfMeasure';
 import { ProductService } from '../services/product.service';
 
@@ -17,7 +19,7 @@ import { ProductService } from '../services/product.service';
   templateUrl: './product-side-bar-form.component.html',
   styleUrls: ['./product-side-bar-form.component.scss']
 })
-export class ProductSideBarFormComponent implements OnInit {
+export class ProductSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
   // TODO: @Input() ?
   currentForm?: FlatDesignNavigatableForm;
 
@@ -46,6 +48,7 @@ export class ProductSideBarFormComponent implements OnInit {
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
     private cdref: ChangeDetectorRef) {
+    super();
     this.refreshComboboxData();
   }
 
@@ -99,22 +102,6 @@ export class ProductSideBarFormComponent implements OnInit {
     this.currentForm?.form.controls['unitOfMeasure'].valueChanges.subscribe({
       next: filterString => { this.filteredUom$ = of(this.filterUom(filterString)); }
     });
-
-    // this.filteredProductGroups$ = this.currentForm?.form.controls['productGroup'].valueChanges
-    //   .pipe(
-    //     startWith(''),
-    //     map(filterString => this.filterProductGroup(filterString)),
-    //   );
-    // this.filteredOrigins$ = this.currentForm?.form.controls['origin'].valueChanges
-    //   .pipe(
-    //     startWith(''),
-    //     map(filterString => this.filterOrigin(filterString)),
-    //   );
-    // this.filteredUom$ = this.currentForm?.form.controls['unitOfMeasure'].valueChanges
-    //   .pipe(
-    //     startWith(''),
-    //     map(filterString => this.filterUom(filterString)),
-    //   );
   }
 
   private filterProductGroup(value: string): string[] {
@@ -131,5 +118,4 @@ export class ProductSideBarFormComponent implements OnInit {
     const filterValue = value.toLowerCase();
     return this.origins.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
-
 }

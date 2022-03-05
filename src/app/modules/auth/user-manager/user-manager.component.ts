@@ -21,37 +21,114 @@ import { UpdateUserResponseDataToUser } from '../models/UpdateUserResponse';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { GetUsersParamListModel } from '../models/GetUsersParamListModel';
+import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 
 @Component({
   selector: 'app-user-manager',
   templateUrl: './user-manager.component.html',
-  styleUrls: ['./user-manager.component.scss']
+  styleUrls: ['./user-manager.component.scss'],
 })
-export class UserManagerComponent implements OnInit, IUpdater<User> {
+export class UserManagerComponent
+  extends BaseManagerComponent<User>
+  implements OnInit
+{
   @ViewChild('table') table?: NbTable<any>;
 
-  userTableForm!: FormGroup;
-  users!: TreeGridNode<User>[];
-  usersDataSrc!: NbTreeGridDataSource<TreeGridNode<User>>;
-  userTable!: FlatDesignNavigatableTable<User>;
   usersTableId = 'usermanager-table';
-  usersTableEditId = "user-cell-edit-input";
+  usersTableEditId = 'user-cell-edit-input';
 
   colsToIgnore: string[] = [];
   allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
   colDefs: ModelFieldDescriptor[] = [
-    // { label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
-    { label: 'ID', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Név', objectKey: 'name', colKey: 'name', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Felhasználónév', objectKey: 'loginName', colKey: 'loginName', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Email', objectKey: 'email', colKey: 'email', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "30%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'bool', fInputType: 'bool', mask: "", colWidth: "10%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Jelszó', objectKey: 'password', colKey: 'password', defaultValue: '', type: 'password', fInputType: 'password', mask: "", colWidth: "", textAlign: "", navMatrixCssClass: TileCssClass }
-  ]
+    {
+      label: 'ID',
+      objectKey: 'id',
+      colKey: 'id',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'readonly',
+      mask: '',
+      colWidth: '15%',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Név',
+      objectKey: 'name',
+      colKey: 'name',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '15%',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Felhasználónév',
+      objectKey: 'loginName',
+      colKey: 'loginName',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '15%',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Email',
+      objectKey: 'email',
+      colKey: 'email',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '25%',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Megjegyzés',
+      objectKey: 'comment',
+      colKey: 'comment',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '30%',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Aktív',
+      objectKey: 'active',
+      colKey: 'active',
+      defaultValue: '',
+      type: 'bool',
+      fInputType: 'bool',
+      mask: '',
+      colWidth: '10%',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Jelszó',
+      objectKey: 'password',
+      colKey: 'password',
+      defaultValue: '',
+      type: 'password',
+      fInputType: 'password',
+      mask: '',
+      colWidth: '',
+      textAlign: '',
+      navMatrixCssClass: TileCssClass,
+      fLast: true
+    },
+  ];
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') }
+    C: { pattern: new RegExp('[a-zA-Z0-9]') },
   };
 
   tableIsFocused: boolean = false;
@@ -74,109 +151,144 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
-  get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
+  get isSideBarOpened(): boolean {
+    return this.sidebarService.sideBarOpened;
+  }
 
   searchString: string = '';
 
   constructor(
-    @Optional() private dialogService: NbDialogService,
+    @Optional() dialogService: NbDialogService,
     private fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<User>>,
     private seInv: UserService,
     private cdref: ChangeDetectorRef,
-    private kbS: KeyboardNavigationService,
+    kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
     private sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService
   ) {
+    super(dialogService, kbS);
+    this.searchInputId = 'active-prod-search';
     this.kbS.ResetToRoot();
     this.Setup();
   }
 
-  ActionNew(data?: IUpdateRequest<User>): void {
+  override ProcessActionNew(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
-      console.log("ActionNew: ", data.data);
-      this.seInv.Create({
-        name: data.data.name,
-        email: data.data.email,
-        loginName: data.data.loginName,
-        password: data.data.password,
-        comment: data.data.comment
-      } as CreateUserRequest).subscribe({
-        next: d => {
-          if (d.succeeded && !!d.data) {
-            this.users.push({ data: CreateUserResponseDataToUser(d.data) } as TreeGridNode<User>);
-            this.RefreshTable();
-            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-          } else {
-            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-          }
-        },
-        error: err => this.cs.HandleError(err)
-      });
+      console.log('ActionNew: ', data.data);
+      this.seInv
+        .Create({
+          name: data.data.name,
+          email: data.data.email,
+          loginName: data.data.loginName,
+          password: data.data.password,
+          comment: data.data.comment,
+        } as CreateUserRequest)
+        .subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              this.dbData.push({
+                data: CreateUserResponseDataToUser(d.data),
+              } as TreeGridNode<User>);
+              this.RefreshTable();
+              this.toastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+            } else {
+              console.log(
+                d.errors!,
+                d.errors!.join('\n'),
+                d.errors!.join(', ')
+              );
+              this.toastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+            }
+          },
+          error: (err) => this.cs.HandleError(err),
+        });
     }
   }
-  ActionReset(data?: IUpdateRequest<User>): void {
-    this.userTable.ResetForm();
-  }
-  ActionPut(data?: IUpdateRequest<User>): void {
+
+  override ProcessActionPut(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
-      console.log("ActionPut: ", data.data);
-      this.seInv.Update({
-        id: data.data.id,
-        name: data.data.name,
-        email: data.data.email,
-        loginName: data.data.loginName,
-        password: data.data.password,
-        comment: data.data.comment
-      } as UpdateUserRequest).subscribe({
-        next: d => {
-          if (d.succeeded && !!d.data) {
-            this.users[data.rowIndex] = { data: UpdateUserResponseDataToUser(d.data) } as TreeGridNode<User>;
-            this.RefreshTable();
-            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-          } else {
-            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-          }
-        },
-        error: err => this.cs.HandleError(err)
-      });
+      console.log('ActionPut: ', data.data);
+      this.seInv
+        .Update({
+          id: data.data.id,
+          name: data.data.name,
+          email: data.data.email,
+          loginName: data.data.loginName,
+          password: data.data.password,
+          comment: data.data.comment,
+        } as UpdateUserRequest)
+        .subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              this.dbData[data.rowIndex] = {
+                data: UpdateUserResponseDataToUser(d.data),
+              } as TreeGridNode<User>;
+              this.RefreshTable();
+              this.toastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+            } else {
+              this.toastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+            }
+          },
+          error: (err) => this.cs.HandleError(err),
+        });
     }
   }
-  ActionDelete(data?: IUpdateRequest<User>): void {
-    const dialogRef = this.dialogService.open(
-      ConfirmationDialogComponent,
-      { context: { msg: Constants.MSG_CONFIRMATION_DELETE } }
-    );
-    dialogRef.onClose.subscribe(res => {
-      if (res) {
-        if (!!data && data.data?.id !== undefined) {
-          console.log("ActionDelete: ", data.rowIndex);
-          this.seInv.Delete({
-            id: data.data?.id
-          } as DeleteUserRequest).subscribe({
-            next: d => {
-              if (d.succeeded && !!d.data) {
-                const di = this.users.findIndex(x => x.data.id === data.data.id);
-                this.users.splice(di, 1);
-                this.RefreshTable();
-                this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-              } else {
-                this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-              }
-            },
-            error: err => this.cs.HandleError(err)
-          });
-        }
-      }
-    });
+
+  override ProcessActionDelete(data?: IUpdateRequest<User>): void {
+    if (!!data && data.data?.id !== undefined) {
+      console.log('ActionDelete: ', data.rowIndex);
+      this.seInv
+        .Delete({
+          id: data.data?.id,
+        } as DeleteUserRequest)
+        .subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              const di = this.dbData.findIndex(
+                (x) => x.data.id === data.data.id
+              );
+              this.dbData.splice(di, 1);
+              this.RefreshTable();
+              this.toastrService.show(
+                Constants.MSG_DELETE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+            } else {
+              this.toastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+            }
+          },
+          error: (err) => this.cs.HandleError(err),
+        });
+    }
   }
 
   refreshFilter(event: any): void {
     this.searchString = event.target.value;
-    console.log("Search: ", this.searchString);
+    console.log('Search: ', this.searchString);
     this.search();
   }
 
@@ -184,15 +296,15 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     if (this.searchString.length === 0) {
       this.Refresh();
     } else {
-      this.Refresh({ 'Name': this.searchString });
+      this.Refresh({ Name: this.searchString });
     }
   }
 
   private Setup(): void {
-    this.users = [];
-    this.usersDataSrc = this.dataSourceBuilder.create(this.users);
+    this.dbData = [];
+    this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
     // TODO: FormGroup generator
-    this.userTableForm = new FormGroup({
+    this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
       name: new FormControl(undefined, [Validators.required]),
       loginName: new FormControl(undefined, [Validators.required]),
@@ -201,13 +313,27 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
       active: new FormControl(undefined, [Validators.required]),
       password: new FormControl(undefined, []),
     });
-    this.userTable = new FlatDesignNavigatableTable(
-      this.userTableForm, 'User', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.users, this.usersTableId, AttachDirection.DOWN,
-      'sideBarForm', AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
-      () => { return new User(); }
+    this.dbDataTable = new FlatDesignNavigatableTable(
+      this.dbDataTableForm,
+      'User',
+      this.dataSourceBuilder,
+      this.kbS,
+      this.fS,
+      this.cdref,
+      this.dbData,
+      this.usersTableId,
+      AttachDirection.DOWN,
+      'sideBarForm',
+      AttachDirection.RIGHT,
+      this.sidebarService,
+      this.sidebarFormService,
+      this,
+      () => {
+        return new User();
+      }
     );
-    this.userTable.PushFooterCommandList();
-    this.userTable.OuterJump = true;
+    this.dbDataTable.PushFooterCommandList();
+    this.dbDataTable.OuterJump = true;
     this.sidebarService.collapse();
     this.Refresh();
   }
@@ -216,31 +342,51 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
-      next: d => {
+      next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetUsers response: ', d); // TODO: only for debug
           if (!!d) {
-            this.users = d.data.map(x => { return { data: new User(x.id, x.name, x.loginName, x.email, x.comment, x.active), uid: this.nextUid() }; });
-            this.usersDataSrc.setData(this.users);
+            this.dbData = d.data.map((x) => {
+              return {
+                data: new User(
+                  x.id,
+                  x.name,
+                  x.loginName,
+                  x.email,
+                  x.comment,
+                  x.active
+                ),
+                uid: this.nextUid(),
+              };
+            });
+            this.dbDataDataSrc.setData(this.dbData);
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.toastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
         }
       },
-      error: err => this.cs.HandleError(err),
-      complete: () => { this.isLoading = false; }
+      error: (err) => this.cs.HandleError(err),
+      complete: () => {
+        this.isLoading = false;
+      },
     });
   }
 
   private RefreshTable(): void {
-    this.userTable.Setup(
-      this.users, this.usersDataSrc,
-      this.allColumns, this.colDefs,
+    this.dbDataTable.Setup(
+      this.dbData,
+      this.dbDataDataSrc,
+      this.allColumns,
+      this.colDefs,
       this.colsToIgnore
     );
     setTimeout(() => {
-      this.userTable.GenerateAndSetNavMatrices(false);
+      this.dbDataTable.GenerateAndSetNavMatrices(false);
       this.kbS.SelectFirstTile();
     }, 200);
   }
@@ -251,18 +397,18 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.userTable.GenerateAndSetNavMatrices(true);
-    this.userTable.PushFooterCommandList();
+    this.dbDataTable.GenerateAndSetNavMatrices(true);
+    this.dbDataTable.PushFooterCommandList();
 
     this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
-    console.log("Detach");
+    console.log('Detach');
     this.kbS.Detach();
   }
 
   private nextUid() {
-    ++this.uid
+    ++this.uid;
     return this.uid;
   }
 
@@ -273,7 +419,7 @@ export class UserManagerComponent implements OnInit, IUpdater<User> {
   focusOnTable(focusIn: boolean): void {
     this.tableIsFocused = focusIn;
     if (focusIn) {
-      this.userTable.PushFooterCommandList();
+      this.dbDataTable.PushFooterCommandList();
     } else {
       this.fS.pushCommands(this.commands);
     }

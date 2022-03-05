@@ -3,13 +3,13 @@
         <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm"></app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
-            (keydown.enter)="currentForm.HandleFormEnter($event)" (keydown.escape)="currentForm.HandleFormEscape()"
-            (keydown.tab)="currentForm.HandleFormTab($event)" (click)="currentForm.HandleFormClick()"
+            (keydown.escape)="currentForm.HandleFormEscape()"
+            (click)="currentForm.HandleFormClick()"
             (keydown.f8)="currentForm.HandleFunctionKey($event)" (keydown.f9)="currentForm.HandleFunctionKey($event)"
             (keydown.f10)="currentForm.HandleFunctionKey($event)" (keydown.f11)="currentForm.HandleFunctionKey($event)"
             (keydown.f12)="currentForm.HandleFunctionKey($event)">
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Azonosító</label>
                     <input nbInput type="text" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
@@ -17,16 +17,17 @@
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Név</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="customerName"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Bankszámla</label>
 
@@ -35,9 +36,10 @@
                         [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-
+                <app-form-control-error [form]="currentForm" controlName="customerBankAccountNumber"></app-form-control-error>
             </nb-form-field>
-            <nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Belföldi Adószám</label>
 
@@ -45,18 +47,21 @@
                         mask="0000000-0-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="taxpayerNumber"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Külföldi Adószám</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="thirdStateTaxId"
+                    mask="X{1000}" [patterns]="customPatterns"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="thirdStateTaxId"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Országkód</label>
 
@@ -64,10 +69,11 @@
                         [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="countryCode"></app-form-control-error>
             </nb-form-field>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field class="bbx-fd-form-field-40">
+                <nb-form-field class="bbx-fd-form-field-40" (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Irsz.</label>
     
@@ -75,40 +81,45 @@
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
-
-                <nb-form-field class="bbx-fd-form-field-60">
+                
+                <nb-form-field class="bbx-fd-form-field-60" (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label>Város</label>
-    
+                        
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="city"
-                            (click)="currentForm.HandleFormFieldClick($event)" required>
+                        (click)="currentForm.HandleFormFieldClick($event)" required>
                     </div>
                 </nb-form-field>
             </div>
+            <app-form-control-error [form]="currentForm" controlName="postalCode"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" controlName="city"></app-form-control-error>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Cím</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="additionalAddressDetail"></app-form-control-error>
             </nb-form-field>
 
-            <div class="bbx-fd-checkbox-outer-div">
+            <div class="bbx-fd-checkbox-outer-div" (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <label>Magánszemély</label>
 
                 <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="privatePerson"
                     (click)="currentForm.HandleFormFieldClick($event)">
             </div>
+            <app-form-control-error [form]="currentForm" controlName="privatePerson"></app-form-control-error>
 
-            <nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="comment"></app-form-control-error>
             </nb-form-field>
         </form>
     </nb-card-body>

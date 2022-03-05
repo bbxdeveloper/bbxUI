@@ -5,7 +5,7 @@
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
             (keydown.escape)="currentForm.HandleFormEscape()"
-            (keydown.tab)="currentForm.HandleFormTab($event)" (click)="currentForm.HandleFormClick()"
+            (click)="currentForm.HandleFormClick()"
             (keydown.f8)="currentForm.HandleFunctionKey($event)" (keydown.f9)="currentForm.HandleFunctionKey($event)"
             (keydown.f10)="currentForm.HandleFunctionKey($event)" (keydown.f11)="currentForm.HandleFunctionKey($event)"
             (keydown.f12)="currentForm.HandleFunctionKey($event)">
@@ -20,25 +20,27 @@
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Kód</label>
+                    <label>Kód*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="productCode"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Megnevezés</label>
+                    <label>Megnevezés*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="description"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="description"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Csoport</label>
+                    <label>Csoport*</label>
 
                     <input class="{{TileCssClass}}" formControlName="productGroup" nbInput type="text"
                         [nbAutocomplete]="autoProductGroup" [readonly]="isEditModeOff" autocomplete="off" />
@@ -51,6 +53,7 @@
                         </nb-option>
                     </nb-autocomplete>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="productGroup"></app-form-control-error>
             </nb-form-field>
             
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -58,13 +61,15 @@
                     <label>Utolsó beszár</label>
             
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="latestSupplyPrice"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Eredet</label>
+                    <label>Származási hely</label>
 
                     <input class="{{TileCssClass}}" formControlName="origin" nbInput type="text"
                         [nbAutocomplete]="autoOrigin" [readonly]="isEditModeOff" autocomplete="off" />
@@ -77,6 +82,7 @@
                         </nb-option>
                     </nb-autocomplete>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="origin"></app-form-control-error>
             </nb-form-field>
             
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -84,13 +90,15 @@
                     <label>Környezetvédelmi termékdíj</label>
             
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="productFee"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="productFee"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Me.e.</label>
+                    <label>Me.e.*</label>
 
                     <input class="{{TileCssClass}}" formControlName="unitOfMeasure" nbInput type="text"
                         [nbAutocomplete]="autoAom" [readonly]="isEditModeOff" autocomplete="off" />
@@ -103,6 +111,7 @@
                         </nb-option>
                     </nb-autocomplete>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="unitOfMeasure"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -110,8 +119,10 @@
                     <label>Elad ár 1</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice1"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="unitPrice1"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -119,24 +130,39 @@
                     <label>Elad ár 2</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="unitPrice2"></app-form-control-error>
             </nb-form-field>
 
-            <div class="bbx-fd-checkbox-outer-div" (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <label>Készletes?</label>
-
-                <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isStock"
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <div class="bbx-fd-form-field-inner-div-2" (keydown.enter)="currentForm.HandleFormEnter($event)">
+                    <label>Készletes?</label>
+                
+                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isStock"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+                
+                <div class="bbx-fd-form-field-inner-div-2" (keydown.enter)="currentForm.HandleFormEnter($event)">
+                    <label>Aktív?</label>
+                    
+                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
                     (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
             </div>
+            <app-form-control-error [form]="currentForm" controlName="isStock"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" controlName="active"></app-form-control-error>
             
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Minimum készlet</label>
             
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="minStock"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="minStock"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -144,33 +170,32 @@
                     <label>Rendelési egység</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="ordUnit"></app-form-control-error>
             </nb-form-field>
-
-            <div class="bbx-fd-checkbox-outer-div" (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <label>Aktív?</label>
-
-                <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
-                    (click)="currentForm.HandleFormFieldClick($event)">
-            </div>
-
+            
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>VTSZ</label>
+                    <label>VTSZ*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="VTSZ"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="VTSZ"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>EAN</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="EAN"
+                        mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="EAN"></app-form-control-error>
             </nb-form-field>
         </form>
     </nb-card-body>

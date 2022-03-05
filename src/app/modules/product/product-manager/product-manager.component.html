@@ -5,7 +5,7 @@
         <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
-            <label class="search-label" for="search">Megnevezés:</label>
+            <label class="search-label" for="search">Kód / név:</label>
             <input nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)"
                 autocomplete="off">
         </app-flat-design-table>

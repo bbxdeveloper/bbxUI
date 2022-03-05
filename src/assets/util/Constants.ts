@@ -1,11 +1,13 @@
 import { NbIconConfig } from "@nebular/theme";
 import { ProcessStatus } from "../model/ProcessStatus";
+import { Actions, KeyBindings } from "./KeyBindings";
 
 export module Constants {
     // Messages
 
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
+    export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
@@ -48,6 +50,10 @@ export module Constants {
         new, default
     }
 
+    export enum KeyTypes {
+        Fn, Default
+    }
+
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
     export const PrintReportStatuses: ProcessStatus[] = [
         { title: 'Riport Nyomtatás', value: 0, msg: '0/4 - Kérés feldolgozása' },
@@ -67,5 +73,13 @@ export module Constants {
 
     // Types
 
+    export interface KeySettingRow {
+        KeyCode: KeyBindings;
+        KeyLabel: string;
+        FunctionLabel: string;
+        KeyType: KeyTypes;
+    }
+
     export type Dct = { [id: string]: any; };
+    export type KeySettingsDct = { [key in Actions]: KeySettingRow; };
 }

@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 
 const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
 const defaultPattern: string = '00000000-00000000-00000000';
@@ -13,9 +14,11 @@ const defaultPattern: string = '00000000-00000000-00000000';
   templateUrl: './customer-side-bar-form.component.html',
   styleUrls: ['./customer-side-bar-form.component.scss']
 })
-export class CustomerSideBarFormComponent implements OnInit {
+export class CustomerSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
   // TODO: @Input() ?
   currentForm?: FlatDesignNavigatableForm;
+
+  customPatterns: any = { 'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' } };
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -30,7 +33,9 @@ export class CustomerSideBarFormComponent implements OnInit {
       (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) { }
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) {
+    super();
+  }
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });

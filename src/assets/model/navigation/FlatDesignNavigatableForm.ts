@@ -109,37 +109,56 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         return this.form.controls[formFieldName].value;
     }
 
-    ActionNew(): void {
+    CanShowFormErrors(formControlName: string): boolean {
+        return this.form.controls[formControlName].invalid && (this.form.controls[formControlName].dirty || this.form.controls[formControlName].touched);
+    }
+
+    IsErrorApparent(formControlName: string, validationName: string): boolean {
+        return this.form.controls[formControlName].errors?.[validationName]; // eg. 'required'
+    }
+
+    SetClean(): void {
+        Object.keys(this.form.controls).forEach((x: string) => {
+            this.form.controls[x].markAsPristine();
+        });
+    }
+
+    ActionNew(data?: IUpdateRequest<T>): void {
         if (this.form.invalid) {
             return;
         }
         this.grid.New({
             data: this.FillObjectWithForm(),
-            rowIndex: this.DataRowIndex
+            rowIndex: this.DataRowIndex,
+            needConfirmation: data?.needConfirmation ?? false
         } as IUpdateRequest);
         this.formMode = Constants.FormState.default;
     }
 
-    ActionReset(): void {
+    ActionReset(data?: IUpdateRequest<T>): void {
         this.grid.Reset({
-            rowIndex: this.DataRowIndex
+            rowIndex: this.DataRowIndex,
+            needConfirmation: false
         } as IUpdateRequest);
     }
 
-    ActionPut(): void {
+    ActionPut(data?: IUpdateRequest<T>): void {
         if (this.form.invalid) {
             return;
         }
         this.grid.Put({
             data: this.FillObjectWithForm(),
-            rowIndex: this.DataRowIndex
+            rowIndex: this.DataRowIndex,
+            needConfirmation: data?.needConfirmation ?? false
         } as IUpdateRequest);
+        this.formMode = Constants.FormState.default;
     }
 
-    ActionDelete(): void {
+    ActionDelete(data?: IUpdateRequest<T>): void {
         this.grid.Delete({
             data: this.DataToEdit?.data,
-            rowIndex: this.DataRowIndex
+            rowIndex: this.DataRowIndex,
+            needConfirmation: true
         } as IUpdateRequest);
     }
 
@@ -274,51 +293,12 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
     HandleAutoCompleteSelect(event: any, key: string): void {
         console.log(`[HandleAutoCompleteSelect] ${event}`);
-        // if (event === "") {
-        //     Object.keys(this.form.controls).forEach((x: string) => {
-        //         if (x !== key) {
-        //             this.form.controls[x].setValue("");
-        //         }
-        //     });
-        // } else {
-        //     this.FillFormAfterValueSelect(event, key);
-        // }
         if (!this.kbS.isEditModeActivated) {
             this.JumpToNextInput(event);
         }
     }
 
-    /*
-    HandleAutoCompleteSelect(event: any): void {
-        if (event === "") {
-        // this.buyerForm.controls["name"].setValue("");
-        this.buyerForm.controls["zipCodeCity"].setValue("");
-        this.buyerForm.controls["street"].setValue("");
-        this.buyerForm.controls["invoiceNum"].setValue("");
-        this.buyerForm.controls["taxNum"].setValue("");
-        this.buyerForm.controls["note"].setValue("");
-        } else {
-        this.feelBuyerForm(event);
-        }
-        if (this.isEditModeOff) {
-        let oldMy = this.kbS.worldPos.Y;
-        this.kbS.moveNextInForm();
-        // TODO: navigációs mátrixhoz típust rendelni, pl. "táblázat"
-        if (oldMy < this.kbS.worldPos.Y) {
-            console.log(this.kbS.getCurrentTile());
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.gridNavHandler.handleGridEnter(this.productsData[0], 0, this.colDefs[0].objectKey, 0);
-        } else {
-            this.kbS.clickCurrentTile();
-            this.kbS.toggleEdit();
-        }
-        }
-    }
-    */
-
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
-        // event.preventDefault();
-
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }
@@ -326,6 +306,21 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
         if (!this.kbS.isEditModeActivated && jumpNext) {
             this.JumpToNextInput(event);
+        }
+    }
+
+    HandleFormLastEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+
+        switch (this.formMode) {
+            case Constants.FormState.new:
+                this.ActionNew({ needConfirmation: true } as IUpdateRequest<T>);
+                break;
+            case Constants.FormState.default:
+                this.ActionPut({ needConfirmation: true } as IUpdateRequest<T>);
+                break;
         }
     }
 

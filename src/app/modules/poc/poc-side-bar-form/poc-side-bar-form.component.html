@@ -5,7 +5,7 @@
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
             (keydown.escape)="currentForm.HandleFormEscape()"
-            (keydown.tab)="currentForm.HandleFormTab($event)" (click)="currentForm.HandleFormClick()"
+            (click)="currentForm.HandleFormClick()"
             (keydown.f8)="currentForm.HandleFunctionKey($event)" (keydown.f9)="currentForm.HandleFunctionKey($event)"
             (keydown.f10)="currentForm.HandleFunctionKey($event)" (keydown.f11)="currentForm.HandleFunctionKey($event)"
             (keydown.f12)="currentForm.HandleFunctionKey($event)">
@@ -25,6 +25,7 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="pocName"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="pocName"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
@@ -40,6 +41,7 @@
                         </nb-option>
                     </nb-autocomplete>
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="pocType"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -49,14 +51,16 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
+                <app-form-control-error [form]="currentForm" controlName="comment"></app-form-control-error>
             </nb-form-field>
 
-            <div class="bbx-fd-checkbox-outer-div" (keydown.enter)="currentForm.HandleFormEnter($event)">
+            <div class="bbx-fd-checkbox-outer-div" (keydown.enter)="currentForm.HandleFormLastEnter($event)">
                 <label>Magánszemély</label>
 
                 <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
                     (click)="currentForm.HandleFormFieldClick($event)">
             </div>
+            <app-form-control-error [form]="currentForm" controlName="active"></app-form-control-error>
         </form>
     </nb-card-body>
 </nb-card>

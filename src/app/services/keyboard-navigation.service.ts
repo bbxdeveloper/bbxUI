@@ -326,6 +326,15 @@ export class KeyboardNavigationService {
 
     const res = { moved: false, jumped: false } as MoveRes;
 
+    if (this.CurrentNavigatable.IsSubMapping) {
+      this.RemoveWidgetNavigatable();
+      res.moved = true;
+      res.jumped = true;
+      this.SelectCurrentElement();
+      this.CurrentSubMappingRootKey = undefined;
+      return res;
+    }
+
     // At left bound
     if (this.p.x === 0) {
       if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.LeftNeighbour) {
@@ -339,8 +348,6 @@ export class KeyboardNavigationService {
 
         res.moved = true;
         res.jumped = true;
-      } else {
-        return res;
       }
     // Not at left bound
     } else {
@@ -352,6 +359,11 @@ export class KeyboardNavigationService {
       
       res.moved = true;
     }
+
+    if (select) {
+      this.SelectCurrentElement();
+    }
+
     return res;
   }
 
@@ -359,6 +371,15 @@ export class KeyboardNavigationService {
     this.LogMoveStats(AttachDirection.RIGHT, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
+
+    if (this.CurrentNavigatable.IsSubMapping) {
+      this.RemoveWidgetNavigatable();
+      res.moved = true;
+      res.jumped = true;
+      this.SelectCurrentElement();
+      this.CurrentSubMappingRootKey = undefined;
+      return res;
+    }
 
     // At right bound
     if (this.p.x === this.maxCurrentWorldX) {
@@ -373,8 +394,6 @@ export class KeyboardNavigationService {
 
         res.moved = true;
         res.jumped = true;
-      } else {
-        return res;
       }
     // Not at right bound
     } else {
@@ -386,6 +405,11 @@ export class KeyboardNavigationService {
 
       res.moved = true;
     }
+
+    if (select) {
+      this.SelectCurrentElement();
+    }
+
     return res;
   }
 
@@ -414,8 +438,6 @@ export class KeyboardNavigationService {
 
         res.moved = true;
         res.jumped = true;
-      } else {
-        return res;
       }
       // Not at upper bound
     } else {
@@ -427,6 +449,11 @@ export class KeyboardNavigationService {
 
       res.moved = true;
     }
+
+    if (select) {
+      this.SelectCurrentElement();
+    }
+
     return res;
   }
 
@@ -455,8 +482,6 @@ export class KeyboardNavigationService {
 
         res.moved = true;
         res.jumped = true;
-      } else {
-        return res;
       }
       // Not at lower bound
     } else {
@@ -468,6 +493,11 @@ export class KeyboardNavigationService {
 
       res.moved = true;
     }
+
+    if (select) {
+      this.SelectCurrentElement();
+    }
+
     return res;
   }
 

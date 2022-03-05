@@ -17,19 +17,16 @@ import { DeleteCustomerRequest } from '../models/DeleteCustomerRequest';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { GetCustomersParamListModel } from '../models/GetCustomersParamListModel';
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 
 @Component({
   selector: 'app-customer-manager',
   templateUrl: './customer-manager.component.html',
   styleUrls: ['./customer-manager.component.scss']
 })
-export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
+export class CustomerManagerComponent extends BaseManagerComponent<Customer> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
-
-  dbDataTableForm!: FormGroup;
-  dbData!: TreeGridNode<Customer>[];
-  dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<Customer>>;
-  dbDataTable!: FlatDesignNavigatableTable<Customer>;
+  
   dbDataTableId = 'customer-table';
   dbDataTableEditId = "user-cell-edit-input";
 
@@ -76,22 +73,24 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
   searchString: string = '';
 
   constructor(
-    @Optional() private dialogService: NbDialogService,
+    @Optional() dialogService: NbDialogService,
     private fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Customer>>,
     private seInv: CustomerService,
     private cdref: ChangeDetectorRef,
-    private kbS: KeyboardNavigationService,
+    kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
     private sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService
   ) {
+    super(dialogService, kbS);
+    this.searchInputId = "active-prod-search";
     this.kbS.ResetToRoot();
     this.Setup();
   }
 
-  ActionNew(data?: IUpdateRequest<Customer>): void {
+  override ProcessActionNew(data?: IUpdateRequest<Customer>): void {
     console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
       this.seInv.Create(data.data).subscribe({
@@ -109,10 +108,8 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
       });
     }
   }
-  ActionReset(data?: IUpdateRequest<Customer>): void {
-    this.dbDataTable.ResetForm();
-  }
-  ActionPut(data?: IUpdateRequest<Customer>): void {
+
+  override ProcessActionPut(data?: IUpdateRequest<Customer>): void {
     console.log("ActionPut: ", data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
       this.seInv.Update(data.data).subscribe({
@@ -129,34 +126,27 @@ export class CustomerManagerComponent implements OnInit, IUpdater<Customer> {
       });
     }
   }
-  ActionDelete(data?: IUpdateRequest<Customer>): void {
-    const dialogRef = this.dialogService.open(
-      ConfirmationDialogComponent,
-      { context: { msg: Constants.MSG_CONFIRMATION_DELETE } }
-    );
-    dialogRef.onClose.subscribe(res => {
-      if (res) {
-        const id = data?.data?.id;
-        console.log("ActionDelete: ", id);
-        if (id !== undefined) {
-          this.seInv.Delete({
-            id: id
-          } as DeleteCustomerRequest).subscribe({
-            next: d => {
-              if (d.succeeded && !!d.data) {
-                const di = this.dbData.findIndex(x => x.data.id === id);
-                this.dbData.splice(di, 1);
-                this.RefreshTable();
-                this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-              } else {
-                this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-              }
-            },
-            error: err => this.cs.HandleError(err)
-          });
-        }
-      }
-    });
+
+  override ProcessActionDelete(data?: IUpdateRequest<Customer>): void {
+    const id = data?.data?.id;
+    console.log("ActionDelete: ", id);
+    if (id !== undefined) {
+      this.seInv.Delete({
+        id: id
+      } as DeleteCustomerRequest).subscribe({
+        next: d => {
+          if (d.succeeded && !!d.data) {
+            const di = this.dbData.findIndex(x => x.data.id === id);
+            this.dbData.splice(di, 1);
+            this.RefreshTable();
+            this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+          } else {
+            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          }
+        },
+        error: err => this.cs.HandleError(err)
+      });
+    }
   }
   
   refreshFilter(event: any): void {

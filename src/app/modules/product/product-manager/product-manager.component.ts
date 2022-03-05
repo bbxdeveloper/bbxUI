@@ -11,45 +11,120 @@ import { IUpdateRequest, IUpdater } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
-import { BlankProduct, Product } from '../models/Product';
+import { Product } from '../models/Product';
 import { ProductService } from '../services/product.service';
 import { DeleteProductRequest } from '../models/DeleteProductRequest';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { GetProductsParamListModel } from '../models/GetProductsParamListModel';
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
-import { Origin, OriginCodeToDescription, OriginDescriptionToCode } from '../../origin/models/Origin';
+import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
-import { ProductGroup, ProductGroupCodeToDescription, ProductGroupDescriptionToCode } from '../../product-group/models/ProductGroup';
+import { ProductGroup, ProductGroupDescriptionToCode } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { UnitOfMeasure, UnitOfMeasureTextToValue, UnitOfMeasureValueToText } from '../models/UnitOfMeasure';
+import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 
 @Component({
   selector: 'app-product-manager',
   templateUrl: './product-manager.component.html',
-  styleUrls: ['./product-manager.component.scss']
+  styleUrls: ['./product-manager.component.scss'],
 })
-export class ProductManagerComponent implements OnInit, IUpdater<Product> {
+export class ProductManagerComponent
+  extends BaseManagerComponent<Product>
+  implements OnInit
+{
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableForm!: FormGroup;
-  dbData!: TreeGridNode<Product>[];
-  dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<Product>>;
-  dbDataTable!: FlatDesignNavigatableTable<Product>;
   dbDataTableId = 'product-table';
-  dbDataTableEditId = "user-cell-edit-input";
+  dbDataTableEditId = 'user-cell-edit-input';
 
   colsToIgnore: string[] = [];
   allColumns = [
-    'productCode', 'description', 'productGroup', 'unitOfMeasure', 'unitPrice1', 'unitPrice2',
+    'productCode',
+    'description',
+    'productGroup',
+    'unitOfMeasure',
+    'unitPrice1',
+    'unitPrice2',
   ];
   colDefs: ModelFieldDescriptor[] = [
-    { label: 'Kód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
-    { label: 'Megnevezés', objectKey: 'description', colKey: 'description', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Csoport', objectKey: 'productGroup', colKey: 'productGroup', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Me.e.', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Elad ár 1', objectKey: 'unitPrice1', colKey: 'unitPrice1', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-    { label: 'Elad ár 2', objectKey: 'unitPrice2', colKey: 'unitPrice2', defaultValue: '', type: 'string', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-  ]
+    {
+      label: 'Kód',
+      objectKey: 'productCode',
+      colKey: 'productCode',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'readonly',
+      mask: '',
+      colWidth: '15%',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Megnevezés',
+      objectKey: 'description',
+      colKey: 'description',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '25%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Csoport',
+      objectKey: 'productGroup',
+      colKey: 'productGroup',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      fRequired: true,
+      mask: '',
+      colWidth: '30%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Me.e.',
+      objectKey: 'unitOfMeasure',
+      colKey: 'unitOfMeasure',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      fRequired: true,
+      mask: '',
+      colWidth: '30%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Elad ár 1',
+      objectKey: 'unitPrice1',
+      colKey: 'unitPrice1',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      fRequired: true,
+      mask: '',
+      colWidth: '30%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Elad ár 2',
+      objectKey: 'unitPrice2',
+      colKey: 'unitPrice2',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'bool',
+      fRequired: false,
+      mask: '',
+      colWidth: '25%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+  ];
 
   tableIsFocused: boolean = false;
   private uid = 0;
@@ -71,7 +146,9 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
-  get isSideBarOpened(): boolean { return this.sidebarService.sideBarOpened; };
+  get isSideBarOpened(): boolean {
+    return this.sidebarService.sideBarOpened;
+  }
 
   searchString: string = '';
 
@@ -83,12 +160,14 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
   origins: Origin[] = [];
 
   constructor(
-    @Optional() private dialogService: NbDialogService,
+    @Optional() dialogService: NbDialogService,
     private fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
+    private dataSourceBuilder: NbTreeGridDataSourceBuilder<
+      TreeGridNode<Product>
+    >,
     private seInv: ProductService,
     private cdref: ChangeDetectorRef,
-    private kbS: KeyboardNavigationService,
+    kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
     private sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
@@ -96,17 +175,29 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     private productGroupApi: ProductGroupService,
     private originApi: OriginService
   ) {
+    super(dialogService, kbS);
+    this.searchInputId = 'active-prod-search';
     this.kbS.ResetToRoot();
     this.Setup();
   }
 
   private ConvertCombosForPost(data: Product): Product {
     if (data.productGroup !== undefined && this.productGroups.length > 0)
-      data.productGroup = ProductGroupDescriptionToCode(data.productGroup, this.productGroups);
+      data.productGroup = ProductGroupDescriptionToCode(
+        data.productGroup,
+        this.productGroups
+      );
     // if (data.origin !== undefined && this.origins.length > 0)
     //   data.origin = OriginDescriptionToCode(data.origin, this.origins);
     if (data.unitOfMeasure !== undefined && this.uom.length > 0)
-      data.unitOfMeasure = UnitOfMeasureValueToText(data.unitOfMeasure, this.uom);
+      data.unitOfMeasure = UnitOfMeasureTextToValue(
+        data.unitOfMeasure,
+        this.uom
+      );
+
+    data.VTSZ = data.VTSZ + '';
+    data.EAN = data.EAN + '';
+
     return data;
   }
 
@@ -116,86 +207,113 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     // if (data.origin !== undefined && this.origins.length > 0)
     //   data.origin = OriginCodeToDescription(data.origin, this.origins);
     if (data.unitOfMeasure !== undefined && this.uom.length > 0)
-      data.unitOfMeasure = UnitOfMeasureValueToText(data.unitOfMeasure, this.uom);
+      data.unitOfMeasure = UnitOfMeasureValueToText(
+        data.unitOfMeasure,
+        this.uom
+      );
+
     console.log(`[ConvertCombosForGet] result: `, data);
+
     return data;
   }
 
-  ActionNew(data?: IUpdateRequest<Product>): void {
-    console.log("ActionNew: ", data?.data);
+  override ProcessActionNew(data?: IUpdateRequest<Product>): void {
+    console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
       data.data = this.ConvertCombosForPost(data.data);
       this.seInv.Create(data.data).subscribe({
-        next: d => {
+        next: (d) => {
           if (d.succeeded && !!d.data) {
             d.data = this.ConvertCombosForGet(d.data);
             this.dbData.push({ data: d.data } as TreeGridNode<Product>);
             this.RefreshTable();
-            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            this.toastrService.show(
+              Constants.MSG_SAVE_SUCCESFUL,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS
+            );
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.toastrService.show(
+              d.errors!.join('\n'),
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: (err) => this.cs.HandleError(err),
       });
     }
   }
-  ActionReset(data?: IUpdateRequest<Product>): void {
-    this.dbDataTable.ResetForm();
-  }
-  ActionPut(data?: IUpdateRequest<Product>): void {
-    console.log("ActionPut: ", data?.data, JSON.stringify(data?.data));
+
+  override ProcessActionPut(data?: IUpdateRequest<Product>): void {
+    console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
       data.data = this.ConvertCombosForPost(data.data);
       this.seInv.Update(data.data).subscribe({
-        next: d => {
+        next: (d) => {
           if (d.succeeded && !!d.data) {
             d.data = this.ConvertCombosForGet(d.data);
-            this.dbData[data.rowIndex] = { data: d.data } as TreeGridNode<Product>;
+            this.dbData[data.rowIndex] = {
+              data: d.data,
+            } as TreeGridNode<Product>;
             this.RefreshTable();
-            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            this.toastrService.show(
+              Constants.MSG_SAVE_SUCCESFUL,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS
+            );
           } else {
-            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.toastrService.show(
+              d.errors!.join('\n'),
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: (err) => this.cs.HandleError(err),
       });
     }
   }
-  ActionDelete(data?: IUpdateRequest<Product>): void {
-    const dialogRef = this.dialogService.open(
-      ConfirmationDialogComponent,
-      { context: { msg: Constants.MSG_CONFIRMATION_DELETE } }
-    );
-    dialogRef.onClose.subscribe(res => {
-      if (res) {
-        const id = data?.data?.id;
-        console.log("ActionDelete: ", id);
-        if (id !== undefined) {
-          this.seInv.Delete({
-            id: id
-          } as DeleteProductRequest).subscribe({
-            next: d => {
-              if (d.succeeded && !!d.data) {
-                const di = this.dbData.findIndex(x => x.data.id === id);
-                this.dbData.splice(di, 1);
-                this.RefreshTable();
-                this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-              } else {
-                this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-              }
-            },
-            error: err => this.cs.HandleError(err)
-          });
-        }
-      }
-    });
+
+  override ProcessActionDelete(data?: IUpdateRequest<Product>): void {
+    const id = data?.data?.id;
+    console.log('ActionDelete: ', id);
+    if (id !== undefined) {
+      this.seInv
+        .Delete({
+          id: id,
+        } as DeleteProductRequest)
+        .subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              const di = this.dbData.findIndex((x) => x.data.id === id);
+              this.dbData.splice(di, 1);
+              this.RefreshTable();
+              this.toastrService.show(
+                Constants.MSG_DELETE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+            } else {
+              this.toastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+            }
+          },
+          error: (err) => this.cs.HandleError(err),
+        });
+    }
   }
 
   refreshFilter(event: any): void {
+    if (this.searchString === event.target.value) {
+      return;
+    }
     this.searchString = event.target.value;
-    console.log("Search: ", this.searchString);
+    console.log('Search: ', this.searchString);
     this.search();
   }
 
@@ -203,7 +321,7 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     if (this.searchString.length === 0) {
       this.Refresh();
     } else {
-      this.Refresh({ 'SearchString': this.searchString });
+      this.Refresh({ SearchString: this.searchString });
     }
   }
 
@@ -232,16 +350,48 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
-      this.dbDataTableForm, 'Product', this.dataSourceBuilder, this.kbS, this.fS, this.cdref, this.dbData, this.dbDataTableId, AttachDirection.DOWN,
-      'sideBarForm', AttachDirection.RIGHT, this.sidebarService, this.sidebarFormService, this,
-      () => { return BlankProduct(); }
+      this.dbDataTableForm,
+      'Product',
+      this.dataSourceBuilder,
+      this.kbS,
+      this.fS,
+      this.cdref,
+      this.dbData,
+      this.dbDataTableId,
+      AttachDirection.DOWN,
+      'sideBarForm',
+      AttachDirection.RIGHT,
+      this.sidebarService,
+      this.sidebarFormService,
+      this,
+      () => {
+        return {
+          id: 0,
+          productCode: undefined,
+          description: undefined,
+          productGroup: this.productGroups[0].productGroupDescription,
+          origin: this.origins[0].originDescription,
+          unitOfMeasure: this.uom[0].text,
+          unitOfMeasureX: undefined,
+          unitPrice1: 0,
+          unitPrice2: 0,
+          latestSupplyPrice: 0,
+          isStock: false,
+          minStock: 0,
+          ordUnit: 0,
+          productFee: 0,
+          active: true,
+          VTSZ: 0,
+          EAN: 0,
+        } as Product;
+      }
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ 'PageNumber': (newPageNumber + '') });
-      }
+        this.Refresh({ PageNumber: newPageNumber + '' });
+      },
     });
 
     this.sidebarService.collapse();
@@ -253,35 +403,45 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
-      next: d => {
+      next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
-            const tempData = d.data.map(x => { return { data: this.ConvertCombosForGet(x), uid: this.nextUid() }; });
+            const tempData = d.data.map((x) => {
+              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
+            });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.toastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
         }
       },
-      error: err => this.cs.HandleError(err),
-      complete: () => { this.isLoading = false; }
+      error: (err) => this.cs.HandleError(err),
+      complete: () => {
+        this.isLoading = false;
+      },
     });
   }
 
   private RefreshTable(): void {
     this.dbDataTable.Setup(
-      this.dbData, this.dbDataDataSrc,
-      this.allColumns, this.colDefs,
+      this.dbData,
+      this.dbDataDataSrc,
+      this.allColumns,
+      this.colDefs,
       this.colsToIgnore
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false);
       // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      this.kbS.SelectFirstTile();
+      // this.kbS.SelectFirstTile();
     }, 200);
   }
 
@@ -297,43 +457,40 @@ export class ProductManagerComponent implements OnInit, IUpdater<Product> {
     this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
-    console.log("Detach");
+    console.log('Detach');
     this.kbS.Detach();
   }
 
   private RefreshAll(params?: GetProductsParamListModel): void {
     // ProductGroups
     this.productGroupApi.GetAll().subscribe({
-      next: data => {
-        if (!!data.data)
-          this.productGroups = data.data;
+      next: (data) => {
+        if (!!data.data) this.productGroups = data.data;
       },
       complete: () => {
         // UnitOfMeasure
         this.seInv.GetAllUnitOfMeasures().subscribe({
-          next: data => {
-            if (!!data)
-              this.uom = data;
+          next: (data) => {
+            if (!!data) this.uom = data;
           },
           complete: () => {
             // Origin
             this.originApi.GetAll().subscribe({
-              next: data => {
-                if (!!data.data)
-                  this.origins = data.data;
+              next: (data) => {
+                if (!!data.data) this.origins = data.data;
               },
               complete: () => {
                 this.Refresh(params);
-              }
+              },
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
   private nextUid() {
-    ++this.uid
+    ++this.uid;
     return this.uid;
   }
 

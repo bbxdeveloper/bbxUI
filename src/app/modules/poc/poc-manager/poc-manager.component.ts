@@ -13,6 +13,7 @@ import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navig
 import { TreeGridNode } from "src/assets/model/TreeGridNode";
 import { IUpdater, IUpdateRequest } from "src/assets/model/UpdaterInterfaces";
 import { Constants } from "src/assets/util/Constants";
+import { BaseManagerComponent } from "../../shared/base-manager/base-manager.component";
 import { ConfirmationDialogComponent } from "../../shared/confirmation-dialog/confirmation-dialog.component";
 import { DeletePocRequest } from "../models/DeletePocRequest";
 import { GetPocsParamListModel } from "../models/GetPocsParamListModel";
@@ -24,13 +25,9 @@ import { PocService } from "../services/poc.service";
   templateUrl: './poc-manager.component.html',
   styleUrls: ['./poc-manager.component.scss']
 })
-export class PocManagerComponent implements OnInit, IUpdater<Poc> {
+export class PocManagerComponent extends BaseManagerComponent<Poc> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableForm!: FormGroup;
-  dbData!: TreeGridNode<Poc>[];
-  dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<Poc>>;
-  dbDataTable!: FlatDesignNavigatableTable<Poc>;
   dbDataTableId = 'poc-table';
   dbDataTableEditId = "user-cell-edit-input";
 
@@ -71,22 +68,24 @@ export class PocManagerComponent implements OnInit, IUpdater<Poc> {
   searchString: string = '';
 
   constructor(
-    @Optional() private dialogService: NbDialogService,
+    @Optional() dialogService: NbDialogService,
     private fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Poc>>,
     private seInv: PocService,
     private cdref: ChangeDetectorRef,
-    private kbS: KeyboardNavigationService,
+    kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
     private sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService
   ) {
+    super(dialogService, kbS);
+    this.searchInputId = "active-prod-search";
     this.kbS.ResetToRoot();
     this.Setup();
   }
 
-  ActionNew(data?: IUpdateRequest<Poc>): void {
+  override ProcessActionNew(data?: IUpdateRequest<Poc>): void {
     console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
       this.seInv.CreatePoc(data.data).subscribe({
@@ -104,10 +103,8 @@ export class PocManagerComponent implements OnInit, IUpdater<Poc> {
       });
     }
   }
-  ActionReset(data?: IUpdateRequest<Poc>): void {
-    this.dbDataTable.ResetForm();
-  }
-  ActionPut(data?: IUpdateRequest<Poc>): void {
+  
+  override ProcessActionPut(data?: IUpdateRequest<Poc>): void {
     console.log("ActionPut: ", data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
       this.seInv.UpdatePoc(data.data).subscribe({
@@ -124,34 +121,27 @@ export class PocManagerComponent implements OnInit, IUpdater<Poc> {
       });
     }
   }
-  ActionDelete(data?: IUpdateRequest<Poc>): void {
-    const dialogRef = this.dialogService.open(
-      ConfirmationDialogComponent,
-      { context: { msg: Constants.MSG_CONFIRMATION_DELETE } }
-    );
-    dialogRef.onClose.subscribe(res => {
-      if (res) {
-        const id = data?.data?.id;
-        console.log("ActionDelete: ", id);
-        if (id !== undefined) {
-          this.seInv.DeletePoc({
-            id: id
-          } as DeletePocRequest).subscribe({
-            next: d => {
-              if (d.succeeded && !!d.data) {
-                const di = this.dbData.findIndex(x => x.data.id === id);
-                this.dbData.splice(di, 1);
-                this.RefreshTable();
-                this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-              } else {
-                this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-              }
-            },
-            error: err => this.cs.HandleError(err)
-          });
-        }
-      }
-    });
+
+  override ProcessActionDelete(data?: IUpdateRequest<Poc>): void {
+    const id = data?.data?.id;
+    console.log("ActionDelete: ", id);
+    if (id !== undefined) {
+      this.seInv.DeletePoc({
+        id: id
+      } as DeletePocRequest).subscribe({
+        next: d => {
+          if (d.succeeded && !!d.data) {
+            const di = this.dbData.findIndex(x => x.data.id === id);
+            this.dbData.splice(di, 1);
+            this.RefreshTable();
+            this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+          } else {
+            this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          }
+        },
+        error: err => this.cs.HandleError(err)
+      });
+    }
   }
 
   refreshFilter(event: any): void {

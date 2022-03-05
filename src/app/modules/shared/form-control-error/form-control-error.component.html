@@ -1,0 +1,6 @@
+<div *ngIf="!!form && !!controlName && form.CanShowFormErrors(controlName)"
+        class="alert alert-danger">
+    <div *ngIf="form?.IsErrorApparent(controlName, 'required')">
+        {{ ValidationMessage.ErrorRequired }}
+    </div>
+</div>

@@ -17,4 +17,6 @@ export interface ModelFieldDescriptor {
 
     fRequired?: boolean;
     fInputType?: string;
+
+    fLast?: boolean;
 }

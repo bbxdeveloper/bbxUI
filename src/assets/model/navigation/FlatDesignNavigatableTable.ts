@@ -210,9 +210,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.SetDataForEdit(creatorRow, -1, '');
         this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
-
+        
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
+        
+        this.flatDesignForm.SetClean();
         
         setTimeout(() => {
             if (openSideBar) {

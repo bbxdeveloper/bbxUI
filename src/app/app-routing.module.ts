@@ -19,7 +19,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
-        path: "users",
+        path: "dbData",
         component: UserManagerComponent,
       }
     ]
