@@ -62,8 +62,8 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Országkód</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="countryCode" mask="SS"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="countryCode" mask="YY"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [patterns]="customPatterns"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="countryCode"></app-form-control-error>
