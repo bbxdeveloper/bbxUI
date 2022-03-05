@@ -4,6 +4,7 @@
         </app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
+            (focusout)="currentForm.HandleFormFocusOut()"
             (keydown.escape)="currentForm.HandleFormEscape()" (click)="currentForm.HandleFormClick()">
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">

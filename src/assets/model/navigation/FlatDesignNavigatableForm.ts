@@ -164,6 +164,10 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         } as IUpdateRequest);
     }
 
+    HandleFormFocusOut(): void {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    }
+
     HandleFunctionKey(event: Event | KeyBindings): void {
         const val = event instanceof Event ? (event as KeyboardEvent).code : event;
         switch (val) {

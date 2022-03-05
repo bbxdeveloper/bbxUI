@@ -4,6 +4,7 @@
         </app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
+            (focusout)="currentForm.HandleFormFocusOut()"
             (keydown.escape)="currentForm.HandleFormEscape()" (click)="currentForm.HandleFormClick()">
 
             <ng-container *ngFor="let it of currentForm.colDefs; let rowPos = index" [ngSwitch]="it.fInputType">
