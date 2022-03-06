@@ -37,7 +37,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       objectKey: 'id',
       colKey: 'id',
       defaultValue: '',
-      type: 'string',
+      type: 'number',
       fInputType: 'readonly',
       mask: '',
       colWidth: '15%',
@@ -96,6 +96,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   override ProcessActionNew(data?: IUpdateRequest<WareHouse>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
@@ -127,13 +128,15 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   override ProcessActionPut(data?: IUpdateRequest<WareHouse>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
             const newRow = {
               data: d.data,
             } as TreeGridNode<WareHouse>;
-            this.dbData[data.rowIndex] = newRow;
+            const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
+            this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
             this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.toastrService.show(
@@ -174,7 +177,8 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
-              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+              this.dbDataTable.SetBlankInstanceForForm(false, false);
+              this.dbDataTable.flatDesignForm.SetFormStateToNew();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
@@ -208,7 +212,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
     this.dbDataTableForm = new FormGroup({
-      id: new FormControl(undefined, []),
+      id: new FormControl(0, []),
       warehouseCode: new FormControl(undefined, [Validators.required]),
       warehouseDescription: new FormControl(undefined, [Validators.required]),
     });
@@ -286,7 +290,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false);
       // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      this.kbS.SelectFirstTile();
+      // this.kbS.SelectFirstTile();
     }, 200);
   }
 

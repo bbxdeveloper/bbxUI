@@ -1,7 +1,7 @@
 import { IEditable } from "src/assets/model/IEditable";
 
 export class User implements IEditable {
-    id?: number;
+    id: number;
     name?: string;
     loginName?: string;
     email?: string;
@@ -11,7 +11,7 @@ export class User implements IEditable {
     password?: string;
 
     constructor(Id?: number, Name?: string, LoginName?: string, Email?: string, Comment?: string, Active?: boolean, password?: string) {
-        this.id = Id;
+        this.id = Id ?? 0;
         this.name = Name;
         this.loginName = LoginName;
         this.email = Email;

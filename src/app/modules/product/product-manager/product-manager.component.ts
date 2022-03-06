@@ -168,8 +168,8 @@ export class ProductManagerComponent
         this.uom
       );
 
-    data.VTSZ = data.VTSZ + '';
-    data.EAN = data.EAN + '';
+    data.vtsz = data.vtsz + '';
+    data.ean = data.ean + '';
 
     return data;
   }
@@ -193,6 +193,7 @@ export class ProductManagerComponent
   override ProcessActionNew(data?: IUpdateRequest<Product>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
       data.data = this.ConvertCombosForPost(data.data);
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
@@ -233,23 +234,32 @@ export class ProductManagerComponent
   override ProcessActionPut(data?: IUpdateRequest<Product>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
       data.data = this.ConvertCombosForPost(data.data);
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            d.data = this.ConvertCombosForGet(d.data);
-            const newRow = {
-              data: d.data,
-            } as TreeGridNode<Product>
-            this.dbData[data.rowIndex] = newRow;
-            this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
-            this.toastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS
-            );
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.seInv.Get({ ID: d.data.id }).subscribe({
+              next: newData => {
+                if (!!newData) {
+                  d.data = this.ConvertCombosForGet(newData);
+                  const newRow = {
+                    data: newData,
+                  } as TreeGridNode<Product>
+                  const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
+                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
+                  this.dbDataTable.SetDataForForm(newRow, false, false);
+                  this.RefreshTable();
+                  this.toastrService.show(
+                    Constants.MSG_SAVE_SUCCESFUL,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS
+                  );
+                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                }
+              },
+              error: (err) => this.cs.HandleError(err),
+            });
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
@@ -282,7 +292,8 @@ export class ProductManagerComponent
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
-              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+              this.dbDataTable.SetBlankInstanceForForm(false, false);
+              this.dbDataTable.flatDesignForm.SetFormStateToNew();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
@@ -333,8 +344,8 @@ export class ProductManagerComponent
       ordUnit: new FormControl(undefined, []),
       productFee: new FormControl(undefined, []),
       active: new FormControl(false, []),
-      VTSZ: new FormControl(undefined, [Validators.required]),
-      EAN: new FormControl(undefined, []),
+      vtsz: new FormControl(undefined, [Validators.required]),
+      ean: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -369,8 +380,8 @@ export class ProductManagerComponent
           ordUnit: 0,
           productFee: 0,
           active: true,
-          VTSZ: 0,
-          EAN: 0,
+          vtsz: 0,
+          ean: 0,
         } as Product;
       }
     );

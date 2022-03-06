@@ -21,6 +21,21 @@
                     </nb-form-field>
                     <app-form-control-error [form]="currentForm" [controlName]="it.objectKey"></app-form-control-error>
                 </ng-container>
+                
+                <ng-container *ngSwitchCase="'number'">
+                    <nb-form-field
+                        (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
+                        <div class="bbx-fd-form-field-inner-div">
+                            <ng-container [ngSwitch]="it.fInputType">
+                                <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
+                
+                                <input class="{{TileCssClass}}" nbInput type="number" [formControlName]="it.objectKey"
+                                    (click)="currentForm.HandleFormFieldClick($event)" [required]="it.fRequired ?? false">
+                            </ng-container>
+                        </div>
+                    </nb-form-field>
+                    <app-form-control-error [form]="currentForm" [controlName]="it.objectKey"></app-form-control-error>
+                </ng-container>
 
                 <ng-container *ngSwitchCase="'readonly'">
                     <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">

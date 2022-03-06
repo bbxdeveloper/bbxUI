@@ -70,6 +70,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   override ProcessActionNew(data?: IUpdateRequest<Customer>): void {
     console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Create(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
@@ -90,8 +91,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   override ProcessActionPut(data?: IUpdateRequest<Customer>): void {
-    console.log("ActionPut: ", data?.data, JSON.stringify(data?.data));
+    console.log("ActionPut: ", data?.data, JSON.stringify(data?.data), typeof(data?.data.id));
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
+      console.log(data.data.id);
       this.seInv.Update(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
@@ -153,7 +156,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
     
     this.dbDataTableForm = new FormGroup({
-      id: new FormControl(undefined, []),
+      id: new FormControl(0, []),
       customerName: new FormControl(undefined, [Validators.required]),
       customerBankAccountNumber: new FormControl(undefined, []),
       taxpayerNumber: new FormControl(undefined, []),

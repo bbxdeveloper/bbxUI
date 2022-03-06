@@ -14,6 +14,6 @@ export interface Product {
     "ordUnit"?: number,
     "productFee"?: number,
     "active"?: boolean,
-    "VTSZ"?: any,
-    "EAN"?: any
+    "vtsz"?: any,
+    "ean"?: any
 }

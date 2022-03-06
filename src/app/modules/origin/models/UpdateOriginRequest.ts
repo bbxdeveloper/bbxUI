@@ -1,5 +1,5 @@
 export interface UpdateOriginRequest {
-    id: string;
+    id: number;
     originCode: string;
     originDescription: string;
 }

@@ -93,6 +93,8 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         this.formId = formId;
         this.colDefs = colDefs;
 
+        this.SetFormStateToDefault();
+
         console.log("[ctor FlatDesignNavigatableForm] Params in order (without services): ", f, data, attachDirection, formId, colDefs); // TODO: only for debug
 
         this.sidebarService.onCollapse().subscribe({
@@ -129,6 +131,10 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
     SetFormStateToDefault(): void {
         this.formMode = Constants.FormState.default;
+    }
+
+    SetFormStateToNew(): void {
+        this.formMode = Constants.FormState.new;
     }
 
     ActionNew(data?: IUpdateRequest<T>): void {
@@ -238,17 +244,20 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         this.DataRowIndex = rowPos;
         this.DataToEdit = row;
         this.FillFormWithObject(this.DataToEdit?.data);
+        this.SetFormStateToDefault();
     }
 
-    private FillObjectWithForm(): any {
-        const data = { ...this.DataToEdit?.data! };
+    private FillObjectWithForm(): T {
+        const data = {} as T;
         Object.keys(this.form.controls).forEach((x: string) => {
-            data[x] = this.form.controls[x].value;
+            data[x as keyof T] = this.form.controls[x].value;
+            console.log(this.form.controls[x].value);
         });
         if (environment.debug) {
             console.log("Data from form: ", data);
         }
-        return data;
+        console.log("Data from form: ", data);
+        return data as T;
     }
 
     private FillFormWithObject(data: any): void {

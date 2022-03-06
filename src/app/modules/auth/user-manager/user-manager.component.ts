@@ -156,6 +156,7 @@ export class UserManagerComponent
 
   override ProcessActionNew(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
       console.log('ActionNew: ', data.data);
       this.seInv
         .Create({
@@ -200,6 +201,7 @@ export class UserManagerComponent
 
   override ProcessActionPut(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + ''); // TODO
       console.log('ActionPut: ', data.data);
       this.seInv
         .Update({
@@ -258,7 +260,8 @@ export class UserManagerComponent
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
-              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+              this.dbDataTable.SetBlankInstanceForForm(false, false);
+              this.dbDataTable.flatDesignForm.SetFormStateToNew();
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
@@ -373,7 +376,7 @@ export class UserManagerComponent
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false);
-      this.kbS.SelectFirstTile();
+      //this.kbS.SelectFirstTile();
     }, 200);
   }
 

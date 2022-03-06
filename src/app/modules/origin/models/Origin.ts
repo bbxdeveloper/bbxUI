@@ -1,5 +1,5 @@
 export interface Origin {
-    id: string;
+    id: number;
     originCode: string;
     originDescription: string;
     createTime?: string;
@@ -9,7 +9,7 @@ export interface Origin {
 
 export function BlankOrigin(): Origin {
     return {
-        id: '0',
+        id: 0,
         originCode: '',
         originDescription: '',
         createTime: '',

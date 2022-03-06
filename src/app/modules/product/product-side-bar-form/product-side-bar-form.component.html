@@ -10,7 +10,7 @@
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Azonosító</label>
-                    <input nbInput type="text" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
+                    <input nbInput type="number" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
                         readonly>
                 </div>
             </nb-form-field>
@@ -173,24 +173,24 @@
             
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>VTSZ*</label>
+                    <label>vtsz*</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="VTSZ"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="vtsz"
                         mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="VTSZ"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" controlName="vtsz"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>EAN</label>
+                    <label>ean</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="EAN"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="ean"
                         mask="9{1000}"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="EAN"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" controlName="ean"></app-form-control-error>
             </nb-form-field>
         </form>
     </nb-card-body>
