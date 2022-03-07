@@ -22,6 +22,11 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
   TileCssClass = TileCssClass;
 
+  customPatterns = {
+    A: { pattern: new RegExp('[a-zA-Z0-9]') },
+    C: { pattern: new RegExp('[a-zA-Z0-9]') }
+  };
+
   // ProductGroup
   productGroups: string[] = [];
   filteredProductGroups$: Observable<string[]> | undefined = of([]);

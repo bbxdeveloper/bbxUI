@@ -3,7 +3,7 @@ export interface Product {
     "productCode"?: any,
     "description"?: string,
     "productGroup"?: any,
-    "origin"?: any,
+    "origin"?: string,
     "unitOfMeasure"?: any,
     "unitOfMeasureX"?: any,
     "unitPrice1"?: number,
@@ -14,6 +14,6 @@ export interface Product {
     "ordUnit"?: number,
     "productFee"?: number,
     "active"?: boolean,
-    "vtsz"?: any,
-    "ean"?: any
+    "vtsz"?: string,
+    "ean"?: string
 }

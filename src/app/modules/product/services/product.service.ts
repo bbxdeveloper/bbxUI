@@ -69,7 +69,7 @@ export class ProductService {
     return this.http.get<Product>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Create(req: Product): Observable<CreateProductResponse> {
+  Create(req: CreateProductRequest): Observable<CreateProductResponse> {
     return this.http.post<CreateProductResponse>(this.BaseUrl, req);
   }
 

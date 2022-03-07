@@ -22,6 +22,8 @@ import { ProductGroupService } from '../../product-group/services/product-group.
 import { UnitOfMeasure, UnitOfMeasureTextToValue, UnitOfMeasureValueToText } from '../models/UnitOfMeasure';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { CreateProductRequest } from '../models/CreateProductRequest';
+import { UpdateProductRequest } from '../models/UpdateProductRequest';
 
 @Component({
   selector: 'app-product-manager',
@@ -190,12 +192,56 @@ export class ProductManagerComponent
     return data;
   }
 
+  private ProductToCreateRequest(p: Product): CreateProductRequest {
+    const res = {
+      ean: p.ean as string,
+      vtsz: p.vtsz,
+      active: p.active,
+      description: p.description,
+      isStock: p.isStock,
+      minStock: p.minStock,
+      latestSupplyPrice: p.latestSupplyPrice,
+      ordUnit: p.ordUnit,
+      originID: parseInt(this.origins.find(x => x.originDescription === p.origin)?.id + ''),
+      productGroupID: parseInt(this.productGroups.find(x => x.productGroupDescription === p.productGroup)?.id + ''),
+      unitPrice1: p.unitPrice1,
+      unitPrice2: p.unitPrice2,
+      unitOfMeasure: this.uom.find(x => x.text === p.unitOfMeasure)?.value,
+      productFee: p.productFee,
+      productCode: p.productCode
+    } as CreateProductRequest;
+    return res;
+  }
+
+  private ProductToUpdateRequest(p: Product): UpdateProductRequest {
+    const res = {
+      id: parseInt(p.id + ''), // TODO
+      ean: p.ean as string,
+      vtsz: p.vtsz,
+      active: p.active,
+      description: p.description,
+      isStock: p.isStock,
+      minStock: p.minStock,
+      latestSupplyPrice: p.latestSupplyPrice,
+      ordUnit: p.ordUnit,
+      originID: parseInt(this.origins.find(x => x.originDescription === p.origin)?.id + ''),
+      productGroupID: parseInt(this.productGroups.find(x => x.productGroupDescription === p.productGroup)?.id + ''),
+      unitPrice1: p.unitPrice1,
+      unitPrice2: p.unitPrice2,
+      unitOfMeasure: this.uom.find(x => x.text === p.unitOfMeasure)?.value,
+      productFee: p.productFee,
+      productCode: p.productCode
+    } as UpdateProductRequest;
+    return res;
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<Product>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
-      data.data = this.ConvertCombosForPost(data.data);
-      this.seInv.Create(data.data).subscribe({
+
+      const createRequest = this.ProductToCreateRequest(data.data);
+
+      this.seInv.Create(createRequest).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
             this.seInv.Get({ ID: d.data.id }).subscribe({
@@ -234,9 +280,11 @@ export class ProductManagerComponent
   override ProcessActionPut(data?: IUpdateRequest<Product>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
+
+      const updateRequest = this.ProductToUpdateRequest(data.data);
+
       data.data.id = parseInt(data.data.id + ''); // TODO
-      data.data = this.ConvertCombosForPost(data.data);
-      this.seInv.Update(data.data).subscribe({
+      this.seInv.Update(updateRequest).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
             this.seInv.Get({ ID: d.data.id }).subscribe({
@@ -380,8 +428,8 @@ export class ProductManagerComponent
           ordUnit: 0,
           productFee: 0,
           active: true,
-          vtsz: 0,
-          ean: 0,
+          vtsz: '0',
+          ean: '0',
         } as Product;
       }
     );

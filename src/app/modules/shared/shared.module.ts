@@ -65,7 +65,7 @@ import { FormControlErrorComponent } from './form-control-error/form-control-err
     FKeyButtonsRowComponent,
     BaseManagerComponent,
     BaseSideBarFormComponent,
-    FormControlErrorComponent
+    FormControlErrorComponent,
   ],
   providers: [
     ConfirmationDialogComponent
