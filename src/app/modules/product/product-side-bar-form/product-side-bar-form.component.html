@@ -59,7 +59,7 @@
                     <label>Utolsó beszár</label>
             
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
-                        mask="9{1000}"
+                        [inputMask]="numberInputMask" placeholder="0.00000"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="latestSupplyPrice"></app-form-control-error>
@@ -88,7 +88,7 @@
                     <label>Környezetvédelmi termékdíj</label>
             
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="productFee"
-                        mask="9{1000}"
+                        [inputMask]="numberInputMask" placeholder="0.00000"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="productFee"></app-form-control-error>
@@ -117,7 +117,7 @@
                     <label>Elad ár 1</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice1"
-                        mask="9{1000}"
+                        [inputMask]="numberInputMask" placeholder="0.00000"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="unitPrice1"></app-form-control-error>
@@ -128,7 +128,7 @@
                     <label>Elad ár 2</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
-                        mask="9{1000}"
+                        [inputMask]="numberInputMask" placeholder="0.00000"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="unitPrice2"></app-form-control-error>
@@ -155,7 +155,7 @@
                     <label>Minimum készlet</label>
             
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="minStock"
-                        mask="9{1000}"
+                        [inputMask]="numberInputMask" placeholder="0.00000"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="minStock"></app-form-control-error>
@@ -166,7 +166,7 @@
                     <label>Rendelési egység</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
-                        mask="9{1000}"
+                        [inputMask]="numberInputMask" placeholder="0.00000"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="ordUnit"></app-form-control-error>
@@ -177,7 +177,7 @@
                     <label>vtsz*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="vtsz"
-                        mask="9{1000}"
+                        [inputMask]="numberInputMask" placeholder="0.00000"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="vtsz"></app-form-control-error>

@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
 import { UserManagerComponent } from './modules/auth/user-manager/user-manager.component';
 import { DashboardComponent } from './modules/core/dashboard/dashboard.component';
+import { CounterManagerComponent } from './modules/counter/counter-manager/counter-manager.component';
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
 import { OriginManagerComponent } from './modules/origin/origin-manager/origin-manager.component';
 import { PocManagerComponent } from './modules/poc/poc-manager/poc-manager.component';
@@ -48,6 +49,10 @@ const routes: Routes = [
       {
         path: "warehouse",
         component: WareHouseManagerComponent,
+      },
+      {
+        path: "counter",
+        component: CounterManagerComponent,
       },
       // TODO: only in dev
       {

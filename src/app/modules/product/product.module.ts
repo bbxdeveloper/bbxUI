@@ -8,6 +8,7 @@ import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabse
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
+import { InputMaskModule } from '@ngneat/input-mask';
 
 
 
@@ -43,6 +44,7 @@ import { SharedModule } from '../shared/shared.module';
     AngularSplitModule,
     NbAutocompleteModule,
     SharedModule,
+    InputMaskModule
   ],
   exports: [
     ProductManagerComponent

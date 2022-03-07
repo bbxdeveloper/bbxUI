@@ -15,6 +15,7 @@ import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.com
 import { BaseManagerComponent } from './base-manager/base-manager.component';
 import { BaseSideBarFormComponent } from './base-side-bar-form/base-side-bar-form.component';
 import { FormControlErrorComponent } from './form-control-error/form-control-error.component';
+import { InputMaskModule } from '@ngneat/input-mask';
 
 
 @NgModule({
@@ -54,6 +55,7 @@ import { FormControlErrorComponent } from './form-control-error/form-control-err
     NbTagModule,
     NbCheckboxModule,
     NbTooltipModule,
+    InputMaskModule
   ],
   exports: [
     BaseNavigatableComponentComponent,

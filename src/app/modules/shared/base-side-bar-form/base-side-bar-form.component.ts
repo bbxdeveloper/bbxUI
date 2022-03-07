@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { createMask } from '@ngneat/input-mask';
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/Nav';
 import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 
@@ -9,6 +10,15 @@ import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/Ke
 })
 export class BaseSideBarFormComponent {
   currentForm?: FlatDesignNavigatableForm;
+
+  numberInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: '',
+    digits: 5,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0',
+  });
 
   constructor() { }
 

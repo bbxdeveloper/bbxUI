@@ -199,15 +199,15 @@ export class ProductManagerComponent
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: p.minStock,
-      latestSupplyPrice: p.latestSupplyPrice,
-      ordUnit: p.ordUnit,
+      minStock: parseFloat(p.minStock + ''),
+      latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
+      ordUnit: parseFloat(p.ordUnit + ''),
       originID: parseInt(this.origins.find(x => x.originDescription === p.origin)?.id + ''),
       productGroupID: parseInt(this.productGroups.find(x => x.productGroupDescription === p.productGroup)?.id + ''),
-      unitPrice1: p.unitPrice1,
-      unitPrice2: p.unitPrice2,
+      unitPrice1: parseFloat(p.unitPrice1 + ''),
+      unitPrice2: parseFloat(p.unitPrice2 + ''),
       unitOfMeasure: this.uom.find(x => x.text === p.unitOfMeasure)?.value,
-      productFee: p.productFee,
+      productFee: parseFloat(p.productFee + ''),
       productCode: p.productCode
     } as CreateProductRequest;
     return res;
@@ -221,15 +221,15 @@ export class ProductManagerComponent
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: p.minStock,
-      latestSupplyPrice: p.latestSupplyPrice,
-      ordUnit: p.ordUnit,
+      minStock: parseFloat(p.minStock + ''),
+      latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
+      ordUnit: parseFloat(p.ordUnit + ''),
       originID: parseInt(this.origins.find(x => x.originDescription === p.origin)?.id + ''),
       productGroupID: parseInt(this.productGroups.find(x => x.productGroupDescription === p.productGroup)?.id + ''),
-      unitPrice1: p.unitPrice1,
-      unitPrice2: p.unitPrice2,
+      unitPrice1: parseFloat(p.unitPrice1 + ''),
+      unitPrice2: parseFloat(p.unitPrice2 + ''),
       unitOfMeasure: this.uom.find(x => x.text === p.unitOfMeasure)?.value,
-      productFee: p.productFee,
+      productFee: parseFloat(p.productFee + ''),
       productCode: p.productCode
     } as UpdateProductRequest;
     return res;
