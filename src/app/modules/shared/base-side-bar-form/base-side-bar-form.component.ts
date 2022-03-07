@@ -18,14 +18,13 @@ export class BaseSideBarFormComponent {
     }
   }
 
-  @HostListener('document:keydown.tab', ['$event'])
-  onKeydownHandler(event: KeyboardEvent) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    event.stopPropagation();
-  }
-
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     switch (event.key) {
       case CrudManagerKeySettings[Actions.CrudNew].KeyCode:
       case CrudManagerKeySettings[Actions.CrudReset].KeyCode:

@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, HostListener, Input, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbDialogService, NbIconConfig } from '@nebular/theme';
+import { NbDialogService, NbIconConfig, NbPopoverDirective } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -13,7 +13,7 @@ import { LoginDialogComponent } from '../../auth/login-dialog/login-dialog.compo
 import { LoginDialogResponse } from '../../auth/models/LoginDialogResponse';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { AuthService } from '../../auth/services/auth.service';
-import { SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
@@ -22,6 +22,8 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit {
+  @ViewChildren(NbPopoverDirective) popover?: QueryList<NbPopoverDirective>;
+  
   @Input() title: string = "";
 
   settingsIconConfig: NbIconConfig = { icon: 'settings-2-outline', pack: 'eva' };
@@ -181,6 +183,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   goTo(link: string): void {
+    this.kbS.MoveRight();
+    this.popover?.forEach(x => x?.hide());
     this.router.navigate([link]);
   }
 
