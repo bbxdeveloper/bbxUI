@@ -193,6 +193,18 @@ export class ProductManagerComponent
   }
 
   private ProductToCreateRequest(p: Product): CreateProductRequest {
+    let smallestOriginId = this.origins.length > 0 ? this.origins[0].id : 0;
+    let origin = this.origins.find(x => x.originDescription === p.origin);
+    let originId = origin !== undefined ? origin.id : smallestOriginId;
+
+    let smallestProductGroupId = this.productGroups.length > 0 ? this.productGroups[0].id : 0;
+    let productGroup = this.productGroups.find(x => x.productGroupDescription === p.productGroup);
+    let productGroupID = productGroup !== undefined ? productGroup.id : smallestProductGroupId;
+
+    let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
+    let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
+    let unitOfMeasureValue = unitOfMeasure !== undefined ? unitOfMeasure.value : smallestUomValue;
+
     const res = {
       ean: p.ean as string,
       vtsz: p.vtsz,
@@ -202,11 +214,11 @@ export class ProductManagerComponent
       minStock: parseFloat(p.minStock + ''),
       latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
       ordUnit: parseFloat(p.ordUnit + ''),
-      originID: parseInt(this.origins.find(x => x.originDescription === p.origin)?.id + ''),
-      productGroupID: parseInt(this.productGroups.find(x => x.productGroupDescription === p.productGroup)?.id + ''),
+      originID: parseInt(originId + ''),
+      productGroupID: parseInt(productGroupID + ''),
       unitPrice1: parseFloat(p.unitPrice1 + ''),
       unitPrice2: parseFloat(p.unitPrice2 + ''),
-      unitOfMeasure: this.uom.find(x => x.text === p.unitOfMeasure)?.value,
+      unitOfMeasure: unitOfMeasureValue,
       productFee: parseFloat(p.productFee + ''),
       productCode: p.productCode
     } as CreateProductRequest;
@@ -214,6 +226,18 @@ export class ProductManagerComponent
   }
 
   private ProductToUpdateRequest(p: Product): UpdateProductRequest {
+    let smallestOriginId = this.origins.length > 0 ? this.origins[0].id : 0;
+    let origin = this.origins.find(x => x.originDescription === p.origin);
+    let originId = origin !== undefined ? origin.id : smallestOriginId;
+
+    let smallestProductGroupId = this.productGroups.length > 0 ? this.productGroups[0].id : 0;
+    let productGroup = this.productGroups.find(x => x.productGroupDescription === p.productGroup);
+    let productGroupID = productGroup !== undefined ? productGroup.id : smallestProductGroupId;
+
+    let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
+    let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
+    let unitOfMeasureValue = unitOfMeasure !== undefined ? unitOfMeasure.value : smallestUomValue;
+
     const res = {
       id: parseInt(p.id + ''), // TODO
       ean: p.ean as string,
@@ -224,11 +248,11 @@ export class ProductManagerComponent
       minStock: parseFloat(p.minStock + ''),
       latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
       ordUnit: parseFloat(p.ordUnit + ''),
-      originID: parseInt(this.origins.find(x => x.originDescription === p.origin)?.id + ''),
-      productGroupID: parseInt(this.productGroups.find(x => x.productGroupDescription === p.productGroup)?.id + ''),
+      originID: parseInt(originId + ''),
+      productGroupID: parseInt(productGroupID + ''),
       unitPrice1: parseFloat(p.unitPrice1 + ''),
       unitPrice2: parseFloat(p.unitPrice2 + ''),
-      unitOfMeasure: this.uom.find(x => x.text === p.unitOfMeasure)?.value,
+      unitOfMeasure: unitOfMeasureValue,
       productFee: parseFloat(p.productFee + ''),
       productCode: p.productCode
     } as UpdateProductRequest;
@@ -240,6 +264,8 @@ export class ProductManagerComponent
     if (!!data && !!data.data) {
 
       const createRequest = this.ProductToCreateRequest(data.data);
+
+      console.log('ActionNew request: ', createRequest);
 
       this.seInv.Create(createRequest).subscribe({
         next: (d) => {
@@ -282,6 +308,8 @@ export class ProductManagerComponent
     if (!!data && !!data.data) {
 
       const updateRequest = this.ProductToUpdateRequest(data.data);
+
+      console.log('ActionPut request: ', updateRequest);
 
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Update(updateRequest).subscribe({

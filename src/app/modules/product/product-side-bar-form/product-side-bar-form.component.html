@@ -36,7 +36,7 @@
                 <app-form-control-error [form]="currentForm" controlName="description"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentProductGroupCount)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Csoport*</label>
 
@@ -65,7 +65,7 @@
                 <app-form-control-error [form]="currentForm" controlName="latestSupplyPrice"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentOriginCount)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Származási hely</label>
 
@@ -94,7 +94,7 @@
                 <app-form-control-error [form]="currentForm" controlName="productFee"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event, false)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentUomCount)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Me.e.*</label>
 

@@ -1,3 +1,4 @@
+import { ThrowStmt } from '@angular/compiler';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
 import { createMask } from '@ngneat/input-mask';
@@ -30,15 +31,18 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
   // ProductGroup
   productGroups: string[] = [];
-  filteredProductGroups$: Observable<string[]> | undefined = of([]);
+  currentProductGroupCount: number = 0;
+  filteredProductGroups$: Observable<string[]> = of([]);
 
   // UnitOfMeasure
   uom: string[] = [];
-  filteredUom$: Observable<string[]> | undefined = of([]);
+  currentUomCount: number = 0;
+  filteredUom$: Observable<string[]> = of([]);
 
   // Origin
   origins: string[] = [];
-  filteredOrigins$: Observable<string[]> | undefined = of([]);
+  currentOriginCount: number = 0;
+  filteredOrigins$: Observable<string[]> = of([]);
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
@@ -61,6 +65,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
       next: data => {
         this.productGroups = data?.data?.map(x => x.productGroupDescription) ?? [];
         this.filteredProductGroups$ = of(this.productGroups);
+        this.currentProductGroupCount = this.productGroups.length;
       }
     });
 
@@ -69,6 +74,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
       next: data => {
         this.uom = data?.map(x => x.text) ?? [];
         this.filteredUom$ = of(this.uom);
+        this.currentUomCount = this.uom.length;
       }
     });
 
@@ -77,6 +83,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
       next: data => {
         this.origins = data?.data?.map(x => x.originDescription) ?? [];
         this.filteredOrigins$ = of(this.origins);
+        this.currentOriginCount = this.origins.length;
       }
     });
   }
@@ -93,13 +100,25 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.cdref.detectChanges();
 
     this.currentForm?.form.controls['productGroup'].valueChanges.subscribe({
-      next: filterString => { this.filteredProductGroups$ = of(this.filterProductGroup(filterString)); }
+      next: filterString => {
+        const tmp = this.filterProductGroup(filterString);
+        this.currentProductGroupCount = tmp.length;
+        this.filteredProductGroups$ = of(tmp);
+      }
     });
     this.currentForm?.form.controls['origin'].valueChanges.subscribe({
-      next: filterString => { this.filteredOrigins$ = of(this.filterOrigin(filterString)); }
+      next: filterString => {
+        const tmp = this.filterOrigin(filterString);
+        this.currentOriginCount = tmp.length;
+        this.filteredOrigins$ = of(tmp);
+      }
     });
     this.currentForm?.form.controls['unitOfMeasure'].valueChanges.subscribe({
-      next: filterString => { this.filteredUom$ = of(this.filterUom(filterString)); }
+      next: filterString => {
+        const tmp = this.filterUom(filterString);
+        this.currentUomCount = tmp.length;
+        this.filteredUom$ = of(tmp);
+      }
     });
   }
 

@@ -328,6 +328,20 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         }
     }
 
+    HandleFormDropdownEnter(event: Event, itemCount: number): void {
+        console.log("itemCount: " + itemCount);
+        if (itemCount > 1) {
+            this.kbS.toggleEdit();
+        } else {
+            if (!this.kbS.isEditModeActivated) {
+                this.kbS.toggleEdit();
+            } else {
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.JumpToNextInput(event);
+            }
+        }
+    }
+
     HandleFormLastEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
         event.preventDefault();
         event.stopImmediatePropagation();
