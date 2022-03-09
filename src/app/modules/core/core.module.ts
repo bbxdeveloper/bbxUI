@@ -3,18 +3,18 @@ import { CommonModule } from '@angular/common';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { StatusAndSpinnerComponent } from './status-and-spinner/status-and-spinner.component';
 import { HeaderComponent } from './header/header.component';
-import { NbActionsModule, NbButtonModule, NbCardModule, NbContextMenuModule, NbLayoutModule, NbMenuModule, NbMenuService, NbPopoverModule, NbTagModule } from '@nebular/theme';
+import { NbActionsModule, NbButtonGroupModule, NbButtonModule, NbCardModule, NbCheckboxModule, NbContextMenuModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbLayoutModule, NbMenuModule, NbMenuService, NbPopoverModule, NbTagModule, NbToggleModule, NbTooltipModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
-import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxMaskModule } from 'ngx-mask';
 
 
 
 @NgModule({
   declarations: [
     DashboardComponent,
-    FKeyButtonsRowComponent,
     StatusAndSpinnerComponent,
-    HeaderComponent,
+    HeaderComponent
   ],
   imports: [
     CommonModule,
@@ -28,12 +28,20 @@ import { FKeyButtonsRowComponent } from './fkey-buttons-row/fkey-buttons-row.com
     NbMenuModule,
     NbButtonModule,
     NbTagModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NbButtonGroupModule,
+    NbDatepickerModule,
+    NbFormFieldModule,
+    NbInputModule,
+    NgxMaskModule.forChild(),
+    NbCheckboxModule,
+    NbTooltipModule
   ],
   exports: [
     DashboardComponent,
-    FKeyButtonsRowComponent,
     StatusAndSpinnerComponent,
-    HeaderComponent,
+    HeaderComponent
   ],
   providers: [
     NbMenuService

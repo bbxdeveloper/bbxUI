@@ -1,9 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Nav } from 'src/assets/model/Navigatable';
+import { LoginDialogResponse } from '../models/LoginDialogResponse';
+import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 
 @Component({
   selector: 'app-login-dialog',
@@ -14,9 +15,9 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
   title: string = "Bejelentkezés";
   closedManually = false;
 
-  loginFormNav!: Nav.NavigatableForm;
+  loginFormNav!: NavigatableForm;
 
-  TileCssClass = Nav.TileCssClass;
+  TileCssClass = TileCssClass;
 
   constructor(
     private cdrf: ChangeDetectorRef,
@@ -36,7 +37,7 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
       password: new FormControl('', [Validators.required]),
     });
 
-    this.loginFormNav = new Nav.NavigatableForm(loginForm, this.kBs, this.cdrf, [], 'loginForm', Nav.AttachDirection.UP);
+    this.loginFormNav = new NavigatableForm(loginForm, this.kBs, this.cdrf, [], 'loginForm', AttachDirection.UP);
 
     // We can move onto the confirmation buttons from the form.
     this.loginFormNav.OuterJump = true;
@@ -48,17 +49,28 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     this.kBs.SetWidgetNavigatable(this);
     this.loginFormNav.GenerateAndSetNavMatrices(true);
     this.kBs.SelectFirstTile();
+    this.kBs.setEditMode(KeyboardModes.EDIT);
   }
 
   ngOnDestroy(): void {
     if (!this.closedManually) {
       this.kBs.RemoveWidgetNavigatable();
     }
+    this.kBs.setEditMode(KeyboardModes.NAVIGATION);
   }
 
   close(answer: boolean) {
     this.closedManually = true;
     this.kBs.RemoveWidgetNavigatable();
-    this.dialogRef.close(answer);
+    if (answer && this.loginFormNav.form.valid) {
+      this.dialogRef.close({
+        answer: true,
+        name: this.loginFormNav.GetValue('username'),
+        pswd: this.loginFormNav.GetValue('password')
+      } as LoginDialogResponse);
+    }
+    this.dialogRef.close({
+      answer: false
+    } as LoginDialogResponse);
   }
 }

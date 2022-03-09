@@ -1,0 +1,69 @@
+<nb-card [nbSpinner]="isLoading">
+    <nb-card-header *ngIf="!!dbDataTable">
+        <ng-content></ng-content>
+    </nb-card-header>
+    <nb-card-body *ngIf="!!dbDataTable">
+        <form class="card-table-wrapper-form">
+            <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
+                 *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+
+                <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+                <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+
+                <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+                    <ng-container [ngSwitch]="it.type">
+
+                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
+                            {{it.label}}
+                        </th>
+
+                        <ng-container *ngSwitchCase="'string'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'number'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'bool'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                    </ng-container>
+                </ng-container>
+            </table>
+        </form>
+    </nb-card-body>
+    <nb-card-footer *ngIf="!!dbDataTable">
+        <app-paginator *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" [paginator]="dbDataTable"></app-paginator>
+        <span *ngIf="!!dbDataTable && !isLoading && dbDataTable.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
+    </nb-card-footer>
+</nb-card>

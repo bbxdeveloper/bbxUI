@@ -1,7 +1,40 @@
+import { NbIconConfig, NbToastrConfig } from "@nebular/theme";
 import { ProcessStatus } from "../model/ProcessStatus";
+import { Actions, KeyBindings } from "./KeyBindings";
 
 export module Constants {
-    export const MSG_CONFIRMATION_QUIT = "Biztosan szeretne kiléni az alkalmazásból?";
+    // Messages
+
+    export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
+    export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
+    export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
+
+    export const TITLE_ERROR: string = 'Hiba';
+    export const TITLE_WARNING: string = 'Figyelmeztetés';
+    export const TITLE_INFO: string = 'Információ';
+
+    export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
+    export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
+
+    export const MSG_LOGIN_SUCCESFUL: string = 'Sikeres bejelentkezés!'
+    export const MSG_LOGIN_FAILED: string = 'Sikertelen bejelentkezés!'
+    export const MSG_LOGOUT_SUCCESFUL: string = 'Sikeres kijelentkezés!'
+    export const MSG_LOGOUT_FAILED: string = 'Sikertelen kijelentkezés!'
+
+    // Toastr Configs
+
+    // export const TOASTR_ERROR: Partial<NbIconConfig> = 
+    //     { status: 'danger', icon: 'alert-circle-outline', pack: 'eva' };
+    // export const TOASTR_SUCCESS: Partial<NbIconConfig> =
+    //     { status: 'info', icon: 'checkmark-outline', pack: 'eva' };
+
+    export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'primary' };
+    export const TOASTR_ERROR: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'danger' };
+
+
+    // Util
 
     export enum FileExtensions {
         PDF = "pdf",
@@ -16,6 +49,14 @@ export module Constants {
     export enum DataOperation {
         PRINT_BLOB,
         DOWNLOAD_BLOB
+    }
+
+    export enum FormState {
+        new, default
+    }
+
+    export enum KeyTypes {
+        Fn, Default
     }
 
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
@@ -35,5 +76,15 @@ export module Constants {
 
     export const BlankProcessStatus: ProcessStatus = { value: -1 } as ProcessStatus;
 
+    // Types
+
+    export interface KeySettingRow {
+        KeyCode: KeyBindings;
+        KeyLabel: string;
+        FunctionLabel: string;
+        KeyType: KeyTypes;
+    }
+
     export type Dct = { [id: string]: any; };
+    export type KeySettingsDct = { [key in Actions]: KeySettingRow; };
 }

@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, HostListener, Input, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbDialogService, NbIconConfig } from '@nebular/theme';
+import { NbDialogService, NbIconConfig, NbPopoverDirective } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -10,7 +10,11 @@ import * as $ from 'jquery';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { LoginDialogComponent } from '../../auth/login-dialog/login-dialog.component';
-import { Nav } from 'src/assets/model/Navigatable';
+import { LoginDialogResponse } from '../../auth/models/LoginDialogResponse';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { AttachDirection, SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-header',
@@ -18,13 +22,18 @@ import { Nav } from 'src/assets/model/Navigatable';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit {
+  @ViewChildren(NbPopoverDirective) popover?: QueryList<NbPopoverDirective>;
+  
   @Input() title: string = "";
 
   settingsIconConfig: NbIconConfig = { icon: 'settings-2-outline', pack: 'eva' };
 
   isElectron: boolean = false;
+  isLoading: boolean = false;
 
-  get InProgress(): boolean { return this.sts.InProgress; }
+  get isLoggedIn(): boolean { return this.tokenService.isLoggedIn; };
+
+  get InProgress(): boolean { return this.sts.InProgress || this.isLoading; }
 
   get keyboardMode(): string {
     var mode = this.kbS.currentKeyboardMode;
@@ -60,9 +69,12 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private dialogService: NbDialogService,
     private kbS: KeyboardNavigationService,
     private router: Router,
-    private sts: StatusService) {
-      super();
-      this.OuterJump = true;
+    private sts: StatusService,
+    private authService: AuthService,
+    private tokenService: TokenStorageService,
+    private toastrService: BbxToastrService) {
+    super();
+    this.OuterJump = true;
   }
 
   override ngOnInit(): void {
@@ -70,11 +82,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   ngAfterViewInit(): void {
-    this.GenerateAndSetNavMatrices(true);
+    this.GenerateAndSetNavMatrices();
     this.kbS.SelectFirstTile();
+    if (!this.isLoggedIn) {
+      this.login(undefined);
+    }
   }
 
-  public override GenerateAndSetNavMatrices(attach: boolean): void {
+  public override GenerateAndSetNavMatrices(attach: boolean = true): void {
     // Get menus
     const headerMenusRaw = $(".cl-header-menu");
 
@@ -97,7 +112,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
           // If no available mapping for the menu, initialize it
           if (!!!this.SubMapping[nextId]) {
-            this.SubMapping[nextId] = new Nav.SubMappingNavigatable();
+            this.SubMapping[nextId] = new SubMappingNavigatable();
           }
 
           // Adding submenu id to the mapping of the current menu
@@ -106,13 +121,23 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       }
     }
 
+    //if (environment.debug)
+      console.log("[HeaderComponent] Generated header matrix: ", this.Matrix, "\nSubmapping: ", this.SubMapping);
+
     this.kbS.SetRoot(this);
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-    if (event.code === 'Tab') {
+    if (this.toastrService.IsToastrOpened) {
       event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+
+      this.toastrService.close();
+
+      return;
     }
+
     switch (event.key) {
       case KeyBindings.up: {
         if (!this.kbS.isEditModeActivated) {
@@ -158,6 +183,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   goTo(link: string): void {
+    this.kbS.MoveRight();
+    this.popover?.forEach(x => x?.hide());
     this.router.navigate([link]);
   }
 
@@ -175,11 +202,65 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   login(event: any): void {
-    event.preventDefault();
+    event?.preventDefault();
     const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {} });
-    dialogRef.onClose.subscribe(res => {
-      if (res) {
-        console.log("Logged in!");
+    this.isLoading = true;
+    dialogRef.onClose.subscribe({
+      next: (res: LoginDialogResponse) => {
+      if(!!res && res.answer) {
+        this.authService.login(
+          res.name, res.pswd
+        ).subscribe({
+          next: res => {
+            this.tokenService.token = res.token;
+            this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            // this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, { duration: 0 });
+            setTimeout(() => {
+              this.GenerateAndSetNavMatrices();
+              this.kbS.SelectFirstTile();
+              this.isLoading = false;
+            }, 200);
+          },
+          error: err => {
+            this.toastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+          },
+          complete: () => {
+            setTimeout(() => {
+              if (this.isLoading) {
+                this.isLoading = false;
+              }
+            }, 200);
+          }
+        });
+      }
+    }
+    });
+  }
+
+  logout(event: any): void {
+    event?.preventDefault();
+    this.isLoading = true;
+    this.authService.logout().subscribe({
+      next: res => {
+        this.toastrService.show(Constants.MSG_LOGOUT_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+        this.tokenService.signOut();
+        setTimeout(() => {
+          this.GenerateAndSetNavMatrices();
+          this.kbS.SelectFirstTile();
+          this.isLoading = false;
+        }, 200);
+      },
+      error: err => {
+        this.toastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        this.isLoading = false;
+      },
+      complete: () => {
+        setTimeout(() => {
+          if (this.isLoading) {
+            this.isLoading = false;
+          }
+        }, 200);
       }
     });
   }

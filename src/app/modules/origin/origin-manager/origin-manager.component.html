@@ -1,0 +1,19 @@
+<as-split direction="horizontal">
+    <as-split-area [size]="50">
+        <app-head-line msg="Származások kezelése"></app-head-line>
+
+        <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+            <label class="search-label" for="search">Kód / leírás:</label>
+            <input nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)"
+                autocomplete="off">
+        </app-flat-design-table>
+        
+        <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+        <app-origin-side-bar-form class="bbx-sidebar"></app-origin-side-bar-form>
+    </as-split-area>
+</as-split>
