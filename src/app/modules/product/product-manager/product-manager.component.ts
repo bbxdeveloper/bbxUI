@@ -30,17 +30,11 @@ import { UpdateProductRequest } from '../models/UpdateProductRequest';
   templateUrl: './product-manager.component.html',
   styleUrls: ['./product-manager.component.scss'],
 })
-export class ProductManagerComponent
-  extends BaseManagerComponent<Product>
-  implements OnInit
+export class ProductManagerComponent extends BaseManagerComponent<Product> implements OnInit
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableId = 'product-table';
-  dbDataTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = [
+  override allColumns = [
     'productCode',
     'description',
     'productGroup',
@@ -48,7 +42,7 @@ export class ProductManagerComponent
     'unitPrice1',
     'unitPrice2',
   ];
-  colDefs: ModelFieldDescriptor[] = [
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Kód',
       objectKey: 'productCode',
@@ -127,8 +121,6 @@ export class ProductManagerComponent
     },
   ];
 
-  searchString: string = '';
-
   // ProductGroup
   productGroups: ProductGroup[] = [];
   // UnitOfMeasure
@@ -152,6 +144,8 @@ export class ProductManagerComponent
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'product-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
   }
@@ -383,23 +377,6 @@ export class ProductManagerComponent
     }
   }
 
-  refreshFilter(event: any): void {
-    if (this.searchString === event.target.value) {
-      return;
-    }
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ SearchString: this.searchString });
-    }
-  }
-
   private Setup(): void {
     this.dbData = [];
 
@@ -474,7 +451,7 @@ export class ProductManagerComponent
     this.RefreshAll();
   }
 
-  private Refresh(params?: GetProductsParamListModel): void {
+  override Refresh(params?: GetProductsParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -503,21 +480,6 @@ export class ProductManagerComponent
         this.isLoading = false;
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      // this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

@@ -29,12 +29,8 @@ export class OriginManagerComponent
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableId = 'origin-table';
-  dbDataTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = ['id', 'originCode', 'originDescription'];
-  colDefs: ModelFieldDescriptor[] = [
+  override allColumns = ['id', 'originCode', 'originDescription'];
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
       objectKey: 'id',
@@ -76,8 +72,6 @@ export class OriginManagerComponent
     },
   ];
 
-  searchString: string = '';
-
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -92,6 +86,8 @@ export class OriginManagerComponent
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'origin-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
   }
@@ -194,20 +190,6 @@ export class OriginManagerComponent
     }
   }
 
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ SearchString: this.searchString });
-    }
-  }
-
   private Setup(): void {
     this.dbData = [];
 
@@ -251,7 +233,7 @@ export class OriginManagerComponent
     this.Refresh();
   }
 
-  private Refresh(params?: GetOriginsParamListModel): void {
+  override Refresh(params?: GetOriginsParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -279,21 +261,6 @@ export class OriginManagerComponent
         this.isLoading = false;
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      // this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

@@ -26,12 +26,8 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableId = 'warehouse-table';
-  dbDataTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = ['id', 'warehouseCode', 'warehouseDescription'];
-  colDefs: ModelFieldDescriptor[] = [
+  override allColumns = ['id', 'warehouseCode', 'warehouseDescription'];
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
       objectKey: 'id',
@@ -73,8 +69,6 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     },
   ];
 
-  searchString: string = '';
-
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -89,6 +83,8 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'warehouse-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
   }
@@ -192,20 +188,6 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     }
   }
 
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ SearchString: this.searchString });
-    }
-  }
-
   private Setup(): void {
     this.dbData = [];
 
@@ -249,7 +231,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.Refresh();
   }
 
-  private Refresh(params?: GetWareHousesParamListModel): void {
+  override Refresh(params?: GetWareHousesParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -277,21 +259,6 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         this.isLoading = false;
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      // this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

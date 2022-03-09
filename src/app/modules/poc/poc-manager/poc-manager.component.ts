@@ -27,22 +27,16 @@ import { PocService } from "../services/poc.service";
 export class PocManagerComponent extends BaseManagerComponent<Poc> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableId = 'poc-table';
-  dbDataTableEditId = "user-cell-edit-input";
-
-  colsToIgnore: string[] = [];
-  allColumns = [
+  override allColumns = [
     'id', 'pocName', 'pocType', 'active', 'comment'
   ];
-  colDefs: ModelFieldDescriptor[] = [
+  override colDefs: ModelFieldDescriptor[] = [
     { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
     { label: 'Név', objectKey: 'pocName', colKey: 'pocName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Típus', objectKey: 'pocType', colKey: 'pocType', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Aktív', objectKey: 'active', colKey: 'active', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-  ]
-
-  searchString: string = '';
+  ];
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -58,6 +52,8 @@ export class PocManagerComponent extends BaseManagerComponent<Poc> implements On
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = "active-prod-search";
+    this.dbDataTableId = 'poc-table';
+    this.dbDataTableEditId = "user-cell-edit-input";
     this.kbS.ResetToRoot();
     this.Setup();
   }
@@ -121,20 +117,6 @@ export class PocManagerComponent extends BaseManagerComponent<Poc> implements On
     }
   }
 
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log("Search: ", this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ 'SearchString': this.searchString });
-    }
-  }
-
   private Setup(): void {
     this.dbData = [];
 
@@ -166,7 +148,7 @@ export class PocManagerComponent extends BaseManagerComponent<Poc> implements On
     this.Refresh();
   }
 
-  private Refresh(params?: GetPocsParamListModel): void {
+  override Refresh(params?: GetPocsParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetPocs(params).subscribe({
@@ -186,19 +168,6 @@ export class PocManagerComponent extends BaseManagerComponent<Poc> implements On
       error: err => this.cs.HandleError(err),
       complete: () => { this.isLoading = false; }
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData, this.dbDataDataSrc,
-      this.allColumns, this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

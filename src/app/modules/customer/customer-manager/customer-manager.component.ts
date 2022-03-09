@@ -25,15 +25,11 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 })
 export class CustomerManagerComponent extends BaseManagerComponent<Customer> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
-  
-  dbDataTableId = 'customer-table';
-  dbDataTableEditId = "user-cell-edit-input";
 
-  colsToIgnore: string[] = [];
-  allColumns = [
+  override allColumns = [
     'id', 'customerName', 'taxpayerNumber'
   ];
-  colDefs: ModelFieldDescriptor[] = [
+  override colDefs: ModelFieldDescriptor[] = [
     { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
     { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: TileCssClass },
@@ -46,8 +42,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
   ]
-
-  searchString: string = '';
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -63,6 +57,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = "active-prod-search";
+    this.dbDataTableId = 'customer-table';
+    this.dbDataTableEditId = "user-cell-edit-input";
     this.kbS.ResetToRoot();
     this.Setup();
   }
@@ -135,20 +131,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       });
     }
   }
-  
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log("Search: ", this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ 'SearchString': this.searchString });
-    }
-  }
 
   private Setup(): void {
     this.dbData = [];
@@ -187,7 +169,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.Refresh();
   }
 
-  private Refresh(params?: GetCustomersParamListModel): void {
+  override Refresh(params?: GetCustomersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -207,19 +189,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       error: err => this.cs.HandleError(err),
       complete: () => { this.isLoading = false; }
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData, this.dbDataDataSrc,
-      this.allColumns, this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

@@ -27,18 +27,12 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
   templateUrl: './user-manager.component.html',
   styleUrls: ['./user-manager.component.scss'],
 })
-export class UserManagerComponent
-  extends BaseManagerComponent<User>
-  implements OnInit
+export class UserManagerComponent extends BaseManagerComponent<User> implements OnInit
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  usersTableId = 'usermanager-table';
-  usersTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
-  colDefs: ModelFieldDescriptor[] = [
+  override allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'ID',
       objectKey: 'id',
@@ -134,8 +128,6 @@ export class UserManagerComponent
     C: { pattern: new RegExp('[a-zA-Z0-9]') },
   };
 
-  searchString: string = '';
-
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -150,6 +142,8 @@ export class UserManagerComponent
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'usermanager-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
   }
@@ -275,13 +269,7 @@ export class UserManagerComponent
     }
   }
 
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
+  override search(): void {
     if (this.searchString.length === 0) {
       this.Refresh();
     } else {
@@ -310,7 +298,7 @@ export class UserManagerComponent
       this.fS,
       this.cdref,
       this.dbData,
-      this.usersTableId,
+      this.dbDataTableId,
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
@@ -327,7 +315,7 @@ export class UserManagerComponent
     this.Refresh();
   }
 
-  private Refresh(params?: GetUsersParamListModel): void {
+  override Refresh(params?: GetUsersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -364,20 +352,6 @@ export class UserManagerComponent
         this.isLoading = false;
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      //this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

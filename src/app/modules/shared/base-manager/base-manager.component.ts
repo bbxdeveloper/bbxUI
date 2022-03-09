@@ -5,7 +5,9 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
+import { TileCssClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
@@ -19,6 +21,14 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 })
 export class BaseManagerComponent<T> {
   searchInputId?: string;
+  searchString: string = '';
+
+  dbDataTableId: string = '';
+  dbDataTableEditId: string = '';
+
+  colsToIgnore: string[] = [];
+  allColumns: string[] = [];
+  colDefs: ModelFieldDescriptor[] = [];
 
   dbDataTableForm!: FormGroup;
   dbData!: TreeGridNode<T>[];
@@ -59,7 +69,6 @@ export class BaseManagerComponent<T> {
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected sidebarService: BbxSidebarService) {
-
   }
 
   ActionNew(data?: IUpdateRequest<T>): void {
@@ -137,6 +146,38 @@ export class BaseManagerComponent<T> {
       }
       default: { }
     }
+  }
+
+  refreshFilter(event: any): void {
+    if (this.searchString === event.target.value) {
+      return;
+    }
+    this.searchString = event.target.value;
+    console.log('Search: ', this.searchString);
+    this.search();
+  }
+
+  search(): void {
+    if (this.searchString.length === 0) {
+      this.Refresh();
+    } else {
+      this.Refresh({ SearchString: this.searchString });
+    }
+  }
+
+  Refresh(params?: any): void {}
+
+  RefreshTable(): void {
+    this.dbDataTable.Setup(
+      this.dbData,
+      this.dbDataDataSrc,
+      this.allColumns,
+      this.colDefs,
+      this.colsToIgnore
+    );
+    setTimeout(() => {
+      this.dbDataTable.GenerateAndSetNavMatrices(false);
+    }, 200);
   }
 
   trackRows(index: number, row: any) {
