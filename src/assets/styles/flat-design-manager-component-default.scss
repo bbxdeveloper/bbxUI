@@ -30,13 +30,17 @@ nb-card {
     position: sticky;
     top: 0;
 
-    // margin-left: 25%;
-
-    @media (max-height: 1000px) {
+    @media (max-height: 649px) {
         max-height: 255px !important;
     }
-    @media (min-height: 1001px) {
-        max-height: 305px !important;
+    @media (min-height: 649px) {
+        max-height: 300px !important;
+    }
+    @media (min-height: 680px) {
+        max-height: 350px !important;
+    }
+    @media (min-height: 947px) {
+        max-height: 578px !important;
     }
 
     @media (max-height: 1000px) {

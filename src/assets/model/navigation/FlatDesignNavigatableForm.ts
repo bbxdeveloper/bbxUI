@@ -251,12 +251,11 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         const data = {} as T;
         Object.keys(this.form.controls).forEach((x: string) => {
             data[x as keyof T] = this.form.controls[x].value;
-            console.log(this.form.controls[x].value);
+            console.log('FormField value: ',this.form.controls[x].value, 'Data field value: ', data[x as keyof T]);
         });
         if (environment.debug) {
             console.log("Data from form: ", data);
         }
-        console.log("Data from form: ", data);
         return data as T;
     }
 

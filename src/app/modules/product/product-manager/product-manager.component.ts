@@ -187,13 +187,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   private ProductToCreateRequest(p: Product): CreateProductRequest {
-    let smallestOriginId = this.origins.length > 0 ? this.origins[0].id : 0;
-    let origin = this.origins.find(x => x.originDescription === p.origin);
-    let originId = origin !== undefined ? origin.id : smallestOriginId;
-
-    let smallestProductGroupId = this.productGroups.length > 0 ? this.productGroups[0].id : 0;
-    let productGroup = this.productGroups.find(x => x.productGroupDescription === p.productGroup);
-    let productGroupID = productGroup !== undefined ? productGroup.id : smallestProductGroupId;
+    let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
+    let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
     let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
@@ -205,28 +200,23 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: parseFloat(p.minStock + ''),
-      latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
-      ordUnit: parseFloat(p.ordUnit + ''),
-      originID: parseInt(originId + ''),
-      productGroupID: parseInt(productGroupID + ''),
-      unitPrice1: parseFloat(p.unitPrice1 + ''),
-      unitPrice2: parseFloat(p.unitPrice2 + ''),
+      minStock: p.minStock,
+      latestSupplyPrice: p.latestSupplyPrice,
+      ordUnit: p.ordUnit,
+      originCode: originCode,
+      productGroupCode: productGroupCode,
+      unitPrice1: p.unitPrice1,
+      unitPrice2: p.unitPrice2,
       unitOfMeasure: unitOfMeasureValue,
-      productFee: parseFloat(p.productFee + ''),
+      productFee: p.productFee,
       productCode: p.productCode
     } as CreateProductRequest;
     return res;
   }
 
   private ProductToUpdateRequest(p: Product): UpdateProductRequest {
-    let smallestOriginId = this.origins.length > 0 ? this.origins[0].id : 0;
-    let origin = this.origins.find(x => x.originDescription === p.origin);
-    let originId = origin !== undefined ? origin.id : smallestOriginId;
-
-    let smallestProductGroupId = this.productGroups.length > 0 ? this.productGroups[0].id : 0;
-    let productGroup = this.productGroups.find(x => x.productGroupDescription === p.productGroup);
-    let productGroupID = productGroup !== undefined ? productGroup.id : smallestProductGroupId;
+    let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
+    let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
     let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
@@ -239,15 +229,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: parseFloat(p.minStock + ''),
-      latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
-      ordUnit: parseFloat(p.ordUnit + ''),
-      originID: parseInt(originId + ''),
-      productGroupID: parseInt(productGroupID + ''),
-      unitPrice1: parseFloat(p.unitPrice1 + ''),
-      unitPrice2: parseFloat(p.unitPrice2 + ''),
+      minStock: p.minStock,
+      latestSupplyPrice: p.latestSupplyPrice,
+      ordUnit: p.ordUnit,
+      originCode: originCode,
+      productGroupCode: productGroupCode,
+      unitPrice1: p.unitPrice1,
+      unitPrice2: p.unitPrice2,
       unitOfMeasure: unitOfMeasureValue,
-      productFee: parseFloat(p.productFee + ''),
+      productFee: p.productFee,
       productCode: p.productCode
     } as UpdateProductRequest;
     return res;

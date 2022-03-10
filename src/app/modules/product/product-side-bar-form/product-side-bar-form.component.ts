@@ -63,7 +63,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     // ProductGroups
     this.productGroupApi.GetAll().subscribe({
       next: data => {
-        this.productGroups = data?.data?.map(x => x.productGroupDescription) ?? [];
+        this.productGroups = data?.data?.map(x => x.productGroupCode + '-' + x.productGroupDescription) ?? [];
         this.filteredProductGroups$ = of(this.productGroups);
         this.currentProductGroupCount = this.productGroups.length;
       }
@@ -81,7 +81,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     // Origin
     this.originApi.GetAll().subscribe({
       next: data => {
-        this.origins = data?.data?.map(x => x.originDescription) ?? [];
+        this.origins = data?.data?.map(x => x.originCode + '-' + x.originDescription) ?? [];
         this.filteredOrigins$ = of(this.origins);
         this.currentOriginCount = this.origins.length;
       }

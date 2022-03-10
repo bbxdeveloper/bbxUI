@@ -1,7 +1,4 @@
 <nb-actions size="medium" (keydown.escape)="handleEscape()">
-
-    <nb-action tabIndex="-1" class="disable-select"><img src="assets/svg/bbx_logo.svg"></nb-action>
-
     <nb-action id="header-home" class="cl-header-menu" tabIndex="1" icon="home-outline" link="/" (click)="goTo('/')"
         [disabled]="InProgress"></nb-action>
 
@@ -14,12 +11,15 @@
               data-sub="header-user-sub-2">
     </nb-action>
     <ng-template #sub_user let-data>
-        <nb-card>
-            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button *ngIf="!isLoggedIn" nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="login($event)">
+        <nb-card class="card-submenu-wrapper">
+            <nb-card-body *ngIf="!isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-user-sub-1" [disabled]="InProgress" (click)="login($event)">
                     Bejelentkezés
                 </button>
-                <button *ngIf="isLoggedIn" nbButton status="primary" id="header-user-sub-2" [disabled]="InProgress" (click)="logout($event)">
+            </nb-card-body>
+            <nb-card-body *ngIf="isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-user-sub-2" [disabled]="InProgress"
+                    (click)="logout($event)">
                     Kijelentkezés
                 </button>
             </nb-card-body>
@@ -37,7 +37,7 @@
         nbPopoverPlacement="bottom" [nbPopover]="sub_customer" [disabled]="InProgress">Törzsek
     </nb-action>
     <ng-template #sub_customer let-data>
-        <nb-card>
+        <nb-card class="card-submenu-wrapper">
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-base-sub-1" [disabled]="InProgress"
                     (click)="goTo('manage/customers')">
