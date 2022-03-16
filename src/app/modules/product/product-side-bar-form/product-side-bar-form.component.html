@@ -20,6 +20,7 @@
                     <label>Kód*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode"
+                        [dropSpecialCharacters]="false"
                         mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"  [showMaskTyped]="true" [patterns]="customPatterns"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
@@ -42,17 +43,16 @@
 
                     <input class="{{TileCssClass}}" formControlName="productGroup" nbInput type="text"
                         [nbAutocomplete]="autoProductGroup" [readonly]="isEditModeOff" autocomplete="off" />
-                    <!-- AUTOCOMPLETE -->
-                    <nb-autocomplete #autoProductGroup [activeFirst]="false"
-                        (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'productGroup')">
-                        <nb-option *ngFor="let option of filteredProductGroups$ | async; let i = index"
-                            [value]="option">
-                            {{ option }}
-                        </nb-option>
-                    </nb-autocomplete>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="productGroup"></app-form-control-error>
             </nb-form-field>
+            <!-- AUTOCOMPLETE -->
+            <nb-autocomplete #autoProductGroup [activeFirst]="false"
+                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'productGroup')">
+                <nb-option *ngFor="let option of filteredProductGroups$ | async; let i = index" [value]="option">
+                    {{ option }}
+                </nb-option>
+            </nb-autocomplete>
             
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -71,17 +71,16 @@
 
                     <input class="{{TileCssClass}}" formControlName="origin" nbInput type="text"
                         [nbAutocomplete]="autoOrigin" [readonly]="isEditModeOff" autocomplete="off" />
-                    <!-- AUTOCOMPLETE -->
-                    <nb-autocomplete #autoOrigin [activeFirst]="false"
-                        (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'origin')">
-                        <nb-option *ngFor="let option of filteredOrigins$ | async; let i = index"
-                            [value]="option">
-                            {{ option }}
-                        </nb-option>
-                    </nb-autocomplete>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="origin"></app-form-control-error>
             </nb-form-field>
+            <!-- AUTOCOMPLETE -->
+            <nb-autocomplete #autoOrigin [activeFirst]="false"
+                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'origin')">
+                <nb-option *ngFor="let option of filteredOrigins$ | async; let i = index" [value]="option">
+                    {{ option }}
+                </nb-option>
+            </nb-autocomplete>
             
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -100,17 +99,16 @@
 
                     <input class="{{TileCssClass}}" formControlName="unitOfMeasure" nbInput type="text"
                         [nbAutocomplete]="autoAom" [readonly]="isEditModeOff" autocomplete="off" />
-                    <!-- AUTOCOMPLETE -->
-                    <nb-autocomplete #autoAom [activeFirst]="false"
-                        (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'unitOfMeasure')">
-                        <nb-option *ngFor="let option of filteredUom$ | async; let i = index"
-                            [value]="option">
-                            {{ option }}
-                        </nb-option>
-                    </nb-autocomplete>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="unitOfMeasure"></app-form-control-error>
             </nb-form-field>
+            <!-- AUTOCOMPLETE -->
+            <nb-autocomplete #autoAom [activeFirst]="false"
+                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'unitOfMeasure')">
+                <nb-option *ngFor="let option of filteredUom$ | async; let i = index" [value]="option">
+                    {{ option }}
+                </nb-option>
+            </nb-autocomplete>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -177,7 +175,7 @@
                     <label>vtsz*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="vtsz"
-                        [inputMask]="numberInputMask" placeholder="0.00000"
+                        mask="9*"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="vtsz"></app-form-control-error>

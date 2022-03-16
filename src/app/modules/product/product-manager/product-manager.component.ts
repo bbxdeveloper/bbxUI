@@ -411,9 +411,9 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           id: 0,
           productCode: undefined,
           description: undefined,
-          productGroup: this.productGroups[0].productGroupDescription,
-          origin: this.origins[0].originDescription,
-          unitOfMeasure: this.uom[0].text,
+          productGroup: this.productGroups[0]?.productGroupDescription,
+          origin: this.origins[0]?.originDescription,
+          unitOfMeasure: this.uom[0]?.text,
           unitOfMeasureX: undefined,
           unitPrice1: 0,
           unitPrice2: 0,
@@ -423,8 +423,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           ordUnit: 0,
           productFee: 0,
           active: true,
-          vtsz: '0',
-          ean: '0',
+          vtsz: '',
+          ean: '',
         } as Product;
       }
     );
@@ -465,7 +465,10 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           );
         }
       },
-      error: (err) => this.cs.HandleError(err),
+      error: (err) => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+      },
       complete: () => {
         this.isLoading = false;
       },
@@ -494,17 +497,29 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       next: (data) => {
         if (!!data.data) this.productGroups = data.data;
       },
+      error: (err) => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+      },
       complete: () => {
         // UnitOfMeasure
         this.seInv.GetAllUnitOfMeasures().subscribe({
           next: (data) => {
             if (!!data) this.uom = data;
           },
+          error: (err) => {
+            this.cs.HandleError(err);
+            this.isLoading = false;
+          },
           complete: () => {
             // Origin
             this.originApi.GetAll().subscribe({
               next: (data) => {
                 if (!!data.data) this.origins = data.data;
+              },
+              error: (err) => {
+                this.cs.HandleError(err);
+                this.isLoading = false;
               },
               complete: () => {
                 this.Refresh(params);
