@@ -68,8 +68,9 @@
                     Raktárak kezelése
                 </button>
             </nb-card-body>
-            <nb-card-body *ngIf="isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-base-sub-6" [disabled]="InProgress" (click)="goTo('manage/counter')">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-base-sub-6" [disabled]="InProgress"
+                    (click)="goTo('manage/counter')">
                     Bizonylati Tömb
                 </button>
             </nb-card-body>
