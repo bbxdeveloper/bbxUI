@@ -24,6 +24,7 @@ import { BaseManagerComponent } from '../../shared/base-manager/base-manager.com
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CreateProductRequest } from '../models/CreateProductRequest';
 import { UpdateProductRequest } from '../models/UpdateProductRequest';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-product-manager',
@@ -156,8 +157,6 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         data.productGroup,
         this.productGroups
       );
-    // if (data.origin !== undefined && this.origins.length > 0)
-    //   data.origin = OriginDescriptionToCode(data.origin, this.origins);
     if (data.unitOfMeasure !== undefined && this.uom.length > 0)
       data.unitOfMeasure = UnitOfMeasureTextToValue(
         data.unitOfMeasure,
@@ -171,17 +170,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   private ConvertCombosForGet(data: Product): Product {
-    // if (data.productGroup !== undefined && this.productGroups.length > 0)
-    //   data.productGroup = ProductGroupCodeToDescription(data.productGroup, this.productGroups);
-    // if (data.origin !== undefined && this.origins.length > 0)
-    //   data.origin = OriginCodeToDescription(data.origin, this.origins);
     if (data.unitOfMeasure !== undefined && this.uom.length > 0)
       data.unitOfMeasure = UnitOfMeasureValueToText(
         data.unitOfMeasure,
         this.uom
       );
 
-    console.log(`[ConvertCombosForGet] result: `, data);
+    if (environment.flatDesignCRUDManagerDebug) {
+        console.log(`[ConvertCombosForGet] result: `, data);
+    }
 
     return data;
   }

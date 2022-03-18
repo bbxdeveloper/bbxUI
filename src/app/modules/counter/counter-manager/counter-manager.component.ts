@@ -21,6 +21,7 @@ import { UpdateCounterRequest } from '../models/UpdateCounterRequest';
 import { WareHouse, WareHouseDescriptionToCode } from '../../warehouse/models/WareHouse';
 import { CreateCounterRequest } from '../models/CreateCounterRequest';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-counter-manager',
@@ -95,7 +96,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       objectKey: 'currentNumber',
       colKey: 'currentNumber',
       defaultValue: '',
-      type: 'string',
+      type: 'formatted-number',
       fInputType: 'text',
       fRequired: true,
       mask: '',
@@ -108,7 +109,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       objectKey: 'numbepartLength',
       colKey: 'numbepartLength',
       defaultValue: '',
-      type: 'string',
+      type: 'formatted-number',
       fInputType: 'text',
       fRequired: true,
       mask: '',
@@ -172,7 +173,9 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     //     this.wareHouses
     //   );
 
-    console.log(`[ConvertCombosForGet] result: `, data);
+    if (environment.flatDesignCRUDManagerDebug) {
+        console.log(`[ConvertCombosForGet] result: `, data);
+    }
 
     return data;
   }

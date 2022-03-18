@@ -81,6 +81,8 @@ export class KeyboardNavigationService {
       return;
     }
     this._currentKeyboardMode = this._currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
+    
+    // throw new Error("debug");
   }
 
   setEditMode(mode: KeyboardModes): void {
@@ -88,6 +90,8 @@ export class KeyboardNavigationService {
       return;
     }
     this._currentKeyboardMode = mode;
+
+    // throw new Error("debug");
   }
 
   public SelectElement(id: string): void {

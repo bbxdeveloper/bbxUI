@@ -66,8 +66,8 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Számláló*</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="currentNumber"
-                        [inputMask]="numberInputMask" placeholder="0.00000"
+                    <input class="{{TileCssClass}}" nbInput type="number" formControlName="currentNumber"
+                        [inputMask]="numberInputMaskInteger"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="currentNumber"></app-form-control-error>
@@ -75,10 +75,10 @@
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Számláló*</label>
+                    <label>Számláló számjegyek száma*</label>
             
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="numbepartLength"
-                        [inputMask]="numberInputMask" placeholder="0.00000" (click)="currentForm.HandleFormFieldClick($event)">
+                    <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2" max="10"
+                        [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="numbepartLength"></app-form-control-error>
             </nb-form-field>

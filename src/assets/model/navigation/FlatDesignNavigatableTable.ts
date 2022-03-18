@@ -266,6 +266,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        console.log('[HandleGridClick]');
+
         // In case user clicks with mouse, we adjust our coordinate to the click
 
         // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
@@ -289,7 +291,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.flatDesignTableDebug) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 
@@ -309,7 +311,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
-        // if (environment.debug) {
+        // if (environment.flatDesignTableDebug) {
         //     console.log('[GenerateAndSetNavMatrices] Data: ', this.data);
         //     console.log('[GenerateAndSetNavMatrices]', 'Tiles: ', tiles, 'Css class: ', '.' + TileCssClass, '#TableID: ', '#' + this.tableId);
         // }
@@ -346,7 +348,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             this.Matrix[currentMatrixIndex].push(next.id);
         }
 
-        if (environment.debug) {
+        if (environment.flatDesignTableDebug) {
             console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
 

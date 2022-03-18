@@ -238,7 +238,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     public SetDataForEdit(row: TreeGridNode<any>, rowPos: number, objectKey: string): void {
-        if (environment.debug) {
+        if (environment.flatDesignFormDebug) {
             console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
         }
         this.DataRowIndex = rowPos;
@@ -253,7 +253,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             data[x as keyof T] = this.form.controls[x].value;
             console.log('FormField value: ',this.form.controls[x].value, 'Data field value: ', data[x as keyof T]);
         });
-        if (environment.debug) {
+        if (environment.flatDesignFormDebug) {
             console.log("Data from form: ", data);
         }
         return data as T;
@@ -263,7 +263,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         if (!!data) {
             Object.keys(this.form.controls).forEach((x: string) => {
                 this.form.controls[x].setValue(data[x]);
-                if (environment.debug) {
+                if (environment.flatDesignFormDebug) {
                     console.log(`[FillFormWithObject] ${x}, ${data[x]}, ${this.form.controls[x].value}`);
                 }
             });
@@ -295,7 +295,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         if (!moveRes.jumped) {
             this.kbS.ClickCurrentElement();
             if (!this.kbS.isEditModeActivated) {
-                this.kbS.toggleEdit();
+                this.kbS.setEditMode(KeyboardModes.EDIT);
             }
         } else {
             // For example in case if we just moved onto a confirmation button in the next nav-matrix,
@@ -310,6 +310,12 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     HandleAutoCompleteSelect(event: any, key: string): void {
+        // If the table is still the current navigatable and the form is filled
+        // this event could be triggered but MUST NOT be handled here because it breaks the flow
+        // of navigation.
+        if (!this.kbS.IsCurrentNavigatable(this)) {
+            return;
+        }
         console.log(`[HandleAutoCompleteSelect] ${event}`);
         if (!this.kbS.isEditModeActivated) {
             this.JumpToNextInput(event);
@@ -419,7 +425,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (!environment.debug) {
+        if (!environment.flatDesignFormDebug) {
             return;
         }
 
@@ -438,12 +444,14 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     GenerateAndSetNavMatrices(attach: boolean, setAsCurrentNavigatable: boolean = true): void {
-        console.log("[FlatDesignNavigatableForm] START");
+        if (environment.flatDesignFormDebug) {
+            console.log("[FlatDesignNavigatableForm] START");
+        }
 
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
 
-        if (environment.debug) {
+        if (environment.flatDesignFormDebug) {
             console.log('[GenerateAndSetNavMatrices]', this.formId, tiles, '.' + TileCssClass, '#' + this.formId);
         }
 
@@ -472,7 +480,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             this.Matrix[currentMatrixIndex].push(next.id);
         }
 
-        if (environment.debug) {
+        if (environment.flatDesignFormDebug) {
             console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
 
@@ -480,7 +488,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             this.kbS.Attach(this, this.attachDirection, setAsCurrentNavigatable);
         }
 
-        console.log("[FlatDesignNavigatableForm] END");
+        if (environment.flatDesignFormDebug) {
+            console.log("[FlatDesignNavigatableForm] END");
+        }
     }
 
     Attach(): void {

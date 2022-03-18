@@ -21,6 +21,10 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { InputMaskModule } from '@ngneat/input-mask';
 import { CounterModule } from './modules/counter/counter.module';
 
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+registerLocaleData(localeFr, 'fr');
+
 const maskConfig: Partial<IConfig> = {
   validation: false,
 };
