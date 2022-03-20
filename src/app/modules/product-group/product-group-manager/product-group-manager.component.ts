@@ -17,6 +17,7 @@ import { BlankProductGroup, ProductGroup } from '../models/ProductGroup';
 import { ProductGroupService } from '../services/product-group.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { GetProductGroupParamListModel } from '../models/GetProductGroupParamListModel';
 
 @Component({
   selector: 'app-product-group-manager',
@@ -71,6 +72,10 @@ export class ProductGroupManagerComponent
       fLast: true
     },
   ];
+
+  override get getInputParams(): GetProductGroupsParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -225,13 +230,13 @@ export class ProductGroupManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ PageNumber: newPageNumber + '' });
+        this.Refresh(this.getInputParams);
       },
     });
 
     this.sidebarService.collapse();
 
-    this.Refresh();
+    this.Refresh(this.getInputParams);
   }
 
   override Refresh(params?: GetProductGroupsParamListModel): void {
@@ -247,6 +252,9 @@ export class ProductGroupManagerComponent
             });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {

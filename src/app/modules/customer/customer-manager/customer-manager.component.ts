@@ -43,6 +43,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
   ]
 
+  override get getInputParams(): GetCustomersParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -160,13 +164,13 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ 'PageNumber': (newPageNumber + '') });
-      }
+        this.Refresh(this.getInputParams);
+      },
     });
-    
+
     this.sidebarService.collapse();
 
-    this.Refresh();
+    this.Refresh(this.getInputParams);
   }
 
   override Refresh(params?: GetCustomersParamListModel): void {
@@ -180,6 +184,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.dbData = d.data.map(x => { return { data: x, uid: this.nextUid() }; });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {

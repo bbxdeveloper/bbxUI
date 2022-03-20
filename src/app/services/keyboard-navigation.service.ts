@@ -458,7 +458,13 @@ export class KeyboardNavigationService {
       }
       // Not at upper bound
     } else {
+      const tmpLength = this.AroundHere[this.p.y].length;
+
       this.p.y--;
+
+      if (this.AroundHere[this.p.y].length < tmpLength) {
+        this.p.x = 0;
+      }
 
       if (select) {
         this.SelectCurrentElement();

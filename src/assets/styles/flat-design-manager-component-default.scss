@@ -5,6 +5,10 @@ nb-form-field {
     margin-right: auto;
 }
 
+.footer-paginator {
+    padding: 0px;
+}
+
 .div-wrapper-input {
     display: flex;
 
@@ -372,7 +376,7 @@ nb-card-header {
 .search-input {
     margin-left: 15px;
     margin-right: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 
     &:focus {
         background-color: rgb(219, 159, 206);

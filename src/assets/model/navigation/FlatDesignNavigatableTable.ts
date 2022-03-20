@@ -64,7 +64,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         { key: 'F2', value: '', disabled: false },
         { key: 'F3', value: '', disabled: false },
         { key: 'F4', value: '', disabled: false },
-        { key: 'F5', value: '', disabled: false },
+        { key: 'F5', value: 'Frissítés', disabled: false },
         { key: 'F6', value: '', disabled: false },
         { key: 'F7', value: '', disabled: false },
         { key: 'F8', value: '', disabled: false },
@@ -104,7 +104,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         private sidebarService: BbxSidebarService,
         private sidebarFormService: SideBarFormService,
         private updater: IUpdater<T>,
-        getBlankInstance: () => T
+        getBlankInstance: () => T,
+        private includeSearchInNavigationMatrix: boolean = true
     ) {
         super();
 
@@ -144,6 +145,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     Delete(data?: IUpdateRequest): void {
         this.updater.ActionDelete(data);
+        this.PushFooterCommandList();
+    }
+
+    Refresh(): void {
+        this.updater.ActionRefresh();
         this.PushFooterCommandList();
     }
 
@@ -268,6 +274,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
         console.log('[HandleGridClick]');
 
+        if (this.includeSearchInNavigationMatrix) {
+            ++rowPos;
+        }
+
         // In case user clicks with mouse, we adjust our coordinate to the click
 
         // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
@@ -322,6 +332,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.Matrix = [[]];
         let currentMatrixIndex = 0;
 
+        if (this.includeSearchInNavigationMatrix) {
+            this.Matrix = [['active-prod-search', 'active-prod-search-clear']];
+            this.Matrix.push([]);
+            ++currentMatrixIndex;
+        }
+
         // Getting tiles, rows for navigation matrix
         for (let i = 0; i < tiles.length; i++) {
             const next = tiles[i];
@@ -373,6 +389,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 } else {
                     this.sidebarService.toggle();
                 }
+                break;
+            }
+            case KeyBindings.F5: {
+                event.preventDefault();
+                
+                this.Refresh();
                 break;
             }
             default: { }

@@ -49,6 +49,10 @@ export class BaseManagerComponent<T> {
     return this.uid;
   }
 
+  get getInputParams(): any {
+    return {};
+  }
+
   commands: FooterCommandInfo[] = [
     { key: 'F1', value: '', disabled: false },
     { key: 'F2', value: '', disabled: false },
@@ -132,6 +136,10 @@ export class BaseManagerComponent<T> {
   }
   ProcessActionDelete(data?: IUpdateRequest<T>): void { }
 
+  ActionRefresh(data?: IUpdateRequest<T>): void {
+    this.Refresh(this.getInputParams);
+  }
+
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
       case CrudManagerKeySettings[Actions.TableSearch].KeyCode: {
@@ -157,12 +165,15 @@ export class BaseManagerComponent<T> {
     this.search();
   }
 
+  clearSearch(input: any): void {
+    input.value = '';
+    this.searchString = '';
+
+    this.search();
+  }
+
   search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ SearchString: this.searchString });
-    }
+    this.Refresh(this.getInputParams);
   }
 
   Refresh(params?: any): void {}

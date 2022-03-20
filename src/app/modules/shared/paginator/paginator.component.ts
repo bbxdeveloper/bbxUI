@@ -37,4 +37,8 @@ export class PaginatorComponent implements OnInit {
     }
   }
 
+  PageSizeSelected(newSize: number): void {
+    this.paginator?.newPageSizeSelected();
+  }
+
 }

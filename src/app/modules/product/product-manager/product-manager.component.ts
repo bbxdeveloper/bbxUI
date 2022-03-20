@@ -129,6 +129,10 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   // Origin
   origins: Origin[] = [];
 
+  override get getInputParams(): GetProductsParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -429,13 +433,13 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ PageNumber: newPageNumber + '' });
+        this.Refresh(this.getInputParams);
       },
     });
 
     this.sidebarService.collapse();
 
-    this.RefreshAll();
+    this.RefreshAll(this.getInputParams);
   }
 
   override Refresh(params?: GetProductsParamListModel): void {
@@ -452,6 +456,9 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = tempData.length;
           }
           this.RefreshTable();
         } else {

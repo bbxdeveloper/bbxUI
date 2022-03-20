@@ -69,6 +69,10 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     },
   ];
 
+  override get getInputParams(): GetWareHousesParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -222,13 +226,13 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ PageNumber: newPageNumber + '' });
+        this.Refresh(this.getInputParams);
       },
     });
 
     this.sidebarService.collapse();
 
-    this.Refresh();
+    this.Refresh(this.getInputParams);
   }
 
   override Refresh(params?: GetWareHousesParamListModel): void {
@@ -244,6 +248,9 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {

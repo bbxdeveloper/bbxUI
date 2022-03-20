@@ -1,7 +1,23 @@
 <nb-actions size="medium" *ngIf="!!paginator" class="paginator-wrapper">
     <nb-action class="paginator-btn-first" (click)="paginator.firstPage()" icon="arrowhead-left-outline"></nb-action>
     <nb-action class="paginator-btn-previous" (click)="paginator.previousPage()" icon="arrow-ios-back-outline"></nb-action>
-    <nb-action class="paginator-label-pages" disabled="true">{{paginator.currentPage}} / {{paginator.allPages}}</nb-action>
+    <nb-action class="paginator-label-pages" disabled="true">Oldal: {{paginator.currentPage}} / {{paginator.allPages}}</nb-action>
+    <nb-action class="paginator-label-pages" disabled="true">Elemek: {{paginator.itemsOnCurrentPage}} / {{paginator.totalItems}}</nb-action>
+    <nb-action class="paginator-label-pages" disabled="true">
+        <span>Oldalméret: </span>
+        <nb-select size="tiny" [(selected)]="paginator.pageSize" (selectedChange)="PageSizeSelected($event.value)">
+            <nb-option value="5">5</nb-option>
+            <nb-option value="10">10</nb-option>
+            <nb-option value="20">20</nb-option>
+            <nb-option value="50">50</nb-option>
+            <nb-option value="100">100</nb-option>
+        </nb-select>
+    </nb-action>
+    <nb-action class="paginator-label-pages" disabled="true">
+        <button nbButton ghost status="danger" (click)="paginator.refresh()">
+            <nb-icon icon="refresh"></nb-icon>
+        </button>
+    </nb-action>
     <nb-action class="paginator-btn-next" (click)="paginator.nextPage()" icon="arrow-ios-forward-outline"></nb-action>
     <nb-action class="paginator-btn-last" (click)="paginator.lastPage()" icon="arrowhead-right-outline"></nb-action>
 </nb-actions>

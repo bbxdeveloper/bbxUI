@@ -3,6 +3,7 @@ export interface IUpdatable<T = any> {
     Reset(data?: IUpdateRequest<T>): void;
     Put(data?: IUpdateRequest<T>): void;
     Delete(data?: IUpdateRequest<T>): void;
+    Refresh(data?: IUpdateRequest<T>): void;
 }
 
 export interface IUpdater<T = any> {
@@ -10,6 +11,7 @@ export interface IUpdater<T = any> {
     ActionReset(data?: IUpdateRequest<T>): void;
     ActionPut(data?: IUpdateRequest<T>): void;
     ActionDelete(data?: IUpdateRequest<T>): void;
+    ActionRefresh(data?: IUpdateRequest<T>): void;
 }
 
 export interface IUpdateRequest<T = any> {

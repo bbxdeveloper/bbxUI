@@ -174,6 +174,10 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         } as IUpdateRequest);
     }
 
+    ActionRefresh(data?: IUpdateRequest<T>): void {
+        this.grid.Refresh();
+    }
+
     HandleFormFocusOut(): void {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }

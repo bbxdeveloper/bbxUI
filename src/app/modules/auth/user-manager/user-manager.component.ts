@@ -128,6 +128,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     C: { pattern: new RegExp('[a-zA-Z0-9]') },
   };
 
+  override get getInputParams(): GetUsersParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, LoginName: this.searchString ?? '' };
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -270,11 +274,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   }
 
   override search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ Name: this.searchString });
-    }
+    this.Refresh(this.getInputParams);
   }
 
   private Setup(): void {
@@ -311,8 +311,15 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
+    this.dbDataTable.NewPageSelected.subscribe({
+      next: (newPageNumber: number) => {
+        this.Refresh(this.getInputParams);
+      },
+    });
+
     this.sidebarService.collapse();
-    this.Refresh();
+
+    this.Refresh(this.getInputParams);
   }
 
   override Refresh(params?: GetUsersParamListModel): void {
@@ -337,6 +344,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               };
             });
             this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {

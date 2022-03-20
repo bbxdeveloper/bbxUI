@@ -45,6 +45,15 @@ export class FlatDesignTableComponent implements OnInit {
         this.dbDataTable?.HandleKey(event);
         break;
       }
+      case KeyBindings.F5: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`F5 Pressed: ${event}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
       default: { }
     }
   }
