@@ -21,6 +21,8 @@ export interface MoveRes {
   jumped: boolean;
 }
 
+export const SELECTED_ELEMENT_CLASS = 'current-keyboard-nav-selected'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -74,6 +76,8 @@ export class KeyboardNavigationService {
     return this.p.x <= this.maxCurrentWorldX && this.p.y <= this.maxCurrentWorldY && this.p.x > -1 && this.p.y > -1;
   }
 
+  private previousIdString ?: string = undefined;
+
   constructor() { }
 
   toggleEdit(): void {
@@ -96,19 +100,44 @@ export class KeyboardNavigationService {
 
   public SelectElement(id: string): void {
     this.LogSelectElement();
+
+    const idString = '#' + id;
+
+    if (this.previousIdString === undefined) {
+      this.previousIdString = idString;
+    } else {
+      $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+      this.previousIdString = idString;
+      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    }
+
     switch (this.CurrentNavigatable.TileSelectionMethod) {
       case PreferredSelectionMethod.both:
-        $('#' + id).trigger('focus');
-        $('#' + id).trigger('click');
+        $(idString).trigger('focus');
+        $(idString).trigger('click');
         break;
       case PreferredSelectionMethod.click:
-        $('#' + id).trigger('click');
+        $(idString).trigger('click');
         break;
       case PreferredSelectionMethod.focus:
       default:
-        $('#' + id).trigger('focus');
+        $(idString).trigger('focus');
         break;
     }
+  }
+
+  public ClickElement(id: string): void {
+    const idString = '#' + id;
+
+    if (this.previousIdString === undefined) {
+      this.previousIdString = idString;
+    } else {
+      $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+      this.previousIdString = idString;
+      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    }
+    
+    $(idString).trigger('click');
   }
 
   /**
@@ -128,6 +157,7 @@ export class KeyboardNavigationService {
     if (!!n && this.CurrentNavigatable !== n) {
       this.CurrentNavigatable = n;
     }
+    this.SelectCurrentElement();
   }
 
   public SetPositionById(tileValue: string): boolean {
@@ -140,10 +170,6 @@ export class KeyboardNavigationService {
       }
     }
     return false;
-  }
-
-  public ClickElement(id: string): void {
-    $('#' + id).trigger('click');
   }
 
   public SelectCurrentElement(): void {

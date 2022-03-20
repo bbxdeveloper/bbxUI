@@ -150,3 +150,9 @@ td {
 .as-split-gutter {
     background-color: #1d4a70 !important;
 }
+
+// Selected element
+.current-keyboard-nav-selected {
+  outline: none;
+  border: rgb(0, 231, 104) dotted 3px !important;
+}

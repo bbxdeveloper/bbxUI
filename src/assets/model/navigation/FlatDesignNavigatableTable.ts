@@ -231,12 +231,13 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             }
 
             this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
+            
+            this.flatDesignForm.PushFooterCommandList();
 
             if (jump) {
                 this.kbs.Jump(this.flatDesignForm.attachDirection, true);
             }
 
-            this.flatDesignForm.PushFooterCommandList();
         }, 200);
     }
 
