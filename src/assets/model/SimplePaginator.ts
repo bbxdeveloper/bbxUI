@@ -4,7 +4,7 @@ export class SimplePaginator {
     currentPage: number = 1;
     allPages: number = 1;
 
-    pageSize: string = '10';
+    pageSize: string = '50';
 
     totalItems: number = 0;
     itemsOnCurrentPage = 0;

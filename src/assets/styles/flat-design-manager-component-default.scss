@@ -33,19 +33,8 @@ nb-card {
 
     position: sticky;
     top: 0;
-
-    @media (max-height: 649px) {
-        max-height: 255px !important;
-    }
-    @media (min-height: 649px) {
-        max-height: 300px !important;
-    }
-    @media (min-height: 680px) {
-        max-height: 350px !important;
-    }
-    @media (min-height: 947px) {
-        max-height: 578px !important;
-    }
+    
+    max-height: calc(100vh - 260px) !important;
 
     @media (max-height: 1000px) {
         td {
@@ -56,6 +45,10 @@ nb-card {
     tr > th {
         position: sticky;
         top: -1px;
+    }
+
+    th {
+        padding: 0px;
     }
 
     tr:nth-child(even) {
