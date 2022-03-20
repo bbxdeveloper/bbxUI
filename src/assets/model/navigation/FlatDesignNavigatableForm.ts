@@ -293,8 +293,36 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         return moveRes;
     }
 
+    private MovePrevious(): MoveRes {
+        let moveRes = this.kbS.MoveRight(true, false, false);
+        if (!moveRes.moved) {
+            moveRes = this.kbS.MoveUp(true, false, true);
+        }
+        return moveRes;
+    }
+
     private JumpToNextInput(event?: Event): void {
         const moveRes = this.MoveNext();
+        // We can't know if we should click the first element if we moved to another navigation-matrix.
+        if (!moveRes.jumped) {
+            this.kbS.ClickCurrentElement();
+            if (!this.kbS.isEditModeActivated) {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+            }
+        } else {
+            // For example in case if we just moved onto a confirmation button in the next nav-matrix,
+            // we don't want to automatically press it until the user directly presses enter after selecting it.
+            if (!!event) {
+                event.stopImmediatePropagation();
+            }
+            // We jumped back to the grid we've just edited with this form
+            this.sidebarService.collapse();
+            this.Detach();
+        }
+    }
+
+    private JumpToPreviousInput(event?: Event): void {
+        const moveRes = this.MovePrevious();
         // We can't know if we should click the first element if we moved to another navigation-matrix.
         if (!moveRes.jumped) {
             this.kbS.ClickCurrentElement();
@@ -323,6 +351,17 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         console.log(`[HandleAutoCompleteSelect] ${event}`);
         if (!this.kbS.isEditModeActivated) {
             this.JumpToNextInput(event);
+        }
+    }
+
+    HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true): void {
+        if (toggleEditMode) {
+            this.kbS.toggleEdit();
+        }
+
+        // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+        if (!this.kbS.isEditModeActivated && jumpPrevious) {
+            this.JumpToPreviousInput(event);
         }
     }
 

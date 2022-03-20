@@ -38,7 +38,10 @@ export class BaseSideBarFormComponent {
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+    if (event.shiftKey && event.key == 'Enter') {
+      this.currentForm?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
