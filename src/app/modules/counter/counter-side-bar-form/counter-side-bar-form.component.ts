@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
@@ -12,7 +12,7 @@ import { WareHouseService } from '../../warehouse/services/ware-house.service';
   templateUrl: './counter-side-bar-form.component.html',
   styleUrls: ['./counter-side-bar-form.component.scss']
 })
-export class CounterSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
+export class CounterSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -41,6 +41,9 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+  }
+  ngAfterViewInit(): void {
+    this.currentForm?.AfterViewInitSetup();
   }
 
   private refreshComboboxData(): void {

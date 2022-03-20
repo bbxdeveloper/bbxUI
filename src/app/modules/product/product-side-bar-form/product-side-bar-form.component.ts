@@ -1,11 +1,10 @@
-import { ThrowStmt } from '@angular/compiler';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { createMask } from '@ngneat/input-mask';
 import { Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { TileCssClass } from 'src/assets/model/navigation/Nav';
+import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { OriginService } from '../../origin/services/origin.service';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
@@ -17,7 +16,7 @@ import { ProductService } from '../services/product.service';
   templateUrl: './product-side-bar-form.component.html',
   styleUrls: ['./product-side-bar-form.component.scss']
 })
-export class ProductSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
+export class ProductSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -57,6 +56,9 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+  }
+  ngAfterViewInit(): void {
+    this.currentForm?.AfterViewInitSetup();
   }
 
   private refreshComboboxData(): void {

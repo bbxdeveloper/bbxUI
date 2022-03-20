@@ -233,7 +233,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
     HandleFormFieldClick(event: any): void {
         if (this.kbS.IsCurrentNavigatable(this.grid)) {
-            this.GenerateAndSetNavMatrices(false);
+            // this.GenerateAndSetNavMatrices(false);
             this.grid.JumpToFlatDesignFormByForm(event.target?.id);
         } else {
             this.kbS.setEditMode(KeyboardModes.EDIT);
@@ -542,5 +542,15 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
     Detach(x?: number, y?: number): void {
         this.kbS.Detach(x, y);
+    }
+
+    AfterViewInitSetup(): void {
+        this.GenerateAndSetNavMatrices(true, false);
+
+        this.PushFooterCommandList();
+
+        if (this.formMode === Constants.FormState.new) {
+            this.kbS.Jump(this.attachDirection, true);
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
@@ -10,7 +10,7 @@ import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-s
   templateUrl: './user-side-bar-form.component.html',
   styleUrls: ['./user-side-bar-form.component.scss']
 })
-export class UserSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
+export class UserSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
   TileCssClass = TileCssClass;
 
   public get keyBindings(): typeof KeyBindings {
@@ -23,6 +23,9 @@ export class UserSideBarFormComponent extends BaseSideBarFormComponent implement
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+  }
+  ngAfterViewInit(): void {
+    this.currentForm?.AfterViewInitSetup();
   }
 
   private SetNewForm(form?: FormSubject): void {

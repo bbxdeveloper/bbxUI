@@ -21,7 +21,7 @@ export interface MoveRes {
   jumped: boolean;
 }
 
-export const SELECTED_ELEMENT_CLASS = 'current-keyboard-nav-selected'
+export const SELECTED_ELEMENT_CLASS = 'current-keyboard-nav-selected';
 
 @Injectable({
   providedIn: 'root'

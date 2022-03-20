@@ -224,19 +224,21 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
         
         this.flatDesignForm.SetClean();
+
+        this.flatDesignForm.SetFormStateToNew();
         
         setTimeout(() => {
             if (openSideBar) {
-                this.sidebarService.toggle();
+                this.sidebarService.expand();
             }
 
-            this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
-            
-            this.flatDesignForm.PushFooterCommandList();
+            // this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
 
-            if (jump) {
-                this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-            }
+            // this.flatDesignForm.PushFooterCommandList();
+
+            // if (jump) {
+            //     this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+            // }
 
         }, 200);
     }
@@ -259,7 +261,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         setTimeout(() => {
             if (openSideBar) {
-                this.sidebarService.toggle();
+                this.sidebarService.expand();
             }
 
             this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
@@ -385,6 +387,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 } else {
                     this.PushFooterCommandList();
                 }
+                console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
                 if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
                     this.SetBlankInstanceForForm(true);
                 } else {
