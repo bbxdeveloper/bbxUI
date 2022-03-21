@@ -24,11 +24,11 @@
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="counterCode"></app-form-control-error>
             </nb-form-field>
-            
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megnevezés*</label>
-            
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="counterDescription"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
@@ -51,44 +51,47 @@
                     {{ option }}
                 </nb-option>
             </nb-autocomplete>
-            
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Prefix*</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="prefix"
-                        mask="AAA" (click)="currentForm.HandleFormFieldClick($event)" required>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="prefix" mask="AAA"
+                        (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="prefix"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Számláló*</label>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label>Számláló*</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="number" formControlName="currentNumber"
-                        [inputMask]="numberInputMaskInteger"
-                        (click)="currentForm.HandleFormFieldClick($event)">
-                </div>
-                <app-form-control-error [form]="currentForm" controlName="currentNumber"></app-form-control-error>
-            </nb-form-field>
+                        <input class="{{TileCssClass}}" nbInput type="number" formControlName="currentNumber"
+                            [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
+                    </div>
+                    <app-form-control-error [form]="currentForm" controlName="currentNumber"></app-form-control-error>
+                </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Számláló számjegyek száma*</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2" max="10"
-                        [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
-                </div>
-                <app-form-control-error [form]="currentForm" controlName="numbepartLength"></app-form-control-error>
-            </nb-form-field>
-            
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label>Számláló számjegyek száma*</label>
+
+                        <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2"
+                            max="10" [inputMask]="numberInputMaskInteger"
+                            (click)="currentForm.HandleFormFieldClick($event)">
+                    </div>
+                    <app-form-control-error [form]="currentForm" controlName="numbepartLength"></app-form-control-error>
+                </nb-form-field>
+            </div>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Lezárójel*</label>
-            
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="suffix" [patterns]="customPatterns"
-                        mask="A" (click)="currentForm.HandleFormFieldClick($event)" required>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="suffix"
+                        [patterns]="customPatterns" mask="A" (click)="currentForm.HandleFormFieldClick($event)"
+                        required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="suffix"></app-form-control-error>
             </nb-form-field>
