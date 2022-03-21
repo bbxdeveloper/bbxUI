@@ -187,6 +187,14 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.colDefs = this.colDefs;
         this.flatDesignForm.OuterJump = true;
+
+        if (this.includeSearchInNavigationMatrix) {
+            this.kbs.ElementIdSelected.subscribe(id => {
+                if (this.Matrix[0].includes(id)) {
+                    this.SetBlankInstanceForForm(false, false);
+                }
+            });
+        }
     }
 
     PushFooterCommandList(): void {
@@ -227,20 +235,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.SetFormStateToNew();
         
-        setTimeout(() => {
-            if (openSideBar) {
-                this.sidebarService.expand();
-            }
-
-            // this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
-
-            // this.flatDesignForm.PushFooterCommandList();
-
-            // if (jump) {
-            //     this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-            // }
-
-        }, 200);
+        if (openSideBar) {
+            this.sidebarService.expand();
+        }
     }
 
     SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
@@ -378,21 +375,25 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         // this.kbs.LogMatrix();
     }
 
+    private HandleF12(): void {
+        if (!this.sidebarService.sideBarOpened) {
+            this.flatDesignForm.PushFooterCommandList();
+        } else {
+            this.PushFooterCommandList();
+        }
+        console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
+        if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
+            this.SetBlankInstanceForForm(true);
+        } else {
+            this.sidebarService.toggle();
+        }
+    }
+
     HandleKey(event: any): void {
         switch (event.key) {
             case KeyBindings.F12: {
                 event.preventDefault();
-                if (!this.sidebarService.sideBarOpened) {
-                    this.flatDesignForm.PushFooterCommandList();
-                } else {
-                    this.PushFooterCommandList();
-                }
-                console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
-                if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
-                    this.SetBlankInstanceForForm(true);
-                } else {
-                    this.sidebarService.toggle();
-                }
+                this.HandleF12();
                 break;
             }
             case KeyBindings.F5: {

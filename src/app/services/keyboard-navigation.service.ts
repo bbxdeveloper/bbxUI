@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as $ from 'jquery'
+import { BehaviorSubject } from 'rxjs';
 import { AttachDirection, INavigatable, NullNavigatable } from 'src/assets/model/navigation/Nav';
 import { environment } from 'src/environments/environment';
 
@@ -45,6 +46,8 @@ export class KeyboardNavigationService {
   get isEditModeActivated() {
     return this._currentKeyboardMode === KeyboardModes.EDIT;
   }
+
+  ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   isEditModeLocked: boolean = false;
 
@@ -124,6 +127,8 @@ export class KeyboardNavigationService {
         $(idString).trigger('focus');
         break;
     }
+
+    this.ElementIdSelected.next(id);
   }
 
   public ClickElement(id: string): void {
@@ -138,6 +143,8 @@ export class KeyboardNavigationService {
     }
     
     $(idString).trigger('click');
+
+    this.ElementIdSelected.next(id);
   }
 
   /**

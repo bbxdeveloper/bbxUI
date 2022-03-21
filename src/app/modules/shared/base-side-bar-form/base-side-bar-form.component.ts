@@ -14,7 +14,7 @@ export class BaseSideBarFormComponent {
   numberInputMask = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
-    digits: 5,
+    digits: 2,
     digitsOptional: false,
     prefix: '',
     placeholder: '0',
@@ -23,7 +23,7 @@ export class BaseSideBarFormComponent {
   numberInputMaskInteger = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
-    digits: 5,
+    digits: 2,
     digitsOptional: false,
     prefix: '',
     placeholder: '0',

@@ -6,7 +6,6 @@ import { DashboardComponent } from './modules/core/dashboard/dashboard.component
 import { CounterManagerComponent } from './modules/counter/counter-manager/counter-manager.component';
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
 import { OriginManagerComponent } from './modules/origin/origin-manager/origin-manager.component';
-import { PocManagerComponent } from './modules/poc/poc-manager/poc-manager.component';
 import { ProductGroupManagerComponent } from './modules/product-group/product-group-manager/product-group-manager.component';
 import { ProductManagerComponent } from './modules/product/product-manager/product-manager.component';
 import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manager/ware-house-manager.component';
@@ -53,11 +52,6 @@ const routes: Routes = [
       {
         path: "counter",
         component: CounterManagerComponent,
-      },
-      // TODO: only in dev
-      {
-        path: "poc",
-        component: PocManagerComponent,
       },
     ]
   },
