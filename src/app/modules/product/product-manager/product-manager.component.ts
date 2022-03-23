@@ -272,7 +272,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
                 }
               },
-              error: (err) => this.cs.HandleError(err),
+              error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
             });
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
@@ -283,7 +283,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             );
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
       });
     }
   }
@@ -319,7 +319,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
                 }
               },
-              error: (err) => this.cs.HandleError(err),
+              error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
             });
           } else {
             this.toastrService.show(
@@ -329,7 +329,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             );
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
       });
     }
   }
@@ -363,7 +363,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
               );
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
         });
     }
   }
@@ -470,7 +470,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         }
       },
       error: (err) => {
-        this.cs.HandleError(err);
+        { this.cs.HandleError(err); this.isLoading = false; };
         this.isLoading = false;
       },
       complete: () => {
@@ -502,7 +502,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         if (!!data.data) this.productGroups = data.data;
       },
       error: (err) => {
-        this.cs.HandleError(err);
+        { this.cs.HandleError(err); this.isLoading = false; };
         this.isLoading = false;
       },
       complete: () => {
@@ -512,7 +512,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             if (!!data) this.uom = data;
           },
           error: (err) => {
-            this.cs.HandleError(err);
+            { this.cs.HandleError(err); this.isLoading = false; };
             this.isLoading = false;
           },
           complete: () => {
@@ -522,7 +522,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
                 if (!!data.data) this.origins = data.data;
               },
               error: (err) => {
-                this.cs.HandleError(err);
+                { this.cs.HandleError(err); this.isLoading = false; };
                 this.isLoading = false;
               },
               complete: () => {

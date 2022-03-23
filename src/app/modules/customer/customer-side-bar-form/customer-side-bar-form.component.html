@@ -9,7 +9,8 @@
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Azonosító</label>
-                    <input nbInput type="text" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
+                    <input nbInput type="text" formControlName="id"
+                        (click)="currentForm.HandleFormFieldClick($event)"
                         readonly>
                 </div>
             </nb-form-field>
@@ -74,7 +75,7 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Irsz.</label>
     
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="postalCode"
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="postalCode"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>

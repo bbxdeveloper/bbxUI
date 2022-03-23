@@ -85,7 +85,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: err => { this.cs.HandleError(err); this.isLoading = false; }
       });
     }
   }
@@ -108,7 +108,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: err => { this.cs.HandleError(err); this.isLoading = false; }
       });
     }
   }
@@ -131,7 +131,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: err => { this.cs.HandleError(err); this.isLoading = false; }
       });
     }
   }
@@ -193,7 +193,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
-      error: err => this.cs.HandleError(err),
+      error: err => { this.cs.HandleError(err); this.isLoading = false; },
       complete: () => { this.isLoading = false; }
     });
   }

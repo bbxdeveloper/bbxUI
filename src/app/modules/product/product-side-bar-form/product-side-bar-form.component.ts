@@ -3,7 +3,7 @@ import { NbSidebarService } from '@nebular/theme';
 import { Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { TileCssClass } from 'src/assets/model/navigation/Nav';
+import { TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { OriginService } from '../../origin/services/origin.service';
@@ -20,8 +20,6 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
-
-  TileCssClass = TileCssClass;
 
   customPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },

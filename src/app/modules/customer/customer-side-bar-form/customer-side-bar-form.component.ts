@@ -24,8 +24,6 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     return KeyBindings;
   }
 
-  TileCssClass = TileCssClass;
-
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   get privatePersonDefaultValue(): Boolean {

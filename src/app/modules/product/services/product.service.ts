@@ -14,6 +14,36 @@ import { DeleteProductRequest } from '../models/DeleteProductRequest';
 import { DeleteProductResponse } from '../models/DeleteProductResponse';
 import { UnitOfMeasure } from '../models/UnitOfMeasure';
 
+const MOCK_DATA: Product[] = [
+  {
+    id: 0,
+    active: true,
+    description: 'Desc',
+    ean: '0',
+    isStock: false,
+    latestSupplyPrice: 32.32,
+    minStock: 43.43,
+    ordUnit: 0,
+    origin: '',
+    productCode: 'Code',
+    productFee: 432.425,
+    productGroup: '',
+    unitOfMeasure: '',
+    unitPrice1: 3523.523,
+    unitPrice2: 32526.64,
+    vtsz: '352352323'
+  } as Product
+];
+
+const MOCK: GetProductsResponse = {
+  pageNumber: 1,
+  pageSize: 1,
+  recordsFiltered: 1,
+  recordsTotal: 1,
+  succeeded: true,
+  data: MOCK_DATA,
+} as GetProductsResponse;
+
 @Injectable({
   providedIn: 'root'
 })

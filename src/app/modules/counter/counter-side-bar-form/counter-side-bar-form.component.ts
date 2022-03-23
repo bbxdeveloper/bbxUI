@@ -17,8 +17,6 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
     return KeyBindings;
   }
 
-  TileCssClass = TileCssClass;
-
   customPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
     C: { pattern: new RegExp('[a-zA-Z0-9]') }

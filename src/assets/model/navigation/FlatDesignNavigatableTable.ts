@@ -105,7 +105,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         private sidebarFormService: SideBarFormService,
         private updater: IUpdater<T>,
         getBlankInstance: () => T,
-        private includeSearchInNavigationMatrix: boolean = true
+        private includeSearchInNavigationMatrix: boolean = true,
+        colDefs: ModelFieldDescriptor[] = []
     ) {
         super();
 
@@ -116,7 +117,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.data = [];
         this.dataSource = this.dataSourceBuilder.create(this.data);
         this.allColumns = [];
-        this.colDefs = [];
+        this.colDefs = colDefs;
         this.colsToIgnore = [];
 
         this.flatDesignForm = new FlatDesignNavigatableForm(

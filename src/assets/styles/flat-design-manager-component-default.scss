@@ -29,7 +29,7 @@ nb-card {
 }
 
 .card-table-wrapper {
-    display: block;
+    // display: block;
 
     position: sticky;
     top: 0;
@@ -52,7 +52,7 @@ nb-card {
     }
 
     tr:nth-child(even) {
-        background-color: #493668 !important;
+        background-color: #493668;
 
         th,
         td {
@@ -101,7 +101,7 @@ nb-card {
     }
 
     tr:nth-child(odd) {
-        background-color: #323258 !important;
+        background-color: #323258;
 
         th,
         td {

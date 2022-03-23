@@ -243,7 +243,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
                 }
               },
-              error: (err) => this.cs.HandleError(err),
+              error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
             });
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
@@ -254,7 +254,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
             );
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
       });
     }
   }
@@ -290,7 +290,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
                 }
               },
-              error: (err) => this.cs.HandleError(err),
+              error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
             });
           } else {
             this.toastrService.show(
@@ -300,7 +300,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
             );
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
       });
     }
   }
@@ -334,7 +334,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               );
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
         });
     }
   }
@@ -424,7 +424,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
         }
       },
       error: (err) => {
-        this.cs.HandleError(err);
+        { this.cs.HandleError(err); this.isLoading = false; };
         this.isLoading = false;
       },
       complete: () => {
@@ -455,7 +455,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
         if (!!data.data) this.wareHouses = data.data;
       },
       error: (err) => {
-        this.cs.HandleError(err);
+        { this.cs.HandleError(err); this.isLoading = false; };
         this.isLoading = false;
       },
       complete: () => {

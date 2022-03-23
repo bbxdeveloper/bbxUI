@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
-import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/Nav';
+import { FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
@@ -29,7 +29,13 @@ export class BaseSideBarFormComponent {
     placeholder: '0',
   });
 
-  constructor() { }
+  TileCssClass = TileCssClass;
+  TileCssColClass = TileCssColClass;
+
+  constructor() {
+    // const _form = this.currentForm;
+    // $("input").on("click", function (event) { _form?.HandleFormFieldClick(event); });
+  }
 
   @HostListener('document:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {

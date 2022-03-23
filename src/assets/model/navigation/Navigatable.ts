@@ -1,6 +1,7 @@
 import { PreferredSelectionMethod } from "src/app/services/keyboard-navigation.service";
 
 export const TileCssClass: string = 'navmatrix-tile';
+export const TileCssColClass: string = 'navmatrix-tile-col';
 
 export enum AttachDirection { DOWN = -1, LEFT = -2, RIGHT = 2, UP = 1 };
 

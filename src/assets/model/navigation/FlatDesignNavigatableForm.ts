@@ -12,7 +12,7 @@ import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
 import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableTable } from "./FlatDesignNavigatableTable";
-import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, TileCssColClass } from "./Navigatable";
 
 export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
     Matrix: string[][] = [[]];
@@ -501,6 +501,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         // Prepare matrix
         this.Matrix = [[]];
         let currentMatrixIndex = 0;
+        let previous: string = '';
 
         // Getting tiles, rows for navigation matrix
         for (let i = 0; i < tiles.length; i++) {
@@ -511,7 +512,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             );
 
             // Flat Design forms are always vertical
-            if (currentParent !== '') {
+            if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass(TileCssColClass))) {
                 this.Matrix.push([]);
                 ++currentMatrixIndex;
             }
@@ -519,6 +520,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
             next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
             this.Matrix[currentMatrixIndex].push(next.id);
+            previous = next.id;
         }
 
         if (environment.flatDesignFormDebug) {

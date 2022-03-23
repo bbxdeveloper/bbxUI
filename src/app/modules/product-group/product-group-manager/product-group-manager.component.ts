@@ -123,7 +123,7 @@ export class ProductGroupManagerComponent
             );
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
       });
     }
   }
@@ -155,7 +155,7 @@ export class ProductGroupManagerComponent
             );
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
       });
     }
   }
@@ -189,7 +189,7 @@ export class ProductGroupManagerComponent
               );
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
         });
     }
   }
@@ -265,9 +265,10 @@ export class ProductGroupManagerComponent
           );
         }
       },
-      error: (err) => this.cs.HandleError(err),
+      error: (err) => { this.cs.HandleError(err); this.isLoading = false; this.RefreshTable(); },
       complete: () => {
         this.isLoading = false;
+        this.RefreshTable();
       },
     });
   }

@@ -40,6 +40,7 @@
                     <label>Raktár*</label>
 
                     <input class="{{TileCssClass}}" formControlName="warehouse" nbInput type="text"
+                        (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoWarehouse" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="warehouse"></app-form-control-error>
@@ -67,7 +68,7 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Számláló*</label>
 
-                        <input class="{{TileCssClass}}" nbInput type="number" formControlName="currentNumber"
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="number" formControlName="currentNumber"
                             [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                     <app-form-control-error [form]="currentForm" controlName="currentNumber"></app-form-control-error>

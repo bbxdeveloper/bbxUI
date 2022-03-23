@@ -192,7 +192,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               );
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
         });
     }
   }
@@ -233,7 +233,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               );
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
         });
     }
   }
@@ -268,7 +268,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               );
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
         });
     }
   }
@@ -358,9 +358,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           );
         }
       },
-      error: (err) => this.cs.HandleError(err),
+      error: (err) => { this.cs.HandleError(err); this.isLoading = false; this.RefreshTable(); },
       complete: () => {
         this.isLoading = false;
+        this.RefreshTable();
       },
     });
   }

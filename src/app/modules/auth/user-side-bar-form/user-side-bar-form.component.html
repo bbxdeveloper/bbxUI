@@ -67,7 +67,7 @@
                 </ng-container>
 
                 <div class="bbx-fd-form-field-wrapper-div-row" *ngSwitchCase="'bool'" (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33 checkbox-wrapper">
                         <label class="label-checkbox">{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
     
                         <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"

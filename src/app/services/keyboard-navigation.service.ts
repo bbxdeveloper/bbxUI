@@ -23,6 +23,7 @@ export interface MoveRes {
 }
 
 export const SELECTED_ELEMENT_CLASS = 'current-keyboard-nav-selected';
+export const PARENT_OF_SELECTED_ELEMENT_CLASS = 'parent-of-current-keyboard-nav-selected';
 
 @Injectable({
   providedIn: 'root'
@@ -108,10 +109,17 @@ export class KeyboardNavigationService {
 
     if (this.previousIdString === undefined) {
       this.previousIdString = idString;
+
+      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     } else {
       $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+      $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
       this.previousIdString = idString;
+
       $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     }
 
     switch (this.CurrentNavigatable.TileSelectionMethod) {
@@ -136,10 +144,17 @@ export class KeyboardNavigationService {
 
     if (this.previousIdString === undefined) {
       this.previousIdString = idString;
+
+      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     } else {
       $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+      $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
       this.previousIdString = idString;
+
       $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     }
     
     $(idString).trigger('click');
