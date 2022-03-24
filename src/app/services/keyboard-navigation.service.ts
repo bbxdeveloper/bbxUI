@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as $ from 'jquery'
 import { BehaviorSubject } from 'rxjs';
 import { AttachDirection, INavigatable, NullNavigatable } from 'src/assets/model/navigation/Nav';
+import { JumpDestination } from 'src/assets/model/navigation/Navigatable';
 import { environment } from 'src/environments/environment';
 
 interface MatrixCoordinate {
@@ -107,20 +108,29 @@ export class KeyboardNavigationService {
 
     const idString = '#' + id;
 
-    if (this.previousIdString === undefined) {
-      this.previousIdString = idString;
+    console.log('SelectElement: ', this.previousIdString, id);
 
-      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    } else {
-      $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
-      $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
+      $(element).removeClass(SELECTED_ELEMENT_CLASS);
+      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    });
+    $(idString).addClass(SELECTED_ELEMENT_CLASS);
+    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-      this.previousIdString = idString;
+    // if (this.previousIdString === undefined) {
+    //   this.previousIdString = idString;
 
-      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    }
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // } else {
+    //   $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    //   this.previousIdString = idString;
+
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // }
 
     switch (this.CurrentNavigatable.TileSelectionMethod) {
       case PreferredSelectionMethod.both:
@@ -142,20 +152,29 @@ export class KeyboardNavigationService {
   public ClickElement(id: string): void {
     const idString = '#' + id;
 
-    if (this.previousIdString === undefined) {
-      this.previousIdString = idString;
+    console.log('ClickElement: ', this.previousIdString, id);
 
-      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    } else {
-      $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
-      $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
+      $(element).removeClass(SELECTED_ELEMENT_CLASS);
+      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    });
+    $(idString).addClass(SELECTED_ELEMENT_CLASS);
+    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-      this.previousIdString = idString;
+    // if (this.previousIdString === undefined) {
+    //   this.previousIdString = idString;
 
-      $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-      $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    }
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // } else {
+    //   $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    //   this.previousIdString = idString;
+
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // }
     
     $(idString).trigger('click');
 
@@ -403,9 +422,38 @@ export class KeyboardNavigationService {
     // At left bound
     if (this.p.x === 0) {
       if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.LeftNeighbour) {
+        if (this.CurrentNavigatable.LeftNeighbour.Matrix.length === 0 || this.CurrentNavigatable.LeftNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
-        this.p.y = 0;
-        this.p.x = this.maxCurrentWorldX;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = 0;
+          this.p.x = this.maxCurrentWorldX;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -449,9 +497,38 @@ export class KeyboardNavigationService {
     // At right bound
     if (this.p.x === this.maxCurrentWorldX) {
       if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.RightNeighbour) {
+        if (this.CurrentNavigatable.RightNeighbour.Matrix.length === 0 || this.CurrentNavigatable.RightNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
-        this.p.y = 0;
-        this.p.x = 0;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = 0;
+          this.p.x = 0;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -493,9 +570,38 @@ export class KeyboardNavigationService {
         this.CurrentSubMappingRootKey = undefined;
       }
       else if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.UpNeighbour) {
+        if (this.CurrentNavigatable.UpNeighbour.Matrix.length === 0 || this.CurrentNavigatable.UpNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
-        this.p.y = this.maxCurrentWorldY;
-        this.p.x = 0;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = this.maxCurrentWorldY;
+          this.p.x = 0;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -543,9 +649,38 @@ export class KeyboardNavigationService {
         this.SelectFirstTile();
       }
       else if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.DownNeighbour) {
+        if (this.CurrentNavigatable.DownNeighbour.Matrix.length === 0 || this.CurrentNavigatable.DownNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
-        this.p.y = 0;
-        this.p.x = 0;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = 0;
+          this.p.x = 0;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -574,6 +709,10 @@ export class KeyboardNavigationService {
 
   public SetRoot(n: INavigatable): void {
     this.Root = n;
+    this.CurrentNavigatable = n;
+  }
+
+  public SetCurrentNavigatable(n: INavigatable): void {
     this.CurrentNavigatable = n;
   }
 
@@ -620,6 +759,8 @@ export class KeyboardNavigationService {
     if (this.CurrentNavigatable === this.Root) {
       return;
     }
+
+    console.log(this.CurrentNavigatable);
 
     if (!!this.CurrentNavigatable.UpNeighbour) {
       let temp = this.CurrentNavigatable.UpNeighbour;

@@ -98,6 +98,9 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         this.sidebarService.onCollapse().subscribe({
             next: value => {
                 if (!!this.LeftNeighbour || !!this.RightNeighbour || !!this.DownNeighbour || !!this.UpNeighbour) {
+                    if (!this.kbS.IsCurrentNavigatable(this)) {
+                        this.kbS.SetCurrentNavigatable(this);
+                    }
                     this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
                     this.grid.PushFooterCommandList();
                 }

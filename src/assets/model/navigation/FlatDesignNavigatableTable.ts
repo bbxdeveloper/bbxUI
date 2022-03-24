@@ -13,7 +13,7 @@ import { SimplePaginator } from "../SimplePaginator";
 import { TreeGridNode } from "../TreeGridNode";
 import { IUpdatable, IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableForm } from "./FlatDesignNavigatableForm";
-import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, JumpDestination } from "./Navigatable";
 
 export class FlatDesignNavigatableTable<T> extends SimplePaginator implements INavigatable, IUpdatable<T> {
     Matrix: string[][] = [[]];
@@ -33,6 +33,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     RightNeighbour?: INavigatable;
     DownNeighbour?: INavigatable;
     UpNeighbour?: INavigatable;
+
+    DestWhenJumpedOnto = JumpDestination.UPPER_LEFT;
 
     TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.both;
 
@@ -209,6 +211,17 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
+    SelectRowById(id: any): void {
+        const rowIndex = this.data.findIndex(x => (x.data as any).id === id);
+        console.log(rowIndex);
+        if (rowIndex !== -1) {
+            const filterValue = this.includeSearchInNavigationMatrix ? 1 : 0;
+            // this.kbs.SetCurrentNavigatable(this);
+            // this.kbs.SelectElementByCoordinate(rowIndex + filterValue, 0);
+            this.HandleGridClick(this.data[rowIndex], rowIndex, this.colDefs[0].objectKey, 0);
+        }
+    }
+
     HandleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
         this.kbs.setEditMode(KeyboardModes.NAVIGATION);
         this.cdr!.detectChanges();
@@ -318,7 +331,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean): void {
+    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
@@ -373,6 +386,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             this.kbs.Attach(this, this.attachDirection);
         }
 
+        if (idToSelectAfterGenerate !== undefined) {
+            this.SelectRowById(idToSelectAfterGenerate);
+        }
+
         // this.kbs.LogMatrix();
     }
 
@@ -382,11 +399,13 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         } else {
             this.PushFooterCommandList();
         }
-        console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
+        // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
         if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
             this.SetBlankInstanceForForm(true);
+        } else if (!this.sidebarService.sideBarOpened) {
+            this.sidebarService.expand();
         } else {
-            this.sidebarService.toggle();
+            this.sidebarService.collapse();
         }
     }
 
@@ -399,7 +418,6 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             }
             case KeyBindings.F5: {
                 event.preventDefault();
-                
                 this.Refresh();
                 break;
             }

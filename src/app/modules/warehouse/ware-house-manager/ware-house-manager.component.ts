@@ -103,13 +103,12 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             const newRow = { data: d.data } as TreeGridNode<WareHouse>;
             this.dbData.push(newRow);
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
-            this.dbDataTable.SetDataForForm
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));

@@ -178,7 +178,7 @@ export class BaseManagerComponent<T> {
 
   Refresh(params?: any): void {}
 
-  RefreshTable(): void {
+  RefreshTable(selectAfterRefresh?: any): void {
     this.dbDataTable.Setup(
       this.dbData,
       this.dbDataDataSrc,
@@ -187,7 +187,7 @@ export class BaseManagerComponent<T> {
       this.colsToIgnore
     );
     setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
+      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
     }, 200);
   }
 
