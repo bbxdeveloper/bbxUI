@@ -18,19 +18,22 @@ nb-form-field {
     flex-flow: wrap;
 }
 
+nb-card-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
+
 nb-card {
     background: none;
     border: none;
     margin: 0px;
 }
 
-.card-table-wrapper-form {
-    display: flex;
-}
-
 .card-table-wrapper {
     display: block;
-
     position: sticky;
     top: 0;
     
