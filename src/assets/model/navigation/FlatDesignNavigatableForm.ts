@@ -139,11 +139,12 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     ActionNew(data?: IUpdateRequest<T>): void {
+        const dt = this.FillObjectWithForm();
         if (this.form.invalid) {
             return;
         }
         this.grid.New({
-            data: this.FillObjectWithForm(),
+            data: dt,
             rowIndex: this.DataRowIndex,
             needConfirmation: data?.needConfirmation ?? false
         } as IUpdateRequest);
@@ -157,11 +158,12 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     }
 
     ActionPut(data?: IUpdateRequest<T>): void {
+        const dt = this.FillObjectWithForm();
         if (this.form.invalid) {
             return;
         }
         this.grid.Put({
-            data: this.FillObjectWithForm(),
+            data: dt,
             rowIndex: this.DataRowIndex,
             needConfirmation: data?.needConfirmation ?? false
         } as IUpdateRequest);
@@ -256,6 +258,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         const data = {} as T;
         Object.keys(this.form.controls).forEach((x: string) => {
             data[x as keyof T] = this.form.controls[x].value;
+            this.form.controls[x].markAsTouched();
             console.log('FormField value: ',this.form.controls[x].value, 'Data field value: ', data[x as keyof T]);
         });
         if (environment.flatDesignFormDebug) {

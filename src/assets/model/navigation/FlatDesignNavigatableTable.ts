@@ -286,6 +286,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+
         console.log('[HandleGridClick]');
 
         if (this.includeSearchInNavigationMatrix) {

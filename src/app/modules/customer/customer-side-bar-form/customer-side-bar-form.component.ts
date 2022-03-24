@@ -1,8 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
 import { BehaviorSubject } from 'rxjs';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { FlatDesignNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 
@@ -14,7 +13,7 @@ const defaultPattern: string = '00000000-00000000-00000000';
   templateUrl: './customer-side-bar-form.component.html',
   styleUrls: ['./customer-side-bar-form.component.scss']
 })
-export class CustomerSideBarFormComponent extends BaseSideBarFormComponent implements OnInit {
+export class CustomerSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
   customPatterns: any = {
     'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
     'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },
@@ -31,12 +30,20 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
       (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
   }
 
+  get formValueFormCustomerBankAccNm(): string {
+    const tmp = this.currentForm!.GetValue('customerBankAccountNumber') as string;
+    return tmp !== undefined ? tmp : '';
+  }
+
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService) {
     super();
   }
 
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+  }
+  ngAfterViewInit(): void {
+    this.currentForm?.AfterViewInitSetup();
   }
 
   private SetNewForm(form?: FormSubject): void {
@@ -69,13 +76,13 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   GetBankAccountMask(): string {
-    const currentTypeBankAccountNumber = this.currentForm!.GetValue('customerBankAccountNumber') as string;
+    const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm;
     const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
     return isIbanStarted ? ibanPattern : defaultPattern;
   }
 
   checkBankAccountKeydownValue(event: any): void {
-    const currentTypeBankAccountNumber = (this.currentForm!.GetValue('customerBankAccountNumber') as string).concat(event.key);
+    const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key);
     console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
     if (currentTypeBankAccountNumber.length > 1) {
       return;
