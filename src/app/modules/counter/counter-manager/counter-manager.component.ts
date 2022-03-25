@@ -22,6 +22,7 @@ import { WareHouse, WareHouseDescriptionToCode } from '../../warehouse/models/Wa
 import { CreateCounterRequest } from '../models/CreateCounterRequest';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { environment } from 'src/environments/environment';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-counter-manager',
@@ -150,7 +151,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private cs: CommonService,
-    private wareHouseApi: WareHouseService
+    private wareHouseApi: WareHouseService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
@@ -158,6 +160,12 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   private ConvertCombosForPost(data: Counter): Counter {
@@ -223,6 +231,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
 
       console.log('ActionNew request: ', createRequest);
 
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+
       this.seInv.Create(createRequest).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
@@ -241,9 +251,11 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                     Constants.TOASTR_SUCCESS
                   );
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                  this.isLoading = false;
+                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 }
               },
-              error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+              error: (err) => { this.HandleError(err); },
             });
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
@@ -252,9 +264,11 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -266,6 +280,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       const updateRequest = this.CounterToUpdateRequest(data.data);
 
       console.log('ActionPut request: ', updateRequest);
+
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
 
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Update(updateRequest).subscribe({
@@ -288,9 +304,11 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                     Constants.TOASTR_SUCCESS
                   );
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                  this.isLoading = false;
+                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 }
               },
-              error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+              error: (err) => { this.HandleError(err); },
             });
           } else {
             this.toastrService.show(
@@ -298,9 +316,11 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -309,6 +329,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,
@@ -326,15 +347,19 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+          error: (err) => { this.HandleError(err); },
         });
     }
   }

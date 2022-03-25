@@ -75,6 +75,21 @@ export module Constants {
         { title: 'Riport Letöltés', value: 100, msg: '2/3 - Letöltés előkészítése' }
     ];
 
+    export enum CRUDSavingPhases { SAVING }
+    export const CRUDSavingStatuses: ProcessStatus[] = [
+        { title: 'Mentés', value: 0, msg: '1/1 - Új rekord mentése' }
+    ];
+
+    export enum CRUDPutPhases { UPDATING }
+    export const CRUDPutStatuses: ProcessStatus[] = [
+        { title: 'Mentés', value: 0, msg: '1/1 - Rekord változásának mentése' }
+    ];
+
+    export enum CRUDDeletePhases { DELETING }
+    export const CRUDDeleteStatuses: ProcessStatus[] = [
+        { title: 'Törlés', value: 0, msg: '1/1 - Rekord törlése' }
+    ];
+
     export const BlankProcessStatus: ProcessStatus = { value: -1 } as ProcessStatus;
 
     // Types

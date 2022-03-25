@@ -17,6 +17,7 @@ import { BlankOrigin, Origin } from '../models/Origin';
 import { OriginService } from '../services/origin.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-origin-manager',
@@ -86,7 +87,8 @@ export class OriginManagerComponent
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
@@ -96,9 +98,16 @@ export class OriginManagerComponent
     this.Setup();
   }
 
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<Origin>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
@@ -113,16 +122,20 @@ export class OriginManagerComponent
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
-            );
+              );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -130,6 +143,7 @@ export class OriginManagerComponent
   override ProcessActionPut(data?: IUpdateRequest<Origin>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
@@ -147,15 +161,19 @@ export class OriginManagerComponent
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -164,6 +182,7 @@ export class OriginManagerComponent
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,
@@ -181,15 +200,19 @@ export class OriginManagerComponent
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+          error: (err) => { this.HandleError(err); },
         });
     }
   }

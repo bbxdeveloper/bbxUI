@@ -21,6 +21,7 @@ import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/a
 import { GetUsersParamListModel } from '../models/GetUsersParamListModel';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -142,7 +143,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
@@ -152,10 +154,17 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     this.Setup();
   }
 
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
       console.log('ActionNew: ', data.data);
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv
         .Create({
           name: data.data.name,
@@ -179,6 +188,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 Constants.TOASTR_SUCCESS
               );
               this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               console.log(
                 d.errors!,
@@ -190,15 +201,18 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+          error: (err) => { this.HandleError(err); },
         });
     }
   }
 
   override ProcessActionPut(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       data.data.id = parseInt(data.data.id + ''); // TODO
       console.log('ActionPut: ', data.data);
       this.seInv
@@ -225,21 +239,26 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 Constants.TOASTR_SUCCESS
               );
               this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+          error: (err) => { this.HandleError(err); },
         });
     }
   }
 
   override ProcessActionDelete(data?: IUpdateRequest<User>): void {
     if (!!data && data.data?.id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       console.log('ActionDelete: ', data.rowIndex);
       this.seInv
         .Delete({
@@ -260,15 +279,19 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+          error: (err) => { this.HandleError(err); },
         });
     }
   }

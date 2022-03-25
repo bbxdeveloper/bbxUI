@@ -17,6 +17,7 @@ import { GetCustomersParamListModel } from '../models/GetCustomersParamListModel
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-customer-manager',
@@ -57,7 +58,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = "active-prod-search";
@@ -67,10 +69,17 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.Setup();
   }
 
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<Customer>): void {
     console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.Create(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
@@ -80,9 +89,13 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.RefreshTable(newRow.data.id);
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
         error: err => { this.cs.HandleError(err); this.isLoading = false; }
@@ -95,6 +108,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
       console.log(data.data.id);
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       this.seInv.Update(data.data).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
@@ -104,8 +118,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
         error: err => { this.cs.HandleError(err); this.isLoading = false; }
@@ -117,6 +135,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     const id = data?.data?.id;
     console.log("ActionDelete: ", id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv.Delete({
         id: id
       } as DeleteCustomerRequest).subscribe({
@@ -127,8 +146,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
         error: err => { this.cs.HandleError(err); this.isLoading = false; }
@@ -193,7 +216,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
-      error: err => { this.cs.HandleError(err); this.isLoading = false; },
+      error: err => { this.HandleError(err); },
       complete: () => { this.isLoading = false; }
     });
   }

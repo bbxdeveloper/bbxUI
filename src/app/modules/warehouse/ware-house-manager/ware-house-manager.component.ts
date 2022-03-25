@@ -17,6 +17,7 @@ import { BlankWareHouse, WareHouse } from '../models/WareHouse';
 import { WareHouseService } from '../services/ware-house.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-ware-house-manager',
@@ -83,7 +84,8 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
@@ -93,10 +95,17 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.Setup();
   }
 
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<WareHouse>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
@@ -110,6 +119,8 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
@@ -117,9 +128,11 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -128,6 +141,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
@@ -144,15 +158,19 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -161,6 +179,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,
@@ -178,15 +197,19 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+          error: (err) => { this.HandleError(err); },
         });
     }
   }

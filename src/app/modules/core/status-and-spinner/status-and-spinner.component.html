@@ -1,1 +1,7 @@
-<p>status-and-spinner works!</p>
+<nb-card *ngIf="InProgress">
+    <nb-card-body>
+        <div class="title">{{_actualStatus.title}}</div>
+        <div class="spinner" [nbSpinner]="true" nbSpinnerStatus="primary"></div> <!--  [nbSpinnerMessage]="_actualStatus.msg" -->
+        <!-- <nb-progress-bar [value]="_actualStatus.value" status="primary" size="giant"></nb-progress-bar> -->
+    </nb-card-body>
+</nb-card>

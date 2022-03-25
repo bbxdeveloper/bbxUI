@@ -18,6 +18,7 @@ import { ProductGroupService } from '../services/product-group.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { GetProductGroupParamListModel } from '../models/GetProductGroupParamListModel';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-product-group-manager',
@@ -87,7 +88,8 @@ export class ProductGroupManagerComponent
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
@@ -97,10 +99,17 @@ export class ProductGroupManagerComponent
     this.Setup();
   }
 
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<ProductGroup>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
@@ -123,7 +132,7 @@ export class ProductGroupManagerComponent
             );
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -132,6 +141,7 @@ export class ProductGroupManagerComponent
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
@@ -155,7 +165,7 @@ export class ProductGroupManagerComponent
             );
           }
         },
-        error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -164,6 +174,7 @@ export class ProductGroupManagerComponent
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,
@@ -189,7 +200,7 @@ export class ProductGroupManagerComponent
               );
             }
           },
-          error: (err) => { this.cs.HandleError(err); this.isLoading = false; },
+          error: (err) => { this.HandleError(err); },
         });
     }
   }
