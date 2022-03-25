@@ -234,7 +234,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                   const newRow = { data: newData } as TreeGridNode<Counter>;
                   this.dbData.push(newRow);
                   this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable();
+                  this.RefreshTable(newRow.data.id);
                   this.toastrService.show(
                     Constants.MSG_SAVE_SUCCESFUL,
                     Constants.TITLE_INFO,

@@ -77,7 +77,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             const newRow = { data: d.data } as TreeGridNode<Customer>;
             this.dbData.push(newRow);
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
           } else {

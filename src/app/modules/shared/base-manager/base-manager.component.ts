@@ -77,6 +77,7 @@ export class BaseManagerComponent<T> {
 
   ActionNew(data?: IUpdateRequest<T>): void {
     console.log("ActionNew: ", data);
+
     if (data?.needConfirmation) {
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
@@ -84,7 +85,17 @@ export class BaseManagerComponent<T> {
       );
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ProcessActionNew(data);
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+                this.ProcessActionNew(data);
+              }
+            });
+          } else {
+            this.ProcessActionNew(data);
+          }
         }
       });
     } else {
@@ -109,7 +120,17 @@ export class BaseManagerComponent<T> {
       );
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ProcessActionPut(data);
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+                this.ProcessActionPut(data);
+              }
+            });
+          } else {
+            this.ProcessActionPut(data);
+          }
         }
       });
     } else {
@@ -165,8 +186,12 @@ export class BaseManagerComponent<T> {
     this.search();
   }
 
-  clearSearch(input: any): void {
-    input.value = '';
+  clearSearch(input?: any): void {
+    if (input !== undefined) {
+      input.value = '';
+    } else {
+      $('#' + this.searchInputId!).val('');
+    }
     this.searchString = '';
 
     this.search();

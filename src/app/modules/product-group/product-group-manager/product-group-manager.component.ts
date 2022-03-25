@@ -107,7 +107,7 @@ export class ProductGroupManagerComponent
             const newRow = { data: d.data } as TreeGridNode<ProductGroup>;
             this.dbData.push(newRow);
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,

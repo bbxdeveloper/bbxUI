@@ -191,12 +191,22 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.colDefs = this.colDefs;
         this.flatDesignForm.OuterJump = true;
 
+        let includeFilterY = 0;
         if (this.includeSearchInNavigationMatrix) {
+            includeFilterY = 1;
             this.kbs.ElementIdSelected.subscribe(id => {
                 if (this.Matrix[0].includes(id)) {
                     this.SetBlankInstanceForForm(false, false);
                 }
             });
+        }
+
+        if (this.kbs.p.y >= (this.data.length + includeFilterY)) {
+            if (this.data.length > 0) {
+                this.kbs.SelectElementByCoordinate(0, 1);
+            } else {
+                this.kbs.SelectElementByCoordinate(0, 0);
+            }
         }
     }
 

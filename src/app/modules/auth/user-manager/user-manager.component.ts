@@ -172,7 +172,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               } as TreeGridNode<User>;
               this.dbDataTable.SetDataForForm(newRow, false, false);
               this.dbData.push(newRow);
-              this.RefreshTable();
+              this.RefreshTable(newRow.data.id);
               this.toastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
