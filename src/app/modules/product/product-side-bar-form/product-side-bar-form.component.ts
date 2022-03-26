@@ -3,12 +3,11 @@ import { NbSidebarService } from '@nebular/theme';
 import { Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
-import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { OriginService } from '../../origin/services/origin.service';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
+import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { ProductService } from '../services/product.service';
 
 @Component({
@@ -41,12 +40,18 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   currentOriginCount: number = 0;
   filteredOrigins$: Observable<string[]> = of([]);
 
+  // Origin
+  vatRates: string[] = [];
+  currentVatRateCount: number = 0;
+  filteredVatRates$: Observable<string[]> = of([]);
+
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
+    private vatApi: VatRateService,
     private cdref: ChangeDetectorRef) {
     super();
     this.refreshComboboxData();
@@ -86,6 +91,15 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
         this.currentOriginCount = this.origins.length;
       }
     });
+
+    // VatRate
+    this.vatApi.GetAll().subscribe({
+      next: data => {
+        this.vatRates = data?.data?.map(x => x.vatRateCode + ' - ' + x.vatPercentage) ?? [];
+        this.filteredVatRates$ = of(this.vatRates);
+        this.currentVatRateCount = this.vatRates.length;
+      }
+    });
   }
 
   private SetNewForm(form?: FormSubject): void {
@@ -120,6 +134,13 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
         this.filteredUom$ = of(tmp);
       }
     });
+    this.currentForm?.form.controls['vatRateCode'].valueChanges.subscribe({
+      next: filterString => {
+        const tmp = this.filterVatRate(filterString);
+        this.currentVatRateCount = tmp.length;
+        this.filteredVatRates$ = of(tmp);
+      }
+    });
   }
 
   private filterProductGroup(value: string): string[] {
@@ -144,5 +165,13 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     }
     const filterValue = value.toLowerCase();
     return this.origins.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+  }
+
+  private filterVatRate(value: string): string[] {
+    if (value === undefined) {
+      return this.vatRates;
+    }
+    const filterValue = value.toLowerCase();
+    return this.vatRates.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 }

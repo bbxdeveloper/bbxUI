@@ -14,5 +14,6 @@ export interface UpdateProductRequest {
     "productFee": number,
     "active": boolean,
     "vtsz": string,
-    "ean": string
+    "ean": string,
+    "vatRateCode": string,
 }

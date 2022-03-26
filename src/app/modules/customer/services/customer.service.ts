@@ -12,6 +12,7 @@ import { UpdateCustomerResponse } from '../models/UpdateCustomerResponse';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { DeleteCustomerRequest } from '../models/DeleteCustomerRequest';
 import { DeleteCustomerResponse } from '../models/DeleteCustomerResponse';
+import { CountryCode } from '../models/CountryCode';
 
 // 'id', 'customerName', 'taxpayerNumber'
 const MOCK_DATA: Customer[] = [
@@ -55,6 +56,10 @@ export class CustomerService {
   private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Customer';
 
   constructor(private http: HttpClient) { }
+
+  GetAllCountryCodes(): Observable<CountryCode[]> {
+    return this.http.get<CountryCode[]>(this.BaseUrl + '/countrycode');
+  }
 
   GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {
     // Process params
@@ -112,7 +117,7 @@ export class CustomerService {
     return this.http.get<Customer>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Create(req: Customer): Observable<CreateCustomerResponse> {
+  Create(req: CreateCustomerRequest): Observable<CreateCustomerResponse> {
     return this.http.post<CreateCustomerResponse>(this.BaseUrl, req);
   }
 

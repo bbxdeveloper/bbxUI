@@ -26,6 +26,8 @@ import { CreateProductRequest } from '../models/CreateProductRequest';
 import { UpdateProductRequest } from '../models/UpdateProductRequest';
 import { environment } from 'src/environments/environment';
 import { StatusService } from 'src/app/services/status.service';
+import { VatRateService } from '../../vat-rate/services/vat-rate.service';
+import { VatRate } from '../../vat-rate/models/VatRate';
 
 @Component({
   selector: 'app-product-manager',
@@ -121,6 +123,19 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
+    {
+      label: 'Áfakód',
+      objectKey: 'vatRateCode',
+      colKey: 'vatRateCode',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'bool',
+      fRequired: false,
+      mask: '',
+      colWidth: '25%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
   ];
 
   // ProductGroup
@@ -129,6 +144,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   uom: UnitOfMeasure[] = [];
   // Origin
   origins: Origin[] = [];
+  // VatRate
+  vats: VatRate[] = [];
 
   override get getInputParams(): GetProductsParamListModel {
     return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
@@ -147,6 +164,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     private cs: CommonService,
     private productGroupApi: ProductGroupService,
     private originApi: OriginService,
+    private vatApi: VatRateService,
     private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
@@ -176,11 +194,18 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   private ConvertCombosForGet(data: Product): Product {
-    if (data.unitOfMeasure !== undefined && this.uom.length > 0)
-      data.unitOfMeasure = UnitOfMeasureValueToText(
-        data.unitOfMeasure,
-        this.uom
-      );
+    if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
+      data.unitOfMeasure = this.uom.find(x => x.value == data.unitOfMeasure)?.text + '-' + data.unitOfMeasure;
+    }
+    if (data.origin !== undefined && this.origins.length > 0) {
+      data.origin = this.origins.find(x => x.originCode == data.origin)?.originDescription + '-' + data.origin;
+    }
+    if (data.productGroup !== undefined && this.productGroups.length > 0) {
+      data.productGroup = this.productGroups.find(x => x.productGroupCode == data.productGroup)?.productGroupDescription + '-' + data.productGroup;
+    }
+    if (data.vatRateCode !== undefined && this.vats.length > 0) {
+      data.vatRateCode = data.vatRateCode + ' - ' + this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatPercentage;
+    }
 
     if (environment.flatDesignCRUDManagerDebug) {
         console.log(`[ConvertCombosForGet] result: `, data);
@@ -192,6 +217,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   private ProductToCreateRequest(p: Product): CreateProductRequest {
     let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
     let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
+    let vatRatecode = !!p.vatRateCode?.includes('-') ? p.vatRateCode.split('-')[0] : '';
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
     let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
@@ -212,7 +238,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       unitPrice2: p.unitPrice2,
       unitOfMeasure: unitOfMeasureValue,
       productFee: p.productFee,
-      productCode: p.productCode
+      productCode: p.productCode,
+      vatRateCode: vatRatecode
     } as CreateProductRequest;
     return res;
   }
@@ -220,6 +247,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   private ProductToUpdateRequest(p: Product): UpdateProductRequest {
     let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
     let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
+    let vatRatecode = !!p.vatRateCode?.includes('-') ? p.vatRateCode.split('-')[0] : '';
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
     let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
@@ -241,7 +269,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       unitPrice2: p.unitPrice2,
       unitOfMeasure: unitOfMeasureValue,
       productFee: p.productFee,
-      productCode: p.productCode
+      productCode: p.productCode,
+      vatRateCode: vatRatecode
     } as UpdateProductRequest;
     return res;
   }
@@ -416,6 +445,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: new FormControl(false, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
+      vatRateCode: new FormControl(undefined, [])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -438,9 +468,9 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           id: 0,
           productCode: undefined,
           description: undefined,
-          productGroup: this.productGroups[0]?.productGroupDescription,
-          origin: this.origins[0]?.originDescription,
-          unitOfMeasure: this.uom[0]?.text,
+          productGroup: this.productGroups[0]?.productGroupDescription + '-' + this.productGroups[0]?.productGroupCode,
+          origin: this.origins[0]?.originDescription + '-' + this.origins[0]?.originCode,
+          unitOfMeasure: this.uom[0]?.text + '-' + this.uom[0]?.value,
           unitOfMeasureX: undefined,
           unitPrice1: 0,
           unitPrice2: 0,
@@ -452,6 +482,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           active: true,
           vtsz: '',
           ean: '',
+          vatRateCode: this.vats[0]?.vatRateCode + '-' + this.vats[0]?.vatPercentage,
+          vatPercentage: 0
         } as Product;
       }
     );
@@ -552,7 +584,19 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
                 this.isLoading = false;
               },
               complete: () => {
-                this.Refresh(params);
+                // VatRates
+                this.vatApi.GetAll().subscribe({
+                  next: (data) => {
+                    if (!!data.data) this.vats = data.data;
+                  },
+                  error: (err) => {
+                    { this.cs.HandleError(err); this.isLoading = false; };
+                    this.isLoading = false;
+                  },
+                  complete: () => {
+                    this.Refresh(params);
+                  },
+                });
               },
             });
           },

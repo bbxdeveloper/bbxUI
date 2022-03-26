@@ -1,9 +1,11 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
+import { CustomerService } from '../services/customer.service';
 
 const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
 const defaultPattern: string = '00000000-00000000-00000000';
@@ -14,13 +16,22 @@ const defaultPattern: string = '00000000-00000000-00000000';
   styleUrls: ['./customer-side-bar-form.component.scss']
 })
 export class CustomerSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  public get keyBindings(): typeof KeyBindings {
+    return KeyBindings;
+  }
+
   customPatterns: any = {
     'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
     'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },
   };
 
-  public get keyBindings(): typeof KeyBindings {
-    return KeyBindings;
+  // Origin
+  countryCodes: string[] = [];
+  currentCountryCodeCount: number = 0;
+  filteredCountryCodes$: Observable<string[]> = of([]);
+
+  get isEditModeOff() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -35,8 +46,10 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     return tmp !== undefined ? tmp : '';
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) {
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService, private cService: CustomerService,
+    private cdref: ChangeDetectorRef) {
     super();
+    this.refreshComboboxData();
   }
 
   ngOnInit(): void {
@@ -44,6 +57,17 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
   ngAfterViewInit(): void {
     this.currentForm?.AfterViewInitSetup();
+  }
+
+  private refreshComboboxData(): void {
+    // CountryCodes
+    this.cService.GetAllCountryCodes().subscribe({
+      next: data => {
+        this.countryCodes = data?.map(x => x.text) ?? [];
+        this.filteredCountryCodes$ = of(this.countryCodes);
+        this.currentCountryCodeCount = this.countryCodes.length;
+      }
+    });
   }
 
   private SetNewForm(form?: FormSubject): void {
@@ -54,6 +78,8 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
     this.currentForm = form[1];
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+
+    this.cdref.detectChanges();
 
     if (!!this.currentForm) {
       this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
@@ -66,6 +92,14 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
             return;
           }
           this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+        }
+      });
+
+      this.currentForm?.form.controls['countryCode'].valueChanges.subscribe({
+        next: filterString => {
+          const tmp = this.filterCountryCode(filterString);
+          this.currentCountryCodeCount = tmp.length;
+          this.filteredCountryCodes$ = of(tmp);
         }
       });
     }
@@ -93,4 +127,11 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
   }
 
+  private filterCountryCode(value: string): string[] {
+    if (value === undefined) {
+      return this.countryCodes;
+    }
+    const filterValue = value.toLowerCase();
+    return this.countryCodes.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+  }
 }

@@ -18,6 +18,9 @@ export interface Customer {
     "postalCode": string;
     "city": string;
     "additionalAddressDetail": string;
+    "isOwnData": boolean;
+    "countryCode": string,
+    "Region"?: any,
     // misc
     "comment"?: string;
     "createTime"?: string;
@@ -38,9 +41,11 @@ export function BlankCustomer(): Customer {
         postalCode: '',
         city: '',
         additionalAddressDetail: '',
+        countryCode: '',
         comment: '',
         createTime: '',
         updateTime: '',
-        deleted: false
+        deleted: false,
+        isOwnData: false
     } as Customer;
 }
