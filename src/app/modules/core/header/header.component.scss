@@ -1,5 +1,23 @@
+$transition-duration-hover: 0.3s;
+
 nb-action {
   font-size: 1.2rem !important;
+
+  transition-duration: $transition-duration-hover;
+}
+
+::ng-deep nb-action:hover {
+  color: yellow !important;
+
+  transition-duration: $transition-duration-hover;
+
+  nb-icon {
+    svg {
+      fill: yellow !important;
+
+      transition-duration: $transition-duration-hover;
+    }
+  }
 }
 
 nb-action.nb-action-storage-title,
