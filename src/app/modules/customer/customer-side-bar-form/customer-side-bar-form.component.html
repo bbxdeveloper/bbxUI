@@ -22,7 +22,7 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="customerName"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -34,7 +34,7 @@
                         [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="customerBankAccountNumber"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="bankszámla" controlName="customerBankAccountNumber"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -45,7 +45,7 @@
                         mask="0000000-0-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="taxpayerNumber"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="belföldi adószám" controlName="taxpayerNumber"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -56,7 +56,7 @@
                     mask="X{1000}" [patterns]="customPatterns"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="thirdStateTaxId"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="külföldi adószám" controlName="thirdStateTaxId"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentCountryCodeCount)">
@@ -67,7 +67,7 @@
                         (click)="currentForm.HandleFormFieldClick($event)" [nbAutocomplete]="autoCountryCode"
                         [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="countryCode"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="országkód" controlName="countryCode"></app-form-control-error>
             </nb-form-field>
             <!-- AUTOCOMPLETE -->
             <nb-autocomplete #autoCountryCode [activeFirst]="false"
@@ -96,8 +96,8 @@
                     </div>
                 </nb-form-field>
             </div>
-            <app-form-control-error [form]="currentForm" controlName="postalCode"></app-form-control-error>
-            <app-form-control-error [form]="currentForm" controlName="city"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" label="irsz." controlName="postalCode"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" label="város" controlName="city"></app-form-control-error>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -117,6 +117,7 @@
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </div>
+            <app-form-control-error [form]="currentForm" label="magánszemély" controlName="privatePerson"></app-form-control-error>
             
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
@@ -127,6 +128,7 @@
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </div>
+            <app-form-control-error [form]="currentForm" label="saját adat" controlName="isOwnData"></app-form-control-error>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -135,7 +137,7 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="comment"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="megjegyzés" controlName="comment"></app-form-control-error>
             </nb-form-field>
         </form>
     </nb-card-body>

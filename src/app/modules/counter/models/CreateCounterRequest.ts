@@ -1,7 +1,7 @@
 export interface CreateCounterRequest {
     "counterCode": string,
     "counterDescription": string,
-    "warehouse": string,
+    "warehouseCode": string,
     "prefix": string,
     "currentNumber": number,
     "numbepartLength": number,

@@ -23,8 +23,8 @@ export class BaseSideBarFormComponent {
   numberInputMaskInteger = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
+    digits: 0,
+    digitsOptional: true,
     prefix: '',
     placeholder: '0',
   });

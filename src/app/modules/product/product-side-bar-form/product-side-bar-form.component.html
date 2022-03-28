@@ -24,7 +24,7 @@
                         mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
                         [patterns]="customPatterns" (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="productCode"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="kód" controlName="productCode"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -34,7 +34,7 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="description"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="description"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="megnevezés" controlName="description"></app-form-control-error>
             </nb-form-field>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentProductGroupCount)">
@@ -45,7 +45,7 @@
                         (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoProductGroup" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="productGroup"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="csoport" controlName="productGroup"></app-form-control-error>
             </nb-form-field>
             <!-- AUTOCOMPLETE -->
             <nb-autocomplete #autoProductGroup [activeFirst]="false"
@@ -64,21 +64,20 @@
                             [inputMask]="numberInputMask" placeholder="0.00000"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="productFee"></app-form-control-error>
                 </nb-form-field>
-
+                
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label>Utolsó beszár</label>
-
+                        
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
-                            [inputMask]="numberInputMask" placeholder="0.00000"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                        [inputMask]="numberInputMask" placeholder="0.00000"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="latestSupplyPrice">
-                    </app-form-control-error>
                 </nb-form-field>
             </div>
+            <app-form-control-error [form]="currentForm" label="környezetvédelmi termékdíj" controlName="productFee"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" label="utolsó beszár" controlName="latestSupplyPrice"></app-form-control-error>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentOriginCount)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -88,7 +87,7 @@
                         (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoOrigin" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="origin"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="származási hely" controlName="origin"></app-form-control-error>
             </nb-form-field>
             <!-- AUTOCOMPLETE -->
             <nb-autocomplete #autoOrigin [activeFirst]="false"
@@ -106,7 +105,7 @@
                         (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoAom" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="unitOfMeasure"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="me.e." controlName="unitOfMeasure"></app-form-control-error>
             </nb-form-field>
             <!-- AUTOCOMPLETE -->
             <nb-autocomplete #autoAom [activeFirst]="false"
@@ -125,21 +124,21 @@
                             [inputMask]="numberInputMask" placeholder="0.00000"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="unitPrice1"></app-form-control-error>
                 </nb-form-field>
-
+                
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label>Elad ár 2</label>
-
+                        
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
-                            [inputMask]="numberInputMask" placeholder="0.00000"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                        [inputMask]="numberInputMask" placeholder="0.00000"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="unitPrice2"></app-form-control-error>
                 </nb-form-field>
             </div>
-
+            <app-form-control-error [form]="currentForm" label="elad ár 1" controlName="unitPrice1"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" label="elad ár 2" controlName="unitPrice2"></app-form-control-error>
+            
             <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentVatRateCount)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Áfakód</label>
@@ -148,7 +147,7 @@
                         (click)="currentForm.HandleFormFieldClick($event)" [nbAutocomplete]="autoVatRateCode"
                         [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
-                <app-form-control-error [form]="currentForm" controlName="vatRateCode"></app-form-control-error>
+                <app-form-control-error [form]="currentForm" label="áfakód" controlName="vatRateCode"></app-form-control-error>
             </nb-form-field>
             <!-- AUTOCOMPLETE -->
             <nb-autocomplete #autoVatRateCode [activeFirst]="false"
@@ -185,21 +184,21 @@
                             [inputMask]="numberInputMask" placeholder="0.00000"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="minStock"></app-form-control-error>
                 </nb-form-field>
-
+                
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label>Rendelési egység</label>
-
+                        
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
-                            [inputMask]="numberInputMask" placeholder="0.00000"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                        [inputMask]="numberInputMask" placeholder="0.00000"
+                        (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="ordUnit"></app-form-control-error>
                 </nb-form-field>
             </div>
-
+            <app-form-control-error [form]="currentForm" label="minimum készlet" controlName="minStock"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" label="rendelési egység" controlName="ordUnit"></app-form-control-error>
+            
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
@@ -208,19 +207,19 @@
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="vtsz" mask="9*"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="vtsz"></app-form-control-error>
                 </nb-form-field>
-
+                
                 <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label>ean</label>
-
+                        
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ean" mask="9{1000}"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                        (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
-                    <app-form-control-error [form]="currentForm" controlName="ean"></app-form-control-error>
                 </nb-form-field>
             </div>
+            <app-form-control-error [form]="currentForm" label="vtsz" controlName="vtsz"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" label="ean" controlName="ean"></app-form-control-error>
 
         </form>
     </nb-card-body>

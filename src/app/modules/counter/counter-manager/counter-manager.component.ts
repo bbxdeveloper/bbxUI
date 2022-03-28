@@ -198,10 +198,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     const res = {
       counterCode: p.counterCode,
       counterDescription: p.counterDescription,
-      warehouse: wareHouseCode,
+      warehouseCode: wareHouseCode,
       prefix: p.prefix,
-      currentNumber: p.currentNumber,
-      numbepartLength: p.numbepartLength,
+      currentNumber: parseInt(p.currentNumber + ''),
+      numbepartLength: parseInt(p.numbepartLength + ''),
       suffix: p.suffix
     } as CreateCounterRequest;
     return res;
@@ -216,8 +216,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       counterDescription: p.counterDescription,
       warehouse: wareHouseCode,
       prefix: p.prefix,
-      currentNumber: p.currentNumber,
-      numbepartLength: p.numbepartLength,
+      currentNumber: parseInt(p.currentNumber + ''),
+      numbepartLength: parseInt(p.numbepartLength + ''),
       suffix: p.suffix
     } as UpdateCounterRequest;
     return res;
@@ -376,7 +376,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       warehouse: new FormControl('', [Validators.required]),
       prefix: new FormControl('', [Validators.required]),
       currentNumber: new FormControl(0, [Validators.required]),
-      numbepartLength: new FormControl(0, [Validators.required]),
+      numbepartLength: new FormControl(0, [Validators.required, Validators.min(2), Validators.max(10)]),
       suffix: new FormControl('', [Validators.required]),
     });
 
@@ -400,7 +400,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
           id: 0,
           counterCode: '',
           counterDescription: '',
-          warehouse: this.wareHouses[0]?.warehouseDescription,
+          warehouse: this.wareHouses[0]?.warehouseDescription + '-' + this.wareHouses[0]?.warehouseCode,
           prefix: '',
           currentNumber: 0,
           numbepartLength: 0,

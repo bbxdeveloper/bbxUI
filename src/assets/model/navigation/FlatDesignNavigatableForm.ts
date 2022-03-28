@@ -518,7 +518,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             );
 
             // Flat Design forms are always vertical
-            if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass(TileCssColClass))) {
+            if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass('MULTICOLNAVIGATION_DISABLED'))) { // TileCssColClass
                 this.Matrix.push([]);
                 ++currentMatrixIndex;
             }

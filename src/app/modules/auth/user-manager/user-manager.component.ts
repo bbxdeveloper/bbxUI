@@ -310,7 +310,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       loginName: new FormControl(undefined, [Validators.required]),
       email: new FormControl(undefined, [Validators.required]),
       comment: new FormControl(undefined, []),
-      active: new FormControl(undefined, [Validators.required]),
+      active: new FormControl(false, [Validators.required]),
       password: new FormControl(undefined, []),
     });
     this.dbDataTable = new FlatDesignNavigatableTable(
