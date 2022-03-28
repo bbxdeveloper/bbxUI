@@ -1,4 +1,4 @@
-export interface DeletePocResponse {
+export interface DeleteCounterResponse {
     "succeeded": boolean,
     "message"?: string,
     "errors"?: string[],

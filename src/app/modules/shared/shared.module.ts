@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BaseNavigatableComponentComponent } from './base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
-import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule, NbCheckboxModule, NbContextMenuModule, NbMenuModule, NbPopoverModule, NbTagModule, NbTooltipModule } from '@nebular/theme';
+import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule, NbCheckboxModule, NbContextMenuModule, NbMenuModule, NbPopoverModule, NbTagModule, NbTooltipModule, NbSelectModule, NbIconModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 import { HeadLineComponent } from './head-line/head-line.component';
@@ -55,7 +55,9 @@ import { InputMaskModule } from '@ngneat/input-mask';
     NbTagModule,
     NbCheckboxModule,
     NbTooltipModule,
-    InputMaskModule
+    InputMaskModule,
+    NbSelectModule,
+    NbIconModule
   ],
   exports: [
     BaseNavigatableComponentComponent,
@@ -68,6 +70,7 @@ import { InputMaskModule } from '@ngneat/input-mask';
     BaseManagerComponent,
     BaseSideBarFormComponent,
     FormControlErrorComponent,
+    NbIconModule
   ],
   providers: [
     ConfirmationDialogComponent

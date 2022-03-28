@@ -21,24 +21,19 @@ import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/a
 import { GetUsersParamListModel } from '../models/GetUsersParamListModel';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-user-manager',
   templateUrl: './user-manager.component.html',
   styleUrls: ['./user-manager.component.scss'],
 })
-export class UserManagerComponent
-  extends BaseManagerComponent<User>
-  implements OnInit
+export class UserManagerComponent extends BaseManagerComponent<User> implements OnInit
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  usersTableId = 'usermanager-table';
-  usersTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
-  colDefs: ModelFieldDescriptor[] = [
+  override allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'ID',
       objectKey: 'id',
@@ -134,7 +129,9 @@ export class UserManagerComponent
     C: { pattern: new RegExp('[a-zA-Z0-9]') },
   };
 
-  searchString: string = '';
+  override get getInputParams(): GetUsersParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, LoginName: this.searchString ?? '' };
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -146,18 +143,28 @@ export class UserManagerComponent
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'usermanager-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
       console.log('ActionNew: ', data.data);
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv
         .Create({
           name: data.data.name,
@@ -174,13 +181,15 @@ export class UserManagerComponent
               } as TreeGridNode<User>;
               this.dbDataTable.SetDataForForm(newRow, false, false);
               this.dbData.push(newRow);
-              this.RefreshTable();
+              this.RefreshTable(newRow.data.id);
               this.toastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
               this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               console.log(
                 d.errors!,
@@ -192,15 +201,18 @@ export class UserManagerComponent
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.HandleError(err); },
         });
     }
   }
 
   override ProcessActionPut(data?: IUpdateRequest<User>): void {
     if (!!data && !!data.data) {
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       data.data.id = parseInt(data.data.id + ''); // TODO
       console.log('ActionPut: ', data.data);
       this.seInv
@@ -227,21 +239,26 @@ export class UserManagerComponent
                 Constants.TOASTR_SUCCESS
               );
               this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.HandleError(err); },
         });
     }
   }
 
   override ProcessActionDelete(data?: IUpdateRequest<User>): void {
     if (!!data && data.data?.id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       console.log('ActionDelete: ', data.rowIndex);
       this.seInv
         .Delete({
@@ -262,31 +279,25 @@ export class UserManagerComponent
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.HandleError(err); },
         });
     }
   }
 
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ Name: this.searchString });
-    }
+  override search(): void {
+    this.Refresh(this.getInputParams);
   }
 
   private Setup(): void {
@@ -299,7 +310,7 @@ export class UserManagerComponent
       loginName: new FormControl(undefined, [Validators.required]),
       email: new FormControl(undefined, [Validators.required]),
       comment: new FormControl(undefined, []),
-      active: new FormControl(undefined, [Validators.required]),
+      active: new FormControl(false, [Validators.required]),
       password: new FormControl(undefined, []),
     });
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -310,7 +321,7 @@ export class UserManagerComponent
       this.fS,
       this.cdref,
       this.dbData,
-      this.usersTableId,
+      this.dbDataTableId,
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
@@ -323,11 +334,18 @@ export class UserManagerComponent
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
+    this.dbDataTable.NewPageSelected.subscribe({
+      next: (newPageNumber: number) => {
+        this.Refresh(this.getInputParams);
+      },
+    });
+
     this.sidebarService.collapse();
-    this.Refresh();
+
+    this.Refresh(this.getInputParams);
   }
 
-  private Refresh(params?: GetUsersParamListModel): void {
+  override Refresh(params?: GetUsersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -349,6 +367,10 @@ export class UserManagerComponent
               };
             });
             this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {
@@ -359,25 +381,12 @@ export class UserManagerComponent
           );
         }
       },
-      error: (err) => this.cs.HandleError(err),
+      error: (err) => { this.cs.HandleError(err); this.isLoading = false; this.RefreshTable(); },
       complete: () => {
         this.isLoading = false;
+        this.RefreshTable();
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      //this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

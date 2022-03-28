@@ -1,6 +1,6 @@
-import { Poc } from "./Poc";
+import { Counter } from "./Counter";
 
-export interface GetPocsResponse {
+export interface GetCountersResponse {
     "pageNumber": number,
     "pageSize": number,
     "recordsFiltered": number,
@@ -8,5 +8,5 @@ export interface GetPocsResponse {
     "succeeded": boolean,
     "message"?: string,
     "errors"?: string[],
-    "data"?: Poc[]
+    "data"?: Counter[]
 }

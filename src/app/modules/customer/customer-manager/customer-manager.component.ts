@@ -17,6 +17,11 @@ import { GetCustomersParamListModel } from '../models/GetCustomersParamListModel
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
+import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
+import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
+import { PieController } from 'chart.js';
+import { CountryCode } from '../models/CountryCode';
 
 @Component({
   selector: 'app-customer-manager',
@@ -25,15 +30,11 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 })
 export class CustomerManagerComponent extends BaseManagerComponent<Customer> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
-  
-  dbDataTableId = 'customer-table';
-  dbDataTableEditId = "user-cell-edit-input";
 
-  colsToIgnore: string[] = [];
-  allColumns = [
-    'id', 'customerName', 'taxpayerNumber'
+  override allColumns = [
+    'id', 'customerName', 'taxpayerNumber', 'isOwnData'
   ];
-  colDefs: ModelFieldDescriptor[] = [
+  override colDefs: ModelFieldDescriptor[] = [
     { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
     { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: TileCssClass },
@@ -45,9 +46,15 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
     { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+    { label: 'Saját', objectKey: 'isOwnData', colKey: 'isOwnData', defaultValue: '', type: 'bool', fInputType: 'bool', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
   ]
 
-  searchString: string = '';
+  override get getInputParams(): GetCustomersParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
+
+  // CountryCode
+  countryCodes: CountryCode[] = [];
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -59,33 +66,82 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = "active-prod-search";
+    this.dbDataTableId = 'customer-table';
+    this.dbDataTableEditId = "user-cell-edit-input";
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
+  private ConvertCombosForGet(data: Customer): Customer {
+    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
+      data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
+    }
+
+    return data;
+  }
+
+  private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
+    let countryCode = !!p.countryCode?.includes('-') ? p.countryCode.split('-')[0] : '';
+
+    const res = {
+      additionalAddressDetail: p.additionalAddressDetail,
+      city: p.city,
+      comment: p.comment,
+      countryCode: countryCode,
+      customerBankAccountNumber: p.customerBankAccountNumber,
+      customerName: p.customerName,
+      isOwnData: p.isOwnData,
+      postalCode: p.postalCode,
+      privatePerson: p.privatePerson,
+      thirdStateTaxId: p.thirdStateTaxId,
+    } as CreateCustomerRequest;
+    return res;
+  }
+
+  private CustomerToUpdateRequest(p: Customer): UpdateCustomerRequest {
+    let countryCode = !!p.countryCode?.includes('-') ? p.countryCode.split('-')[0] : '';
+    p.countryCode = countryCode;
+    return p;
   }
 
   override ProcessActionNew(data?: IUpdateRequest<Customer>): void {
     console.log("ActionNew: ", data?.data);
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
-      this.seInv.Create(data.data).subscribe({
+
+      const createRequest = this.CustomerToCreateRequest(data.data);
+
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.seInv.Create(createRequest).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
             const newRow = { data: d.data } as TreeGridNode<Customer>;
             this.dbData.push(newRow);
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: err => { this.cs.HandleError(err); this.isLoading = false; }
       });
     }
   }
@@ -94,8 +150,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     console.log("ActionPut: ", data?.data, JSON.stringify(data?.data), typeof(data?.data.id));
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+
+      const updateRequest = this.CustomerToUpdateRequest(data.data);
+
       console.log(data.data.id);
-      this.seInv.Update(data.data).subscribe({
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
+      this.seInv.Update(updateRequest).subscribe({
         next: d => {
           if (d.succeeded && !!d.data) {
             const newRow = { data: d.data } as TreeGridNode<Customer>;
@@ -104,11 +164,15 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: err => { this.cs.HandleError(err); this.isLoading = false; }
       });
     }
   }
@@ -117,6 +181,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     const id = data?.data?.id;
     console.log("ActionDelete: ", id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv.Delete({
         id: id
       } as DeleteCustomerRequest).subscribe({
@@ -127,26 +192,16 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.RefreshTable();
             this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: err => this.cs.HandleError(err)
+        error: err => { this.cs.HandleError(err); this.isLoading = false; }
       });
-    }
-  }
-  
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log("Search: ", this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ 'SearchString': this.searchString });
     }
   }
 
@@ -167,6 +222,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       additionalAddressDetail: new FormControl(undefined, [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
+      isOwnData: new FormControl(false, [])
     });
     
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -178,16 +234,32 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ 'PageNumber': (newPageNumber + '') });
-      }
+        this.Refresh(this.getInputParams);
+      },
     });
-    
+
     this.sidebarService.collapse();
 
-    this.Refresh();
+    this.RefreshAll(this.getInputParams);
   }
 
-  private Refresh(params?: GetCustomersParamListModel): void {
+  private RefreshAll(params?: GetCustomersParamListModel): void {
+    // CountryCodes
+    this.seInv.GetAllCountryCodes().subscribe({
+      next: (data) => {
+        if (!!data) this.countryCodes = data;
+      },
+      error: (err) => {
+        { this.cs.HandleError(err); this.isLoading = false; };
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.Refresh(params);
+      },
+    });
+  }
+
+  override Refresh(params?: GetCustomersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -195,31 +267,21 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
-            this.dbData = d.data.map(x => { return { data: x, uid: this.nextUid() }; });
+            this.dbData = d.data.map(x => { return { data: this.ConvertCombosForGet(x), uid: this.nextUid() }; });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {
           this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
-      error: err => this.cs.HandleError(err),
+      error: err => { this.HandleError(err); },
       complete: () => { this.isLoading = false; }
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData, this.dbDataDataSrc,
-      this.allColumns, this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

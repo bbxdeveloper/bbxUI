@@ -1,3 +1,11 @@
 .paginator-wrapper {
     justify-content: center;
+
+    nb-action {
+        padding: 0px;
+    }
+    .paginator-label-pages {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,9 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardComponent implements OnInit {
 
-  constructor() { }
+  constructor(private kbS: KeyboardNavigationService) { }
 
   ngOnInit(): void {
+    this.kbS.ResetToRoot();
+    this.kbS.SelectFirstTile();
   }
 
 }

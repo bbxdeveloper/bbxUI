@@ -1,3 +1,43 @@
+$label-w-min: 185px;
+
+.label-type-1 {
+    min-width: $label-w-min;
+}
+
+.input-type-1 {
+    margin-top: 5px;
+    max-width: 100% !important;
+}
+
+.input-type-1-checkbox {
+    margin-top: 20px;
+}
+
+label {
+    align-self: center;
+    text-align: right;
+}
+label.label-checkbox {
+    align-self: auto !important;
+}
+
+input[type="checkbox"],
+[type="radio"] {
+    box-sizing: border-box;
+    padding: 0;
+    -ms-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    transform: scale(1.5);
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+label {
+    @extend .label-type-1;
+}
+
 .bbx-fd-ncb {
     margin-top: 25px !important;
     padding-right: 5px !important;
@@ -9,7 +49,6 @@ nb-form-field {
 
 form {
     height: calc(100vh - 50px - 100px);
-    // max-height: calc(100vh - 50px - 100px);
 
     display: flex;
     flex-direction: column;
@@ -43,18 +82,17 @@ form {
             column-gap: 20px;
 
             input {
-                margin-top: 8px;
-                margin-bottom: 20px;
-                max-width: 100% !important;
+                @extend .input-type-1;
+            }
+
+            input[type="checkbox"] {
+                @extend .input-type-1-checkbox;
             }
         }
 
-        // .bbx-fd-form-field-inner-div-2-first {
         .bbx-fd-form-field-inner-div-first {
-            // @extend .bbx-fd-form-field-inner-div-2;
             label {
-                min-width: min-content;
-                width: 125px;
+                @extend .label-type-1;
             }
         }
     }
@@ -71,17 +109,16 @@ form {
 
         column-gap: 20px;
 
-        // min-width: 490px;
-
         input {
-            margin-top: 8px;
-            margin-bottom: 20px;
-            max-width: 100% !important;
+            @extend .input-type-1;
+        }
+
+        input[type="checkbox"] {
+            @extend .input-type-1-checkbox;
         }
 
         label {
-            min-width: min-content;
-            width: 125px;
+            @extend .label-type-1;
         }
     }
 }

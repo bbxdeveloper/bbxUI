@@ -19,9 +19,9 @@ export function BlankWareHouse(): WareHouse {
 }
 
 export function WareHouseDescriptionToCode(warehouseDescription: string, data: WareHouse[]): string {
-    return data.filter(x => x.warehouseDescription === warehouseDescription)[0].warehouseCode;
+    return data.filter(x => x.warehouseDescription === warehouseDescription)[0].warehouseCode ?? '';
 }
 
 export function WareHouseCodeToDescription(warehouseCode: string, data: WareHouse[]): string {
-    return data.filter(x => x.warehouseCode === warehouseCode)[0].warehouseDescription;
+    return data.filter(x => x.warehouseCode === warehouseCode)[0].warehouseDescription ?? '';
 }

@@ -5,7 +5,9 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
+import { TileCssClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
@@ -19,6 +21,14 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 })
 export class BaseManagerComponent<T> {
   searchInputId?: string;
+  searchString: string = '';
+
+  dbDataTableId: string = '';
+  dbDataTableEditId: string = '';
+
+  colsToIgnore: string[] = [];
+  allColumns: string[] = [];
+  colDefs: ModelFieldDescriptor[] = [];
 
   dbDataTableForm!: FormGroup;
   dbData!: TreeGridNode<T>[];
@@ -37,6 +47,10 @@ export class BaseManagerComponent<T> {
   protected nextUid() {
     ++this.uid;
     return this.uid;
+  }
+
+  get getInputParams(): any {
+    return {};
   }
 
   commands: FooterCommandInfo[] = [
@@ -59,11 +73,11 @@ export class BaseManagerComponent<T> {
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected sidebarService: BbxSidebarService) {
-
   }
 
   ActionNew(data?: IUpdateRequest<T>): void {
     console.log("ActionNew: ", data);
+
     if (data?.needConfirmation) {
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
@@ -71,7 +85,17 @@ export class BaseManagerComponent<T> {
       );
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ProcessActionNew(data);
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+                this.ProcessActionNew(data);
+              }
+            });
+          } else {
+            this.ProcessActionNew(data);
+          }
         }
       });
     } else {
@@ -96,7 +120,17 @@ export class BaseManagerComponent<T> {
       );
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ProcessActionPut(data);
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+                this.ProcessActionPut(data);
+              }
+            });
+          } else {
+            this.ProcessActionPut(data);
+          }
         }
       });
     } else {
@@ -123,6 +157,10 @@ export class BaseManagerComponent<T> {
   }
   ProcessActionDelete(data?: IUpdateRequest<T>): void { }
 
+  ActionRefresh(data?: IUpdateRequest<T>): void {
+    this.Refresh(this.getInputParams);
+  }
+
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
       case CrudManagerKeySettings[Actions.TableSearch].KeyCode: {
@@ -137,6 +175,45 @@ export class BaseManagerComponent<T> {
       }
       default: { }
     }
+  }
+
+  refreshFilter(event: any): void {
+    if (this.searchString === event.target.value) {
+      return;
+    }
+    this.searchString = event.target.value;
+    console.log('Search: ', this.searchString);
+    this.search();
+  }
+
+  clearSearch(input?: any): void {
+    if (input !== undefined) {
+      input.value = '';
+    } else {
+      $('#' + this.searchInputId!).val('');
+    }
+    this.searchString = '';
+
+    this.search();
+  }
+
+  search(): void {
+    this.Refresh(this.getInputParams);
+  }
+
+  Refresh(params?: any): void {}
+
+  RefreshTable(selectAfterRefresh?: any): void {
+    this.dbDataTable.Setup(
+      this.dbData,
+      this.dbDataDataSrc,
+      this.allColumns,
+      this.colDefs,
+      this.colsToIgnore
+    );
+    setTimeout(() => {
+      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+    }, 200);
   }
 
   trackRows(index: number, row: any) {

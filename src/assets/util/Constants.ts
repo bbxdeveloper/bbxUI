@@ -6,6 +6,7 @@ export module Constants {
     // Messages
 
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
+    export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
 
@@ -72,6 +73,21 @@ export module Constants {
         { title: 'Riport Letöltés', value: 0, msg: '0/3 - Kérés feldolgozása' },
         { title: 'Riport Letöltés', value: 50, msg: '1/3 - Generálás' },
         { title: 'Riport Letöltés', value: 100, msg: '2/3 - Letöltés előkészítése' }
+    ];
+
+    export enum CRUDSavingPhases { SAVING }
+    export const CRUDSavingStatuses: ProcessStatus[] = [
+        { title: 'Mentés', value: 0, msg: '1/1 - Új rekord mentése' }
+    ];
+
+    export enum CRUDPutPhases { UPDATING }
+    export const CRUDPutStatuses: ProcessStatus[] = [
+        { title: 'Mentés', value: 0, msg: '1/1 - Rekord változásának mentése' }
+    ];
+
+    export enum CRUDDeletePhases { DELETING }
+    export const CRUDDeleteStatuses: ProcessStatus[] = [
+        { title: 'Törlés', value: 0, msg: '1/1 - Rekord törlése' }
     ];
 
     export const BlankProcessStatus: ProcessStatus = { value: -1 } as ProcessStatus;

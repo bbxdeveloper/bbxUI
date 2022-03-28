@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as $ from 'jquery'
+import { BehaviorSubject } from 'rxjs';
 import { AttachDirection, INavigatable, NullNavigatable } from 'src/assets/model/navigation/Nav';
+import { JumpDestination } from 'src/assets/model/navigation/Navigatable';
 import { environment } from 'src/environments/environment';
 
 interface MatrixCoordinate {
@@ -20,6 +22,9 @@ export interface MoveRes {
   moved: boolean;
   jumped: boolean;
 }
+
+export const SELECTED_ELEMENT_CLASS = 'current-keyboard-nav-selected';
+export const PARENT_OF_SELECTED_ELEMENT_CLASS = 'parent-of-current-keyboard-nav-selected';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +48,8 @@ export class KeyboardNavigationService {
   get isEditModeActivated() {
     return this._currentKeyboardMode === KeyboardModes.EDIT;
   }
+
+  ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   isEditModeLocked: boolean = false;
 
@@ -74,6 +81,8 @@ export class KeyboardNavigationService {
     return this.p.x <= this.maxCurrentWorldX && this.p.y <= this.maxCurrentWorldY && this.p.x > -1 && this.p.y > -1;
   }
 
+  private previousIdString ?: string = undefined;
+
   constructor() { }
 
   toggleEdit(): void {
@@ -81,6 +90,8 @@ export class KeyboardNavigationService {
       return;
     }
     this._currentKeyboardMode = this._currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
+    
+    // throw new Error("debug");
   }
 
   setEditMode(mode: KeyboardModes): void {
@@ -88,23 +99,86 @@ export class KeyboardNavigationService {
       return;
     }
     this._currentKeyboardMode = mode;
+
+    // throw new Error("debug");
   }
 
   public SelectElement(id: string): void {
     this.LogSelectElement();
+
+    const idString = '#' + id;
+
+    console.log('SelectElement: ', this.previousIdString, id);
+
+    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
+      $(element).removeClass(SELECTED_ELEMENT_CLASS);
+      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    });
+    $(idString).addClass(SELECTED_ELEMENT_CLASS);
+    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    // if (this.previousIdString === undefined) {
+    //   this.previousIdString = idString;
+
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // } else {
+    //   $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    //   this.previousIdString = idString;
+
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // }
+
     switch (this.CurrentNavigatable.TileSelectionMethod) {
       case PreferredSelectionMethod.both:
-        $('#' + id).trigger('focus');
-        $('#' + id).trigger('click');
+        $(idString).trigger('focus');
+        $(idString).trigger('click');
         break;
       case PreferredSelectionMethod.click:
-        $('#' + id).trigger('click');
+        $(idString).trigger('click');
         break;
       case PreferredSelectionMethod.focus:
       default:
-        $('#' + id).trigger('focus');
+        $(idString).trigger('focus');
         break;
     }
+
+    this.ElementIdSelected.next(id);
+  }
+
+  public ClickElement(id: string): void {
+    const idString = '#' + id;
+
+    console.log('ClickElement: ', this.previousIdString, id);
+
+    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
+      $(element).removeClass(SELECTED_ELEMENT_CLASS);
+      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    });
+    $(idString).addClass(SELECTED_ELEMENT_CLASS);
+    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    // if (this.previousIdString === undefined) {
+    //   this.previousIdString = idString;
+
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // } else {
+    //   $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    //   this.previousIdString = idString;
+
+    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
+    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    // }
+    
+    $(idString).trigger('click');
+
+    this.ElementIdSelected.next(id);
   }
 
   /**
@@ -124,6 +198,7 @@ export class KeyboardNavigationService {
     if (!!n && this.CurrentNavigatable !== n) {
       this.CurrentNavigatable = n;
     }
+    this.SelectCurrentElement();
   }
 
   public SetPositionById(tileValue: string): boolean {
@@ -136,10 +211,6 @@ export class KeyboardNavigationService {
       }
     }
     return false;
-  }
-
-  public ClickElement(id: string): void {
-    $('#' + id).trigger('click');
   }
 
   public SelectCurrentElement(): void {
@@ -351,9 +422,38 @@ export class KeyboardNavigationService {
     // At left bound
     if (this.p.x === 0) {
       if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.LeftNeighbour) {
+        if (this.CurrentNavigatable.LeftNeighbour.Matrix.length === 0 || this.CurrentNavigatable.LeftNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
-        this.p.y = 0;
-        this.p.x = this.maxCurrentWorldX;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = 0;
+          this.p.x = this.maxCurrentWorldX;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -397,9 +497,38 @@ export class KeyboardNavigationService {
     // At right bound
     if (this.p.x === this.maxCurrentWorldX) {
       if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.RightNeighbour) {
+        if (this.CurrentNavigatable.RightNeighbour.Matrix.length === 0 || this.CurrentNavigatable.RightNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
-        this.p.y = 0;
-        this.p.x = 0;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = 0;
+          this.p.x = 0;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -441,9 +570,38 @@ export class KeyboardNavigationService {
         this.CurrentSubMappingRootKey = undefined;
       }
       else if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.UpNeighbour) {
+        if (this.CurrentNavigatable.UpNeighbour.Matrix.length === 0 || this.CurrentNavigatable.UpNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
-        this.p.y = this.maxCurrentWorldY;
-        this.p.x = 0;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = this.maxCurrentWorldY;
+          this.p.x = 0;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -454,7 +612,13 @@ export class KeyboardNavigationService {
       }
       // Not at upper bound
     } else {
+      const tmpLength = this.AroundHere[this.p.y].length;
+
       this.p.y--;
+
+      if (this.AroundHere[this.p.y].length < tmpLength) {
+        this.p.x = 0;
+      }
 
       if (select) {
         this.SelectCurrentElement();
@@ -485,9 +649,38 @@ export class KeyboardNavigationService {
         this.SelectFirstTile();
       }
       else if (canJumpToNeighbourMatrix && this.CurrentNavigatable.OuterJump && !!this.CurrentNavigatable.DownNeighbour) {
+        if (this.CurrentNavigatable.DownNeighbour.Matrix.length === 0 || this.CurrentNavigatable.DownNeighbour.Matrix[0].length === 0) {
+          res.moved = false;
+          res.jumped = false;
+          return res;
+        }
+
         this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
-        this.p.y = 0;
-        this.p.x = 0;
+
+        if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
+          switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
+            case JumpDestination.LOWER_LEFT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = 0;
+              break;
+            case JumpDestination.LOWER_RIGHT:
+              this.p.y = this.maxCurrentWorldY;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+            case JumpDestination.UPPER_LEFT:
+              this.p.y = 0;
+              this.p.x = 0;
+              break;
+            default:
+            case JumpDestination.UPPER_RIGHT:
+              this.p.y = 0;
+              this.p.x = this.maxCurrentWorldX;
+              break;
+          }
+        } else {
+          this.p.y = 0;
+          this.p.x = 0;
+        }
 
         if (select) {
           this.SelectCurrentElement();
@@ -516,6 +709,10 @@ export class KeyboardNavigationService {
 
   public SetRoot(n: INavigatable): void {
     this.Root = n;
+    this.CurrentNavigatable = n;
+  }
+
+  public SetCurrentNavigatable(n: INavigatable): void {
     this.CurrentNavigatable = n;
   }
 
@@ -562,6 +759,8 @@ export class KeyboardNavigationService {
     if (this.CurrentNavigatable === this.Root) {
       return;
     }
+
+    console.log(this.CurrentNavigatable);
 
     if (!!this.CurrentNavigatable.UpNeighbour) {
       let temp = this.CurrentNavigatable.UpNeighbour;

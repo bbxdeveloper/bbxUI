@@ -13,7 +13,7 @@ import { SimplePaginator } from "../SimplePaginator";
 import { TreeGridNode } from "../TreeGridNode";
 import { IUpdatable, IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableForm } from "./FlatDesignNavigatableForm";
-import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, JumpDestination } from "./Navigatable";
 
 export class FlatDesignNavigatableTable<T> extends SimplePaginator implements INavigatable, IUpdatable<T> {
     Matrix: string[][] = [[]];
@@ -33,6 +33,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     RightNeighbour?: INavigatable;
     DownNeighbour?: INavigatable;
     UpNeighbour?: INavigatable;
+
+    DestWhenJumpedOnto = JumpDestination.UPPER_LEFT;
 
     TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.both;
 
@@ -64,7 +66,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         { key: 'F2', value: '', disabled: false },
         { key: 'F3', value: '', disabled: false },
         { key: 'F4', value: '', disabled: false },
-        { key: 'F5', value: '', disabled: false },
+        { key: 'F5', value: 'Frissítés', disabled: false },
         { key: 'F6', value: '', disabled: false },
         { key: 'F7', value: '', disabled: false },
         { key: 'F8', value: '', disabled: false },
@@ -104,7 +106,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         private sidebarService: BbxSidebarService,
         private sidebarFormService: SideBarFormService,
         private updater: IUpdater<T>,
-        getBlankInstance: () => T
+        getBlankInstance: () => T,
+        private includeSearchInNavigationMatrix: boolean = true,
+        colDefs: ModelFieldDescriptor[] = []
     ) {
         super();
 
@@ -115,7 +119,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.data = [];
         this.dataSource = this.dataSourceBuilder.create(this.data);
         this.allColumns = [];
-        this.colDefs = [];
+        this.colDefs = colDefs;
         this.colsToIgnore = [];
 
         this.flatDesignForm = new FlatDesignNavigatableForm(
@@ -144,6 +148,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     Delete(data?: IUpdateRequest): void {
         this.updater.ActionDelete(data);
+        this.PushFooterCommandList();
+    }
+
+    Refresh(): void {
+        this.updater.ActionRefresh();
         this.PushFooterCommandList();
     }
 
@@ -181,6 +190,24 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.colDefs = this.colDefs;
         this.flatDesignForm.OuterJump = true;
+
+        let includeFilterY = 0;
+        if (this.includeSearchInNavigationMatrix) {
+            includeFilterY = 1;
+            this.kbs.ElementIdSelected.subscribe(id => {
+                if (this.Matrix[0].includes(id)) {
+                    this.SetBlankInstanceForForm(false, false);
+                }
+            });
+        }
+
+        if (this.kbs.p.y >= (this.data.length + includeFilterY)) {
+            if (this.data.length > 0) {
+                this.kbs.SelectElementByCoordinate(0, 1);
+            } else {
+                this.kbs.SelectElementByCoordinate(0, 0);
+            }
+        }
     }
 
     PushFooterCommandList(): void {
@@ -191,6 +218,17 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             this.fS.pushCommands(this.commandsOnTableEditMode);
         } else {
             this.fS.pushCommands(this.commandsOnTable);
+        }
+    }
+
+    SelectRowById(id: any): void {
+        const rowIndex = this.data.findIndex(x => (x.data as any).id === id);
+        console.log(rowIndex);
+        if (rowIndex !== -1) {
+            const filterValue = this.includeSearchInNavigationMatrix ? 1 : 0;
+            // this.kbs.SetCurrentNavigatable(this);
+            // this.kbs.SelectElementByCoordinate(rowIndex + filterValue, 0);
+            this.HandleGridClick(this.data[rowIndex], rowIndex, this.colDefs[0].objectKey, 0);
         }
     }
 
@@ -218,20 +256,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
         
         this.flatDesignForm.SetClean();
+
+        this.flatDesignForm.SetFormStateToNew();
         
-        setTimeout(() => {
-            if (openSideBar) {
-                this.sidebarService.toggle();
-            }
-
-            this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
-
-            if (jump) {
-                this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-            }
-
-            this.flatDesignForm.PushFooterCommandList();
-        }, 200);
+        if (openSideBar) {
+            this.sidebarService.expand();
+        }
     }
 
     SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
@@ -252,7 +282,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         setTimeout(() => {
             if (openSideBar) {
-                this.sidebarService.toggle();
+                this.sidebarService.expand();
             }
 
             this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
@@ -266,6 +296,14 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+
+        console.log('[HandleGridClick]');
+
+        if (this.includeSearchInNavigationMatrix) {
+            ++rowPos;
+        }
+
         // In case user clicks with mouse, we adjust our coordinate to the click
 
         // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
@@ -289,7 +327,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.flatDesignTableDebug) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 
@@ -305,11 +343,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean): void {
+    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
-        // if (environment.debug) {
+        // if (environment.flatDesignTableDebug) {
         //     console.log('[GenerateAndSetNavMatrices] Data: ', this.data);
         //     console.log('[GenerateAndSetNavMatrices]', 'Tiles: ', tiles, 'Css class: ', '.' + TileCssClass, '#TableID: ', '#' + this.tableId);
         // }
@@ -319,6 +357,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         // Prepare matrix
         this.Matrix = [[]];
         let currentMatrixIndex = 0;
+
+        if (this.includeSearchInNavigationMatrix) {
+            this.Matrix = [['active-prod-search', 'active-prod-search-clear']];
+            this.Matrix.push([]);
+            ++currentMatrixIndex;
+        }
 
         // Getting tiles, rows for navigation matrix
         for (let i = 0; i < tiles.length; i++) {
@@ -346,7 +390,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             this.Matrix[currentMatrixIndex].push(next.id);
         }
 
-        if (environment.debug) {
+        if (environment.flatDesignTableDebug) {
             console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
 
@@ -354,23 +398,39 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             this.kbs.Attach(this, this.attachDirection);
         }
 
+        if (idToSelectAfterGenerate !== undefined) {
+            this.SelectRowById(idToSelectAfterGenerate);
+        }
+
         // this.kbs.LogMatrix();
+    }
+
+    private HandleF12(): void {
+        if (!this.sidebarService.sideBarOpened) {
+            this.flatDesignForm.PushFooterCommandList();
+        } else {
+            this.PushFooterCommandList();
+        }
+        // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
+        if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
+            this.SetBlankInstanceForForm(true);
+        } else if (!this.sidebarService.sideBarOpened) {
+            this.sidebarService.expand();
+        } else {
+            this.sidebarService.collapse();
+        }
     }
 
     HandleKey(event: any): void {
         switch (event.key) {
             case KeyBindings.F12: {
                 event.preventDefault();
-                if (!this.sidebarService.sideBarOpened) {
-                    this.flatDesignForm.PushFooterCommandList();
-                } else {
-                    this.PushFooterCommandList();
-                }
-                if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
-                    this.SetBlankInstanceForForm(true);
-                } else {
-                    this.sidebarService.toggle();
-                }
+                this.HandleF12();
+                break;
+            }
+            case KeyBindings.F5: {
+                event.preventDefault();
+                this.Refresh();
                 break;
             }
             default: { }

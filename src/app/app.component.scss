@@ -1,3 +1,7 @@
 ::ng-deep .layout-container {
     padding-top: 35px !important;
 }
+
+::ng-deep nb-layout-header nav {
+    padding: 0px;
+}

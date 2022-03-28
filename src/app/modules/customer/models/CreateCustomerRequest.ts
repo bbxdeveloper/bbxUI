@@ -12,4 +12,5 @@ export interface CreateCustomerRequest {
     "city": string,
     "additionalAddressDetail": string,
     "comment": string
+    "isOwnData": boolean;
 }

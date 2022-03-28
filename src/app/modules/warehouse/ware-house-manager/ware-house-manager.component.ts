@@ -17,6 +17,7 @@ import { BlankWareHouse, WareHouse } from '../models/WareHouse';
 import { WareHouseService } from '../services/ware-house.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-ware-house-manager',
@@ -26,12 +27,8 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableId = 'warehouse-table';
-  dbDataTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = ['id', 'warehouseCode', 'warehouseDescription'];
-  colDefs: ModelFieldDescriptor[] = [
+  override allColumns = ['id', 'warehouseCode', 'warehouseDescription'];
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
       objectKey: 'id',
@@ -73,7 +70,9 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     },
   ];
 
-  searchString: string = '';
+  override get getInputParams(): GetWareHousesParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -85,32 +84,43 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'warehouse-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<WareHouse>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
             const newRow = { data: d.data } as TreeGridNode<WareHouse>;
             this.dbData.push(newRow);
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
-            this.dbDataTable.SetDataForForm
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
@@ -118,9 +128,11 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -129,6 +141,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + ''); // TODO
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
@@ -145,15 +158,19 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -162,6 +179,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,
@@ -179,30 +197,20 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.HandleError(err); },
         });
-    }
-  }
-
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ SearchString: this.searchString });
     }
   }
 
@@ -240,16 +248,16 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ PageNumber: newPageNumber + '' });
+        this.Refresh(this.getInputParams);
       },
     });
 
     this.sidebarService.collapse();
 
-    this.Refresh();
+    this.Refresh(this.getInputParams);
   }
 
-  private Refresh(params?: GetWareHousesParamListModel): void {
+  override Refresh(params?: GetWareHousesParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -262,6 +270,9 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {
@@ -272,26 +283,12 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
           );
         }
       },
-      error: (err) => this.cs.HandleError(err),
+      error: (err) => { this.cs.HandleError(err); this.isLoading = false; this.RefreshTable(); },
       complete: () => {
         this.isLoading = false;
+        this.RefreshTable();
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      // this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

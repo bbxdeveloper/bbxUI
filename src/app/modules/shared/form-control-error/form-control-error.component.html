@@ -1,6 +1,11 @@
 <div *ngIf="!!form && !!controlName && form.CanShowFormErrors(controlName)"
         class="alert alert-danger">
     <div *ngIf="form?.IsErrorApparent(controlName, 'required')">
-        {{ ValidationMessage.ErrorRequired }}
+        {{ GetErrorMessage(ValidationMessage.ErrorRequired) }}
     </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'min')">
+        {{ GetErrorMessage(ValidationMessage.ErrorMin) }}
+    </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'max')">
+        {{ GetErrorMessage(ValidationMessage.ErrorMax
 </div>

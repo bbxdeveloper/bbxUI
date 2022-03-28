@@ -1,8 +1,6 @@
-export interface GetPocsParamListModel {
-    Name?: string;
+export interface GetVatRatesParamListModel {
     SearchString?: string;
     OrderBy?: string;
-    Fields?: string;
     PageSize?: string;
     PageNumber?: string;
 }

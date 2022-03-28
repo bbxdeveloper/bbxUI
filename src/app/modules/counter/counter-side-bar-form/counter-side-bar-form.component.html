@@ -1,1 +1,101 @@
-<p>counter-side-bar-form works!</p>
+<nb-card>
+    <nb-card-body class="bbx-fd-ncb">
+        <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm">
+        </app-crud-buttons>
+
+        <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
+            (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape()"
+            (click)="currentForm.HandleFormClick()">
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Azonosító</label>
+                    <input nbInput type="number" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
+                        readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Kód*</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="counterCode"
+                        (click)="currentForm.HandleFormFieldClick($event)" required>
+                </div>
+                <app-form-control-error [form]="currentForm" controlName="counterCode"></app-form-control-error>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Megnevezés*</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="counterDescription"
+                        (click)="currentForm.HandleFormFieldClick($event)" required>
+                </div>
+                <app-form-control-error [form]="currentForm" controlName="counterDescription"></app-form-control-error>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentWareHouseCount)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Raktár*</label>
+
+                    <input class="{{TileCssClass}}" formControlName="warehouse" nbInput type="text"
+                        (click)="currentForm.HandleFormFieldClick($event)"
+                        [nbAutocomplete]="autoWarehouse" [readonly]="isEditModeOff" autocomplete="off" />
+                </div>
+                <app-form-control-error [form]="currentForm" controlName="warehouse"></app-form-control-error>
+            </nb-form-field>
+            <!-- AUTOCOMPLETE -->
+            <nb-autocomplete #autoWarehouse [activeFirst]="false"
+                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'warehouse')">
+                <nb-option *ngFor="let option of filteredWareHouses$ | async; let i = index" [value]="option">
+                    {{ option }}
+                </nb-option>
+            </nb-autocomplete>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Prefix*</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="prefix" mask="AAA"
+                        (click)="currentForm.HandleFormFieldClick($event)" required>
+                </div>
+                <app-form-control-error [form]="currentForm" controlName="prefix"></app-form-control-error>
+            </nb-form-field>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label>Számláló*</label>
+
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="number" formControlName="currentNumber"
+                            [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
+                    </div>
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label>Számláló számjegyek száma*</label>
+                        
+                        <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2"
+                        max="10" [inputMask]="numberInputMaskInteger"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                    </div>
+                </nb-form-field>
+            </div>
+            <app-form-control-error [form]="currentForm" label="számláló" controlName="currentNumber"></app-form-control-error>
+            <app-form-control-error [form]="currentForm" [min]="2" [max]="10" label="számláló számjegyek száma" controlName="numbepartLength"></app-form-control-error>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Lezárójel*</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="suffix"
+                        [patterns]="customPatterns" mask="A" (click)="currentForm.HandleFormFieldClick($event)"
+                        required>
+                </div>
+                <app-form-control-error [form]="currentForm" controlName="suffix"></app-form-control-error>
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+</nb-card>

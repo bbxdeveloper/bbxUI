@@ -1,3 +1,24 @@
 <as-split direction="horizontal">
-    <app-head-line msg="Bizonylati tömbök modul fejlesztés alatt áll."></app-head-line>
+    <as-split-area [size]="50">
+        <app-head-line msg="Számlatömb kezelése"></app-head-line>
+
+        <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+            <label class="search-label" for="search">Keresés:</label>
+            <input #searchInput nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)"
+                autocomplete="off">
+            <button nbSuffix nbButton ghost (click)="clearSearch(searchInput)" id="active-prod-search-clear">
+                <nb-icon icon="close-outline" pack="eva"
+                    attr.aria-label="clear search">
+                </nb-icon>
+            </button>
+        </app-flat-design-table>
+
+        <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+        <app-counter-side-bar-form class="bbx-sidebar"></app-counter-side-bar-form>
+    </as-split-area>
 </as-split>

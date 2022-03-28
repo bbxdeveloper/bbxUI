@@ -1,8 +1,10 @@
 import { PreferredSelectionMethod } from "src/app/services/keyboard-navigation.service";
 
 export const TileCssClass: string = 'navmatrix-tile';
+export const TileCssColClass: string = 'navmatrix-tile-col';
 
 export enum AttachDirection { DOWN = -1, LEFT = -2, RIGHT = 2, UP = 1 };
+export enum JumpDestination { LOWER_LEFT, LOWER_RIGHT, UPPER_LEFT, UPPER_RIGHT };
 
 // Interfaces
 
@@ -27,10 +29,12 @@ export interface INavigatable {
     DownNeighbour?: INavigatable;
     UpNeighbour?: INavigatable;
 
+    DestWhenJumpedOnto?: JumpDestination;
+
     TileSelectionMethod: PreferredSelectionMethod;
 
     ClearNeighbours(): void;
-    GenerateAndSetNavMatrices(attach: boolean): void;
+    GenerateAndSetNavMatrices(attach: boolean, setAsCurrentNavigatable?: boolean, idToSelectAfterGenerate?: any): void;
     Attach(): void;
     Detach(): void;
 }

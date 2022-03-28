@@ -43,6 +43,18 @@
                             </td>
                         </ng-container>
 
+                        <ng-container *ngSwitchCase="'formatted-number'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] | number:'8.0':'fr' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
                         <ng-container *ngSwitchCase="'bool'">
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                 *nbTreeGridCellDef="let row; let rowPos = index"
@@ -62,7 +74,7 @@
             </table>
         </form>
     </nb-card-body>
-    <nb-card-footer *ngIf="!!dbDataTable">
+    <nb-card-footer class="footer-paginator" *ngIf="!!dbDataTable">
         <app-paginator *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" [paginator]="dbDataTable"></app-paginator>
         <span *ngIf="!!dbDataTable && !isLoading && dbDataTable.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
     </nb-card-footer>

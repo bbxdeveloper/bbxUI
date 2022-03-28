@@ -19,7 +19,7 @@
                                     [required]="it.fRequired ?? false">
                             </ng-container>
                         </div>
-                        <app-form-control-error [form]="currentForm" [controlName]="it.objectKey"></app-form-control-error>
+                        <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
                     </nb-form-field>
                 </ng-container>
                 
@@ -35,7 +35,7 @@
                             </ng-container>
                         </div>
                     </nb-form-field>
-                    <app-form-control-error [form]="currentForm" [controlName]="it.objectKey"></app-form-control-error>
+                    <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
                 </ng-container>
 
                 <ng-container *ngSwitchCase="'readonly'">
@@ -48,7 +48,7 @@
                                     (click)="currentForm.HandleFormFieldClick($event)" readonly>
                             </ng-container>
                         </div>
-                        <app-form-control-error [form]="currentForm" [controlName]="it.objectKey"></app-form-control-error>
+                        <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
                     </nb-form-field>
                 </ng-container>
 
@@ -63,7 +63,7 @@
                                     [required]="it.fRequired ?? false">
                             </ng-container>
                         </div>
-                        <app-form-control-error [form]="currentForm" [controlName]="it.objectKey"></app-form-control-error>
+                        <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
                     </nb-form-field>
                 </ng-container>
 
@@ -72,6 +72,7 @@
 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"
                         [formControlName]="it.objectKey" (click)="currentForm.HandleFormFieldClick($event)">
+                    <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
                 </div>
             </ng-container>
         </form>

@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
-import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/Nav';
+import { FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
@@ -13,14 +13,29 @@ export class BaseSideBarFormComponent {
 
   numberInputMask = createMask({
     alias: 'numeric',
-    groupSeparator: '',
-    digits: 5,
+    groupSeparator: ' ',
+    digits: 2,
     digitsOptional: false,
     prefix: '',
     placeholder: '0',
   });
 
-  constructor() { }
+  numberInputMaskInteger = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 0,
+    digitsOptional: true,
+    prefix: '',
+    placeholder: '0',
+  });
+
+  TileCssClass = TileCssClass;
+  TileCssColClass = TileCssColClass;
+
+  constructor() {
+    // const _form = this.currentForm;
+    // $("input").on("click", function (event) { _form?.HandleFormFieldClick(event); });
+  }
 
   @HostListener('document:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
@@ -29,7 +44,10 @@ export class BaseSideBarFormComponent {
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+    if (event.shiftKey && event.key == 'Enter') {
+      this.currentForm?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();

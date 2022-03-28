@@ -5,6 +5,10 @@ nb-form-field {
     margin-right: auto;
 }
 
+.footer-paginator {
+    padding: 0px;
+}
+
 .div-wrapper-input {
     display: flex;
 
@@ -14,30 +18,26 @@ nb-form-field {
     flex-flow: wrap;
 }
 
+nb-card-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
+
 nb-card {
     background: none;
     border: none;
     margin: 0px;
 }
 
-.card-table-wrapper-form {
-    display: flex;
-}
-
 .card-table-wrapper {
     display: block;
-
     position: sticky;
     top: 0;
-
-    // margin-left: 25%;
-
-    @media (max-height: 1000px) {
-        max-height: 255px !important;
-    }
-    @media (min-height: 1001px) {
-        max-height: 305px !important;
-    }
+    
+    max-height: calc(100vh - 260px) !important;
 
     @media (max-height: 1000px) {
         td {
@@ -50,8 +50,12 @@ nb-card {
         top: -1px;
     }
 
+    // th {
+    //     padding: 0px;
+    // }
+
     tr:nth-child(even) {
-        background-color: #493668 !important;
+        background-color: #493668;
 
         th,
         td {
@@ -100,7 +104,7 @@ nb-card {
     }
 
     tr:nth-child(odd) {
-        background-color: #323258 !important;
+        background-color: #323258;
 
         th,
         td {
@@ -368,7 +372,7 @@ nb-card-header {
 .search-input {
     margin-left: 15px;
     margin-right: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 
     &:focus {
         background-color: rgb(219, 159, 206);

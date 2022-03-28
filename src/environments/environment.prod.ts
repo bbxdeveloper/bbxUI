@@ -3,5 +3,10 @@ export const environment = {
   electron: false,
   apiUrl: "https://bbxbe.azurewebsites.net/",
   apiVersion: "/v1/",
-  debug: false
+  
+  debug: false,
+
+  flatDesignFormDebug: false,
+  flatDesignTableDebug: false,
+  flatDesignCRUDManagerDebug: false,
 };

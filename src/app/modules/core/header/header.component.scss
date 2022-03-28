@@ -1,14 +1,57 @@
+$transition-duration-hover: 0.3s;
+
 nb-action {
   font-size: 1.2rem !important;
+
+  transition-duration: $transition-duration-hover;
 }
 
-nb-action.nb-action-storage-title, nb-tag {
+::ng-deep nb-action:hover {
+  color: yellow !important;
+
+  transition-duration: $transition-duration-hover;
+
+  nb-icon {
+    svg {
+      fill: yellow !important;
+
+      transition-duration: $transition-duration-hover;
+    }
+  }
+}
+
+nb-action.nb-action-storage-title,
+nb-tag {
   font-size: 1rem !important;
 }
 
 nb-action.tag-wrapper {
   nb-tag {
     line-height: 1rem !important;
+  }
+}
+
+.card-submenu-wrapper {
+  min-height: 100%;
+
+  .card-body-submenu-button {
+    display: flex;
+
+    padding: 5px;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-content: center;
+    align-items: center;
+
+    min-width: 100%;
+
+    button {
+      min-width: 270px;
+      width: 100%;
+    }
   }
 }
 

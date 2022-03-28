@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PocService } from './poc.service';
+import { VatRateService } from './vat-rate.service';
 
-describe('PocService', () => {
-  let service: PocService;
+describe('VatRateService', () => {
+  let service: VatRateService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PocService);
+    service = TestBed.inject(VatRateService);
   });
 
   it('should be created', () => {

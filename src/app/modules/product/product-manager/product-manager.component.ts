@@ -24,23 +24,21 @@ import { BaseManagerComponent } from '../../shared/base-manager/base-manager.com
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CreateProductRequest } from '../models/CreateProductRequest';
 import { UpdateProductRequest } from '../models/UpdateProductRequest';
+import { environment } from 'src/environments/environment';
+import { StatusService } from 'src/app/services/status.service';
+import { VatRateService } from '../../vat-rate/services/vat-rate.service';
+import { VatRate } from '../../vat-rate/models/VatRate';
 
 @Component({
   selector: 'app-product-manager',
   templateUrl: './product-manager.component.html',
   styleUrls: ['./product-manager.component.scss'],
 })
-export class ProductManagerComponent
-  extends BaseManagerComponent<Product>
-  implements OnInit
+export class ProductManagerComponent extends BaseManagerComponent<Product> implements OnInit
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableId = 'product-table';
-  dbDataTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = [
+  override allColumns = [
     'productCode',
     'description',
     'productGroup',
@@ -48,7 +46,7 @@ export class ProductManagerComponent
     'unitPrice1',
     'unitPrice2',
   ];
-  colDefs: ModelFieldDescriptor[] = [
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Kód',
       objectKey: 'productCode',
@@ -125,9 +123,20 @@ export class ProductManagerComponent
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
+    {
+      label: 'Áfakód',
+      objectKey: 'vatRateCode',
+      colKey: 'vatRateCode',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'bool',
+      fRequired: false,
+      mask: '',
+      colWidth: '25%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
   ];
-
-  searchString: string = '';
 
   // ProductGroup
   productGroups: ProductGroup[] = [];
@@ -135,6 +144,12 @@ export class ProductManagerComponent
   uom: UnitOfMeasure[] = [];
   // Origin
   origins: Origin[] = [];
+  // VatRate
+  vats: VatRate[] = [];
+
+  override get getInputParams(): GetProductsParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -148,10 +163,14 @@ export class ProductManagerComponent
     private sidebarFormService: SideBarFormService,
     private cs: CommonService,
     private productGroupApi: ProductGroupService,
-    private originApi: OriginService
+    private originApi: OriginService,
+    private vatApi: VatRateService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'product-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
   }
@@ -162,8 +181,6 @@ export class ProductManagerComponent
         data.productGroup,
         this.productGroups
       );
-    // if (data.origin !== undefined && this.origins.length > 0)
-    //   data.origin = OriginDescriptionToCode(data.origin, this.origins);
     if (data.unitOfMeasure !== undefined && this.uom.length > 0)
       data.unitOfMeasure = UnitOfMeasureTextToValue(
         data.unitOfMeasure,
@@ -177,29 +194,30 @@ export class ProductManagerComponent
   }
 
   private ConvertCombosForGet(data: Product): Product {
-    // if (data.productGroup !== undefined && this.productGroups.length > 0)
-    //   data.productGroup = ProductGroupCodeToDescription(data.productGroup, this.productGroups);
-    // if (data.origin !== undefined && this.origins.length > 0)
-    //   data.origin = OriginCodeToDescription(data.origin, this.origins);
-    if (data.unitOfMeasure !== undefined && this.uom.length > 0)
-      data.unitOfMeasure = UnitOfMeasureValueToText(
-        data.unitOfMeasure,
-        this.uom
-      );
+    if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
+      data.unitOfMeasure = this.uom.find(x => x.value == data.unitOfMeasure)?.text + '-' + data.unitOfMeasure;
+    }
+    if (data.origin !== undefined && this.origins.length > 0) {
+      data.origin = this.origins.find(x => x.originCode == data.origin)?.originDescription + '-' + data.origin;
+    }
+    if (data.productGroup !== undefined && this.productGroups.length > 0) {
+      data.productGroup = this.productGroups.find(x => x.productGroupCode == data.productGroup)?.productGroupDescription + '-' + data.productGroup;
+    }
+    if (data.vatRateCode !== undefined && this.vats.length > 0) {
+      data.vatRateCode = data.vatRateCode + ' - ' + this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatPercentage;
+    }
 
-    console.log(`[ConvertCombosForGet] result: `, data);
+    if (environment.flatDesignCRUDManagerDebug) {
+        console.log(`[ConvertCombosForGet] result: `, data);
+    }
 
     return data;
   }
 
   private ProductToCreateRequest(p: Product): CreateProductRequest {
-    let smallestOriginId = this.origins.length > 0 ? this.origins[0].id : 0;
-    let origin = this.origins.find(x => x.originDescription === p.origin);
-    let originId = origin !== undefined ? origin.id : smallestOriginId;
-
-    let smallestProductGroupId = this.productGroups.length > 0 ? this.productGroups[0].id : 0;
-    let productGroup = this.productGroups.find(x => x.productGroupDescription === p.productGroup);
-    let productGroupID = productGroup !== undefined ? productGroup.id : smallestProductGroupId;
+    let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
+    let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
+    let vatRatecode = !!p.vatRateCode?.includes('-') ? p.vatRateCode.split('-')[0] : '';
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
     let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
@@ -211,28 +229,25 @@ export class ProductManagerComponent
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: parseFloat(p.minStock + ''),
-      latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
-      ordUnit: parseFloat(p.ordUnit + ''),
-      originID: parseInt(originId + ''),
-      productGroupID: parseInt(productGroupID + ''),
-      unitPrice1: parseFloat(p.unitPrice1 + ''),
-      unitPrice2: parseFloat(p.unitPrice2 + ''),
+      minStock: p.minStock,
+      latestSupplyPrice: p.latestSupplyPrice,
+      ordUnit: p.ordUnit,
+      originCode: originCode,
+      productGroupCode: productGroupCode,
+      unitPrice1: p.unitPrice1,
+      unitPrice2: p.unitPrice2,
       unitOfMeasure: unitOfMeasureValue,
-      productFee: parseFloat(p.productFee + ''),
-      productCode: p.productCode
+      productFee: p.productFee,
+      productCode: p.productCode,
+      vatRateCode: vatRatecode
     } as CreateProductRequest;
     return res;
   }
 
   private ProductToUpdateRequest(p: Product): UpdateProductRequest {
-    let smallestOriginId = this.origins.length > 0 ? this.origins[0].id : 0;
-    let origin = this.origins.find(x => x.originDescription === p.origin);
-    let originId = origin !== undefined ? origin.id : smallestOriginId;
-
-    let smallestProductGroupId = this.productGroups.length > 0 ? this.productGroups[0].id : 0;
-    let productGroup = this.productGroups.find(x => x.productGroupDescription === p.productGroup);
-    let productGroupID = productGroup !== undefined ? productGroup.id : smallestProductGroupId;
+    let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
+    let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
+    let vatRatecode = !!p.vatRateCode?.includes('-') ? p.vatRateCode.split('-')[0] : '';
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
     let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
@@ -245,18 +260,25 @@ export class ProductManagerComponent
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: parseFloat(p.minStock + ''),
-      latestSupplyPrice: parseFloat(p.latestSupplyPrice + ''),
-      ordUnit: parseFloat(p.ordUnit + ''),
-      originID: parseInt(originId + ''),
-      productGroupID: parseInt(productGroupID + ''),
-      unitPrice1: parseFloat(p.unitPrice1 + ''),
-      unitPrice2: parseFloat(p.unitPrice2 + ''),
+      minStock: p.minStock,
+      latestSupplyPrice: p.latestSupplyPrice,
+      ordUnit: p.ordUnit,
+      originCode: originCode,
+      productGroupCode: productGroupCode,
+      unitPrice1: p.unitPrice1,
+      unitPrice2: p.unitPrice2,
       unitOfMeasure: unitOfMeasureValue,
-      productFee: parseFloat(p.productFee + ''),
-      productCode: p.productCode
+      productFee: p.productFee,
+      productCode: p.productCode,
+      vatRateCode: vatRatecode
     } as UpdateProductRequest;
     return res;
+  }
+
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<Product>): void {
@@ -266,6 +288,8 @@ export class ProductManagerComponent
       const createRequest = this.ProductToCreateRequest(data.data);
 
       console.log('ActionNew request: ', createRequest);
+
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
       this.seInv.Create(createRequest).subscribe({
         next: (d) => {
@@ -278,16 +302,18 @@ export class ProductManagerComponent
                   const newRow = { data: newData } as TreeGridNode<Product>;
                   this.dbData.push(newRow);
                   this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable();
+                  this.RefreshTable(newRow.data.id);
                   this.toastrService.show(
                     Constants.MSG_SAVE_SUCCESFUL,
                     Constants.TITLE_INFO,
                     Constants.TOASTR_SUCCESS
                   );
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                  this.isLoading = false;
+                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 }
               },
-              error: (err) => this.cs.HandleError(err),
+              error: (err) => { this.HandleError(err); },
             });
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
@@ -296,9 +322,11 @@ export class ProductManagerComponent
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -310,6 +338,8 @@ export class ProductManagerComponent
       const updateRequest = this.ProductToUpdateRequest(data.data);
 
       console.log('ActionPut request: ', updateRequest);
+
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
 
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Update(updateRequest).subscribe({
@@ -332,9 +362,11 @@ export class ProductManagerComponent
                     Constants.TOASTR_SUCCESS
                   );
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                  this.isLoading = false;
+                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 }
               },
-              error: (err) => this.cs.HandleError(err),
+              error: (err) => { this.HandleError(err); },
             });
           } else {
             this.toastrService.show(
@@ -342,9 +374,11 @@ export class ProductManagerComponent
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -352,7 +386,9 @@ export class ProductManagerComponent
   override ProcessActionDelete(data?: IUpdateRequest<Product>): void {
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
+    
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,
@@ -370,33 +406,20 @@ export class ProductManagerComponent
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.HandleError(err); },
         });
-    }
-  }
-
-  refreshFilter(event: any): void {
-    if (this.searchString === event.target.value) {
-      return;
-    }
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ SearchString: this.searchString });
     }
   }
 
@@ -422,6 +445,7 @@ export class ProductManagerComponent
       active: new FormControl(false, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
+      vatRateCode: new FormControl(undefined, [])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -444,9 +468,9 @@ export class ProductManagerComponent
           id: 0,
           productCode: undefined,
           description: undefined,
-          productGroup: this.productGroups[0].productGroupDescription,
-          origin: this.origins[0].originDescription,
-          unitOfMeasure: this.uom[0].text,
+          productGroup: this.productGroups[0]?.productGroupDescription + '-' + this.productGroups[0]?.productGroupCode,
+          origin: this.origins[0]?.originDescription + '-' + this.origins[0]?.originCode,
+          unitOfMeasure: this.uom[0]?.text + '-' + this.uom[0]?.value,
           unitOfMeasureX: undefined,
           unitPrice1: 0,
           unitPrice2: 0,
@@ -456,8 +480,10 @@ export class ProductManagerComponent
           ordUnit: 0,
           productFee: 0,
           active: true,
-          vtsz: '0',
-          ean: '0',
+          vtsz: '',
+          ean: '',
+          vatRateCode: this.vats[0]?.vatRateCode + '-' + this.vats[0]?.vatPercentage,
+          vatPercentage: 0
         } as Product;
       }
     );
@@ -465,16 +491,16 @@ export class ProductManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ PageNumber: newPageNumber + '' });
+        this.Refresh(this.getInputParams);
       },
     });
 
     this.sidebarService.collapse();
 
-    this.RefreshAll();
+    this.RefreshAll(this.getInputParams);
   }
 
-  private Refresh(params?: GetProductsParamListModel): void {
+  override Refresh(params?: GetProductsParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -488,6 +514,9 @@ export class ProductManagerComponent
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = tempData.length;
           }
           this.RefreshTable();
         } else {
@@ -498,26 +527,14 @@ export class ProductManagerComponent
           );
         }
       },
-      error: (err) => this.cs.HandleError(err),
+      error: (err) => {
+        { this.cs.HandleError(err); this.isLoading = false; };
+        this.isLoading = false;
+      },
       complete: () => {
         this.isLoading = false;
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      // this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {
@@ -542,11 +559,19 @@ export class ProductManagerComponent
       next: (data) => {
         if (!!data.data) this.productGroups = data.data;
       },
+      error: (err) => {
+        { this.cs.HandleError(err); this.isLoading = false; };
+        this.isLoading = false;
+      },
       complete: () => {
         // UnitOfMeasure
         this.seInv.GetAllUnitOfMeasures().subscribe({
           next: (data) => {
             if (!!data) this.uom = data;
+          },
+          error: (err) => {
+            { this.cs.HandleError(err); this.isLoading = false; };
+            this.isLoading = false;
           },
           complete: () => {
             // Origin
@@ -554,8 +579,24 @@ export class ProductManagerComponent
               next: (data) => {
                 if (!!data.data) this.origins = data.data;
               },
+              error: (err) => {
+                { this.cs.HandleError(err); this.isLoading = false; };
+                this.isLoading = false;
+              },
               complete: () => {
-                this.Refresh(params);
+                // VatRates
+                this.vatApi.GetAll().subscribe({
+                  next: (data) => {
+                    if (!!data.data) this.vats = data.data;
+                  },
+                  error: (err) => {
+                    { this.cs.HandleError(err); this.isLoading = false; };
+                    this.isLoading = false;
+                  },
+                  complete: () => {
+                    this.Refresh(params);
+                  },
+                });
               },
             });
           },

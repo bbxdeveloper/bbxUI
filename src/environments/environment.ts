@@ -7,7 +7,12 @@ export const environment = {
   electron: false,
   apiUrl: "https://bbxbe.azurewebsites.net/", // https://localhost:44378/
   apiVersion: "/v1/",
-  debug: false
+  
+  debug: true,
+
+  flatDesignFormDebug: false,
+  flatDesignTableDebug: false,
+  flatDesignCRUDManagerDebug: false,
 };
 
 /*

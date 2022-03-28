@@ -1,6 +1,6 @@
-import { PocType } from "./PocType";
+import { VatRate } from "./VatRate";
 
-export interface GetPocTypesResponse {
+export interface GetVatRatesResponse {
     "pageNumber": number,
     "pageSize": number,
     "recordsFiltered": number,
@@ -8,5 +8,5 @@ export interface GetPocTypesResponse {
     "succeeded": boolean,
     "message"?: string,
     "errors"?: string[],
-    "data"?: PocType[]
+    "data"?: VatRate[]
 }

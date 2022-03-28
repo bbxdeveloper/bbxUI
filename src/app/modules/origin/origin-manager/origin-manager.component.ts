@@ -17,6 +17,7 @@ import { BlankOrigin, Origin } from '../models/Origin';
 import { OriginService } from '../services/origin.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-origin-manager',
@@ -29,12 +30,8 @@ export class OriginManagerComponent
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  dbDataTableId = 'origin-table';
-  dbDataTableEditId = 'user-cell-edit-input';
-
-  colsToIgnore: string[] = [];
-  allColumns = ['id', 'originCode', 'originDescription'];
-  colDefs: ModelFieldDescriptor[] = [
+  override allColumns = ['id', 'originCode', 'originDescription'];
+  override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
       objectKey: 'id',
@@ -76,7 +73,9 @@ export class OriginManagerComponent
     },
   ];
 
-  searchString: string = '';
+  override get getInputParams(): GetOriginsParamListModel {
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -88,17 +87,27 @@ export class OriginManagerComponent
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService
+    private cs: CommonService,
+    private sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService);
     this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'origin-table';
+    this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  private HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<Origin>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Create(data.data).subscribe({
         next: (d) => {
@@ -106,23 +115,27 @@ export class OriginManagerComponent
             const newRow = { data: d.data } as TreeGridNode<Origin>;
             this.dbData.push(newRow);
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.toastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
-            );
+              );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -130,6 +143,7 @@ export class OriginManagerComponent
   override ProcessActionPut(data?: IUpdateRequest<Origin>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
@@ -147,15 +161,19 @@ export class OriginManagerComponent
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: (err) => this.cs.HandleError(err),
+        error: (err) => { this.HandleError(err); },
       });
     }
   }
@@ -164,6 +182,7 @@ export class OriginManagerComponent
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,
@@ -181,30 +200,20 @@ export class OriginManagerComponent
               );
               this.dbDataTable.SetBlankInstanceForForm(false, false);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => this.cs.HandleError(err),
+          error: (err) => { this.HandleError(err); },
         });
-    }
-  }
-
-  refreshFilter(event: any): void {
-    this.searchString = event.target.value;
-    console.log('Search: ', this.searchString);
-    this.search();
-  }
-
-  search(): void {
-    if (this.searchString.length === 0) {
-      this.Refresh();
-    } else {
-      this.Refresh({ SearchString: this.searchString });
     }
   }
 
@@ -242,16 +251,16 @@ export class OriginManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh({ PageNumber: newPageNumber + '' });
+        this.Refresh(this.getInputParams);
       },
     });
 
     this.sidebarService.collapse();
 
-    this.Refresh();
+    this.Refresh(this.getInputParams);
   }
 
-  private Refresh(params?: GetOriginsParamListModel): void {
+  override Refresh(params?: GetOriginsParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
@@ -264,6 +273,9 @@ export class OriginManagerComponent
             });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
+            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
+            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();
         } else {
@@ -274,26 +286,12 @@ export class OriginManagerComponent
           );
         }
       },
-      error: (err) => this.cs.HandleError(err),
+      error: (err) => { this.cs.HandleError(err); this.isLoading = false; this.RefreshTable(); },
       complete: () => {
         this.isLoading = false;
+        this.RefreshTable();
       },
     });
-  }
-
-  private RefreshTable(): void {
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore
-    );
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false);
-      // this.kbS.InsertNavigatable(this.dbDataTable, AttachDirection.UP, this.searchInputNavigatable);
-      // this.kbS.SelectFirstTile();
-    }, 200);
   }
 
   ngOnInit(): void {

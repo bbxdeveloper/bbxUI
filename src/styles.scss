@@ -7,6 +7,8 @@
 }
 /* You can add global styles to this file, and also import other style files */
 
+$selected-border-color: rgb(0, 231, 104);
+
 body,
 html {
   height: 100%;
@@ -46,7 +48,7 @@ input,
 label,
 th,
 td {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .disable-select {
@@ -148,5 +150,27 @@ td {
 }
 
 .as-split-gutter {
-    background-color: #1d4a70 !important;
+  background-color: #1d4a70 !important;
+}
+
+// Selected element
+
+.current-keyboard-nav-selected {
+  outline: none;
+  border: $selected-border-color dotted 3px !important;
+}
+
+div.parent-of-current-keyboard-nav-selected.checkbox-wrapper {
+  input[type="checkbox"].current-keyboard-nav-selected,
+  input[type="radio"].current-keyboard-nav-selected {
+    outline: none;
+    // border: $selected-border-color dotted 3px !important;
+    -webkit-box-shadow: 0px 0px 0px 1px $selected-border-color;
+    -moz-box-shadow: 0px 0px 0px 1px $selected-border-color;
+    box-shadow: 0px 0px 0px 1px $selected-border-color;
+  }
+}
+
+tr.parent-of-current-keyboard-nav-selected {
+  background: darkblue !important;
 }
