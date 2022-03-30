@@ -160,6 +160,7 @@ export class NavigatableForm implements INavigatable {
         // Prepare matrix
         this.Matrix = [[]];
         let currentMatrixIndex = 0;
+        let previous: string = '';
 
         // Getting tiles, rows for navigation matrix
         for (let i = 0; i < tiles.length; i++) {
@@ -172,26 +173,20 @@ export class NavigatableForm implements INavigatable {
             // Usually all form elements are in a nb-form-field
             // So we must examine the parent of that element to be sure two form element
             // is not in the same block
-            if (!!next?.parentElement?.parentElement) {
-                const pE = next?.parentElement?.parentElement.nodeName;
-                if (pE !== currentParent) {
-                    // currentParent was already initailized,
-                    // so this parent name change must mean the tile is in another row
-                    if (currentParent !== '') {
-                        this.Matrix.push([]);
-                        ++currentMatrixIndex;
-                    }
-                    currentParent = next.parentElement.nodeName;
-                }
+            if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass('MULTICOLNAVIGATION_DISABLED'))) { // TileCssColClass
+                this.Matrix.push([]);
+                ++currentMatrixIndex;
             }
+            currentParent = next.parentElement!.nodeName;
 
             next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
             this.Matrix[currentMatrixIndex].push(next.id);
+            previous = next.id;
         }
 
         if (environment.debug) {
-            console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
+        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
 
         if (attach) {
             this.kbS.Attach(this, this.attachDirection);

@@ -11,7 +11,7 @@ import { TreeGridNode } from "../TreeGridNode";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
 
 
-export class NavigatableTable<T extends IEditable> implements INavigatable {
+export class InlineEditableNavigatableTable<T extends IEditable> implements INavigatable {
     Matrix: string[][] = [[]];
 
     LastX?: number | undefined;
@@ -71,8 +71,9 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
     readonly commandsOnTable: FooterCommandInfo[] = [];
     readonly commandsOnTableEditMode: FooterCommandInfo[] = [];
 
+    idPrefix: string = '';
+
     constructor(
-        f: FormGroup,
         private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
         private kbs: KeyboardNavigationService,
         private fS: FooterService,
@@ -82,7 +83,6 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         attachDirection: AttachDirection = AttachDirection.DOWN,
         getBlankInstance: () => T
     ) {
-        this.inlineForm = f;
         this.kbS = kbs;
         this.cdref = cdr;
         this._data = data;
@@ -111,7 +111,7 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
     Detach(): void { }
 
     Setup(productsData: TreeGridNode<T>[], productsDataSource: NbTreeGridDataSource<TreeGridNode<T>>,
-        allColumns: string[], colDefs: ModelFieldDescriptor[], cdref: ChangeDetectorRef, colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>
+        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], idPrefix: string, editedRow?: TreeGridNode<T>
     ): void {
         // Set
         this.data = productsData;
@@ -120,17 +120,21 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         this.colDefs = colDefs;
         this.colsToIgnore = colsToIgnore;
         this.editedRow = editedRow;
-        this.cdref = cdref;
 
         // Init
         this.inlineForm = new FormGroup({});
 
-        this.productCreatorRow = this.GenerateCreatorRow;
-        this.data.push(this.productCreatorRow);
+        this.SetCreatorRow();
 
-        this.dataSource.setData(this.data);
+        this.idPrefix = idPrefix;
 
         this.ResetEdit();
+    }
+
+    SetCreatorRow(): void {
+        this.productCreatorRow = this.GenerateCreatorRow;
+        this.data.push(this.productCreatorRow);
+        this.dataSource.setData(this.data);
     }
 
     PushFooterCommandList(): void {
@@ -189,6 +193,28 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
     }
 
     GenerateAndSetNavMatrices(attach: boolean): void {
+        this.Matrix = [];
+        for (let y = 0; y < this.data.length; y++) {
+            let row = [];
+            for (let x = 0; x < this.colDefs.length; x++) {
+                if (this.colsToIgnore.findIndex(a => a === this.colDefs[x].objectKey) !== -1) {
+                    continue;
+                }
+                row.push(this.idPrefix + "-" + x + '-' + y);
+            }
+            this.Matrix.push(row);
+        }
+        
+        if (environment.debug) {
+        }
+        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
+
+        if (attach) {
+            this.kbS.Attach(this, this.attachDirection);
+        }
+    }
+
+    GenerateAndSetNavMatrices_(attach: boolean): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
