@@ -8,6 +8,22 @@
             (click)="currentForm.HandleFormClick()">
 
             <ng-container *ngFor="let it of currentForm.colDefs; let rowPos = index" [ngSwitch]="it.fInputType">
+                <ng-container *ngSwitchCase="'code-field'">
+                    <nb-form-field
+                        (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
+                        <div class="bbx-fd-form-field-inner-div">
+                            <ng-container [ngSwitch]="it.fInputType">
+                                <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
+                
+                                <input class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey" oninput="this.value = this.value.toUpperCase()"
+                                    (click)="currentForm.HandleFormFieldClick($event)" [required]="it.fRequired ?? false">
+                            </ng-container>
+                        </div>
+                        <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label">
+                        </app-form-control-error>
+                    </nb-form-field>
+                </ng-container>
+
                 <ng-container *ngSwitchCase="'text'">
                     <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                         <div class="bbx-fd-form-field-inner-div">

@@ -50,7 +50,7 @@ export class OriginManagerComponent
       colKey: 'originCode',
       defaultValue: '',
       type: 'string',
-      fInputType: 'text',
+      fInputType: 'code-field',
       fRequired: true,
       mask: '',
       colWidth: '30%',

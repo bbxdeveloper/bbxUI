@@ -20,7 +20,7 @@
                     <label>Kód*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode"
-                        [dropSpecialCharacters]="false"
+                        [dropSpecialCharacters]="false" oninput="this.value = this.value.toUpperCase()"
                         mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
                         [patterns]="customPatterns" (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>

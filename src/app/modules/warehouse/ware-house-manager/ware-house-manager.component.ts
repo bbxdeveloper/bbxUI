@@ -47,7 +47,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       colKey: 'warehouseCode',
       defaultValue: '',
       type: 'string',
-      fInputType: 'text',
+      fInputType: 'code-field',
       fRequired: true,
       mask: '',
       colWidth: '30%',
