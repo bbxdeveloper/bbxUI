@@ -32,7 +32,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   @ViewChild('table') table?: NbTable<any>;
 
   override allColumns = [
-    'id', 'customerName', 'taxpayerNumber', 'isOwnData'
+    'id', 'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId', 'isOwnData'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },

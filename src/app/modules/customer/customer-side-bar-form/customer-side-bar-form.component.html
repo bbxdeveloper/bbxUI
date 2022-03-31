@@ -118,6 +118,16 @@
                 </div>
             </div>
             <app-form-control-error [form]="currentForm" label="magánszemély" controlName="privatePerson"></app-form-control-error>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Megjegyzés</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+                <app-form-control-error [form]="currentForm" label="megjegyzés" controlName="comment"></app-form-control-error>
+            </nb-form-field>
             
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
@@ -129,16 +139,6 @@
                 </div>
             </div>
             <app-form-control-error [form]="currentForm" label="saját adat" controlName="isOwnData"></app-form-control-error>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Megjegyzés</label>
-
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
-                        (click)="currentForm.HandleFormFieldClick($event)">
-                </div>
-                <app-form-control-error [form]="currentForm" label="megjegyzés" controlName="comment"></app-form-control-error>
-            </nb-form-field>
         </form>
     </nb-card-body>
 </nb-card>
