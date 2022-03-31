@@ -50,7 +50,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div>
-                                    {{ row.data[it.objectKey] | number:'8.0':'fr' }}
+                                    {{ row.data[it.objectKey] | number:'8.0':'fr' | removeWhitespaces }}
                                 </div>
                             </td>
                         </ng-container>
