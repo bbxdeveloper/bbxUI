@@ -66,21 +66,15 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService,
-    private sts: StatusService
+    cs: CommonService,
+    sts: StatusService
   ) {
-    super(dialogService, kbS, fS, sidebarService);
+    super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = "active-prod-search";
     this.dbDataTableId = 'customer-table';
     this.dbDataTableEditId = "user-cell-edit-input";
     this.kbS.ResetToRoot();
     this.Setup();
-  }
-
-  private HandleError(err: any): void {
-    this.cs.HandleError(err);
-    this.isLoading = false;
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   private ConvertCombosForGet(data: Customer): Customer {
@@ -189,9 +183,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           if (d.succeeded && !!d.data) {
             const di = this.dbData.findIndex(x => x.data.id === id);
             this.dbData.splice(di, 1);
-            this.RefreshTable();
             this.toastrService.show(Constants.MSG_DELETE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.HandleGridSelectionAfterDelete(di);
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {

@@ -143,21 +143,15 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService,
-    private sts: StatusService
+    cs: CommonService,
+    sts: StatusService
   ) {
-    super(dialogService, kbS, fS, sidebarService);
+    super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'usermanager-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
-  }
-
-  private HandleError(err: any): void {
-    this.cs.HandleError(err);
-    this.isLoading = false;
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<User>): void {
@@ -271,14 +265,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 (x) => x.data.id === data.data.id
               );
               this.dbData.splice(di, 1);
-              this.RefreshTable();
               this.toastrService.show(
                 Constants.MSG_DELETE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
-              this.dbDataTable.SetBlankInstanceForForm(false, false);
-              this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.HandleGridSelectionAfterDelete(di);
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
