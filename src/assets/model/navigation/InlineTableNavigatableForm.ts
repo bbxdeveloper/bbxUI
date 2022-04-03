@@ -4,7 +4,7 @@ import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, Mov
 import { environment } from "src/environments/environment";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
 
-export class NavigatableForm implements INavigatable {
+export class InlineTableNavigatableForm implements INavigatable {
     Matrix: string[][] = [[]];
 
     LastX?: number | undefined;
@@ -53,6 +53,10 @@ export class NavigatableForm implements INavigatable {
         this.formId = formId;
     }
 
+    Setup(data: any[]): void {
+        this._data = data;
+    }
+
     GetValue(formFieldName: string): any {
         return this.form.controls[formFieldName].value;
     }
@@ -99,6 +103,7 @@ export class NavigatableForm implements INavigatable {
     }
 
     HandleAutoCompleteSelect(event: any, key: string): void {
+        // debugger;
         if (event === "") {
             Object.keys(this.form.controls).forEach((x: string) => {
                 if (x !== key) {

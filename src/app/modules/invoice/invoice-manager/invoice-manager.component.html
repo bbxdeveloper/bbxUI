@@ -177,7 +177,7 @@
 <nb-card [nbSpinner]="isLoading" *ngIf="!!dbDataTable">
     <nb-card-body>
         <form>
-            <table class="card-table-wrapper" [nbTreeGrid]="productsDataSource" [trackBy]="trackRows" equalColumnsWidth
+            <table class="card-table-wrapper" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
                 (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)" [id]="dbDataTableId">
 
                 <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>

@@ -2,17 +2,20 @@ import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, O
 import { FormGroup, FormControl } from '@angular/forms';
 import { NbTable, NbTreeGridDataSource, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest, NbGlobalPhysicalPosition } from '@nebular/theme';
 import { Observable, of, startWith, map } from 'rxjs';
+import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { AttachDirection, NavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
+import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { Invoice } from '../models/Invoice';
@@ -25,13 +28,11 @@ import { InvoiceService } from '../services/invoice.service';
   templateUrl: './invoice-manager.component.html',
   styleUrls: ['./invoice-manager.component.scss']
 })
-export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy {
+export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('table') table?: NbTable<any>;
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
-
-  dbDataTable?: InlineEditableNavigatableTable<InvoiceLine>;
 
   senderData: Customer;
   buyerData: Customer;
@@ -39,17 +40,14 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
   buyersData: Customer[] = [];
   paymentMethods: PaymentMethod[] = [];
 
-  productsData: TreeGridNode<InvoiceLine>[];
-  productsDataSource: NbTreeGridDataSource<TreeGridNode<InvoiceLine>>;
-
   outGoingInvoiceData: CreateOutgoingInvoiceRequest;
 
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
 
-  colsToIgnore: string[] = ["Value"];
-  allColumns = ['productCode', 'quantity', 'lineNetAmount', 'price', 'Value'];
-  colDefs: ModelFieldDescriptor[] = [
+  override colsToIgnore: string[] = ["Value"];
+  override allColumns = ['productCode', 'quantity', 'lineNetAmount', 'price', 'Value'];
+  override colDefs: ModelFieldDescriptor[] = [
     { label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
     //{ label: 'Megnevezés', objectKey: 'Name', colKey: 'Name', defaultValue: '', type: 'string', mask: "", colWidth: "30%", textAlign: "left" },
     { label: 'Mértékegység', objectKey: 'quantity', colKey: 'quantity', defaultValue: '', type: 'string', mask: "", colWidth: "5%", textAlign: "left" },
@@ -62,7 +60,7 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-  readonly commands: FooterCommandInfo[] = [
+  override readonly commands: FooterCommandInfo[] = [
     { key: 'F1', value: 'Súgó', disabled: false },
     { key: 'F2', value: 'Keresés', disabled: false },
     { key: 'F3', value: 'Új Partner', disabled: false },
@@ -75,8 +73,6 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
     { key: 'F10', value: '', disabled: false },
   ];
 
-  tableIsFocused: boolean = false;
-
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
@@ -84,15 +80,12 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
 
   outInvForm: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
-  outInvFormNav: NavigatableForm;
+  outInvFormNav: InlineTableNavigatableForm;
 
   buyerForm: FormGroup;
   buyerFormId: string = "buyer-form";
-  buyerFormNav: NavigatableForm;
+  buyerFormNav: InlineTableNavigatableForm;  
 
-  dbDataTableId: string = "invoice-inline-table-invoice-line";
-
-  private uid = 0;
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
 
@@ -106,27 +99,30 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  isLoading: boolean = true;
-
   constructor(
-    @Optional() private dialogService: NbDialogService,
-    private fS: FooterService,
+    @Optional() dialogService: NbDialogService,
+    fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     private seInv: InvoiceService,
     private seC: CustomerService,
     private seW: WareHouseService,
     private cdref: ChangeDetectorRef,
-    private kbS: KeyboardNavigationService,
-    private toastrService: NbToastrService
+    kbS: KeyboardNavigationService,
+    private toastrService: NbToastrService,
+    cs: CommonService,
+    sts: StatusService
   ) {
+    super(dialogService, kbS, fS, cs, sts);
+    this.dbDataTableId = "invoice-inline-table-invoice-line";
+
     // Init form and table content - empty
     this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
     
     this.outGoingInvoiceData = {} as CreateOutgoingInvoiceRequest;
 
-    this.productsData = [];
-    this.productsDataSource = this.dataSourceBuilder.create(this.productsData);
+    this.dbData = [];
+    this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
     // Init forms
     this.exporterForm = new FormGroup({
@@ -154,7 +150,7 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
       comment: new FormControl('', []),
     });
 
-    this.buyerFormNav = new NavigatableForm(
+    this.buyerFormNav = new InlineTableNavigatableForm(
       this.buyerForm,
       this.kbS,
       this.cdref,
@@ -163,7 +159,7 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
       AttachDirection.DOWN
     );
 
-    this.outInvFormNav = new NavigatableForm(
+    this.outInvFormNav = new InlineTableNavigatableForm(
       this.outInvForm,
       this.kbS,
       this.cdref,
@@ -177,7 +173,7 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
       this.kbS,
       this.fS,
       this.cdref,
-      this.productsData,
+      this.dbData,
       this.dbDataTableId,
       AttachDirection.DOWN,
       () => {
@@ -194,54 +190,62 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   refresh(): void {
-    this.seC.GetAll().subscribe(d => {
+    this.seC.GetAll({ IsOwnData: false }).subscribe({
+      next: d => {
+        // Possible buyers
+        this.buyersData = d.data!;
+        this.buyerFormNav.Setup(this.buyersData);
+        console.log('Buyers: ', d);
 
-      // Exporter form
-      this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
-      this.exporterForm = new FormGroup({
-        customerName: new FormControl(this.senderData.customerName, []),
-        zipCodeCity: new FormControl(this.senderData.postalCode + ' ' + this.senderData.city, []),
-        additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail, []),
-        customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber, []),
-        taxpayerNumber: new FormControl(this.senderData.taxpayerNumber, []),
-        comment: new FormControl(this.senderData.comment, []),
-      });
+        // Set filters
+        this.filteredBuyerOptions$ = this.buyerForm.controls['customerName'].valueChanges
+          .pipe(
+            startWith(''),
+            map((filterString: any) => this.filterBuyers(filterString)),
+          );
 
-      // Possible buyers
-      this.buyersData = d.data?.filter(x => !x.isOwnData) ?? [];
+        // Products
+        this.dbData = [];
+        this.dbDataDataSrc.setData(this.dbData);
 
-      // Set filters
-      this.filteredBuyerOptions$ = this.buyerForm.controls['customerName'].valueChanges
-        .pipe(
-          startWith(''),
-          map((filterString: any) => this.filterBuyers(filterString)),
-        );
+        this.paymentMethodOptions$ = this.seInv.GetPaymentMethods().pipe(map(data => data.map(d => d.paymentMethodDescription)));
 
-      // Products
-      this.productsData = [];
-      this.productsDataSource.setData(this.productsData);
+        this.seC.GetAll({ IsOwnData: true }).subscribe({
+          next: d => {
+            // Exporter form
+            this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
+            console.log('Exporter: ', d);
+            this.exporterForm = new FormGroup({
+              customerName: new FormControl(this.senderData.customerName, []),
+              zipCodeCity: new FormControl(this.senderData.postalCode + ' ' + this.senderData.city, []),
+              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail, []),
+              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber, []),
+              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber, []),
+              comment: new FormControl(this.senderData.comment, []),
+            });
 
-      this.paymentMethodOptions$ = this.seInv.GetPaymentMethods().pipe(map(data => data.map(d => d.paymentMethodDescription)));
+            this.table?.renderRows();
+            this.RefreshTable();
 
-      this.table?.renderRows();
-      this.RefreshTable();
-
-      this.isLoading = false;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.cs.HandleError(err); this.isLoading = false;
+          },
+          complete: () => {
+            this.isLoading = false;
+            // this.Refresh();
+          },
+        });
+      },
+      error: (err) => {
+        this.cs.HandleError(err); this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+        // this.Refresh();
+      },
     });
-  }
-
-  RefreshTable(): void {
-    this.dbDataTable?.Setup(
-      this.productsData,
-      this.productsDataSource,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore,
-      'PRODUCT'
-    );
-    setTimeout(() => {
-      this.dbDataTable?.GenerateAndSetNavMatrices(false);
-    }, 200);
   }
 
   private filterBuyers(value: string): string[] {
@@ -250,15 +254,6 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
     }
     const filterValue = value.toLowerCase();
     return [""].concat(this.buyersData.map(x => x.customerName).filter(optionValue => optionValue.toLowerCase().includes(filterValue)));
-  }
-
-  private nextUid() {
-    ++this.uid
-    return this.uid;
-  }
-
-  trackRows(index: number, row: any) {
-    return row.uid;
   }
 
   ngOnInit(): void {
@@ -271,8 +266,8 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
     
     this.dbDataTable?.Setup(
-      this.productsData,
-      this.productsDataSource,
+      this.dbData,
+      this.dbDataDataSrc,
       this.allColumns,
       this.colDefs,
       this.colsToIgnore,
@@ -350,15 +345,6 @@ export class InvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy
   //     }
   //   }
   // }
-
-  focusOnTable(focusIn: boolean): void {
-    this.tableIsFocused = focusIn;
-    if (focusIn) {
-      this.dbDataTable?.PushFooterCommandList();
-    } else {
-      this.fS.pushCommands(this.commands);
-    }
-  }
 
   // handleActiveProductModalSelection(): void {
   //   if (this.tableIsFocused && !this.isEditModeOff) {

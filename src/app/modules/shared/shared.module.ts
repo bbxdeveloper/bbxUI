@@ -17,6 +17,8 @@ import { BaseSideBarFormComponent } from './base-side-bar-form/base-side-bar-for
 import { FormControlErrorComponent } from './form-control-error/form-control-error.component';
 import { InputMaskModule } from '@ngneat/input-mask';
 import { RemoveWhitespacesPipe } from './pipes/remove-whitespaces.pipe';
+import { BaseInlineManagerComponent } from './base-inline-manager/base-inline-manager.component';
+import { SelectTableDialogComponent } from './select-table-dialog/select-table-dialog.component';
 
 
 @NgModule({
@@ -32,6 +34,8 @@ import { RemoveWhitespacesPipe } from './pipes/remove-whitespaces.pipe';
     BaseSideBarFormComponent,
     FormControlErrorComponent,
     RemoveWhitespacesPipe,
+    BaseInlineManagerComponent,
+    SelectTableDialogComponent,
   ],
   imports: [
     CommonModule,
