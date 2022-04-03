@@ -1,0 +1,273 @@
+.modal-product-active {
+    border: 4px yellow double;
+
+    min-width: 700px;
+    max-height: 675px;
+
+    button {
+        margin-right: 25px;
+    }
+
+    .modal-product-active-header {
+        border-bottom: 1px yellow solid;
+
+        padding-top: 15px;
+
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+
+        row-gap: 5px;
+
+        font-size: 1.2rem !important;
+    }
+
+    .modal-product-active-footer {
+        border-top: 1px yellow solid;
+        color: white;
+        text-align: left;
+        &,
+        * {
+            font-size: 1.1rem !important;
+        }
+        .metadata-footer {
+            display: flex;
+            flex-direction: row;
+            align-content: center;
+            justify-content: flex-start;
+            align-items: center;
+            .label-footer-title {
+                color: yellow;
+            }
+            .label-footer-discount {
+                display: flex;
+                flex-direction: row;
+                align-content: center;
+                justify-content: flex-start;
+                align-items: center;
+                .label-footer-discount-value {
+                    color: yellow;
+                    margin-left: 5px;
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+
+    .btn-group {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+
+        align-self: baseline !important;
+
+        margin-top: 20px;
+
+        button {
+            background: none !important;
+            padding: 0px !important;
+            max-height: 30px !important;
+            border: none !important;
+
+            color: white !important;
+            font-size: 1.1rem !important;
+        }
+
+        button:focus {
+            background: gray !important;
+            border-radius: 0px !important;
+
+            color: rgb(182, 173, 230) !important;
+        }
+    }
+
+    .modal-product-active-body {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .separator-horizontal {
+        margin: 0px;
+        padding: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    :host nb-tab {
+        padding: 1.25rem;
+    }
+
+    .card-table-wrapper {
+        display: block;
+
+        position: sticky;
+        top: 0;
+
+        margin: auto;
+
+        height: 305px !important;
+        width: fit-content;
+
+        table-layout: fixed;
+
+        tr > th {
+            position: sticky;
+            top: -1px;
+        }
+
+        th,
+        td {
+            min-width: 16vw;
+            max-width: 16vw;
+
+            height: 50px;
+
+            &.table-cell-edited {
+                padding: 0px;
+
+                .input-table-cell {
+                    max-width: 80%;
+
+                    border: none;
+                    background: none;
+                    text-align: left;
+                    padding-left: 20px;
+
+                    font-size: 1.2rem !important;
+
+                    color: #ffffff;
+                    font-family: Open Sans, sans-serif;
+                    font-weight: 400;
+                    line-height: 1.25rem;
+                }
+            }
+        }
+
+        .td-focusable:focus {
+            background: darkblue;
+        }
+    }
+
+    .metadata {
+        width: 100%;
+
+        display: flex;
+        flex-direction: column;
+
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+
+        overflow-x: hidden;
+
+        margin-top: 25px;
+
+        border-top: 1px yellow solid;
+
+        &,
+        * {
+            font-family: Open Sans, sans-serif;
+            font-size: 1.2rem;
+        }
+
+        .metadata-section-upper {
+            display: flex;
+            flex-direction: row;
+
+            margin-top: 25px;
+            margin-left: 200px;
+
+            align-content: center;
+            justify-content: flex-start;
+            align-items: center;
+
+            div:nth-child(2) {
+                min-width: 100px;
+                text-align: right;
+            }
+        }
+
+        .metadata-section-lower,
+        .metadata-section-upper {
+            width: 100%;
+
+            .metadata-row {
+                width: 100%;
+
+                display: flex;
+                flex-direction: row;
+
+                justify-content: flex-start;
+                align-items: center;
+                align-content: center;
+
+                margin-left: 50px;
+
+                div:nth-child(2),
+                div:nth-child(4),
+                div:nth-child(6) {
+                    margin-left: 5px;
+                    margin-right: 5px;
+                }
+
+                .label-ker {
+                    min-width: 80px;
+                    text-align: left;
+                }
+
+                .label-price {
+                    min-width: 80px;
+                    text-align: right;
+                }
+
+                .label-brut {
+                    text-align: left;
+                }
+            }
+        }
+    }
+
+    .search-label {
+        margin-left: 35px;
+    }
+
+    .search-input {
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 20px;
+
+        &:focus {
+            background-color: rgb(219, 159, 206);
+        }
+    }
+
+    .btn-util {
+        height: 20px;
+    }
+
+    .msg {
+        display: flex;
+        max-width: 800px;
+        margin: 10px;
+        font-size: 1.2rem;
+        font-weight: 400;
+        line-height: 1.25rem;
+        min-height: 50px;
+        align-items: self-end;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 12px !important;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(36, 27, 88, 0.767) !important;
+    border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px !important;
+    -webkit-box-shadow: inset 0 0 6px rgba(85, 84, 180, 0.966) !important;
+}

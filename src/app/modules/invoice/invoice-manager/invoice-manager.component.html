@@ -136,21 +136,21 @@
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Teljesítési időpont</label>
                     <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true" class="{{TileCssClass}}"
-                        [readonly]="isEditModeOff" placeholder="Teljesítési időpont" id="m01" mask="0000-00-00"
+                        [readonly]="isEditModeOff" id="m01" mask="0000-00-00"
                         [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Számla keltezése</label>
                     <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true" class="{{TileCssClass}}"
-                        [readonly]="isEditModeOff" placeholder="Számla keltezése" id="m02" mask="0000-00-00"
+                        [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
                         [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Fizetési határidő</label>
                     <input nbInput type="datetime" formControlName='paymentDate' required="true" class="{{TileCssClass}}"
-                        [readonly]="isEditModeOff" placeholder="Fizetési határidő" id="m03" mask="0000-00-00"
+                        [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
                         [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
@@ -197,7 +197,8 @@
                             (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
                             (keydown.enter)="dbDataTable.HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT')"
                             (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
-                            (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                            (keydown.F2)="dbDataTable.HandleKey($event, rowPos)"
+                            (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT')"
                             [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                             id="{{'PRODUCT-' + colPos + '-' + rowPos}}">
 

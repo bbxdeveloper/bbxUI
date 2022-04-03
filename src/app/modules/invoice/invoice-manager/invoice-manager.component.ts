@@ -8,10 +8,12 @@ import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
+import { todaysDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Customer } from '../../customer/models/Customer';
@@ -23,6 +25,7 @@ import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceReq
 import { Invoice } from '../models/Invoice';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
+import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 
 @Component({
@@ -30,7 +33,7 @@ import { InvoiceService } from '../services/invoice.service';
   templateUrl: './invoice-manager.component.html',
   styleUrls: ['./invoice-manager.component.scss']
 })
-export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy {
+export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
   TileCssClass = TileCssClass;
@@ -138,7 +141,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outInvForm = new FormGroup({
       paymentMethod: new FormControl('', []),
       invoiceDeliveryDate: new FormControl('', []),
-      invoiceIssueDate: new FormControl('', []),
+      invoiceIssueDate: new FormControl('', [todaysDate]),
       paymentDate: new FormControl('', []),
       invoiceOrdinal: new FormControl('K-0000001/21', []),
       notice: new FormControl('', []),
@@ -165,7 +168,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.outInvForm,
       this.kbS,
       this.cdref,
-      this.buyersData,
+      [this.outGoingInvoiceData],
       this.outInvFormId,
       AttachDirection.DOWN
     );
@@ -180,7 +183,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       AttachDirection.DOWN,
       () => {
         return new InvoiceLine();
-      }
+      },
+      this
     );
 
     this.dbDataTable!.OuterJump = true;
@@ -327,6 +331,96 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.isLoading = false;
       }
     });
+  }
+
+  ChooseDataForTableRow(rowIndex: number): void {
+    console.log("Selecting InvoiceLine from avaiable data.");
+
+    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, { context: {
+      allColumns: [
+        'productCode',
+        'description',
+        'unitPrice1',
+        'unitPrice2',
+      ],
+      colDefs: [
+        {
+          label: 'Kód',
+          objectKey: 'productCode',
+          colKey: 'productCode',
+          defaultValue: '',
+          type: 'string',
+          fInputType: 'readonly',
+          mask: '',
+          colWidth: '15%',
+          textAlign: 'center',
+          navMatrixCssClass: TileCssClass,
+        },
+        {
+          label: 'Megnevezés',
+          objectKey: 'description',
+          colKey: 'description',
+          defaultValue: '',
+          type: 'string',
+          fInputType: 'text',
+          mask: '',
+          colWidth: '25%',
+          textAlign: 'left',
+          navMatrixCssClass: TileCssClass,
+        },
+        {
+          label: 'Elad ár 1',
+          objectKey: 'unitPrice1',
+          colKey: 'unitPrice1',
+          defaultValue: '',
+          type: 'string',
+          fInputType: 'text',
+          fRequired: true,
+          mask: '',
+          colWidth: '30%',
+          textAlign: 'left',
+          navMatrixCssClass: TileCssClass,
+        },
+        {
+          label: 'Elad ár 2',
+          objectKey: 'unitPrice2',
+          colKey: 'unitPrice2',
+          defaultValue: '',
+          type: 'string',
+          fInputType: 'bool',
+          fRequired: false,
+          mask: '',
+          colWidth: '25%',
+          textAlign: 'left',
+          navMatrixCssClass: TileCssClass,
+        }
+      ]
+    } });
+    dialogRef.onClose.subscribe((res: Product) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+      }
+    });
+  }
+
+  RefreshData(): void {}
+
+  ProductToInvoiceLine(p: Product): InvoiceLine {
+    let res = new InvoiceLine();
+
+    res.productCode = p.productCode!;
+
+    res.quantity = 0;
+
+    res.lineNetAmount = 0;
+
+    res.lineVatAmount = 0;
+    res.vatRateCode = '';
+
+    res.price = p.unitPrice1!;
+
+    return res;
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {

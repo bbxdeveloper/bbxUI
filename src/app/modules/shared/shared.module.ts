@@ -77,7 +77,9 @@ import { SelectTableDialogComponent } from './select-table-dialog/select-table-d
     BaseSideBarFormComponent,
     FormControlErrorComponent,
     NbIconModule,
-    RemoveWhitespacesPipe
+    RemoveWhitespacesPipe,
+    BaseInlineManagerComponent,
+    SelectTableDialogComponent,
   ],
   providers: [
     ConfirmationDialogComponent

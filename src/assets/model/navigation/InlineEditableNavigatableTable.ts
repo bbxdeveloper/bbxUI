@@ -3,9 +3,11 @@ import { FormGroup, FormControl } from "@angular/forms";
 import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/theme";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
+import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { IEditable } from "../IEditable";
+import { IInlineManager } from "../IInlineManager";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
@@ -59,6 +61,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     colDefs: ModelFieldDescriptor[];
     colsToIgnore: string[];
 
+    get isEditModeOff() {
+        return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    }
+
     productCreatorRow: TreeGridNode<T>;
 
     getBlankInstance: () => T;
@@ -94,6 +100,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     ];
 
     idPrefix: string = '';
+    parentComponent: IInlineManager;
 
     constructor(
         private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
@@ -103,7 +110,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         data: any[],
         tableId: string,
         attachDirection: AttachDirection = AttachDirection.DOWN,
-        getBlankInstance: () => T
+        getBlankInstance: () => T,
+        parentComponent: IInlineManager
     ) {
         this.kbS = kbs;
         this.cdref = cdr;
@@ -120,6 +128,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
         this.getBlankInstance = getBlankInstance;
         this.productCreatorRow = this.GenerateCreatorRow;
+
+        this.parentComponent = parentComponent;
     }
 
     public ClearNeighbours(): void {
@@ -127,18 +137,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.RightNeighbour = undefined;
         this.DownNeighbour = undefined;
         this.UpNeighbour = undefined;
-    }
-
-    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
-        console.log('[HandleGridClick]');
-
-        this.kbs.setEditMode(KeyboardModes.NAVIGATION);
-
-        // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
-        // the list of displayed rows.
-        colPos = this.allColumns.findIndex(x => x === col);
-
-        this.kbs.SetPosition(colPos, rowPos, this);
     }
 
     Attach(): void { }
@@ -179,9 +177,20 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
-    fillCurrentlyEditedRow(newRowData: TreeGridNode<T>): void {
+    FillCurrentlyEditedRow(newRowData: TreeGridNode<T>): void {
         if (!!newRowData && !!this.editedRow) {
-            this.editedRow.data = newRowData.data;
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            
+            this.data[this.editedRowPos!] = newRowData;
+            
+            this.SetCreatorRow();
+            this.ResetEdit();
+            
+            this.GenerateAndSetNavMatrices(false);
+
+            setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            }, 100);
         }
     }
 
@@ -336,6 +345,21 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
+    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
+        console.log('[HandleGridClick]');
+
+        this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+        this.ResetEdit();
+
+        // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
+        // the list of displayed rows.
+        colPos = this.allColumns.findIndex(x => x === col);
+
+        this.kbs.SetPosition(colPos, rowPos, this);
+
+        this.HandleGridEnter(row, rowPos, col, colPos, inputId);
+    }
+
     HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
         //debugger;
 
@@ -375,7 +399,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             // Entering edit mode
             this.Edit(row, rowPos, col);
             this.cdref!.detectChanges();
-            this.kbS.SelectElement(inputId);
+            $('#' + inputId).trigger('focus');
+            //this.kbS.SelectElement(inputId);
             const _input = document.getElementById(inputId) as HTMLInputElement;
             if (!!_input && _input.type === "text") {
                 window.setTimeout(function () {
@@ -407,6 +432,17 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         console.log((this.data[rowPos].data as any)[col]);
+    }
+
+    HandleKey(event: any, rowIndex: number): void {
+        switch (event.key) {
+            case KeyBindings.F2: {
+                event.preventDefault();
+                this.parentComponent.ChooseDataForTableRow(rowIndex);
+                break;
+            }
+            default: { }
+        }
     }
 
     isEditingCell(rowIndex: number, col: string): boolean {

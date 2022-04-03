@@ -248,5 +248,4 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       this.fS.pushCommands(this.commands);
     }
   }
-
 }

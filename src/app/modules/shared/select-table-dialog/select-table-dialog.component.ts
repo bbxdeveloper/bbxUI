@@ -4,6 +4,7 @@ import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keybo
 import { IEditable } from 'src/assets/model/IEditable';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
+import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
@@ -13,10 +14,9 @@ import { BaseNavigatableComponentComponent } from '../base-navigatable-component
   templateUrl: './select-table-dialog.component.html',
   styleUrls: ['./select-table-dialog.component.scss']
 })
-export class SelectTableDialogComponent<T extends IEditable> extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
-  @Input() msg: string = "";
-  @Input() allData: TreeGridNode<T>[] = []; 
-  @Input() allColumns = [];
+export class SelectTableDialogComponent<T> extends BaseNavigatableComponentComponent {
+  // @Input() allData: TreeGridNode<T>[] = []; 
+  @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
 
   searchString: string = '';
@@ -26,8 +26,10 @@ export class SelectTableDialogComponent<T extends IEditable> extends BaseNavigat
 
   dbData: TreeGridNode<T>[];
   dbDataSource: NbTreeGridDataSource<TreeGridNode<T>>;
-  dbDataTable!: InlineEditableNavigatableTable<T>;
+  dbDataTable!: SimpleNavigatableTable<T>;
   selectedRow: T;
+
+  isLoading: boolean = true;
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
@@ -39,12 +41,12 @@ export class SelectTableDialogComponent<T extends IEditable> extends BaseNavigat
 
   constructor(
     protected dialogRef: NbDialogRef<SelectTableDialogComponent<T>>,
-    private kbS: KeyboardNavigationService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
+    protected kbS: KeyboardNavigationService,
+    protected dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
   ) {
     super();
 
-    this.dbData = this.allData;
+    this.dbData = []; // this.allData;
     this.dbDataSource = this.dataSourceBuilder.create(this.dbData);
     this.selectedRow = {} as T;
 
@@ -60,29 +62,13 @@ export class SelectTableDialogComponent<T extends IEditable> extends BaseNavigat
 
   }
 
-  override ngOnInit(): void {
-    this.Refresh();
-  }
-  ngAfterContentInit(): void {
-    this.kbS.SetWidgetNavigatable(this);
-    this.kbS.SelectFirstTile();
-  }
-  ngAfterViewChecked(): void {
-    this.kbS.SelectCurrentElement();
-  }
-  ngOnDestroy(): void {
-    if (!this.closedManually) {
-      this.kbS.RemoveWidgetNavigatable();
-    }
-  }
-
   close(answer?: T) {
     this.closedManually = true;
     this.kbS.RemoveWidgetNavigatable();
     this.dialogRef.close(answer);
   }
 
-  private nextUid(): number {
+  nextUid(): number {
     ++this.uid
     return this.uid;
   }
