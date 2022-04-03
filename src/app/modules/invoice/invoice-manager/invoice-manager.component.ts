@@ -21,6 +21,7 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
+import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { Invoice } from '../models/Invoice';
 import { InvoiceLine } from '../models/InvoiceLine';
@@ -139,11 +140,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       comment: new FormControl('', []),
     });
     this.outInvForm = new FormGroup({
-      paymentMethod: new FormControl('', []),
-      invoiceDeliveryDate: new FormControl('', []),
-      invoiceIssueDate: new FormControl('', [todaysDate]),
-      paymentDate: new FormControl('', []),
-      invoiceOrdinal: new FormControl('K-0000001/21', []),
+      paymentMethod: new FormControl('', [Validators.required]),
+      invoiceDeliveryDate: new FormControl('', [Validators.required]),
+      invoiceIssueDate: new FormControl('', [Validators.required, todaysDate]),
+      paymentDate: new FormControl('', [Validators.required]),
+      invoiceOrdinal: new FormControl('K-0000001/21', [Validators.required]),
       notice: new FormControl('', []),
     });
     this.buyerForm = new FormGroup({
@@ -161,7 +162,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.cdref,
       this.buyersData,
       this.buyerFormId,
-      AttachDirection.DOWN
+      AttachDirection.DOWN,
+      this
     );
 
     this.outInvFormNav = new InlineTableNavigatableForm(
@@ -170,7 +172,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.cdref,
       [this.outGoingInvoiceData],
       this.outInvFormId,
-      AttachDirection.DOWN
+      AttachDirection.DOWN,
+      this
     );
 
     this.dbDataTable = new InlineEditableNavigatableTable(
@@ -400,6 +403,44 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       console.log("Selected item: ", res);
       if (!!res) {
         this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+      }
+    });
+  }
+
+  ChooseDataForForm(): void {
+    console.log("Selecting Customer from avaiable data.");
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        allColumns: [
+          'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId'
+        ],
+        colDefs: [
+          { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
+          { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: false, mask: "SS", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Saját', objectKey: 'isOwnData', colKey: 'isOwnData', defaultValue: '', type: 'bool', fInputType: 'bool', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+        ]
+      }
+    });
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        this.buyerFormNav.FillForm(res);
+        
+        this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.EDIT);
       }
     });
   }

@@ -1,7 +1,9 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
+import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
+import { IInlineManager } from "../IInlineManager";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
 
 export class InlineTableNavigatableForm implements INavigatable {
@@ -37,13 +39,16 @@ export class InlineTableNavigatableForm implements INavigatable {
 
     formId: string;
 
+    parentComponent: IInlineManager;
+
     constructor(
         f: FormGroup,
         kbs: KeyboardNavigationService,
         cdr: ChangeDetectorRef,
         data: any[],
         formId: string,
-        attachDirection: AttachDirection = AttachDirection.DOWN
+        attachDirection: AttachDirection = AttachDirection.DOWN,
+        parentComponent: IInlineManager
     ) {
         this.form = f;
         this.kbS = kbs;
@@ -51,6 +56,7 @@ export class InlineTableNavigatableForm implements INavigatable {
         this._data = data;
         this.attachDirection = attachDirection;
         this.formId = formId;
+        this.parentComponent = parentComponent;
     }
 
     Setup(data: any[]): void {
@@ -66,7 +72,15 @@ export class InlineTableNavigatableForm implements INavigatable {
         this.cdref.detectChanges();
     }
 
-    private FeelFormAfterValueSelect(selectedValue: string, objectKey: string) {
+    FillForm(data: any) {
+        if (!!data) {
+            Object.keys(this.form.controls).forEach((x: string) => {
+                this.form.controls[x].setValue(data[x]);
+            });
+        }
+    }
+
+    FillFormAfterValueSelect(selectedValue: string, objectKey: string) {
         let buyer = this._data.find(b => b[objectKey] === selectedValue);
         if (!!buyer) {
             Object.keys(this.form.controls).forEach((x: string) => {
@@ -111,7 +125,7 @@ export class InlineTableNavigatableForm implements INavigatable {
                 }
             });
         } else {
-            this.FeelFormAfterValueSelect(event, key);
+            this.FillFormAfterValueSelect(event, key);
         }
         if (!this.kbS.isEditModeActivated) {
             this.JumpToNextInput(event);
@@ -125,6 +139,17 @@ export class InlineTableNavigatableForm implements INavigatable {
         // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
         if (!this.kbS.isEditModeActivated && jumpNext) {
             this.JumpToNextInput(event);
+        }
+    }
+
+    HandleKey(event: any, controlKey: string): void {
+        switch (event.key) {
+            case KeyBindings.F2: {
+                event.preventDefault();
+                this.parentComponent.ChooseDataForForm();
+                break;
+            }
+            default: { }
         }
     }
 

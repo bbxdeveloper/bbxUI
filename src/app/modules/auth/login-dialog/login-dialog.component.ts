@@ -5,6 +5,7 @@ import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoginDialogResponse } from '../models/LoginDialogResponse';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
 
 @Component({
   selector: 'app-login-dialog',
@@ -37,7 +38,9 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
       password: new FormControl('', [Validators.required]),
     });
 
-    this.loginFormNav = new NavigatableForm(loginForm, this.kBs, this.cdrf, [], 'loginForm', AttachDirection.UP);
+    this.loginFormNav = new NavigatableForm(
+      loginForm, this.kBs, this.cdrf, [], 'loginForm', AttachDirection.UP, {} as IInlineManager
+      );
 
     // We can move onto the confirmation buttons from the form.
     this.loginFormNav.OuterJump = true;

@@ -23,7 +23,7 @@
                     <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                         *nbTreeGridCellDef="let row; let rowPos = index" (keydown.enter)="selectRow($event, row)"
                         (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
-                        id="{{'ACTIVEPRODUCT-' + colPos + '-' + rowPos}}">
+                        id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
                         <div>
                             {{ row.data[it.objectKey] }}
                         </div>

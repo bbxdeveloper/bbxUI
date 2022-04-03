@@ -9,13 +9,15 @@ import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
+import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 
 
 
 @NgModule({
   declarations: [
     InvoiceManagerComponent,
-    ProductSelectTableDialogComponent
+    ProductSelectTableDialogComponent,
+    CustomerSelectTableDialogComponent
   ],
   imports: [
     CommonModule,

@@ -8,9 +8,9 @@ import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
-import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
-import { Product } from '../../product/models/Product';
-import { ProductService } from '../../product/services/product.service';
+import { Customer } from '../../customer/models/Customer';
+import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
+import { CustomerService } from '../../customer/services/customer.service';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 
 const NavMap: string[][] = [
@@ -18,31 +18,31 @@ const NavMap: string[][] = [
 ];
 
 @Component({
-  selector: 'app-product-select-table-dialog',
-  templateUrl: './product-select-table-dialog.component.html',
-  styleUrls: ['./product-select-table-dialog.component.scss']
+  selector: 'app-customer-select-table-dialog',
+  templateUrl: './customer-select-table-dialog.component.html',
+  styleUrls: ['./customer-select-table-dialog.component.scss']
 })
-export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
+export class CustomerSelectTableDialogComponent extends SelectTableDialogComponent<Customer>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
-  get getInputParams(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '' };
+  get getInputParams(): GetCustomersParamListModel {
+    return { SearchString: this.searchString ?? '', IsOwnData: false };
   }
 
   constructor(
     private toastrService: BbxToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
-    dialogRef: NbDialogRef<SelectTableDialogComponent<Product>>,
+    dialogRef: NbDialogRef<SelectTableDialogComponent<Customer>>,
     kbS: KeyboardNavigationService,
-    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
-    private productService: ProductService
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Customer>>,
+    private customerService: CustomerService
   ) {
     super(dialogRef, kbS, dataSourceBuilder);
 
     this.Matrix = NavMap;
 
-    this.dbDataTable = new SimpleNavigatableTable<Product>(
+    this.dbDataTable = new SimpleNavigatableTable<Customer>(
       this.dataSourceBuilder, this.kbS, this.cdref, this.dbData, '', AttachDirection.DOWN, this
     );
   }
@@ -77,13 +77,13 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     }, 200);
   }
 
-  override Refresh(params?: GetProductsParamListModel): void {
+  override Refresh(params?: GetCustomersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.productService.GetAll(params).subscribe({
+    this.customerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
+          console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };

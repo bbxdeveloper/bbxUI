@@ -60,42 +60,33 @@
             <nb-card-body class="form-col-2">
                 <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
                 [id]="buyerFormId">
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, false)">
-                        <input formControlName="customerName" nbInput type="text" [nbAutocomplete]="auto" class="{{TileCssClass}}"
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)" (keydown.F2)="buyerFormNav.HandleKey($event, 'customerName')">
+                        <input formControlName="customerName" nbInput type="text" class="{{TileCssClass}}"
                             [readonly]="isEditModeOff" placeholder="Név" autocomplete="off" id="r00" />
-                        <!--  (keyup)="handleAutoCompleteOptionFocused($event)"-->
-                        <!-- AUTOCOMPLETE -->
-                        <nb-autocomplete #auto [activeFirst]="false"
-                            (selectedChange)="buyerFormNav.HandleAutoCompleteSelect($event, 'customerName')">
-                            <nb-option *ngFor="let option of filteredBuyerOptions$ | async; let i = index"
-                                [value]="option">
-                                {{ option }}
-                            </nb-option>
-                        </nb-autocomplete>
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='zipCodeCity' required="true" class="{{TileCssClass}}"
+                        <input nbInput type="text" formControlName='zipCodeCity' required="true"
                             placeholder="Irányítószám és Város" readonly id="r01">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" placeholder="Utca, házszám" class="{{TileCssClass}}"
+                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" placeholder="Utca, házszám"
                             readonly id="r02">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" placeholder="Számlaszám" class="{{TileCssClass}}"
+                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" placeholder="Számlaszám"
                             readonly id="r03">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" placeholder="Adószám" class="{{TileCssClass}}"
+                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" placeholder="Adószám"
                             readonly id="r04">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='comment' required="false" placeholder="Megjegyzés" class="{{TileCssClass}}"
+                        <input nbInput type="text" formControlName='comment' required="false" placeholder="Megjegyzés"
                             readonly id="r05">
                     </nb-form-field>
                 </form>

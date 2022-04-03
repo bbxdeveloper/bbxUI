@@ -42,6 +42,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   dbDataTable!: InlineEditableNavigatableTable<T>;
 
   tableIsFocused: boolean = false;
+  get IsTableFocused(): boolean { return this.tableIsFocused; }
 
   isLoading: boolean = true;
 
