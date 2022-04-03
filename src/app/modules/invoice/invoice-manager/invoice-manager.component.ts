@@ -1,5 +1,6 @@
+import { ThrowStmt } from '@angular/compiler';
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NbTable, NbTreeGridDataSource, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest, NbGlobalPhysicalPosition } from '@nebular/theme';
 import { Observable, of, startWith, map } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
@@ -11,6 +12,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
+import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
@@ -49,7 +51,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   override allColumns = ['productCode', 'quantity', 'lineNetAmount', 'price', 'Value'];
   override colDefs: ModelFieldDescriptor[] = [
     { label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
-    //{ label: 'Megnevezés', objectKey: 'Name', colKey: 'Name', defaultValue: '', type: 'string', mask: "", colWidth: "30%", textAlign: "left" },
     { label: 'Mértékegység', objectKey: 'quantity', colKey: 'quantity', defaultValue: '', type: 'string', mask: "", colWidth: "5%", textAlign: "left" },
     { label: 'Mennyiség', objectKey: 'lineNetAmount', colKey: 'lineNetAmount', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
     { label: 'Ár', objectKey: 'price', colKey: 'price', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
@@ -114,6 +115,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   ) {
     super(dialogService, kbS, fS, cs, sts);
     this.dbDataTableId = "invoice-inline-table-invoice-line";
+    this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
     this.senderData = {} as Customer;
@@ -142,7 +144,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       notice: new FormControl('', []),
     });
     this.buyerForm = new FormGroup({
-      customerName: new FormControl('', []),
+      customerName: new FormControl('', [Validators.required]),
       zipCodeCity: new FormControl('', []),
       additionalAddressDetail: new FormControl('', []),
       customerBankAccountNumber: new FormControl('', []),
@@ -276,104 +278,60 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
 
+    this.kbS.SetCurrentNavigatable(this.buyerFormNav);
     this.kbS.SelectFirstTile();
+
+    this.cdref.detectChanges();
   }
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
   }
 
-  // handleAutoCompleteOptionFocused(event: any): void {
-  //   console.log(event);
-  // }
+  Save(): void {
+    const req = {
+      // Buyer
+      customerID: this.buyerData.id,
 
-  // private feelBuyerForm(name: string) {
-  //   let buyer = this.buyersData.find(b => b.Name === name);
-  //   if (!!buyer) {
-  //     this.buyerForm.controls["zipCodeCity"].setValue(buyer.ZipCodeCity);
-  //     this.buyerForm.controls["street"].setValue(buyer.Address);
-  //     this.buyerForm.controls["invoiceNum"].setValue(buyer.InvoiceAddress);
-  //     this.buyerForm.controls["taxNum"].setValue(buyer.TaxNumber);
-  //     this.buyerForm.controls["note"].setValue(buyer.Note);
-  //   }
-  // }
+      // Middle form
+      invoiceDeliveryDate: this.outInvForm.controls['invoiceDeliveryDate'].value,
+      invoiceIssueDate: this.outInvForm.controls['invoiceIssueDate'].value,
+      notice: this.outInvForm.controls['notice'].value,
+      paymentDate: this.outInvForm.controls['paymentDate'].value,
+      paymentMethod: this.outInvForm.controls['paymentMethod'].value,
+      
+      // Misc
+      warehouseCode: 1,
+      invoiceNetAmount: 0,
+      invoiceVatAmount: 0,
 
-  // handleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
-  //   console.log("FORM HANDLING KEYBOARD ACTION");
-  //   if (toggleEditMode) {
-  //     this.kbS.toggleEdit();
-  //   }
-  //   if (jumpNext) {
-  //     let oldMy = this.kbS.worldPos.Y;
-  //     this.kbS.moveNextInForm();
-  //     // TODO: navigációs mátrixhoz típust rendelni, pl. "táblázat"
-  //     if (oldMy < this.kbS.worldPos.Y) {
-  //       console.log(this.kbS.getCurrentTile());
-  //       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-  //       this.dbDataTable.handleGridEnter(this.productsData[0], 0, this.colDefs[0].objectKey, 0);
-  //     } else {
-  //       this.kbS.clickCurrentTile();
-  //       if (this.isEditModeOff) {
-  //         this.kbS.toggleEdit();
-  //       }
-  //     }
-  //   }
-  // }
+      // Table
+      invoiceLines: this.dbData.map(x => x.data)
+    } as CreateOutgoingInvoiceRequest;
 
-  // handleAutoCompleteSelect(event: any): void {
-  //   if (event === "") {
-  //     // this.buyerForm.controls["name"].setValue("");
-  //     this.buyerForm.controls["zipCodeCity"].setValue("");
-  //     this.buyerForm.controls["street"].setValue("");
-  //     this.buyerForm.controls["invoiceNum"].setValue("");
-  //     this.buyerForm.controls["taxNum"].setValue("");
-  //     this.buyerForm.controls["note"].setValue("");
-  //   } else {
-  //     this.feelBuyerForm(event);
-  //   }
-  //   if (this.isEditModeOff) {
-  //     let oldMy = this.kbS.worldPos.Y;
-  //     this.kbS.moveNextInForm();
-  //     // TODO: navigációs mátrixhoz típust rendelni, pl. "táblázat"
-  //     if (oldMy < this.kbS.worldPos.Y) {
-  //       console.log(this.kbS.getCurrentTile());
-  //       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-  //       this.dbDataTable.handleGridEnter(this.productsData[0], 0, this.colDefs[0].objectKey, 0);
-  //     } else {
-  //       this.kbS.clickCurrentTile();
-  //       this.kbS.toggleEdit();
-  //     }
-  //   }
-  // }
+    console.log('Save: ', this.outGoingInvoiceData);
+    this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
+      next: d => {
+        this.toastrService.show(
+          Constants.MSG_SAVE_SUCCESFUL,
+          Constants.TITLE_INFO,
+          Constants.TOASTR_SUCCESS
+        );
+        this.isLoading = false;
+      },
+      error: err => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
+  }
 
-  // handleActiveProductModalSelection(): void {
-  //   if (this.tableIsFocused && !this.isEditModeOff) {
-  //     const dialogRef = this.dialogService.open(ActiveProductDialogComponent, { closeOnEsc: false });
-  //     dialogRef.onClose.subscribe((res: TreeGridNode<Product>) => {
-  //       if (!!res && !!res.data) {
-  //         this.seInv.getProductByProductCode(res.data.ProductCode!).subscribe(resp => {
-  //           if (!resp.IsError) {
-  //             res.data = resp.Result[0];
-  //             this.dbDataTable.fillCurrentlyEditedRow(res);
-  //           } else {
-  //             this.toastrService.show(
-  //               resp.Message, `Hiba`,
-  //               { preventDuplicates: true, duration: 1000, status: 'danger', position: NbGlobalPhysicalPosition.BOTTOM_LEFT }
-  //             );
-  //           }
-  //         })
-  //       }
-  //       const row = this.dbDataTable.editedRow;
-  //       const rowPos = this.dbDataTable.editedRowPos;
-  //       const cel = this.dbDataTable.editedProperty;
-  //       this.dbDataTable.clearEdit();
-  //       if (!!row && rowPos !== undefined && cel !== undefined) {
-  //         this.dbDataTable.handleGridEnter(row, rowPos, cel, this.colDefs.findIndex(x => x.objectKey === cel));
-  //       } else {
-  //         this.kbS.selectCurrentTile();
-  //       }
-  //       this.dbDataTable.pushFooterCommandList();
-  //     });
-  //   }
-  // }
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key == 'Enter') {
+      this.Save();
+    }
+  }
 }

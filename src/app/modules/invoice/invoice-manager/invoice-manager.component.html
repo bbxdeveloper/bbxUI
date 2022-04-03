@@ -195,8 +195,9 @@
                             [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
                             (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                             (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
-                            (keydown.enter)="dbDataTable.HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-' + colPos + '-' + rowPos)"
+                            (keydown.enter)="dbDataTable.HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT')"
                             (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
+                            (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                             [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                             id="{{'PRODUCT-' + colPos + '-' + rowPos}}">
 

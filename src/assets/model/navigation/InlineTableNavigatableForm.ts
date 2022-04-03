@@ -152,6 +152,12 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
+    HandleFormFieldClick(event: any): void {
+        this.kbS.SetCurrentNavigatable(this);
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+        this.kbS.SetPositionById(event.target?.id);
+    }
+
     GenerateAndSetNavMatrices(attach: boolean): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
@@ -185,6 +191,12 @@ export class InlineTableNavigatableForm implements INavigatable {
             currentParent = next.parentElement!.nodeName;
 
             next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
+
+            $('#' + next.id).off('click');
+            $('#' + next.id).on('click', (event) => {
+                this.HandleFormFieldClick(event);
+            });
+
             this.Matrix[currentMatrixIndex].push(next.id);
             previous = next.id;
         }

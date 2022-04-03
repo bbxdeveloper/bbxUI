@@ -68,8 +68,30 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         };
     }
 
-    readonly commandsOnTable: FooterCommandInfo[] = [];
-    readonly commandsOnTableEditMode: FooterCommandInfo[] = [];
+    readonly commandsOnTable: FooterCommandInfo[] = [
+        { key: 'F1', value: 'Súgó', disabled: false },
+        { key: 'F2', value: '', disabled: false },
+        { key: 'F3', value: 'Megr. ->', disabled: false },
+        { key: 'F4', value: 'Számolás', disabled: false },
+        { key: 'F5', value: 'TkInf.', disabled: false },
+        { key: 'F6', value: 'Szml.', disabled: false },
+        { key: 'F7', value: 'Árkal.', disabled: false },
+        { key: 'F8', value: 'Töröl', disabled: false },
+        { key: 'F9', value: 'Új Sor', disabled: false },
+        { key: 'F10', value: 'Ügynk.', disabled: false },
+    ];
+    readonly commandsOnTableEditMode: FooterCommandInfo[] = [
+        { key: 'F1', value: 'Súgó', disabled: false },
+        { key: 'F2', value: 'AktívT', disabled: false },
+        { key: 'F3', value: 'Rend. ->', disabled: false },
+        { key: 'F4', value: 'KAktíT', disabled: false },
+        { key: 'F5', value: 'TkInf.', disabled: false },
+        { key: 'F6', value: 'ÖsszTk.', disabled: false },
+        { key: 'F7', value: '', disabled: false },
+        { key: 'F8', value: '', disabled: false },
+        { key: 'F9', value: '', disabled: false },
+        { key: 'F10', value: 'Ügynk.', disabled: false },
+    ];
 
     idPrefix: string = '';
 
@@ -107,11 +129,23 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.UpNeighbour = undefined;
     }
 
+    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        console.log('[HandleGridClick]');
+
+        this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+
+        // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
+        // the list of displayed rows.
+        colPos = this.allColumns.findIndex(x => x === col);
+
+        this.kbs.SetPosition(colPos, rowPos, this);
+    }
+
     Attach(): void { }
     Detach(): void { }
 
     Setup(productsData: TreeGridNode<T>[], productsDataSource: NbTreeGridDataSource<TreeGridNode<T>>,
-        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], idPrefix: string, editedRow?: TreeGridNode<T>
+        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], _idPrefix: string, editedRow?: TreeGridNode<T>
     ): void {
         // Set
         this.data = productsData;
@@ -126,7 +160,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
         this.SetCreatorRow();
 
-        this.idPrefix = idPrefix;
+        this.idPrefix = _idPrefix;
 
         this.ResetEdit();
     }
@@ -194,6 +228,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     GenerateAndSetNavMatrices(attach: boolean): void {
         this.Matrix = [];
+
         for (let y = 0; y < this.data.length; y++) {
             let row = [];
             for (let x = 0; x < this.colDefs.length; x++) {
