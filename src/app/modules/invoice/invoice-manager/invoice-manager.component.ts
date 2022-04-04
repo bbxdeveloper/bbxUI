@@ -56,7 +56,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   override colDefs: ModelFieldDescriptor[] = [
     { label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
     { label: 'Mértékegység', objectKey: 'quantity', colKey: 'quantity', defaultValue: '', type: 'string', mask: "", colWidth: "5%", textAlign: "left" },
-    { label: 'Mennyiség', objectKey: 'lineNetAmount', colKey: 'lineNetAmount', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
+    { label: 'Mennyiség', objectKey: 'lineNetAmount', colKey: 'lineNetAmount', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" }, // unitofmeasureX show, post unitofmeasureCode
     { label: 'Ár', objectKey: 'price', colKey: 'price', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
     { label: 'Érték', objectKey: 'Value', colKey: 'Value', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
   ]
@@ -144,7 +144,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       invoiceDeliveryDate: new FormControl('', [Validators.required]),
       invoiceIssueDate: new FormControl('', [Validators.required, todaysDate]),
       paymentDate: new FormControl('', [Validators.required]),
-      invoiceOrdinal: new FormControl('K-0000001/21', [Validators.required]),
+      invoiceOrdinal: new FormControl('', [Validators.required]), // in post response
       notice: new FormControl('', []),
     });
     this.buyerForm = new FormGroup({

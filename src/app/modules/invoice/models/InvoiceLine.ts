@@ -1,20 +1,29 @@
 import { IEditable } from "src/assets/model/IEditable";
 
 export class InvoiceLine implements IEditable {
-    "productCode": string = '';
+    // table col order
+
+    "lineNumber": 0; // hidden
     
-    "vatRateCode": string = '';
+    "productCode": string = ''; // editable
+    "productDescription": string;
+
+    "quantity": number = 0; // editable
+
+    "unitOfMeasure": string;
+
+    "price": number = 0; // editable
+
+    "vatRate": string = ''; // hidden
+    "vatRateCode": string = ''; // below table
     
-    "quantity": number = 0;
-    
-    "price": number = 0;
-    
-    "lineNetAmount": number = 0;
-    "lineVatAmount": number = 0;
+    "lineNetAmount": number = 0; // price * quant
+    "lineVatAmount": number = 0; // netamount * vat - hidden
+
+    "lineGrossAmount": number = 0; // netamount + vatamount
 
     IsUnfinished(): boolean {
         return this.productCode.length === 0 || this.quantity === undefined || this.price === undefined ||
                this.lineNetAmount === undefined;
     }
-    
 }
