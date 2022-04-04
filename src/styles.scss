@@ -34,7 +34,7 @@ nb-layout-column {
 }
 
 ::ng-deep nb-card-header {
-  font-size: 2rem !important;
+  font-size: 1.5rem !important;
 }
 
 nb-layout-footer.custom {
@@ -48,7 +48,7 @@ input,
 label,
 th,
 td {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .disable-select {
@@ -165,9 +165,9 @@ div.parent-of-current-keyboard-nav-selected.checkbox-wrapper {
   input[type="radio"].current-keyboard-nav-selected {
     outline: none;
     // border: $selected-border-color dotted 3px !important;
-    -webkit-box-shadow: 0px 0px 0px 1px $selected-border-color;
-    -moz-box-shadow: 0px 0px 0px 1px $selected-border-color;
-    box-shadow: 0px 0px 0px 1px $selected-border-color;
+    -webkit-box-shadow: 0px 0px 0px 3px $selected-border-color;
+    -moz-box-shadow: 0px 0px 0px 3px $selected-border-color;
+    box-shadow: 0px 0px 0px 3px $selected-border-color;
   }
 }
 

@@ -214,6 +214,10 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     return data;
   }
 
+  ToInt(p: any): number {
+    return parseInt(p + '');
+  }
+
   private ProductToCreateRequest(p: Product): CreateProductRequest {
     let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
     let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
@@ -229,15 +233,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: p.minStock,
-      latestSupplyPrice: p.latestSupplyPrice,
-      ordUnit: p.ordUnit,
+      minStock: this.ToInt(p.minStock),
+      latestSupplyPrice: this.ToInt(p.latestSupplyPrice),
+      ordUnit: this.ToInt(p.ordUnit),
       originCode: originCode,
       productGroupCode: productGroupCode,
-      unitPrice1: p.unitPrice1,
-      unitPrice2: p.unitPrice2,
+      unitPrice1: this.ToInt(p.unitPrice1),
+      unitPrice2: this.ToInt(p.unitPrice2),
       unitOfMeasure: unitOfMeasureValue,
-      productFee: p.productFee,
+      productFee: this.ToInt(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode
     } as CreateProductRequest;
@@ -260,15 +264,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: p.minStock,
-      latestSupplyPrice: p.latestSupplyPrice,
-      ordUnit: p.ordUnit,
+      minStock: this.ToInt(p.minStock),
+      latestSupplyPrice: this.ToInt(p.latestSupplyPrice),
+      ordUnit: this.ToInt(p.ordUnit),
       originCode: originCode,
       productGroupCode: productGroupCode,
-      unitPrice1: p.unitPrice1,
-      unitPrice2: p.unitPrice2,
+      unitPrice1: this.ToInt(p.unitPrice1),
+      unitPrice2: this.ToInt(p.unitPrice2),
       unitOfMeasure: unitOfMeasureValue,
-      productFee: p.productFee,
+      productFee: this.ToInt(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode
     } as UpdateProductRequest;

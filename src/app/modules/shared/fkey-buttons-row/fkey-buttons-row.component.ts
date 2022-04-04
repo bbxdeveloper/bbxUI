@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { filter, map, Observable } from 'rxjs';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
@@ -17,7 +17,7 @@ export class FKeyButtonsRowComponent implements OnInit {
   constructor(
     private fS: FooterService,
     private kbS: KeyboardNavigationService) {
-    this.commands$ = this.fS.commands;
+    this.commands$ = this.fS.commands.pipe(map(x => x.filter(x => x?.value !== undefined && x.value.length > 0)));
   }
 
   ngOnInit(): void {

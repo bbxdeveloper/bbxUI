@@ -41,7 +41,7 @@ nb-card {
 
     @media (max-height: 1000px) {
         td {
-            padding: 0rem 1.25rem !important;
+            padding: 0rem 0.5rem !important;
         }
     }
 
@@ -50,9 +50,9 @@ nb-card {
         top: -1px;
     }
 
-    // th {
-    //     padding: 0px;
-    // }
+    th {
+        padding: 5px;
+    }
 
     tr:nth-child(even) {
         background-color: #493668;
@@ -83,7 +83,7 @@ nb-card {
                         padding-right: 20px;
                     }
 
-                    font-size: 1.2rem !important;
+                    font-size: 1.1rem !important;
 
                     color: #ffffff;
                     font-family: Open Sans, sans-serif;
@@ -132,7 +132,7 @@ nb-card {
                         padding-right: 20px;
                     }
 
-                    font-size: 1.2rem !important;
+                    font-size: 1.1rem !important;
 
                     color: #ffffff;
                     font-family: Open Sans, sans-serif;
@@ -387,7 +387,7 @@ nb-card-header {
     display: flex;
     max-width: 800px;
     margin: 10px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 400;
     line-height: 1.25rem;
     min-height: 50px;

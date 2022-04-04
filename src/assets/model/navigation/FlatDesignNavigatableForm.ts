@@ -1,3 +1,4 @@
+import { prepareEventListenerParameters } from "@angular/compiler/src/render3/view/template";
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
@@ -527,6 +528,11 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
             this.Matrix[currentMatrixIndex].push(next.id);
             previous = next.id;
+
+            // $('#' + next.id).off('enter');
+            // $('#' + next.id).on('enter', (event) => {
+            //     event.stopImmediatePropagation();
+            // });
         }
 
         if (environment.flatDesignFormDebug) {

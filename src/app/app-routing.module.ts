@@ -68,7 +68,7 @@ const routes: Routes = [
     ]
   },
   // otherwise redirect to stations
-  { path: '**', component: Error404Component }
+  { path: '**', redirectTo: 'home' }
 ];
 
 @NgModule({

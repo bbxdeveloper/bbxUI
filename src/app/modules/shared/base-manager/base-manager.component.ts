@@ -4,7 +4,7 @@ import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
@@ -249,6 +249,7 @@ export class BaseManagerComponent<T> {
       return;
     }
     if (focusIn) {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
       this.dbDataTable.PushFooterCommandList();
     } else {
       this.fS.pushCommands(this.commands);
