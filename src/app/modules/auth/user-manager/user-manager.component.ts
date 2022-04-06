@@ -130,7 +130,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   };
 
   override get getInputParams(): GetUsersParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, LoginName: this.searchString ?? '' };
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
   }
 
   constructor(
