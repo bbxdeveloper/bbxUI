@@ -190,6 +190,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
             setTimeout(() => {
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.parentComponent.TableRowDataChanged(newRowData.data, this.editedRowPos);
             }, 100);
         }
     }
@@ -395,6 +396,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 let nextRow = newX < colPos ? this.data[nextRowPost] : row;
                 this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
             }
+
+            this.parentComponent.TableRowDataChanged(this.editedRow.data, rowPos);
         } else {
             // Entering edit mode
             this.Edit(row, rowPos, col);

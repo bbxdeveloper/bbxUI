@@ -475,3 +475,16 @@ input, label, th, td {
 .card-header-top-margin {
   margin-top: 25px;
 }
+
+.invoice-table-statistics {
+    padding: 0px;
+    padding-right: 25px;
+
+    width: 100%;
+    text-align: right;
+
+    span.line-amount {
+        font-size: 1rem;
+        margin-left: 25px;
+    }
+}

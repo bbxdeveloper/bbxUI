@@ -193,14 +193,14 @@
                             [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                             id="{{'PRODUCT-' + colPos + '-' + rowPos}}">
 
-                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey)" autocomplete="off" nbInput
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off" nbInput
                                 [type]="it.type" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]"
                                 id="PRODUCT-EDIT" [mask]="it.mask" [patterns]="customMaskPatterns"
                                 [dropSpecialCharacters]="false" [showMaskTyped]="true" class="input-table-cell"
                                 [style.text-align]="it.textAlign" />
 
-                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                {{ row.data[it.objectKey] }}
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)">
+                                {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
                             </div>
                         </td>
                     </ng-container>
@@ -208,4 +208,12 @@
             </table>
         </form>
     </nb-card-body>
+    <nb-card-footer class="invoice-table-statistics">
+        <span class="line-amount">
+            Összes bruttó: {{outGoingInvoiceData.lineGrossAmount}}
+        </span>
+        <span class="line-amount">
+            Összes nettó: {{outGoingInvoiceData.invoiceNetAmount}}
+        </span>
+    </nb-card-footer>
 </nb-card>

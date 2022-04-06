@@ -51,14 +51,51 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
 
-  override colsToIgnore: string[] = ["Value"];
-  override allColumns = ['productCode', 'quantity', 'lineNetAmount', 'price', 'Value'];
+  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount"];
+  override allColumns = [
+    'productCode',
+    'productDescription',
+    'quantity',
+    'unitOfMeasure',
+    'price',
+    'lineNetAmount',
+    'lineGrossAmount',
+  ];
   override colDefs: ModelFieldDescriptor[] = [
-    { label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode', defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", colWidth: "20%", textAlign: "left" },
-    { label: 'Mértékegység', objectKey: 'quantity', colKey: 'quantity', defaultValue: '', type: 'string', mask: "", colWidth: "5%", textAlign: "left" },
-    { label: 'Mennyiség', objectKey: 'lineNetAmount', colKey: 'lineNetAmount', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" }, // unitofmeasureX show, post unitofmeasureCode
-    { label: 'Ár', objectKey: 'price', colKey: 'price', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
-    { label: 'Érték', objectKey: 'Value', colKey: 'Value', defaultValue: '', type: 'number', mask: "", colWidth: "15%", textAlign: "right" },
+    {
+      label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
+      defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      colWidth: "20%", textAlign: "left"
+    },
+    {
+      label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
+      defaultValue: '', type: 'string', mask: "", fReadonly: true,
+      colWidth: "20%", textAlign: "left",
+    },
+    {
+      label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
+      defaultValue: '', type: 'string', mask: "",
+      colWidth: "5%", textAlign: "left"
+    },
+    { // unitofmeasureX show, post unitofmeasureCode
+      label: 'Mértékegység', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure',
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "15%", textAlign: "right"
+    },
+    { label: 'Ár', objectKey: 'price', colKey: 'price',
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "15%", textAlign: "right"
+    },
+    {
+      label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      colWidth: "15%", textAlign: "right", calc: (x: InvoiceLine) => x.price * x.quantity
+    },
+    {
+      label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      colWidth: "15%", textAlign: "right", calc: (x: InvoiceLine) => x.lineNetAmount + x.lineVatAmount
+    },
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
@@ -125,7 +162,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
     
-    this.outGoingInvoiceData = {} as CreateOutgoingInvoiceRequest;
+    this.outGoingInvoiceData = {
+      lineGrossAmount: 0,
+      invoiceVatAmount: 0,
+      invoiceNetAmount: 0
+    } as CreateOutgoingInvoiceRequest;
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -196,6 +237,29 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     // Refresh data
     this.refresh();
+  }
+
+  TableRowDataChanged(changedData?: any, index?: number): void {
+    if (!!changedData) {
+      // TODO: Calc in InvoiceLine before
+
+      this.outGoingInvoiceData.invoiceNetAmount =
+        this.outGoingInvoiceData.invoiceLines
+          .map(x => x.price * x.quantity)
+          .reduce((sum, current) => sum + current, 0);
+
+      this.outGoingInvoiceData.lineGrossAmount =
+        this.outGoingInvoiceData.invoiceLines
+          .map(x => (x.price * x.quantity) + x.lineVatAmount)
+          .reduce((sum, current) => sum + current, 0);
+      
+      if (index !== undefined) {
+        let tmp = this.dbData[index].data;
+        tmp.lineNetAmount = tmp.price * tmp.quantity;
+        tmp.lineVatAmount = tmp.lineNetAmount * parseInt(tmp.vatRate);
+        tmp.lineGrossAmount = tmp.lineVatAmount + tmp.lineNetAmount;
+      }
+    }
   }
 
   refresh(): void {
