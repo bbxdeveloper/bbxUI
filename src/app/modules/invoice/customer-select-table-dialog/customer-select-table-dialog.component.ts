@@ -26,7 +26,11 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
   get getInputParams(): GetCustomersParamListModel {
-    return { SearchString: this.searchString ?? '', IsOwnData: false };
+    return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '10', PageNumber: '1' };
+  }
+
+  get getInputParamsForAll(): GetCustomersParamListModel {
+    return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999' };
   }
 
   constructor(
@@ -50,7 +54,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override ngOnInit(): void {
-    this.Refresh();
+    this.Refresh(this.getInputParams);
   }
   ngAfterContentInit(): void {
     this.kbS.SetWidgetNavigatable(this);
@@ -64,6 +68,26 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     if (!this.closedManually) {
       this.kbS.RemoveWidgetNavigatable();
     }
+  }
+
+  override refreshFilter(event: any): void {
+    this.searchString = event.target.value;
+
+    console.log("Search: ", this.searchString);
+
+    if (this.searchString.length === 0) {
+      this.Refresh(this.getInputParams);
+    } else {
+      this.Search(this.searchString);
+    }
+  }
+
+  override showAll(): void {
+    this.Refresh(this.getInputParamsForAll);
+  }
+
+  override showLess(): void {
+    this.Refresh(this.getInputParams);
   }
 
   RefreshTable(): void {
@@ -81,7 +105,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override Refresh(params?: GetCustomersParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
     this.customerService.GetAll(params).subscribe({
       next: (d) => {

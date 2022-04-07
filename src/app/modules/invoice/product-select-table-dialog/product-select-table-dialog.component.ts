@@ -26,7 +26,11 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
   get getInputParams(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '' };
+    return { SearchString: this.searchString ?? '', PageSize: '10', PageNumber: '1' };
+  }
+
+  get getInputParamsForAll(): GetProductsParamListModel {
+    return { SearchString: this.searchString ?? '', PageSize: '999999' };
   }
 
   constructor(
@@ -50,7 +54,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override ngOnInit(): void {
-    this.Refresh();
+    this.Refresh(this.getInputParams);
   }
   ngAfterContentInit(): void {
     this.kbS.SetWidgetNavigatable(this);
@@ -63,6 +67,26 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     if (!this.closedManually) {
       this.kbS.RemoveWidgetNavigatable();
     }
+  }
+
+  override refreshFilter(event: any): void {
+    this.searchString = event.target.value;
+
+    console.log("Search: ", this.searchString);
+
+    if (this.searchString.length === 0) {
+      this.Refresh(this.getInputParams);
+    } else {
+      this.Search(this.searchString);
+    }
+  }
+
+  override showAll(): void {
+    this.Refresh(this.getInputParamsForAll);
+  }
+
+  override showLess(): void {
+    this.Refresh(this.getInputParams);
   }
 
   RefreshTable(): void {
