@@ -8,8 +8,8 @@
         <input nbInput id="active-prod-search" class="search-input" (keydown.enter)="handleEnter($event)"
             (keyup)="refreshFilter($event)" [readonly]="isEditModeOff" autocomplete="off">
 
-        <button nbButton class="btn-util" id="show-all" (click)="showAll()">Összes mutatása</button>
-        <button nbButton class="btn-util" id="show-less" (click)="showLess()">Kevesebb mutatása</button>
+        <button nbButton class="btn-util" id="btn-table-show-all" (click)="showAll()">Összes mutatása</button>
+        <button nbButton class="btn-util" id="btn-table-show-less" (click)="showLess()">Kevesebb mutatása</button>
 
         <table class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource"
             [nbSort]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>

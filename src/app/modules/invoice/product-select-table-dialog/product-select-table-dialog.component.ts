@@ -45,6 +45,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.dbDataTable = new SimpleNavigatableTable<Product>(
       this.dataSourceBuilder, this.kbS, this.cdref, this.dbData, '', AttachDirection.DOWN, this
     );
+    this.dbDataTable.InnerJumpOnEnter = true;
+    this.dbDataTable.OuterJump = true;
   }
 
   override ngOnInit(): void {

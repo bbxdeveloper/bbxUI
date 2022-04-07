@@ -2,6 +2,7 @@ import { ThrowStmt } from '@angular/compiler';
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NbTable, NbTreeGridDataSource, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest, NbGlobalPhysicalPosition } from '@nebular/theme';
+import { data } from 'out/bbx-ui-win32-x64/resources/app/node_modules/@types/jquery';
 import { Observable, of, startWith, map } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -17,6 +18,7 @@ import { todaysDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Customer } from '../../customer/models/Customer';
+import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -28,6 +30,7 @@ import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
+import { createMask } from '@ngneat/input-mask';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -51,6 +54,26 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
 
+  customerInputFilterString: string = '';
+
+  numberInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.0',
+  });
+
+  numberInputMaskInteger = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 0,
+    digitsOptional: true,
+    prefix: '',
+    placeholder: '',
+  });
+
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount"];
   override allColumns = [
     'productCode',
@@ -65,7 +88,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-      colWidth: "20%", textAlign: "left"
+      colWidth: "20%", textAlign: "left", fInputType: 'code-field'
     },
     {
       label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
@@ -74,17 +97,17 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     },
     {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
-      defaultValue: '', type: 'string', mask: "",
-      colWidth: "5%", textAlign: "left"
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "5%", textAlign: "left", fInputType: 'formatted-number-integer'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Mértékegység', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'string', mask: "",
       colWidth: "15%", textAlign: "right"
     },
     { label: 'Ár', objectKey: 'price', colKey: 'price',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "15%", textAlign: "right"
+      colWidth: "15%", textAlign: "right", fInputType: 'formatted-number'
     },
     {
       label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
@@ -131,12 +154,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
 
-  readonly navigationMatrix: string[][] = [
-    ["r00"],
-    ["m00", "m01", "m02", "m03"],
-    ["m11"],
-  ];
-
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
@@ -165,7 +182,15 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData = {
       lineGrossAmount: 0,
       invoiceVatAmount: 0,
-      invoiceNetAmount: 0
+      invoiceNetAmount: 0,
+      invoiceLines: [],
+      warehouseCode: 0,
+      customerID: -1,
+      invoiceDeliveryDate: '',
+      invoiceIssueDate: '',
+      notice: '',
+      paymentDate: '',
+      paymentMethod: ''
     } as CreateOutgoingInvoiceRequest;
 
     this.dbData = [];
@@ -239,25 +264,31 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.refresh();
   }
 
+  ToInt(p: any): number {
+    return p !== undefined ? parseInt(p + '') : 0;
+  }
+
   TableRowDataChanged(changedData?: any, index?: number): void {
     if (!!changedData) {
       // TODO: Calc in InvoiceLine before
 
+      this.outGoingInvoiceData.invoiceLines = this.dbData.map(x => x.data);
+
       this.outGoingInvoiceData.invoiceNetAmount =
         this.outGoingInvoiceData.invoiceLines
-          .map(x => x.price * x.quantity)
+        .map(x => this.ToInt(x.price) * this.ToInt(x.quantity))
           .reduce((sum, current) => sum + current, 0);
 
       this.outGoingInvoiceData.lineGrossAmount =
         this.outGoingInvoiceData.invoiceLines
-          .map(x => (x.price * x.quantity) + x.lineVatAmount)
+        .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount))
           .reduce((sum, current) => sum + current, 0);
       
       if (index !== undefined) {
         let tmp = this.dbData[index].data;
-        tmp.lineNetAmount = tmp.price * tmp.quantity;
-        tmp.lineVatAmount = tmp.lineNetAmount * parseInt(tmp.vatRate);
-        tmp.lineGrossAmount = tmp.lineVatAmount + tmp.lineNetAmount;
+        tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
+        tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
+        tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
       }
     }
   }
@@ -359,26 +390,20 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.kbS.Detach();
   }
 
+  private UpdateOutGoingData(): void {
+    this.outGoingInvoiceData.customerID = this.buyerData.id;
+    this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+    this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
+    this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
+    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+    this.outGoingInvoiceData.paymentMethod = this.outInvForm.controls['paymentMethod'].value;
+    this.outGoingInvoiceData.warehouseCode = 1;
+    this.outGoingInvoiceData.invoiceNetAmount = 0;
+    this.outGoingInvoiceData.invoiceVatAmount = 0;
+  }
+
   Save(): void {
-    const req = {
-      // Buyer
-      customerID: this.buyerData.id,
-
-      // Middle form
-      invoiceDeliveryDate: this.outInvForm.controls['invoiceDeliveryDate'].value,
-      invoiceIssueDate: this.outInvForm.controls['invoiceIssueDate'].value,
-      notice: this.outInvForm.controls['notice'].value,
-      paymentDate: this.outInvForm.controls['paymentDate'].value,
-      paymentMethod: this.outInvForm.controls['paymentMethod'].value,
-      
-      // Misc
-      warehouseCode: 1,
-      invoiceNetAmount: 0,
-      invoiceVatAmount: 0,
-
-      // Table
-      invoiceLines: this.dbData.map(x => x.data)
-    } as CreateOutgoingInvoiceRequest;
+    this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
     this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
@@ -478,22 +503,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
       context: {
+        searchString: this.customerInputFilterString,
         allColumns: [
           'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId'
         ],
         colDefs: [
-          { label: 'Azonosító', objectKey: 'id', colKey: 'id', defaultValue: '', type: 'string', fInputType: 'readonly', mask: "", colWidth: "15%", textAlign: "center", navMatrixCssClass: TileCssClass },
           { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Számlaszám', objectKey: 'customerBankAccountNumber', colKey: 'customerBankAccountNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "Set in sidebar form.", colWidth: "15%", textAlign: "left", navMatrixCssClass: TileCssClass },
           { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Országkód', objectKey: 'countryCode', colKey: 'countryCode', defaultValue: '', type: 'string', fInputType: 'text', fRequired: false, mask: "SS", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
           { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
           { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'További címadat', objectKey: 'additionalAddressDetail', colKey: 'additionalAddressDetail', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Magánszemély?', objectKey: 'privatePerson', colKey: 'privatePerson', defaultValue: '', type: 'bool', fInputType: 'bool', fRequired: false, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Megjegyzés', objectKey: 'comment', colKey: 'comment', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Saját', objectKey: 'isOwnData', colKey: 'isOwnData', defaultValue: '', type: 'bool', fInputType: 'bool', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
         ]
       }
     });
@@ -526,6 +545,30 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     res.price = p.unitPrice1!;
 
     return res;
+  }
+
+  FillFormWithFirstAvailableCustomer(event: any): void {
+    this.customerInputFilterString = event.target.value ?? '';
+    this.isLoading = true;
+    this.seC.GetAll({
+      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
+    } as GetCustomersParamListModel).subscribe({
+      next: res => {
+        if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.buyerFormNav.FillForm(res.data[0], ['customerName']);
+        } else {
+          this.buyerFormNav.FillForm({}, ['customerName']);
+          this.customerInputFilterString = '';
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err); this.isLoading = false;
+        this.customerInputFilterString = '';
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {

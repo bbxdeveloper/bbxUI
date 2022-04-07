@@ -45,6 +45,8 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     this.dbDataTable = new SimpleNavigatableTable<Customer>(
       this.dataSourceBuilder, this.kbS, this.cdref, this.dbData, '', AttachDirection.DOWN, this
     );
+    this.dbDataTable.InnerJumpOnEnter = true;
+    this.dbDataTable.OuterJump = true;
   }
 
   override ngOnInit(): void {
@@ -55,6 +57,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     this.kbS.SelectFirstTile();
   }
   ngAfterViewChecked(): void {
+    $('#active-prod-search').val(this.searchString);
     this.kbS.SelectCurrentElement();
   }
   ngOnDestroy(): void {

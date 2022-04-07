@@ -72,10 +72,12 @@ export class InlineTableNavigatableForm implements INavigatable {
         this.cdref.detectChanges();
     }
 
-    FillForm(data: any) {
+    FillForm(data: any, skip: string[] = []) {
         if (!!data) {
             Object.keys(this.form.controls).forEach((x: string) => {
-                this.form.controls[x].setValue(data[x]);
+                if (!skip.includes(x)) {
+                    this.form.controls[x].setValue(data[x]);
+                }
             });
         }
     }

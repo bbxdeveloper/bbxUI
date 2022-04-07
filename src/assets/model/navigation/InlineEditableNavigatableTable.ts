@@ -311,6 +311,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, upward: boolean): void {
         // Új sorokat generáló sort nem dobhatjuk el.
         if (rowPos !== this.data.length - 1) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
             // Csak befejezetlen sort dobhatunk el, amikor nincs szerkesztésmód.
             let _data = row.data;
             if (!!_data && _data.IsUnfinished() && !this.kbS.isEditModeActivated) {
@@ -346,22 +349,22 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
-    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
-        console.log('[HandleGridClick]');
+    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
+        console.log('[HandleGridClick]: ', row, rowPos, col, colPos, inputId);
 
         this.kbs.setEditMode(KeyboardModes.NAVIGATION);
         this.ResetEdit();
 
         // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
         // the list of displayed rows.
-        colPos = this.allColumns.findIndex(x => x === col);
+        colPos = this.allColumns.filter(x => !this.colsToIgnore.includes(x)).findIndex(x => x === col);
 
         this.kbs.SetPosition(colPos, rowPos, this);
 
-        this.HandleGridEnter(row, rowPos, col, colPos, inputId);
+        this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType);
     }
 
-    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
+    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
         //debugger;
 
         // Switch between nav and edit mode
@@ -397,24 +400,41 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
             }
 
+            console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
             this.parentComponent.TableRowDataChanged(this.editedRow.data, rowPos);
         } else {
             // Entering edit mode
             this.Edit(row, rowPos, col);
             this.cdref!.detectChanges();
             $('#' + inputId).trigger('focus');
-            //this.kbS.SelectElement(inputId);
-            const _input = document.getElementById(inputId) as HTMLInputElement;
-            if (!!_input && _input.type === "text") {
-                window.setTimeout(function () {
-                    const txtVal = ((row.data as any)[col] as string);
-                    console.log(txtVal);
-                    if (!!txtVal) {
-                        _input.setSelectionRange(txtVal.length, txtVal.length);
-                    } else {
-                        _input.setSelectionRange(0, 0);
-                    }
-                }, 0);
+
+            if (fInputType === 'formatted-number' || fInputType === 'formatted-number-integer') {
+                const _input = document.getElementById(inputId) as HTMLInputElement;
+                if (!!_input && _input.type === "text") {
+                    window.setTimeout(function () {
+                        const txtVal = ((row.data as any)[col] + '');
+                        console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
+                        if (!!txtVal) {
+                            const l = txtVal.split('.')[0].length;
+                            _input.setSelectionRange(0, l);
+                        } else {
+                            _input.setSelectionRange(0, 1);
+                        }
+                    }, 0);
+                }
+            } else {
+                const _input = document.getElementById(inputId) as HTMLInputElement;
+                if (!!_input && _input.type === "text") {
+                    window.setTimeout(function () {
+                        const txtVal = ((row.data as any)[col] as string);
+                        console.log('txtVal: ', txtVal);
+                        if (!!txtVal) {
+                            _input.setSelectionRange(txtVal.length, txtVal.length);
+                        } else {
+                            _input.setSelectionRange(0, 0);
+                        }
+                    }, 0);
+                }
             }
         }
 

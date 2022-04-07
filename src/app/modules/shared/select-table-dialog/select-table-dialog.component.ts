@@ -16,10 +16,10 @@ import { BaseNavigatableComponentComponent } from '../base-navigatable-component
 })
 export class SelectTableDialogComponent<T> extends BaseNavigatableComponentComponent {
   // @Input() allData: TreeGridNode<T>[] = []; 
+  @Input() searchString: string = '';
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
 
-  searchString: string = '';
   responseMessage: string = '';
 
   closedManually: boolean = false;
@@ -51,7 +51,9 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
     this.selectedRow = {} as T;
 
     this.IsDialog = true;
-    this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
+    this.Matrix = [["active-prod-search", "btn-table-show-all", "btn-table-show-less"]];
+    this.InnerJumpOnEnter = true;
+    this.OuterJump = true;
   }
 
   Refresh(): void {

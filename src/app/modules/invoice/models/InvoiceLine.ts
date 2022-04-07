@@ -8,11 +8,11 @@ export class InvoiceLine implements IEditable {
     "productCode": string = ''; // editable
     "productDescription": string;
 
-    "quantity": number = 0; // editable
+    "quantity": number; // editable
 
     "unitOfMeasure": string;
 
-    "price": number = 0; // editable
+    "price": number = 0.0; // editable
 
     "vatRate": string = ''; // hidden
     "vatRateCode": string = ''; // below table
