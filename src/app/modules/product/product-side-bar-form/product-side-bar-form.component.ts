@@ -49,11 +49,11 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService,
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
     private vatApi: VatRateService,
     private cdref: ChangeDetectorRef) {
-    super();
+    super(kbS);
     this.refreshComboboxData();
   }
 

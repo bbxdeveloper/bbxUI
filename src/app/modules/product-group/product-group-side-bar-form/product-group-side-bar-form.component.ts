@@ -18,8 +18,8 @@ export class ProductGroupSideBarFormComponent extends BaseSideBarFormComponent i
     return KeyBindings;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService) {
-    super();
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService) {
+    super(kbS);
   }
 
   ngOnInit(): void {

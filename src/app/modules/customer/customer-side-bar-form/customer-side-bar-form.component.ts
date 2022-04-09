@@ -46,9 +46,9 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     return tmp !== undefined ? tmp : '';
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, private kbS: KeyboardNavigationService, private cService: CustomerService,
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService, private cService: CustomerService,
     private cdref: ChangeDetectorRef) {
-    super();
+    super(kbS);
     this.refreshComboboxData();
   }
 

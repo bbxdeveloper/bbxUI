@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { NbSidebarService } from "@nebular/theme";
+import { KeyboardNavigationService } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService, FormSubject } from "src/app/services/side-bar-form.service";
 import { FlatDesignNavigatableForm } from "src/assets/model/navigation/FlatDesignNavigatableForm";
 import { TileCssClass } from "src/assets/model/navigation/Navigatable";
@@ -16,8 +17,8 @@ export class WareHouseSideBarFormComponent extends BaseSideBarFormComponent impl
     return KeyBindings;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService) {
-    super();
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService) {
+    super(kbS);
   }
 
   ngOnInit(): void {

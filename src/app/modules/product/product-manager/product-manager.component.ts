@@ -510,8 +510,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
-            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
+            this.dbDataTable.totalItems = d.recordsFiltered;
             this.dbDataTable.itemsOnCurrentPage = tempData.length;
           }
           this.RefreshTable();

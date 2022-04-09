@@ -1,8 +1,6 @@
-import { ThrowStmt } from '@angular/compiler';
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
-import { NbTable, NbTreeGridDataSource, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest, NbGlobalPhysicalPosition } from '@nebular/theme';
-import { data } from 'out/bbx-ui-win32-x64/resources/app/node_modules/@types/jquery';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { Observable, of, startWith, map } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -16,7 +14,6 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCss
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { todaysDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
@@ -25,7 +22,6 @@ import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/bas
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { Invoice } from '../models/Invoice';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';

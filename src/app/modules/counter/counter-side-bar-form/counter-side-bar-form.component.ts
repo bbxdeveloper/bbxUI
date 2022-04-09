@@ -31,9 +31,9 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  constructor(private sbf: SideBarFormService, private kbS: KeyboardNavigationService,
+  constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
     private wareHouseApi: WareHouseService, private cdref: ChangeDetectorRef) {
-    super();
+    super(kbS);
     this.refreshComboboxData();
   }
 

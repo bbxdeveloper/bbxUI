@@ -78,6 +78,11 @@ export class BaseManagerComponent<T> {
     protected cs: CommonService,
     protected sts: StatusService) {
   }
+
+  GetPageCount(recordsFiltered: number, pageSize: number): number {
+    const tmp = Math.round(recordsFiltered / pageSize);
+    return tmp === 0 ? 1 : tmp;
+  }
   
   HandleError(err: any): void {
     this.cs.HandleError(err);
@@ -205,7 +210,10 @@ export class BaseManagerComponent<T> {
       return;
     }
     this.searchString = event.target.value;
+
     console.log('Search: ', this.searchString);
+
+    this.dbDataTable.resetPaginator();
     this.search();
   }
 
@@ -215,8 +223,10 @@ export class BaseManagerComponent<T> {
     } else {
       $('#' + this.searchInputId!).val('');
     }
+
     this.searchString = '';
 
+    this.dbDataTable.resetPaginator();
     this.search();
   }
 
