@@ -61,7 +61,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     flatDesignForm: FlatDesignNavigatableForm<T>;
 
-    readonly commandsOnTable: FooterCommandInfo[] = [
+    commandsOnTable: FooterCommandInfo[] = [
+        { key: 'Tab', value: '', disabled: false },
         { key: 'F1', value: '', disabled: false },
         { key: 'F2', value: '', disabled: false },
         { key: 'F3', value: '', disabled: false },
@@ -75,7 +76,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         { key: 'F11', value: '', disabled: false },
         { key: 'F12', value: 'Tétellap', disabled: false }
     ];
-    readonly commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
+    commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
 
     private prevSelectedRow?: TreeGridNode<T>;
     private prevSelectedRowPos?: number;

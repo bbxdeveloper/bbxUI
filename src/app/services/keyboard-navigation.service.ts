@@ -151,18 +151,22 @@ export class KeyboardNavigationService {
     //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     // }
 
-    switch (this.CurrentNavigatable.TileSelectionMethod) {
-      case PreferredSelectionMethod.both:
-        $(idString).trigger('focus');
-        $(idString).trigger('click');
-        break;
-      case PreferredSelectionMethod.click:
-        $(idString).trigger('click');
-        break;
-      case PreferredSelectionMethod.focus:
-      default:
-        $(idString).trigger('focus');
-        break;
+    if ($(idString).is(':button')) {
+      $(idString).trigger('focus');
+    } else {
+      switch (this.CurrentNavigatable.TileSelectionMethod) {
+        case PreferredSelectionMethod.both:
+          $(idString).trigger('focus');
+          $(idString).trigger('click');
+          break;
+        case PreferredSelectionMethod.click:
+          $(idString).trigger('click');
+          break;
+        case PreferredSelectionMethod.focus:
+        default:
+          $(idString).trigger('focus');
+          break;
+      }
     }
 
     this.ElementIdSelected.next(id);
