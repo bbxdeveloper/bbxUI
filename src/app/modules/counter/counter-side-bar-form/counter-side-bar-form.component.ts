@@ -27,10 +27,6 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
   currentWareHouseCount: number = 0;
   filteredWareHouses$: Observable<string[]> = of([]);
 
-  get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
-  }
-
   constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
     private wareHouseApi: WareHouseService, private cdref: ChangeDetectorRef) {
     super(kbS);

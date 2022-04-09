@@ -45,10 +45,6 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   currentVatRateCount: number = 0;
   filteredVatRates$: Observable<string[]> = of([]);
 
-  get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
-  }
-
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
     private vatApi: VatRateService,

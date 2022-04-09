@@ -20,6 +20,7 @@
                     <label>Kód*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="counterCode" oninput="this.value = this.value.toUpperCase()"
+                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="counterCode"></app-form-control-error>
@@ -30,6 +31,7 @@
                     <label>Megnevezés*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="counterDescription"
+                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="counterDescription"></app-form-control-error>
@@ -40,6 +42,7 @@
                     <label>Raktár*</label>
 
                     <input class="{{TileCssClass}}" formControlName="warehouse" nbInput type="text"
+                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoWarehouse" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
@@ -58,6 +61,7 @@
                     <label>Prefix*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="prefix" mask="AAA"
+                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="prefix"></app-form-control-error>
@@ -69,6 +73,7 @@
                         <label>Számláló*</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="number" formControlName="currentNumber"
+                        [readonly]="isEditModeOff"
                             [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -79,6 +84,7 @@
                         
                         <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2"
                         max="10" [inputMask]="numberInputMaskInteger"
+                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -92,6 +98,7 @@
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="suffix"
                         [patterns]="customPatterns" mask="A" (click)="currentForm.HandleFormFieldClick($event)"
+                        [readonly]="isEditModeOff"
                         required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="suffix"></app-form-control-error>

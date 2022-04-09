@@ -30,10 +30,6 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   currentCountryCodeCount: number = 0;
   filteredCountryCodes$: Observable<string[]> = of([]);
 
-  get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
-  }
-
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   get privatePersonDefaultValue(): Boolean {
