@@ -1,5 +1,4 @@
-<div *ngIf="!!form && !!controlName && form.CanShowFormErrors(controlName)"
-        class="alert alert-danger">
+<div *ngIf="!!form && !!controlName && form.CanShowFormErrors(controlName)" class="alert alert-danger">
     <div *ngIf="form?.IsErrorApparent(controlName, 'required')">
         {{ GetErrorMessage(ValidationMessage.ErrorRequired) }}
     </div>
@@ -7,5 +6,18 @@
         {{ GetErrorMessage(ValidationMessage.ErrorMin) }}
     </div>
     <div *ngIf="form?.IsErrorApparent(controlName, 'max')">
-        {{ GetErrorMessage(ValidationMessage.ErrorMax
+        {{ GetErrorMessage(ValidationMessage.ErrorMax) }}
+    </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'todaysDate')">
+        {{ GetErrorMessage(ValidationMessage.ErrorTodaysDate) }}
+    </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'minDate')">
+        {{ GetErrorMessage(ValidationMessage.ErrorMinDate) }}
+    </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'maxDate')">
+        {{ GetErrorMessage(ValidationMessage.ErrorMaxDate) }}
+    </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'minMaxDate')">
+        {{ GetErrorMessage(ValidationMessage.ErrorMinMaxDate) }}
+    </div>
 </div>

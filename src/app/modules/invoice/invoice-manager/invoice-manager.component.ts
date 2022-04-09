@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { Observable, of, startWith, map } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
@@ -12,7 +12,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { todaysDate } from 'src/assets/model/Validators';
+import { maxDate, minDate, todaysDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
@@ -101,7 +101,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       defaultValue: '', type: 'string', mask: "",
       colWidth: "15%", textAlign: "right"
     },
-    { label: 'Ár', objectKey: 'price', colKey: 'price',
+    {
+      label: 'Ár', objectKey: 'price', colKey: 'price',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "15%", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -145,13 +146,35 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   buyerForm: FormGroup;
   buyerFormId: string = "buyer-form";
-  buyerFormNav: InlineTableNavigatableForm;  
+  buyerFormNav: InlineTableNavigatableForm;
 
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  }
+
+  get invoiceIssueDateValue(): Date | undefined {
+    if (!!!this.outInvForm) {
+      return undefined;
+    }
+    const tmp = this.outInvForm.controls['invoiceIssueDate'].value;
+
+    // console.log(tmp, new Date(tmp));
+
+    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+  }
+
+  get invoiceDeliveryDateValue(): Date | undefined {
+    if (!!!this.outInvForm) {
+      return undefined;
+    }
+    const tmp = this.outInvForm.controls['invoiceDeliveryDate'].value;
+
+    // console.log(tmp, new Date(tmp));
+
+    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
   }
 
   constructor(
@@ -174,7 +197,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     // Init form and table content - empty
     this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
-    
+
     this.outGoingInvoiceData = {
       lineGrossAmount: 0,
       invoiceVatAmount: 0,
@@ -192,7 +215,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
-    // Init forms
     this.exporterForm = new FormGroup({
       customerName: new FormControl('', []),
       zipCodeCity: new FormControl('', []),
@@ -203,9 +225,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
     this.outInvForm = new FormGroup({
       paymentMethod: new FormControl('', [Validators.required]),
-      invoiceDeliveryDate: new FormControl('', [Validators.required]),
+      invoiceDeliveryDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
       invoiceIssueDate: new FormControl('', [Validators.required, todaysDate]),
-      paymentDate: new FormControl('', [Validators.required]),
+      paymentDate: new FormControl('', [Validators.required, (this.validatePaymentDateMinMax.bind(this))]),
       invoiceOrdinal: new FormControl('', [Validators.required]), // in post response
       notice: new FormControl('', []),
     });
@@ -238,6 +260,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this
     );
 
+    this.buyerFormNav!.OuterJump = true;
+    this.outInvFormNav!.OuterJump = true;
+
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -253,11 +278,69 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     );
 
     this.dbDataTable!.OuterJump = true;
-    this.buyerFormNav!.OuterJump = true;
-    this.outInvFormNav!.OuterJump = true;
 
     // Refresh data
     this.refresh();
+  }
+
+  // invoiceDeliveryDate
+  validateInvoiceDeliveryDate(control: AbstractControl): any {
+    if (this.invoiceIssueDateValue === undefined) {
+      return null;
+    }
+    const wrong = new Date(control.value) < this.invoiceIssueDateValue;
+    return wrong ? { minDate: { value: control.value } } : null;
+  }
+
+  // paymentDate
+  validatePaymentDateMinMax(control: AbstractControl): any {
+    if (this.invoiceIssueDateValue === undefined || this.invoiceDeliveryDateValue === undefined) {
+      return null;
+    }
+    const _date = new Date(control.value);
+    const wrong = _date < this.invoiceIssueDateValue || _date > this.invoiceDeliveryDateValue;
+    return wrong ? { minMaxDate: { value: control.value } } : null;
+  }
+
+  // validateInvoiceDeliveryDate(): ValidatorFn {
+  //   return (control: AbstractControl): ValidationErrors | null => {
+  //     const wrong = new Date(control.value) < minDate;
+  //     return wrong ? { dateIsSmallerThanMin: { value: control.value } } : null;
+  //   };
+  // }
+
+  // validatePaymentDate(): ValidatorFn {
+  //   return (control: AbstractControl): ValidationErrors | null => {
+  //     const wrong = new Date(control.value) > maxDate;
+  //     return wrong ? { dateIsBiggerThanMax: { value: control.value } } : null;
+  //   };
+  // }
+
+  InitFormDefaultValues(): void {
+    const tmp = new Date();
+    const year = tmp.getFullYear();
+
+    let month = tmp.getMonth() + '';
+    month = month.length === 1 ? '0' + month : month;
+
+    let day = tmp.getDay() + '';
+    day = day.length === 1 ? '0' + day : month;
+
+    const dateStr = year + '-' + month + '-' + day;
+
+    this.outInvForm.controls['invoiceIssueDate'].setValue(dateStr);
+    this.outInvForm.controls['invoiceDeliveryDate'].setValue(dateStr);
+    this.outInvForm.controls['paymentDate'].setValue(dateStr);
+
+    this.outInvForm.controls['invoiceIssueDate'].valueChanges.subscribe({
+      next: p => {
+        this.outInvForm.controls['invoiceDeliveryDate'].setValue(this.outInvForm.controls['invoiceDeliveryDate'].value);
+        this.outInvForm.controls['invoiceDeliveryDate'].markAsTouched();
+
+        this.outInvForm.controls['paymentDate'].setValue(this.outInvForm.controls['paymentDate'].value);
+        this.outInvForm.controls['paymentDate'].markAsTouched();
+      }
+    });
   }
 
   ToInt(p: any): number {
@@ -272,14 +355,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.outGoingInvoiceData.invoiceNetAmount =
         this.outGoingInvoiceData.invoiceLines
-        .map(x => this.ToInt(x.price) * this.ToInt(x.quantity))
+          .map(x => this.ToInt(x.price) * this.ToInt(x.quantity))
           .reduce((sum, current) => sum + current, 0);
 
       this.outGoingInvoiceData.lineGrossAmount =
         this.outGoingInvoiceData.invoiceLines
-        .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount))
+          .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount))
           .reduce((sum, current) => sum + current, 0);
-      
+
       if (index !== undefined) {
         let tmp = this.dbData[index].data;
         tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
@@ -360,11 +443,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
+    this.InitFormDefaultValues();
+
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.buyerFormNav.GenerateAndSetNavMatrices(true);
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
-    
+
     this.dbDataTable?.Setup(
       this.dbData,
       this.dbDataDataSrc,
@@ -424,66 +509,68 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   ChooseDataForTableRow(rowIndex: number): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
-    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, { context: {
-      allColumns: [
-        'productCode',
-        'description',
-        'unitPrice1',
-        'unitPrice2',
-      ],
-      colDefs: [
-        {
-          label: 'Kód',
-          objectKey: 'productCode',
-          colKey: 'productCode',
-          defaultValue: '',
-          type: 'string',
-          fInputType: 'readonly',
-          mask: '',
-          colWidth: '15%',
-          textAlign: 'center',
-          navMatrixCssClass: TileCssClass,
-        },
-        {
-          label: 'Megnevezés',
-          objectKey: 'description',
-          colKey: 'description',
-          defaultValue: '',
-          type: 'string',
-          fInputType: 'text',
-          mask: '',
-          colWidth: '25%',
-          textAlign: 'left',
-          navMatrixCssClass: TileCssClass,
-        },
-        {
-          label: 'Elad ár 1',
-          objectKey: 'unitPrice1',
-          colKey: 'unitPrice1',
-          defaultValue: '',
-          type: 'string',
-          fInputType: 'text',
-          fRequired: true,
-          mask: '',
-          colWidth: '30%',
-          textAlign: 'left',
-          navMatrixCssClass: TileCssClass,
-        },
-        {
-          label: 'Elad ár 2',
-          objectKey: 'unitPrice2',
-          colKey: 'unitPrice2',
-          defaultValue: '',
-          type: 'string',
-          fInputType: 'bool',
-          fRequired: false,
-          mask: '',
-          colWidth: '25%',
-          textAlign: 'left',
-          navMatrixCssClass: TileCssClass,
-        }
-      ]
-    } });
+    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
+      context: {
+        allColumns: [
+          'productCode',
+          'description',
+          'unitPrice1',
+          'unitPrice2',
+        ],
+        colDefs: [
+          {
+            label: 'Kód',
+            objectKey: 'productCode',
+            colKey: 'productCode',
+            defaultValue: '',
+            type: 'string',
+            fInputType: 'readonly',
+            mask: '',
+            colWidth: '15%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+          },
+          {
+            label: 'Megnevezés',
+            objectKey: 'description',
+            colKey: 'description',
+            defaultValue: '',
+            type: 'string',
+            fInputType: 'text',
+            mask: '',
+            colWidth: '25%',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+          },
+          {
+            label: 'Elad ár 1',
+            objectKey: 'unitPrice1',
+            colKey: 'unitPrice1',
+            defaultValue: '',
+            type: 'string',
+            fInputType: 'text',
+            fRequired: true,
+            mask: '',
+            colWidth: '30%',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+          },
+          {
+            label: 'Elad ár 2',
+            objectKey: 'unitPrice2',
+            colKey: 'unitPrice2',
+            defaultValue: '',
+            type: 'string',
+            fInputType: 'bool',
+            fRequired: false,
+            mask: '',
+            colWidth: '25%',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+          }
+        ]
+      }
+    });
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
@@ -516,7 +603,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerFormNav.FillForm(res);
-        
+
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
@@ -524,7 +611,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  RefreshData(): void {}
+  RefreshData(): void { }
 
   ProductToInvoiceLine(p: Product): InvoiceLine {
     let res = new InvoiceLine();

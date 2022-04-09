@@ -130,6 +130,7 @@
                     <label>Teljesítési időpont</label>
                     <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true" class="{{TileCssClass}}"
                         [readonly]="isEditModeOff" id="m01" mask="0000-00-00"
+                        [dropSpecialCharacters]="false"
                         [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
@@ -137,6 +138,7 @@
                     <label>Számla keltezése</label>
                     <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true" class="{{TileCssClass}}"
                         [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                        [dropSpecialCharacters]="false"
                         [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
@@ -144,6 +146,7 @@
                     <label>Fizetési határidő</label>
                     <input nbInput type="datetime" formControlName='paymentDate' required="true" class="{{TileCssClass}}"
                         [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                        [dropSpecialCharacters]="false"
                         [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
@@ -160,6 +163,18 @@
                             placeholder="Egyéb adatok" id="m11">
                     </div>
                 </nb-form-field>
+
+                <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont" controlName="invoiceDeliveryDate"
+                    [validationParameterDate]="invoiceIssueDateValue">
+                </app-form-control-error>
+                
+                <app-form-control-error [form]="outInvFormNav" label="számla keltezése" controlName="invoiceIssueDate"
+                    [validationParameterDate]="invoiceIssueDateValue">
+                </app-form-control-error>
+                
+                <app-form-control-error [form]="outInvFormNav" label="fizetési határidő" controlName="paymentDate"
+                    [validationParameterDate]="invoiceIssueDateValue" [validationParameterDateSecondary]="invoiceDeliveryDateValue">
+                </app-form-control-error>
             </form>
         </nb-card-body>
     </nb-card>

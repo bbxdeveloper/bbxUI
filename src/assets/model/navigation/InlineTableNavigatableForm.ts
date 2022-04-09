@@ -242,4 +242,12 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     Detach(): void { }
+
+    CanShowFormErrors(formControlName: string): boolean {
+        return this.form.controls[formControlName].invalid && (this.form.controls[formControlName].dirty || this.form.controls[formControlName].touched);
+    }
+
+    IsErrorApparent(formControlName: string, validationName: string): boolean {
+        return this.form.controls[formControlName].errors?.[validationName]; // eg. 'required'
+    }
 }
