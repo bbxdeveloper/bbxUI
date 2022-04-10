@@ -14,7 +14,7 @@ export class InvoiceLine implements IEditable {
 
     "price": number = 0.0; // editable
 
-    "vatRate": string = ''; // hidden
+    "vatRate": string = '1'; // hidden
     "vatRateCode": string = ''; // below table
     
     "lineNetAmount": number = 0; // price * quant

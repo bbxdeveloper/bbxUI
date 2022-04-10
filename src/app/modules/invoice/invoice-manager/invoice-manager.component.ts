@@ -344,12 +344,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   ToInt(p: any): number {
-    return p !== undefined ? parseInt(p + '') : 0;
+    return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').trim()) : 0;
   }
 
   TableRowDataChanged(changedData?: any, index?: number): void {
     if (!!changedData) {
       // TODO: Calc in InvoiceLine before
+
+      console.log('[TableRowDataChanged]: ', changedData);
 
       this.outGoingInvoiceData.invoiceLines = this.dbData.map(x => x.data);
 
@@ -360,7 +362,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.outGoingInvoiceData.lineGrossAmount =
         this.outGoingInvoiceData.invoiceLines
-          .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount))
+          .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount + ''))
           .reduce((sum, current) => sum + current, 0);
 
       if (index !== undefined) {
@@ -484,6 +486,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   Save(): void {
+    if (this.outInvForm.invalid) {
+      return;
+    }
+
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);

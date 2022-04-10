@@ -311,9 +311,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, upward: boolean): void {
         // Új sorokat generáló sort nem dobhatjuk el.
         if (rowPos !== this.data.length - 1) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            event.stopPropagation();
+            // event.preventDefault();
+            // event.stopImmediatePropagation();
+            // event.stopPropagation();
             // Csak befejezetlen sort dobhatunk el, amikor nincs szerkesztésmód.
             let _data = row.data;
             if (!!_data && _data.IsUnfinished() && !this.kbS.isEditModeActivated) {
@@ -328,8 +328,11 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                         this.dataSource.setData(this.data);
 
                         // Ha felfelé navigálunk, akkor egyet kell lefelé navigálnunk, hogy korrigáljuk a mozgást.
-                        this.kbS.MoveDown();
                         this.GenerateAndSetNavMatrices(false);
+                        
+                        setTimeout(() => {
+                            this.kbS.MoveDown();
+                        }, 50);
                         break;
                     case "ArrowDown":
                         if (!this.isUnfinishedRowDeletable) {
