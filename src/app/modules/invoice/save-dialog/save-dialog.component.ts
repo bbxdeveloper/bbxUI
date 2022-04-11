@@ -82,7 +82,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   ngAfterContentInit(): void {
     this.sumForm.controls['invoiceNetAmount'].setValue(this.data.invoiceNetAmount);
-    this.sumForm.controls['invoiceVatAmount'].setValue(this.data.invoiceVatAmount);
+    this.sumForm.controls['invoiceVatAmount'].setValue(this.data.invoiceLines[0].vatRateCode);
     this.sumForm.controls['lineGrossAmount'].setValue(this.data.lineGrossAmount);
     this.sumForm.controls['invoiceLinesCount'].setValue(this.data.invoiceLines.length);
 
