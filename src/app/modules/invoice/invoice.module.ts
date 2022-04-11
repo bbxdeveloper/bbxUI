@@ -10,6 +10,7 @@ import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
+import { SaveDialogComponent } from './save-dialog/save-dialog.component';
 
 
 
@@ -17,7 +18,8 @@ import { CustomerSelectTableDialogComponent } from './customer-select-table-dial
   declarations: [
     InvoiceManagerComponent,
     ProductSelectTableDialogComponent,
-    CustomerSelectTableDialogComponent
+    CustomerSelectTableDialogComponent,
+    SaveDialogComponent
   ],
   imports: [
     CommonModule,

@@ -75,29 +75,54 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     readonly commandsOnTable: FooterCommandInfo[] = [
-        { key: 'F1', value: 'Súgó', disabled: false },
-        { key: 'F2', value: '', disabled: false },
-        { key: 'F3', value: 'Megr. ->', disabled: false },
-        { key: 'F4', value: 'Számolás', disabled: false },
-        { key: 'F5', value: 'TkInf.', disabled: false },
-        { key: 'F6', value: 'Szml.', disabled: false },
-        { key: 'F7', value: 'Árkal.', disabled: false },
-        { key: 'F8', value: 'Töröl', disabled: false },
-        { key: 'F9', value: 'Új Sor', disabled: false },
-        { key: 'F10', value: 'Ügynk.', disabled: false },
-    ];
-    readonly commandsOnTableEditMode: FooterCommandInfo[] = [
-        { key: 'F1', value: 'Súgó', disabled: false },
-        { key: 'F2', value: 'AktívT', disabled: false },
-        { key: 'F3', value: 'Rend. ->', disabled: false },
-        { key: 'F4', value: 'KAktíT', disabled: false },
-        { key: 'F5', value: 'TkInf.', disabled: false },
-        { key: 'F6', value: 'ÖsszTk.', disabled: false },
+        { key: 'F1', value: '', disabled: false },
+        { key: 'F2', value: 'Keresés', disabled: false },
+        { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
+        { key: 'Delete', value: 'Sor törlése (csak navigációs módban)', disabled: false },
+        { key: 'F5', value: '', disabled: false },
+        { key: 'F6', value: '', disabled: false },
         { key: 'F7', value: '', disabled: false },
         { key: 'F8', value: '', disabled: false },
         { key: 'F9', value: '', disabled: false },
-        { key: 'F10', value: 'Ügynk.', disabled: false },
+        { key: 'F10', value: '', disabled: false },
     ];
+    readonly commandsOnTableEditMode: FooterCommandInfo[] = [
+        { key: 'F1', value: '', disabled: false },
+        { key: 'F2', value: 'Keresés', disabled: false },
+        { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
+        { key: 'F4', value: '', disabled: false },
+        { key: 'F5', value: '', disabled: false },
+        { key: 'F6', value: '', disabled: false },
+        { key: 'F7', value: '', disabled: false },
+        { key: 'F8', value: '', disabled: false },
+        { key: 'F9', value: '', disabled: false },
+        { key: 'F10', value: '', disabled: false },
+    ];
+
+    // readonly commandsOnTable: FooterCommandInfo[] = [
+    //     { key: 'F1', value: 'Súgó', disabled: false },
+    //     { key: 'F2', value: '', disabled: false },
+    //     { key: 'F3', value: 'Megr. ->', disabled: false },
+    //     { key: 'F4', value: 'Számolás', disabled: false },
+    //     { key: 'F5', value: 'TkInf.', disabled: false },
+    //     { key: 'F6', value: 'Szml.', disabled: false },
+    //     { key: 'F7', value: 'Árkal.', disabled: false },
+    //     { key: 'F8', value: 'Töröl', disabled: false },
+    //     { key: 'F9', value: 'Új Sor', disabled: false },
+    //     { key: 'F10', value: 'Ügynk.', disabled: false },
+    // ];
+    // readonly commandsOnTableEditMode: FooterCommandInfo[] = [
+    //     { key: 'F1', value: 'Súgó', disabled: false },
+    //     { key: 'F2', value: 'AktívT', disabled: false },
+    //     { key: 'F3', value: 'Rend. ->', disabled: false },
+    //     { key: 'F4', value: 'KAktíT', disabled: false },
+    //     { key: 'F5', value: 'TkInf.', disabled: false },
+    //     { key: 'F6', value: 'ÖsszTk.', disabled: false },
+    //     { key: 'F7', value: '', disabled: false },
+    //     { key: 'F8', value: '', disabled: false },
+    //     { key: 'F9', value: '', disabled: false },
+    //     { key: 'F10', value: 'Ügynk.', disabled: false },
+    // ];
 
     idPrefix: string = '';
     parentComponent: IInlineManager;
@@ -376,6 +401,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
         // Already in Edit mode
         if (!!this.editedRow) {
+            const tmp = this.editedRow.data;
 
             // Creator row edited
             if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey) {
@@ -404,7 +430,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             }
 
             console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
-            this.parentComponent.TableRowDataChanged(this.editedRow.data, rowPos);
+
+            this.parentComponent.TableRowDataChanged(tmp, rowPos);
         } else {
             // Entering edit mode
             this.Edit(row, rowPos, col);
@@ -458,6 +485,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         console.log((this.data[rowPos].data as any)[col]);
+
+        this.parentComponent.RecalcNetAndVat();
     }
 
     HandleKey(event: any, rowIndex: number): void {

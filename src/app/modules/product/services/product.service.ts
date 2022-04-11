@@ -13,6 +13,7 @@ import { UpdateProductRequest } from '../models/UpdateProductRequest';
 import { DeleteProductRequest } from '../models/DeleteProductRequest';
 import { DeleteProductResponse } from '../models/DeleteProductResponse';
 import { UnitOfMeasure } from '../models/UnitOfMeasure';
+import { GetProductByCodeRequest } from '../models/GetProductByCodeRequest';
 
 const MOCK_DATA: Product[] = [
   {
@@ -109,5 +110,27 @@ export class ProductService {
 
   Delete(req: DeleteProductRequest): Observable<DeleteProductResponse> {
     return this.http.delete<DeleteProductResponse>(this.BaseUrl + '?ID=' + req.id);
+  }
+
+  GetProductByCode(params: GetProductByCodeRequest): Observable<Product> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof GetProductByCodeRequest] != undefined && params[key as keyof GetProductByCodeRequest] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof GetProductByCodeRequest];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof GetProductByCodeRequest];
+          }
+          index++;
+        }
+      });
+    }
+
+    // Get
+    return this.http.get<Product>(this.BaseUrl + '/productbycode' + (!!params ? ('?' + queryParams) : ''));
   }
 }

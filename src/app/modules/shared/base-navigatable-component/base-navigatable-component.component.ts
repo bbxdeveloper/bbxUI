@@ -8,7 +8,13 @@ import { INavigatable } from 'src/assets/model/navigation/Nav';
   styleUrls: ['./base-navigatable-component.component.scss']
 })
 export class BaseNavigatableComponentComponent implements OnInit, INavigatable {
-  Matrix: string[][] = [[]];
+  private _Matrix: string[][] = [[]];
+  public get Matrix(): string[][] {
+    return this._Matrix;
+  }
+  public set Matrix(value: string[][]) {
+    this._Matrix = value;
+  }
 
   LastX?: number;
   LastY?: number;

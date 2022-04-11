@@ -31,11 +31,13 @@
                     </nb-form-field>
 
                     <nb-form-field>
-                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" readonly id="l02">
+                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" readonly
+                            id="l02">
                     </nb-form-field>
 
                     <nb-form-field>
-                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" readonly id="l03">
+                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" readonly
+                            id="l03">
                     </nb-form-field>
 
                     <nb-form-field>
@@ -59,12 +61,13 @@
             </nb-card-header>
             <nb-card-body class="form-col-2">
                 <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
-                [id]="buyerFormId">
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)"
-                    (keydown.F2)="buyerFormNav.HandleKey($event, 'customerName')">
+                    [id]="buyerFormId">
+                    <nb-form-field
+                        (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerName')"
+                        (keydown.F2)="buyerFormNav.HandleKey($event, 'customerName')">
                         <input formControlName="customerName" nbInput type="text" class="{{TileCssClass}}"
-                            (input)="FillFormWithFirstAvailableCustomer($event)"
-                            [readonly]="isEditModeOff" placeholder="Név" autocomplete="off" id="r00" />
+                            (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
+                            placeholder="Név" autocomplete="off" id="r00" />
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
@@ -73,18 +76,18 @@
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" placeholder="Utca, házszám"
-                            readonly id="r02">
+                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true"
+                            placeholder="Utca, házszám" readonly id="r02">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" placeholder="Számlaszám"
-                            readonly id="r03">
+                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true"
+                            placeholder="Számlaszám" readonly id="r03">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" placeholder="Adószám"
-                            readonly id="r04">
+                        <input nbInput type="text" formControlName='taxpayerNumber' required="true"
+                            placeholder="Adószám" readonly id="r04">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
@@ -102,8 +105,7 @@
 <div class="card-col-2">
     <nb-card>
         <nb-card-body class="form-col-2">
-            <form class="form-horizontal" [formGroup]="outInvForm" #formDirective="ngForm"
-                [id]="outInvFormId"
+            <form class="form-horizontal" [formGroup]="outInvForm" #formDirective="ngForm" [id]="outInvFormId"
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, false)">
                     <label>Fizetési mód</label>
@@ -114,8 +116,8 @@
                         <nb-option value="0">Készpénz</nb-option>
                         <nb-option value="1">Átutalás</nb-option>
                     </nb-select> -->
-                    <input formControlName="paymentMethod" nbInput type="text" [nbAutocomplete]="autoPaymentMethod" class="{{TileCssClass}}"
-                        readonly placeholder="Fizetési mód" autocomplete="off" id="m00" />
+                    <input formControlName="paymentMethod" nbInput type="text" [nbAutocomplete]="autoPaymentMethod"
+                        class="{{TileCssClass}}" readonly placeholder="Fizetési mód" autocomplete="off" id="m00" />
                     <!--  (keyup)="handleAutoCompleteOptionFocused($event)"-->
                     <!-- AUTOCOMPLETE -->
                     <nb-autocomplete #autoPaymentMethod [activeFirst]="false"
@@ -128,52 +130,51 @@
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Teljesítési időpont</label>
-                    <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true" class="{{TileCssClass}}"
-                        [readonly]="isEditModeOff" id="m01" mask="0000-00-00"
-                        [dropSpecialCharacters]="false"
-                        [showMaskTyped]="true" [validation]="true">
+                    <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m01" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Számla keltezése</label>
-                    <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true" class="{{TileCssClass}}"
-                        [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
-                        [dropSpecialCharacters]="false"
-                        [showMaskTyped]="true" [validation]="true">
+                    <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Fizetési határidő</label>
-                    <input nbInput type="datetime" formControlName='paymentDate' required="true" class="{{TileCssClass}}"
-                        [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
-                        [dropSpecialCharacters]="false"
-                        [showMaskTyped]="true" [validation]="true">
+                    <input nbInput type="datetime" formControlName='paymentDate' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Számla sorszáma</label>
-                    <input nbInput type="text" formControlName='invoiceOrdinal' required="true" readonly class="{{TileCssClass}}"
+                    <input nbInput type="text" formControlName='invoiceOrdinal' readonly class="{{TileCssClass}}"
                         placeholder="Számla sorszáma" id="m04">
                 </nb-form-field>
 
-                <nb-form-field class="form-field-full-width" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                <nb-form-field class="form-field-full-width"
+                    (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <div class="form-field-full-width-inner-div">
                         <label>Egyéb adatok</label>
-                        <input nbInput type="text" formControlName='notice' required="true" [readonly]="isEditModeOff" class="{{TileCssClass}}"
-                            placeholder="Egyéb adatok" id="m11">
+                        <input nbInput type="text" formControlName='notice' [readonly]="isEditModeOff"
+                            class="{{TileCssClass}}" placeholder="Egyéb adatok" id="m11">
                     </div>
                 </nb-form-field>
 
-                <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont" controlName="invoiceDeliveryDate"
-                    [validationParameterDate]="invoiceIssueDateValue">
+                <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont"
+                    controlName="invoiceDeliveryDate" [validationParameterDate]="invoiceIssueDateValue">
                 </app-form-control-error>
-                
+
                 <app-form-control-error [form]="outInvFormNav" label="számla keltezése" controlName="invoiceIssueDate"
                     [validationParameterDate]="invoiceIssueDateValue">
                 </app-form-control-error>
-                
+
                 <app-form-control-error [form]="outInvFormNav" label="fizetési határidő" controlName="paymentDate"
-                    [validationParameterDate]="invoiceIssueDateValue" [validationParameterDateSecondary]="invoiceDeliveryDateValue">
+                    [validationParameterDate]="invoiceIssueDateValue"
+                    [validationParameterDateSecondary]="invoiceDeliveryDateValue">
                 </app-form-control-error>
             </form>
         </nb-card-body>
@@ -208,47 +209,65 @@
                             (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)"
                             [style.width]="it.colWidth" [style.text-align]="it.textAlign"
                             id="{{'PRODUCT-' + colPos + '-' + rowPos}}" [ngSwitch]="it.fInputType">
-                            <ng-container *ngSwitchCase="'code-field'">
-                                <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
-                                    nbInput [type]="it.type" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
-                                    [mask]="it.mask" [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                                    oninput="this.value = this.value.toUpperCase()"
-                                    class="input-table-cell" [style.text-align]="it.textAlign" />
-                            
-                                <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)">
-                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
-                                </div>
+                            <ng-container *ngIf="!it.fReadonly">
+                                <ng-container *ngSwitchCase="'code-field'">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false"
+                                        [showMaskTyped]="true" oninput="this.value = this.value.toUpperCase()"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'formatted-number'">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        [inputMask]="numberInputMask" placeholder="0.00000"
+                                        oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'formatted-number-integer'">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        [inputMask]="numberInputMaskInteger" placeholder="0" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchDefault="">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false"
+                                        [showMaskTyped]="true" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
                             </ng-container>
 
-                            <ng-container *ngSwitchCase="'formatted-number'">
-                                <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
-                                    nbInput type="text" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
-                                    [inputMask]="numberInputMask" placeholder="0.00000" oninput="$event.target.setSelectionRange(0, 1)"
-                                    class="input-table-cell" [style.text-align]="it.textAlign" />
-                            
-                                <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)">
-                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
-                                </div>
-                            </ng-container>
-
-                            <ng-container *ngSwitchCase="'formatted-number-integer'">
-                                <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
-                                    nbInput type="text" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
-                                    [inputMask]="numberInputMaskInteger" placeholder="0"
-                                    class="input-table-cell" [style.text-align]="it.textAlign" />
-                            
-                                <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)">
-                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
-                                </div>
-                            </ng-container>
-
-                            <ng-container *ngSwitchDefault="">
-                                <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off" nbInput
-                                    [type]="it.type" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
-                                    [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true" class="input-table-cell"
-                                    [style.text-align]="it.textAlign" />
-
-                                <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)">
+                            <ng-container *ngIf="it.fReadonly">
+                                <div>
                                     {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
                                 </div>
                             </ng-container>

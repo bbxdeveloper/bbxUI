@@ -112,7 +112,11 @@ export class InlineTableNavigatableForm implements INavigatable {
         } else {
             // For example in case if we just moved onto a confirmation button in the next nav-matrix,
             // we don't want to automatically press it until the user directly presses enter after selecting it.
-            if (!!event) {
+            if ($('#' + this.kbS.Here).is(':input')) {
+                this.kbS.ClickCurrentElement();
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+            }
+            else if (!!event) {
                 event.stopImmediatePropagation();
             }
         }
@@ -135,6 +139,20 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+        if (toggleEditMode) {
+            this.kbS.toggleEdit();
+        }
+        // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+        if (!this.kbS.isEditModeActivated && jumpNext) {
+            this.JumpToNextInput(event);
+        }
+    }
+
+    HandleFilterInputFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true, data: any, formControlName: string): void {
+        if (!!data) {
+            this.form.controls[formControlName].setValue(data);
+        }
+
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }

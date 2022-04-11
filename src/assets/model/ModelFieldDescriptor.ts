@@ -21,6 +21,7 @@ export interface ModelFieldDescriptor {
     fLast?: boolean;
 
     fReadonly?: boolean;
+    fUnclickable?: boolean;
 
     calc?: (x: any) => any;
 }

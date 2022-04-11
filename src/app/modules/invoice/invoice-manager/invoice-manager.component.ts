@@ -27,6 +27,10 @@ import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { createMask } from '@ngneat/input-mask';
+import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
+import { SumData } from '../models/SumData';
+import { ProductService } from '../../product/services/product.service';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -38,6 +42,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
+
+  cachedCustomerName?: string;
 
   senderData: Customer;
   buyerData: Customer;
@@ -109,12 +115,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "15%", textAlign: "right", calc: (x: InvoiceLine) => x.price * x.quantity
+      colWidth: "15%", textAlign: "right"
     },
     {
       label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "15%", textAlign: "right", calc: (x: InvoiceLine) => x.lineNetAmount + x.lineVatAmount
+      colWidth: "15%", textAlign: "right"
     },
   ]
   customMaskPatterns = {
@@ -122,6 +128,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
+/*
   override readonly commands: FooterCommandInfo[] = [
     { key: 'F1', value: 'Súgó', disabled: false },
     { key: 'F2', value: 'Keresés', disabled: false },
@@ -131,6 +138,19 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     { key: 'F6', value: 'Módosítás', disabled: false },
     { key: 'F7', value: 'GdprNy', disabled: false },
     { key: 'F8', value: 'GdprAd', disabled: false },
+    { key: 'F9', value: '', disabled: false },
+    { key: 'F10', value: '', disabled: false },
+  ];
+*/
+  override readonly commands: FooterCommandInfo[] = [
+    { key: 'F1', value: '', disabled: false },
+    { key: 'F2', value: 'Keresés', disabled: false },
+    { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
+    { key: 'F4', value: '', disabled: false },
+    { key: 'F5', value: '', disabled: false },
+    { key: 'F6', value: '', disabled: false },
+    { key: 'F7', value: '', disabled: false },
+    { key: 'F8', value: '', disabled: false },
     { key: 'F9', value: '', disabled: false },
     { key: 'F10', value: '', disabled: false },
   ];
@@ -188,7 +208,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
     cs: CommonService,
-    sts: StatusService
+    sts: StatusService,
+    private productService: ProductService
   ) {
     super(dialogService, kbS, fS, cs, sts);
     this.dbDataTableId = "invoice-inline-table-invoice-line";
@@ -203,7 +224,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       invoiceVatAmount: 0,
       invoiceNetAmount: 0,
       invoiceLines: [],
-      warehouseCode: 0,
+      warehouseCode: '0',
       customerID: -1,
       invoiceDeliveryDate: '',
       invoiceIssueDate: '',
@@ -228,7 +249,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       invoiceDeliveryDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
       invoiceIssueDate: new FormControl('', [Validators.required, todaysDate]),
       paymentDate: new FormControl('', [Validators.required, (this.validatePaymentDateMinMax.bind(this))]),
-      invoiceOrdinal: new FormControl('', [Validators.required]), // in post response
+      invoiceOrdinal: new FormControl('', []), // in post response
       notice: new FormControl('', []),
     });
     this.buyerForm = new FormGroup({
@@ -347,30 +368,53 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').trim()) : 0;
   }
 
+  RecalcNetAndVat(): void {
+    this.outGoingInvoiceData.invoiceLines = this.dbData.map(x => x.data);
+
+    this.outGoingInvoiceData.invoiceNetAmount =
+      this.outGoingInvoiceData.invoiceLines
+        .map(x => this.ToInt(x.price) * this.ToInt(x.quantity))
+        .reduce((sum, current) => sum + current, 0);
+
+    this.outGoingInvoiceData.lineGrossAmount =
+      this.outGoingInvoiceData.invoiceLines
+        .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount + ''))
+        .reduce((sum, current) => sum + current, 0);
+  }
+
   TableRowDataChanged(changedData?: any, index?: number): void {
-    if (!!changedData) {
+    if (!!changedData && !!changedData.productCode) {
       // TODO: Calc in InvoiceLine before
 
-      console.log('[TableRowDataChanged]: ', changedData);
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: product => {
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-      this.outGoingInvoiceData.invoiceLines = this.dbData.map(x => x.data);
+          if (index !== undefined) {
+            let tmp = this.dbData[index].data;
 
-      this.outGoingInvoiceData.invoiceNetAmount =
-        this.outGoingInvoiceData.invoiceLines
-          .map(x => this.ToInt(x.price) * this.ToInt(x.quantity))
-          .reduce((sum, current) => sum + current, 0);
+            tmp.productDescription = product.description ?? '';
+            
+            product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
+            tmp.vatRate = (product.vatPercentage ?? 1) + '';
+            product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+            tmp.vatRateCode = product.vatRateCode;
 
-      this.outGoingInvoiceData.lineGrossAmount =
-        this.outGoingInvoiceData.invoiceLines
-          .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount + ''))
-          .reduce((sum, current) => sum + current, 0);
+            tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
+            tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
+            tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
 
-      if (index !== undefined) {
-        let tmp = this.dbData[index].data;
-        tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
-        tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
-        tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
-      }
+            this.dbData[index].data = tmp;
+            
+            this.dbDataDataSrc.setData(this.dbData);
+          }
+
+          this.RecalcNetAndVat();
+        },
+        error: err => {
+          this.RecalcNetAndVat();
+        }
+      });
     }
   }
 
@@ -480,9 +524,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
     this.outGoingInvoiceData.paymentMethod = this.outInvForm.controls['paymentMethod'].value;
-    this.outGoingInvoiceData.warehouseCode = 1;
+    this.outGoingInvoiceData.warehouseCode = '1';
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;
+    this.RecalcNetAndVat();
+    for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length; i++) {
+      this.outGoingInvoiceData.invoiceLines[i].price = this.ToInt(this.outGoingInvoiceData.invoiceLines[i].price);
+      this.outGoingInvoiceData.invoiceLines[i].quantity = this.ToInt(this.outGoingInvoiceData.invoiceLines[i].quantity);
+    }
   }
 
   Save(): void {
@@ -493,21 +542,33 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
-    this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
-      next: d => {
-        this.toastrService.show(
-          Constants.MSG_SAVE_SUCCESFUL,
-          Constants.TITLE_INFO,
-          Constants.TOASTR_SUCCESS
-        );
-        this.isLoading = false;
-      },
-      error: err => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
+    
+    const dialogRef = this.dialogService.open(SaveDialogComponent, {
+      context: {
+        data: this.outGoingInvoiceData
+      }
+    });
+    dialogRef.onClose.subscribe((res: SumData) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
+          next: d => {
+            console.log('Save response: ', d);
+            this.toastrService.show(
+              Constants.MSG_SAVE_SUCCESFUL,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS
+            );
+            this.isLoading = false;
+          },
+          error: err => {
+            this.cs.HandleError(err);
+            this.isLoading = false;
+          },
+          complete: () => {
+            this.isLoading = false;
+          }
+        });
       }
     });
   }
@@ -608,6 +669,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     dialogRef.onClose.subscribe((res: Customer) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.buyerData = res;
         this.buyerFormNav.FillForm(res);
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
@@ -625,13 +687,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     res.productCode = p.productCode!;
 
     res.quantity = 0;
-
-    res.lineNetAmount = 0;
-
-    res.lineVatAmount = 0;
-    res.vatRateCode = '';
-
+    
     res.price = p.unitPrice1!;
+    
+    res.vatRateCode = p.vatRateCode;
+
+    res.lineVatAmount = p.vatPercentage ?? 10;
+    res.lineNetAmount = this.ToInt(res.quantity) * this.ToInt(res.price);
+    res.lineGrossAmount = res.lineVatAmount * res.lineNetAmount;
 
     return res;
   }
@@ -644,6 +707,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     } as GetCustomersParamListModel).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.buyerData = res.data[0];
+          this.cachedCustomerName = res.data[0].customerName;
           this.buyerFormNav.FillForm(res.data[0], ['customerName']);
         } else {
           this.buyerFormNav.FillForm({}, ['customerName']);
