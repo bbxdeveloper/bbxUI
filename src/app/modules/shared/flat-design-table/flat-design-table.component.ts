@@ -17,6 +17,8 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() dbDataDataSrc: any;
   @Input() trackRows: any;
   @Input() isLoading: boolean = true;
+  @Input() showMsgOnNoData: boolean = true;
+  @Input() wide: boolean = false;
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();

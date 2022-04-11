@@ -4,8 +4,10 @@
     </nb-card-header>
     <nb-card-body *ngIf="!!dbDataTable">
         <form class="card-table-wrapper-form">
-            <table class="card-table-wrapper" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
-                 *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+            <table class="card-table-wrapper"
+                [ngClass]="wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
+                 *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
+                 equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
 
                 <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
                 <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
@@ -76,6 +78,6 @@
     </nb-card-body>
     <nb-card-footer class="footer-paginator" *ngIf="!!dbDataTable">
         <app-paginator *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" [paginator]="dbDataTable"></app-paginator>
-        <span *ngIf="!!dbDataTable && !isLoading && dbDataTable.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
+        <span *ngIf="showMsgOnNoData && !!dbDataTable && !isLoading && dbDataTable.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
     </nb-card-footer>
 </nb-card>

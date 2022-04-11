@@ -1,5 +1,5 @@
 // @import 'side-bar-form-dialog';
-@import 'flat-design-manager-component-default';
+@import 'flat-design-no-side-bar-manager-component-default';
 
 $label-w-min: 185px;
 
@@ -47,5 +47,17 @@ label {
     justify-content: flex-start;
     align-items: center;
     flex-wrap: nowrap;
+    flex-direction: row;
+}
+
+// form {
+//     display: contents !important;
+// }
+
+form {
+    /* display: contents !important; */
+    display: flex;
+    align-items: flex-end;
+    column-gap: 10px;
     flex-direction: row;
 }

@@ -32,14 +32,8 @@ nb-card {
     margin: 0px;
 }
 
-.card-table-wrapper-default {
-    display: block;
-}
-.card-table-wrapper-wide {
-    display: inline-table;
-}
-
 .card-table-wrapper {
+    display: inline-table !important;
     position: sticky;
     top: 0;
     

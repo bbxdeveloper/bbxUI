@@ -65,7 +65,13 @@ const routes: Routes = [
       {
         path: "invoice",
         component: InvoiceManagerComponent,
-      },
+      }
+    ]
+  },
+  {
+    path: 'information',
+    canActivate: [AuthGuard],
+    children: [
       {
         path: "invoices",
         component: InvoiceNavComponent,
