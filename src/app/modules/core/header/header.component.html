@@ -86,11 +86,11 @@
     <nb-action id="header-prod" class="cl-header-menu" tabIndex="4" disabled>Termékek</nb-action>
 
     <nb-action *ngIf="isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1"
+        data-sub="header-invo-sub-1, header-invo-sub-2"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1"
+        data-sub="header-invo-sub-1, header-invo-sub-2"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <ng-template #sub_invo let-data>
@@ -99,6 +99,12 @@
                 <button nbButton status="primary" id="header-invo-sub-1" [disabled]="InProgress"
                     (click)="goTo('invoice/invoice')">
                     Számlázás
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress"
+                    (click)="goTo('invoice/invoices')">
+                    Számlák
                 </button>
             </nb-card-body>
         </nb-card>

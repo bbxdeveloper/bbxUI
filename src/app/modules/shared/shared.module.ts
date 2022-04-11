@@ -19,6 +19,7 @@ import { InputMaskModule } from '@ngneat/input-mask';
 import { RemoveWhitespacesPipe } from './pipes/remove-whitespaces.pipe';
 import { BaseInlineManagerComponent } from './base-inline-manager/base-inline-manager.component';
 import { SelectTableDialogComponent } from './select-table-dialog/select-table-dialog.component';
+import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-manager.component';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { SelectTableDialogComponent } from './select-table-dialog/select-table-d
     RemoveWhitespacesPipe,
     BaseInlineManagerComponent,
     SelectTableDialogComponent,
+    BaseNoFormManagerComponent,
   ],
   imports: [
     CommonModule,
@@ -80,6 +82,7 @@ import { SelectTableDialogComponent } from './select-table-dialog/select-table-d
     RemoveWhitespacesPipe,
     BaseInlineManagerComponent,
     SelectTableDialogComponent,
+    BaseNoFormManagerComponent
   ],
   providers: [
     ConfirmationDialogComponent

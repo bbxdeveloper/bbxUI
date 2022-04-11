@@ -7,6 +7,7 @@ import { DashboardComponent } from './modules/core/dashboard/dashboard.component
 import { CounterManagerComponent } from './modules/counter/counter-manager/counter-manager.component';
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
+import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
 import { OriginManagerComponent } from './modules/origin/origin-manager/origin-manager.component';
 import { ProductGroupManagerComponent } from './modules/product-group/product-group-manager/product-group-manager.component';
 import { ProductManagerComponent } from './modules/product/product-manager/product-manager.component';
@@ -64,6 +65,10 @@ const routes: Routes = [
       {
         path: "invoice",
         component: InvoiceManagerComponent,
+      },
+      {
+        path: "invoices",
+        component: InvoiceNavComponent,
       }
     ]
   },

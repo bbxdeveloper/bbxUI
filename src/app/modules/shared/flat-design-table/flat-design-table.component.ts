@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
+import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
@@ -9,7 +10,7 @@ import { KeyBindings } from 'src/assets/util/KeyBindings';
   styleUrls: ['./flat-design-table.component.scss']
 })
 export class FlatDesignTableComponent implements OnInit {
-  @Input() dbDataTable?: FlatDesignNavigatableTable<any>;
+  @Input() dbDataTable?: FlatDesignNavigatableTable<any> | FlatDesignNoFormNavigatableTable<any>;
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
   @Input() dbDataTableId: any;

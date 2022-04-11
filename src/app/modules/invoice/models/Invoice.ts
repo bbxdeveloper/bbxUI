@@ -1,14 +1,12 @@
-import { InvoiceLine } from "./InvoiceLine";
-
 export interface Invoice {
-    "warehouseCode": number,
-    "invoiceIssueDate": string, // date
-    "invoiceDeliveryDate": string, // date
-    "paymentDate": string, // date
-    "customerID": number,
-    "paymentMethod": string,
-    "notice": string,
-    "invoiceNetAmount": number,
-    "invoiceVatAmount": number,
-    "invoiceLines": InvoiceLine[]
+    "InvoiceNumber"?: any,
+    "CustomerName"?: string,
+    "WarehouseName"?: string,
+    "InvoiceDeliveryDate"?: string,
+    "PaymentDate"?: string,
+    "PaymentMethodX"?: string,
+    "InvoiceNetAmount"?: number,
+    "InvoiceVatAmount"?: number,
+    "InvoiceGrossAmount"?: number,
+    "Notice"?: string;
 }

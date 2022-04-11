@@ -11,6 +11,7 @@ import { SharedModule } from '../shared/shared.module';
 import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 import { SaveDialogComponent } from './save-dialog/save-dialog.component';
+import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
 
 
 
@@ -19,7 +20,8 @@ import { SaveDialogComponent } from './save-dialog/save-dialog.component';
     InvoiceManagerComponent,
     ProductSelectTableDialogComponent,
     CustomerSelectTableDialogComponent,
-    SaveDialogComponent
+    SaveDialogComponent,
+    InvoiceNavComponent
   ],
   imports: [
     CommonModule,
@@ -51,7 +53,8 @@ import { SaveDialogComponent } from './save-dialog/save-dialog.component';
     InputMaskModule
   ],
   exports: [
-    InvoiceManagerComponent
+    InvoiceManagerComponent,
+    InvoiceNavComponent
   ]
 })
 export class InvoiceModule { }
