@@ -11,7 +11,9 @@
         <button nbButton class="btn-util" id="show-all" (click)="showAll()">Összes mutatása</button>
         <button nbButton class="btn-util" id="show-less" (click)="showLess()">Kevesebb mutatása</button>
 
-        <table class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource" [nbSort]="dbDataSource"
+        <span class="loading-label" *ngIf="isLoading">Betöltés...</span>
+
+        <table [nbSpinner]="isLoading" class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource" [nbSort]="dbDataSource"
             [trackBy]="trackRows" equalColumnsWidth>
             <!-- <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr> -->
             <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>

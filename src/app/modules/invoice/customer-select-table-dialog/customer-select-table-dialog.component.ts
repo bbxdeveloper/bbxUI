@@ -33,6 +33,9 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999' };
   }
 
+  isLoaded: boolean = false;
+  override isLoading: boolean = false;
+
   constructor(
     private toastrService: BbxToastrService,
     private cdref: ChangeDetectorRef,
@@ -61,7 +64,10 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     this.kbS.SelectFirstTile();
   }
   ngAfterViewChecked(): void {
-    $('#active-prod-search').val(this.searchString);
+    if (!this.isLoaded) {
+      $('#active-prod-search').val(this.searchString);
+      this.isLoaded = true;
+    }
     this.kbS.SelectCurrentElement();
   }
   ngOnDestroy(): void {
@@ -100,7 +106,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
       'TABLE-CELL'
     );
     setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined);
+      this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined, false);
     }, 200);
   }
 
@@ -126,6 +132,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
             Constants.TOASTR_ERROR
           );
         }
+        this.isLoading = false;
       },
       error: (err) => {
         { this.cs.HandleError(err); this.isLoading = false; };

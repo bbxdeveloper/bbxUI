@@ -145,7 +145,7 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean): void {
+    GenerateAndSetNavMatrices(attach: boolean, setAsCurrent: boolean = true): void {
         this.Matrix = [];
 
         for (let y = 0; y < this.data.length; y++) {
@@ -164,7 +164,7 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
         console.log('[GenerateAndSetNavMatrices]', this.Matrix);
 
         if (attach) {
-            this.kbS.Attach(this, this.attachDirection);
+            this.kbS.Attach(this, this.attachDirection, setAsCurrent);
         }
     }
 

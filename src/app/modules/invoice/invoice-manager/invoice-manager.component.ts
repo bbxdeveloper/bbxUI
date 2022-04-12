@@ -577,8 +577,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   ChooseDataForTableRow(rowIndex: number): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
+        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: [
           'productCode',
           'description',
@@ -643,6 +646,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       console.log("Selected item: ", res);
       if (!!res) {
         this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+        this.kbS.setEditMode(KeyboardModes.EDIT);
       }
     });
   }

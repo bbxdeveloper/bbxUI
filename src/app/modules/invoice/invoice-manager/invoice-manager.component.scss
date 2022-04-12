@@ -6,7 +6,7 @@ nb-form-field {
 }
 
 .customer-search-row {
-    margin-top: 15px;
+    margin-top: 25px;
     display: block;
 
     tr {
@@ -35,6 +35,11 @@ nb-form-field {
             }
         }
     }
+}
+
+.card-header-top-margin {
+  margin-top: 25px;
+  margin-bottom: 5px;
 }
 
 .div-wrapper-input {
@@ -502,10 +507,6 @@ nb-layout-footer.custom {
 
 input, label, th, td {
     font-size: 1.1rem;
-}
-
-.card-header-top-margin {
-  margin-top: 25px;
 }
 
 .invoice-table-statistics {
