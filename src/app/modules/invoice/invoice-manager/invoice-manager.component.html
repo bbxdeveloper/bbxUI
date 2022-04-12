@@ -56,18 +56,35 @@
 
     <div class="card-col-1">
         <nb-card>
-            <nb-card-header class="card-header-txt-center card-header-top-margin">
+            <!-- <nb-card-header class="card-header-txt-center card-header-top-margin">
                 Vevő
-            </nb-card-header>
+            </nb-card-header> -->
             <nb-card-body class="form-col-2">
                 <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
                     [id]="buyerFormId">
-                    <nb-form-field
-                        (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerName')"
-                        (keydown.F2)="buyerFormNav.HandleKey($event, 'customerName')">
-                        <input formControlName="customerName" nbInput type="text" class="{{TileCssClass}}"
-                            (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
-                            placeholder="Név" autocomplete="off" id="r00" />
+
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <nb-form-field class="search-row-nb-form-field"
+                                    (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerSearch')"
+                                    (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
+                                    <input formControlName="customerName" nbInput type="text" class="{{TileCssClass}}"
+                                        (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
+                                        placeholder="Keresés" autocomplete="off" id="r00" />
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <div class="card-header-txt-center card-header-top-margin">
+                                    Vevő
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='customerName' required="true" placeholder="Név"
+                            readonly id="r01">
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">

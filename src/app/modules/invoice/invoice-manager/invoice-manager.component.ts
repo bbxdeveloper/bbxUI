@@ -253,6 +253,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       notice: new FormControl('', []),
     });
     this.buyerForm = new FormGroup({
+      customerSearch: new FormControl('', []),
       customerName: new FormControl('', [Validators.required]),
       zipCodeCity: new FormControl('', []),
       additionalAddressDetail: new FormControl('', []),
@@ -709,9 +710,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          this.buyerFormNav.FillForm(res.data[0], ['customerName']);
+          this.customerInputFilterString = this.cachedCustomerName;
+          this.buyerFormNav.FillForm(res.data[0], []);
         } else {
-          this.buyerFormNav.FillForm({}, ['customerName']);
+          this.buyerFormNav.FillForm({}, []);
           this.customerInputFilterString = '';
         }
       },

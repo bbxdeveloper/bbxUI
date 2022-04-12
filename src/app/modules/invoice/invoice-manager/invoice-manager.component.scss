@@ -5,6 +5,38 @@ nb-form-field {
     margin-right: auto;
 }
 
+.customer-search-row {
+    margin-top: 15px;
+    display: block;
+
+    tr {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 50% 50%;
+        min-width: 100%;
+
+        td {
+            // width: 50%;
+
+            input {
+                min-width: 50% !important;
+                // max-width: 50%;
+            }
+
+            .card-header-top-margin {
+                margin-top: 0px;
+            }
+
+            .card-header-txt-center {
+                text-align: center;
+                font-size: xx-large;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+        }
+    }
+}
+
 .div-wrapper-input {
     display: flex;
 
