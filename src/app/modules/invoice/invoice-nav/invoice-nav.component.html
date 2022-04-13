@@ -1,0 +1,85 @@
+<app-head-line msg="Számlák"></app-head-line>
+
+<div class="filter-div">
+    <nb-card class="filter-card">
+        <nb-card-body class="filter-card-body">
+            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
+                (keydown.escape)="filterFormNav.HandleFormEscape()">
+                <div class="bbx-fd-form-field-wrapper-div-row">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
+                        (keydown.enter)="filterFormNav.HandleFormLastEnter($event)">
+                        <label class="label-checkbox">Bejövő</label>
+
+                        <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"
+                            formControlName="Incoming" [readonly]="isEditModeOff"
+                            (click)="filterFormNav.HandleFormFieldClick($event)">
+                    </div>
+                </div>
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormDropdownEnter($event, currentWareHouseCount)">
+                    <div class="bbx-fd-form-field-inner-div">
+                        <label>Raktár</label>
+
+                        <input class="{{TileCssClass}}" formControlName="WarehouseCode" nbInput type="text"
+                            [readonly]="isEditModeOff" (click)="filterFormNav.HandleFormFieldClick($event)"
+                            [nbAutocomplete]="autoWarehouseCode" [readonly]="isEditModeOff" autocomplete="off" />
+                    </div>
+                </nb-form-field>
+                <!-- AUTOCOMPLETE -->
+                <nb-autocomplete #autoWarehouseCode [activeFirst]="false"
+                    (selectedChange)="filterFormNav.HandleAutoCompleteSelect($event, 'WarehouseCode')">
+                    <nb-option *ngFor="let option of filteredWareHouses$ | async; let i = index" [value]="option">
+                        {{ option }}
+                    </nb-option>
+                </nb-autocomplete>
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <label>Számla keltezés kezdete</label>
+                    <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <label>Számla keltezés vége</label>
+                    <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <label>Számla teljesítésének kezdete</label>
+                    <input nbInput type="datetime" formControlName='InvoiceDeliveryDateFrom' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <label>Számla teljesítésének vége</label>
+                    <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+            </form>
+        </nb-card-body>
+    </nb-card>
+</div>
+
+<nb-card>
+    <nb-card-body>
+        <app-flat-design-table [showMsgOnNoData]="false" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+    </nb-card-body>
+    <nb-card-footer>
+        <span class="line-amount">
+            Összes bruttó: {{sumGrossAmount}}
+        </span>
+        <span class="line-amount">
+            Összes nettó: {{sumNetAmount}}
+        </span>
+    </nb-card-footer>
+</nb-card>
+
+<app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

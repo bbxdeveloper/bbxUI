@@ -51,7 +51,7 @@ export class ProductGroupManagerComponent
       colKey: 'productGroupCode',
       defaultValue: '',
       type: 'string',
-      fInputType: 'text',
+      fInputType: 'code-field',
       fRequired: true,
       mask: '',
       colWidth: '30%',
@@ -88,21 +88,15 @@ export class ProductGroupManagerComponent
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService,
-    private sts: StatusService
+    cs: CommonService,
+    sts: StatusService
   ) {
-    super(dialogService, kbS, fS, sidebarService);
+    super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'product-group-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
-  }
-
-  private HandleError(err: any): void {
-    this.cs.HandleError(err);
-    this.isLoading = false;
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<ProductGroup>): void {
@@ -123,6 +117,7 @@ export class ProductGroupManagerComponent
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.toastrService.show(
@@ -130,6 +125,7 @@ export class ProductGroupManagerComponent
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
         error: (err) => { this.HandleError(err); },
@@ -157,12 +153,14 @@ export class ProductGroupManagerComponent
               Constants.TOASTR_SUCCESS
             );
             this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.toastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
         error: (err) => { this.HandleError(err); },
@@ -184,20 +182,21 @@ export class ProductGroupManagerComponent
             if (d.succeeded && !!d.data) {
               const di = this.dbData.findIndex((x) => x.data.id === id);
               this.dbData.splice(di, 1);
-              this.RefreshTable();
               this.toastrService.show(
                 Constants.MSG_DELETE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
-              this.dbDataTable.SetBlankInstanceForForm(false, false);
+              this.HandleGridSelectionAfterDelete(di);
               this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               this.toastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: (err) => { this.HandleError(err); },
@@ -263,8 +262,8 @@ export class ProductGroupManagerComponent
             });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
-            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
+            this.dbDataTable.totalItems = d.recordsFiltered;
             this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();

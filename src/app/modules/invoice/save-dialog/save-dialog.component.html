@@ -1,0 +1,40 @@
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>Szeretné menteni a számlát?</span>
+    </nb-card-header>
+    <nb-card-body class="modal-product-active-body">
+        <form *ngIf="!!sumForm" [formGroup]="sumForm" #formDirective="ngForm">
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Összes nettó:</label>
+                    <input nbInput type="text" formControlName="invoiceNetAmount">
+                </div>
+            </nb-form-field>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Összes bruttó:</label>
+                    <input nbInput type="text" formControlName="lineGrossAmount">
+                </div>
+            </nb-form-field>
+            
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Áfa:</label>
+                    <input nbInput type="text" formControlName="invoiceVatAmount">
+                </div>
+            </nb-form-field>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Termékek száma:</label>
+                    <input nbInput type="text" formControlName="invoiceLinesCount">
+                </div>
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+    <nb-card-footer class="modal-product-active-footer">
+        <button nbButton (click)="close(true)" status="primary" tabindex="-1" id="confirm-dialog-button-yes">Igen</button>
+        <button nbButton (click)="close(false)" status="danger" tabindex="-1" id="confirm-dialog-button-no">Nem</button>
+    </nb-card-footer>
+</nb-card>

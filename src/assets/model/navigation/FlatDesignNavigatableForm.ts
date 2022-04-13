@@ -1,3 +1,4 @@
+import { prepareEventListenerParameters } from "@angular/compiler/src/render3/view/template";
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
@@ -54,11 +55,12 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
     DataToEdit?: TreeGridNode<any>;
 
     readonly commandsOnForm: FooterCommandInfo[] = [
+        { key: 'Tab', value: 'Ugrás tétellapra', disabled: false },
         { key: 'F1', value: '', disabled: false },
         { key: 'F2', value: '', disabled: false },
         { key: 'F3', value: '', disabled: false },
         { key: 'F4', value: '', disabled: false },
-        { key: 'F5', value: '', disabled: false },
+        { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
         { key: 'F6', value: '', disabled: false },
         { key: 'F7', value: '', disabled: false },
         { key: 'F8', value: 'Új', disabled: false },
@@ -527,6 +529,11 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
             next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
             this.Matrix[currentMatrixIndex].push(next.id);
             previous = next.id;
+
+            // $('#' + next.id).off('enter');
+            // $('#' + next.id).on('enter', (event) => {
+            //     event.stopImmediatePropagation();
+            // });
         }
 
         if (environment.flatDesignFormDebug) {

@@ -61,7 +61,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     flatDesignForm: FlatDesignNavigatableForm<T>;
 
-    readonly commandsOnTable: FooterCommandInfo[] = [
+    commandsOnTable: FooterCommandInfo[] = [
+        { key: 'Tab', value: '', disabled: false },
         { key: 'F1', value: '', disabled: false },
         { key: 'F2', value: '', disabled: false },
         { key: 'F3', value: '', disabled: false },
@@ -69,13 +70,13 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         { key: 'F5', value: 'Frissítés', disabled: false },
         { key: 'F6', value: '', disabled: false },
         { key: 'F7', value: '', disabled: false },
-        { key: 'F8', value: '', disabled: false },
+        { key: 'F8', value: 'Új', disabled: false },
         { key: 'F9', value: '', disabled: false },
         { key: 'F10', value: '', disabled: false },
         { key: 'F11', value: '', disabled: false },
         { key: 'F12', value: 'Tétellap', disabled: false }
     ];
-    readonly commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
+    commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
 
     private prevSelectedRow?: TreeGridNode<T>;
     private prevSelectedRowPos?: number;
@@ -405,19 +406,23 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         // this.kbs.LogMatrix();
     }
 
-    private HandleF12(): void {
-        if (!this.sidebarService.sideBarOpened) {
-            this.flatDesignForm.PushFooterCommandList();
+    private HandleF12(setFormForNew: boolean = false): void {
+        if (setFormForNew) {
+            this.SetBlankInstanceForForm(!this.sidebarService.sideBarOpened);
         } else {
-            this.PushFooterCommandList();
-        }
-        // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
-        if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
-            this.SetBlankInstanceForForm(true);
-        } else if (!this.sidebarService.sideBarOpened) {
-            this.sidebarService.expand();
-        } else {
-            this.sidebarService.collapse();
+            if (!this.sidebarService.sideBarOpened) {
+                this.flatDesignForm.PushFooterCommandList();
+            } else {
+                this.PushFooterCommandList();
+            }
+            // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
+            if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
+                this.SetBlankInstanceForForm(true);
+            } else if (!this.sidebarService.sideBarOpened) {
+                this.sidebarService.expand();
+            } else {
+                this.sidebarService.collapse();
+            }
         }
     }
 
@@ -431,6 +436,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             case KeyBindings.F5: {
                 event.preventDefault();
                 this.Refresh();
+                break;
+            }
+            case KeyBindings.F8: {
+                event.preventDefault();
+                this.HandleF12(true);
                 break;
             }
             default: { }

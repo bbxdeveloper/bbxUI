@@ -3,15 +3,17 @@ import { FormGroup, FormControl } from "@angular/forms";
 import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/theme";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
+import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { IEditable } from "../IEditable";
+import { IInlineManager } from "../IInlineManager";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { SelectedCell } from "./SelectedCell";
 
-
-export class NavigatableTable<T extends IEditable> implements INavigatable {
+export class SimpleNavigatableTable<T = any> implements INavigatable {
     Matrix: string[][] = [[]];
 
     LastX?: number | undefined;
@@ -34,7 +36,6 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
 
     IsSubMapping: boolean = false;
 
-    inlineForm: FormGroup;
     kbS: KeyboardNavigationService;
     cdref: ChangeDetectorRef;
 
@@ -53,36 +54,24 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
     editedProperty?: string;
     editedRowPos?: number;
 
-    tableNavMap: string[][] = [];
-
     allColumns: string[];
     colDefs: ModelFieldDescriptor[];
     colsToIgnore: string[];
 
-    productCreatorRow: TreeGridNode<T>;
+    idPrefix: string = '';
 
-    getBlankInstance: () => T;
-    get GenerateCreatorRow(): TreeGridNode<T> {
-        return {
-            data: this.getBlankInstance()
-        };
-    }
-
-    readonly commandsOnTable: FooterCommandInfo[] = [];
-    readonly commandsOnTableEditMode: FooterCommandInfo[] = [];
+    selectedItem?: SelectedCell;
+    parent: any;
 
     constructor(
-        f: FormGroup,
         private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
         private kbs: KeyboardNavigationService,
-        private fS: FooterService,
         cdr: ChangeDetectorRef,
         data: any[],
         tableId: string,
         attachDirection: AttachDirection = AttachDirection.DOWN,
-        getBlankInstance: () => T
+        parent: any
     ) {
-        this.inlineForm = f;
         this.kbS = kbs;
         this.cdref = cdr;
         this._data = data;
@@ -94,10 +83,8 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         this.allColumns = [];
         this.colDefs = [];
         this.colsToIgnore = [];
-        this.inlineForm = new FormGroup({});
 
-        this.getBlankInstance = getBlankInstance;
-        this.productCreatorRow = this.GenerateCreatorRow;
+        this.parent = parent;
     }
 
     public ClearNeighbours(): void {
@@ -107,11 +94,23 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         this.UpNeighbour = undefined;
     }
 
+    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        console.log('[HandleGridClick]');
+
+        this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+
+        // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
+        // the list of displayed rows.
+        colPos = this.allColumns.findIndex(x => x === col);
+
+        this.kbs.SetPosition(colPos, rowPos, this);
+    }
+
     Attach(): void { }
     Detach(): void { }
 
     Setup(productsData: TreeGridNode<T>[], productsDataSource: NbTreeGridDataSource<TreeGridNode<T>>,
-        allColumns: string[], colDefs: ModelFieldDescriptor[], cdref: ChangeDetectorRef, colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>
+        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], _idPrefix: string
     ): void {
         // Set
         this.data = productsData;
@@ -119,56 +118,14 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         this.allColumns = allColumns;
         this.colDefs = colDefs;
         this.colsToIgnore = colsToIgnore;
-        this.editedRow = editedRow;
-        this.cdref = cdref;
 
-        // Init
-        this.inlineForm = new FormGroup({});
-
-        this.productCreatorRow = this.GenerateCreatorRow;
-        this.data.push(this.productCreatorRow);
-
-        this.dataSource.setData(this.data);
-
-        this.ResetEdit();
-    }
-
-    PushFooterCommandList(): void {
-        if (this.kbS.isEditModeActivated) {
-            this.fS.pushCommands(this.commandsOnTableEditMode);
-        } else {
-            this.fS.pushCommands(this.commandsOnTable);
-        }
-    }
-
-    fillCurrentlyEditedRow(newRowData: TreeGridNode<T>): void {
-        if (!!newRowData && !!this.editedRow) {
-            this.editedRow.data = newRowData.data;
-        }
-    }
-
-    ResetEdit(): void {
-        this.inlineForm = new FormGroup({});
-        this.editedProperty = undefined;
-        this.editedRow = undefined;
-        this.editedRowPos = undefined;
-    }
-
-    Edit(row: TreeGridNode<T>, rowPos: number, col: string) {
-        this.inlineForm = new FormGroup({
-            edited: new FormControl((row.data as any)[col])
-        });
-        this.editedProperty = col;
-        this.editedRow = row;
-        this.editedRowPos = rowPos;
+        this.idPrefix = _idPrefix;
     }
 
     HandleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.ResetEdit();
         this.cdref!.detectChanges();
         this.kbS.SelectCurrentElement();
-        this.PushFooterCommandList();
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -188,7 +145,30 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean): void {
+    GenerateAndSetNavMatrices(attach: boolean, setAsCurrent: boolean = true): void {
+        this.Matrix = [];
+
+        for (let y = 0; y < this.data.length; y++) {
+            let row = [];
+            for (let x = 0; x < this.colDefs.length; x++) {
+                if (this.colsToIgnore.findIndex(a => a === this.colDefs[x].objectKey) !== -1) {
+                    continue;
+                }
+                row.push(this.idPrefix + "-" + x + '-' + y);
+            }
+            this.Matrix.push(row);
+        }
+
+        if (environment.debug) {
+        }
+        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
+
+        if (attach) {
+            this.kbS.Attach(this, this.attachDirection, setAsCurrent);
+        }
+    }
+
+    GenerateAndSetNavMatrices_(attach: boolean): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
@@ -242,7 +222,7 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         if (rowPos !== this.data.length - 1) {
             // Csak befejezetlen sort dobhatunk el, amikor nincs szerkesztésmód.
             let _data = row.data;
-            if (!!_data && _data.IsUnfinished() && !this.kbS.isEditModeActivated) {
+            if (!!_data && !this.kbS.isEditModeActivated) {
                 switch (event.key) {
                     case "ArrowUp":
                         if (!this.isUnfinishedRowDeletable) {
@@ -275,97 +255,13 @@ export class NavigatableTable<T extends IEditable> implements INavigatable {
         }
     }
 
-    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string): void {
-        //debugger;
-
-        // Switch between nav and edit mode
-        let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
-        this.kbS.toggleEdit();
-
-        // Already in Edit mode
-        if (!!this.editedRow) {
-
-            // Creator row edited
-            if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey) {
-                this.productCreatorRow = this.GenerateCreatorRow;
-                this.data.push(this.productCreatorRow);
-
-                this.dataSource.setData(this.data);
-
-                this.GenerateAndSetNavMatrices(false);
-
-                this.isUnfinishedRowDeletable = true;
-            }
-
-            // this.kbS.toggleEdit();
-            this.ResetEdit();
-            this.cdref!.detectChanges();
-
-            let newX = this.MoveNextInTable();
-            if (wasEditActivatedPreviously) {
-                if (newX < colPos) {
-                    this.isUnfinishedRowDeletable = false;
-                }
-                let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
-                let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
-            }
-        } else {
-            // Entering edit mode
-            this.Edit(row, rowPos, col);
-            this.cdref!.detectChanges();
-            this.kbS.SelectElement(inputId);
-            const _input = document.getElementById(inputId) as HTMLInputElement;
-            if (!!_input && _input.type === "text") {
-                window.setTimeout(function () {
-                    const txtVal = ((row.data as any)[col] as string);
-                    console.log(txtVal);
-                    if (!!txtVal) {
-                        _input.setSelectionRange(txtVal.length, txtVal.length);
-                    } else {
-                        _input.setSelectionRange(0, 0);
-                    }
-                }, 0);
-            }
-        }
-
-        this.PushFooterCommandList();
-
-        console.log((this.data[rowPos].data as any)[col]);
-    }
-
-    HandleGridDelete(event: Event, row: TreeGridNode<T>, rowPos: number, col: string): void {
-        if (rowPos !== this.data.length - 1 && !this.kbS.isEditModeActivated) {
-            this.data.splice(rowPos, 1);
-            this.dataSource.setData(this.data);
-
-            if (rowPos !== 0) {
-                this.kbS.MoveUp();
-            }
-            this.GenerateAndSetNavMatrices(false);
-        }
-
-        console.log((this.data[rowPos].data as any)[col]);
-    }
-
-    isEditingCell(rowIndex: number, col: string): boolean {
-        return this.kbS.isEditModeActivated && !!this.editedRow && this.editedRowPos == rowIndex && this.editedProperty == col;
-    }
-
-    ClearEdit(): void {
-        this.editedRow = undefined;
-        this.editedProperty = undefined;
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    }
-
-    MoveNextInTable(): number {
-        let moveRes = this.kbS.MoveRight(true, false, false);
-        if (!moveRes.moved) {
-            moveRes = this.kbS.MoveDown(true, false, false);
-            this.kbS.p.x = 0;
-            this.kbS.SelectCurrentElement();
-            return this.kbS.p.x;
-        }
-        return this.kbS.p.x;
+    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+        this.selectedItem = {
+            row: row,
+            rowPos: rowPos,
+            col: col,
+            colPos: colPos
+        } as SelectedCell;
+        this.parent.HandleItemChoice(this.selectedItem);
     }
 }

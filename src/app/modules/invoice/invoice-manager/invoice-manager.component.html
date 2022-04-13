@@ -1,0 +1,305 @@
+<div class="card-row">
+    <div class="card-col-labels">
+        <nb-card>
+            <nb-card-header class="card-header-txt-center card-header-top-margin header-blank">-</nb-card-header>
+            <nb-card-body class="form-col-1 card-labels-right">
+                <label>Név</label>
+                <label>Irányítószám és Város</label>
+                <label>Utca, házszám</label>
+                <label>Számlaszám</label>
+                <label>Adószám</label>
+                <label>Megjegyzés</label>
+            </nb-card-body>
+        </nb-card>
+    </div>
+
+    <div class="card-col separator-vertical"></div>
+
+    <div class="card-col-1">
+        <nb-card>
+            <nb-card-header class="card-header-txt-center card-header-top-margin">
+                Szállító
+            </nb-card-header>
+            <nb-card-body class="form-col-1">
+                <form [formGroup]="exporterForm" (keydown.enter)="$event.preventDefault()" #formDirective="ngForm">
+                    <nb-form-field>
+                        <input nbInput type="text" formControlName='customerName' required="true" readonly id="l00">
+                    </nb-form-field>
+
+                    <nb-form-field>
+                        <input nbInput type="text" formControlName='zipCodeCity' required="true" readonly id="l01">
+                    </nb-form-field>
+
+                    <nb-form-field>
+                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" readonly
+                            id="l02">
+                    </nb-form-field>
+
+                    <nb-form-field>
+                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" readonly
+                            id="l03">
+                    </nb-form-field>
+
+                    <nb-form-field>
+                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" readonly id="l04">
+                    </nb-form-field>
+
+                    <nb-form-field>
+                        <input nbInput type="text" formControlName='comment' required="false" readonly id="l05">
+                    </nb-form-field>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+
+    <div class="card-col separator-vertical"></div>
+
+    <div class="card-col-1">
+        <nb-card>
+            <!-- <nb-card-header class="card-header-txt-center card-header-top-margin">
+                Vevő
+            </nb-card-header> -->
+            <nb-card-body class="form-col-2">
+                <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
+                    [id]="buyerFormId">
+
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <nb-form-field class="search-row-nb-form-field"
+                                    (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerSearch')"
+                                    (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
+                                    <input formControlName="customerName" nbInput type="text" class="{{TileCssClass}}"
+                                        (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
+                                        placeholder="Keresés" autocomplete="off" id="r00" />
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <div class="card-header-txt-center card-header-top-margin">
+                                    Vevő
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='customerName' required="true" placeholder="Név"
+                            readonly id="r01">
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='zipCodeCity' required="true"
+                            placeholder="Irányítószám és Város" readonly id="r01">
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true"
+                            placeholder="Utca, házszám" readonly id="r02">
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true"
+                            placeholder="Számlaszám" readonly id="r03">
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='taxpayerNumber' required="true"
+                            placeholder="Adószám" readonly id="r04">
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='comment' required="false" placeholder="Megjegyzés"
+                            readonly id="r05">
+                    </nb-form-field>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
+</div>
+
+<div class="separator-horizontal"></div>
+
+<div class="card-col-2">
+    <nb-card>
+        <nb-card-body class="form-col-2">
+            <form class="form-horizontal" [formGroup]="outInvForm" #formDirective="ngForm" [id]="outInvFormId"
+                (keydown.escape)="outInvFormNav.HandleFormEscape()">
+                <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, false)">
+                    <label>Fizetési mód</label>
+                    <!-- <input nbInput type="text" formControlName='paymentMethod' required="true"
+                        [readonly]="isEditModeOff" placeholder="Fizetési mód" id="m00"> -->
+                    <!-- <nb-select formControlName='paymentMethod' required="true" id="m00">
+                        <nb-option value="">Válasszon</nb-option>
+                        <nb-option value="0">Készpénz</nb-option>
+                        <nb-option value="1">Átutalás</nb-option>
+                    </nb-select> -->
+                    <input formControlName="paymentMethod" nbInput type="text" [nbAutocomplete]="autoPaymentMethod"
+                        class="{{TileCssClass}}" readonly placeholder="Fizetési mód" autocomplete="off" id="m00" />
+                    <!--  (keyup)="handleAutoCompleteOptionFocused($event)"-->
+                    <!-- AUTOCOMPLETE -->
+                    <nb-autocomplete #autoPaymentMethod [activeFirst]="false"
+                        (selectedChange)="outInvFormNav.HandleAutoCompleteSelect($event, 'paymentMethod')">
+                        <nb-option *ngFor="let option of paymentMethodOptions$ | async; let i = index" [value]="option">
+                            {{ option }}
+                        </nb-option>
+                    </nb-autocomplete>
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                    <label>Teljesítési időpont</label>
+                    <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m01" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                    <label>Számla keltezése</label>
+                    <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                    <label>Fizetési határidő</label>
+                    <input nbInput type="datetime" formControlName='paymentDate' required="true"
+                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                    <label>Számla sorszáma</label>
+                    <input nbInput type="text" formControlName='invoiceOrdinal' readonly class="{{TileCssClass}}"
+                        placeholder="Számla sorszáma" id="m04">
+                </nb-form-field>
+
+                <nb-form-field class="form-field-full-width"
+                    (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                    <div class="form-field-full-width-inner-div">
+                        <label>Egyéb adatok</label>
+                        <input nbInput type="text" formControlName='notice' [readonly]="isEditModeOff"
+                            class="{{TileCssClass}}" placeholder="Egyéb adatok" id="m11">
+                    </div>
+                </nb-form-field>
+
+                <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont"
+                    controlName="invoiceDeliveryDate" [validationParameterDate]="invoiceIssueDateValue">
+                </app-form-control-error>
+
+                <app-form-control-error [form]="outInvFormNav" label="számla keltezése" controlName="invoiceIssueDate"
+                    [validationParameterDate]="invoiceIssueDateValue">
+                </app-form-control-error>
+
+                <app-form-control-error [form]="outInvFormNav" label="fizetési határidő" controlName="paymentDate"
+                    [validationParameterDate]="invoiceIssueDateValue"
+                    [validationParameterDateSecondary]="invoiceDeliveryDateValue">
+                </app-form-control-error>
+            </form>
+        </nb-card-body>
+    </nb-card>
+</div>
+
+<div class="separator-horizontal"></div>
+
+<nb-card [nbSpinner]="isLoading" *ngIf="!!dbDataTable">
+    <nb-card-body>
+        <form>
+            <table class="card-table-wrapper" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
+                (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)" [id]="dbDataTableId">
+
+                <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+                <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+
+                <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+                    <ng-container [ngSwitch]="it.type">
+                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
+                            {{it.label}}
+                        </th>
+
+                        <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                            *nbTreeGridCellDef="let row; let rowPos = index"
+                            [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
+                            (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                            (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
+                            (keydown.enter)="dbDataTable.HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)"
+                            (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
+                            (keydown.F2)="dbDataTable.HandleKey($event, rowPos)"
+                            (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)"
+                            [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                            id="{{'PRODUCT-' + colPos + '-' + rowPos}}" [ngSwitch]="it.fInputType">
+                            <ng-container *ngIf="!it.fReadonly">
+                                <ng-container *ngSwitchCase="'code-field'">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false"
+                                        [showMaskTyped]="true" oninput="this.value = this.value.toUpperCase()"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'formatted-number'">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        [inputMask]="numberInputMask" placeholder="0.00000"
+                                        oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'formatted-number-integer'">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        [inputMask]="numberInputMaskInteger" placeholder="0" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchDefault="">
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false"
+                                        [showMaskTyped]="true" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+                            </ng-container>
+
+                            <ng-container *ngIf="it.fReadonly">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+                        </td>
+                    </ng-container>
+                </ng-container>
+            </table>
+        </form>
+    </nb-card-body>
+    <nb-card-footer class="invoice-table-statistics">
+        <span class="line-amount">
+            Összes bruttó: {{outGoingInvoiceData.lineGrossAmount}}
+        </span>
+        <span class="line-amount">
+            Összes nettó: {{outGoingInvoiceData.invoiceNetAmount}}
+        </span>
+    </nb-card-footer>
+</nb-card>

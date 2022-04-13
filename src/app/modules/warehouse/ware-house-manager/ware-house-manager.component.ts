@@ -47,7 +47,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       colKey: 'warehouseCode',
       defaultValue: '',
       type: 'string',
-      fInputType: 'text',
+      fInputType: 'code-field',
       fRequired: true,
       mask: '',
       colWidth: '30%',
@@ -84,21 +84,15 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService,
-    private sts: StatusService
+    cs: CommonService,
+    sts: StatusService
   ) {
-    super(dialogService, kbS, fS, sidebarService);
+    super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'warehouse-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
-  }
-
-  private HandleError(err: any): void {
-    this.cs.HandleError(err);
-    this.isLoading = false;
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<WareHouse>): void {
@@ -189,14 +183,12 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             if (d.succeeded && !!d.data) {
               const di = this.dbData.findIndex((x) => x.data.id === id);
               this.dbData.splice(di, 1);
-              this.RefreshTable();
               this.toastrService.show(
                 Constants.MSG_DELETE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
-              this.dbDataTable.SetBlankInstanceForForm(false, false);
-              this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.HandleGridSelectionAfterDelete(di);
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
@@ -270,8 +262,8 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             });
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
-            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
+            this.dbDataTable.totalItems = d.recordsFiltered;
             this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
           }
           this.RefreshTable();

@@ -103,6 +103,25 @@ export class KeyboardNavigationService {
     // throw new Error("debug");
   }
 
+  public BalanceCheckboxAfterShiftEnter(id: string): void {
+    const source = $('#' + id);
+    if (source.is(':checkbox')) {
+      source.prop("checked", !source.prop("checked"));
+    } else {
+      for (let i = 0; i < this.CurrentNavigatable.Matrix.length; ++i) {
+        const elementIndex = this.CurrentNavigatable.Matrix[i].findIndex(x => x === id);
+        if (elementIndex !== -1 && i > 0) {
+          const targetId = this.CurrentNavigatable.Matrix[i - 1][elementIndex];
+          const source = $('#' + targetId);
+          if (source.is(':checkbox')) {
+            source.prop("checked", !source.prop("checked"));
+          }
+          break;
+        }
+      }
+    }
+  }
+
   public SelectElement(id: string): void {
     this.LogSelectElement();
 
@@ -132,18 +151,22 @@ export class KeyboardNavigationService {
     //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     // }
 
-    switch (this.CurrentNavigatable.TileSelectionMethod) {
-      case PreferredSelectionMethod.both:
-        $(idString).trigger('focus');
-        $(idString).trigger('click');
-        break;
-      case PreferredSelectionMethod.click:
-        $(idString).trigger('click');
-        break;
-      case PreferredSelectionMethod.focus:
-      default:
-        $(idString).trigger('focus');
-        break;
+    if ($(idString).is(':button')) {
+      $(idString).trigger('focus');
+    } else {
+      switch (this.CurrentNavigatable.TileSelectionMethod) {
+        case PreferredSelectionMethod.both:
+          $(idString).trigger('focus');
+          $(idString).trigger('click');
+          break;
+        case PreferredSelectionMethod.click:
+          $(idString).trigger('click');
+          break;
+        case PreferredSelectionMethod.focus:
+        default:
+          $(idString).trigger('focus');
+          break;
+      }
     }
 
     this.ElementIdSelected.next(id);

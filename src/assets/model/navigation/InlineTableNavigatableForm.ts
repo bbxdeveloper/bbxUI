@@ -1,10 +1,12 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
+import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
+import { IInlineManager } from "../IInlineManager";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
 
-export class NavigatableForm implements INavigatable {
+export class InlineTableNavigatableForm implements INavigatable {
     Matrix: string[][] = [[]];
 
     LastX?: number | undefined;
@@ -37,13 +39,16 @@ export class NavigatableForm implements INavigatable {
 
     formId: string;
 
+    parentComponent: IInlineManager;
+
     constructor(
         f: FormGroup,
         kbs: KeyboardNavigationService,
         cdr: ChangeDetectorRef,
         data: any[],
         formId: string,
-        attachDirection: AttachDirection = AttachDirection.DOWN
+        attachDirection: AttachDirection = AttachDirection.DOWN,
+        parentComponent: IInlineManager
     ) {
         this.form = f;
         this.kbS = kbs;
@@ -51,6 +56,11 @@ export class NavigatableForm implements INavigatable {
         this._data = data;
         this.attachDirection = attachDirection;
         this.formId = formId;
+        this.parentComponent = parentComponent;
+    }
+
+    Setup(data: any[]): void {
+        this._data = data;
     }
 
     GetValue(formFieldName: string): any {
@@ -62,7 +72,17 @@ export class NavigatableForm implements INavigatable {
         this.cdref.detectChanges();
     }
 
-    private FeelFormAfterValueSelect(selectedValue: string, objectKey: string) {
+    FillForm(data: any, skip: string[] = []) {
+        if (!!data) {
+            Object.keys(this.form.controls).forEach((x: string) => {
+                if (!skip.includes(x)) {
+                    this.form.controls[x].setValue(data[x]);
+                }
+            });
+        }
+    }
+
+    FillFormAfterValueSelect(selectedValue: string, objectKey: string) {
         let buyer = this._data.find(b => b[objectKey] === selectedValue);
         if (!!buyer) {
             Object.keys(this.form.controls).forEach((x: string) => {
@@ -92,13 +112,18 @@ export class NavigatableForm implements INavigatable {
         } else {
             // For example in case if we just moved onto a confirmation button in the next nav-matrix,
             // we don't want to automatically press it until the user directly presses enter after selecting it.
-            if (!!event) {
+            if ($('#' + this.kbS.Here).is(':input')) {
+                this.kbS.ClickCurrentElement();
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+            }
+            else if (!!event) {
                 event.stopImmediatePropagation();
             }
         }
     }
 
     HandleAutoCompleteSelect(event: any, key: string): void {
+        // debugger;
         if (event === "") {
             Object.keys(this.form.controls).forEach((x: string) => {
                 if (x !== key) {
@@ -106,7 +131,7 @@ export class NavigatableForm implements INavigatable {
                 }
             });
         } else {
-            this.FeelFormAfterValueSelect(event, key);
+            this.FillFormAfterValueSelect(event, key);
         }
         if (!this.kbS.isEditModeActivated) {
             this.JumpToNextInput(event);
@@ -120,6 +145,31 @@ export class NavigatableForm implements INavigatable {
         // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
         if (!this.kbS.isEditModeActivated && jumpNext) {
             this.JumpToNextInput(event);
+        }
+    }
+
+    HandleFilterInputFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true, data: any, formControlName: string): void {
+        if (!!data) {
+            this.form.controls[formControlName].setValue(data);
+        }
+
+        if (toggleEditMode) {
+            this.kbS.toggleEdit();
+        }
+        // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+        if (!this.kbS.isEditModeActivated && jumpNext) {
+            this.JumpToNextInput(event);
+        }
+    }
+
+    HandleKey(event: any, controlKey: string): void {
+        switch (event.key) {
+            case KeyBindings.F2: {
+                event.preventDefault();
+                this.parentComponent.ChooseDataForForm();
+                break;
+            }
+            default: { }
         }
     }
 
@@ -147,6 +197,12 @@ export class NavigatableForm implements INavigatable {
         }
     }
 
+    HandleFormFieldClick(event: any): void {
+        this.kbS.SetCurrentNavigatable(this);
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+        this.kbS.SetPositionById(event.target?.id);
+    }
+
     GenerateAndSetNavMatrices(attach: boolean): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
@@ -160,6 +216,7 @@ export class NavigatableForm implements INavigatable {
         // Prepare matrix
         this.Matrix = [[]];
         let currentMatrixIndex = 0;
+        let previous: string = '';
 
         // Getting tiles, rows for navigation matrix
         for (let i = 0; i < tiles.length; i++) {
@@ -172,26 +229,26 @@ export class NavigatableForm implements INavigatable {
             // Usually all form elements are in a nb-form-field
             // So we must examine the parent of that element to be sure two form element
             // is not in the same block
-            if (!!next?.parentElement?.parentElement) {
-                const pE = next?.parentElement?.parentElement.nodeName;
-                if (pE !== currentParent) {
-                    // currentParent was already initailized,
-                    // so this parent name change must mean the tile is in another row
-                    if (currentParent !== '') {
-                        this.Matrix.push([]);
-                        ++currentMatrixIndex;
-                    }
-                    currentParent = next.parentElement.nodeName;
-                }
+            if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass('MULTICOLNAVIGATION_DISABLED'))) { // TileCssColClass
+                this.Matrix.push([]);
+                ++currentMatrixIndex;
             }
+            currentParent = next.parentElement!.nodeName;
 
             next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
+
+            $('#' + next.id).off('click');
+            $('#' + next.id).on('click', (event) => {
+                this.HandleFormFieldClick(event);
+            });
+
             this.Matrix[currentMatrixIndex].push(next.id);
+            previous = next.id;
         }
 
         if (environment.debug) {
-            console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
+        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
 
         if (attach) {
             this.kbS.Attach(this, this.attachDirection);
@@ -203,4 +260,12 @@ export class NavigatableForm implements INavigatable {
     }
 
     Detach(): void { }
+
+    CanShowFormErrors(formControlName: string): boolean {
+        return this.form.controls[formControlName].invalid && (this.form.controls[formControlName].dirty || this.form.controls[formControlName].touched);
+    }
+
+    IsErrorApparent(formControlName: string, validationName: string): boolean {
+        return this.form.controls[formControlName].errors?.[validationName]; // eg. 'required'
+    }
 }

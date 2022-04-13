@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 
@@ -32,7 +33,11 @@ export class BaseSideBarFormComponent {
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  constructor() {
+  get isEditModeOff() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  }
+
+  constructor(protected kbS: KeyboardNavigationService) {
     // const _form = this.currentForm;
     // $("input").on("click", function (event) { _form?.HandleFormFieldClick(event); });
   }
@@ -45,6 +50,7 @@ export class BaseSideBarFormComponent {
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.currentForm?.HandleFormShiftEnter(event)
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {

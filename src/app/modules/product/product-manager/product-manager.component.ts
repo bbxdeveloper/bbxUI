@@ -161,13 +161,13 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private cs: CommonService,
     private productGroupApi: ProductGroupService,
     private originApi: OriginService,
     private vatApi: VatRateService,
-    private sts: StatusService
+    cs: CommonService,
+    sts: StatusService
   ) {
-    super(dialogService, kbS, fS, sidebarService);
+    super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'product-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
@@ -214,6 +214,10 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     return data;
   }
 
+  ToInt(p: any): number {
+    return parseInt(p + '');
+  }
+
   private ProductToCreateRequest(p: Product): CreateProductRequest {
     let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
     let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
@@ -229,15 +233,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: p.minStock,
-      latestSupplyPrice: p.latestSupplyPrice,
-      ordUnit: p.ordUnit,
+      minStock: this.ToInt(p.minStock),
+      latestSupplyPrice: this.ToInt(p.latestSupplyPrice),
+      ordUnit: this.ToInt(p.ordUnit),
       originCode: originCode,
       productGroupCode: productGroupCode,
-      unitPrice1: p.unitPrice1,
-      unitPrice2: p.unitPrice2,
+      unitPrice1: this.ToInt(p.unitPrice1),
+      unitPrice2: this.ToInt(p.unitPrice2),
       unitOfMeasure: unitOfMeasureValue,
-      productFee: p.productFee,
+      productFee: this.ToInt(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode
     } as CreateProductRequest;
@@ -260,25 +264,19 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: p.minStock,
-      latestSupplyPrice: p.latestSupplyPrice,
-      ordUnit: p.ordUnit,
+      minStock: this.ToInt(p.minStock),
+      latestSupplyPrice: this.ToInt(p.latestSupplyPrice),
+      ordUnit: this.ToInt(p.ordUnit),
       originCode: originCode,
       productGroupCode: productGroupCode,
-      unitPrice1: p.unitPrice1,
-      unitPrice2: p.unitPrice2,
+      unitPrice1: this.ToInt(p.unitPrice1),
+      unitPrice2: this.ToInt(p.unitPrice2),
       unitOfMeasure: unitOfMeasureValue,
-      productFee: p.productFee,
+      productFee: this.ToInt(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode
     } as UpdateProductRequest;
     return res;
-  }
-
-  private HandleError(err: any): void {
-    this.cs.HandleError(err);
-    this.isLoading = false;
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ProcessActionNew(data?: IUpdateRequest<Product>): void {
@@ -398,14 +396,12 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             if (d.succeeded && !!d.data) {
               const di = this.dbData.findIndex((x) => x.data.id === id);
               this.dbData.splice(di, 1);
-              this.RefreshTable();
               this.toastrService.show(
                 Constants.MSG_DELETE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
               );
-              this.dbDataTable.SetBlankInstanceForForm(false, false);
-              this.dbDataTable.flatDesignForm.SetFormStateToNew();
+              this.HandleGridSelectionAfterDelete(di);
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
@@ -514,8 +510,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = Math.round(d.recordsTotal / d.pageSize);
-            this.dbDataTable.totalItems = d.recordsTotal;
+            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
+            this.dbDataTable.totalItems = d.recordsFiltered;
             this.dbDataTable.itemsOnCurrentPage = tempData.length;
           }
           this.RefreshTable();

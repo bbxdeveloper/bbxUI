@@ -22,6 +22,8 @@ import { CounterModule } from './modules/counter/counter.module';
 
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import { InvoiceModule } from './modules/invoice/invoice.module';
+import { Error404Component } from './error404/error404.component';
 registerLocaleData(localeFr, 'fr');
 
 const maskConfig: Partial<IConfig> = {
@@ -30,7 +32,8 @@ const maskConfig: Partial<IConfig> = {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    Error404Component
   ],
   imports: [
     // Default
@@ -58,6 +61,7 @@ const maskConfig: Partial<IConfig> = {
     ProductGroupModule,
     ProductModule,
     WarehouseModule,
+    InvoiceModule,
     CounterModule,
     InputMaskModule,
     CoreModule,

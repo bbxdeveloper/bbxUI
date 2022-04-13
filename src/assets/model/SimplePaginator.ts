@@ -16,6 +16,17 @@ export class SimplePaginator {
 
     constructor() { }
 
+    resetPaginator(resetPageSize: boolean = false, quiet: boolean = true): void {
+        if (resetPageSize) {
+            this.pageSize = '50';
+        }
+        if (quiet) {
+            this.currentPage = 1;
+        } else {
+            this.firstPage();
+        }
+    }
+
     nextPage(): void {
         if (!this.isLastPage) {
             this.NewPageSelected.emit(++(this.currentPage));

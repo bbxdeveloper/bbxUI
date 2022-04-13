@@ -16,6 +16,10 @@ import { BaseManagerComponent } from './base-manager/base-manager.component';
 import { BaseSideBarFormComponent } from './base-side-bar-form/base-side-bar-form.component';
 import { FormControlErrorComponent } from './form-control-error/form-control-error.component';
 import { InputMaskModule } from '@ngneat/input-mask';
+import { RemoveWhitespacesPipe } from './pipes/remove-whitespaces.pipe';
+import { BaseInlineManagerComponent } from './base-inline-manager/base-inline-manager.component';
+import { SelectTableDialogComponent } from './select-table-dialog/select-table-dialog.component';
+import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-manager.component';
 
 
 @NgModule({
@@ -30,6 +34,10 @@ import { InputMaskModule } from '@ngneat/input-mask';
     BaseManagerComponent,
     BaseSideBarFormComponent,
     FormControlErrorComponent,
+    RemoveWhitespacesPipe,
+    BaseInlineManagerComponent,
+    SelectTableDialogComponent,
+    BaseNoFormManagerComponent,
   ],
   imports: [
     CommonModule,
@@ -70,7 +78,11 @@ import { InputMaskModule } from '@ngneat/input-mask';
     BaseManagerComponent,
     BaseSideBarFormComponent,
     FormControlErrorComponent,
-    NbIconModule
+    NbIconModule,
+    RemoveWhitespacesPipe,
+    BaseInlineManagerComponent,
+    SelectTableDialogComponent,
+    BaseNoFormManagerComponent
   ],
   providers: [
     ConfirmationDialogComponent

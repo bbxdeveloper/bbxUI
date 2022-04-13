@@ -2,8 +2,10 @@ import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
@@ -72,7 +74,33 @@ export class BaseManagerComponent<T> {
     @Optional() protected dialogService: NbDialogService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
-    protected sidebarService: BbxSidebarService) {
+    protected sidebarService: BbxSidebarService,
+    protected cs: CommonService,
+    protected sts: StatusService) {
+  }
+
+  GetPageCount(recordsFiltered: number, pageSize: number): number {
+    const tmp = Math.round(recordsFiltered / pageSize);
+    return tmp === 0 ? 1 : tmp;
+  }
+  
+  HandleError(err: any): void {
+    this.cs.HandleError(err);
+    this.isLoading = false;
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
+  HandleGridSelectionAfterDelete(indexOfDeleteItem: number): void {
+    if (this.dbData.length > indexOfDeleteItem) {
+      this.RefreshTable((this.dbData[indexOfDeleteItem].data as any).id);
+    } else if (this.dbData.length > 0) {
+      this.RefreshTable((this.dbData[this.dbData.length - 1].data as any).id);
+    } else {
+      this.RefreshTable();
+      this.dbDataTable.SetBlankInstanceForForm(false, false);
+      this.dbDataTable.flatDesignForm.SetFormStateToNew();
+    }
+    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
   }
 
   ActionNew(data?: IUpdateRequest<T>): void {
@@ -182,7 +210,10 @@ export class BaseManagerComponent<T> {
       return;
     }
     this.searchString = event.target.value;
+
     console.log('Search: ', this.searchString);
+
+    this.dbDataTable.resetPaginator();
     this.search();
   }
 
@@ -192,8 +223,10 @@ export class BaseManagerComponent<T> {
     } else {
       $('#' + this.searchInputId!).val('');
     }
+
     this.searchString = '';
 
+    this.dbDataTable.resetPaginator();
     this.search();
   }
 
@@ -226,6 +259,7 @@ export class BaseManagerComponent<T> {
       return;
     }
     if (focusIn) {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
       this.dbDataTable.PushFooterCommandList();
     } else {
       this.fS.pushCommands(this.commands);
