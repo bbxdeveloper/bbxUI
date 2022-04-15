@@ -198,6 +198,7 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
                     default:
                         this.grid.SetBlankInstanceForForm(false, false);
                         this.formMode = Constants.FormState.new;
+                        this.grid.JumpToFirstFormField();
                         break;
                 }
                 break;

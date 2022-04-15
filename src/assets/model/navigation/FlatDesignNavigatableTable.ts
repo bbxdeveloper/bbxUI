@@ -440,10 +440,20 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             }
             case KeyBindings.F8: {
                 event.preventDefault();
+                this.JumpToFirstFormField();
                 this.HandleF12(true);
                 break;
             }
             default: { }
+        }
+    }
+
+    JumpToFirstFormField(): void {
+        if (this.sidebarService.sideBarOpened) {
+            this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+            this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+            this.kbs.MoveUp();
+            this.kbs.setEditMode(KeyboardModes.EDIT);
         }
     }
 
