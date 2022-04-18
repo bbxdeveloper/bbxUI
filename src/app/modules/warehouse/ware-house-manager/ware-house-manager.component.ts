@@ -55,7 +55,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Leírás',
+      label: 'Név',
       objectKey: 'warehouseDescription',
       colKey: 'warehouseDescription',
       defaultValue: '',

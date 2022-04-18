@@ -23,7 +23,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 })
 export class HeaderComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit {
   @ViewChildren(NbPopoverDirective) popover?: QueryList<NbPopoverDirective>;
-  
+
   @Input() title: string = "";
 
   settingsIconConfig: NbIconConfig = { icon: 'settings-2-outline', pack: 'eva' };
@@ -122,7 +122,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     }
 
     //if (environment.debug)
-      console.log("[HeaderComponent] Generated header matrix: ", this.Matrix, "\nSubmapping: ", this.SubMapping);
+    console.log("[HeaderComponent] Generated header matrix: ", this.Matrix, "\nSubmapping: ", this.SubMapping);
 
     this.kbS.SetRoot(this);
   }
@@ -207,34 +207,41 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     this.isLoading = true;
     dialogRef.onClose.subscribe({
       next: (res: LoginDialogResponse) => {
-      if(!!res && res.answer) {
-        this.authService.login(
-          res.name, res.pswd
-        ).subscribe({
-          next: res => {
-            this.tokenService.token = res.token;
-            this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-            // this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, { duration: 0 });
-            setTimeout(() => {
-              this.GenerateAndSetNavMatrices();
-              this.kbS.SelectFirstTile();
-              this.isLoading = false;
-            }, 200);
-          },
-          error: err => {
-            this.toastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-            this.isLoading = false;
-          },
-          complete: () => {
-            setTimeout(() => {
-              if (this.isLoading) {
+        if (!!res && res.answer) {
+          this.authService.login(
+            res.name, res.pswd
+          ).subscribe({
+            next: res => {
+              this.tokenService.token = res.token;
+              this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+              // this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, { duration: 0 });
+              setTimeout(() => {
+                this.GenerateAndSetNavMatrices();
+                this.kbS.SelectFirstTile();
                 this.isLoading = false;
-              }
-            }, 200);
-          }
-        });
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              }, 200);
+            },
+            error: err => {
+              this.toastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+              this.isLoading = false;
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            },
+            complete: () => {
+              setTimeout(() => {
+                this.isLoading = false;
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              }, 200);
+            }
+          });
+        } else {
+          setTimeout(() => {
+            this.kbS.SelectFirstTile();
+            this.isLoading = false;
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          }, 200);
+        }
       }
-    }
     });
   }
 

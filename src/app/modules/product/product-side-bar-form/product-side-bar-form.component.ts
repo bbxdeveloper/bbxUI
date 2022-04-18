@@ -64,7 +64,10 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     // ProductGroups
     this.productGroupApi.GetAll().subscribe({
       next: data => {
-        this.productGroups = data?.data?.map(x => x.productGroupCode + '-' + x.productGroupDescription) ?? [];
+        console.log("ProductGroups: ", data);
+        this.productGroups = [this.blankOptionText];
+        this.productGroups =
+          this.productGroups.concat(data?.data?.map(x => x.productGroupCode + '-' + x.productGroupDescription) ?? []);
         this.filteredProductGroups$ = of(this.productGroups);
         this.currentProductGroupCount = this.productGroups.length;
       }
@@ -73,6 +76,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     // UnitOfMeasure
     this.productApi.GetAllUnitOfMeasures().subscribe({
       next: data => {
+        console.log("UnitOfMeasures: ", data);
         this.uom = data?.map(x => x.text) ?? [];
         this.filteredUom$ = of(this.uom);
         this.currentUomCount = this.uom.length;
@@ -82,7 +86,9 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     // Origin
     this.originApi.GetAll().subscribe({
       next: data => {
-        this.origins = data?.data?.map(x => x.originCode + '-' + x.originDescription) ?? [];
+        console.log("Origins: ", data);
+        this.origins = [this.blankOptionText];
+        this.origins = this.origins.concat(data?.data?.map(x => x.originCode + '-' + x.originDescription) ?? []);
         this.filteredOrigins$ = of(this.origins);
         this.currentOriginCount = this.origins.length;
       }
@@ -91,6 +97,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     // VatRate
     this.vatApi.GetAll().subscribe({
       next: data => {
+        console.log("Vats: ", data);
         this.vatRates = data?.data?.map(x => x.vatRateCode + ' - ' + x.vatPercentage) ?? [];
         this.filteredVatRates$ = of(this.vatRates);
         this.currentVatRateCount = this.vatRates.length;
@@ -144,7 +151,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
       return this.productGroups;
     }
     const filterValue = value.toLowerCase();
-    return this.productGroups.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+    return this.productGroups.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
   }
 
   private filterUom(value: string): string[] {
@@ -160,7 +167,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
       return this.origins;
     }
     const filterValue = value.toLowerCase();
-    return this.origins.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+    return this.origins.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
   }
 
   private filterVatRate(value: string): string[] {

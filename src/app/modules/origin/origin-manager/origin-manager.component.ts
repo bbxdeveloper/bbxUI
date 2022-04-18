@@ -58,7 +58,7 @@ export class OriginManagerComponent
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Leírás',
+      label: 'Név',
       objectKey: 'originDescription',
       colKey: 'originDescription',
       defaultValue: '',

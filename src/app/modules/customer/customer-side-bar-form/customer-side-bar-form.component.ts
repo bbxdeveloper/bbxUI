@@ -76,7 +76,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
 
     this.cdref.detectChanges();
-
+    
     if (!!this.currentForm) {
       this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
 
@@ -87,7 +87,8 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
           if (currentTypeBankAccountNumber.length > 1) {
             return;
           }
-          this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+          const nextMask = isIbanStarted ? ibanPattern : defaultPattern;
+          this.bankAccountMask.next(nextMask);
         }
       });
 
@@ -112,15 +113,43 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   checkBankAccountKeydownValue(event: any): void {
-    const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key);
-    console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
-    if (currentTypeBankAccountNumber.length > 1) {
-      return;
-    }
-    const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-    console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-    this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+    if (event.key.length === 1) {
+      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key);
+
+      console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
+
+      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? ibanPattern : defaultPattern;
+      console.log("Check: ", currentTypeBankAccountNumber.length, nextMask.length, nextMask);
+      if (currentTypeBankAccountNumber.length > nextMask.length) {
+        //event.target.value = currentTypeBankAccountNumber.substring(0, nextMask.length - 1);
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        event.stopPropagation();
+        // this.currentForm!.form.controls['privatePerson'].setValue(currentTypeBankAccountNumber.substring(0, nextMask.length));
+      }
+
+      if (currentTypeBankAccountNumber.length > 1) {
+        return;
+      }
+      const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
+
+      console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
+      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
     //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
+    } else {
+      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key);
+
+      console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
+
+      if (currentTypeBankAccountNumber.length > 1) {
+        return;
+      }
+      const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
+
+      console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
+      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+    //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
+    }
   }
 
   private filterCountryCode(value: string): string[] {

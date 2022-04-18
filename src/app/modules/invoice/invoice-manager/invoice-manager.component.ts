@@ -76,12 +76,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     placeholder: '',
   });
 
-  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount"];
+  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
   override allColumns = [
     'productCode',
     'productDescription',
     'quantity',
-    'unitOfMeasure',
+    'unitOfMeasureX',
     'price',
     'lineNetAmount',
     'lineGrossAmount',
@@ -103,8 +103,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "5%", textAlign: "left", fInputType: 'formatted-number-integer'
     },
     { // unitofmeasureX show, post unitofmeasureCode
-      label: 'Mértékegység', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure',
-      defaultValue: '', type: 'string', mask: "",
+      label: 'Mértékegység', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
+      defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "15%", textAlign: "right"
     },
     {
@@ -700,6 +700,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     res.lineVatAmount = p.vatPercentage ?? 10;
     res.lineNetAmount = this.ToInt(res.quantity) * this.ToInt(res.price);
     res.lineGrossAmount = res.lineVatAmount * res.lineNetAmount;
+
+    res.unitOfMeasure = p.unitOfMeasure;
+    res.unitOfMeasureX = p.unitOfMeasureX;
+
+    console.log('ProductToInvoiceLine res: ', res);
 
     return res;
   }

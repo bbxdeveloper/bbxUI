@@ -349,6 +349,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     HandleAutoCompleteSelect(event: any, key: string): void {
+        console.log("HandleAutoCompleteSelect key: " + key);
         // If the table is still the current navigatable and the form is filled
         // this event could be triggered but MUST NOT be handled here because it breaks the flow
         // of navigation.
@@ -384,7 +385,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     HandleFormDropdownEnter(event: Event, itemCount: number): void {
-        console.log("itemCount: " + itemCount);
+        console.log("HandleFormDropdownEnter itemCount: " + itemCount);
         if (itemCount > 1) {
             this.kbS.toggleEdit();
         } else {

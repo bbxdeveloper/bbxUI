@@ -5,7 +5,7 @@
     <nb-card-body *ngIf="!!dbDataTable">
         <form class="card-table-wrapper-form">
             <table class="card-table-wrapper"
-                [ngClass]="wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
+                [ngClass]="getTableClasses()" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
                  *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
                  equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
 

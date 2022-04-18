@@ -59,7 +59,7 @@ export class ProductGroupManagerComponent
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Leírás',
+      label: 'Név',
       objectKey: 'productGroupDescription',
       colKey: 'productGroupDescription',
       defaultValue: '',

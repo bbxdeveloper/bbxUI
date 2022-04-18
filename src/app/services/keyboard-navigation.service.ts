@@ -81,7 +81,7 @@ export class KeyboardNavigationService {
     return this.p.x <= this.maxCurrentWorldX && this.p.y <= this.maxCurrentWorldY && this.p.x > -1 && this.p.y > -1;
   }
 
-  private previousIdString ?: string = undefined;
+  private previousIdString?: string = undefined;
 
   constructor() { }
 
@@ -90,7 +90,7 @@ export class KeyboardNavigationService {
       return;
     }
     this._currentKeyboardMode = this._currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
-    
+
     // throw new Error("debug");
   }
 
@@ -127,7 +127,8 @@ export class KeyboardNavigationService {
 
     const idString = '#' + id;
 
-    console.log('SelectElement: ', this.previousIdString, id);
+    if (environment.navigationSelectLog)
+      console.log('SelectElement: ', this.previousIdString, id);
 
     $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
       $(element).removeClass(SELECTED_ELEMENT_CLASS);
@@ -175,7 +176,8 @@ export class KeyboardNavigationService {
   public ClickElement(id: string): void {
     const idString = '#' + id;
 
-    console.log('ClickElement: ', this.previousIdString, id);
+    if (environment.navigationSelectLog)
+      console.log('ClickElement: ', this.previousIdString, id);
 
     $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
       $(element).removeClass(SELECTED_ELEMENT_CLASS);
@@ -198,7 +200,7 @@ export class KeyboardNavigationService {
     //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
     //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     // }
-    
+
     $(idString).trigger('click');
 
     this.ElementIdSelected.next(id);
@@ -254,8 +256,25 @@ export class KeyboardNavigationService {
     return this.CurrentNavigatable.constructor.name === potentialNavigatable.constructor.name;
   }
 
+  MoveCursorBeforeFirstChar(): void {
+    // const idString = '#' + this.Here;
+    const _input = document.getElementById(this.Here) as HTMLInputElement;
+    if (!!_input && _input.type === "text") {
+      window.setTimeout(function () {
+        _input.setSelectionRange(0, 0);
+        // const txtVal = ((row.data as any)[col] as string);
+        // console.log('txtVal: ', txtVal);
+        // if (!!txtVal) {
+        //   _input.setSelectionRange(txtVal.length, txtVal.length);
+        // } else {
+        //   //
+        // }
+      }, 0);
+    }
+  }
+
   private LogGeneralStats(): void {
-    if (!environment.debug) {
+    if (!environment.navigationMiscLog) {
       return;
     }
 
@@ -264,7 +283,7 @@ export class KeyboardNavigationService {
   }
 
   private LogPositionStats(): void {
-    if (!environment.debug) {
+    if (!environment.navigationPositionLog) {
       return;
     }
 
@@ -279,7 +298,7 @@ export class KeyboardNavigationService {
   }
 
   private LogNeighbourStats(): void {
-    if (!environment.debug) {
+    if (!environment.navigationMoveLog) {
       return;
     }
 
@@ -290,7 +309,7 @@ export class KeyboardNavigationService {
   }
 
   public LogMatrix(): void {
-    if (!environment.debug) {
+    if (!environment.navigationMatrixLog) {
       return;
     }
 
@@ -312,7 +331,7 @@ export class KeyboardNavigationService {
     attemptedDirection: AttachDirection,
     select: boolean = true, altKey: boolean = false,
     canJumpToNeighbourMatrix: boolean = false): void {
-    if (!environment.debug) {
+    if (!environment.navigationMoveLog) {
       return;
     }
 
@@ -326,16 +345,16 @@ export class KeyboardNavigationService {
     console.log(`[PARAM] Alt-key pressed: ${altKey}`);
     console.log(`[PARAM] Should jump to neighbour: ${canJumpToNeighbourMatrix}`);
     console.log(`[NAVIGATABLE] OuterJump: ${this.CurrentNavigatable.OuterJump}`);
-    
+
     console.log(`Attempted direction: ${AttachDirection[attemptedDirection]}`);
-    
+
     this.LogNeighbourStats();
 
     console.log("+------------------+\n\n");
   }
 
   private LogNavAndMatrix(): void {
-    if (!environment.debug) {
+    if (!environment.navigationMatrixLog) {
       return;
     }
 
@@ -351,7 +370,7 @@ export class KeyboardNavigationService {
   }
 
   private LogSelectElement(): void {
-    if (!environment.debug) {
+    if (!environment.navigationSelectLog) {
       return;
     }
 
@@ -368,7 +387,7 @@ export class KeyboardNavigationService {
   public Jump(direction: AttachDirection, setEdit: boolean = false): MoveRes {
     const res = { moved: false, jumped: false } as MoveRes;
 
-    switch(direction) {
+    switch (direction) {
       case AttachDirection.DOWN:
         if (!!this.CurrentNavigatable.DownNeighbour) {
           this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
@@ -485,14 +504,14 @@ export class KeyboardNavigationService {
         res.moved = true;
         res.jumped = true;
       }
-    // Not at left bound
+      // Not at left bound
     } else {
       this.p.x--;
 
       if (select) {
         this.SelectCurrentElement();
       }
-      
+
       res.moved = true;
     }
 
@@ -560,7 +579,7 @@ export class KeyboardNavigationService {
         res.moved = true;
         res.jumped = true;
       }
-    // Not at right bound
+      // Not at right bound
     } else {
       this.p.x++;
 
@@ -740,7 +759,7 @@ export class KeyboardNavigationService {
   }
 
   public Attach(n: INavigatable, direction: AttachDirection, setAsCurrentNavigatable: boolean = true): void {
-    switch(direction) {
+    switch (direction) {
       case AttachDirection.DOWN: {
         this.CurrentNavigatable.DownNeighbour = n;
         n.UpNeighbour = this.CurrentNavigatable;
@@ -826,7 +845,7 @@ export class KeyboardNavigationService {
 
   public RemoveWidgetNavigatable(): void {
     this.CurrentNavigatable = this.NavigatableStack.pop() ?? this.Root;
-    
+
     this.p.x = this.CurrentNavigatable.LastX!;
     this.p.y = this.CurrentNavigatable.LastY!;
 
@@ -845,7 +864,7 @@ export class KeyboardNavigationService {
       case AttachDirection.DOWN: {
         if (!!center.DownNeighbour) {
           let temp = center.DownNeighbour;
-          
+
           center.DownNeighbour = toInsert;
           toInsert.UpNeighbour = center;
 

@@ -41,10 +41,9 @@
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentProductGroupCount)">
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Csoport*</label>
+                    <label>Csoport</label>
 
                     <input class="{{TileCssClass}}" formControlName="productGroup" nbInput type="text"
-                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoProductGroup" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
@@ -89,7 +88,6 @@
                     <label>Származási hely</label>
 
                     <input class="{{TileCssClass}}" formControlName="origin" nbInput type="text"
-                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoOrigin" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>
@@ -108,7 +106,6 @@
                     <label>Me.e.*</label>
 
                     <input class="{{TileCssClass}}" formControlName="unitOfMeasure" nbInput type="text"
-                        [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)"
                         [nbAutocomplete]="autoAom" [readonly]="isEditModeOff" autocomplete="off" />
                 </div>

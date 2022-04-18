@@ -233,6 +233,8 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         }
     }
 
+    HandleSearchFieldTab(): void {}
+
     HandleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
         this.kbs.setEditMode(KeyboardModes.NAVIGATION);
         this.cdr!.detectChanges();

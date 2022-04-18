@@ -211,6 +211,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
+    SetBlankRowGenerator(getBlankInstance: () => T): void {
+        this.getBlankInstance = getBlankInstance;
+    }
+
     PushFooterCommandList(): void {
         if (this.sidebarService.sideBarOpened) {
             return;
@@ -404,6 +408,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
 
         // this.kbs.LogMatrix();
+    }
+
+    HandleSearchFieldTab(): void {
+        if (this.sidebarService.sideBarOpened) {
+            this.JumpToFirstFormField();
+        }
     }
 
     private HandleF12(setFormForNew: boolean = false): void {

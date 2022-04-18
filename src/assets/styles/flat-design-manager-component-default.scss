@@ -39,11 +39,18 @@ nb-card {
     display: inline-table;
 }
 
+.card-table-wrapper-closed-form {
+    max-height: calc(100vh - 260px) !important;
+    width: calc(100vw - 100px) !important;
+}
+.card-table-wrapper-opened-form {
+    max-height: calc(100vh - 290px) !important;
+    width: 100% !important;
+}
+
 .card-table-wrapper {
     position: sticky;
     top: 0;
-    
-    max-height: calc(100vh - 260px) !important;
 
     @media (max-height: 1000px) {
         td {

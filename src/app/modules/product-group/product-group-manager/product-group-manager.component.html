@@ -5,7 +5,7 @@
         <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
-            <label class="search-label" for="search">Kód / leírás:</label>
+            <label class="search-label" for="search">Kód / név:</label>
             <input #searchInput nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)"
                 autocomplete="off">
             <button nbSuffix nbButton ghost (click)="clearSearch(searchInput)" id="active-prod-search-clear">

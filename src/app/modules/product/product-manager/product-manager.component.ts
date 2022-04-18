@@ -14,7 +14,7 @@ import { ProductService } from '../services/product.service';
 import { DeleteProductRequest } from '../models/DeleteProductRequest';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { GetProductsParamListModel } from '../models/GetProductsParamListModel';
-import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, BlankComboBoxValue, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
 import { ProductGroup, ProductGroupDescriptionToCode } from '../../product-group/models/ProductGroup';
@@ -28,14 +28,14 @@ import { environment } from 'src/environments/environment';
 import { StatusService } from 'src/app/services/status.service';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { VatRate } from '../../vat-rate/models/VatRate';
+import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 
 @Component({
   selector: 'app-product-manager',
   templateUrl: './product-manager.component.html',
   styleUrls: ['./product-manager.component.scss'],
 })
-export class ProductManagerComponent extends BaseManagerComponent<Product> implements OnInit
-{
+export class ProductManagerComponent extends BaseManagerComponent<Product> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
 
   override allColumns = [
@@ -151,6 +151,32 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
   }
 
+  get blankProductRow(): () => Product {
+    return () => {
+      return {
+        id: 0,
+        productCode: undefined,
+        description: undefined,
+        productGroup: BlankComboBoxValue,
+        origin: BlankComboBoxValue,
+        unitOfMeasure: this.uom[0]?.text + '-' + this.uom[0]?.value,
+        unitOfMeasureX: undefined,
+        unitPrice1: 0,
+        unitPrice2: 0,
+        latestSupplyPrice: 0,
+        isStock: false,
+        minStock: 0,
+        ordUnit: 0,
+        productFee: 0,
+        active: true,
+        vtsz: '',
+        ean: '',
+        vatRateCode: this.vats[0]?.vatRateCode + '-' + this.vats[0]?.vatPercentage,
+        vatPercentage: 0
+      } as Product
+    };
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -194,21 +220,23 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   private ConvertCombosForGet(data: Product): Product {
-    if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
-      data.unitOfMeasure = this.uom.find(x => x.value == data.unitOfMeasure)?.text + '-' + data.unitOfMeasure;
-    }
-    if (data.origin !== undefined && this.origins.length > 0) {
-      data.origin = this.origins.find(x => x.originCode == data.origin)?.originDescription + '-' + data.origin;
-    }
-    if (data.productGroup !== undefined && this.productGroups.length > 0) {
-      data.productGroup = this.productGroups.find(x => x.productGroupCode == data.productGroup)?.productGroupDescription + '-' + data.productGroup;
-    }
-    if (data.vatRateCode !== undefined && this.vats.length > 0) {
-      data.vatRateCode = data.vatRateCode + ' - ' + this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatPercentage;
-    }
+    // console.log('ConvertCombosForGet: ', data);
+
+    // if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
+    //   data.unitOfMeasure = this.uom.find(x => x.value == data.unitOfMeasure)?.text + '-' + data.unitOfMeasure;
+    // }
+    // if (data.origin !== undefined && this.origins.length > 0) {
+    //   data.origin = this.origins.find(x => x.originCode == data.origin)?.originDescription + '-' + data.origin;
+    // }
+    // if (data.productGroup !== undefined && this.productGroups.length > 0) {
+    //   data.productGroup = this.productGroups.find(x => x.productGroupCode == data.productGroup)?.productGroupDescription + '-' + data.productGroup;
+    // }
+    // if (data.vatRateCode !== undefined && this.vats.length > 0) {
+    //   data.vatRateCode = data.vatRateCode + ' - ' + this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatPercentage;
+    // }
 
     if (environment.flatDesignCRUDManagerDebug) {
-        console.log(`[ConvertCombosForGet] result: `, data);
+      console.log(`[ConvertCombosForGet] result: `, data);
     }
 
     return data;
@@ -249,8 +277,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   private ProductToUpdateRequest(p: Product): UpdateProductRequest {
-    let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
-    let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
+    let originCode = p.origin !== BlankComboBoxValue ? !!p.origin?.includes('-') ? p.origin.split('-')[0] : '' : null;
+    let productGroupCode = p.productGroup !== BlankComboBoxValue ? !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '' : null;
     let vatRatecode = !!p.vatRateCode?.includes('-') ? p.vatRateCode.split('-')[0] : '';
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
@@ -384,7 +412,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   override ProcessActionDelete(data?: IUpdateRequest<Product>): void {
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
-    
+
     if (id !== undefined) {
       this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
       this.seInv
@@ -428,7 +456,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       id: new FormControl(undefined, []),
       productCode: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
-      productGroup: new FormControl(undefined, [Validators.required]),
+      productGroup: new FormControl(undefined, []),
       origin: new FormControl(undefined, []),
       unitOfMeasure: new FormControl(undefined, [Validators.required]),
       unitPrice1: new FormControl(undefined, []),
@@ -443,6 +471,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       ean: new FormControl(undefined, []),
       vatRateCode: new FormControl(undefined, [])
     });
+
+    console.log("Manager ProductGroups: ", this.productGroups);
 
     this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
@@ -459,29 +489,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       this.sidebarService,
       this.sidebarFormService,
       this,
-      () => {
-        return {
-          id: 0,
-          productCode: undefined,
-          description: undefined,
-          productGroup: this.productGroups[0]?.productGroupDescription + '-' + this.productGroups[0]?.productGroupCode,
-          origin: this.origins[0]?.originDescription + '-' + this.origins[0]?.originCode,
-          unitOfMeasure: this.uom[0]?.text + '-' + this.uom[0]?.value,
-          unitOfMeasureX: undefined,
-          unitPrice1: 0,
-          unitPrice2: 0,
-          latestSupplyPrice: 0,
-          isStock: false,
-          minStock: 0,
-          ordUnit: 0,
-          productFee: 0,
-          active: true,
-          vtsz: '',
-          ean: '',
-          vatRateCode: this.vats[0]?.vatRateCode + '-' + this.vats[0]?.vatPercentage,
-          vatPercentage: 0
-        } as Product;
-      }
+      this.blankProductRow
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;

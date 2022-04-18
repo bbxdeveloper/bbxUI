@@ -69,7 +69,7 @@
                                 <nb-form-field class="search-row-nb-form-field"
                                     (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerSearch')"
                                     (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
-                                    <input formControlName="customerName" nbInput type="text" class="{{TileCssClass}}"
+                                    <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
@@ -296,10 +296,10 @@
     </nb-card-body>
     <nb-card-footer class="invoice-table-statistics">
         <span class="line-amount">
-            Összes bruttó: {{outGoingInvoiceData.lineGrossAmount}}
+            Összes nettó: {{outGoingInvoiceData.invoiceNetAmount}}
         </span>
         <span class="line-amount">
-            Összes nettó: {{outGoingInvoiceData.invoiceNetAmount}}
+            Összes bruttó: {{outGoingInvoiceData.lineGrossAmount}}
         </span>
     </nb-card-footer>
 </nb-card>
