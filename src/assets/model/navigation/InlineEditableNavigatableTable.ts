@@ -395,9 +395,17 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
         //debugger;
 
+        console.log('[HandleGridEnter]: ', row, this.editedRow, rowPos, col, colPos, inputId, fInputType, row.data.IsUnfinished());
+
         // Switch between nav and edit mode
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
         this.kbS.toggleEdit();
+
+        // if (this.kbs.isEditModeActivated && this.editedRow === undefined) {
+        //     this.editedRow = row;
+        //     this.editedProperty = col;
+        //     this.editedRowPos = rowPos;
+        // }
 
         // Already in Edit mode
         if (!!this.editedRow) {
@@ -487,6 +495,22 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         console.log((this.data[rowPos].data as any)[col]);
 
         this.parentComponent.RecalcNetAndVat();
+    }
+
+    RemoveEditRow(): void {
+        if (!this.data[this.data.length - 1].data.IsUnfinished()) {
+            return;
+        }
+
+        this.ResetEdit();
+
+        this.data.splice(this.data.length - 1, 1);
+        this.dataSource.setData(this.data);
+
+        if ((this.data.length - 1) !== 0) {
+            this.kbS.MoveUp();
+        }
+        this.GenerateAndSetNavMatrices(false);
     }
 
     HandleKey(event: any, rowIndex: number): void {

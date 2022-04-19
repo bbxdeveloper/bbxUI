@@ -2,7 +2,7 @@ import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, OnDes
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
@@ -77,13 +77,13 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override refreshFilter(event: any): void {
-    this.searchString = event.target.value;
+    console.log("Search: ", event.target.value);
 
-    console.log("Search: ", this.searchString);
-
-    if (this.searchString.length === 0) {
+    if (this.searchString.length !== 0 && event.target.value.length === 0) {
+      this.searchString = event.target.value;
       this.Refresh(this.getInputParams);
     } else {
+      this.searchString = event.target.value;
       this.Search(this.searchString);
     }
   }

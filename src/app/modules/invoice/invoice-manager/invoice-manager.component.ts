@@ -115,12 +115,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "15%", textAlign: "right"
+      colWidth: "15%", textAlign: "right", fInputType: 'formatted-number-2'
     },
     {
       label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "15%", textAlign: "right"
+      colWidth: "15%", textAlign: "right", fInputType: 'formatted-number-2'
     },
   ]
   customMaskPatterns = {
@@ -220,9 +220,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.buyerData = {} as Customer;
 
     this.outGoingInvoiceData = {
-      lineGrossAmount: 0,
-      invoiceVatAmount: 0,
-      invoiceNetAmount: 0,
+      lineGrossAmount: 0.0,
+      invoiceVatAmount: 0.0,
+      invoiceNetAmount: 0.0,
       invoiceLines: [],
       warehouseCode: '0',
       customerID: -1,
@@ -381,6 +381,61 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.outGoingInvoiceData.invoiceLines
         .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount + ''))
         .reduce((sum, current) => sum + current, 0);
+  }
+
+  HandleGridCodeFieldEnter(row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
+    if (this.isEditModeOff) {
+      this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
+    } else {
+      this.TableCodeFieldChanged(row.data, rowPos);
+      this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
+    }
+  }
+
+  private TableCodeFieldChanged(changedData: any, index: number): void {
+    if (!!changedData && !!changedData.productCode) {
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: product => {
+          if (!!product && !!product.productCode && product.productCode.includes(changedData.productCode)) {
+            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+
+            if (index !== undefined) {
+              let tmp = this.dbData[index].data;
+  
+              tmp.productDescription = product.description ?? '';
+  
+              product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
+              tmp.vatRate = (product.vatPercentage ?? 1) + '';
+              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+              tmp.vatRateCode = product.vatRateCode;
+  
+              tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
+              tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
+              tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
+  
+              this.dbData[index].data = tmp;
+  
+              this.dbDataDataSrc.setData(this.dbData);
+  
+              // this.dbDataTable.MoveNextInTable();
+              // this.kbS.ClickCurrentElement();
+            }
+  
+            this.RecalcNetAndVat();
+          } else {
+            this.toastrService.show(
+              Constants.MSG_NO_PRODUCT_FOUND,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
+          }
+        },
+        error: err => {
+          this.RecalcNetAndVat();
+        }
+      });
+    }
   }
 
   TableRowDataChanged(changedData?: any, index?: number): void {
@@ -561,10 +616,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               Constants.TOASTR_SUCCESS
             );
             this.isLoading = false;
+            this.dbDataTable.RemoveEditRow();
           },
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
+            this.dbDataTable.RemoveEditRow();
           },
           complete: () => {
             this.isLoading = false;
@@ -646,7 +703,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       console.log("Selected item: ", res);
       if (!!res) {
         this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
-        this.kbS.setEditMode(KeyboardModes.EDIT);
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 200);
       }
     });
   }
