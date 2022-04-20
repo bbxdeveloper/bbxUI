@@ -1,6 +1,7 @@
 <nb-layout>
   <nb-layout-header fixed>
     <app-header [title]="headerTitle"></app-header>
+    <span *ngIf="devVersion" class="verion-tag">Dev build, version: {{version}}</span>
   </nb-layout-header>
   <!-- <nb-sidebar right class="bbx-fd-sidebar"><app-side-bar-form class="bbx-fd-app-sidebar-form"></app-side-bar-form></nb-sidebar> -->
   <nb-layout-column>
