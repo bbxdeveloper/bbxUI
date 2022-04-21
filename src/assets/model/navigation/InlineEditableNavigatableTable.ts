@@ -412,7 +412,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             const tmp = this.editedRow.data;
 
             // Creator row edited
-            if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey) {
+            if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !this.editedRow.data.IsUnfinished()) {
                 this.productCreatorRow = this.GenerateCreatorRow;
                 this.data.push(this.productCreatorRow);
 

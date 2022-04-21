@@ -95,32 +95,32 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "20%", textAlign: "left",
+      colWidth: "30%", textAlign: "left",
     },
     {
-      label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
+      label: 'Me.e.', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "5%", textAlign: "left", fInputType: 'formatted-number-integer'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Mértékegység', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "15%", textAlign: "right"
+      colWidth: "5%", textAlign: "right"
     },
     {
       label: 'Ár', objectKey: 'price', colKey: 'price',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "15%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
     },
     {
       label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "15%", textAlign: "right", fInputType: 'formatted-number-2'
+      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number-2'
     },
     {
       label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "15%", textAlign: "right", fInputType: 'formatted-number-2'
+      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number-2'
     },
   ]
   customMaskPatterns = {
@@ -388,13 +388,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (this.isEditModeOff) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
     } else {
-      this.TableCodeFieldChanged(row.data, rowPos);
-      this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
+      this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
     }
   }
 
-  private TableCodeFieldChanged(changedData: any, index: number): void {
-    if (!!changedData && !!changedData.productCode) {
+  private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
           if (!!product && !!product.productCode && product.productCode.includes(changedData.productCode)) {
@@ -420,6 +419,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   
               // this.dbDataTable.MoveNextInTable();
               // this.kbS.ClickCurrentElement();
+
+              this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
             }
   
             this.RecalcNetAndVat();
@@ -782,9 +783,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.customerInputFilterString = this.cachedCustomerName;
-          this.buyerFormNav.FillForm(res.data[0], []);
+          this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
         } else {
-          this.buyerFormNav.FillForm({}, []);
+          this.buyerFormNav.FillForm({}, ['customerSearch']);
           this.customerInputFilterString = '';
         }
       },

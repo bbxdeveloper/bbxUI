@@ -26,6 +26,7 @@
                         *nbTreeGridCellDef="let row; let rowPos = index" (keydown.enter)="selectRow($event, row)"
                         (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
                         (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                        (dblclick)="selectRow($event, row)"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
                         <div>
                             {{ row.data[it.objectKey] }}

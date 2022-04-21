@@ -66,8 +66,9 @@
                     <table class="customer-search-row">
                         <tr>
                             <td>
+                                <!-- (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerSearch')" -->
                                 <nb-form-field class="search-row-nb-form-field"
-                                    (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerSearch')"
+                                    (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)"
                                     (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
