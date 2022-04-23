@@ -26,11 +26,11 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
   get getInputParams(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '', PageSize: '10', PageNumber: '1' };
+    return { SearchString: this.searchString ?? '', PageSize: '10', PageNumber: '1', OrderBy: 'ProductCode' };
   }
 
   get getInputParamsForAll(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '', PageSize: '999999' };
+    return { SearchString: this.searchString ?? '', PageSize: '999999', OrderBy: 'ProductCode' };
   }
 
   isLoaded: boolean = false;

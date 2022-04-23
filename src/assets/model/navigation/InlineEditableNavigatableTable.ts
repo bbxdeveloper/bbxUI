@@ -540,6 +540,12 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             moveRes = this.kbS.MoveDown(true, false, false);
             this.kbS.p.x = 0;
             this.kbS.SelectCurrentElement();
+            // code-fields
+            // TODO: refactor
+            setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.kbs.ClickCurrentElement();
+            }, 50);
             return this.kbS.p.x;
         }
         return this.kbS.p.x;

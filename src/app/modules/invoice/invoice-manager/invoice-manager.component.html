@@ -151,6 +151,10 @@
                     <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true"
                         class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m01" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+
+                    <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont"
+                        controlName="invoiceDeliveryDate" [validationParameterDate]="invoiceIssueDateValue">
+                    </app-form-control-error>
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
@@ -158,6 +162,10 @@
                     <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true"
                         class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+
+                    <app-form-control-error [form]="outInvFormNav" label="számla keltezése"
+                        controlName="invoiceIssueDate" [validationParameterDate]="invoiceIssueDateValue">
+                    </app-form-control-error>
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
@@ -165,6 +173,11 @@
                     <input nbInput type="datetime" formControlName='paymentDate' required="true"
                         class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+
+                    <app-form-control-error [form]="outInvFormNav" label="fizetési határidő" controlName="paymentDate"
+                        [validationParameterDate]="invoiceIssueDateValue"
+                        [validationParameterDateSecondary]="invoiceDeliveryDateValue">
+                    </app-form-control-error>
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
@@ -181,19 +194,6 @@
                             class="{{TileCssClass}}" placeholder="Egyéb adatok" id="m11">
                     </div>
                 </nb-form-field>
-
-                <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont"
-                    controlName="invoiceDeliveryDate" [validationParameterDate]="invoiceIssueDateValue">
-                </app-form-control-error>
-
-                <app-form-control-error [form]="outInvFormNav" label="számla keltezése" controlName="invoiceIssueDate"
-                    [validationParameterDate]="invoiceIssueDateValue">
-                </app-form-control-error>
-
-                <app-form-control-error [form]="outInvFormNav" label="fizetési határidő" controlName="paymentDate"
-                    [validationParameterDate]="invoiceIssueDateValue"
-                    [validationParameterDateSecondary]="invoiceDeliveryDateValue">
-                </app-form-control-error>
             </form>
         </nb-card-body>
     </nb-card>
@@ -236,7 +236,8 @@
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
                                         [patterns]="customMaskPatterns" [dropSpecialCharacters]="false"
                                         [showMaskTyped]="true" oninput="this.value = this.value.toUpperCase()"
-                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+                                        oninput="$event.target.setSelectionRange(0, 0)" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
@@ -258,13 +259,17 @@
                                 </ng-container>
 
                                 <ng-container *ngSwitchCase="'formatted-number-2'">
-                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
-                                        nbInput type="text" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
-                                        [inputMask]="numberInputMask" placeholder="0.00000" oninput="$event.target.setSelectionRange(0, 1)"
-                                        class="input-table-cell" [style.text-align]="it.textAlign" />
-                                
+                                    <input
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        [inputMask]="numberInputMask" placeholder="0.00000"
+                                        oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] | number:'1.1-5' }}
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] |
+                                        number:'1.1-5' }}
                                     </div>
                                 </ng-container>
 

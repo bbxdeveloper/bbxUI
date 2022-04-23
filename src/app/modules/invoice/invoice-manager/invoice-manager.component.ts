@@ -98,12 +98,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "30%", textAlign: "left",
     },
     {
-      label: 'Me.e.', objectKey: 'quantity', colKey: 'quantity',
+      label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "5%", textAlign: "left", fInputType: 'formatted-number-integer'
+      colWidth: "5%", textAlign: "left", fInputType: 'formatted-number'
     },
     { // unitofmeasureX show, post unitofmeasureCode
-      label: 'Mértékegység', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
+      label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "5%", textAlign: "right"
     },
@@ -387,6 +387,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
     if (this.isEditModeOff) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
+      setTimeout(() => {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.kbS.ClickCurrentElement();
+      }, 50);
     } else {
       this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
     }
@@ -396,34 +400,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
-          if (!!product && !!product.productCode && product.productCode.includes(changedData.productCode)) {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-            if (index !== undefined) {
-              let tmp = this.dbData[index].data;
-  
-              tmp.productDescription = product.description ?? '';
-  
-              product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.vatRate = (product.vatPercentage ?? 1) + '';
-              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-              tmp.vatRateCode = product.vatRateCode;
-  
-              tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
-              tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
-              tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
-  
-              this.dbData[index].data = tmp;
-  
-              this.dbDataDataSrc.setData(this.dbData);
-  
-              // this.dbDataTable.MoveNextInTable();
-              // this.kbS.ClickCurrentElement();
-
-              this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
-            }
-  
-            this.RecalcNetAndVat();
+          if (!!product) {
+            this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.dbDataTable.MoveNextInTable();
+            setTimeout(() => {
+              this.kbS.setEditMode(KeyboardModes.EDIT);
+              this.kbS.ClickCurrentElement();
+            }, 200);
           } else {
             this.toastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
@@ -431,6 +417,39 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               Constants.TOASTR_ERROR
             );
           }
+
+          // if (!!product && !!product.productCode && product.productCode.includes(changedData.productCode)) {
+          //   console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+
+          //   if (index !== undefined) {
+          //     let tmp = this.dbData[index].data;
+  
+          //     tmp.productDescription = product.description ?? '';
+  
+          //     product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
+          //     tmp.vatRate = (product.vatPercentage ?? 1) + '';
+          //     product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+          //     tmp.vatRateCode = product.vatRateCode;
+  
+          //     tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
+          //     tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
+          //     tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
+  
+          //     this.dbData[index].data = tmp;
+  
+          //     this.dbDataDataSrc.setData(this.dbData);
+
+          //     this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
+          //   }
+  
+          //   this.RecalcNetAndVat();
+          // } else {
+          //   this.toastrService.show(
+          //     Constants.MSG_NO_PRODUCT_FOUND,
+          //     Constants.TITLE_ERROR,
+          //     Constants.TOASTR_ERROR
+          //   );
+          // }
         },
         error: err => {
           this.RecalcNetAndVat();
@@ -566,6 +585,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.kbS.SetCurrentNavigatable(this.buyerFormNav);
     this.kbS.SelectFirstTile();
+    this.kbS.setEditMode(KeyboardModes.EDIT);
 
     this.cdref.detectChanges();
   }
@@ -754,6 +774,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.productCode = p.productCode!;
 
+    res.productDescription = p.description ?? '';
+
     res.quantity = 0;
     
     res.price = p.unitPrice1!;
@@ -782,16 +804,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          this.customerInputFilterString = this.cachedCustomerName;
+          // this.customerInputFilterString = this.cachedCustomerName;
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
         } else {
           this.buyerFormNav.FillForm({}, ['customerSearch']);
-          this.customerInputFilterString = '';
+          // this.customerInputFilterString = '';
         }
       },
       error: (err) => {
         this.cs.HandleError(err); this.isLoading = false;
-        this.customerInputFilterString = '';
+        // this.customerInputFilterString = '';
       },
       complete: () => {
         this.isLoading = false;

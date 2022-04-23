@@ -24,6 +24,7 @@ export class InvoiceLine implements IEditable {
     "lineGrossAmount": number = 0.0; // netamount + vatamount
 
     IsUnfinished(): boolean {
-        return this.productCode?.length === 0 || this.productDescription?.length === 0 || this.quantity === undefined || this.price === undefined;
+        return this.productCode?.length === 0 || this.productDescription?.length === 0 ||
+            this.quantity === undefined || this.price === undefined;
     }
 }

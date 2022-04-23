@@ -26,11 +26,11 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
   get getInputParams(): GetCustomersParamListModel {
-    return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '10', PageNumber: '1' };
+    return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '10', PageNumber: '1', OrderBy: 'customerName' };
   }
 
   get getInputParamsForAll(): GetCustomersParamListModel {
-    return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999' };
+    return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999', OrderBy: 'customerName' };
   }
 
   isLoaded: boolean = false;

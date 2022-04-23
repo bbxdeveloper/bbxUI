@@ -32,11 +32,11 @@ export class FormControlErrorComponent {
       case ValidationMessage.ErrorMax:
         return this.label ? `A ${this.label} mező értéke nagyobb a megengedett maximumnál (${this.min})!` : ValidationMessage.ErrorMax;
       case ValidationMessage.ErrorMinDate:
-        return this.label ? `A ${this.label} mezőben megadott dátum kisebb a megengedett minimumnál (${this.validationParameterDate})!` : ValidationMessage.ErrorMax;
+        return this.label ? `A ${this.label} mezőben megadott dátum kisebb a megengedett minimumnál!` : ValidationMessage.ErrorMax;
       case ValidationMessage.ErrorMaxDate:
-        return this.label ? `A ${this.label} mezőben megadott dátum nagyobb a megengedett maximumnál (${this.validationParameterDate})!` : ValidationMessage.ErrorMax;
+        return this.label ? `A ${this.label} mezőben megadott dátum nagyobb a megengedett maximumnál!` : ValidationMessage.ErrorMax;
       case ValidationMessage.ErrorMinMaxDate:
-        return this.label ? `A ${this.label} mezőben megadott dátum a megengedett intervallumon kívülre esik (${this.validationParameterDate}, ${this.validationParameterDateSecondary})!` : ValidationMessage.ErrorMax;
+        return this.label ? `A ${this.label} mezőben megadott dátum a megengedett intervallumon kívülre esik!` : ValidationMessage.ErrorMax;
       case ValidationMessage.ErrorTodaysDate:
         return this.label ? `A ${this.label} mezőben csak mai, vagy annál korábbi dátum adható meg!` : ValidationMessage.ErrorMax;
     }

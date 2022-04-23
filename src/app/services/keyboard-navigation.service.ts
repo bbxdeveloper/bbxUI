@@ -261,7 +261,10 @@ export class KeyboardNavigationService {
     const _input = document.getElementById(this.Here) as HTMLInputElement;
     if (!!_input && _input.type === "text") {
       window.setTimeout(function () {
-        _input.setSelectionRange(0, 0);
+        const tempVal = _input.value;
+        _input.value = 'cursor';
+        _input.setSelectionRange(0, 0); 
+        _input.value = tempVal;
         // const txtVal = ((row.data as any)[col] as string);
         // console.log('txtVal: ', txtVal);
         // if (!!txtVal) {

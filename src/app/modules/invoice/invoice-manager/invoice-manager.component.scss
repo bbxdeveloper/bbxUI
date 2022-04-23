@@ -391,7 +391,7 @@ nb-card-header {
     }
 
     .form-field-full-width-inner-div {
-        display: flex !important;
+        // display: flex !important;
         flex-direction: row;
         align-content: center;
         justify-content: center;
@@ -402,8 +402,8 @@ nb-card-header {
         column-gap: 25px;
 
         input {
-            max-width: 100% !important;
-            min-width: auto !important;
+            // max-width: 100% !important;
+            min-width: calc(100vw - 25px) !important;
         }
 
         label {
