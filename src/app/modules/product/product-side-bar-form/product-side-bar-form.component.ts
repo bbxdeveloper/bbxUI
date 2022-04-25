@@ -29,21 +29,29 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   productGroups: string[] = [];
   currentProductGroupCount: number = 0;
   filteredProductGroups$: Observable<string[]> = of([]);
+  currentFilteredProductGroups: string[] = [];
+  currentTypedProductGroup: string = '';
 
   // UnitOfMeasure
   uom: string[] = [];
   currentUomCount: number = 0;
   filteredUom$: Observable<string[]> = of([]);
+  currentFilteredUOM: string[] = [];
+  currentTypedUOM: string = '';
 
   // Origin
   origins: string[] = [];
   currentOriginCount: number = 0;
   filteredOrigins$: Observable<string[]> = of([]);
+  currentFilteredOrigin: string[] = [];
+  currentTypedOrigin: string = '';
 
   // Origin
   vatRates: string[] = [];
   currentVatRateCount: number = 0;
   filteredVatRates$: Observable<string[]> = of([]);
+  currentFilteredVatRate: string[] = [];
+  currentTypedVatRate: string = '';
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
@@ -69,6 +77,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
         this.productGroups =
           this.productGroups.concat(data?.data?.map(x => x.productGroupCode + '-' + x.productGroupDescription) ?? []);
         this.filteredProductGroups$ = of(this.productGroups);
+        this.currentFilteredProductGroups = this.productGroups;
         this.currentProductGroupCount = this.productGroups.length;
       }
     });
@@ -79,6 +88,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
         console.log("UnitOfMeasures: ", data);
         this.uom = data?.map(x => x.text) ?? [];
         this.filteredUom$ = of(this.uom);
+        this.currentFilteredUOM = this.uom;
         this.currentUomCount = this.uom.length;
       }
     });
@@ -90,6 +100,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
         this.origins = [this.blankOptionText];
         this.origins = this.origins.concat(data?.data?.map(x => x.originCode + '-' + x.originDescription) ?? []);
         this.filteredOrigins$ = of(this.origins);
+        this.currentFilteredOrigin = this.origins;
         this.currentOriginCount = this.origins.length;
       }
     });
@@ -100,6 +111,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
         console.log("Vats: ", data);
         this.vatRates = data?.data?.map(x => x.vatRateCode + ' - ' + x.vatPercentage) ?? [];
         this.filteredVatRates$ = of(this.vatRates);
+        this.currentFilteredVatRate = this.vatRates;
         this.currentVatRateCount = this.vatRates.length;
       }
     });
@@ -116,9 +128,15 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
     this.cdref.detectChanges();
 
+    this.currentTypedProductGroup = this.currentForm?.form.controls['productGroup'].value ?? '';
+    this.currentTypedOrigin = this.currentForm?.form.controls['origin'].value ?? '';
+    this.currentTypedUOM = this.currentForm?.form.controls['unitOfMeasure'].value ?? '';
+    this.currentTypedVatRate = this.currentForm?.form.controls['vatRateCode'].value ?? '';
+
     this.currentForm?.form.controls['productGroup'].valueChanges.subscribe({
       next: filterString => {
         const tmp = this.filterProductGroup(filterString);
+        this.currentTypedProductGroup = filterString ?? '';
         this.currentProductGroupCount = tmp.length;
         this.filteredProductGroups$ = of(tmp);
       }
@@ -126,6 +144,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.currentForm?.form.controls['origin'].valueChanges.subscribe({
       next: filterString => {
         const tmp = this.filterOrigin(filterString);
+        this.currentTypedProductGroup = filterString ?? '';
         this.currentOriginCount = tmp.length;
         this.filteredOrigins$ = of(tmp);
       }
@@ -133,6 +152,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.currentForm?.form.controls['unitOfMeasure'].valueChanges.subscribe({
       next: filterString => {
         const tmp = this.filterUom(filterString);
+        this.currentTypedUOM = filterString ?? '';
         this.currentUomCount = tmp.length;
         this.filteredUom$ = of(tmp);
       }
@@ -140,6 +160,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.currentForm?.form.controls['vatRateCode'].valueChanges.subscribe({
       next: filterString => {
         const tmp = this.filterVatRate(filterString);
+        this.currentTypedVatRate = filterString ?? '';
         this.currentVatRateCount = tmp.length;
         this.filteredVatRates$ = of(tmp);
       }

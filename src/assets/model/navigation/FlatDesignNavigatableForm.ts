@@ -13,6 +13,7 @@ import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
 import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableTable } from "./FlatDesignNavigatableTable";
+import { BlankComboBoxValue } from "./Nav";
 import { INavigatable, AttachDirection, TileCssClass, TileCssColClass } from "./Navigatable";
 
 export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
@@ -348,19 +349,6 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         }
     }
 
-    HandleAutoCompleteSelect(event: any, key: string): void {
-        // If the table is still the current navigatable and the form is filled
-        // this event could be triggered but MUST NOT be handled here because it breaks the flow
-        // of navigation.
-        if (!this.kbS.IsCurrentNavigatable(this)) {
-            return;
-        }
-        console.log(`[HandleAutoCompleteSelect] ${event}`);
-        if (!this.kbS.isEditModeActivated) {
-            this.JumpToNextInput(event);
-        }
-    }
-
     HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true): void {
         if (toggleEditMode) {
             this.kbS.toggleEdit();
@@ -383,8 +371,32 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
         }
     }
 
-    HandleFormDropdownEnter(event: Event, itemCount: number): void {
-        console.log("itemCount: " + itemCount);
+    HandleAutoCompleteSelect(event: any, key: string): void {
+        console.log('[HandleAutoCompleteSelect]');
+        // If the table is still the current navigatable and the form is filled
+        // this event could be triggered but MUST NOT be handled here because it breaks the flow
+        // of navigation.
+        if (!this.kbS.IsCurrentNavigatable(this)) {
+            return;
+        }
+        console.log(`[HandleAutoCompleteSelect] ${event}`);
+        if (!this.kbS.isEditModeActivated) {
+            this.JumpToNextInput(event);
+        }
+    }
+
+    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string): void {
+        console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        const ad = (event.target as any).getAttribute("aria-activedescendant");
+        if (this.kbS.isEditModeActivated &&
+            ad === null &&
+            possibleItems !== undefined && typedValue !== undefined && typedValue.length > 0 &&
+            (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                event.stopPropagation();
+                return;
+        }
         if (itemCount > 1) {
             this.kbS.toggleEdit();
         } else {

@@ -39,7 +39,7 @@
                 <app-form-control-error [form]="currentForm" label="megnevezés" controlName="description"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentProductGroupCount)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentProductGroupCount, currentFilteredProductGroups, currentTypedProductGroup)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Csoport</label>
 
@@ -83,7 +83,7 @@
             <app-form-control-error [form]="currentForm" label="környezetvédelmi termékdíj" controlName="productFee"></app-form-control-error>
             <app-form-control-error [form]="currentForm" label="utolsó beszár" controlName="latestSupplyPrice"></app-form-control-error>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentOriginCount)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentOriginCount, currentFilteredOrigin, currentTypedOrigin)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Származási hely</label>
 
@@ -101,7 +101,7 @@
                 </nb-option>
             </nb-autocomplete>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentUomCount)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentUomCount, currentFilteredUOM, currentTypedUOM)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Me.e.*</label>
 
@@ -145,7 +145,7 @@
             <app-form-control-error [form]="currentForm" label="elad ár 1" controlName="unitPrice1"></app-form-control-error>
             <app-form-control-error [form]="currentForm" label="elad ár 2" controlName="unitPrice2"></app-form-control-error>
             
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentVatRateCount)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentVatRateCount, currentFilteredVatRate, currentTypedVatRate)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Áfakód</label>
             
