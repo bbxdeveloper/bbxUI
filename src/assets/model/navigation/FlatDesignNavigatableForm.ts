@@ -387,17 +387,19 @@ export class FlatDesignNavigatableForm<T = any> implements INavigatable, IUpdate
 
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string): void {
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        
         const ad = (event.target as any).getAttribute("aria-activedescendant");
         if (this.kbS.isEditModeActivated &&
             ad === null &&
-            possibleItems !== undefined && typedValue !== undefined && typedValue.length > 0 &&
+            possibleItems !== undefined && typedValue !== undefined &&
             (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 event.stopPropagation();
                 return;
         }
-        if (itemCount > 1) {
+        
+        if (ad !== null && itemCount > 1) {
             this.kbS.toggleEdit();
         } else {
             if (!this.kbS.isEditModeActivated) {

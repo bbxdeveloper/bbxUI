@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
@@ -16,7 +16,7 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
   @Input() formFieldName: string = '';
   @Input() label: string = '';
   @Input() getData: () => string[] = () => [];
-  @Input() data$: Observable<string[]> = of([]);
+  @Input() data$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -43,7 +43,20 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
   }
+
   ngAfterViewInit(): void {
+    this.data$.subscribe({
+      next: data => {
+        console.log('[BbxComboBox data$.subscribe next]: ', data);
+        this.comboBoxData = [this.blankOptionText].concat(data ?? []);
+        this.filteredData$ = of(this.comboBoxData);
+        this.currentFilteredData = this.comboBoxData;
+        this.currentDataCount = this.comboBoxData.length;
+      }
+    });
+
+    console.log('[BbxComboBox afterviewinit]: ', this.currentForm);
+
     this.currentForm?.form.controls[this.formFieldName].valueChanges.subscribe({
       next: filterString => {
         const tmp = this.filterData(filterString);
@@ -52,6 +65,8 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
         this.filteredData$ = of(tmp);
       }
     });
+
+    this.currentTypedData = this.currentForm?.form.controls[this.formFieldName].value ?? '';
   }
 
   private filterData(value: string): string[] {

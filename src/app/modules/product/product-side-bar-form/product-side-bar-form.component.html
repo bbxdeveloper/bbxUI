@@ -39,23 +39,8 @@
                 <app-form-control-error [form]="currentForm" label="megnevezés" controlName="description"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentProductGroupCount, currentFilteredProductGroups, currentTypedProductGroup)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Csoport</label>
-
-                    <input class="{{TileCssClass}}" formControlName="productGroup" nbInput type="text"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [nbAutocomplete]="autoProductGroup" [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="csoport" controlName="productGroup"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoProductGroup [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'productGroup')">
-                <nb-option *ngFor="let option of filteredProductGroups$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="productGroup" label="Csoport"
+                [data$]="productGroupComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
@@ -83,41 +68,11 @@
             <app-form-control-error [form]="currentForm" label="környezetvédelmi termékdíj" controlName="productFee"></app-form-control-error>
             <app-form-control-error [form]="currentForm" label="utolsó beszár" controlName="latestSupplyPrice"></app-form-control-error>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentOriginCount, currentFilteredOrigin, currentTypedOrigin)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Származási hely</label>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="origin" label="Származási hely"
+                [data$]="originsComboData$"></app-bbx-combo-box>
 
-                    <input class="{{TileCssClass}}" formControlName="origin" nbInput type="text"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [nbAutocomplete]="autoOrigin" [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="származási hely" controlName="origin"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoOrigin [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'origin')">
-                <nb-option *ngFor="let option of filteredOrigins$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentUomCount, currentFilteredUOM, currentTypedUOM)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Me.e.*</label>
-
-                    <input class="{{TileCssClass}}" formControlName="unitOfMeasure" nbInput type="text"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [nbAutocomplete]="autoAom" [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="me.e." controlName="unitOfMeasure"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoAom [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'unitOfMeasure')">
-                <nb-option *ngFor="let option of filteredUom$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitOfMeasure" label="Me.e.*"
+                [data$]="uomComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
@@ -145,24 +100,8 @@
             <app-form-control-error [form]="currentForm" label="elad ár 1" controlName="unitPrice1"></app-form-control-error>
             <app-form-control-error [form]="currentForm" label="elad ár 2" controlName="unitPrice2"></app-form-control-error>
             
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentVatRateCount, currentFilteredVatRate, currentTypedVatRate)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Áfakód</label>
-            
-                    <input class="{{TileCssClass}}" formControlName="vatRateCode" nbInput type="text"
-                        [readonly]="isEditModeOff"
-                        (click)="currentForm.HandleFormFieldClick($event)" [nbAutocomplete]="autoVatRateCode"
-                        [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="áfakód" controlName="vatRateCode"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoVatRateCode [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'vatRateCode')">
-                <nb-option *ngFor="let option of filteredVatRates$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="vatRateCode" label="Áfakód"
+                [data$]="vatRateComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-50 checkbox-wrapper"

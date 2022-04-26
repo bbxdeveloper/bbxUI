@@ -6,4 +6,4 @@ export { InlineEditableNavigatableTable as NavigatableTable } from './InlineEdit
 export { SubMappingNavigatable } from './SubMappingNavigatable';
 export { NavigatableInput } from './NavigatableInput'
 
-export const BlankComboBoxValue: string = 'Válasszon';
+export const BlankComboBoxValue: string = ''; // Válasszon';
