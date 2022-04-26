@@ -27,8 +27,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
   // Origin
   countryCodes: string[] = [];
-  currentCountryCodeCount: number = 0;
-  filteredCountryCodes$: Observable<string[]> = of([]);
+  countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
@@ -60,8 +59,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     this.cService.GetAllCountryCodes().subscribe({
       next: data => {
         this.countryCodes = data?.map(x => x.text) ?? [];
-        this.filteredCountryCodes$ = of(this.countryCodes);
-        this.currentCountryCodeCount = this.countryCodes.length;
+        this.countryCodeComboData$.next(this.countryCodes);
       }
     });
   }
@@ -89,14 +87,6 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
           }
           const nextMask = isIbanStarted ? ibanPattern : defaultPattern;
           this.bankAccountMask.next(nextMask);
-        }
-      });
-
-      this.currentForm?.form.controls['countryCode'].valueChanges.subscribe({
-        next: filterString => {
-          const tmp = this.filterCountryCode(filterString);
-          this.currentCountryCodeCount = tmp.length;
-          this.filteredCountryCodes$ = of(tmp);
         }
       });
     }
@@ -150,13 +140,5 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
       this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
     //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
     }
-  }
-
-  private filterCountryCode(value: string): string[] {
-    if (value === undefined) {
-      return this.countryCodes;
-    }
-    const filterValue = value.toLowerCase();
-    return this.countryCodes.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 }
