@@ -12,6 +12,7 @@ import { ProductSelectTableDialogComponent } from './product-select-table-dialog
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 import { SaveDialogComponent } from './save-dialog/save-dialog.component';
 import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
+import { TaxNumberSearchCustomerEditDialogComponent } from './tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 
 
 
@@ -21,7 +22,8 @@ import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
     ProductSelectTableDialogComponent,
     CustomerSelectTableDialogComponent,
     SaveDialogComponent,
-    InvoiceNavComponent
+    InvoiceNavComponent,
+    TaxNumberSearchCustomerEditDialogComponent
   ],
   imports: [
     CommonModule,

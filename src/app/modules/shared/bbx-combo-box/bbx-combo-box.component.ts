@@ -5,6 +5,7 @@ import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
+import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 
 @Component({
   selector: 'app-bbx-combo-box',
@@ -12,7 +13,7 @@ import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/Ke
   styleUrls: ['./bbx-combo-box.component.scss']
 })
 export class BbxComboBoxComponent implements OnInit, AfterViewInit {
-  @Input() currentForm?: FlatDesignNavigatableForm;
+  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';
   @Input() getData: () => string[] = () => [];

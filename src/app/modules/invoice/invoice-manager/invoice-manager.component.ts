@@ -31,6 +31,8 @@ import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { SumData } from '../models/SumData';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
+import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -57,6 +59,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   paymentMethodOptions$: Observable<string[]> = of([]);
 
   customerInputFilterString: string = '';
+
+  searchByTaxtNumber: boolean = false;
 
   numberInputMask = createMask({
     alias: 'numeric',
@@ -794,6 +798,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return res;
   }
 
+  IsNumber(val: string): boolean {
+    let val2 = val.replace(' ', '');
+    return !isNaN(parseFloat(val2));
+  }
+
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
@@ -804,16 +813,59 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          // this.customerInputFilterString = this.cachedCustomerName;
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
+          this.searchByTaxtNumber = false;
         } else {
+          if (this.customerInputFilterString.length === 8 &&
+          this.IsNumber(this.customerInputFilterString)) {
+            this.searchByTaxtNumber = true;
+          } else {
+            this.searchByTaxtNumber = false;
+          }
           this.buyerFormNav.FillForm({}, ['customerSearch']);
-          // this.customerInputFilterString = '';
         }
       },
       error: (err) => {
         this.cs.HandleError(err); this.isLoading = false;
-        // this.customerInputFilterString = '';
+        this.searchByTaxtNumber = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  ChoseDataForFormByTaxtNumber(): void {
+    console.log("Selecting Customer from avaiable data by taxtnumber.");
+
+    this.isLoading = true;
+
+    this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+      next: res => {
+        if (!!res) {
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+            context: {
+              data: res
+            }
+          });
+          dialogRef.onClose.subscribe((res: Customer) => {
+            console.log("Selected item: ", res);
+            if (!!res) {
+              this.buyerData = res;
+              this.buyerFormNav.FillForm(res);
+
+              this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+              this.kbS.SelectFirstTile();
+              this.kbS.setEditMode(KeyboardModes.EDIT);
+            }
+          });
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err); this.isLoading = false;
+        this.searchByTaxtNumber = false;
       },
       complete: () => {
         this.isLoading = false;

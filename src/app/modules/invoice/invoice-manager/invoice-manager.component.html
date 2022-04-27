@@ -75,6 +75,10 @@
                                         placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
                             </td>
+                            <!-- <td *ngIf="searchByTaxtNumber">  -->
+                            <td>
+                                <button nbButton class="{{TileCssClass}}" (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
+                            </td>
                             <td>
                                 <div class="card-header-txt-center card-header-top-margin">
                                     Vevő

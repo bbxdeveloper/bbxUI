@@ -344,9 +344,9 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       this.cdref, [], this.filterFormId,
       AttachDirection.DOWN,
       this.colDefs,
-      this.sidebarService, this.sidebarFormService,
-      this.dbDataTable,
-      this.fS
+      this.sidebarService,
+      this.fS,
+      this.dbDataTable
     );
 
     this.dbDataTable = new FlatDesignNoFormNavigatableTable(
