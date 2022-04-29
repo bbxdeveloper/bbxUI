@@ -77,10 +77,10 @@
                             </td>
                             <!-- <td *ngIf="searchByTaxtNumber">  -->
                             <td>
-                                <button nbButton class="{{TileCssClass}}" (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
+                                <button nbButton [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}" (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
                             <td>
-                                <div class="card-header-txt-center card-header-top-margin">
+                                <div class="card-header-row-txt card-header-top-margin">
                                     Vevő
                                 </div>
                             </td>

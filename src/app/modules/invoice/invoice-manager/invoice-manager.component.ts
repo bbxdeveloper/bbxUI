@@ -816,7 +816,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
           this.searchByTaxtNumber = false;
         } else {
-          if (this.customerInputFilterString.length === 8 &&
+          if (this.customerInputFilterString.length >= 8 &&
           this.IsNumber(this.customerInputFilterString)) {
             this.searchByTaxtNumber = true;
           } else {
@@ -842,25 +842,33 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
       next: res => {
-        if (!!res) {
+        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: res
+              data: res.data
             }
           });
-          dialogRef.onClose.subscribe((res: Customer) => {
-            console.log("Selected item: ", res);
-            if (!!res) {
-              this.buyerData = res;
-              this.buyerFormNav.FillForm(res);
+          dialogRef.onClose.subscribe({
+            next: (res: Customer) => {
+              console.log("Selected item: ", res);
+              if (!!res) {
+                this.buyerData = res;
+                this.buyerFormNav.FillForm(res);
 
-              this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-              this.kbS.SelectFirstTile();
-              this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+                this.kbS.SelectFirstTile();
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+              }
+              this.searchByTaxtNumber = false;
+            },
+            error: err => {
+              this.searchByTaxtNumber = false;
             }
           });
+        } else {
+          this.toastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {

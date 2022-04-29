@@ -152,6 +152,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
   }
 
+  override ngOnInit(): void {
+    this.SetNewForm(this.sumForm);
+  }
   ngAfterContentInit(): void {
     this.sumForm.controls['id'].setValue(this.data.id);
     this.sumForm.controls['customerName'].setValue(this.data.customerName);
