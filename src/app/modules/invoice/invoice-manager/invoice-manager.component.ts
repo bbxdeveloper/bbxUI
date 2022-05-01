@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { Observable, of, startWith, map } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
@@ -12,7 +12,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { maxDate, minDate, todaysDate } from 'src/assets/model/Validators';
+import { todaysDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
@@ -34,6 +34,7 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { CountryCode } from '../../customer/models/CountryCode';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -133,20 +134,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-/*
-  override readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: 'Súgó', disabled: false },
-    { key: 'F2', value: 'Keresés', disabled: false },
-    { key: 'F3', value: 'Új Partner', disabled: false },
-    { key: 'F4', value: 'Számolás', disabled: false },
-    { key: 'F5', value: 'Adóalany', disabled: false },
-    { key: 'F6', value: 'Módosítás', disabled: false },
-    { key: 'F7', value: 'GdprNy', disabled: false },
-    { key: 'F8', value: 'GdprAd', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-  ];
-*/
   override readonly commands: FooterCommandInfo[] = [
     { key: 'F1', value: '', disabled: false },
     { key: 'F2', value: 'Keresés', disabled: false },
@@ -201,6 +188,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
   }
+
+  // CountryCode
+  countryCodes: CountryCode[] = [];
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -329,20 +319,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return wrong ? { minMaxDate: { value: control.value } } : null;
   }
 
-  // validateInvoiceDeliveryDate(): ValidatorFn {
-  //   return (control: AbstractControl): ValidationErrors | null => {
-  //     const wrong = new Date(control.value) < minDate;
-  //     return wrong ? { dateIsSmallerThanMin: { value: control.value } } : null;
-  //   };
-  // }
-
-  // validatePaymentDate(): ValidatorFn {
-  //   return (control: AbstractControl): ValidationErrors | null => {
-  //     const wrong = new Date(control.value) > maxDate;
-  //     return wrong ? { dateIsBiggerThanMax: { value: control.value } } : null;
-  //   };
-  // }
-
   InitFormDefaultValues(): void {
     const tmp = new Date();
     const year = tmp.getFullYear();
@@ -422,39 +398,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               Constants.TOASTR_ERROR
             );
           }
-
-          // if (!!product && !!product.productCode && product.productCode.includes(changedData.productCode)) {
-          //   console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-          //   if (index !== undefined) {
-          //     let tmp = this.dbData[index].data;
-  
-          //     tmp.productDescription = product.description ?? '';
-  
-          //     product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-          //     tmp.vatRate = (product.vatPercentage ?? 1) + '';
-          //     product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-          //     tmp.vatRateCode = product.vatRateCode;
-  
-          //     tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
-          //     tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
-          //     tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
-  
-          //     this.dbData[index].data = tmp;
-  
-          //     this.dbDataDataSrc.setData(this.dbData);
-
-          //     this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
-          //   }
-  
-          //   this.RecalcNetAndVat();
-          // } else {
-          //   this.toastrService.show(
-          //     Constants.MSG_NO_PRODUCT_FOUND,
-          //     Constants.TITLE_ERROR,
-          //     Constants.TOASTR_ERROR
-          //   );
-          // }
         },
         error: err => {
           this.RecalcNetAndVat();
@@ -519,6 +462,15 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.dbDataDataSrc.setData(this.dbData);
 
         this.paymentMethodOptions$ = this.seInv.GetPaymentMethods().pipe(map(data => data.map(d => d.paymentMethodDescription)));
+
+        this.seC.GetAllCountryCodes().subscribe({
+          next: (data) => {
+            if (!!data) this.countryCodes = data;
+          },
+          error: (err) => {
+            this.cs.HandleError(err);
+          }
+        });
 
         this.seC.GetAll({ IsOwnData: true }).subscribe({
           next: d => {
@@ -836,6 +788,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
+  private PrepareCustomer(data: Customer): Customer {
+    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
+
+    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
+      data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
+    }
+
+    return data;
+  }
+
   ChoseDataForFormByTaxtNumber(): void {
     console.log("Selecting Customer from avaiable data by taxtnumber.");
 
@@ -848,7 +810,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: res.data
+              data: this.PrepareCustomer(res.data)
             },
             closeOnEsc: false
           });

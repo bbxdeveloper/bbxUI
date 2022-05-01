@@ -1,52 +1,26 @@
 import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogRef } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
-import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
-import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
-import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
-import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 
-import { AfterViewInit, HostListener, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbToastrService } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject } from 'rxjs';
+import { AfterViewInit } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
-import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { BlankComboBoxValue, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
-import { maxDate, minDate, todaysDate } from 'src/assets/model/Validators';
-import { Product } from '../../product/models/Product';
-import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
-import { WareHouseService } from '../../warehouse/services/ware-house.service';
-import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
-import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine } from '../models/InvoiceLine';
-import { PaymentMethod } from '../models/PaymentMethod';
-import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
-import { InvoiceService } from '../services/invoice.service';
+import { BlankComboBoxValue, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { createMask } from '@ngneat/input-mask';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
-import { SumData } from '../models/SumData';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 
-import { NbSidebarService } from '@nebular/theme';
-import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { toBase64String } from '@angular/compiler/src/output/source_map';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { CreateCustomerRequest } from '../../customer/models/CreateCustomerRequest';
 
 const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
@@ -120,16 +94,12 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   constructor(
-    private sbf: SideBarFormService,
-    private sb: NbSidebarService,
     private bbxsb: BbxSidebarService,
     private cService: CustomerService,
     private cdref: ChangeDetectorRef,
-    private sidebarFormSercie: SideBarFormService,
     protected dialogRef: NbDialogRef<TaxNumberSearchCustomerEditDialogComponent>,
     private kbS: KeyboardNavigationService,
     private fs: FooterService,
-    private dialogService: NbDialogService,
     private sts: StatusService,
     private cs: CommonService,
     private toastrService: BbxToastrService
@@ -331,11 +301,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? ibanPattern : defaultPattern;
       console.log("Check: ", currentTypeBankAccountNumber.length, nextMask.length, nextMask);
       if (currentTypeBankAccountNumber.length > nextMask.length) {
-        //event.target.value = currentTypeBankAccountNumber.substring(0, nextMask.length - 1);
         event.stopImmediatePropagation();
         event.preventDefault();
         event.stopPropagation();
-        // this.currentForm!.form.controls['privatePerson'].setValue(currentTypeBankAccountNumber.substring(0, nextMask.length));
       }
 
       if (currentTypeBankAccountNumber.length > 1) {
@@ -345,7 +313,6 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
       this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
-      //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
     } else {
       const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key) ?? '';
 
@@ -358,7 +325,6 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
       this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
-      //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
     }
   }
 }
