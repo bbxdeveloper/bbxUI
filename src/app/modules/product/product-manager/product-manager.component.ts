@@ -42,7 +42,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     'productCode',
     'description',
     'productGroup',
-    'unitOfMeasure',
+    'unitOfMeasureX',
     'unitPrice1',
     'unitPrice2',
   ];
@@ -86,8 +86,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     },
     {
       label: 'Me.e.',
-      objectKey: 'unitOfMeasure',
-      colKey: 'unitOfMeasure',
+      objectKey: 'unitOfMeasureX',
+      colKey: 'unitOfMeasureX',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -222,18 +222,18 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   private ConvertCombosForGet(data: Product): Product {
     // console.log('ConvertCombosForGet: ', data);
 
-    // if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
-    //   data.unitOfMeasure = this.uom.find(x => x.value == data.unitOfMeasure)?.text + '-' + data.unitOfMeasure;
-    // }
+    if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
+      data.unitOfMeasure = data.unitOfMeasureX;
+    }
     // if (data.origin !== undefined && this.origins.length > 0) {
     //   data.origin = this.origins.find(x => x.originCode == data.origin)?.originDescription + '-' + data.origin;
     // }
     // if (data.productGroup !== undefined && this.productGroups.length > 0) {
     //   data.productGroup = this.productGroups.find(x => x.productGroupCode == data.productGroup)?.productGroupDescription + '-' + data.productGroup;
     // }
-    // if (data.vatRateCode !== undefined && this.vats.length > 0) {
-    //   data.vatRateCode = data.vatRateCode + ' - ' + this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatPercentage;
-    // }
+    if (data.vatRateCode !== undefined && this.vats.length > 0) {
+      data.vatRateCode = data.vatRateCode + '-' + this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatPercentage;
+    }
 
     if (environment.flatDesignCRUDManagerDebug) {
       console.log(`[ConvertCombosForGet] result: `, data);

@@ -89,7 +89,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.vatApi.GetAll().subscribe({
       next: data => {
         console.log("Vats: ", data);
-        this.vatRates = data?.data?.map(x => x.vatRateCode + ' - ' + x.vatPercentage) ?? [];
+        this.vatRates = data?.data?.map(x => x.vatRateCode + '-' + x.vatPercentage) ?? [];
         this.vatRateComboData$.next(this.vatRates);
       }
     });
