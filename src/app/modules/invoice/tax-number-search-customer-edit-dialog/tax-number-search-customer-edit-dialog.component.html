@@ -1,18 +1,18 @@
 <nb-card class="modal-product-active">
     <nb-card-header class="modal-product-active-header">
-        <span>Szeretné menteni a számlát?</span>
+        <span>Ügyfél létrehozása és kiválasztása</span>
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!currentForm" [id]="sumFormId" [formGroup]="currentForm.form" #formDirective="ngForm"
             (keydown.escape)="currentForm.HandleFormEscape()" (focusout)="currentForm.HandleFormFocusOut()"
             (click)="currentForm.HandleFormClick()">
         
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+            <!-- <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Azonosító</label>
                     <input nbInput type="text" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)" readonly>
                 </div>
-            </nb-form-field>
+            </nb-form-field> -->
         
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -108,7 +108,7 @@
             <app-form-control-error [form]="currentForm" label="magánszemély" controlName="privatePerson">
             </app-form-control-error>
         
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
         
@@ -120,9 +120,10 @@
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
-        <button nbButton (click)="close(true)" status="primary" tabindex="-1"
+        <span class="label-save">Ügyfél mentése és beállítása vevőnek: </span>
+        <button nbButton (click)="Save()" status="primary" tabindex="-1"
             id="confirm-dialog-button-yes">Igen</button>
-        <button nbButton (click)="close(false)" status="danger" tabindex="-1"
+        <button nbButton (click)="close(undefined)" status="danger" tabindex="-1"
             id="confirm-dialog-button-no">Nem</button>
     </nb-card-footer>
 </nb-card>

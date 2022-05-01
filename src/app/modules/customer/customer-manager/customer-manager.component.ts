@@ -135,7 +135,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: err => { this.cs.HandleError(err); this.isLoading = false; }
+        error: err => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      }
       });
     }
   }
@@ -166,7 +170,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: err => { this.cs.HandleError(err); this.isLoading = false; }
+        error: err => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      }
       });
     }
   }
@@ -193,7 +201,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
-        error: err => { this.cs.HandleError(err); this.isLoading = false; }
+        error: err => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      }
       });
     }
   }

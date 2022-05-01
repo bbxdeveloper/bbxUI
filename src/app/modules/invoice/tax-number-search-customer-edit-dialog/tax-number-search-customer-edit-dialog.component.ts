@@ -45,6 +45,9 @@ import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { toBase64String } from '@angular/compiler/src/output/source_map';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { CreateCustomerRequest } from '../../customer/models/CreateCustomerRequest';
 
 const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
 const defaultPattern: string = '00000000-00000000-00000000';
@@ -65,7 +68,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
     'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },
   };
-  
+
   blankOptionText: string = BlankComboBoxValue;
 
   numberInputMask = createMask({
@@ -125,23 +128,27 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     private sidebarFormSercie: SideBarFormService,
     protected dialogRef: NbDialogRef<TaxNumberSearchCustomerEditDialogComponent>,
     private kbS: KeyboardNavigationService,
-    private fs: FooterService
+    private fs: FooterService,
+    private dialogService: NbDialogService,
+    private sts: StatusService,
+    private cs: CommonService,
+    private toastrService: BbxToastrService
   ) {
     super();
     this.Setup();
 
     this.sumForm = new FormGroup({
       id: new FormControl(0, []),
-      customerName: new FormControl(undefined, [Validators.required]),
-      customerBankAccountNumber: new FormControl(undefined, []),
-      taxpayerNumber: new FormControl(undefined, []),
-      thirdStateTaxId: new FormControl(undefined, []),
+      customerName: new FormControl('', [Validators.required]),
+      customerBankAccountNumber: new FormControl('', []),
+      taxpayerNumber: new FormControl('', []),
+      thirdStateTaxId: new FormControl('', []),
       countryCode: new FormControl(null, []),
       postalCode: new FormControl(undefined, []),
-      city: new FormControl(undefined, [Validators.required]),
-      additionalAddressDetail: new FormControl(undefined, [Validators.required]),
+      city: new FormControl('', [Validators.required]),
+      additionalAddressDetail: new FormControl('', [Validators.required]),
       privatePerson: new FormControl(false, []),
-      comment: new FormControl(undefined, []),
+      comment: new FormControl('', []),
     });
 
     this.refreshComboboxData();
@@ -153,12 +160,12 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   override ngOnInit(): void {
-    this.SetNewForm(this.sumForm);
+    // this.kbS.SelectFirstTile();
   }
   ngAfterContentInit(): void {
     this.sumForm.controls['id'].setValue(this.data.id);
     this.sumForm.controls['customerName'].setValue(this.data.customerName);
-    this.sumForm.controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber);
+    this.sumForm.controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
     this.sumForm.controls['taxpayerNumber'].setValue(this.data.taxpayerNumber);
     this.sumForm.controls['thirdStateTaxId'].setValue(this.data.thirdStateTaxId);
     this.sumForm.controls['countryCode'].setValue(this.data.countryCode);
@@ -167,9 +174,6 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     this.sumForm.controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
     this.sumForm.controls['privatePerson'].setValue(this.data.privatePerson);
     this.sumForm.controls['comment'].setValue(this.data.comment);
-
-    this.kbS.SetWidgetNavigatable(this);
-    this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
     if (!this.closedManually) {
@@ -179,7 +183,18 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   ngAfterViewChecked(): void {
   }
   ngAfterViewInit(): void {
+    this.kbS.SetWidgetNavigatable(this);
+    this.SetNewForm(this.sumForm);
+
+    // We can move onto the confirmation buttons from the form.
+    this.currentForm!.OuterJump = true;
+    // And back to the form.
+    this.OuterJump = true;
+
     this.currentForm?.AfterViewInitSetup();
+
+    this.kbS.SelectFirstTile();
+    this.kbS.Jump(AttachDirection.UP, true);
   }
 
   private SetNewForm(form?: FormGroup): void {
@@ -189,7 +204,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       this.cdref,
       [],
       this.sumFormId,
-      AttachDirection.DOWN,
+      AttachDirection.UP,
       [],
       this.bbxsb,
       this.fs
@@ -216,10 +231,75 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     }
   }
 
-  close(answer: boolean) {
+  close(answer: any) {
     this.closedManually = true;
     this.kbS.RemoveWidgetNavigatable();
     this.dialogRef.close(answer);
+  }
+
+  MoveToSaveButtons(event: any): void {
+    if (this.isEditModeOff) {
+      this.currentForm!.HandleFormEnter(event);
+    } else {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      this.kbS.Jump(AttachDirection.DOWN, false);
+    }
+  }
+
+  private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
+    console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest begin:", p);
+
+    let countryCode = !!p.countryCode?.includes('-') ? p.countryCode.split('-')[0] : '';
+
+    const res = {
+      additionalAddressDetail: p.additionalAddressDetail,
+      city: p.city,
+      comment: p.comment,
+      countryCode: countryCode,
+      customerBankAccountNumber: p.customerBankAccountNumber,
+      customerName: p.customerName,
+      isOwnData: p.isOwnData,
+      postalCode: p.postalCode,
+      privatePerson: p.privatePerson,
+      thirdStateTaxId: p.thirdStateTaxId,
+    } as CreateCustomerRequest;
+
+    console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest after:", res);
+
+    return res;
+  }
+
+  Save(): void {
+    const createRequest = this.CustomerToCreateRequest(this.currentForm!.FillObjectWithForm() as Customer);
+
+    this.isLoading = true;
+    this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+    this.cService.Create(createRequest).subscribe({
+      next: d => {
+        if (d.succeeded && !!d.data) {
+          this.isLoading = false;
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+          setTimeout(() => {
+            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+          }, 200);
+
+          this.close(d.data);
+        } else {
+          console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
+          this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.isLoading = false;
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      }
+    });
   }
 
   private refreshComboboxData(): void {
@@ -244,7 +324,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
   checkBankAccountKeydownValue(event: any): void {
     if (event.key.length === 1) {
-      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key);
+      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key) ?? '';
 
       console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
 
@@ -267,7 +347,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
       //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
     } else {
-      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key);
+      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key) ?? '';
 
       console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
 

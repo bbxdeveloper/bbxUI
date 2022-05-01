@@ -844,6 +844,9 @@ export class KeyboardNavigationService {
     this.NavigatableStack.push(this.CurrentNavigatable);
 
     this.CurrentNavigatable = n;
+
+    this.p.x = 0;
+    this.p.y = 0;
   }
 
   public RemoveWidgetNavigatable(): void {

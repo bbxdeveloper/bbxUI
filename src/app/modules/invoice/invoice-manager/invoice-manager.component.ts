@@ -33,6 +33,7 @@ import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -150,7 +151,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     { key: 'F1', value: '', disabled: false },
     { key: 'F2', value: 'Keresés', disabled: false },
     { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
-    { key: 'F4', value: '', disabled: false },
+    { key: 'F4', value: 'Keresés NAV-val (csak sikertelen rendes keresés esetén)', disabled: false },
     { key: 'F5', value: '', disabled: false },
     { key: 'F6', value: '', disabled: false },
     { key: 'F7', value: '', disabled: false },
@@ -848,7 +849,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
               data: res.data
-            }
+            },
+            closeOnEsc: false
           });
           dialogRef.onClose.subscribe({
             next: (res: Customer) => {
@@ -861,10 +863,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                 this.kbS.SelectFirstTile();
                 this.kbS.setEditMode(KeyboardModes.EDIT);
               }
-              this.searchByTaxtNumber = false;
             },
             error: err => {
-              this.searchByTaxtNumber = false;
             }
           });
         } else {
@@ -873,7 +873,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       },
       error: (err) => {
         this.cs.HandleError(err); this.isLoading = false;
-        this.searchByTaxtNumber = false;
       },
       complete: () => {
         this.isLoading = false;
@@ -884,6 +883,22 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter') {
       this.Save();
+    }
+    switch (event.key) {
+      case KeyBindings.F4: {
+        console.log(`F4 Pressed: ${event}`);
+
+        if (this.searchByTaxtNumber) {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+  
+          this.ChoseDataForFormByTaxtNumber();
+        }
+
+        break;
+      }
+      default: { }
     }
   }
 }

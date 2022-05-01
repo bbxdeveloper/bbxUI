@@ -257,7 +257,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         this.SetFormStateToDefault();
     }
 
-    private FillObjectWithForm(): T {
+    public FillObjectWithForm(): T {
         const data = {} as T;
         Object.keys(this.form.controls).forEach((x: string) => {
             data[x as keyof T] = this.form.controls[x].value;
