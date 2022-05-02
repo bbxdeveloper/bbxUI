@@ -3,7 +3,7 @@ import { IEditable } from "src/assets/model/IEditable";
 export class InvoiceLine implements IEditable {
     // table col order
 
-    "lineNumber": 0; // hidden
+    "lineNumber": number = 0; // hidden
     
     "productCode": string = ''; // editable
     "productDescription": string;

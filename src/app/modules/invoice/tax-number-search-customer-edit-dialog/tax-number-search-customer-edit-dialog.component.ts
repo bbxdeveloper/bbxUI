@@ -179,6 +179,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       this.bbxsb,
       this.fs
     );
+    this.currentForm.IsFootersEnabled = false;
 
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
 

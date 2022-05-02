@@ -21,6 +21,8 @@ export interface Customer {
     "isOwnData": boolean;
     "countryCode": string,
     "Region"?: any,
+    "taxpayerId"?: string;
+    "countyCode"?: string;
     // misc
     "comment"?: string;
     "createTime"?: string;
@@ -46,6 +48,8 @@ export function BlankCustomer(): Customer {
         createTime: '',
         updateTime: '',
         deleted: false,
-        isOwnData: false
+        isOwnData: false,
+        taxpayerId: '',
+        countyCode: '',
     } as Customer;
 }

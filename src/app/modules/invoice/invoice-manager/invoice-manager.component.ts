@@ -35,6 +35,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { CountryCode } from '../../customer/models/CountryCode';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -461,7 +462,18 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        this.paymentMethodOptions$ = this.seInv.GetPaymentMethods().pipe(map(data => data.map(d => d.paymentMethodDescription)));
+        this.seInv.GetPaymentMethods().subscribe({
+          next: d => {
+            this.paymentMethods = d;
+            console.log('[GetPaymentMethods]: ', d);
+            this.paymentMethodOptions$ = of(d.map(d => d.text));
+          },
+          error: (err) => {
+            this.cs.HandleError(err);
+          },
+          complete: () => {},
+        })
+        
 
         this.seC.GetAllCountryCodes().subscribe({
           next: (data) => {
@@ -553,19 +565,38 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   private UpdateOutGoingData(): void {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
+    
+    this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
+    
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
-    this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
-    this.outGoingInvoiceData.paymentMethod = this.outInvForm.controls['paymentMethod'].value;
+    
+    this.outGoingInvoiceData.paymentMethod =
+      HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
+    
     this.outGoingInvoiceData.warehouseCode = '1';
+    
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;
+    
     this.RecalcNetAndVat();
-    for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length; i++) {
+    
+    for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length - 1; i++) {
       this.outGoingInvoiceData.invoiceLines[i].price = this.ToInt(this.outGoingInvoiceData.invoiceLines[i].price);
       this.outGoingInvoiceData.invoiceLines[i].quantity = this.ToInt(this.outGoingInvoiceData.invoiceLines[i].quantity);
+      this.outGoingInvoiceData.invoiceLines[i].lineNumber = i;
     }
+    
+    this.outGoingInvoiceData.currencyCode = 'HUF';
+    this.outGoingInvoiceData.exchangeRate = 1;
+
+    this.outGoingInvoiceData.warehouseCode = '001';
+
+    this.outGoingInvoiceData.incoming = false;
+    this.outGoingInvoiceData.invoiceType = 'INV';
+
+    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
   }
 
   Save(): void {
@@ -789,7 +820,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private PrepareCustomer(data: Customer): Customer {
+    console.log('Before: ', data);
+
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
+    data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
     if (data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';

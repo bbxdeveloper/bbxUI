@@ -76,6 +76,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     get isDeleteDisabled() { return this.formMode === Constants.FormState.new; }
 
+    IsFootersEnabled: boolean = true;
+
     constructor(
         f: FormGroup,
         private kbS: KeyboardNavigationService,
@@ -477,7 +479,9 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     PushFooterCommandList(): void {
-        this.fS.pushCommands(this.commandsOnForm);
+        if (this.IsFootersEnabled) {
+            this.fS.pushCommands(this.commandsOnForm);
+        }
     }
 
     ClearNeighbours(): void {

@@ -1,4 +1,5 @@
 import { CountryCode } from "src/app/modules/customer/models/CountryCode";
+import { PaymentMethod } from "src/app/modules/invoice/models/PaymentMethod";
 import { Origin } from "src/app/modules/origin/models/Origin";
 import { ProductGroup } from "src/app/modules/product-group/models/ProductGroup";
 import { UnitOfMeasure } from "src/app/modules/product/models/UnitOfMeasure";
@@ -90,5 +91,13 @@ export module HelperFunctions {
             return defaultValue;
         }
         return data.find(x => x.value === val)?.text ?? defaultValue;
+    }
+
+    export function PaymentMethodToDescription(val?: string, data?: PaymentMethod[], defaultValue: any = ''): any {
+        if (val === undefined || val === null || val.length === 0 || data === undefined || data.length === 0) {
+            return defaultValue;
+        } else {
+            return data.find(x => x.text === val)?.value ?? defaultValue;
+        }
     }
 }

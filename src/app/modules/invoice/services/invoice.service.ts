@@ -14,12 +14,6 @@ import { DeleteInvoiceRequest } from '../models/DeleteInvoiceRequest';
 import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
 
-const MOCK_PAYMENT_DATA: PaymentMethod[] = [
-  { paymentMethodDescription: 'Készpénz', paymentMethodCode: 'K' },
-  { paymentMethodDescription: 'Hitelkártya', paymentMethodCode: 'H' },
-  { paymentMethodDescription: 'Csekk', paymentMethodCode: 'C' },
-]
-
 @Injectable({
   providedIn: 'root'
 })
@@ -29,7 +23,7 @@ export class InvoiceService {
   constructor(private http: HttpClient) { }
 
   GetPaymentMethods(): Observable<PaymentMethod[]> {
-    return of(MOCK_PAYMENT_DATA);
+    return this.http.get<PaymentMethod[]>(this.BaseUrl + '/paymentmethod');
   }
 
   GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
