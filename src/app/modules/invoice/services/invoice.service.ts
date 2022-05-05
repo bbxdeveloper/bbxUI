@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
@@ -13,6 +13,7 @@ import { UpdateInvoiceRequest } from '../models/UpdateInvoiceRequest';
 import { DeleteInvoiceRequest } from '../models/DeleteInvoiceRequest';
 import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
+import { Constants } from 'src/assets/util/Constants';
 
 @Injectable({
   providedIn: 'root'
@@ -79,5 +80,29 @@ export class InvoiceService {
 
   Delete(req: DeleteInvoiceRequest): Observable<DeleteInvoiceResponse> {
     return this.http.delete<DeleteInvoiceResponse>(this.BaseUrl + '?ID=' + req.id);
+  }
+
+  GetReport(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "application/pdf");
+    return this.http.post(
+      `${environment.apiUrl}report${environment.apiVersion}render/${params['section']}/${params['fileType']}`,
+      JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
+  }
+
+  GetGradesReport(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "application/pdf");
+    return this.http.post(
+      `${environment.apiUrl}report${environment.apiVersion}render/grades/${params['section']}/${params['fileType']}/${params['from']}/${params['to']}`,
+      JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
   }
 }

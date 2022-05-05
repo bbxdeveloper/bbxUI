@@ -880,21 +880,21 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (event.ctrlKey && event.key == 'Enter') {
       this.Save();
     }
-    switch (event.key) {
-      case KeyBindings.F4: {
-        console.log(`F4 Pressed: ${event}`);
+    // switch (event.key) {
+    //   case KeyBindings.F4: {
+    //     console.log(`F4 Pressed: ${event}`);
 
-        if (this.searchByTaxtNumber) {
-          event.stopImmediatePropagation();
-          event.stopPropagation();
-          event.preventDefault();
+    //     if (this.searchByTaxtNumber) {
+    //       event.stopImmediatePropagation();
+    //       event.stopPropagation();
+    //       event.preventDefault();
   
-          this.ChoseDataForFormByTaxtNumber();
-        }
+    //       this.ChoseDataForFormByTaxtNumber();
+    //     }
 
-        break;
-      }
-      default: { }
-    }
+    //     break;
+    //   }
+    //   default: { }
+    // }
   }
 }

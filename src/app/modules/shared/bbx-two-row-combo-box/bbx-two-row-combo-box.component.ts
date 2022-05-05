@@ -1,18 +1,15 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
-import { NbSidebarService } from '@nebular/theme';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
-import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 
 @Component({
-  selector: 'app-bbx-combo-box',
-  templateUrl: './bbx-combo-box.component.html',
-  styleUrls: ['./bbx-combo-box.component.scss']
+  selector: 'app-bbx-two-row-combo-box',
+  templateUrl: './bbx-two-row-combo-box.component.html',
+  styleUrls: ['./bbx-two-row-combo-box.component.scss']
 })
-export class BbxComboBoxComponent implements OnInit, AfterViewInit {
+export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
   @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';

@@ -5,6 +5,7 @@ export const TileCssColClass: string = 'navmatrix-tile-col';
 
 export enum AttachDirection { DOWN = -1, LEFT = -2, RIGHT = 2, UP = 1 };
 export enum JumpDestination { LOWER_LEFT, LOWER_RIGHT, UPPER_LEFT, UPPER_RIGHT };
+export enum NavMatrixOrientation { NORMAL, ONLY_HORIZONTAL, ONLY_VERTICAL };
 
 // Interfaces
 

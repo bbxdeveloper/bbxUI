@@ -160,13 +160,16 @@ td {
   border: $selected-border-color dotted 3px !important;
 }
 
-input[type="checkbox"].current-keyboard-nav-selected,
-input[type="radio"].current-keyboard-nav-selected {
+input[type="checkbox"].current-keyboard-nav-selected {
   outline: none;
   // border: $selected-border-color dotted 3px !important;
   -webkit-box-shadow: 0px 0px 0px 3px $selected-border-color;
   -moz-box-shadow: 0px 0px 0px 3px $selected-border-color;
   box-shadow: 0px 0px 0px 3px $selected-border-color;
+}
+
+input[type="radio"].current-keyboard-nav-selected {
+  outline: 3px dotted $selected-border-color !important;
 }
 
 tr.parent-of-current-keyboard-nav-selected {

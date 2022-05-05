@@ -15,6 +15,9 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { AttachDirection, SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { UtilityService } from 'src/app/services/utility.service';
+import { DateIntervalDialogComponent } from '../../shared/date-interval-dialog/date-interval-dialog.component';
+import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
 
 @Component({
   selector: 'app-header',
@@ -72,7 +75,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private sts: StatusService,
     private authService: AuthService,
     private tokenService: TokenStorageService,
-    private toastrService: BbxToastrService) {
+    private toastrService: BbxToastrService,
+    private utS: UtilityService,) {
     super();
     this.OuterJump = true;
   }
@@ -203,7 +207,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   login(event: any): void {
     event?.preventDefault();
-    const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {} });
+    const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {}, closeOnEsc: false });
     this.isLoading = true;
     dialogRef.onClose.subscribe({
       next: (res: LoginDialogResponse) => {
@@ -268,6 +272,93 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
             this.isLoading = false;
           }
         }, 200);
+      }
+    });
+  }
+
+  printReport(): void {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
+    this.utS.execute(
+      Constants.CommandType.POC_REPORT, Constants.FileExtensions.PDF,
+      {
+        "section": "SzallitoSzamla",
+        "fileType": "pdf",
+        "report_params": {
+          "params": [
+            {
+              "key": "peldanyCount",
+              "value": "1"
+            },
+            {
+              "key": "storageName",
+              "value": "001 | Központi Raktár"
+            },
+            {
+              "key": "buyerName",
+              "value": "ABC Zrt."
+            },
+            {
+              "key": "addressZipCity",
+              "value": "Szeged 5000"
+            },
+            {
+              "key": "addressStreet",
+              "value": "Etető út 5."
+            },
+            {
+              "key": "taxNumber",
+              "value": "5235234321"
+            },
+            {
+              "key": "identifier",
+              "value": "64234234"
+            },
+            {
+              "key": "madeBy",
+              "value": "Szilárd Simon"
+            },
+            {
+              "key": "paymentMethod",
+              "value": "Átutalás"
+            },
+            {
+              "key": "finishDate",
+              "value": "2021.12.10"
+            },
+            {
+              "key": "dateStamp",
+              "value": "2021.12.11"
+            },
+            {
+              "key": "paymentDate",
+              "value": "2021.12.20"
+            },
+            {
+              "key": "documentNumber",
+              "value": "C0-FS3G4G3-210C"
+            }
+          ]
+        },
+        "data_operation": Constants.DataOperation.PRINT_BLOB
+      } as Constants.Dct);
+  }
+
+  printGradesReport(): void {
+    const dialogRef = this.dialogService.open(DateIntervalDialogComponent, { context: {}, closeOnEsc: false });
+    dialogRef.onClose.subscribe((res?: DateIntervalDialogResponse) => {
+      if (!!res && !!res.starDate && !!res.endDate) {
+        this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadReportProcessPhases.PROC_CMD]);
+        this.utS.execute(Constants.CommandType.PRINT_POC_GRADES, Constants.FileExtensions.PDF,
+          {
+            "section": "OsszegFokozatos",
+            "fileType": "pdf",
+            "report_params": {
+              "params": []
+            },
+            "data_operation": Constants.DataOperation.DOWNLOAD_BLOB,
+            "from": res.starDate,
+            "to": res.endDate
+          } as Constants.Dct);
       }
     });
   }

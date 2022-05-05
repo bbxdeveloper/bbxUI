@@ -43,7 +43,7 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
     // WareHouse
     this.wareHouseApi.GetAll().subscribe({
       next: data => {
-        this.wareHouses = data?.data?.map(x => x.warehouseCode + '-' + x.warehouseDescription) ?? [];
+        this.wareHouses = data?.data?.map(x => x.warehouseDescription) ?? [];
         this.wareHouseComboData$.next(this.wareHouses);
       }
     });

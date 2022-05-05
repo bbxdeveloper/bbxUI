@@ -1,4 +1,4 @@
-export { INavigatable, NullNavigatable, TileCssClass, TileCssColClass, AttachDirection } from './Navigatable';
+export { INavigatable, NullNavigatable, TileCssClass, TileCssColClass, AttachDirection, NavMatrixOrientation } from './Navigatable';
 export { FlatDesignNavigatableForm } from './FlatDesignNavigatableForm';
 export { InlineTableNavigatableForm as NavigatableForm } from './InlineTableNavigatableForm';
 export { FlatDesignNavigatableTable } from './FlatDesignNavigatableTable';

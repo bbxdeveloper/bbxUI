@@ -137,22 +137,7 @@ export class KeyboardNavigationService {
     $(idString).addClass(SELECTED_ELEMENT_CLASS);
     $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-    // if (this.previousIdString === undefined) {
-    //   this.previousIdString = idString;
-
-    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    // } else {
-    //   $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
-    //   $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-
-    //   this.previousIdString = idString;
-
-    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    // }
-
-    if ($(idString).is(':button')) {
+    if ($(idString).is(':button') || $(idString).is(':radio')) {
       $(idString).trigger('focus');
     } else {
       switch (this.CurrentNavigatable.TileSelectionMethod) {
@@ -186,22 +171,11 @@ export class KeyboardNavigationService {
     $(idString).addClass(SELECTED_ELEMENT_CLASS);
     $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-    // if (this.previousIdString === undefined) {
-    //   this.previousIdString = idString;
-
-    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    // } else {
-    //   $(this.previousIdString).removeClass(SELECTED_ELEMENT_CLASS);
-    //   $(this.previousIdString).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-
-    //   this.previousIdString = idString;
-
-    //   $(this.previousIdString).addClass(SELECTED_ELEMENT_CLASS);
-    //   $(this.previousIdString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    // }
-
-    $(idString).trigger('click');
+    if ($(idString).is(':radio')) {
+      $(idString).trigger('focus');
+    } else {
+      $(idString).trigger('click');
+    }
 
     this.ElementIdSelected.next(id);
   }

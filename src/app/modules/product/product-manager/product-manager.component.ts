@@ -19,7 +19,7 @@ import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
 import { ProductGroup, ProductGroupDescriptionToCode } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
-import { UnitOfMeasure, UnitOfMeasureTextToValue, UnitOfMeasureValueToText } from '../models/UnitOfMeasure';
+import { UnitOfMeasure, UnitOfMeasureTextToValue } from '../models/UnitOfMeasure';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CreateProductRequest } from '../models/CreateProductRequest';
@@ -28,7 +28,7 @@ import { environment } from 'src/environments/environment';
 import { StatusService } from 'src/app/services/status.service';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { VatRate } from '../../vat-rate/models/VatRate';
-import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-product-manager',
@@ -159,7 +159,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         description: undefined,
         productGroup: BlankComboBoxValue,
         origin: BlankComboBoxValue,
-        unitOfMeasure: this.uom[0]?.text + '-' + this.uom[0]?.value,
+        unitOfMeasure: this.uom[0]?.text,
         unitOfMeasureX: undefined,
         unitPrice1: 0,
         unitPrice2: 0,
@@ -171,7 +171,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         active: true,
         vtsz: '',
         ean: '',
-        vatRateCode: this.vats[0]?.vatRateCode + '-' + this.vats[0]?.vatPercentage,
+        vatRateCode: this.vats[0]?.vatRateDescription,
         vatPercentage: 0
       } as Product
     };
@@ -220,19 +220,11 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   private ConvertCombosForGet(data: Product): Product {
-    // console.log('ConvertCombosForGet: ', data);
-
     if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
       data.unitOfMeasure = data.unitOfMeasureX;
     }
-    // if (data.origin !== undefined && this.origins.length > 0) {
-    //   data.origin = this.origins.find(x => x.originCode == data.origin)?.originDescription + '-' + data.origin;
-    // }
-    // if (data.productGroup !== undefined && this.productGroups.length > 0) {
-    //   data.productGroup = this.productGroups.find(x => x.productGroupCode == data.productGroup)?.productGroupDescription + '-' + data.productGroup;
-    // }
     if (data.vatRateCode !== undefined && this.vats.length > 0) {
-      data.vatRateCode = data.vatRateCode + '-' + this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatPercentage;
+      data.vatRateCode = this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatRateDescription ?? '';
     }
 
     if (environment.flatDesignCRUDManagerDebug) {
@@ -246,14 +238,13 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     return parseInt(p + '');
   }
 
-  private ProductToCreateRequest(p: Product): CreateProductRequest {
-    let originCode = !!p.origin?.includes('-') ? p.origin.split('-')[0] : '';
-    let productGroupCode = !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '';
-    let vatRatecode = !!p.vatRateCode?.includes('-') ? p.vatRateCode.split('-')[0] : '';
+  private FormProductToCreateRequest(p: Product): CreateProductRequest {
+    let originCode = HelperFunctions.ConvertChosenOriginToCode(p.origin, this.origins, '');
+    let productGroupCode = HelperFunctions.ConvertChosenProductGroupToCode(p.productGroup, this.productGroups, '');
+    let vatRatecode = HelperFunctions.ConvertChosenVatRateToCode(p.vatRateCode, this.vats, '');
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
-    let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
-    let unitOfMeasureValue = unitOfMeasure !== undefined ? unitOfMeasure.value : smallestUomValue;
+    let unitOfMeasureValue = HelperFunctions.ConvertChosenUOMToCode(p.unitOfMeasure, this.uom, smallestUomValue);
 
     const res = {
       ean: p.ean as string,
@@ -276,14 +267,13 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     return res;
   }
 
-  private ProductToUpdateRequest(p: Product): UpdateProductRequest {
-    let originCode = p.origin !== BlankComboBoxValue ? !!p.origin?.includes('-') ? p.origin.split('-')[0] : '' : null;
-    let productGroupCode = p.productGroup !== BlankComboBoxValue ? !!p.productGroup?.includes('-') ? p.productGroup.split('-')[0] : '' : null;
-    let vatRatecode = !!p.vatRateCode?.includes('-') ? p.vatRateCode.split('-')[0] : '';
+  private FormProductToUpdateRequest(p: Product): UpdateProductRequest {
+    let originCode = HelperFunctions.ConvertChosenOriginToCode(p.origin, this.origins, '');
+    let productGroupCode = HelperFunctions.ConvertChosenProductGroupToCode(p.productGroup, this.productGroups, '');
+    let vatRatecode = HelperFunctions.ConvertChosenVatRateToCode(p.vatRateCode, this.vats, '');
 
     let smallestUomValue = this.uom.length > 0 ? this.uom[0].value : 'PIECE';
-    let unitOfMeasure = this.uom.find(x => x.text === p.unitOfMeasure);
-    let unitOfMeasureValue = unitOfMeasure !== undefined ? unitOfMeasure.value : smallestUomValue;
+    let unitOfMeasureValue = HelperFunctions.ConvertChosenUOMToCode(p.unitOfMeasure, this.uom, smallestUomValue);
 
     const res = {
       id: parseInt(p.id + ''), // TODO
@@ -311,7 +301,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
 
-      const createRequest = this.ProductToCreateRequest(data.data);
+      const createRequest = this.FormProductToCreateRequest(data.data);
 
       console.log('ActionNew request: ', createRequest);
 
@@ -361,7 +351,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
 
-      const updateRequest = this.ProductToUpdateRequest(data.data);
+      const updateRequest = this.FormProductToUpdateRequest(data.data);
 
       console.log('ActionPut request: ', updateRequest);
 
@@ -498,6 +488,22 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         this.Refresh(this.getInputParams);
       },
     });
+    this.dbDataTable.flatDesignForm.FillFormWithObject = (data: Product) => {
+      if (!!data && !!this.dbDataTable.flatDesignForm) {
+        data = {...data};
+
+        data.origin = HelperFunctions.GetOriginDescription(data.origin, this.origins, '');
+        data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroup, this.productGroups, '');
+
+        Object.keys(this.dbDataTable.flatDesignForm.form.controls).forEach((x: string) => {
+          this.dbDataTable.flatDesignForm!.form.controls[x].setValue(data[x as keyof Product]);
+          if (environment.flatDesignFormDebug) {
+            console.log(`[FillFormWithObject] with Product: ${x}, ${data[x as keyof Product]},
+              ${this.dbDataTable.flatDesignForm!.form.controls[x].value}`);
+          }
+        });
+      }
+    }
 
     this.sidebarService.collapse();
 

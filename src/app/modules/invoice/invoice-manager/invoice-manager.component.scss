@@ -1,3 +1,5 @@
+$td-height: 30px;
+
 nb-form-field {
     margin: 10px;
 
@@ -74,12 +76,7 @@ nb-card {
 
     margin: auto;
 
-    @media (max-height: 1000px) {
-        max-height: 255px !important;    
-    }
-    @media (min-height: 1001px) {
-        max-height: 305px !important;
-    }
+    max-height: calc(100vh - 600px) !important;
     
     @media (max-height: 1000px) {
         td {
@@ -97,7 +94,7 @@ nb-card {
 
         th,
         td {
-            height: 50px;
+            height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
@@ -146,7 +143,7 @@ nb-card {
 
         th,
         td {
-            height: 50px;
+            height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
@@ -206,7 +203,7 @@ nb-card {
 
         th,
         td {
-            height: 50px;
+            height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;

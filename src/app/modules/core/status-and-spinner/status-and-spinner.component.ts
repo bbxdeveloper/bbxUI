@@ -10,9 +10,15 @@ import { ProcessStatus } from 'src/assets/model/ProcessStatus';
 export class StatusAndSpinnerComponent {
   public _actualStatus: ProcessStatus;
   public get InProgress() { return this.sts.InProgress; }
+  IsSimpleStatusMessage: boolean = true;
 
   constructor(private sts: StatusService) {
     this._actualStatus = {} as ProcessStatus;
-    sts.ActualStatus.subscribe(status => this._actualStatus = status);
+    sts.ActualStatus.subscribe({
+      next: status => {
+        this._actualStatus = status;
+        this.IsSimpleStatusMessage = status.isSimple ?? true;
+      }
+    });
   }
 }

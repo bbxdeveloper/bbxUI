@@ -3,20 +3,20 @@ import { NbDialogRef } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { LoginDialogResponse } from '../models/LoginDialogResponse';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
 
 @Component({
-  selector: 'app-login-dialog',
-  templateUrl: './login-dialog.component.html',
-  styleUrls: ['./login-dialog.component.scss']
+  selector: 'app-date-interval-dialog',
+  templateUrl: './date-interval-dialog.component.html',
+  styleUrls: ['./date-interval-dialog.component.scss']
 })
-export class LoginDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
+export class DateIntervalDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   title: string = "Bejelentkezés";
   closedManually = false;
 
-  loginFormNav!: NavigatableForm;
+  formNav!: NavigatableForm;
 
   TileCssClass = TileCssClass;
 
@@ -26,7 +26,7 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
 
   constructor(
     private cdrf: ChangeDetectorRef,
-    protected dialogRef: NbDialogRef<LoginDialogComponent>,
+    protected dialogRef: NbDialogRef<DateIntervalDialogComponent>,
     private kbS: KeyboardNavigationService
   ) {
     super();
@@ -35,7 +35,7 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
 
   MoveToSaveButtons(event: any): void {
     if (this.isEditModeOff) {
-      this.loginFormNav!.HandleFormEnter(event);
+      this.formNav!.HandleFormEnter(event);
     } else {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -47,26 +47,26 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
 
   private Setup(): void {
     this.IsDialog = true;
-    this.Matrix = [["login-button-login", "login-button-cancel"]];
+    this.Matrix = [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]];
 
     const loginForm = new FormGroup({
-      username: new FormControl('', [Validators.required]),
-      password: new FormControl('', [Validators.required]),
+      starDate: new FormControl('', [Validators.required]),
+      endDate: new FormControl('', [Validators.required]),
     });
 
-    this.loginFormNav = new NavigatableForm(
+    this.formNav = new NavigatableForm(
       loginForm, this.kbS, this.cdrf, [], 'loginForm', AttachDirection.UP, {} as IInlineManager
-      );
+    );
 
     // We can move onto the confirmation buttons from the form.
-    this.loginFormNav.OuterJump = true;
+    this.formNav.OuterJump = true;
     // And back to the form.
     this.OuterJump = true;
   }
 
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
-    this.loginFormNav.GenerateAndSetNavMatrices(true);
+    this.formNav.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
   }
@@ -81,15 +81,15 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
   close(answer: boolean) {
     this.closedManually = true;
     this.kbS.RemoveWidgetNavigatable();
-    if (answer && this.loginFormNav.form.valid) {
+    if (answer && this.formNav.form.valid) {
       this.dialogRef.close({
         answer: true,
-        name: this.loginFormNav.GetValue('username'),
-        pswd: this.loginFormNav.GetValue('password')
-      } as LoginDialogResponse);
+        starDate: this.formNav.GetValue('starDate'),
+        endDate: this.formNav.GetValue('endDate')
+      } as DateIntervalDialogResponse);
     }
     this.dialogRef.close({
       answer: false
-    } as LoginDialogResponse);
+    } as DateIntervalDialogResponse);
   }
 }

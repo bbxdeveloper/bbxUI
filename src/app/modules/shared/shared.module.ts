@@ -21,6 +21,8 @@ import { BaseInlineManagerComponent } from './base-inline-manager/base-inline-ma
 import { SelectTableDialogComponent } from './select-table-dialog/select-table-dialog.component';
 import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-manager.component';
 import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
+import { BbxTwoRowComboBoxComponent } from './bbx-two-row-combo-box/bbx-two-row-combo-box.component';
+import { DateIntervalDialogComponent } from './date-interval-dialog/date-interval-dialog.component';
 
 
 @NgModule({
@@ -40,6 +42,8 @@ import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
     SelectTableDialogComponent,
     BaseNoFormManagerComponent,
     BbxComboBoxComponent,
+    BbxTwoRowComboBoxComponent,
+    DateIntervalDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -86,7 +90,8 @@ import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
     BaseInlineManagerComponent,
     SelectTableDialogComponent,
     BaseNoFormManagerComponent,
-    BbxComboBoxComponent
+    BbxComboBoxComponent,
+    BbxTwoRowComboBoxComponent
   ],
   providers: [
     ConfirmationDialogComponent

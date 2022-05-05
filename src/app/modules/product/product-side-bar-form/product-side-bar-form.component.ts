@@ -3,8 +3,12 @@ import { NbSidebarService } from '@nebular/theme';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { BlankComboBoxValue } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { environment } from 'src/environments/environment';
+import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
+import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
@@ -26,13 +30,13 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   };
 
   // ProductGroup
+  _productGroups: ProductGroup[] = [];
   productGroups: string[] = [];
   productGroupComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   
   // UnitOfMeasure
   uom: string[] = [];
   uomComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-  
   
   // Origin
   origins: string[] = [];
@@ -62,7 +66,8 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.productGroupApi.GetAll().subscribe({
       next: data => {
         console.log("ProductGroups: ", data);
-        this.productGroups = data?.data?.map(x => x.productGroupCode + '-' + x.productGroupDescription) ?? [];
+        this._productGroups = data?.data ?? [];
+        this.productGroups = this._productGroups.map(x => x.productGroupDescription) ?? [];
         this.productGroupComboData$.next(this.productGroups);
       }
     });
@@ -80,7 +85,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.originApi.GetAll().subscribe({
       next: data => {
         console.log("Origins: ", data);
-        this.origins = data?.data?.map(x => x.originCode + '-' + x.originDescription) ?? [];
+        this.origins = data?.data?.map(x => x.originDescription) ?? [];
         this.originsComboData$.next(this.origins);
       }
     });
@@ -89,7 +94,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.vatApi.GetAll().subscribe({
       next: data => {
         console.log("Vats: ", data);
-        this.vatRates = data?.data?.map(x => x.vatRateCode + '-' + x.vatPercentage) ?? [];
+        this.vatRates = data?.data?.map(x => x.vatRateDescription) ?? [];
         this.vatRateComboData$.next(this.vatRates);
       }
     });
@@ -102,6 +107,20 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
     this.currentForm = form[1];
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+
+    this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
+      next: newValue => {
+        let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
+        if (!!newValue && newValue.length >= 3 &&
+            (currentProductGroup === undefined || currentProductGroup.length === 0)) {
+              let defaultProductGroup = this._productGroups
+                .find(x => x.productGroupCode === newValue.substring(0,3))?.productGroupDescription ?? BlankComboBoxValue;
+              if (defaultProductGroup.length > 0) {
+                this.currentForm?.form.controls['productGroup'].setValue(defaultProductGroup);
+              }
+        }
+      }
+    });
 
     this.cdref.detectChanges();
   }

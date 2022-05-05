@@ -54,7 +54,7 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Számláló*</label>
+                        <label class="multicol-label-col-1">Számláló*</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="number" formControlName="currentNumber"
                         [readonly]="isEditModeOff"
@@ -64,7 +64,7 @@
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label>Számláló számjegyek száma*</label>
+                        <label class="multicol-label-col-2">Számláló számjegyek száma*</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2"
                         max="10" [inputMask]="numberInputMaskInteger"

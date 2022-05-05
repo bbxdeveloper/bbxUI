@@ -8,8 +8,10 @@ import { WareHouse } from "src/app/modules/warehouse/models/WareHouse";
 import { BlankComboBoxValue } from "../model/navigation/Nav";
 
 export module HelperFunctions {
-    export function ConvertChosenOriginToCode(comboVal?: string, data: Origin[] = [], defaultValue: any = ''): any {
-        if (comboVal === BlankComboBoxValue || comboVal === undefined || comboVal === null || comboVal === defaultValue) {
+    export function ConvertChosenOriginToCode(comboVal?: string, data: Origin[] = [],
+        defaultValue: any = ''): any {
+        if (comboVal === BlankComboBoxValue || comboVal === undefined ||
+            comboVal === null || comboVal === defaultValue) {
             return defaultValue;
         }
         if (comboVal?.includes('-')) {
@@ -19,8 +21,10 @@ export module HelperFunctions {
         }
     }
 
-    export function ConvertChosenProductGroupToCode(comboVal?: string, data: ProductGroup[] = [], defaultValue: any = ''): any {
-        if (comboVal === BlankComboBoxValue || comboVal === undefined || comboVal === null || comboVal === defaultValue) {
+    export function ConvertChosenProductGroupToCode(comboVal?: string, data: ProductGroup[] = [],
+        defaultValue: any = ''): any {
+        if (comboVal === BlankComboBoxValue || comboVal === undefined ||
+            comboVal === null || comboVal === defaultValue) {
             return defaultValue;
         }
         if (comboVal?.includes('-')) {
@@ -30,19 +34,23 @@ export module HelperFunctions {
         }
     }
 
-    export function ConvertChosenVatRateToCode(comboVal?: string, data: VatRate[] = [], defaultValue: any = ''): any {
-        if (comboVal === BlankComboBoxValue || comboVal === undefined || comboVal === null || comboVal === defaultValue) {
+    export function ConvertChosenVatRateToCode(comboVal?: string, data: VatRate[] = [],
+        defaultValue: any = ''): any {
+        if (comboVal === BlankComboBoxValue || comboVal === undefined ||
+            comboVal === null || comboVal === defaultValue) {
             return defaultValue;
         }
         if (comboVal?.includes('-')) {
             return comboVal.split('-')[0] ?? defaultValue;
         } else {
-            return data.filter(x => (x.vatPercentage + defaultValue) === comboVal)[0].vatRateCode ?? defaultValue;
+            return data.filter(x => x.vatRateDescription === comboVal)[0].vatRateCode ?? defaultValue;
         }
     }
 
-    export function ConvertChosenUOMToCode(comboVal?: string, data: UnitOfMeasure[] = [], defaultValue: any = ''): any {
-        if (comboVal === BlankComboBoxValue || comboVal === undefined || comboVal === null || comboVal === defaultValue) {
+    export function ConvertChosenUOMToCode(comboVal?: string, data: UnitOfMeasure[] = [],
+        defaultValue: any = ''): any {
+        if (comboVal === BlankComboBoxValue || comboVal === undefined ||
+            comboVal === null || comboVal === defaultValue) {
             return defaultValue;
         }
         if (comboVal?.includes('-')) {
@@ -52,8 +60,10 @@ export module HelperFunctions {
         }
     }
 
-    export function ConvertChosenWareHouseToCode(comboVal?: string, data: WareHouse[] = [], defaultValue: any = ''): any {
-        if (comboVal === BlankComboBoxValue || comboVal === undefined || comboVal === null || comboVal === defaultValue) {
+    export function ConvertChosenWareHouseToCode(comboVal?: string, data: WareHouse[] = [],
+        defaultValue: any = ''): any {
+        if (comboVal === BlankComboBoxValue || comboVal === undefined ||
+            comboVal === null || comboVal === defaultValue) {
             return defaultValue;
         }
         if (comboVal?.includes('-')) {
@@ -63,8 +73,10 @@ export module HelperFunctions {
         }
     }
 
-    export function ConvertChosenCountryToCode(comboVal?: string, data: CountryCode[] = [], defaultValue: any = ''): any {
-        if (comboVal === BlankComboBoxValue || comboVal === undefined || comboVal === null || comboVal === defaultValue) {
+    export function ConvertChosenCountryToCode(comboVal?: string, data: CountryCode[] = [],
+        defaultValue: any = ''): any {
+        if (comboVal === BlankComboBoxValue || comboVal === undefined ||
+            comboVal === null || comboVal === defaultValue) {
             return defaultValue;
         }
         if (comboVal?.includes('-')) {
@@ -93,11 +105,55 @@ export module HelperFunctions {
         return data.find(x => x.value === val)?.text ?? defaultValue;
     }
 
-    export function PaymentMethodToDescription(val?: string, data?: PaymentMethod[], defaultValue: any = ''): any {
-        if (val === undefined || val === null || val.length === 0 || data === undefined || data.length === 0) {
+    export function PaymentMethodToDescription(val?: string, data?: PaymentMethod[],
+        defaultValue: any = ''): any {
+        if (val === undefined || val === null || val.length === 0 ||
+            data === undefined || data.length === 0) {
             return defaultValue;
         } else {
             return data.find(x => x.text === val)?.value ?? defaultValue;
+        }
+    }
+
+    export function GetOriginDescription(
+        val?: string, data?: Origin[], defaultValue: any = ''): any {
+        if (val === undefined || val === null || val.trim() === '') {
+            return defaultValue;
+        }
+        if (val?.includes('-')) {
+            return val.split('-')[1] ?? defaultValue;
+        } else if (!!data && data.length > 0) {
+            return data.find(x => x.originCode === val)?.originDescription ?? defaultValue;
+        } else {
+            return val;
+        }
+    }
+
+    export function GetProductGroupDescription(
+        val?: string, data?: ProductGroup[], defaultValue: any = ''): any {
+        if (val === undefined || val === null || val.trim() === '') {
+            return defaultValue;
+        }
+        if (val?.includes('-')) {
+            return val.split('-')[1] ?? defaultValue;
+        } else if (!!data && data.length > 0) {
+            return data.find(x => x.productGroupCode === val)?.productGroupDescription ?? defaultValue;
+        } else {
+            return val;
+        }
+    }
+
+    export function GetWarehouseDescription(
+        val?: string, data?: WareHouse[], defaultValue: any = ''): any {
+        if (val === undefined || val === null || val.trim() === '') {
+            return defaultValue;
+        }
+        if (val?.includes('-')) {
+            return val.split('-')[1] ?? defaultValue;
+        } else if (!!data && data.length > 0) {
+            return data.find(x => x.warehouseCode === val)?.warehouseDescription ?? defaultValue;
+        } else {
+            return val;
         }
     }
 }

@@ -517,6 +517,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         switch (event.key) {
             case KeyBindings.F2: {
                 event.preventDefault();
+                if (this.isEditModeOff) {
+                    this.kbs.ClickCurrentElement();
+                }
                 this.parentComponent.ChooseDataForTableRow(rowIndex);
                 break;
             }
