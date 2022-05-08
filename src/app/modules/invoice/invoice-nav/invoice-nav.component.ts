@@ -317,14 +317,14 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     if (this.invoiceIssueDateToValue === undefined) {
       return null;
     }
-    const wrong = new Date(control.value) <= this.invoiceIssueDateToValue;
+    const wrong = new Date(control.value) > this.invoiceIssueDateToValue;
     return wrong ? { maxDate: { value: control.value } } : null;
   }
   validateInvoiceIssueDateTo(control: AbstractControl): any {
     if (this.invoiceIssueDateFromValue === undefined) {
       return null;
     }
-    const wrong = new Date(control.value) >= this.invoiceIssueDateFromValue;
+    const wrong = new Date(control.value) < this.invoiceIssueDateFromValue;
     return wrong ? { minDate: { value: control.value } } : null;
   }
 
@@ -332,14 +332,14 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     if (this.invoiceDeliveryDateToValue === undefined) {
       return null;
     }
-    const wrong = new Date(control.value) <= this.invoiceDeliveryDateToValue;
+    const wrong = new Date(control.value) > this.invoiceDeliveryDateToValue;
     return wrong ? { maxDate: { value: control.value } } : null;
   }
   validateInvoiceDeliveryDateTo(control: AbstractControl): any {
     if (this.invoiceDeliveryDateFromValue === undefined) {
       return null;
     }
-    const wrong = new Date(control.value) >= this.invoiceDeliveryDateFromValue;
+    const wrong = new Date(control.value) < this.invoiceDeliveryDateFromValue;
     return wrong ? { minDate: { value: control.value } } : null;
   }
 

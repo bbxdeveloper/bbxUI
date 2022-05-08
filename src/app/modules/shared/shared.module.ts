@@ -23,6 +23,7 @@ import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-
 import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
 import { BbxTwoRowComboBoxComponent } from './bbx-two-row-combo-box/bbx-two-row-combo-box.component';
 import { DateIntervalDialogComponent } from './date-interval-dialog/date-interval-dialog.component';
+import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-input-dialog.component';
 
 
 @NgModule({
@@ -44,6 +45,7 @@ import { DateIntervalDialogComponent } from './date-interval-dialog/date-interva
     BbxComboBoxComponent,
     BbxTwoRowComboBoxComponent,
     DateIntervalDialogComponent,
+    OneTextInputDialogComponent,
   ],
   imports: [
     CommonModule,

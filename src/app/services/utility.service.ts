@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { StatusService } from './status.service';
@@ -7,10 +7,15 @@ import { NbToastrService } from '@nebular/theme';
 import { InvoiceService } from '../modules/invoice/services/invoice.service';
 import { CommonService } from './common.service';
 
+const POC_REPORT_ENDED =
+  { Id: -1, CmdType: Constants.CommandType.POC_REPORT } as Constants.CommandDescriptor;
+
 @Injectable({
   providedIn: 'root'
 })
 export class UtilityService {
+  CommandEnded: BehaviorSubject<Constants.CommandDescriptor | undefined> =
+    new BehaviorSubject<Constants.CommandDescriptor | undefined>(undefined);
 
   constructor(
     private invS: InvoiceService,
@@ -31,7 +36,7 @@ export class UtilityService {
       case Constants.CommandType.POC_REPORT:
         switch (params['data_operation'] as Constants.DataOperation) {
           case Constants.DataOperation.PRINT_BLOB:
-            this.print(fileType, this.invS.GetReport(params));
+            this.print(fileType, this.invS.GetReport(params), params);
             break;
           case Constants.DataOperation.DOWNLOAD_BLOB:
             this.download(this.invS.GetReport(params));
@@ -41,7 +46,7 @@ export class UtilityService {
       case Constants.CommandType.PRINT_POC_GRADES:
         switch (params['data_operation'] as Constants.DataOperation) {
           case Constants.DataOperation.PRINT_BLOB:
-            this.print(fileType, this.invS.GetGradesReport(params));
+            this.print(fileType, this.invS.GetGradesReport(params), params);
             break;
           case Constants.DataOperation.DOWNLOAD_BLOB:
             this.download(this.invS.GetGradesReport(params));
@@ -51,7 +56,7 @@ export class UtilityService {
     }
   }
 
-  private print(fileType: Constants.FileExtensions, res: Observable<any>): void {
+  private print(fileType: Constants.FileExtensions, res: Observable<any>, params: Constants.Dct = {}): void {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.GENERATING]);
     switch (fileType) {
       case Constants.FileExtensions.PDF:
@@ -64,7 +69,7 @@ export class UtilityService {
     }
   }
 
-  private sendPdfToElectron(resData: Observable<any>): void {
+  private sendPdfToElectron(resData: Observable<any>, params: Constants.Dct = {}): void {
     resData.subscribe({
       next: res => {
         this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_RESP]);
@@ -74,14 +79,16 @@ export class UtilityService {
         // Read blob data as binary string
         const reader = new FileReader();
         const stS = this.sts;
+        const handleError = this.HandleError;
+        const commandEnded = this.CommandEnded;
         reader.onload = function () {
           try {
-            const event = new CustomEvent('print-pdf', { detail: { bloburl: blobURL, buffer: this.result } });
+            const event = new CustomEvent('print-pdf', { detail: { bloburl: blobURL, buffer: this.result, copies: params['copies'] } });
             document.dispatchEvent(event);
             stS.pushProcessStatus(Constants.BlankProcessStatus);
           } catch (error) {
-            stS.pushProcessStatus(Constants.BlankProcessStatus);
-            console.error("write file error", error);
+            handleError(error)
+            commandEnded.next(POC_REPORT_ENDED);
           }
         };
         reader.readAsBinaryString(blob);
@@ -89,11 +96,12 @@ export class UtilityService {
       },
       error: err => {
         this.HandleError(err);
+        this.CommandEnded.next(POC_REPORT_ENDED);
       }
     });
   }
 
-  private printPdfFromResponse(resData: Observable<any>): void {
+  private printPdfFromResponse(resData: Observable<any>, params: Constants.Dct = {}): void {
     resData.subscribe({
       next: res => {
         this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_RESP]);
@@ -108,6 +116,7 @@ export class UtilityService {
         iframe.src = blobURL;
 
         const stS = this.sts;
+        const commandEnded = this.CommandEnded;
         iframe.onload = () => {
           this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.SEND_TO_PRINTER]);
           // Print
@@ -115,6 +124,7 @@ export class UtilityService {
             iframe.focus();
             iframe.contentWindow!.print();
             stS.pushProcessStatus(Constants.BlankProcessStatus);
+            commandEnded.next(POC_REPORT_ENDED);
           }, 1);
           // Waiting 10 minute to make sure printing is done, then removing the iframe
           setTimeout(function () {
@@ -124,6 +134,7 @@ export class UtilityService {
       },
       error: err => {
         this.HandleError(err);
+        this.CommandEnded.next(POC_REPORT_ENDED);
       }
     });
   }
@@ -152,9 +163,11 @@ export class UtilityService {
         URL.revokeObjectURL(blobURL);
         a.remove();
         this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        this.CommandEnded.next(POC_REPORT_ENDED);
       },
       error: err => {
         this.HandleError(err);
+        this.CommandEnded.next(POC_REPORT_ENDED);
       }
     });
   }

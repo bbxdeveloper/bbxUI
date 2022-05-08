@@ -36,6 +36,8 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { UtilityService } from 'src/app/services/utility.service';
+import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -211,7 +213,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private toastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
-    private productService: ProductService
+    private productService: ProductService,
+    private utS: UtilityService,
   ) {
     super(dialogService, kbS, fS, cs, sts);
     this.dbDataTableId = "invoice-inline-table-invoice-line";
@@ -613,7 +616,28 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.incoming = false;
     this.outGoingInvoiceData.invoiceType = 'INV';
 
+    let lastIndex = this.outGoingInvoiceData.invoiceLines.length - 1;
+    if (this.outGoingInvoiceData.invoiceLines[lastIndex].IsUnfinished()) {
+      this.outGoingInvoiceData.invoiceLines.splice(lastIndex, 1);
+    }
+
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+  }
+
+  printReport(id: any, copies: number): void {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
+    this.utS.execute(
+      Constants.CommandType.POC_REPORT, Constants.FileExtensions.PDF,
+      {
+        "section": "Szamla",
+        "fileType": "pdf",
+        "report_params": {
+          "params": []
+        },
+        "id": id,
+        "copies": copies,
+        "data_operation": Constants.DataOperation.PRINT_BLOB
+      } as Constants.Dct);
   }
 
   Save(): void {
@@ -635,19 +659,71 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       if (!!res) {
         this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
           next: d => {
-            console.log('Save response: ', d);
-            this.toastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS
-            );
-            this.isLoading = false;
-            this.dbDataTable.RemoveEditRow();
+            if (!!d.data) {
+              console.log('Save response: ', d);
+              
+              this.toastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+              this.isLoading = false;
+
+              this.dbDataTable.RemoveEditRow();
+              
+              this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+
+              const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+                context: {
+                  title: 'Számla Nyomtatása',
+                  inputLabel: 'Példányszám',
+                }
+              });
+              dialogRef.onClose.subscribe({
+                next: res => {
+                  if (res.answer) {
+                    this.utS.CommandEnded.subscribe({
+                      next: cmdEnded => {
+                        if (cmdEnded?.CmdType === Constants.CommandType.POC_REPORT) {
+                          this.utS.CommandEnded.unsubscribe();
+                          this.toastrService.show(
+                            `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
+                            Constants.TITLE_INFO,
+                            Constants.TOASTR_SUCCESS
+                          );
+                          this.isLoading = false;
+                        }
+                      },
+                      error: err => {
+                        this.utS.CommandEnded.unsubscribe();
+                        this.toastrService.show(
+                          `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,
+                          Constants.TITLE_ERROR,
+                          Constants.TOASTR_ERROR
+                        );
+                        this.isLoading = false;
+                      }
+                    });
+                    this.isLoading = true;
+                    this.printReport(d.data?.id, res.value);
+                  } else {
+                    this.toastrService.show(
+                      `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása nem történt meg.`,
+                      Constants.TITLE_INFO,
+                      Constants.TOASTR_SUCCESS
+                    );
+                  }
+                }
+              });
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isLoading = false;
+            }
           },
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
-            this.dbDataTable.RemoveEditRow();
+            // this.dbDataTable.RemoveEditRow();
           },
           complete: () => {
             this.isLoading = false;

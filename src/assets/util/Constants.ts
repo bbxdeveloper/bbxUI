@@ -98,4 +98,9 @@ export module Constants {
 
     export type Dct = { [id: string]: any; };
     export type KeySettingsDct = { [key in Actions]: KeySettingRow; };
+
+    export interface CommandDescriptor {
+        Id: number,
+        CmdType: CommandType;
+    }
 }
