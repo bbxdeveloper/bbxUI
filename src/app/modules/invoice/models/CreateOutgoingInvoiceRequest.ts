@@ -3,9 +3,9 @@ import { InvoiceLine } from "./InvoiceLine";
 export interface CreateOutgoingInvoiceRequest {
     "warehouseCode": string, // 001 - string
     
-    "invoiceIssueDate": string, // date
-    "invoiceDeliveryDate": string, // date
-    "paymentDate": string, // date
+    "invoiceIssueDate": any, // date
+    "invoiceDeliveryDate": any, // date
+    "paymentDate": any, // date
     
     "customerID": number,
     

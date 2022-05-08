@@ -177,12 +177,16 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         .ConvertChosenWareHouseToCode(this.filterForm.controls['WarehouseCode'].value, this.wh, ''),
 
       // Radio 1
-      InvoiceIssueDateFrom: this.isIssueFilterSelected ? this.filterForm.controls['InvoiceIssueDateFrom'].value : null,
-      InvoiceIssueDateTo: this.isIssueFilterSelected ? this.filterForm.controls['InvoiceIssueDateTo'].value : null,
+      InvoiceIssueDateFrom: this.isIssueFilterSelected ?
+        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceIssueDateFrom'].value) : null,
+      InvoiceIssueDateTo: this.isIssueFilterSelected ?
+        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceIssueDateTo'].value) : null,
 
       // Radio 2
-      InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ? this.filterForm.controls['InvoiceDeliveryDateFrom'].value : null,
-      InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ? this.filterForm.controls['InvoiceDeliveryDateTo'].value : null,
+      InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ?
+        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceDeliveryDateFrom'].value) : null,
+      InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ?
+        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceDeliveryDateTo'].value) : null,
     };
   }
 
@@ -340,16 +344,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   }
 
   InitFormDefaultValues(): void {
-    const tmp = new Date();
-    const year = tmp.getFullYear();
-
-    let month = tmp.getMonth() + '';
-    month = month.length === 1 ? '0' + month : month;
-
-    let day = tmp.getDay() + '';
-    day = day.length === 1 ? '0' + day : month;
-
-    const dateStr = year + '-' + month + '-' + day;
+    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
 
     this.filterForm.controls['Incoming'].setValue(false);
 
@@ -544,7 +539,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   override Refresh(params?: GetInvoicesParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.invoiceService.GetAll({ Incoming: true }).subscribe({
+    this.invoiceService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug

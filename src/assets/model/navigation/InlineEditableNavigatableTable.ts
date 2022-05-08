@@ -261,7 +261,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean): void {
+    GenerateAndSetNavMatrices(attach: boolean, afterSort: boolean = false): void {
         this.Matrix = [];
 
         for (let y = 0; y < this.data.length; y++) {
@@ -277,10 +277,28 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         
         if (environment.debug) {
         }
+
         console.log('[GenerateAndSetNavMatrices]', this.Matrix);
 
         if (attach) {
             this.kbS.Attach(this, this.attachDirection);
+        }
+
+        if (afterSort) {
+            const tempX = this.kbs.p.x;
+            const tempY = this.kbs.p.y;
+
+            this.RemoveEditRow(false);
+
+            console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+
+            this.cdref.detectChanges();
+
+            this.kbs.SelectElementByCoordinate(tempX, tempY);
+
+            console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+
+            this.SetCreatorRow();
         }
     }
 
@@ -497,7 +515,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.parentComponent.RecalcNetAndVat();
     }
 
-    RemoveEditRow(): void {
+    RemoveEditRow(reGenerateMatrix: boolean = true): void {
         if (!this.data[this.data.length - 1].data.IsUnfinished()) {
             return;
         }
@@ -510,7 +528,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         if ((this.data.length - 1) !== 0) {
             this.kbS.MoveUp();
         }
-        this.GenerateAndSetNavMatrices(false);
+
+        if (reGenerateMatrix) {
+            this.GenerateAndSetNavMatrices(false);
+        }
     }
 
     HandleKey(event: any, rowIndex: number): void {

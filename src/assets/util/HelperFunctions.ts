@@ -156,4 +156,13 @@ export module HelperFunctions {
             return val;
         }
     }
+
+    export function FormFieldStringToDateTimeString(str: any): string {
+        return new Date(str + 'T00:00:00').toISOString()
+    }
+
+    export function GenerateTodayFormFieldDateString(): string {
+        const dateArray = new Date().toLocaleDateString('hu').split(". ");
+        return dateArray[0] + '-' + dateArray[1] + '-' + dateArray[2].substring(0, 2);
+    }
 }

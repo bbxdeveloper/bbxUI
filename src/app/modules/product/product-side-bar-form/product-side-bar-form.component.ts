@@ -100,6 +100,13 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     });
   }
 
+  SetCursorPose(event: any): void {
+    setTimeout(() => {
+      console.log("SetCursorPose: ", event.target.value);
+      event.target.setSelectionRange(0, 0);
+    }, 50);
+  }
+
   private SetNewForm(form?: FormSubject): void {
     if ((!!form && form[0] !== 'Product') || !!!form) {
       return;

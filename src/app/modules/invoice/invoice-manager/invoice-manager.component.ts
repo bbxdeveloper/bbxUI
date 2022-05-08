@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { Observable, of, startWith, map } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -63,7 +63,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   customerInputFilterString: string = '';
 
-  searchByTaxtNumber: boolean = false;
+  _searchByTaxtNumber: boolean = false;
+  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
+  set searchByTaxtNumber(value: boolean) {
+    this._searchByTaxtNumber = value;
+    this.cdref.detectChanges();
+    this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
+  }
 
   numberInputMask = createMask({
     alias: 'numeric',
@@ -107,7 +113,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "5%", textAlign: "left", fInputType: 'formatted-number'
+      colWidth: "5%", textAlign: "right", fInputType: 'formatted-number'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -301,6 +307,23 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.refresh();
   }
 
+  changeSort(sortRequest: NbSortRequest): void {
+    this.dbDataDataSrc.sort(sortRequest);
+    this.sortColumn = sortRequest.column;
+    this.sortDirection = sortRequest.direction;
+
+    setTimeout(() => {
+      this.dbDataTable?.GenerateAndSetNavMatrices(false, true);
+    }, 50);
+  }
+
+  getDirection(column: string): NbSortDirection {
+    if (column === this.sortColumn) {
+      return this.sortDirection;
+    }
+    return NbSortDirection.NONE;
+  }
+
   // invoiceDeliveryDate
   validateInvoiceDeliveryDate(control: AbstractControl): any {
     if (this.invoiceIssueDateValue === undefined) {
@@ -321,16 +344,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   InitFormDefaultValues(): void {
-    const tmp = new Date();
-    const year = tmp.getFullYear();
-
-    let month = tmp.getMonth() + '';
-    month = month.length === 1 ? '0' + month : month;
-
-    let day = tmp.getDay() + '';
-    day = day.length === 1 ? '0' + day : month;
-
-    const dateStr = year + '-' + month + '-' + day;
+    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
 
     this.outInvForm.controls['invoiceIssueDate'].setValue(dateStr);
     this.outInvForm.controls['invoiceDeliveryDate'].setValue(dateStr);
@@ -568,9 +582,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
     
-    this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
-    this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
-    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+    this.outGoingInvoiceData.invoiceDeliveryDate =
+      HelperFunctions.FormFieldStringToDateTimeString(this.outInvForm.controls['invoiceDeliveryDate'].value);
+    this.outGoingInvoiceData.invoiceIssueDate =
+      HelperFunctions.FormFieldStringToDateTimeString(this.outInvForm.controls['invoiceIssueDate'].value);
+    this.outGoingInvoiceData.paymentDate =
+      HelperFunctions.FormFieldStringToDateTimeString(this.outInvForm.controls['paymentDate'].value);
     
     this.outGoingInvoiceData.paymentMethod =
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);

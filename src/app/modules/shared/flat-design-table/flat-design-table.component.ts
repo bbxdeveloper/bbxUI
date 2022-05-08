@@ -1,4 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
+import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
+import { NbCollectionViewer } from '@nebular/theme/components/cdk/collections/collection-viewer';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
@@ -15,7 +17,7 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
   @Input() dbDataTableId: any;
-  @Input() dbDataDataSrc: any;
+  @Input() dbDataDataSrc!: NbTreeGridDataSource<any>;
   @Input() trackRows: any;
   @Input() isLoading: boolean = true;
   @Input() showMsgOnNoData: boolean = true;
@@ -24,7 +26,27 @@ export class FlatDesignTableComponent implements OnInit {
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
 
+  sortColumn: string = '';
+  sortDirection: NbSortDirection = NbSortDirection.NONE;
+
   constructor(private sideBarService: BbxSidebarService) {}
+
+  changeSort(sortRequest: NbSortRequest): void {
+    this.dbDataDataSrc.sort(sortRequest);
+    this.sortColumn = sortRequest.column;
+    this.sortDirection = sortRequest.direction;
+
+    setTimeout(() => {
+      this.dbDataTable?.GenerateAndSetNavMatrices(false, undefined, true);
+    }, 50);
+  }
+
+  getDirection(column: string): NbSortDirection {
+    if (column === this.sortColumn) {
+      return this.sortDirection;
+    }
+    return NbSortDirection.NONE;
+  }
 
   ngOnInit(): void {}
 

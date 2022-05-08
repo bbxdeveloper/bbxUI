@@ -158,7 +158,14 @@ export class KeyboardNavigationService {
     this.ElementIdSelected.next(id);
   }
 
-  public ClickElement(id: string): void {
+  public RemoveSelectedElementClasses(): void {
+    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
+      $(element).removeClass(SELECTED_ELEMENT_CLASS);
+      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+    });
+  }
+
+  public ClickElement(id: string, excludeButtons: boolean = false): void {
     const idString = '#' + id;
 
     if (environment.navigationSelectLog)
@@ -171,7 +178,10 @@ export class KeyboardNavigationService {
     $(idString).addClass(SELECTED_ELEMENT_CLASS);
     $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-    if ($(idString).is(':radio')) {
+    if (excludeButtons && $(idString).is(':button')) {
+      $(idString).trigger('focus');
+    }
+    else if ($(idString).is(':radio')) {
       $(idString).trigger('focus');
     } else {
       $(idString).trigger('click');
@@ -216,8 +226,8 @@ export class KeyboardNavigationService {
     this.SelectElement(this.Here)
   }
 
-  public ClickCurrentElement(): void {
-    this.ClickElement(this.Here)
+  public ClickCurrentElement(excludeButtons: boolean = false): void {
+    this.ClickElement(this.Here, excludeButtons)
   }
 
   public SelectFirstTile(): void {

@@ -19,8 +19,10 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Kód*</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode"
-                        [dropSpecialCharacters]="false" oninput="this.value = this.value.toUpperCase()"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode" #codeInput
+                        [dropSpecialCharacters]="false"
+                        oninput="this.value = this.value.toUpperCase()"
+                        (focus)="codeInput.setSelectionRange(0, 0)"
                         mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
                         [readonly]="isEditModeOff"
                         [patterns]="customPatterns" (click)="currentForm.HandleFormFieldClick($event)" required>

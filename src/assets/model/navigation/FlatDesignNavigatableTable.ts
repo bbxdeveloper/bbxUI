@@ -174,7 +174,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     Attach(): void { }
-    Detach(): void { }
+    Detach(): void {
+        this.kbs.Detach();
+    }
 
     Setup(productsData: TreeGridNode<T>[], productsDataSource: NbTreeGridDataSource<TreeGridNode<T>>,
         allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>
@@ -348,7 +350,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any): void {
+    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any, selectPreviousPoseAfterGenerate: boolean = false): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
@@ -401,6 +403,19 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         if (attach) {
             this.kbs.Attach(this, this.attachDirection);
+        }
+
+        if (selectPreviousPoseAfterGenerate) {
+            const tempX = this.kbs.p.x;
+            const tempY = this.kbs.p.y;
+
+            console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+
+            this.cdr.detectChanges();
+
+            this.kbs.SelectElementByCoordinate(tempX, tempY);
+
+            console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
         }
 
         if (idToSelectAfterGenerate !== undefined) {
