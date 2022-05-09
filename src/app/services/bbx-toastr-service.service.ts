@@ -5,6 +5,7 @@ import { NbToastrConfig, NbToastRef, NbToastrService } from '@nebular/theme';
   providedIn: 'root'
 })
 export class BbxToastrService {
+  private maxToastCount: number = 2;
 
   private _toastrRef?: NbToastRef;
   private _toastrOpened: boolean = false;
@@ -18,6 +19,14 @@ export class BbxToastrService {
   show(message: any, title?: any, userConfig?: Partial<NbToastrConfig>): NbToastRef {
     this._toastrRef = this.toastrService.show(message, title, userConfig);
     this.toastrRefStack.push(this._toastrRef);
+    if (this.toastrRefStack.length > this.maxToastCount) {
+      let i = 0;
+      for (; i < this.maxToastCount - 1; i++) {
+        let temp = this.toastrRefStack[i];
+        temp.close();
+      }
+      this.toastrRefStack.splice(0, i + 1);
+    }
     this._toastrRef.onClose().subscribe({
       next: () => { this._toastrOpened = false; this.toastrRefStack.pop(); }
     });

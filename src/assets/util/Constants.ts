@@ -25,9 +25,9 @@ export module Constants {
     export const MSG_LOGOUT_FAILED: string = 'Sikertelen kijelentkezés!'
 
     export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
-        { duration: 5000, status: 'primary' };
+        { duration: 0, status: 'primary' };
     export const TOASTR_ERROR: Partial<NbToastrConfig> =
-        { duration: 5000, status: 'danger' };
+        { duration: 0, status: 'danger' };
 
 
     // Util
