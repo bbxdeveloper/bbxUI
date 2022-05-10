@@ -38,21 +38,21 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   readonly ChosenDeliveryFilterOptionValue: string = '2';
 
   override allColumns = [
-    'InvoiceNumber',
-    'CustomerName',
-    'WarehouseName',
-    'InvoiceDeliveryDate',
-    'PaymentDate',
-    'PaymentMethodX',
-    'InvoiceNetAmount',
-    'InvoiceVatAmount',
-    'Notice',
+    'invoiceNumber',
+    'customerName',
+    'warehouse',
+    'invoiceDeliveryDate',
+    'paymentDate',
+    'paymentMethodX',
+    'invoiceNetAmount',
+    'invoiceVatAmount',
+    'notice',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Számlaszám',
-      objectKey: 'InvoiceNumber',
-      colKey: 'InvoiceNumber',
+      objectKey: 'invoiceNumber',
+      colKey: 'invoiceNumber',
       defaultValue: '',
       type: 'string',
       fInputType: 'readonly',
@@ -63,8 +63,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Vevő',
-      objectKey: 'CustomerName',
-      colKey: 'CustomerName',
+      objectKey: 'customerName',
+      colKey: 'customerName',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -75,8 +75,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Raktár',
-      objectKey: 'WarehouseName',
-      colKey: 'WarehouseName',
+      objectKey: 'warehouse',
+      colKey: 'warehouse',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -88,8 +88,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Számlázás ideje',
-      objectKey: 'InvoiceDeliveryDate',
-      colKey: 'InvoiceDeliveryDate',
+      objectKey: 'invoiceDeliveryDate',
+      colKey: 'invoiceDeliveryDate',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -101,8 +101,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Fizetési határidő',
-      objectKey: 'PaymentDate',
-      colKey: 'PaymentDate',
+      objectKey: 'paymentDate',
+      colKey: 'paymentDate',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -114,8 +114,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Fizetési mód',
-      objectKey: 'PaymentMethodX',
-      colKey: 'PaymentMethodX',
+      objectKey: 'paymentMethodX',
+      colKey: 'paymentMethodX',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -127,8 +127,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Nettó érték',
-      objectKey: 'InvoiceNetAmount',
-      colKey: 'InvoiceNetAmount',
+      objectKey: 'invoiceNetAmount',
+      colKey: 'invoiceNetAmount',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -140,8 +140,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Áfás érték',
-      objectKey: 'InvoiceVatAmount',
-      colKey: 'InvoiceVatAmount',
+      objectKey: 'invoiceVatAmount',
+      colKey: 'invoiceVatAmount',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -153,8 +153,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     },
     {
       label: 'Megjegyzés',
-      objectKey: 'Notice',
-      colKey: 'Notice',
+      objectKey: 'notice',
+      colKey: 'notice',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -205,26 +205,26 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   get sumGrossAmount(): any {
     return this.dbData
       .map(x => x.data)
-      .map(x => x.InvoiceNetAmount ?? 0)
+      .map(x => x.invoiceNetAmount ?? 0)
       .reduce((sum, current) => sum + current, 0)
       +
       this.dbData
         .map(x => x.data)
-        .map(x => x.InvoiceVatAmount ?? 0)
+        .map(x => x.invoiceVatAmount ?? 0)
         .reduce((sum, current) => sum + current, 0);
   }
 
   get sumNetAmount(): any {
     return this.dbData
       .map(x => x.data)
-      .map(x => x.InvoiceNetAmount ?? 0)
+      .map(x => x.invoiceNetAmount ?? 0)
       .reduce((sum, current) => sum + current, 0);
   }
 
   get sumVatAmount(): any {
     return this.dbData
       .map(x => x.data)
-      .map(x => x.InvoiceVatAmount ?? 0)
+      .map(x => x.invoiceVatAmount ?? 0)
       .reduce((sum, current) => sum + current, 0);
   }
 
@@ -515,7 +515,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       this.dbDataTableId,
       AttachDirection.DOWN,
       'sideBarForm',
-      AttachDirection.RIGHT,
+      AttachDirection.UP,
       this.sidebarService,
       this.sidebarFormService,
       this,
