@@ -1,4 +1,4 @@
-import { InvoiceLine } from "out/bbx-ui-win32-x64/resources/app/src/app/modules/invoice/models/InvoiceLine"
+import { InvoiceLine } from "./InvoiceLine";
 
 export interface Invoice {
     "id": number,
