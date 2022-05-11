@@ -356,36 +356,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     this.filterForm.controls['WarehouseCode'].setValue(this.wh[0]?.warehouseCode ?? '');
 
     this.filterForm.controls['DateFilterChooser'].setValue(this.DefaultChosenDateFilter);
-
-  //   this.filterForm.controls['InvoiceIssueDateFrom'].valueChanges.subscribe({
-  //     next: p => {
-  //       this.filterForm.controls['InvoiceIssueDateTo']
-  //         .setValue(this.filterForm.controls['InvoiceIssueDateTo'].value);
-  //       this.filterForm.controls['InvoiceIssueDateTo'].markAsTouched();
-  //     }
-  //   });
-  //   this.filterForm.controls['InvoiceIssueDateTo'].valueChanges.subscribe({
-  //     next: p => {
-  //       this.filterForm.controls['InvoiceIssueDateFrom']
-  //         .setValue(this.filterForm.controls['InvoiceIssueDateFrom'].value);
-  //       this.filterForm.controls['InvoiceIssueDateFrom'].markAsTouched();
-  //     }
-  //   });
-
-  //   this.filterForm.controls['InvoiceDeliveryDateFrom'].valueChanges.subscribe({
-  //     next: p => {
-  //       this.filterForm.controls['InvoiceDeliveryDateTo']
-  //         .setValue(this.filterForm.controls['InvoiceDeliveryDateTo'].value);
-  //       this.filterForm.controls['InvoiceDeliveryDateTo'].markAsTouched();
-  //     }
-  //   });
-  //   this.filterForm.controls['InvoiceDeliveryDateTo'].valueChanges.subscribe({
-  //     next: p => {
-  //       this.filterForm.controls['InvoiceDeliveryDateFrom']
-  //         .setValue(this.filterForm.controls['InvoiceDeliveryDateFrom'].value);
-  //       this.filterForm.controls['InvoiceDeliveryDateFrom'].markAsTouched();
-  //     }
-  //   });
   }
 
   private refreshComboboxData(): void {
@@ -493,6 +463,16 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       }
     });
 
+    this.filterForm.controls['DateFilterChooser'].valueChanges.subscribe({
+      next: newValue => {
+        if (this.isDeliveryFilterSelectedAndValid) {
+          this.Refresh(this.getInputParams);
+        }
+      }
+    });
+
+    this.InitFormDefaultValues();
+
     this.filterFormNav = new FlatDesignNoTableNavigatableForm(
       this.filterForm,
       this.kbS,
@@ -537,7 +517,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   }
 
   override Refresh(params?: GetInvoicesParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
     this.invoiceService.GetAll(params).subscribe({
       next: (d) => {
@@ -578,8 +558,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   }
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
-
-    this.InitFormDefaultValues();
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 

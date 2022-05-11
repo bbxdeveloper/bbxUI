@@ -457,7 +457,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
             console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
 
-            this.parentComponent.TableRowDataChanged(tmp, rowPos);
+            this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
         } else {
             // Entering edit mode
             this.Edit(row, rowPos, col);

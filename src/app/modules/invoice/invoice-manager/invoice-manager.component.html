@@ -56,9 +56,6 @@
 
     <div class="card-col-1">
         <nb-card>
-            <!-- <nb-card-header class="card-header-txt-center card-header-top-margin">
-                Vevő
-            </nb-card-header> -->
             <nb-card-body class="form-col-2">
                 <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
                     [id]="buyerFormId">
@@ -66,7 +63,6 @@
                     <table class="customer-search-row">
                         <tr>
                             <td>
-                                <!-- (keydown.enter)="buyerFormNav.HandleFilterInputFormEnter($event, true, true, cachedCustomerName, 'customerSearch')" -->
                                 <nb-form-field class="search-row-nb-form-field"
                                     (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
                                     (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
@@ -75,7 +71,6 @@
                                         placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
                             </td>
-                            <!-- <td *ngIf="searchByTaxtNumber">  -->
                             <td>
                                 <button *ngIf="searchByTaxtNumber" nbButton [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}" (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
@@ -131,17 +126,8 @@
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, false)">
                     <label>Fizetési mód</label>
-                    <!-- <input nbInput type="text" formControlName='paymentMethod' required="true"
-                        [readonly]="isEditModeOff" placeholder="Fizetési mód" id="m00"> -->
-                    <!-- <nb-select formControlName='paymentMethod' required="true" id="m00">
-                        <nb-option value="">Válasszon</nb-option>
-                        <nb-option value="0">Készpénz</nb-option>
-                        <nb-option value="1">Átutalás</nb-option>
-                    </nb-select> -->
                     <input formControlName="paymentMethod" nbInput type="text" [nbAutocomplete]="autoPaymentMethod"
                         class="{{TileCssClass}}" readonly placeholder="Fizetési mód" autocomplete="off" id="m00" />
-                    <!--  (keyup)="handleAutoCompleteOptionFocused($event)"-->
-                    <!-- AUTOCOMPLETE -->
                     <nb-autocomplete #autoPaymentMethod [activeFirst]="false"
                         (selectedChange)="outInvFormNav.HandleAutoCompleteSelect($event, 'paymentMethod')">
                         <nb-option *ngFor="let option of paymentMethodOptions$ | async; let i = index" [value]="option">
@@ -260,7 +246,11 @@
                                         [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                        {{
+                                            it.calc !== undefined ? 
+                                            it.calc(row.data) : 
+                                            row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' | replace:',':'.'
+                                        }}
                                     </div>
                                 </ng-container>
 
@@ -308,9 +298,20 @@
                             </ng-container>
 
                             <ng-container *ngIf="it.fReadonly">
-                                <div>
-                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
-                                </div>
+                                <ng-container *ngSwitchCase="'formatted-number'">
+                                    <div>
+                                        {{
+                                        it.calc !== undefined ?
+                                        it.calc(row.data) :
+                                        row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' | replace:',':'.'
+                                        }}
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngSwitchDefault="">
+                                    <div>
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
                             </ng-container>
                         </td>
                     </ng-container>
@@ -319,11 +320,11 @@
         </form>
     </nb-card-body>
     <nb-card-footer class="invoice-table-statistics">
-        <span class="line-amount">
-            Összes nettó: {{outGoingInvoiceData.invoiceNetAmount}}
-        </span>
-        <span class="line-amount">
-            Összes bruttó: {{outGoingInvoiceData.lineGrossAmount}}
-        </span>
+        <table class="table-statistics-net-vat-gross">
+            <tr>
+                <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.1-2':'fr' | replace:',':'.'}}</td>
+                <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.1-2':'fr' | replace:',':'.'}}</td>
+            </tr>
+        </table>
     </nb-card-footer>
 </nb-card>

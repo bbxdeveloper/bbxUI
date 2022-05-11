@@ -7,52 +7,6 @@ nb-form-field {
     margin-right: auto;
 }
 
-.customer-search-row {
-    margin-top: 25px;
-    display: block;
-
-    tr {
-        display: grid;
-        align-items: center;
-        grid-template-columns: 35% 15% 50%;
-        min-width: 100%;
-
-        td {
-            // width: 50%;
-
-            input {
-                min-width: 50% !important;
-                // max-width: 50%;
-            }
-
-            .card-header-top-margin {
-                margin-top: 0px;
-            }
-
-            .card-header-row-txt {
-                text-align: left;
-                margin-left: 10px;
-
-                font-size: xx-large;
-                text-transform: uppercase;
-                font-weight: 600;
-            }
-        }
-    }
-
-    .btn-hide {
-        visibility: hidden;
-    }
-    .btn-show {
-        visibility: visible;
-    }
-}
-
-.card-header-top-margin {
-  margin-top: 25px;
-  margin-bottom: 5px;
-}
-
 .div-wrapper-input {
     display: flex;
 
@@ -525,5 +479,62 @@ input, label, th, td {
     span.line-amount {
         font-size: 1rem;
         margin-left: 25px;
+    }
+}
+
+.customer-search-row {
+    margin-top: 25px;
+    display: block;
+
+    tr {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 35% 15% 50%;
+        min-width: 100%;
+
+        td {
+            input {
+                min-width: 50% !important;
+            }
+
+            .card-header-top-margin {
+                margin-top: 0px;
+            }
+
+            .card-header-row-txt {
+                text-align: left;
+                margin-left: 10px;
+
+                font-size: xx-large;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+        }
+    }
+
+    .btn-hide {
+        visibility: hidden;
+    }
+    .btn-show {
+        visibility: visible;
+    }
+}
+
+.card-header-top-margin {
+  margin-top: 25px;
+  margin-bottom: 5px;
+}
+
+table.table-statistics-net-vat-gross {
+    right: 100px !important;
+    position: fixed;
+
+    column-gap: 25px;
+    padding: 5px;
+    border-spacing: 15px 0px;
+
+    td {
+        min-width: 300px;
+        text-align: left;
     }
 }

@@ -24,6 +24,8 @@ import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
 import { BbxTwoRowComboBoxComponent } from './bbx-two-row-combo-box/bbx-two-row-combo-box.component';
 import { DateIntervalDialogComponent } from './date-interval-dialog/date-interval-dialog.component';
 import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-input-dialog.component';
+import { ToStringPipe } from './pipes/to-string.pipe';
+import { ReplacePipe } from './pipes/replace.pipe';
 
 
 @NgModule({
@@ -46,6 +48,8 @@ import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-in
     BbxTwoRowComboBoxComponent,
     DateIntervalDialogComponent,
     OneTextInputDialogComponent,
+    ToStringPipe,
+    ReplacePipe,
   ],
   imports: [
     CommonModule,
@@ -93,7 +97,9 @@ import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-in
     SelectTableDialogComponent,
     BaseNoFormManagerComponent,
     BbxComboBoxComponent,
-    BbxTwoRowComboBoxComponent
+    BbxTwoRowComboBoxComponent,
+    ToStringPipe,
+    ReplacePipe
   ],
   providers: [
     ConfirmationDialogComponent

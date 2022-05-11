@@ -33,7 +33,6 @@ import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
@@ -130,12 +129,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number-2'
+      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
     },
     {
       label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number-2'
+      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
     },
   ]
   customMaskPatterns = {
@@ -207,7 +206,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     private seInv: InvoiceService,
     private seC: CustomerService,
-    private seW: WareHouseService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private toastrService: NbToastrService,
@@ -290,6 +288,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.buyerFormNav!.OuterJump = true;
     this.outInvFormNav!.OuterJump = true;
 
+    console.log('new InvoiceLine(): ', new InvoiceLine());
+
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -364,8 +364,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  ToInt(p: any): number {
-    return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').trim()) : 0;
+  ToFloat(p: any): number {
+    return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
   }
 
   RecalcNetAndVat(): void {
@@ -373,12 +373,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => this.ToInt(x.price) * this.ToInt(x.quantity))
+        .map(x => this.ToFloat(x.price) * this.ToFloat(x.quantity))
         .reduce((sum, current) => sum + current, 0);
 
     this.outGoingInvoiceData.lineGrossAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => (this.ToInt(x.price) * this.ToInt(x.quantity)) + this.ToInt(x.lineVatAmount + ''))
+        .map(x => (this.ToFloat(x.price) * this.ToFloat(x.quantity)) + this.ToFloat(x.lineVatAmount + ''))
         .reduce((sum, current) => sum + current, 0);
   }
 
@@ -424,39 +424,66 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
-  TableRowDataChanged(changedData?: any, index?: number): void {
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
     if (!!changedData && !!changedData.productCode) {
-      // TODO: Calc in InvoiceLine before
+      if ((!!col && col === 'productCode') || col === undefined) {
+        this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+          next: product => {
+            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+            if (index !== undefined) {
+              let tmp = this.dbData[index].data;
 
-          if (index !== undefined) {
-            let tmp = this.dbData[index].data;
+              tmp.productDescription = product.description ?? '';
 
-            tmp.productDescription = product.description ?? '';
-            
-            product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-            tmp.vatRate = (product.vatPercentage ?? 1) + '';
-            product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-            tmp.vatRateCode = product.vatRateCode;
+              product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
+              tmp.vatRate = (product.vatPercentage ?? 1) + '';
+              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+              tmp.vatRateCode = product.vatRateCode;
 
-            tmp.lineNetAmount = this.ToInt(tmp.price) * this.ToInt(tmp.quantity);
-            tmp.lineVatAmount = this.ToInt(tmp.lineNetAmount) * this.ToInt(tmp.vatRate);
-            tmp.lineGrossAmount = this.ToInt(tmp.lineVatAmount) + this.ToInt(tmp.lineNetAmount);
+              tmp.lineNetAmount = this.ToFloat(tmp.price) * this.ToFloat(tmp.quantity);
+              tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
+              tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
 
-            this.dbData[index].data = tmp;
-            
-            this.dbDataDataSrc.setData(this.dbData);
+              this.dbData[index].data = tmp;
+
+              this.dbDataDataSrc.setData(this.dbData);
+            }
+
+            this.RecalcNetAndVat();
+          },
+          error: err => {
+            this.RecalcNetAndVat();
           }
+        });
+      } else {
+        if (index !== undefined) {
+          let tmp = this.dbData[index].data;
 
-          this.RecalcNetAndVat();
-        },
-        error: err => {
-          this.RecalcNetAndVat();
+          tmp.lineNetAmount = this.ToFloat(tmp.price) * this.ToFloat(tmp.quantity);
+          tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
+          tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
+
+          // console.log('--------------');
+          // console.log('Calculation:');
+          // console.log(tmp);
+          // console.log('this.ToFloat(tmp.price): ',this.ToFloat(tmp.price));
+          // console.log('this.ToFloat(tmp.quantity): ', this.ToFloat(tmp.quantity));
+          // console.log('this.ToFloat(tmp.vatRate): ', this.ToFloat(tmp.vatRate));
+          // console.log('tmp.lineGrossAmount: ', tmp.lineGrossAmount);
+          // console.log('tmp.lineNetAmount: ', tmp.lineNetAmount);
+          // console.log('tmp.lineVatAmount: ', tmp.lineVatAmount);
+          // console.log('this.ToFloat(tmp.lineNetAmount): ', this.ToFloat(tmp.lineNetAmount));
+          // console.log('this.ToFloat(tmp.lineVatAmount): ', this.ToFloat(tmp.lineVatAmount));
+          // console.log('--------------');
+
+          this.dbData[index].data = tmp;
+
+          this.dbDataDataSrc.setData(this.dbData);
         }
-      });
+
+        this.RecalcNetAndVat();
+      }
     }
   }
 
@@ -603,8 +630,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.RecalcNetAndVat();
     
     for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length - 1; i++) {
-      this.outGoingInvoiceData.invoiceLines[i].price = this.ToInt(this.outGoingInvoiceData.invoiceLines[i].price);
-      this.outGoingInvoiceData.invoiceLines[i].quantity = this.ToInt(this.outGoingInvoiceData.invoiceLines[i].quantity);
+      this.outGoingInvoiceData.invoiceLines[i].price = this.ToFloat(this.outGoingInvoiceData.invoiceLines[i].price);
+      this.outGoingInvoiceData.invoiceLines[i].quantity = this.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = i;
     }
     
@@ -864,7 +891,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     res.vatRateCode = p.vatRateCode;
 
     res.lineVatAmount = p.vatPercentage ?? 10;
-    res.lineNetAmount = this.ToInt(res.quantity) * this.ToInt(res.price);
+    res.lineNetAmount = this.ToFloat(res.quantity) * this.ToFloat(res.price);
     res.lineGrossAmount = res.lineVatAmount * res.lineNetAmount;
 
     res.unitOfMeasure = p.unitOfMeasure;
