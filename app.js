@@ -38,7 +38,7 @@ ipcMain.on("print-pdf", (event, arg) => {
       console.log(reportName, err);
 
       // Silent print PDF with default printer
-      print(reportsFilePath).then(
+      print(reportsFilePath, { copies: parseInt(arg.copies ?? 1) }).then(
         (res) => {
           console.log(res);
           clean();

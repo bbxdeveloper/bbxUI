@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { InvoiceManagerComponent } from './invoice-manager/invoice-manager.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
-import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbContextMenuModule, NbActionsModule, NbPopoverModule, NbMenuModule, NbTagModule, NbCheckboxModule, NbTooltipModule, NbAutocompleteModule } from '@nebular/theme';
+import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbContextMenuModule, NbActionsModule, NbPopoverModule, NbMenuModule, NbTagModule, NbCheckboxModule, NbTooltipModule, NbAutocompleteModule, NbRadioModule, NbToggleModule } from '@nebular/theme';
 import { InputMaskModule } from '@ngneat/input-mask';
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
@@ -12,6 +12,7 @@ import { ProductSelectTableDialogComponent } from './product-select-table-dialog
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 import { SaveDialogComponent } from './save-dialog/save-dialog.component';
 import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
+import { TaxNumberSearchCustomerEditDialogComponent } from './tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 
 
 
@@ -21,7 +22,8 @@ import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
     ProductSelectTableDialogComponent,
     CustomerSelectTableDialogComponent,
     SaveDialogComponent,
-    InvoiceNavComponent
+    InvoiceNavComponent,
+    TaxNumberSearchCustomerEditDialogComponent
   ],
   imports: [
     CommonModule,
@@ -50,7 +52,9 @@ import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
     AngularSplitModule,
     NbAutocompleteModule,
     SharedModule,
-    InputMaskModule
+    InputMaskModule,
+    NbRadioModule,
+    NbToggleModule
   ],
   exports: [
     InvoiceManagerComponent,

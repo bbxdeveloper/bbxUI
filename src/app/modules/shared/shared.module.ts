@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BaseNavigatableComponentComponent } from './base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
-import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule, NbCheckboxModule, NbContextMenuModule, NbMenuModule, NbPopoverModule, NbTagModule, NbTooltipModule, NbSelectModule, NbIconModule } from '@nebular/theme';
+import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule, NbCheckboxModule, NbContextMenuModule, NbMenuModule, NbPopoverModule, NbTagModule, NbTooltipModule, NbSelectModule, NbIconModule, NbAutocompleteModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 import { HeadLineComponent } from './head-line/head-line.component';
@@ -20,6 +20,12 @@ import { RemoveWhitespacesPipe } from './pipes/remove-whitespaces.pipe';
 import { BaseInlineManagerComponent } from './base-inline-manager/base-inline-manager.component';
 import { SelectTableDialogComponent } from './select-table-dialog/select-table-dialog.component';
 import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-manager.component';
+import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
+import { BbxTwoRowComboBoxComponent } from './bbx-two-row-combo-box/bbx-two-row-combo-box.component';
+import { DateIntervalDialogComponent } from './date-interval-dialog/date-interval-dialog.component';
+import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-input-dialog.component';
+import { ToStringPipe } from './pipes/to-string.pipe';
+import { ReplacePipe } from './pipes/replace.pipe';
 
 
 @NgModule({
@@ -38,6 +44,12 @@ import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-
     BaseInlineManagerComponent,
     SelectTableDialogComponent,
     BaseNoFormManagerComponent,
+    BbxComboBoxComponent,
+    BbxTwoRowComboBoxComponent,
+    DateIntervalDialogComponent,
+    OneTextInputDialogComponent,
+    ToStringPipe,
+    ReplacePipe,
   ],
   imports: [
     CommonModule,
@@ -65,7 +77,8 @@ import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-
     NbTooltipModule,
     InputMaskModule,
     NbSelectModule,
-    NbIconModule
+    NbIconModule,
+    NbAutocompleteModule,
   ],
   exports: [
     BaseNavigatableComponentComponent,
@@ -82,7 +95,11 @@ import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-
     RemoveWhitespacesPipe,
     BaseInlineManagerComponent,
     SelectTableDialogComponent,
-    BaseNoFormManagerComponent
+    BaseNoFormManagerComponent,
+    BbxComboBoxComponent,
+    BbxTwoRowComboBoxComponent,
+    ToStringPipe,
+    ReplacePipe
   ],
   providers: [
     ConfirmationDialogComponent

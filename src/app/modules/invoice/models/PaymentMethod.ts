@@ -1,4 +1,6 @@
 export interface PaymentMethod {
-    paymentMethodCode: string;
-    paymentMethodDescription: string;
+    value: string;
+    text: string;
+    icon?: any,
+    data?: any
 }

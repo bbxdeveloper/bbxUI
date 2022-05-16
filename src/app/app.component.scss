@@ -5,3 +5,14 @@
 ::ng-deep nb-layout-header nav {
     padding: 0px;
 }
+
+.verion-tag {
+    position: absolute;
+    right: 15px;
+    font-family: ui-monospace;
+    color: transparent;
+    &:hover {
+        color: white;
+        text-shadow: 0 0 black;
+    }
+}

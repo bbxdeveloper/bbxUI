@@ -3,6 +3,6 @@ export interface IInlineManager {
     ChooseDataForForm(): void;
     RefreshData(): void;
     IsTableFocused: boolean;
-    TableRowDataChanged(changedData?: any, index?: number): void;
+    TableRowDataChanged(changedData?: any, index?: number, col?: string): void;
     RecalcNetAndVat(): void;
 }

@@ -5,7 +5,8 @@
     <nb-card-body *ngIf="!!dbDataTable">
         <form class="card-table-wrapper-form">
             <table class="card-table-wrapper"
-                [ngClass]="wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
+                nbSort (sort)="changeSort($event)"
+                [ngClass]="getTableClasses()" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
                  *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
                  equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
 
@@ -15,7 +16,8 @@
                 <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                     <ng-container [ngSwitch]="it.type">
 
-                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
+                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth"
+                            [nbSortHeader]="getDirection(it.colKey)">
                             {{it.label}}
                         </th>
 
@@ -52,7 +54,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div>
-                                    {{ row.data[it.objectKey] | number:'8.0':'fr' | removeWhitespaces }}
+                                    {{ row.data[it.objectKey] | number:'1.0':'fr' | removeWhitespaces }}
                                 </div>
                             </td>
                         </ng-container>

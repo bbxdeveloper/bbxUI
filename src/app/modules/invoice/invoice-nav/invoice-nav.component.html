@@ -6,8 +6,8 @@
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
                 <div class="bbx-fd-form-field-wrapper-div-row">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
-                        (keydown.enter)="filterFormNav.HandleFormLastEnter($event)">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33 checkbox-wrapper"
+                        (keydown.enter)="filterFormNav.HandleFormEnter($event)">
                         <label class="label-checkbox">Bejövő</label>
 
                         <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"
@@ -16,49 +16,61 @@
                     </div>
                 </div>
 
-                <nb-form-field (keydown.enter)="filterFormNav.HandleFormDropdownEnter($event, currentWareHouseCount)">
-                    <div class="bbx-fd-form-field-inner-div">
-                        <label>Raktár</label>
+                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
+                    formFieldName="WarehouseCode" class="nav-configuration" label="Raktár" [data$]="wareHouseData$">
+                </app-bbx-two-row-combo-box>
 
-                        <input class="{{TileCssClass}}" formControlName="WarehouseCode" nbInput type="text"
-                            [readonly]="isEditModeOff" (click)="filterFormNav.HandleFormFieldClick($event)"
-                            [nbAutocomplete]="autoWarehouseCode" [readonly]="isEditModeOff" autocomplete="off" />
-                    </div>
-                </nb-form-field>
-                <!-- AUTOCOMPLETE -->
-                <nb-autocomplete #autoWarehouseCode [activeFirst]="false"
-                    (selectedChange)="filterFormNav.HandleAutoCompleteSelect($event, 'WarehouseCode')">
-                    <nb-option *ngFor="let option of filteredWareHouses$ | async; let i = index" [value]="option">
-                        {{ option }}
-                    </nb-option>
-                </nb-autocomplete>
+                <nb-radio-group formControlName="DateFilterChooser" class="bbx-radiogroup">
+                    <nb-radio
+                        (keydown.enter)="filterFormNav.HandleFormEnter($event, true)"
+                        [value]="ChosenIssueFilterOptionValue">Számla keltezés</nb-radio>
+                    <nb-radio
+                        (keydown.enter)="filterFormNav.HandleFormEnter($event, true)"
+                        [value]="ChosenDeliveryFilterOptionValue">Számla teljesítése</nb-radio>
+                </nb-radio-group>
 
-                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)"
+                    *ngIf="isIssueFilterSelected">
                     <label>Számla keltezés kezdete</label>
-                    <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom' required="true"
-                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <app-form-control-error [form]="filterFormNav" label="számla keltezés kezdete"
+                        controlName="InvoiceIssueDateFrom" [validationParameterDate]="invoiceIssueDateToValue">
+                    </app-form-control-error>
                 </nb-form-field>
 
-                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)"
+                    *ngIf="isIssueFilterSelected">
                     <label>Számla keltezés vége</label>
-                    <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' required="true"
-                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
+                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <app-form-control-error [form]="filterFormNav" label="számla keltezés vége"
+                        controlName="InvoiceIssueDateTo" [validationParameterDate]="invoiceIssueDateFromValue">
+                    </app-form-control-error>
                 </nb-form-field>
 
-                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)"
+                    *ngIf="isDeliveryFilterSelected">
                     <label>Számla teljesítésének kezdete</label>
-                    <input nbInput type="datetime" formControlName='InvoiceDeliveryDateFrom' required="true"
-                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <input nbInput type="datetime" formControlName='InvoiceDeliveryDateFrom' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
+                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <app-form-control-error [form]="filterFormNav" label="számla teljesítésének kezdete"
+                        controlName="InvoiceDeliveryDateFrom" [validationParameterDate]="invoiceDeliveryDateToValue">
+                    </app-form-control-error>
                 </nb-form-field>
 
-                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)"
+                    *ngIf="isDeliveryFilterSelected">
                     <label>Számla teljesítésének vége</label>
-                    <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo' required="true"
-                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
+                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <app-form-control-error [form]="filterFormNav" label="számla teljesítésének vége"
+                        controlName="InvoiceDeliveryDateTo" [validationParameterDate]="invoiceDeliveryDateFromValue">
+                    </app-form-control-error>
                 </nb-form-field>
             </form>
         </nb-card-body>
@@ -67,18 +79,20 @@
 
 <nb-card>
     <nb-card-body>
-        <app-flat-design-table [showMsgOnNoData]="false" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
-            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        <app-flat-design-table [showMsgOnNoData]="false" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+            [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+            (focusOutTable)="focusOnTable(false)">
         </app-flat-design-table>
     </nb-card-body>
     <nb-card-footer>
-        <span class="line-amount">
-            Összes bruttó: {{sumGrossAmount}}
-        </span>
-        <span class="line-amount">
-            Összes nettó: {{sumNetAmount}}
-        </span>
+        <table class="table-statistics-net-vat-gross">
+            <tr>
+                <td>Összes bruttó: {{sumGrossAmount | number:'1.1-2':'fr' | replace:',':'.'}}</td>
+                <td>Összes nettó: {{sumNetAmount | number:'1.1-2':'fr' | replace:',':'.'}}</td>
+                <td>Összes ÁFA: {{sumVatAmount | number:'1.1-2':'fr' | replace:',':'.'}}</td>
+            </tr>
+        </table>
     </nb-card-footer>
 </nb-card>
 

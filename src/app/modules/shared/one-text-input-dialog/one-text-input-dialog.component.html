@@ -1,0 +1,20 @@
+<nb-card>
+    <nb-card-header>{{title}}</nb-card-header>
+    <nb-card-body class="form-col-1">
+        <form id="oneInputForm" [formGroup]="formNav.form" #formDirective="ngForm"
+            (keydown.escape)="formNav.HandleFormEscape()">
+            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                <label>{{inputLabel}}</label>
+                <input class="{{TileCssClass}}" nbInput type="text"
+                    formControlName='answer' required="true"
+                    (click)="formNav.HandleFormFieldClick($event)">
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+    <nb-card-footer>
+        <button class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton (click)="close(true)"
+            status="primary" tabindex="-1">Igen</button>
+        <button class="{{TileCssClass}}" id="date-interval-dialog-button-no" nbButton (click)="close(false)"
+            status="danger" tabindex="-1">Nem</button>
+    </nb-card-footer>
+</nb-card>

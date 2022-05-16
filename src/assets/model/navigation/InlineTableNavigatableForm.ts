@@ -105,7 +105,7 @@ export class InlineTableNavigatableForm implements INavigatable {
         const moveRes = this.MoveNext();
         // We can't know if we should click the first element if we moved to another navigation-matrix.
         if (!moveRes.jumped) {
-            this.kbS.ClickCurrentElement();
+            this.kbS.ClickCurrentElement(true);
             if (!this.kbS.isEditModeActivated) {
                 this.kbS.toggleEdit();
             }
@@ -113,7 +113,7 @@ export class InlineTableNavigatableForm implements INavigatable {
             // For example in case if we just moved onto a confirmation button in the next nav-matrix,
             // we don't want to automatically press it until the user directly presses enter after selecting it.
             if ($('#' + this.kbS.Here).is(':input')) {
-                this.kbS.ClickCurrentElement();
+                this.kbS.ClickCurrentElement(true);
                 this.kbS.setEditMode(KeyboardModes.EDIT);
             }
             else if (!!event) {
@@ -138,7 +138,12 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
-    HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+    HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
+        if (preventEventInAnyCase) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+        }
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }
@@ -203,7 +208,7 @@ export class InlineTableNavigatableForm implements INavigatable {
         this.kbS.SetPositionById(event.target?.id);
     }
 
-    GenerateAndSetNavMatrices(attach: boolean): void {
+    GenerateAndSetNavMatrices(attach: boolean, stayAtSamePoseAfterGenerate: boolean = false): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
 
@@ -249,6 +254,10 @@ export class InlineTableNavigatableForm implements INavigatable {
         if (environment.debug) {
         }
         console.log('[GenerateAndSetNavMatrices]', this.Matrix);
+
+        if (stayAtSamePoseAfterGenerate) {
+            this.kbS.SelectElementByCoordinate(this.kbS.p.x, this.kbS.p.y);
+        }
 
         if (attach) {
             this.kbS.Attach(this, this.attachDirection);

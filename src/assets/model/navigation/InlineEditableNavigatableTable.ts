@@ -261,7 +261,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean): void {
+    GenerateAndSetNavMatrices(attach: boolean, afterSort: boolean = false): void {
         this.Matrix = [];
 
         for (let y = 0; y < this.data.length; y++) {
@@ -277,10 +277,28 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         
         if (environment.debug) {
         }
+
         console.log('[GenerateAndSetNavMatrices]', this.Matrix);
 
         if (attach) {
             this.kbS.Attach(this, this.attachDirection);
+        }
+
+        if (afterSort) {
+            const tempX = this.kbs.p.x;
+            const tempY = this.kbs.p.y;
+
+            this.RemoveEditRow(false);
+
+            console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+
+            this.cdref.detectChanges();
+
+            this.kbs.SelectElementByCoordinate(tempX, tempY);
+
+            console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+
+            this.SetCreatorRow();
         }
     }
 
@@ -395,16 +413,24 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
         //debugger;
 
+        console.log('[HandleGridEnter]: ', row, this.editedRow, rowPos, col, colPos, inputId, fInputType, row.data.IsUnfinished());
+
         // Switch between nav and edit mode
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
         this.kbS.toggleEdit();
+
+        // if (this.kbs.isEditModeActivated && this.editedRow === undefined) {
+        //     this.editedRow = row;
+        //     this.editedProperty = col;
+        //     this.editedRowPos = rowPos;
+        // }
 
         // Already in Edit mode
         if (!!this.editedRow) {
             const tmp = this.editedRow.data;
 
             // Creator row edited
-            if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey) {
+            if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !this.editedRow.data.IsUnfinished()) {
                 this.productCreatorRow = this.GenerateCreatorRow;
                 this.data.push(this.productCreatorRow);
 
@@ -431,7 +457,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
             console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
 
-            this.parentComponent.TableRowDataChanged(tmp, rowPos);
+            this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
         } else {
             // Entering edit mode
             this.Edit(row, rowPos, col);
@@ -489,10 +515,32 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.parentComponent.RecalcNetAndVat();
     }
 
+    RemoveEditRow(reGenerateMatrix: boolean = true): void {
+        if (!this.data[this.data.length - 1].data.IsUnfinished()) {
+            return;
+        }
+
+        this.ResetEdit();
+
+        this.data.splice(this.data.length - 1, 1);
+        this.dataSource.setData(this.data);
+
+        if ((this.data.length - 1) !== 0) {
+            this.kbS.MoveUp();
+        }
+
+        if (reGenerateMatrix) {
+            this.GenerateAndSetNavMatrices(false);
+        }
+    }
+
     HandleKey(event: any, rowIndex: number): void {
         switch (event.key) {
             case KeyBindings.F2: {
                 event.preventDefault();
+                if (this.isEditModeOff) {
+                    this.kbs.ClickCurrentElement();
+                }
                 this.parentComponent.ChooseDataForTableRow(rowIndex);
                 break;
             }
@@ -516,6 +564,12 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             moveRes = this.kbS.MoveDown(true, false, false);
             this.kbS.p.x = 0;
             this.kbS.SelectCurrentElement();
+            // code-fields
+            // TODO: refactor
+            setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.kbs.ClickCurrentElement();
+            }, 50);
             return this.kbS.p.x;
         }
         return this.kbS.p.x;

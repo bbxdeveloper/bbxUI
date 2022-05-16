@@ -1,0 +1,27 @@
+<nb-card>
+    <nb-card-header>{{title}}</nb-card-header>
+    <nb-card-body class="form-col-1">
+        <form id="loginForm" [formGroup]="formNav.form"
+            #formDirective="ngForm" (keydown.escape)="formNav.HandleFormEscape()">
+            <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)">
+                <label>Kezdődátum</label>
+                <input class="{{TileCssClass}}" nbInput type="datetime" mask="0000-00-00"
+                    [dropSpecialCharacters]="false" [showMaskTyped]="true" formControlName='starDate' required="true"
+                        (click)="formNav.HandleFormFieldClick($event)">
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                <label>Végdátum</label>
+                <input class="{{TileCssClass}}" nbInput type="datetime" mask="0000-00-00"
+                    [dropSpecialCharacters]="false" [showMaskTyped]="true" formControlName='endDate' required="true"
+                    (click)="formNav.HandleFormFieldClick($event)">
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+    <nb-card-footer>
+        <button class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton (click)="close(true)"
+            status="primary" tabindex="-1">Ok</button>
+        <button class="{{TileCssClass}}" id="date-interval-dialog-button-no" nbButton (click)="close(false)"
+            status="danger" tabindex="-1">Mégse</button>
+    </nb-card-footer>
+</nb-card>

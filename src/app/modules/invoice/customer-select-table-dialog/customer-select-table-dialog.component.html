@@ -5,8 +5,8 @@
     <nb-card-body class="modal-product-active-body">
 
         <label class="search-label" for="search">Keresés:</label>
-        <input nbInput id="active-prod-search" class="search-input" (keydown.enter)="handleEnter($event)"
-            (keyup)="refreshFilter($event)" [readonly]="isEditModeOff" autocomplete="off">
+        <input nbInput id="active-prod-search" class="search-input"
+            (keyup)="refreshFilter($event)" autocomplete="off">
 
         <button nbButton class="btn-util" id="show-all" (click)="showAll()">Összes mutatása</button>
         <button nbButton class="btn-util" id="show-less" (click)="showLess()">Kevesebb mutatása</button>
@@ -25,6 +25,8 @@
                     <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                         *nbTreeGridCellDef="let row; let rowPos = index" (keydown.enter)="selectRow($event, row)"
                         (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
+                        (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                        (dblclick)="selectRow($event, row)"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
                         <div>
                             {{ row.data[it.objectKey] }}

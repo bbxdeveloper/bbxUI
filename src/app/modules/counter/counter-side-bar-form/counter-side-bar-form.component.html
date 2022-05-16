@@ -37,24 +37,8 @@
                 <app-form-control-error [form]="currentForm" controlName="counterDescription"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentWareHouseCount)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Raktár*</label>
-
-                    <input class="{{TileCssClass}}" formControlName="warehouse" nbInput type="text"
-                        [readonly]="isEditModeOff"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [nbAutocomplete]="autoWarehouse" [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" controlName="warehouse"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoWarehouse [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'warehouse')">
-                <nb-option *ngFor="let option of filteredWareHouses$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="warehouse" label="Raktár*"
+                [data$]="wareHouseComboData$"></app-bbx-combo-box>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -70,7 +54,7 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Számláló*</label>
+                        <label class="multicol-label-col-1">Számláló*</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="number" formControlName="currentNumber"
                         [readonly]="isEditModeOff"
@@ -80,7 +64,7 @@
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label>Számláló számjegyek száma*</label>
+                        <label class="multicol-label-col-2">Számláló számjegyek száma*</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2"
                         max="10" [inputMask]="numberInputMaskInteger"

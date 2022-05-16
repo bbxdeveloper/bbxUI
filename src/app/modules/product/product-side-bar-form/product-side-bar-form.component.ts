@@ -1,10 +1,14 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { BlankComboBoxValue } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { environment } from 'src/environments/environment';
+import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
+import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
@@ -26,24 +30,21 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   };
 
   // ProductGroup
+  _productGroups: ProductGroup[] = [];
   productGroups: string[] = [];
-  currentProductGroupCount: number = 0;
-  filteredProductGroups$: Observable<string[]> = of([]);
-
+  productGroupComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  
   // UnitOfMeasure
   uom: string[] = [];
-  currentUomCount: number = 0;
-  filteredUom$: Observable<string[]> = of([]);
-
+  uomComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  
   // Origin
   origins: string[] = [];
-  currentOriginCount: number = 0;
-  filteredOrigins$: Observable<string[]> = of([]);
-
+  originsComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  
   // Origin
   vatRates: string[] = [];
-  currentVatRateCount: number = 0;
-  filteredVatRates$: Observable<string[]> = of([]);
+  vatRateComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
@@ -64,42 +65,49 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     // ProductGroups
     this.productGroupApi.GetAll().subscribe({
       next: data => {
-        this.productGroups = data?.data?.map(x => x.productGroupCode + '-' + x.productGroupDescription) ?? [];
-        this.filteredProductGroups$ = of(this.productGroups);
-        this.currentProductGroupCount = this.productGroups.length;
+        console.log("ProductGroups: ", data);
+        this._productGroups = data?.data ?? [];
+        this.productGroups = this._productGroups.map(x => x.productGroupDescription) ?? [];
+        this.productGroupComboData$.next(this.productGroups);
       }
     });
 
     // UnitOfMeasure
     this.productApi.GetAllUnitOfMeasures().subscribe({
       next: data => {
+        console.log("UnitOfMeasures: ", data);
         this.uom = data?.map(x => x.text) ?? [];
-        this.filteredUom$ = of(this.uom);
-        this.currentUomCount = this.uom.length;
+        this.uomComboData$.next(this.uom);
       }
     });
 
     // Origin
     this.originApi.GetAll().subscribe({
       next: data => {
-        this.origins = data?.data?.map(x => x.originCode + '-' + x.originDescription) ?? [];
-        this.filteredOrigins$ = of(this.origins);
-        this.currentOriginCount = this.origins.length;
+        console.log("Origins: ", data);
+        this.origins = data?.data?.map(x => x.originDescription) ?? [];
+        this.originsComboData$.next(this.origins);
       }
     });
 
     // VatRate
     this.vatApi.GetAll().subscribe({
       next: data => {
-        this.vatRates = data?.data?.map(x => x.vatRateCode + ' - ' + x.vatPercentage) ?? [];
-        this.filteredVatRates$ = of(this.vatRates);
-        this.currentVatRateCount = this.vatRates.length;
+        console.log("Vats: ", data);
+        this.vatRates = data?.data?.map(x => x.vatRateDescription) ?? [];
+        this.vatRateComboData$.next(this.vatRates);
       }
     });
   }
 
+  SetCursorPose(event: any): void {
+    setTimeout(() => {
+      console.log("SetCursorPose: ", event.target.value);
+      event.target.setSelectionRange(0, 0);
+    }, 50);
+  }
+
   private SetNewForm(form?: FormSubject): void {
-    console.log(form);
     if ((!!form && form[0] !== 'Product') || !!!form) {
       return;
     }
@@ -107,67 +115,20 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.currentForm = form[1];
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
 
+    this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
+      next: newValue => {
+        let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
+        if (!!newValue && newValue.length >= 3 &&
+            (currentProductGroup === undefined || currentProductGroup.length === 0)) {
+              let defaultProductGroup = this._productGroups
+                .find(x => x.productGroupCode === newValue.substring(0,3))?.productGroupDescription ?? BlankComboBoxValue;
+              if (defaultProductGroup.length > 0) {
+                this.currentForm?.form.controls['productGroup'].setValue(defaultProductGroup);
+              }
+        }
+      }
+    });
+
     this.cdref.detectChanges();
-
-    this.currentForm?.form.controls['productGroup'].valueChanges.subscribe({
-      next: filterString => {
-        const tmp = this.filterProductGroup(filterString);
-        this.currentProductGroupCount = tmp.length;
-        this.filteredProductGroups$ = of(tmp);
-      }
-    });
-    this.currentForm?.form.controls['origin'].valueChanges.subscribe({
-      next: filterString => {
-        const tmp = this.filterOrigin(filterString);
-        this.currentOriginCount = tmp.length;
-        this.filteredOrigins$ = of(tmp);
-      }
-    });
-    this.currentForm?.form.controls['unitOfMeasure'].valueChanges.subscribe({
-      next: filterString => {
-        const tmp = this.filterUom(filterString);
-        this.currentUomCount = tmp.length;
-        this.filteredUom$ = of(tmp);
-      }
-    });
-    this.currentForm?.form.controls['vatRateCode'].valueChanges.subscribe({
-      next: filterString => {
-        const tmp = this.filterVatRate(filterString);
-        this.currentVatRateCount = tmp.length;
-        this.filteredVatRates$ = of(tmp);
-      }
-    });
-  }
-
-  private filterProductGroup(value: string): string[] {
-    if (value === undefined) {
-      return this.productGroups;
-    }
-    const filterValue = value.toLowerCase();
-    return this.productGroups.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
-  }
-
-  private filterUom(value: string): string[] {
-    if (value === undefined) {
-      return this.uom;
-    }
-    const filterValue = value.toLowerCase();
-    return this.uom.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
-  }
-
-  private filterOrigin(value: string): string[] {
-    if (value === undefined) {
-      return this.origins;
-    }
-    const filterValue = value.toLowerCase();
-    return this.origins.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
-  }
-
-  private filterVatRate(value: string): string[] {
-    if (value === undefined) {
-      return this.vatRates;
-    }
-    const filterValue = value.toLowerCase();
-    return this.vatRates.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 }

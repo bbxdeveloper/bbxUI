@@ -19,8 +19,10 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Kód*</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode"
-                        [dropSpecialCharacters]="false" oninput="this.value = this.value.toUpperCase()"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode" #codeInput
+                        [dropSpecialCharacters]="false"
+                        oninput="this.value = this.value.toUpperCase()"
+                        (focus)="codeInput.setSelectionRange(0, 0)"
                         mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
                         [readonly]="isEditModeOff"
                         [patterns]="customPatterns" (click)="currentForm.HandleFormFieldClick($event)" required>
@@ -39,29 +41,13 @@
                 <app-form-control-error [form]="currentForm" label="megnevezés" controlName="description"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentProductGroupCount)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Csoport*</label>
-
-                    <input class="{{TileCssClass}}" formControlName="productGroup" nbInput type="text"
-                        [readonly]="isEditModeOff"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [nbAutocomplete]="autoProductGroup" [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="csoport" controlName="productGroup"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoProductGroup [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'productGroup')">
-                <nb-option *ngFor="let option of filteredProductGroups$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="productGroup" label="Csoport"
+                [data$]="productGroupComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Környezetvédelmi termékdíj</label>
+                        <label class="multicol-label-col-1">Környezetvédelmi termékdíj</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="productFee"
                             [inputMask]="numberInputMask" placeholder="0.00000"
@@ -72,7 +58,7 @@
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label>Utolsó beszár</label>
+                        <label class="multicol-label-col-2">Utolsó beszár</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
                         [inputMask]="numberInputMask" placeholder="0.00000"
@@ -84,48 +70,16 @@
             <app-form-control-error [form]="currentForm" label="környezetvédelmi termékdíj" controlName="productFee"></app-form-control-error>
             <app-form-control-error [form]="currentForm" label="utolsó beszár" controlName="latestSupplyPrice"></app-form-control-error>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentOriginCount)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Származási hely</label>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="origin" label="Származási hely"
+                [data$]="originsComboData$"></app-bbx-combo-box>
 
-                    <input class="{{TileCssClass}}" formControlName="origin" nbInput type="text"
-                        [readonly]="isEditModeOff"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [nbAutocomplete]="autoOrigin" [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="származási hely" controlName="origin"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoOrigin [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'origin')">
-                <nb-option *ngFor="let option of filteredOrigins$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentUomCount)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Me.e.*</label>
-
-                    <input class="{{TileCssClass}}" formControlName="unitOfMeasure" nbInput type="text"
-                        [readonly]="isEditModeOff"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [nbAutocomplete]="autoAom" [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="me.e." controlName="unitOfMeasure"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoAom [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'unitOfMeasure')">
-                <nb-option *ngFor="let option of filteredUom$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitOfMeasure" label="Me.e.*"
+                [data$]="uomComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Elad ár 1</label>
+                        <label class="multicol-label-col-1">Elad ár 1</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="unitPrice1"
                             [readonly]="isEditModeOff"
@@ -136,7 +90,7 @@
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label>Elad ár 2</label>
+                        <label class="multicol-label-col-2">Elad ár 2</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
                         [readonly]="isEditModeOff"
@@ -148,24 +102,8 @@
             <app-form-control-error [form]="currentForm" label="elad ár 1" controlName="unitPrice1"></app-form-control-error>
             <app-form-control-error [form]="currentForm" label="elad ár 2" controlName="unitPrice2"></app-form-control-error>
             
-            <nb-form-field (keydown.enter)="currentForm.HandleFormDropdownEnter($event, currentVatRateCount)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Áfakód</label>
-            
-                    <input class="{{TileCssClass}}" formControlName="vatRateCode" nbInput type="text"
-                        [readonly]="isEditModeOff"
-                        (click)="currentForm.HandleFormFieldClick($event)" [nbAutocomplete]="autoVatRateCode"
-                        [readonly]="isEditModeOff" autocomplete="off" />
-                </div>
-                <app-form-control-error [form]="currentForm" label="áfakód" controlName="vatRateCode"></app-form-control-error>
-            </nb-form-field>
-            <!-- AUTOCOMPLETE -->
-            <nb-autocomplete #autoVatRateCode [activeFirst]="false"
-                (selectedChange)="currentForm.HandleAutoCompleteSelect($event, 'vatRateCode')">
-                <nb-option *ngFor="let option of filteredVatRates$ | async; let i = index" [value]="option">
-                    {{ option }}
-                </nb-option>
-            </nb-autocomplete>
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="vatRateCode" label="Áfakód"
+                [data$]="vatRateComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-50 checkbox-wrapper"
@@ -190,7 +128,7 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Minimum készlet</label>
+                        <label class="multicol-label-col-1">Minimum készlet</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="minStock"
                             [readonly]="isEditModeOff"
@@ -201,7 +139,7 @@
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label>Rendelési egység</label>
+                        <label class="multicol-label-col-2">Rendelési egység</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
                         [readonly]="isEditModeOff"
@@ -216,7 +154,7 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>vtsz*</label>
+                        <label class="multicol-label-col-1">vtsz*</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="vtsz" mask="9*"
                             [readonly]="isEditModeOff"
@@ -226,7 +164,7 @@
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label>ean</label>
+                        <label class="multicol-label-col-2">ean</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ean" mask="9{1000}"
                         [readonly]="isEditModeOff"

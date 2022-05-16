@@ -13,6 +13,12 @@ export const environment = {
   flatDesignFormDebug: false,
   flatDesignTableDebug: false,
   flatDesignCRUDManagerDebug: false,
+
+  navigationMiscLog: false,
+  navigationPositionLog: false,
+  navigationMoveLog: false,
+  navigationMatrixLog: false,
+  navigationSelectLog: false,
 };
 
 /*

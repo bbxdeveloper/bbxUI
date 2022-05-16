@@ -1,3 +1,5 @@
+$td-height: 30px;
+
 nb-form-field {
     margin: 10px;
 
@@ -39,11 +41,18 @@ nb-card {
     display: inline-table;
 }
 
+.card-table-wrapper-closed-form {
+    max-height: calc(100vh - 260px) !important;
+    width: calc(100vw - 100px) !important;
+}
+.card-table-wrapper-opened-form {
+    max-height: calc(100vh - 290px) !important;
+    width: 100% !important;
+}
+
 .card-table-wrapper {
     position: sticky;
     top: 0;
-    
-    max-height: calc(100vh - 260px) !important;
 
     @media (max-height: 1000px) {
         td {
@@ -65,7 +74,7 @@ nb-card {
 
         th,
         td {
-            height: 50px;
+            height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
@@ -114,7 +123,7 @@ nb-card {
 
         th,
         td {
-            height: 50px;
+            height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;

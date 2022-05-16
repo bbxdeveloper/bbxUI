@@ -174,7 +174,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     Attach(): void { }
-    Detach(): void { }
+    Detach(): void {
+        this.kbs.Detach();
+    }
 
     Setup(productsData: TreeGridNode<T>[], productsDataSource: NbTreeGridDataSource<TreeGridNode<T>>,
         allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>
@@ -209,6 +211,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 this.kbs.SelectElementByCoordinate(0, 0);
             }
         }
+    }
+
+    SetBlankRowGenerator(getBlankInstance: () => T): void {
+        this.getBlankInstance = getBlankInstance;
     }
 
     PushFooterCommandList(): void {
@@ -344,7 +350,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any): void {
+    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any, selectPreviousPoseAfterGenerate: boolean = false): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
@@ -399,11 +405,30 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             this.kbs.Attach(this, this.attachDirection);
         }
 
+        if (selectPreviousPoseAfterGenerate) {
+            const tempX = this.kbs.p.x;
+            const tempY = this.kbs.p.y;
+
+            console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+
+            this.cdr.detectChanges();
+
+            this.kbs.SelectElementByCoordinate(tempX, tempY);
+
+            console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+        }
+
         if (idToSelectAfterGenerate !== undefined) {
             this.SelectRowById(idToSelectAfterGenerate);
         }
 
         // this.kbs.LogMatrix();
+    }
+
+    HandleSearchFieldTab(): void {
+        if (this.sidebarService.sideBarOpened) {
+            this.JumpToFirstFormField();
+        }
     }
 
     private HandleF12(setFormForNew: boolean = false): void {
@@ -440,10 +465,20 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             }
             case KeyBindings.F8: {
                 event.preventDefault();
+                this.JumpToFirstFormField();
                 this.HandleF12(true);
                 break;
             }
             default: { }
+        }
+    }
+
+    JumpToFirstFormField(): void {
+        if (this.sidebarService.sideBarOpened) {
+            this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+            this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+            this.kbs.MoveUp();
+            this.kbs.setEditMode(KeyboardModes.EDIT);
         }
     }
 

@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
+import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
@@ -11,6 +11,8 @@ import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/Ke
 })
 export class BaseSideBarFormComponent {
   currentForm?: FlatDesignNavigatableForm;
+
+  blankOptionText: string = BlankComboBoxValue;
 
   numberInputMask = createMask({
     alias: 'numeric',

@@ -16,7 +16,7 @@ export class StatusService {
     this._actualStatus = new BehaviorSubject<ProcessStatus>({} as ProcessStatus);
   }
 
-  public push(title: string, value: number, msg: string): void {
+  public push(title: string, value: number, msg: string, isSimple: boolean = true): void {
     this._inProgress = value !== -1 || !!title || !!msg;
     this._actualStatus.next({ value, msg } as ProcessStatus);
   }

@@ -20,13 +20,29 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
 
   TileCssClass = TileCssClass;
 
+  get isEditModeOff() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  }
+
   constructor(
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<LoginDialogComponent>,
-    private kBs: KeyboardNavigationService
+    private kbS: KeyboardNavigationService
   ) {
     super();
     this.Setup();
+  }
+
+  MoveToSaveButtons(event: any): void {
+    if (this.isEditModeOff) {
+      this.loginFormNav!.HandleFormEnter(event);
+    } else {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      this.kbS.Jump(AttachDirection.DOWN, false);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    }
   }
 
   private Setup(): void {
@@ -39,7 +55,7 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     });
 
     this.loginFormNav = new NavigatableForm(
-      loginForm, this.kBs, this.cdrf, [], 'loginForm', AttachDirection.UP, {} as IInlineManager
+      loginForm, this.kbS, this.cdrf, [], 'loginForm', AttachDirection.UP, {} as IInlineManager
       );
 
     // We can move onto the confirmation buttons from the form.
@@ -49,22 +65,22 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
   }
 
   ngAfterViewInit(): void {
-    this.kBs.SetWidgetNavigatable(this);
+    this.kbS.SetWidgetNavigatable(this);
     this.loginFormNav.GenerateAndSetNavMatrices(true);
-    this.kBs.SelectFirstTile();
-    this.kBs.setEditMode(KeyboardModes.EDIT);
+    this.kbS.SelectFirstTile();
+    this.kbS.setEditMode(KeyboardModes.EDIT);
   }
 
   ngOnDestroy(): void {
     if (!this.closedManually) {
-      this.kBs.RemoveWidgetNavigatable();
+      this.kbS.RemoveWidgetNavigatable();
     }
-    this.kBs.setEditMode(KeyboardModes.NAVIGATION);
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
   }
 
   close(answer: boolean) {
     this.closedManually = true;
-    this.kBs.RemoveWidgetNavigatable();
+    this.kbS.RemoveWidgetNavigatable();
     if (answer && this.loginFormNav.form.valid) {
       this.dialogRef.close({
         answer: true,

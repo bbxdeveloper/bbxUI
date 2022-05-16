@@ -13,6 +13,8 @@ import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { DeleteCustomerRequest } from '../models/DeleteCustomerRequest';
 import { DeleteCustomerResponse } from '../models/DeleteCustomerResponse';
 import { CountryCode } from '../models/CountryCode';
+import { GetCustomerByTaxNumberParams } from '../models/GetCustomerByTaxNumberParams';
+import { GetCustomerByTaxNumberResponse } from '../models/GetCustomerByTaxNumberResponse';
 
 // 'id', 'customerName', 'taxpayerNumber'
 const MOCK_DATA: Customer[] = [
@@ -115,6 +117,28 @@ export class CustomerService {
 
     // Get
     return this.http.get<Customer>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  GetByTaxNumber(params?: GetCustomerByTaxNumberParams): Observable<GetCustomerByTaxNumberResponse> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof GetCustomerByTaxNumberParams] != undefined && params[key as keyof GetCustomerByTaxNumberParams] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof GetCustomerByTaxNumberParams];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof GetCustomerByTaxNumberParams];
+          }
+          index++;
+        }
+      });
+    }
+
+    // Get
+    return this.http.get<GetCustomerByTaxNumberResponse>(this.BaseUrl + '/querytaxpayer' + (!!params ? ('?' + queryParams) : ''));
   }
 
   Create(req: CreateCustomerRequest): Observable<CreateCustomerResponse> {

@@ -23,6 +23,7 @@ import { CreateCounterRequest } from '../models/CreateCounterRequest';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { environment } from 'src/environments/environment';
 import { StatusService } from 'src/app/services/status.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-counter-manager',
@@ -187,12 +188,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   }
 
   private CounterToCreateRequest(p: Counter): CreateCounterRequest {
-    let wareHouseCode = !!p.warehouse?.includes('-') ? p.warehouse.split('-')[0] : '';
-
     const res = {
       counterCode: p.counterCode,
       counterDescription: p.counterDescription,
-      warehouseCode: wareHouseCode,
+      warehouseCode: HelperFunctions.ConvertChosenWareHouseToCode(p.warehouse, this.wareHouses, ''),
       prefix: p.prefix,
       currentNumber: parseInt(p.currentNumber + ''),
       numbepartLength: parseInt(p.numbepartLength + ''),
@@ -202,13 +201,11 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   }
 
   private CounterToUpdateRequest(p: Counter): UpdateCounterRequest {
-    let wareHouseCode = !!p.warehouse?.includes('-') ? p.warehouse.split('-')[0] : '';
-
     const res = {
       id: parseInt(p.id + ''), // TODO
       counterCode: p.counterCode,
       counterDescription: p.counterDescription,
-      warehouse: wareHouseCode,
+      warehouseCode: HelperFunctions.ConvertChosenWareHouseToCode(p.warehouse, this.wareHouses, ''),
       prefix: p.prefix,
       currentNumber: parseInt(p.currentNumber + ''),
       numbepartLength: parseInt(p.numbepartLength + ''),
@@ -392,7 +389,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
           id: 0,
           counterCode: '',
           counterDescription: '',
-          warehouse: this.wareHouses[0]?.warehouseDescription + '-' + this.wareHouses[0]?.warehouseCode,
+          warehouse: this.wareHouses[0]?.warehouseDescription,
           prefix: '',
           currentNumber: 0,
           numbepartLength: 0,
@@ -407,6 +404,21 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
         this.Refresh(this.getInputParams);
       },
     });
+    this.dbDataTable.flatDesignForm.FillFormWithObject = (data: Counter) => {
+      if (!!data && !!this.dbDataTable.flatDesignForm) {
+        data = { ...data };
+
+        data.warehouse = HelperFunctions.GetWarehouseDescription(data.warehouse, this.wareHouses, '');
+
+        Object.keys(this.dbDataTable.flatDesignForm.form.controls).forEach((x: string) => {
+          this.dbDataTable.flatDesignForm!.form.controls[x].setValue(data[x as keyof Counter]);
+          if (environment.flatDesignFormDebug) {
+            console.log(`[FillFormWithObject] with Product: ${x}, ${data[x as keyof Counter]},
+              ${this.dbDataTable.flatDesignForm!.form.controls[x].value}`);
+          }
+        });
+      }
+    }
 
     this.sidebarService.collapse();
 

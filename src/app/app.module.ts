@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 
 import { HttpClientModule } from '@angular/common/http';
 
@@ -71,7 +71,8 @@ const maskConfig: Partial<IConfig> = {
     NgxMaskModule
   ],
   providers: [
-    NbSidebarService
+    NbSidebarService,
+    Title
   ],
   bootstrap: [AppComponent]
 })

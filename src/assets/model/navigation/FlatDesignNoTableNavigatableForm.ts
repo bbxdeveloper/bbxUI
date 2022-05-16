@@ -14,7 +14,8 @@ import { TreeGridNode } from "../TreeGridNode";
 import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableTable } from "./FlatDesignNavigatableTable";
 import { FlatDesignNoFormNavigatableTable } from "./FlatDesignNoFormNavigatableTable";
-import { INavigatable, AttachDirection, TileCssClass, TileCssColClass } from "./Navigatable";
+import { BlankComboBoxValue } from "./Nav";
+import { INavigatable, AttachDirection, TileCssClass, TileCssColClass, NavMatrixOrientation } from "./Navigatable";
 
 export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
     Matrix: string[][] = [[]];
@@ -75,6 +76,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     get isDeleteDisabled() { return this.formMode === Constants.FormState.new; }
 
+    IsFootersEnabled: boolean = true;
+
     constructor(
         f: FormGroup,
         private kbS: KeyboardNavigationService,
@@ -84,9 +87,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         attachDirection: AttachDirection = AttachDirection.DOWN,
         colDefs: ModelFieldDescriptor[],
         private sidebarService: BbxSidebarService,
-        private sidebarFormSercie: SideBarFormService,
-        private grid: FlatDesignNavigatableTable<T> | FlatDesignNoFormNavigatableTable<T>,
-        private fS: FooterService
+        private fS: FooterService,
+        private grid?: FlatDesignNavigatableTable<T> | FlatDesignNoFormNavigatableTable<T>,
     ) {
         this.form = f;
         this._data = data;
@@ -105,7 +107,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                         this.kbS.SetCurrentNavigatable(this);
                     }
                     this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
-                    this.grid.PushFooterCommandList();
+                    this.grid?.PushFooterCommandList();
                 }
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             },
@@ -146,7 +148,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         if (this.form.invalid) {
             return;
         }
-        this.grid.New({
+        this.grid?.New({
             data: dt,
             rowIndex: this.DataRowIndex,
             needConfirmation: data?.needConfirmation ?? false
@@ -154,7 +156,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     ActionReset(data?: IUpdateRequest<T>): void {
-        this.grid.Reset({
+        this.grid?.Reset({
             rowIndex: this.DataRowIndex,
             needConfirmation: false
         } as IUpdateRequest);
@@ -165,7 +167,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         if (this.form.invalid) {
             return;
         }
-        this.grid.Put({
+        this.grid?.Put({
             data: dt,
             rowIndex: this.DataRowIndex,
             needConfirmation: data?.needConfirmation ?? false
@@ -173,7 +175,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     ActionDelete(data?: IUpdateRequest<T>): void {
-        this.grid.Delete({
+        this.grid?.Delete({
             data: this.DataToEdit?.data,
             rowIndex: this.DataRowIndex,
             needConfirmation: true
@@ -181,7 +183,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     ActionRefresh(data?: IUpdateRequest<T>): void {
-        this.grid.Refresh();
+        this.grid?.Refresh();
     }
 
     HandleFormFocusOut(): void {
@@ -197,7 +199,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                     case Constants.FormState.new:
                     case Constants.FormState.default:
                     default:
-                        this.grid.SetBlankInstanceForForm(false, false);
+                        this.grid?.SetBlankInstanceForForm(false, false);
                         this.formMode = Constants.FormState.new;
                         break;
                 }
@@ -238,7 +240,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     HandleFormFieldClick(event: any): void {
-        if (this.kbS.IsCurrentNavigatable(this.grid)) {
+        if (!!this.grid && this.kbS.IsCurrentNavigatable(this.grid)) {
             // this.GenerateAndSetNavMatrices(false);
             this.grid.JumpToFlatDesignFormByForm(event.target?.id);
         } else {
@@ -257,12 +259,12 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         this.SetFormStateToDefault();
     }
 
-    private FillObjectWithForm(): T {
+    public FillObjectWithForm(): T {
         const data = {} as T;
         Object.keys(this.form.controls).forEach((x: string) => {
             data[x as keyof T] = this.form.controls[x].value;
             this.form.controls[x].markAsTouched();
-            console.log('FormField value: ',this.form.controls[x].value, 'Data field value: ', data[x as keyof T]);
+            console.log('FormField value: ', this.form.controls[x].value, 'Data field value: ', data[x as keyof T]);
         });
         if (environment.flatDesignFormDebug) {
             console.log("Data from form: ", data);
@@ -348,19 +350,6 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         }
     }
 
-    HandleAutoCompleteSelect(event: any, key: string): void {
-        // If the table is still the current navigatable and the form is filled
-        // this event could be triggered but MUST NOT be handled here because it breaks the flow
-        // of navigation.
-        if (!this.kbS.IsCurrentNavigatable(this)) {
-            return;
-        }
-        console.log(`[HandleAutoCompleteSelect] ${event}`);
-        if (!this.kbS.isEditModeActivated) {
-            this.JumpToNextInput(event);
-        }
-    }
-
     HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true): void {
         if (toggleEditMode) {
             this.kbS.toggleEdit();
@@ -373,6 +362,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+        console.log('[HandleFormEnter]: ', event, jumpNext, toggleEditMode);
+
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }
@@ -383,9 +374,35 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         }
     }
 
-    HandleFormDropdownEnter(event: Event, itemCount: number): void {
-        console.log("itemCount: " + itemCount);
-        if (itemCount > 1) {
+    HandleAutoCompleteSelect(event: any, key: string): void {
+        console.log('[HandleAutoCompleteSelect]');
+        // If the table is still the current navigatable and the form is filled
+        // this event could be triggered but MUST NOT be handled here because it breaks the flow
+        // of navigation.
+        if (!this.kbS.IsCurrentNavigatable(this)) {
+            return;
+        }
+        console.log(`[HandleAutoCompleteSelect] ${event}`);
+        if (!this.kbS.isEditModeActivated) {
+            this.JumpToNextInput(event);
+        }
+    }
+
+    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string): void {
+        console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+
+        const ad = (event.target as any).getAttribute("aria-activedescendant");
+        if (this.kbS.isEditModeActivated &&
+            ad === null &&
+            possibleItems !== undefined && typedValue !== undefined &&
+            (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            return;
+        }
+
+        if (ad !== null && itemCount > 1) {
             this.kbS.toggleEdit();
         } else {
             if (!this.kbS.isEditModeActivated) {
@@ -464,7 +481,9 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     PushFooterCommandList(): void {
-        this.fS.pushCommands(this.commandsOnForm);
+        if (this.IsFootersEnabled) {
+            this.fS.pushCommands(this.commandsOnForm);
+        }
     }
 
     ClearNeighbours(): void {
@@ -493,7 +512,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         console.log("+------------------+\n\n");
     }
 
-    GenerateAndSetNavMatrices(attach: boolean, setAsCurrentNavigatable: boolean = true): void {
+    GenerateAndSetNavMatrices(attach: boolean, setAsCurrentNavigatable: boolean = true, orientation: NavMatrixOrientation = NavMatrixOrientation.NORMAL): void {
         if (environment.flatDesignFormDebug) {
             console.log("[FlatDesignNavigatableForm] START");
         }
@@ -521,9 +540,20 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
             );
 
             // Flat Design forms are always vertical
-            if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass('MULTICOLNAVIGATION_DISABLED'))) { // TileCssColClass
-                this.Matrix.push([]);
-                ++currentMatrixIndex;
+            switch (orientation) {
+                case NavMatrixOrientation.ONLY_HORIZONTAL:
+                    break;
+                case NavMatrixOrientation.ONLY_VERTICAL:
+                    this.Matrix.push([]);
+                    ++currentMatrixIndex;
+                    break;
+                case NavMatrixOrientation.NORMAL:
+                default:
+                    if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass('MULTICOLNAVIGATION_DISABLED'))) { // TileCssColClass
+                        this.Matrix.push([]);
+                        ++currentMatrixIndex;
+                    }
+                    break;
             }
             currentParent = next.parentElement!.nodeName;
 

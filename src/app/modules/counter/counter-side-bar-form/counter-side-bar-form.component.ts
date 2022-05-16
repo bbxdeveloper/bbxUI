@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { TileCssClass } from 'src/assets/model/navigation/Nav';
@@ -24,8 +24,7 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
 
   // WareHouse
   wareHouses: string[] = [];
-  currentWareHouseCount: number = 0;
-  filteredWareHouses$: Observable<string[]> = of([]);
+  wareHouseComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
     private wareHouseApi: WareHouseService, private cdref: ChangeDetectorRef) {
@@ -44,9 +43,8 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
     // WareHouse
     this.wareHouseApi.GetAll().subscribe({
       next: data => {
-        this.wareHouses = data?.data?.map(x => x.warehouseCode + '-' + x.warehouseDescription) ?? [];
-        this.filteredWareHouses$ = of(this.wareHouses);
-        this.currentWareHouseCount = this.wareHouses.length;
+        this.wareHouses = data?.data?.map(x => x.warehouseDescription) ?? [];
+        this.wareHouseComboData$.next(this.wareHouses);
       }
     });
   }
@@ -61,21 +59,5 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
 
     this.cdref.detectChanges();
-
-    this.currentForm?.form.controls['warehouse'].valueChanges.subscribe({
-      next: filterString => {
-        const tmp = this.filterCounterGroup(filterString);
-        this.currentWareHouseCount = tmp.length;
-        this.filteredWareHouses$ = of(tmp);
-      }
-    });
-  }
-
-  private filterCounterGroup(value: string): string[] {
-    if (value === undefined) {
-      return this.wareHouses;
-    }
-    const filterValue = value.toLowerCase();
-    return this.wareHouses.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
   }
 }

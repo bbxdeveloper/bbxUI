@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
@@ -13,12 +13,7 @@ import { UpdateInvoiceRequest } from '../models/UpdateInvoiceRequest';
 import { DeleteInvoiceRequest } from '../models/DeleteInvoiceRequest';
 import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
-
-const MOCK_PAYMENT_DATA: PaymentMethod[] = [
-  { paymentMethodDescription: 'Készpénz', paymentMethodCode: 'K' },
-  { paymentMethodDescription: 'Hitelkártya', paymentMethodCode: 'H' },
-  { paymentMethodDescription: 'Csekk', paymentMethodCode: 'C' },
-]
+import { Constants } from 'src/assets/util/Constants';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +24,7 @@ export class InvoiceService {
   constructor(private http: HttpClient) { }
 
   GetPaymentMethods(): Observable<PaymentMethod[]> {
-    return of(MOCK_PAYMENT_DATA);
+    return this.http.get<PaymentMethod[]>(this.BaseUrl + '/paymentmethod');
   }
 
   GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
@@ -85,5 +80,29 @@ export class InvoiceService {
 
   Delete(req: DeleteInvoiceRequest): Observable<DeleteInvoiceResponse> {
     return this.http.delete<DeleteInvoiceResponse>(this.BaseUrl + '?ID=' + req.id);
+  }
+
+  GetReport(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "application/pdf");
+    return this.http.post(
+      `${this.BaseUrl}/print`,
+      JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
+  }
+
+  GetGradesReport(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "application/pdf");
+    return this.http.post(
+      `${this.BaseUrl}/print`,
+      JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
   }
 }
