@@ -33,6 +33,16 @@ export class UtilityService {
     fileType: Constants.FileExtensions = Constants.FileExtensions.UNKNOWN,
     params: Constants.Dct = {}, obs?: Observable<any>): void {
     switch (commandType) {
+      case Constants.CommandType.PRINT_INVOICE:
+        switch (params['data_operation'] as Constants.DataOperation) {
+          case Constants.DataOperation.PRINT_BLOB:
+            this.print(fileType, this.invS.GetReport(params), params);
+            break;
+          case Constants.DataOperation.DOWNLOAD_BLOB:
+            this.download(this.invS.GetReport(params));
+            break;
+        }
+        break;
       case Constants.CommandType.POC_REPORT:
         switch (params['data_operation'] as Constants.DataOperation) {
           case Constants.DataOperation.PRINT_BLOB:
@@ -86,6 +96,7 @@ export class UtilityService {
             const event = new CustomEvent('print-pdf', { detail: { bloburl: blobURL, buffer: this.result, copies: params['copies'] } });
             document.dispatchEvent(event);
             stS.pushProcessStatus(Constants.BlankProcessStatus);
+            commandEnded.next(POC_REPORT_ENDED);
           } catch (error) {
             handleError(error)
             commandEnded.next(POC_REPORT_ENDED);

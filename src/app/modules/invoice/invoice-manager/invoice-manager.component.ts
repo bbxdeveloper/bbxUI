@@ -654,15 +654,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   printReport(id: any, copies: number): void {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
     this.utS.execute(
-      Constants.CommandType.POC_REPORT, Constants.FileExtensions.PDF,
+      Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
       {
         "section": "Szamla",
         "fileType": "pdf",
-        "report_params": {
-          "params": []
+        "report_params":
+        {
+          "id": id,
+          "invoiceNumber": null
         },
-        "id": id,
-        "copies": copies,
+        // "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct);
   }
@@ -697,6 +698,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.isLoading = false;
 
               this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
               
               this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
 
@@ -711,15 +713,15 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                   if (res.answer) {
                     this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
-                        if (cmdEnded?.CmdType === Constants.CommandType.POC_REPORT) {
+                        if (cmdEnded?.CmdType === Constants.CommandType.PRINT_INVOICE) {
                           this.utS.CommandEnded.unsubscribe();
                           this.toastrService.show(
                             `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
                             Constants.TOASTR_SUCCESS
                           );
-                          this.isLoading = false;
                         }
+                        this.isLoading = false;
                       },
                       error: err => {
                         this.utS.CommandEnded.unsubscribe();
@@ -739,6 +741,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS
                     );
+                    this.isLoading = false;
                   }
                 }
               });
@@ -750,7 +753,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
-            // this.dbDataTable.RemoveEditRow();
           },
           complete: () => {
             this.isLoading = false;

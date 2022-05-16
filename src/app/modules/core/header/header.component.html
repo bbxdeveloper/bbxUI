@@ -86,11 +86,11 @@
     <nb-action id="header-prod" class="cl-header-menu" tabIndex="4" disabled>Termékek</nb-action>
 
     <nb-action *ngIf="isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1,header-invo-sub-2"
+        data-sub="header-invo-sub-1"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1,header-invo-sub-2"
+        data-sub="header-invo-sub-1"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <ng-template #sub_invo let-data>
@@ -101,22 +101,22 @@
                     Számlázás
                 </button>
             </nb-card-body>
-            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+            <!-- <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress" (click)="printReport()">
                     Számla Nyomtatás
                 </button>
-            </nb-card-body>
+            </nb-card-body> -->
         </nb-card>
     </ng-template>
 
     <nb-action id="header-orde" class="cl-header-menu" tabIndex="6" disabled>Megrendelés</nb-action>
     
     <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1,header-info-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
         [disabled]="InProgress">Információ
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1,header-info-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
         [disabled]="InProgress">Információ
     </nb-action>
     <ng-template #sub_info let-data>
@@ -127,11 +127,11 @@
                     Számlák
                 </button>
             </nb-card-body>
-            <nb-card-body class="card-body-submenu-button">
+            <!-- <nb-card-body class="card-body-submenu-button">
                 <button nbButton status="primary" id="header-info-sub-2" [disabled]="InProgress" (click)="printGradesReport()">
                     Összegfokozatos Riport Nyomtatás
                 </button>
-            </nb-card-body>
+            </nb-card-body> -->
         </nb-card>
     </ng-template>
 

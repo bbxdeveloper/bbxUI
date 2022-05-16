@@ -2,7 +2,7 @@ nb-card.simple {
     display: flex;
     position: absolute;
 
-    z-index: 1;
+    z-index: 9999;
 
     width: 100%;
     height: 100%;
@@ -42,7 +42,7 @@ nb-card.normal {
     display: flex;
     position: absolute;
 
-    z-index: 1;
+    z-index: 9999;
 
     width: 100%;
     height: 100%;

@@ -39,7 +39,8 @@ export module Constants {
 
     export enum CommandType {
         POC_REPORT,
-        PRINT_POC_GRADES
+        PRINT_POC_GRADES,
+        PRINT_INVOICE
     }
 
     export enum DataOperation {
