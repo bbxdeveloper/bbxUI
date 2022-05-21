@@ -983,6 +983,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               }
             },
             error: err => {
+              this.cs.HandleError(err);
             }
           });
         } else {
@@ -1002,21 +1003,5 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (event.ctrlKey && event.key == 'Enter') {
       this.Save();
     }
-    // switch (event.key) {
-    //   case KeyBindings.F4: {
-    //     console.log(`F4 Pressed: ${event}`);
-
-    //     if (this.searchByTaxtNumber) {
-    //       event.stopImmediatePropagation();
-    //       event.stopPropagation();
-    //       event.preventDefault();
-  
-    //       this.ChoseDataForFormByTaxtNumber();
-    //     }
-
-    //     break;
-    //   }
-    //   default: { }
-    // }
   }
 }

@@ -9,6 +9,7 @@ import { Constants } from "src/assets/util/Constants";
 import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
+import { IInlineManager } from "../IInlineManager";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
 import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
@@ -78,6 +79,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     IsFootersEnabled: boolean = true;
 
+    parentComponent!: IInlineManager;
+
     constructor(
         f: FormGroup,
         private kbS: KeyboardNavigationService,
@@ -89,12 +92,17 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         private sidebarService: BbxSidebarService,
         private fS: FooterService,
         private grid?: FlatDesignNavigatableTable<T> | FlatDesignNoFormNavigatableTable<T>,
+        parentComponent?: IInlineManager
     ) {
         this.form = f;
         this._data = data;
         this.attachDirection = attachDirection;
         this.formId = formId;
         this.colDefs = colDefs;
+
+        if (!!parentComponent) {
+            this.parentComponent = parentComponent;
+        }
 
         this.SetFormStateToDefault();
 
@@ -361,13 +369,17 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         }
     }
 
-    HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
-        console.log('[HandleFormEnter]: ', event, jumpNext, toggleEditMode);
-
+    HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
+        console.log('[HandleFormEnter]: ', event, jumpNext, toggleEditMode, preventEventInAnyCase);
+        
+        if (preventEventInAnyCase) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+        }
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }
-
         // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
         if (!this.kbS.isEditModeActivated && jumpNext) {
             this.JumpToNextInput(event);
@@ -441,6 +453,17 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
         if (!this.kbS.isEditModeActivated && jumpNext) {
             this.JumpToNextInput(event);
+        }
+    }
+
+    HandleKeyNoCrud(event: any, controlKey: string): void {
+        switch (event.key) {
+            case KeyBindings.F2: {
+                event.preventDefault();
+                this.parentComponent.ChooseDataForForm();
+                break;
+            }
+            default: { }
         }
     }
 

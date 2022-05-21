@@ -83,7 +83,28 @@
         </nb-card>
     </ng-template>
 
-    <nb-action id="header-prod" class="cl-header-menu" tabIndex="4" disabled>Termékek</nb-action>
+    <nb-action *ngIf="isLoggedIn" id="header-prod" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
+        data-sub="header-product-sub-1,header-product-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_product" [disabled]="InProgress">Termékek
+    </nb-action>
+    <nb-action *ngIf="!isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
+        data-sub="header-product-sub-1,header-product-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_product" [disabled]="InProgress">Termékek
+    </nb-action>
+    <ng-template #sub_product let-data>
+        <nb-card class="card-submenu-wrapper">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-product-sub-1" [disabled]="InProgress"
+                    (click)="goTo('product/offers-nav')">
+                    Árajánlatok
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-product-sub-2" [disabled]="InProgress"
+                    (click)="goTo('product/offers-create')">
+                    Árajánlat felvitele
+                </button>
+            </nb-card-body>
+        </nb-card>
+    </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
         data-sub="header-invo-sub-1"

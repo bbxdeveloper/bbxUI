@@ -398,3 +398,17 @@ nb-card-header {
     max-height: 100vh;
     overflow-y: hidden !important;
 }
+
+form.form-with-rows {
+    display: flex;
+    align-items: flex-start;
+    grid-column-gap: 10px;
+    column-gap: 10px;
+    row-gap: 10px;
+    flex-direction: column;
+
+    .form-row {
+        display: flex;
+        justify-content: flex-start;
+    }
+}
