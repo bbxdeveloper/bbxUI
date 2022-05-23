@@ -8,6 +8,7 @@ import { CounterManagerComponent } from './modules/counter/counter-manager/count
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
 import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
+import { OfferEditorComponent } from './modules/offer/offer-editor/offer-editor.component';
 import { OfferNavComponent } from './modules/offer/offer-nav/offer-nav.component';
 import { OriginManagerComponent } from './modules/origin/origin-manager/origin-manager.component';
 import { ProductGroupManagerComponent } from './modules/product-group/product-group-manager/product-group-manager.component';
@@ -76,6 +77,10 @@ const routes: Routes = [
       {
         path: "offers-nav",
         component: OfferNavComponent,
+      },
+      {
+        path: "offers-create",
+        component: OfferEditorComponent,
       }
     ]
   },
