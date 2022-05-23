@@ -11,9 +11,9 @@
                             <td>
                                 <nb-form-field class="search-row-nb-form-field"
                                     (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
-                                    (keydown.F2)="buyerFormNav.HandleKey($event, 'CustomerSearch')">
+                                    (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
                                     <label>Ügyfél keresés</label>
-                                    <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}}"
+                                    <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         (click)="buyerFormNav.HandleFormFieldClick($event)"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
@@ -25,11 +25,11 @@
                                     (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
                             <td>
-                                <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                                <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
                                     <label>Ügyfél</label>
-                                    <input nbInput type="text" formControlName='CustomerName' readonly
+                                    <input nbInput type="text" formControlName='customerName' readonly
                                         (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél" controlName="CustomerName">
+                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél" controlName="customerName">
                                     </app-form-control-error>
                                 </nb-form-field>
                             </td>
@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Kiállítás dátuma</label>
                         <input nbInput type="datetime" formControlName='offerIssueDate' class="{{TileCssClass}}"
                             (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
@@ -49,7 +49,7 @@
                         </app-form-control-error>
                     </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Érvényesség dátuma</label>
                         <input nbInput type="datetime" formControlName='offerVaidityDate' class="{{TileCssClass}}"
                             (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
@@ -62,7 +62,7 @@
                 </div>
 
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Megjegyzés</label>
                         <input nbInput type="text" formControlName='notice' class="{{TileCssClass}}"
                             (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">

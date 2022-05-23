@@ -30,9 +30,7 @@ import { createMask } from '@ngneat/input-mask';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
-import { SumData } from '../../invoice/models/SumData';
 import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
-import { SaveDialogComponent } from '../../invoice/save-dialog/save-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
@@ -52,12 +50,12 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
 
   cachedCustomerName?: string;
 
-  buyerData: Customer;
+  buyerData!: Customer;
 
   buyersData: Customer[] = [];
   paymentMethods: PaymentMethod[] = [];
 
-  offerData: CreateOfferRequest;
+  offerData!: CreateOfferRequest;
 
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
@@ -90,14 +88,14 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     placeholder: '',
   });
 
-  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
+  override colsToIgnore: string[] = ["vatRateCode", "lineGrossAmount"];
   override allColumns = [
     'productCode',
     'productDescription',
     'quantity',
     'unitOfMeasureX',
     'price',
-    'lineNetAmount',
+    'vatRateCode',
     'lineGrossAmount',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -108,7 +106,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     },
     {
       label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
-      defaultValue: '', type: 'string', mask: "", fReadonly: true,
+      defaultValue: '', type: 'string', mask: "", //fReadonly: true,
       colWidth: "30%", textAlign: "left",
     },
     {
@@ -122,14 +120,14 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
       colWidth: "5%", textAlign: "right"
     },
     {
-      label: 'Ár', objectKey: 'price', colKey: 'price',
+      label: 'Nettó Ár', objectKey: 'price', colKey: 'price',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
-      defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
+      label: 'Áfakód', objectKey: 'vatRateCode', colKey: 'vatRateCode',
+      defaultValue: '', type: 'string', mask: "", fReadonly: true,
+      colWidth: "12%", textAlign: "right", //fInputType: 'formatted-number'
     },
     {
       label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
@@ -158,9 +156,9 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
-  buyerForm: FormGroup;
+  buyerForm!: FormGroup;
   buyerFormId: string = "buyer-form";
-  buyerFormNav: InlineTableNavigatableForm;
+  buyerFormNav!: InlineTableNavigatableForm;
 
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
@@ -210,6 +208,17 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     private utS: UtilityService,
   ) {
     super(dialogService, kbS, fS, cs, sts);
+    this.InitialSetup();
+  }
+
+  private Reset(): void {
+    console.log(`Reset.`);
+    this.kbS.ResetToRoot();
+    this.InitialSetup();
+    this.AfterViewInitSetup();
+  }
+
+  private InitialSetup(): void {
     this.dbDataTableId = "offers-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 
@@ -217,7 +226,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     this.buyerData = {} as Customer;
 
     this.offerData = {
-      customerID: '',
+      customerID: -1,
       offerIssueDate: '',
       offerVaidityDate: '',
       notice: '',
@@ -227,13 +236,17 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
-    this.buyerForm = new FormGroup({
-      customerSearch: new FormControl('', []),
-      customerName: new FormControl('', [Validators.required]),
-      offerIssueDate: new FormControl('', [Validators.required, todaysDate]),
-      offerVaidityDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
-      notice: new FormControl('', []),
-    });
+    if (this.buyerForm === undefined) {
+      this.buyerForm = new FormGroup({
+        customerSearch: new FormControl('', []),
+        customerName: new FormControl('', [Validators.required]),
+        offerIssueDate: new FormControl('', [Validators.required, todaysDate]),
+        offerVaidityDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
+        notice: new FormControl('', []),
+      });
+    } else {
+      this.buyerForm.reset(undefined);
+    }
 
     this.buyerFormNav = new InlineTableNavigatableForm(
       this.buyerForm,
@@ -268,6 +281,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     // Refresh data
     this.refresh();
   }
+
 
   changeSort(sortRequest: NbSortRequest): void {
     this.dbDataDataSrc.sort(sortRequest);
@@ -323,19 +337,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
   }
 
-  RecalcNetAndVat(): void {
-    // this.offerData.invoiceLines = this.dbData.map(x => x.data);
-
-    // this.offerData.invoiceNetAmount =
-    //   this.offerData.invoiceLines
-    //     .map(x => this.ToFloat(x.price) * this.ToFloat(x.quantity))
-    //     .reduce((sum, current) => sum + current, 0);
-
-    // this.offerData.lineGrossAmount =
-    //   this.offerData.invoiceLines
-    //     .map(x => (this.ToFloat(x.price) * this.ToFloat(x.quantity)) + this.ToFloat(x.lineVatAmount + ''))
-    //     .reduce((sum, current) => sum + current, 0);
-  }
+  RecalcNetAndVat(): void {}
 
   HandleGridCodeFieldEnter(row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
@@ -418,19 +420,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
           tmp.lineNetAmount = this.ToFloat(tmp.price) * this.ToFloat(tmp.quantity);
           tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
           tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
-
-          // console.log('--------------');
-          // console.log('Calculation:');
-          // console.log(tmp);
-          // console.log('this.ToFloat(tmp.price): ',this.ToFloat(tmp.price));
-          // console.log('this.ToFloat(tmp.quantity): ', this.ToFloat(tmp.quantity));
-          // console.log('this.ToFloat(tmp.vatRate): ', this.ToFloat(tmp.vatRate));
-          // console.log('tmp.lineGrossAmount: ', tmp.lineGrossAmount);
-          // console.log('tmp.lineNetAmount: ', tmp.lineNetAmount);
-          // console.log('tmp.lineVatAmount: ', tmp.lineVatAmount);
-          // console.log('this.ToFloat(tmp.lineNetAmount): ', this.ToFloat(tmp.lineNetAmount));
-          // console.log('this.ToFloat(tmp.lineVatAmount): ', this.ToFloat(tmp.lineVatAmount));
-          // console.log('--------------');
 
           this.dbData[index].data = tmp;
 
@@ -533,6 +522,9 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
+    this.AfterViewInitSetup();
+  }
+  private AfterViewInitSetup(): void {
     this.InitFormDefaultValues();
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -562,14 +554,14 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   private UpdateOutGoingData(): void {
-    this.offerData.customerID = this.buyerData.id + '';
+    this.offerData.customerID = this.buyerData.id;
 
     this.offerData.notice = this.buyerForm.controls['notice'].value;
 
     this.offerData.offerIssueDate =
       HelperFunctions.FormFieldStringToDateTimeString(this.buyerForm.controls['offerIssueDate'].value);
     this.offerData.offerVaidityDate =
-      HelperFunctions.FormFieldStringToDateTimeString(this.buyerForm.controls['offerValidityDate'].value);
+      HelperFunctions.FormFieldStringToDateTimeString(this.buyerForm.controls['offerVaidityDate'].value);
 
     // this.offerData.invoiceNetAmount = 0;
     // this.offerData.invoiceVatAmount = 0;
@@ -579,9 +571,9 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
         productCode: x.data.productCode,
         lineDescription: x.data.productDescription,
         vatRateCode: x.data.vatRateCode,
-        unitPrice: x.data.price,
-        unitVat: x.data.lineVatAmount,
-        unitGross: x.data.quantity * x.data.price
+        unitPrice: this.ToFloat(x.data.price),
+        unitVat: this.ToFloat(x.data.lineVatAmount),
+        unitGross: this.ToFloat(x.data.quantity * x.data.price)
       } as OfferLine;
     });
 
@@ -612,7 +604,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
   printReport(id: any, copies: number): void {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
     this.utS.execute(
-      Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
+      Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
       {
         "section": "Szamla",
         "fileType": "pdf",
@@ -663,20 +655,25 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
               if (res.answer) {
                 this.utS.CommandEnded.subscribe({
                   next: cmdEnded => {
-                    if (cmdEnded?.CmdType === Constants.CommandType.PRINT_INVOICE) {
-                      this.utS.CommandEnded.unsubscribe();
+                    console.log(`CommandEnded received: ${cmdEnded?.CmdType}`);
+
+                    if (cmdEnded?.CmdType === Constants.CommandType.PRINT_OFFER) {
+                      this.Reset();
                       this.toastrService.show(
-                        `A ${this.buyerForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
+                        `Az árajánlat nyomtatása véget ért.`,
                         Constants.TITLE_INFO,
                         Constants.TOASTR_SUCCESS
                       );
+                      this.utS.CommandEnded.unsubscribe();
                     }
                     this.isLoading = false;
                   },
-                  error: err => {
+                  error: cmdEnded => {
+                    console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
                     this.utS.CommandEnded.unsubscribe();
                     this.toastrService.show(
-                      `A ${this.buyerForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,
+                      `Az árajánlat nyomtatása közben hiba történt.`,
                       Constants.TITLE_ERROR,
                       Constants.TOASTR_ERROR
                     );
@@ -687,7 +684,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
                 this.printReport(d.data?.id, res.value);
               } else {
                 this.toastrService.show(
-                  `A ${this.buyerForm.controls['invoiceOrdinal'].value} számla nyomtatása nem történt meg.`,
+                  `Az árajánlat számla nyomtatása nem történt meg.`,
                   Constants.TITLE_INFO,
                   Constants.TOASTR_SUCCESS
                 );

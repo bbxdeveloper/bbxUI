@@ -801,7 +801,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
-            this.Reset();
           },
           complete: () => {
             this.isLoading = false;

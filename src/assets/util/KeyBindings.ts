@@ -42,6 +42,7 @@ export enum KeyBindings {
     Tab = 'Tab',
     // QUICK CRUD
     crudNew = F8,
+    crudEdit = F7,
     crudReset = F9,
     crudSave = F10,
     crudDelete = F11,
@@ -50,6 +51,7 @@ export enum KeyBindings {
 export enum Actions {
     TableSearch = 'TableSearch',
     CrudNew = 'CrudNew',
+    CrudEdit = 'CrudEdit',
     CrudReset = 'CrudReset',
     CrudSave = 'CrudSave',
     CrudDelete = 'CrudDelete',
@@ -59,6 +61,7 @@ export enum Actions {
 export let CrudManagerKeySettings: Constants.KeySettingsDct = {
     TableSearch: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     CrudNew: { KeyCode: KeyBindings.F8, KeyLabel: KeyBindings.F8, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
+    CrudEdit: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     CrudReset: { KeyCode: KeyBindings.F9, KeyLabel: KeyBindings.F9, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     CrudSave: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     CrudDelete: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },

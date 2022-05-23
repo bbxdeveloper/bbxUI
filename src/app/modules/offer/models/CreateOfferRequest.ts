@@ -1,7 +1,7 @@
 import { OfferLine } from "./OfferLine";
 
 export interface CreateOfferRequest {
-    "customerID": string,
+    "customerID": number,
     "offerIssueDate": string,
     "offerVaidityDate": string,
     "notice": string,

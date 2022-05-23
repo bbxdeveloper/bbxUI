@@ -1,5 +1,10 @@
 <app-head-line msg="Árajánlatok"></app-head-line>
 
+<app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="this"
+[newButton]="true" [editButton]="false" [resetButton]="false" [saveButton]="false" [deleteButton]="false"
+wrapperClass="bbx-fd-sidebar-functions-left">
+</app-crud-buttons>
+
 <div class="filter-div">
     <nb-card class="filter-card">
         <nb-card-body class="filter-card-body">
@@ -35,7 +40,7 @@
                         </tr>
                     </table>
 
-                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Ügyfél</label>
                         <input nbInput type="text" formControlName='CustomerName' readonly
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
@@ -45,7 +50,7 @@
                 </div>
 
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Kiállítás dátumától</label>
                         <input nbInput type="datetime" formControlName='OfferIssueDateFrom' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
@@ -56,7 +61,7 @@
                         </app-form-control-error>
                     </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Kiállítás dátumig</label>
                         <input nbInput type="datetime" formControlName='OfferIssueDateTo' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
@@ -67,7 +72,7 @@
                         </app-form-control-error>
                     </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Érvényesség dátumától</label>
                         <input nbInput type="datetime" formControlName='OfferVaidityDateForm' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
@@ -91,7 +96,7 @@
                 </div>
             </form>
         </nb-card-body>
-        <nb-card-footer>
+        <nb-card-footer class="offer-footer">
             <div class="form-row">
                 <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)" status="primary"
                     tabindex="-1">Keresés</button>

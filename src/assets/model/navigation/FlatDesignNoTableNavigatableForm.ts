@@ -322,7 +322,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         const moveRes = this.MoveNext();
         // We can't know if we should click the first element if we moved to another navigation-matrix.
         if (!moveRes.jumped) {
-            this.kbS.ClickCurrentElement();
+            this.kbS.ClickCurrentElement(true);
             if (!this.kbS.isEditModeActivated) {
                 this.kbS.setEditMode(KeyboardModes.EDIT);
             }
@@ -342,7 +342,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         const moveRes = this.MovePrevious();
         // We can't know if we should click the first element if we moved to another navigation-matrix.
         if (!moveRes.jumped) {
-            this.kbS.ClickCurrentElement();
+            this.kbS.ClickCurrentElement(true);
             if (!this.kbS.isEditModeActivated) {
                 this.kbS.setEditMode(KeyboardModes.EDIT);
             }
@@ -358,7 +358,14 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         }
     }
 
-    HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true): void {
+    HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
+        console.log('[HandleFormShiftEnter]: ', event, jumpPrevious, toggleEditMode, preventEventInAnyCase);
+
+        if (preventEventInAnyCase) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+        }
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }

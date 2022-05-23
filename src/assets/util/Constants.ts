@@ -42,6 +42,7 @@ export module Constants {
         PRINT_POC_GRADES,
         PRINT_INVOICE,
         ERROR,
+        PRINT_OFFER,
     }
 
     export enum DataOperation {

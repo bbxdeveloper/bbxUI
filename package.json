@@ -15,7 +15,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "electron": "ng build --base-href ./ && electron .",
-    "build-package": "ng build --prod --base-href ./ && electron-forge package"
+    "build-package": "ng build --prod --base-href ./ && electron-forge package",
+    "build-prod": "ng build --configuration=\"prod\" --base-href",
+    "build-customer-test": "ng build --configuration=\"testcustomer\" --base-href"
   },
   "private": true,
   "dependencies": {

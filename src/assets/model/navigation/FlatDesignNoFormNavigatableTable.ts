@@ -61,6 +61,8 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
 
     flatDesignForm!: FlatDesignNavigatableForm<T>;
 
+    public DisableFooter: boolean = false;
+
     commandsOnTable: FooterCommandInfo[] = [
         { key: 'Tab', value: '', disabled: false },
         { key: 'F1', value: '', disabled: false },
@@ -212,7 +214,7 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
     }
 
     PushFooterCommandList(): void {
-        if (this.sidebarService.sideBarOpened) {
+        if (this.sidebarService.sideBarOpened || this.DisableFooter) {
             return;
         }
         if (this.kbs.isEditModeActivated) {

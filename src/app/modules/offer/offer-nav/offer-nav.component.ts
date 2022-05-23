@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -27,13 +27,17 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { CountryCode } from '../../customer/models/CountryCode';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
+import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
+import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-offer-nav',
   templateUrl: './offer-nav.component.html',
   styleUrls: ['./offer-nav.component.scss']
 })
-export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IInlineManager, OnInit, AfterViewInit {
+export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
 
   readonly SearchButtonId: string = 'offers-button-search';
@@ -46,6 +50,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   readonly ChosenDeliveryFilterOptionValue: string = '2';
 
   customerInputFilterString: string = '';
+
+  isDeleteDisabled: boolean = true;
 
   cachedCustomerName?: string;
   _searchByTaxtNumber: boolean = false;
@@ -171,6 +177,18 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
+  override commands: FooterCommandInfo[] = [
+    { key: 'F1', value: '', disabled: false },
+    { key: 'F2', value: '', disabled: false },
+    { key: 'F3', value: '', disabled: false },
+    { key: 'F4', value: '', disabled: false },
+    { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
+    { key: 'F6', value: '', disabled: false },
+    //{ key: 'F7', value: 'Szerkesztés', disabled: false },
+    { key: 'F8', value: 'Új', disabled: false },
+    //{ key: 'F11', value: 'Törlés', disabled: false },
+  ];
+
   get invoiceOfferIssueDateFrom(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -220,7 +238,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private offerService: OfferService,
     private seC: CustomerService,
     cs: CommonService,
-    sts: StatusService
+    sts: StatusService,
+    private router: Router
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -371,7 +390,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     console.log(this.filterFormNav.Matrix);
 
     this.dbDataTable.GenerateAndSetNavMatrices(false);
-    this.dbDataTable.PushFooterCommandList();
+    this.dbDataTable.DisableFooter = true;
 
     this.kbS.SelectFirstTile();
   }
@@ -390,7 +409,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   MoveToSaveButtons(event: any): void {
     if (this.isEditModeOff) {
-      this.filterFormNav!.HandleFormEnter(event);
+      this.filterFormNav!.HandleFormEnter(event, true, true, true);
     } else {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -533,5 +552,48 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   
   RefreshData(): void {}
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {}
-  RecalcNetAndVat(): void {}
+  RecalcNetAndVat(): void { }
+
+  HandleFunctionKey(event: Event | KeyBindings): void {
+    const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+    switch (val) {
+      // NEW
+      case KeyBindings.crudNew:
+        this.router.navigate(['product/offers-create']);
+        break;
+      // EDIT
+      case KeyBindings.crudEdit:
+        // Navigate to edit
+        break;
+      // DELETE
+      case KeyBindings.crudDelete:
+        // Delete
+        break;
+    }
+  }
+
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this.filterFormNav?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    switch (event.key) {
+      case CrudManagerKeySettings[Actions.CrudNew].KeyCode:
+      case CrudManagerKeySettings[Actions.CrudReset].KeyCode:
+      case CrudManagerKeySettings[Actions.CrudSave].KeyCode:
+      case CrudManagerKeySettings[Actions.CrudDelete].KeyCode:
+      case CrudManagerKeySettings[Actions.OpenForm].KeyCode:
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        this.HandleFunctionKey(event);
+        break;
+    }
+  }
 }

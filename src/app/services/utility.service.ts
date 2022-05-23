@@ -6,6 +6,7 @@ import { StatusService } from './status.service';
 import { NbToastrService } from '@nebular/theme';
 import { InvoiceService } from '../modules/invoice/services/invoice.service';
 import { CommonService } from './common.service';
+import { OfferService } from '../modules/offer/services/offer.service';
 
 const POC_REPORT_ENDED =
   { Id: -1, CmdType: Constants.CommandType.POC_REPORT } as Constants.CommandDescriptor;
@@ -22,6 +23,7 @@ export class UtilityService {
 
   constructor(
     private invS: InvoiceService,
+    private offerService: OfferService,
     private sts: StatusService,
     private toastrService: NbToastrService,
     private cs: CommonService) { }
@@ -37,6 +39,16 @@ export class UtilityService {
     params: Constants.Dct = {}, obs?: Observable<any>): void {
     console.log(`Execute command: ${commandType}, fileType: ${fileType}`);
     switch (commandType) {
+      case Constants.CommandType.PRINT_OFFER:
+        switch (params['data_operation'] as Constants.DataOperation) {
+          case Constants.DataOperation.PRINT_BLOB:
+            this.print(fileType, this.offerService.GetReport(params), params);
+            break;
+          case Constants.DataOperation.DOWNLOAD_BLOB:
+            this.download(this.invS.GetReport(params));
+            break;
+        }
+        break;
       case Constants.CommandType.PRINT_INVOICE:
         switch (params['data_operation'] as Constants.DataOperation) {
           case Constants.DataOperation.PRINT_BLOB:
