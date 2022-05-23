@@ -6,11 +6,11 @@ import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/Fl
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 
 @Component({
-  selector: 'app-bbx-combo-box',
-  templateUrl: './bbx-combo-box.component.html',
-  styleUrls: ['./bbx-combo-box.component.scss']
+  selector: 'app-bbx-combo-box-invoice',
+  templateUrl: './bbx-combo-box-invoice.component.html',
+  styleUrls: ['./bbx-combo-box-invoice.component.scss']
 })
-export class BbxComboBoxComponent implements OnInit, AfterViewInit {
+export class BbxComboBoxInvoiceComponent implements OnInit, AfterViewInit {
   @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';

@@ -124,7 +124,10 @@
         <nb-card-body class="form-col-2">
             <form class="form-horizontal" [formGroup]="outInvForm" #formDirective="ngForm" [id]="outInvFormId"
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
-                <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, false)">
+                <app-bbx-combo-box-invoice class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="paymentMethod" label="Fizetési mód"
+                    [data$]="paymentMethodOptions$"></app-bbx-combo-box-invoice>
+
+                <!-- <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, false)">
                     <label>Fizetési mód</label>
                     <input formControlName="paymentMethod" nbInput type="text" [nbAutocomplete]="autoPaymentMethod"
                         class="{{TileCssClass}}" readonly placeholder="Fizetési mód" autocomplete="off" id="m00" />
@@ -134,7 +137,7 @@
                             {{ option }}
                         </nb-option>
                     </nb-autocomplete>
-                </nb-form-field>
+                </nb-form-field> -->
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Teljesítési időpont</label>

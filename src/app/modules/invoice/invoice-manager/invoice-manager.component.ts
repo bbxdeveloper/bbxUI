@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map } from 'rxjs';
+import { Observable, of, startWith, map, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -19,7 +19,6 @@ import { GetCustomersParamListModel } from '../../customer/models/GetCustomersPa
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
-import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
@@ -51,16 +50,17 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   cachedCustomerName?: string;
 
-  senderData: Customer;
-  buyerData: Customer;
+  senderData!: Customer;
+  buyerData!: Customer;
 
   buyersData: Customer[] = [];
-  paymentMethods: PaymentMethod[] = [];
-
-  outGoingInvoiceData: CreateOutgoingInvoiceRequest;
-
   filteredBuyerOptions$: Observable<string[]> = of([]);
-  paymentMethodOptions$: Observable<string[]> = of([]);
+
+  paymentMethods: PaymentMethod[] = [];
+  _paymentMethods: string[] = [];
+  paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+  outGoingInvoiceData!: CreateOutgoingInvoiceRequest;
 
   customerInputFilterString: string = '';
 
@@ -158,15 +158,15 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
-  exporterForm: FormGroup;
+  exporterForm!: FormGroup;
 
-  outInvForm: FormGroup;
+  outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
-  outInvFormNav: InlineTableNavigatableForm;
+  outInvFormNav!: InlineTableNavigatableForm;
 
-  buyerForm: FormGroup;
+  buyerForm!: FormGroup;
   buyerFormId: string = "buyer-form";
-  buyerFormNav: InlineTableNavigatableForm;
+  buyerFormNav!: InlineTableNavigatableForm;
 
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
@@ -215,6 +215,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private utS: UtilityService,
   ) {
     super(dialogService, kbS, fS, cs, sts);
+    this.InitialSetup();
+  }
+
+  private Reset(): void {
+    this.kbS.ResetToRoot();
+    this.InitialSetup();
+    this.AfterViewInitSetup();
+  }
+
+  private InitialSetup(): void {
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 
@@ -332,8 +342,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (this.invoiceIssueDateValue === undefined) {
       return null;
     }
-    const wrong = new Date(control.value) < this.invoiceIssueDateValue;
-    return wrong ? { minDate: { value: control.value } } : null;
+    const wrong = new Date(control.value) > this.invoiceIssueDateValue;
+    return wrong ? { maxDate: { value: control.value } } : null;
   }
 
   // paymentDate
@@ -488,6 +498,31 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   refresh(): void {
+    this.seInv.GetPaymentMethods().subscribe({
+      next: d => {
+        console.log('[GetPaymentMethods]: ', d);
+        this.paymentMethods = d;
+        this._paymentMethods = this.paymentMethods.map(x => x.text) ?? [];
+        this.paymentMethodOptions$.next(this._paymentMethods);
+        if (this._paymentMethods.length > 0) {
+          this.outInvForm.controls['paymentMethod'].setValue(this._paymentMethods[0])
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+      },
+      complete: () => { },
+    })
+
+    this.seC.GetAllCountryCodes().subscribe({
+      next: (data) => {
+        if (!!data) this.countryCodes = data;
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+      }
+    });
+
     this.seC.GetAll({ IsOwnData: false }).subscribe({
       next: d => {
         // Possible buyers
@@ -505,28 +540,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         // Products
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
-
-        this.seInv.GetPaymentMethods().subscribe({
-          next: d => {
-            this.paymentMethods = d;
-            console.log('[GetPaymentMethods]: ', d);
-            this.paymentMethodOptions$ = of(d.map(d => d.text));
-          },
-          error: (err) => {
-            this.cs.HandleError(err);
-          },
-          complete: () => {},
-        })
-        
-
-        this.seC.GetAllCountryCodes().subscribe({
-          next: (data) => {
-            if (!!data) this.countryCodes = data;
-          },
-          error: (err) => {
-            this.cs.HandleError(err);
-          }
-        });
 
         this.seC.GetAll({ IsOwnData: true }).subscribe({
           next: d => {
@@ -578,6 +591,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
+    this.AfterViewInitSetup();
+  }
+  private AfterViewInitSetup(): void {
     this.InitFormDefaultValues();
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -670,6 +686,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   Save(): void {
     if (this.outInvForm.invalid) {
+      this.toastrService.show(
+        `Az űrlap hibásan vagy hiányosan van kitöltve.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
       return;
     }
 
@@ -700,7 +721,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
               
-              this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              // this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -720,6 +741,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                             Constants.TITLE_INFO,
                             Constants.TOASTR_SUCCESS
                           );
+                          this.Reset();
                         }
                         this.isLoading = false;
                       },
@@ -731,6 +753,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                           Constants.TOASTR_ERROR
                         );
                         this.isLoading = false;
+                        this.Reset();
                       }
                     });
                     this.isLoading = true;
@@ -742,6 +765,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       Constants.TOASTR_SUCCESS
                     );
                     this.isLoading = false;
+                    this.Reset();
                   }
                 }
               });

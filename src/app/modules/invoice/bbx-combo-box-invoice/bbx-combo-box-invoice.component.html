@@ -7,7 +7,8 @@
             (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="autoComboBoxComplete"
             [readonly]="isEditModeOff" autocomplete="off" />
     </div>
-    <app-form-control-error [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName"></app-form-control-error>
+    <app-form-control-error [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">
+    </app-form-control-error>
 </nb-form-field>
 <!-- AUTOCOMPLETE -->
 <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxComplete [activeFirst]="false"
