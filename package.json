@@ -16,7 +16,7 @@
     "test": "ng test",
     "electron": "ng build --base-href ./ && electron .",
     "build-package": "ng build --prod --base-href ./ && electron-forge package",
-    "build-package-customer": "ng build --configuration=\"testcustomer\" --base-href ./ && electron-forge package",
+    "build-package-customer-test": "ng build --configuration=\"testcustomer\" --base-href ./ && electron-forge package",
     "build-prod": "ng build --configuration=\"production\" --base-href",
     "build-customer-test": "ng build --configuration=\"testcustomer\" --base-href"
   },
