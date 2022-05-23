@@ -40,7 +40,8 @@ export module Constants {
     export enum CommandType {
         POC_REPORT,
         PRINT_POC_GRADES,
-        PRINT_INVOICE
+        PRINT_INVOICE,
+        ERROR,
     }
 
     export enum DataOperation {
@@ -103,5 +104,6 @@ export module Constants {
     export interface CommandDescriptor {
         Id: number,
         CmdType: CommandType;
+        State?: CommandType;
     }
 }

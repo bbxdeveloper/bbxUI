@@ -10,6 +10,9 @@ import { CommonService } from './common.service';
 const POC_REPORT_ENDED =
   { Id: -1, CmdType: Constants.CommandType.POC_REPORT } as Constants.CommandDescriptor;
 
+const REPORT_ENDED_WITH_ERROR =
+  { Id: -1, CmdType: Constants.CommandType.POC_REPORT, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,6 +35,7 @@ export class UtilityService {
     commandType: Constants.CommandType,
     fileType: Constants.FileExtensions = Constants.FileExtensions.UNKNOWN,
     params: Constants.Dct = {}, obs?: Observable<any>): void {
+    console.log(`Execute command: ${commandType}, fileType: ${fileType}`);
     switch (commandType) {
       case Constants.CommandType.PRINT_INVOICE:
         switch (params['data_operation'] as Constants.DataOperation) {
@@ -68,6 +72,7 @@ export class UtilityService {
 
   private print(fileType: Constants.FileExtensions, res: Observable<any>, params: Constants.Dct = {}): void {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.GENERATING]);
+    console.log(`Print: ${fileType}`);
     switch (fileType) {
       case Constants.FileExtensions.PDF:
         if (environment.electron) {
@@ -80,63 +85,92 @@ export class UtilityService {
   }
 
   private sendPdfToElectron(resData: Observable<any>, params: Constants.Dct = {}): void {
+    console.log(`Preparing electron print. Waiting for print data.`);
+
     resData.subscribe({
       next: res => {
+        console.log(`Print data acquired.`);
+
         this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_RESP]);
         var blob = new Blob([res], { type: 'application/pdf' });
         var blobURL = URL.createObjectURL(blob);
+        
+        console.log(`Processing blob...`);
 
         // Read blob data as binary string
         const reader = new FileReader();
         const stS = this.sts;
         const handleError = this.HandleError;
         const commandEnded = this.CommandEnded;
+
         reader.onload = function () {
+          console.log(`Sending for printer...`);
+
           try {
             const event = new CustomEvent('print-pdf', { detail: { bloburl: blobURL, buffer: this.result, copies: params['copies'] } });
             document.dispatchEvent(event);
+
+            console.log(`Printing is in progress...`);
+
             stS.pushProcessStatus(Constants.BlankProcessStatus);
             commandEnded.next(POC_REPORT_ENDED);
           } catch (error) {
             handleError(error)
-            commandEnded.next(POC_REPORT_ENDED);
+            commandEnded.error(REPORT_ENDED_WITH_ERROR);
           }
         };
         reader.readAsBinaryString(blob);
         stS.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.SEND_TO_PRINTER]);
       },
       error: err => {
+        console.log(`Error while receiving print data.`);
         this.HandleError(err);
-        this.CommandEnded.next(POC_REPORT_ENDED);
+        this.CommandEnded.error(REPORT_ENDED_WITH_ERROR);
       }
     });
   }
 
   private printPdfFromResponse(resData: Observable<any>, params: Constants.Dct = {}): void {
+    console.log(`Preparing web print. Waiting for print data.`);
+
     resData.subscribe({
       next: res => {
+        console.log(`Print data acquired.`);
+
         this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_RESP]);
         var blob = new Blob([res], { type: 'application/pdf' });
         var blobURL = URL.createObjectURL(blob);
 
+        console.log(`Processing blob...`);
+
         // Load content in an iframe to print later
         let iframe = document.createElement('iframe');
         document.body.appendChild(iframe);
+
+        console.log(`Loading data...`);
 
         iframe.style.display = 'none';
         iframe.src = blobURL;
 
         const stS = this.sts;
         const commandEnded = this.CommandEnded;
+
         iframe.onload = () => {
+          console.log(`Sending for printer...`);
+
           this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.SEND_TO_PRINTER]);
           // Print
           setTimeout(function () {
+            console.log(`Start printing...`);
+
             iframe.focus();
             iframe.contentWindow!.print();
+
+            console.log(`Printing is in progress...`);
             stS.pushProcessStatus(Constants.BlankProcessStatus);
             commandEnded.next(POC_REPORT_ENDED);
           }, 1);
+          
           // Waiting 10 minute to make sure printing is done, then removing the iframe
           setTimeout(function () {
             document.body.removeChild(iframe);
@@ -144,8 +178,9 @@ export class UtilityService {
         };
       },
       error: err => {
+        console.log(`Error while receiving print data.`);
         this.HandleError(err);
-        this.CommandEnded.next(POC_REPORT_ENDED);
+        this.CommandEnded.error(REPORT_ENDED_WITH_ERROR);
       }
     });
   }
@@ -156,8 +191,12 @@ export class UtilityService {
   }
 
   private downloadBlobFromResponse(resData: Observable<any>): void {
+    console.log(`Download blob from response. Waiting for data.`);
+
     resData.subscribe({
       next: res => {
+        console.log(`Data acquired.`);
+
         this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadReportProcessPhases.PROC_RESP]);
         var blob = new Blob([res], { type: 'application/pdf' });
         var blobURL = URL.createObjectURL(blob);
@@ -177,8 +216,9 @@ export class UtilityService {
         this.CommandEnded.next(POC_REPORT_ENDED);
       },
       error: err => {
+        console.log(`Error while receiving print data.`);
         this.HandleError(err);
-        this.CommandEnded.next(POC_REPORT_ENDED);
+        this.CommandEnded.error(REPORT_ENDED_WITH_ERROR);
       }
     });
   }

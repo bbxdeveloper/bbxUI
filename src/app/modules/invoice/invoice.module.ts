@@ -62,6 +62,7 @@ import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-b
     InvoiceManagerComponent,
     InvoiceNavComponent,
     TaxNumberSearchCustomerEditDialogComponent,
+    CustomerSelectTableDialogComponent,
     BbxComboBoxInvoiceComponent
   ]
 })

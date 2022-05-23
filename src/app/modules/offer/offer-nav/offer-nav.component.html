@@ -6,7 +6,7 @@
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Árajánlat szám</label>
                         <input nbInput type="text" formControlName='OfferNumber' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
@@ -43,7 +43,6 @@
                         </app-form-control-error>
                     </nb-form-field>
                 </div>
-
 
                 <div class="form-row">
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
@@ -90,13 +89,14 @@
                         </app-form-control-error>
                     </nb-form-field>
                 </div>
-
-                <div class="form-row">
-                    <button nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)" status="primary"
-                        tabindex="-1">Keresés</button>
-                </div>
             </form>
         </nb-card-body>
+        <nb-card-footer>
+            <div class="form-row">
+                <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)" status="primary"
+                    tabindex="-1">Keresés</button>
+            </div>
+        </nb-card-footer>
     </nb-card>
 </div>
 

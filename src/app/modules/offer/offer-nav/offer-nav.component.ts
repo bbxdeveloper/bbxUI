@@ -25,14 +25,19 @@ import { GetCustomersParamListModel } from '../../customer/models/GetCustomersPa
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { CountryCode } from '../../customer/models/CountryCode';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 
 @Component({
   selector: 'app-offer-nav',
   templateUrl: './offer-nav.component.html',
   styleUrls: ['./offer-nav.component.scss']
 })
-export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements OnInit, AfterViewInit {
+export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  readonly SearchButtonId: string = 'offers-button-search';
+  IsTableFocused: boolean = false;
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -49,6 +54,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this._searchByTaxtNumber = value;
     this.cdref.detectChanges();
     this.filterFormNav.GenerateAndSetNavMatrices(false, true);
+    this.AddSearchButtonToFormMatrix();
   }
   buyerData!: Customer;
   buyersData: Customer[] = [];
@@ -271,7 +277,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       this.colDefs,
       this.sidebarService,
       this.fS,
-      this.dbDataTable
+      this.dbDataTable,
+      this
     );
 
     this.dbDataTable = new FlatDesignNoFormNavigatableTable(
@@ -360,6 +367,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+    this.AddSearchButtonToFormMatrix();
+    console.log(this.filterFormNav.Matrix);
+
     this.dbDataTable.GenerateAndSetNavMatrices(false);
     this.dbDataTable.PushFooterCommandList();
 
@@ -368,6 +378,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
+  }
+
+  private AddSearchButtonToFormMatrix(): void {
+    this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
   private RefreshAll(params?: GetOffersParamsModel): void {
@@ -405,6 +419,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   ChoseDataForFormByTaxtNumber(): void {
+    debugger;
     console.log("Selecting Customer from avaiable data by taxtnumber.");
 
     this.isLoading = true;
@@ -480,4 +495,43 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       },
     });
   }
+
+  ChooseDataForTableRow(rowIndex: number): void {}
+  
+  ChooseDataForForm(): void {
+    console.log("Selecting Customer from avaiable data.");
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: [
+          'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId'
+        ],
+        colDefs: [
+          { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
+        ]
+      }
+    });
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        this.buyerData = res;
+        this.filterForm.controls["CustomerName"].setValue(res.customerName);
+
+        this.kbS.SetCurrentNavigatable(this.filterFormNav);
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+      }
+    });
+  }
+  
+  RefreshData(): void {}
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {}
+  RecalcNetAndVat(): void {}
 }

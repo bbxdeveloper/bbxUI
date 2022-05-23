@@ -11,7 +11,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
   styleUrls: ['./bbx-combo-box-invoice.component.scss']
 })
 export class BbxComboBoxInvoiceComponent implements OnInit, AfterViewInit {
-  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm;
+  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm | null;
   @Input() formFieldName: string = '';
   @Input() label: string = '';
   @Input() getData: () => string[] = () => [];

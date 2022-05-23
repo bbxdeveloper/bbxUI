@@ -64,6 +64,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   customerInputFilterString: string = '';
 
+  isPageReady = false;
+
   _searchByTaxtNumber: boolean = false;
   get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
   set searchByTaxtNumber(value: boolean) {
@@ -163,6 +165,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
   outInvFormNav!: InlineTableNavigatableForm;
+  outInvFormNav$: BehaviorSubject<InlineTableNavigatableForm[]> = new BehaviorSubject<InlineTableNavigatableForm[]>([]);
 
   buyerForm!: FormGroup;
   buyerFormId: string = "buyer-form";
@@ -216,9 +219,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   ) {
     super(dialogService, kbS, fS, cs, sts);
     this.InitialSetup();
+    this.isPageReady = true;
   }
 
   private Reset(): void {
+    console.log(`Reset.`);
     this.kbS.ResetToRoot();
     this.InitialSetup();
     this.AfterViewInitSetup();
@@ -249,31 +254,45 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
-    this.exporterForm = new FormGroup({
-      customerName: new FormControl('', []),
-      zipCodeCity: new FormControl('', []),
-      additionalAddressDetail: new FormControl('', []),
-      customerBankAccountNumber: new FormControl('', []),
-      taxpayerNumber: new FormControl('', []),
-      comment: new FormControl('', []),
-    });
-    this.outInvForm = new FormGroup({
-      paymentMethod: new FormControl('', [Validators.required]),
-      invoiceDeliveryDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
-      invoiceIssueDate: new FormControl('', [Validators.required, todaysDate]),
-      paymentDate: new FormControl('', [Validators.required, (this.validatePaymentDateMinMax.bind(this))]),
-      invoiceOrdinal: new FormControl('', []), // in post response
-      notice: new FormControl('', []),
-    });
-    this.buyerForm = new FormGroup({
-      customerSearch: new FormControl('', []),
-      customerName: new FormControl('', [Validators.required]),
-      zipCodeCity: new FormControl('', []),
-      additionalAddressDetail: new FormControl('', []),
-      customerBankAccountNumber: new FormControl('', []),
-      taxpayerNumber: new FormControl('', []),
-      comment: new FormControl('', []),
-    });
+    if (this.exporterForm === undefined) {
+      this.exporterForm = new FormGroup({
+        customerName: new FormControl('', []),
+        zipCodeCity: new FormControl('', []),
+        additionalAddressDetail: new FormControl('', []),
+        customerBankAccountNumber: new FormControl('', []),
+        taxpayerNumber: new FormControl('', []),
+        comment: new FormControl('', []),
+      });
+    } else {
+      this.exporterForm.reset(undefined);
+    }
+
+    if (this.outInvForm === undefined) {
+      this.outInvForm = new FormGroup({
+        paymentMethod: new FormControl('', [Validators.required]),
+        invoiceDeliveryDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
+        invoiceIssueDate: new FormControl('', [Validators.required, todaysDate]),
+        paymentDate: new FormControl('', [Validators.required, (this.validatePaymentDateMinMax.bind(this))]),
+        invoiceOrdinal: new FormControl('', []), // in post response
+        notice: new FormControl('', []),
+      });
+    } else {
+      this.outInvForm.reset(undefined);
+    }
+
+    if (this.buyerForm === undefined) {
+      this.buyerForm = new FormGroup({
+        customerSearch: new FormControl('', []),
+        customerName: new FormControl('', [Validators.required]),
+        zipCodeCity: new FormControl('', []),
+        additionalAddressDetail: new FormControl('', []),
+        customerBankAccountNumber: new FormControl('', []),
+        taxpayerNumber: new FormControl('', []),
+        comment: new FormControl('', []),
+      });
+    } else {
+      this.buyerForm.reset(undefined);
+    }
 
     this.buyerFormNav = new InlineTableNavigatableForm(
       this.buyerForm,
@@ -734,26 +753,32 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                   if (res.answer) {
                     this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
-                        if (cmdEnded?.CmdType === Constants.CommandType.PRINT_INVOICE) {
-                          this.utS.CommandEnded.unsubscribe();
+                        console.log(`CommandEnded received: ${cmdEnded?.CmdType}`);
+
+                        if (cmdEnded?.CmdType === Constants.CommandType.POC_REPORT) {
+                          this.Reset();
                           this.toastrService.show(
                             `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
                             Constants.TOASTR_SUCCESS
                           );
-                          this.Reset();
+                          this.utS.CommandEnded.unsubscribe();
                         }
                         this.isLoading = false;
                       },
-                      error: err => {
-                        this.utS.CommandEnded.unsubscribe();
+                      error: cmdEnded => {
+                        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+                        if (cmdEnded?.CmdType === Constants.CommandType.POC_REPORT && cmdEnded?.State === Constants.CommandType.ERROR) {
+                          this.utS.CommandEnded.unsubscribe();
+                        }
+
                         this.toastrService.show(
                           `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
                         );
                         this.isLoading = false;
-                        this.Reset();
                       }
                     });
                     this.isLoading = true;
@@ -765,7 +790,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       Constants.TOASTR_SUCCESS
                     );
                     this.isLoading = false;
-                    this.Reset();
                   }
                 }
               });
@@ -777,6 +801,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
+            this.Reset();
           },
           complete: () => {
             this.isLoading = false;

@@ -1,4 +1,4 @@
-<nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
+<nb-form-field [ngClass]="wrapperClass" *ngIf="!!currentForm && !!(currentForm?.form) && !!currentForm.form.controls[formFieldName]" [formGroup]="currentForm!.form"
     (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, currentDataCount, currentFilteredData, currentTypedData)">
     <div class="bbx-fd-form-field-inner-div">
         <label>{{label}}</label>
