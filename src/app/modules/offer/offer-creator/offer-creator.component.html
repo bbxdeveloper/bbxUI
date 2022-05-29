@@ -14,13 +14,15 @@
                                     (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
                                     <label>Ügyfél keresés</label>
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
-                                        maxlength="80" (click)="buyerFormNav.HandleFormFieldClick($event)"
+                                        maxlength="80"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
                             </td>
                             <td>
-                                <button *ngIf="searchByTaxtNumber" nbButton [disabled]="isLoading"
+                                <button *ngIf="searchByTaxtNumber" nbButton
+                                    [disabled]="isLoading"
                                     [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                                     (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
@@ -29,8 +31,7 @@
                                     <label>Ügyfél</label>
                                     <input nbInput type="text" formControlName='customerName' readonly
                                         (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél"
-                                        controlName="customerName">
+                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél" controlName="customerName">
                                     </app-form-control-error>
                                 </nb-form-field>
                             </td>
@@ -69,12 +70,6 @@
                             (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                         <app-form-control-error [form]="buyerFormNav" label="megjegyzés" controlName="notice">
                         </app-form-control-error>
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Ajánlat száma</label>
-                        <input nbInput type="text" formControlName='offerNumberX' class="{{TileCssClass}}"
-                            (click)="buyerFormNav.HandleFormFieldClick($event)" readonly>
                     </nb-form-field>
                 </div>
             </form>
@@ -147,13 +142,12 @@
                                 </ng-container>
 
                                 <ng-container *ngSwitchCase="'checkbox'">
-                                    <input
-                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
                                         oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
-
+                                
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ row.data[it.objectKey] ? '✓' : '✗' }}
                                     </div>

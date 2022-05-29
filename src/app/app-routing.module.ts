@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { Error404Component } from './error404/error404.component';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
 import { UserManagerComponent } from './modules/auth/user-manager/user-manager.component';
 import { DashboardComponent } from './modules/core/dashboard/dashboard.component';
@@ -8,6 +7,7 @@ import { CounterManagerComponent } from './modules/counter/counter-manager/count
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
 import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
+import { OfferCreatorComponent } from './modules/offer/offer-creator/offer-creator.component';
 import { OfferEditorComponent } from './modules/offer/offer-editor/offer-editor.component';
 import { OfferNavComponent } from './modules/offer/offer-nav/offer-nav.component';
 import { OriginManagerComponent } from './modules/origin/origin-manager/origin-manager.component';
@@ -80,6 +80,10 @@ const routes: Routes = [
       },
       {
         path: "offers-create",
+        component: OfferCreatorComponent,
+      },
+      {
+        path: "offers-edit/:id",
         component: OfferEditorComponent,
       }
     ]

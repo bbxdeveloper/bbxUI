@@ -184,7 +184,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     { key: 'F4', value: '', disabled: false },
     { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
     { key: 'F6', value: '', disabled: false },
-    //{ key: 'F7', value: 'Szerkesztés', disabled: false },
+    { key: 'F7', value: 'Szerkesztés', disabled: false },
     { key: 'F8', value: 'Új', disabled: false },
     //{ key: 'F11', value: 'Törlés', disabled: false },
   ];
@@ -225,6 +225,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   // CountryCode
   countryCodes: CountryCode[] = [];
+
+  get IsTableActive(): boolean {
+    return this.kbS.IsCurrentNavigatable(this.dbDataTable);
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -563,12 +567,19 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         break;
       // EDIT
       case KeyBindings.crudEdit:
-        // Navigate to edit
+        this.Edit();
         break;
       // DELETE
       case KeyBindings.crudDelete:
         // Delete
         break;
+    }
+  }
+
+  Edit(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y].data.id;
+      this.router.navigate(['/offer-edit', id]);
     }
   }
 
@@ -585,6 +596,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     switch (event.key) {
       case CrudManagerKeySettings[Actions.CrudNew].KeyCode:
+      case CrudManagerKeySettings[Actions.CrudEdit].KeyCode:
       case CrudManagerKeySettings[Actions.CrudReset].KeyCode:
       case CrudManagerKeySettings[Actions.CrudSave].KeyCode:
       case CrudManagerKeySettings[Actions.CrudDelete].KeyCode:

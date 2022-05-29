@@ -9,12 +9,14 @@ import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { InvoiceModule } from '../invoice/invoice.module';
 import { OfferNavComponent } from './offer-nav/offer-nav.component';
+import { OfferCreatorComponent } from './offer-creator/offer-creator.component';
 import { OfferEditorComponent } from './offer-editor/offer-editor.component';
 
 
 @NgModule({
   declarations: [
     OfferNavComponent,
+    OfferCreatorComponent,
     OfferEditorComponent
   ],
   imports: [
@@ -51,6 +53,7 @@ import { OfferEditorComponent } from './offer-editor/offer-editor.component';
   ],
   exports: [
     OfferNavComponent,
+    OfferCreatorComponent,
     OfferEditorComponent
   ]
 })

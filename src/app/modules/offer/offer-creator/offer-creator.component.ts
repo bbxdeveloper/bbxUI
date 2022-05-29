@@ -36,14 +36,13 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-nu
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-offer-editor',
-  templateUrl: './offer-editor.component.html',
-  styleUrls: ['./offer-editor.component.scss']
+  selector: 'app-offer-creator',
+  templateUrl: './offer-creator.component.html',
+  styleUrls: ['./offer-creator.component.scss']
 })
-export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
+export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
   TileCssClass = TileCssClass;
@@ -217,8 +216,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
   // CountryCode
   countryCodes: CountryCode[] = [];
 
-  idFromPath?: number;
-
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -233,7 +230,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
-    private route: ActivatedRoute,
   ) {
     super(dialogService, kbS, fS, cs, sts);
     this.InitialSetup();
@@ -271,7 +267,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         offerIssueDate: new FormControl('', [Validators.required, todaysDate]),
         offerVaidityDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
         notice: new FormControl('', []),
-        offerNumberX: new FormControl('', []),
       });
     } else {
       this.buyerForm.reset(undefined);
@@ -366,7 +361,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
   }
 
-  RecalcNetAndVat(): void { }
+  RecalcNetAndVat(): void {}
 
   HandleGridCodeFieldEnter(row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
@@ -545,8 +540,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
   }
 
   ngOnInit(): void {
-    this.idFromPath = parseInt(this.route.snapshot.params['id'], 10);
-    console.log("ID for edit: ", this.idFromPath);
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
