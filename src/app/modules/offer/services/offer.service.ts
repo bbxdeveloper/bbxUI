@@ -65,6 +65,10 @@ export class OfferService {
     return this.http.post<CreateOfferResponse>(this.BaseUrl, req);
   }
 
+  Update(req: CreateOfferRequest): Observable<CreateOfferResponse> {
+    return this.http.put<CreateOfferResponse>(this.BaseUrl, req);
+  }
+
   GetReport(params: Constants.Dct): Observable<any> {
     let options = new HttpHeaders()
       .set('Content-Type', 'application/json')

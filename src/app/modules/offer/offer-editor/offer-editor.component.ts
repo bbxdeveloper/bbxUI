@@ -34,7 +34,7 @@ import { ProductSelectTableDialogComponent } from '../../invoice/product-select-
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
-import { OfferLine } from '../models/OfferLine';
+import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
 
 @Component({
@@ -42,7 +42,7 @@ import { OfferService } from '../services/offer.service';
   templateUrl: './offer-editor.component.html',
   styleUrls: ['./offer-editor.component.scss']
 })
-export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
+export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
   TileCssClass = TileCssClass;
@@ -88,15 +88,19 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     placeholder: '',
   });
 
-  override colsToIgnore: string[] = ["vatRateCode", "lineGrossAmount"];
+  override colsToIgnore: string[] = ["vatRateCode", "unitGross", "unitPriceWithDiscount", "unitGrossWithDiscount"];
   override allColumns = [
     'productCode',
-    'productDescription',
+    'lineDescription',
     'quantity',
     'unitOfMeasureX',
-    'price',
+    'unitPrice',
+    'discount',
+    'showDiscount',
+    'unitPriceWithDiscount',
     'vatRateCode',
-    'lineGrossAmount',
+    'unitGross',
+    'unitGrossWithDiscount',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -105,7 +109,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
       colWidth: "20%", textAlign: "left", fInputType: 'code-field'
     },
     {
-      label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
+      label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
       defaultValue: '', type: 'string', mask: "", //fReadonly: true,
       colWidth: "30%", textAlign: "left",
     },
@@ -120,9 +124,24 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
       colWidth: "5%", textAlign: "right"
     },
     {
-      label: 'Nettó Ár', objectKey: 'price', colKey: 'price',
+      label: 'Nettó Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
+    },
+    {
+      label: 'Kedvezmény', objectKey: 'discount', colKey: 'discount',
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
+    },
+    {
+      label: 'Kedv. Mutatása', objectKey: 'showDiscount', colKey: 'showDiscount',
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "16%", textAlign: "right", fInputType: 'checkbox'
+    },
+    {
+      label: 'Kedvezményes ár', objectKey: 'unitPriceWithDiscount', colKey: 'unitPriceWithDiscount',
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      colWidth: "12%", textAlign: "center", fInputType: 'formatted-number'
     },
     {
       label: 'Áfakód', objectKey: 'vatRateCode', colKey: 'vatRateCode',
@@ -130,7 +149,12 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
       colWidth: "12%", textAlign: "right", //fInputType: 'formatted-number'
     },
     {
-      label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
+      label: 'Bruttó', objectKey: 'unitGross', colKey: 'unitGross',
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
+    },
+    {
+      label: 'Bruttó Kedvezménnyel', objectKey: 'unitGrossWithDiscount', colKey: 'unitGrossWithDiscount',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -195,7 +219,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
+    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<OfferLine>>,
     private seInv: InvoiceService,
     private offerService: OfferService,
     private seC: CustomerService,
@@ -271,7 +295,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
       this.dbDataTableId,
       AttachDirection.DOWN,
       () => {
-        return new InvoiceLine();
+        return new OfferLine();
       },
       this
     );
@@ -339,7 +363,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
 
   RecalcNetAndVat(): void {}
 
-  HandleGridCodeFieldEnter(row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  HandleGridCodeFieldEnter(row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
     if (this.isEditModeOff) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
@@ -352,14 +376,14 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     }
   }
 
-  private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product) {
-            this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
+            this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -382,6 +406,8 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+    console.log('[TableRowDataChanged]');
+
     if (!!changedData && !!changedData.productCode) {
       if ((!!col && col === 'productCode') || col === undefined) {
         this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -391,16 +417,19 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
             if (index !== undefined) {
               let tmp = this.dbData[index].data;
 
-              tmp.productDescription = product.description ?? '';
+              tmp.lineDescription = product.description ?? '';
+
+              // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
+              // tmp.unitPrice += tmp.unitPrice * discount;
 
               product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.vatRate = (product.vatPercentage ?? 1) + '';
+              tmp.unitVat = (product.vatPercentage ?? 1);
               product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
               tmp.vatRateCode = product.vatRateCode;
 
-              tmp.lineNetAmount = this.ToFloat(tmp.price) * this.ToFloat(tmp.quantity);
-              tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
-              tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
+              tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
+              tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.unitVat);
+              tmp.unitGross = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
 
               this.dbData[index].data = tmp;
 
@@ -417,9 +446,12 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
         if (index !== undefined) {
           let tmp = this.dbData[index].data;
 
-          tmp.lineNetAmount = this.ToFloat(tmp.price) * this.ToFloat(tmp.quantity);
-          tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
-          tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
+          // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
+          // tmp.unitPrice += tmp.unitPrice * discount;
+
+          tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
+          tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.unitVat);
+          tmp.unitGross = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
 
           this.dbData[index].data = tmp;
 
@@ -474,17 +506,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
 
         this.seC.GetAll({ IsOwnData: true }).subscribe({
           next: d => {
-            // Exporter form
-            // this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
             console.log('Exporter: ', d);
-            // this.exporterForm = new FormGroup({
-            //   customerName: new FormControl(this.senderData.customerName, []),
-            //   zipCodeCity: new FormControl(this.senderData.postalCode + ' ' + this.senderData.city, []),
-            //   additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail, []),
-            //   customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber, []),
-            //   taxpayerNumber: new FormControl(this.senderData.taxpayerNumber, []),
-            //   comment: new FormControl(this.senderData.comment, []),
-            // });
 
             this.table?.renderRows();
             this.RefreshTable();
@@ -496,7 +518,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
           },
           complete: () => {
             this.isLoading = false;
-            // this.Refresh();
           },
         });
       },
@@ -569,34 +590,29 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     this.offerData.offerLines = this.dbData.map(x => {
       return {
         productCode: x.data.productCode,
-        lineDescription: x.data.productDescription,
+        lineDescription: x.data.lineDescription,
         vatRateCode: x.data.vatRateCode,
-        unitPrice: this.ToFloat(x.data.price),
-        unitVat: this.ToFloat(x.data.lineVatAmount),
-        unitGross: this.ToFloat(x.data.quantity * x.data.price)
-      } as OfferLine;
+        unitPrice: this.ToFloat(x.data.unitPrice),
+        unitVat: this.ToFloat(x.data.unitVat),
+        unitGross: this.ToFloat(x.data.unitGross),
+        discount: this.ToFloat(x.data.discount),
+        showDiscount: x.data.showDiscount,
+        unitOfMeasure: x.data.unitOfMeasure
+      } as OfferLineForPost;
     });
 
     // this.RecalcNetAndVat();
 
-    // for (let i = 0; i < this.offerData.invoiceLines.length - 1; i++) {
-    //   this.offerData.invoiceLines[i].price = this.ToFloat(this.offerData.invoiceLines[i].price);
-    //   this.offerData.invoiceLines[i].quantity = this.ToFloat(this.offerData.invoiceLines[i].quantity);
-    //   this.offerData.invoiceLines[i].lineNumber = i;
-    // }
+    for (let i = 0; i < this.offerData.offerLines.length - 1; i++) {
+      this.offerData.offerLines[i].unitPrice = this.ToFloat(this.offerData.offerLines[i].unitPrice);
+      // this.offerData.offerLines[i].quantity = this.ToFloat(this.offerData.offerLines[i].quantity);
+      this.offerData.offerLines[i].lineNumber = i;
+    }
 
-    // this.offerData.currencyCode = 'HUF';
-    // this.offerData.exchangeRate = 1;
-
-    // this.offerData.warehouseCode = '001';
-
-    // this.offerData.incoming = false;
-    // this.offerData.invoiceType = 'INV';
-
-    // let lastIndex = this.offerData.invoiceLines.length - 1;
-    // if (this.offerData.invoiceLines[lastIndex].IsUnfinished()) {
-    //   this.offerData.invoiceLines.splice(lastIndex, 1);
-    // }
+    let lastIndex = this.offerData.offerLines.length - 1;
+    if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
+      this.offerData.offerLines.splice(lastIndex, 1);
+    }
 
     // console.log('[UpdateOutGoingData]: ', this.offerData, this.outInvForm.controls['paymentMethod'].value);
   }
@@ -778,7 +794,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
-        this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+        this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();
         setTimeout(() => {
@@ -823,31 +839,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   RefreshData(): void { }
-
-  ProductToInvoiceLine(p: Product): InvoiceLine {
-    let res = new InvoiceLine();
-
-    res.productCode = p.productCode!;
-
-    res.productDescription = p.description ?? '';
-
-    res.quantity = 0;
-
-    res.price = p.unitPrice1!;
-
-    res.vatRateCode = p.vatRateCode;
-
-    res.lineVatAmount = p.vatPercentage ?? 10;
-    res.lineNetAmount = this.ToFloat(res.quantity) * this.ToFloat(res.price);
-    res.lineGrossAmount = res.lineVatAmount * res.lineNetAmount;
-
-    res.unitOfMeasure = p.unitOfMeasure;
-    res.unitOfMeasureX = p.unitOfMeasureX;
-
-    console.log('ProductToInvoiceLine res: ', res);
-
-    return res;
-  }
 
   IsNumber(val: string): boolean {
     let val2 = val.replace(' ', '');

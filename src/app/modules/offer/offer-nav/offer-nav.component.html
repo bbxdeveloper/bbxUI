@@ -29,11 +29,13 @@ wrapperClass="bbx-fd-sidebar-functions-left">
                                     <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         (click)="filterFormNav.HandleFormFieldClick($event)"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
+                                        maxlength="80"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
                             </td>
                             <td>
                                 <button *ngIf="searchByTaxtNumber" nbButton
+                                    [disabled]="isLoading"
                                     [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                                     (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>

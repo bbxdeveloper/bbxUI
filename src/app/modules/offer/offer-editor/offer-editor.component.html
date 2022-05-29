@@ -14,6 +14,7 @@
                                     (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
                                     <label>Ügyfél keresés</label>
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
+                                        maxlength="80"
                                         (click)="buyerFormNav.HandleFormFieldClick($event)"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
@@ -21,6 +22,7 @@
                             </td>
                             <td>
                                 <button *ngIf="searchByTaxtNumber" nbButton
+                                    [disabled]="isLoading"
                                     [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                                     (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
@@ -136,6 +138,18 @@
                                         row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' |
                                         replace:',':'.'
                                         }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'checkbox'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
+                                        [style.text-align]="it.textAlign" />
+                                
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ row.data[it.objectKey] ? '✓' : '✗' }}
                                     </div>
                                 </ng-container>
 

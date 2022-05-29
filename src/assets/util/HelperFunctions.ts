@@ -165,4 +165,8 @@ export module HelperFunctions {
         const dateArray = new Date().toLocaleDateString('hu').split(". ");
         return dateArray[0] + '-' + dateArray[1] + '-' + dateArray[2].substring(0, 2);
     }
+
+    export function ToFloat(p: any): number {
+        return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
+    }
 }
