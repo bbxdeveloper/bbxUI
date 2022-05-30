@@ -36,6 +36,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-nu
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
+import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 @Component({
   selector: 'app-offer-creator',
@@ -44,6 +45,52 @@ import { OfferService } from '../services/offer.service';
 })
 export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+  
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: 'auto',
+    minHeight: '0',
+    maxHeight: 'auto',
+    width: 'auto',
+    minWidth: '0',
+    translate: 'yes',
+    enableToolbar: true,
+    showToolbar: true,
+    placeholder: 'Enter text here...',
+    defaultParagraphSeparator: '',
+    defaultFontName: '',
+    defaultFontSize: '',
+    fonts: [
+      { class: 'arial', name: 'Arial' },
+      { class: 'times-new-roman', name: 'Times New Roman' },
+      { class: 'calibri', name: 'Calibri' },
+      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+    ],
+    customClasses: [
+      {
+        name: 'quote',
+        class: 'quote',
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: 'titleText',
+        class: 'titleText',
+        tag: 'h1',
+      },
+    ],
+    uploadUrl: 'v1/image',
+    uploadWithCredentials: false,
+    sanitize: true,
+    toolbarPosition: 'top',
+    toolbarHiddenButtons: [
+      ['bold', 'italic'],
+      ['fontSize']
+    ]
+  };
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -563,9 +610,11 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
 
-    this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-    this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
+    setTimeout(() => {
+      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    }, 200);
 
     this.cdref.detectChanges();
   }
@@ -642,6 +691,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.offerData);
+
+    this.isLoading = true;
 
     this.offerService.Create(this.offerData).subscribe({
       next: d => {

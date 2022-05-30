@@ -31,6 +31,7 @@
     "@angular/platform-browser": "~13.1.0",
     "@angular/platform-browser-dynamic": "~13.1.0",
     "@angular/router": "~13.1.0",
+    "@kolkov/angular-editor": "^2.0.0",
     "@nebular/eva-icons": "^9.0.0",
     "@nebular/theme": "^9.0.0",
     "@ngneat/input-mask": "^5.1.0",

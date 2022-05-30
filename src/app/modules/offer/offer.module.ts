@@ -11,13 +11,16 @@ import { InvoiceModule } from '../invoice/invoice.module';
 import { OfferNavComponent } from './offer-nav/offer-nav.component';
 import { OfferCreatorComponent } from './offer-creator/offer-creator.component';
 import { OfferEditorComponent } from './offer-editor/offer-editor.component';
-
+import { AngularEditorModule } from '@kolkov/angular-editor';
+import { HttpClientModule } from '@angular/common/http';
+import { OfferUpdateDialogComponent } from './offer-update-dialog/offer-update-dialog.component';
 
 @NgModule({
   declarations: [
     OfferNavComponent,
     OfferCreatorComponent,
-    OfferEditorComponent
+    OfferEditorComponent,
+    OfferUpdateDialogComponent
   ],
   imports: [
     CommonModule,
@@ -49,7 +52,9 @@ import { OfferEditorComponent } from './offer-editor/offer-editor.component';
     InputMaskModule,
     NbRadioModule,
     NbToggleModule,
-    InvoiceModule
+    InvoiceModule,
+    HttpClientModule,
+    AngularEditorModule
   ],
   exports: [
     OfferNavComponent,

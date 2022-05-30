@@ -158,7 +158,7 @@ export module HelperFunctions {
     }
 
     export function FormFieldStringToDateTimeString(str: any): string {
-        return new Date(str + 'T00:00:00').toISOString()
+        return str.includes('T') ? new Date(str).toISOString() : new Date(str + 'T00:00:00').toISOString();
     }
 
     export function GenerateTodayFormFieldDateString(): string {

@@ -64,13 +64,15 @@
                 </div>
 
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                    <div>
                         <label>Megjegyzés</label>
-                        <input nbInput type="text" formControlName='notice' class="{{TileCssClass}}"
-                            (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
+                        <angular-editor formControlName="notice" [config]="editorConfig"
+                        placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre." class="{{TileCssClass}}"></angular-editor>
+                        <!-- <input nbInput type="text" formControlName='notice' class="{{TileCssClass}}"
+                            (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff"> -->
                         <app-form-control-error [form]="buyerFormNav" label="megjegyzés" controlName="notice">
                         </app-form-control-error>
-                    </nb-form-field>
+                    </div>
                 </div>
             </form>
         </nb-card-body>

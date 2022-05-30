@@ -34,9 +34,13 @@ import { ProductSelectTableDialogComponent } from '../../invoice/product-select-
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
-import { OfferLine, OfferLineForPost } from '../models/OfferLine';
+import { OfferLine, OfferLineForPost, OfferLineFullData } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
 import { ActivatedRoute } from '@angular/router';
+import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
+import { Offer } from '../models/Offer';
+import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
 
 @Component({
   selector: 'app-offer-editor',
@@ -45,6 +49,53 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: 'auto',
+    minHeight: '0',
+    maxHeight: 'auto',
+    width: 'auto',
+    minWidth: '0',
+    translate: 'yes',
+    enableToolbar: true,
+    showToolbar: true,
+    placeholder: 'Enter text here...',
+    defaultParagraphSeparator: '',
+    defaultFontName: '',
+    defaultFontSize: '',
+    fonts: [
+      { class: 'arial', name: 'Arial' },
+      { class: 'times-new-roman', name: 'Times New Roman' },
+      { class: 'calibri', name: 'Calibri' },
+      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+    ],
+    customClasses: [
+      {
+        name: 'quote',
+        class: 'quote',
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: 'titleText',
+        class: 'titleText',
+        tag: 'h1',
+      },
+    ],
+    uploadUrl: 'v1/image',
+    uploadWithCredentials: false,
+    sanitize: true,
+    toolbarPosition: 'top',
+    toolbarHiddenButtons: [
+      ['bold', 'italic'],
+      ['fontSize']
+    ]
+  };
+
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -56,7 +107,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
   buyersData: Customer[] = [];
   paymentMethods: PaymentMethod[] = [];
 
-  offerData!: CreateOfferRequest;
+  offerData!: Offer;
 
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
@@ -254,12 +305,28 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     this.buyerData = {} as Customer;
 
     this.offerData = {
+      id: 0,
+      offerNumber: '',
+      customerName: '',
+      customerBankAccountNumber: '',
+      customerTaxpayerNumber: '',
+      customerCountryCode: '',
+      customerPostalCode: '',
+      customerCity: '',
+      customerAdditionalAddressDetail: '',
+      offerNumberX: '',
+      CustomerComment: '',
+      offerVersion : -1,
+      latestVersion: true,
       customerID: -1,
       offerIssueDate: '',
       offerVaidityDate: '',
+      copies: 0,
+      deleted: false,
       notice: '',
-      offerLines: [],
-    } as CreateOfferRequest;
+      newOffer: false,
+      OfferLines: [],
+    } as Offer;
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -544,9 +611,47 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     return [""].concat(this.buyersData.map(x => x.customerName).filter(optionValue => optionValue.toLowerCase().includes(filterValue)));
   }
 
-  ngOnInit(): void {
+  private LoadAndSetDataForEdit(): void {
     this.idFromPath = parseInt(this.route.snapshot.params['id'], 10);
     console.log("ID for edit: ", this.idFromPath);
+
+    this.isLoading = true;
+
+    this.offerService.Get({
+      ID: this.idFromPath, FullData: true
+    } as GetOfferParamsModel).subscribe({
+      next: res => {
+        if (!!res) {
+          this.buyerForm.controls['customerName'].setValue(res.customerName);
+          this.buyerForm.controls['offerIssueDate'].setValue(res.offerIssueDate);
+          this.buyerForm.controls['offerVaidityDate'].setValue(res.offerVaidityDate);
+          this.buyerForm.controls['notice'].setValue(res.notice);
+          this.buyerForm.controls['offerNumberX'].setValue(res.offerNumberX);
+
+          this.offerData = res;
+
+          this.buyerData.id = this.offerData.customerID;
+          // TODO set local customer
+
+          this.dbData = this.offerData.OfferLines!.map(x =>
+            { return { data: OfferLine.FromOfferLineFullData(x) } as TreeGridNode<OfferLine> }
+          ).concat(this.dbData);
+
+          this.table?.renderRows();
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  ngOnInit(): void {
+    this.LoadAndSetDataForEdit();
+    
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
@@ -570,9 +675,11 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
 
-    this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-    this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
+    setTimeout(() => {
+      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    }, 200);
 
     this.cdref.detectChanges();
   }
@@ -581,7 +688,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): void {
+  private UpdateSaveData(): void {
     this.offerData.customerID = this.buyerData.id;
 
     this.offerData.notice = this.buyerForm.controls['notice'].value;
@@ -594,31 +701,19 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     // this.offerData.invoiceNetAmount = 0;
     // this.offerData.invoiceVatAmount = 0;
 
-    this.offerData.offerLines = this.dbData.map(x => {
-      return {
-        productCode: x.data.productCode,
-        lineDescription: x.data.lineDescription,
-        vatRateCode: x.data.vatRateCode,
-        unitPrice: this.ToFloat(x.data.unitPrice),
-        unitVat: this.ToFloat(x.data.unitVat),
-        unitGross: this.ToFloat(x.data.unitGross),
-        discount: this.ToFloat(x.data.discount),
-        showDiscount: x.data.showDiscount,
-        unitOfMeasure: x.data.unitOfMeasure
-      } as OfferLineForPost;
-    });
+    this.offerData.OfferLines = this.dbData.map(x => x.data as OfferLineFullData);
 
     // this.RecalcNetAndVat();
 
-    for (let i = 0; i < this.offerData.offerLines.length - 1; i++) {
-      this.offerData.offerLines[i].unitPrice = this.ToFloat(this.offerData.offerLines[i].unitPrice);
-      // this.offerData.offerLines[i].quantity = this.ToFloat(this.offerData.offerLines[i].quantity);
-      this.offerData.offerLines[i].lineNumber = i;
+    for (let i = 0; i < this.offerData.OfferLines.length - 1; i++) {
+      this.offerData.OfferLines[i].unitPrice = HelperFunctions.ToFloat(this.offerData.OfferLines[i].unitPrice);
+      // this.offerData.OfferLines[i].quantity = this.ToFloat(this.offerData.OfferLines[i].quantity);
+      this.offerData.OfferLines[i].lineNumber = HelperFunctions.ToFloat(i);
     }
 
-    let lastIndex = this.offerData.offerLines.length - 1;
-    if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
-      this.offerData.offerLines.splice(lastIndex, 1);
+    let lastIndex = this.offerData.OfferLines.length - 1;
+    if (OfferLine.IsInterfaceUnfinished(this.offerData.OfferLines[lastIndex])) {
+      this.offerData.OfferLines.splice(lastIndex, 1);
     }
 
     // console.log('[UpdateOutGoingData]: ', this.offerData, this.outInvForm.controls['paymentMethod'].value);
@@ -646,86 +741,61 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       return;
     }
 
-    this.UpdateOutGoingData();
+    this.UpdateSaveData();
 
     console.log('Save: ', this.offerData);
 
-    this.offerService.Create(this.offerData).subscribe({
-      next: d => {
-        if (!!d.data) {
-          console.log('Save response: ', d);
+    this.isLoading = true;
 
-          this.toastrService.show(
-            Constants.MSG_SAVE_SUCCESFUL,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS
-          );
-          this.isLoading = false;
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-          this.dbDataTable.RemoveEditRow();
-          this.kbS.SelectFirstTile();
+    const dialogRef = this.dialogService.open(OfferUpdateDialogComponent, {
+      context: {}
+    });
+    dialogRef.onClose.subscribe((selectedSaveOption: number) => {
+      console.log("Selected option: ", selectedSaveOption);
+      if (selectedSaveOption !== undefined && selectedSaveOption >= 1 && selectedSaveOption <= 3) {
 
-          // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-
-          const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-            context: {
-              title: 'Ajánlat Nyomtatása',
-              inputLabel: 'Példányszám',
-            }
-          });
-          dialogRef.onClose.subscribe({
-            next: res => {
-              if (res.answer) {
-                this.utS.CommandEnded.subscribe({
-                  next: cmdEnded => {
-                    console.log(`CommandEnded received: ${cmdEnded?.CmdType}`);
-
-                    if (cmdEnded?.CmdType === Constants.CommandType.PRINT_OFFER) {
-                      this.Reset();
-                      this.toastrService.show(
-                        `Az árajánlat nyomtatása véget ért.`,
-                        Constants.TITLE_INFO,
-                        Constants.TOASTR_SUCCESS
-                      );
-                      this.utS.CommandEnded.unsubscribe();
-                    }
-                    this.isLoading = false;
-                  },
-                  error: cmdEnded => {
-                    console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                    this.utS.CommandEnded.unsubscribe();
-                    this.toastrService.show(
-                      `Az árajánlat nyomtatása közben hiba történt.`,
-                      Constants.TITLE_ERROR,
-                      Constants.TOASTR_ERROR
-                    );
-                    this.isLoading = false;
-                  }
-                });
-                this.isLoading = true;
-                this.printReport(d.data?.id, res.value);
-              } else {
-                this.toastrService.show(
-                  `Az árajánlat számla nyomtatása nem történt meg.`,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS
-                );
-                this.isLoading = false;
-              }
-            }
-          });
-        } else {
-          this.cs.HandleError(d.errors);
-          this.isLoading = false;
+        if (selectedSaveOption === 2) {
+          this.offerData.offerVersion += 1;
         }
-      },
-      error: err => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
+        else if (selectedSaveOption === 3) {
+          this.offerData.offerVersion += 1;
+          this.offerData.newOffer = true;
+        }
+        
+        this.offerService.Update(this.offerData).subscribe({
+          next: d => {
+            if (!!d.data) {
+              console.log('Save response: ', d);
+
+              this.toastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+              this.isLoading = false;
+
+              this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
+
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isLoading = false;
+            }
+          },
+          error: err => {
+            this.cs.HandleError(err);
+            this.isLoading = false;
+            if (selectedSaveOption > 1) {
+              this.offerData.offerVersion -= 1;
+              this.offerData.newOffer = false;
+            }
+          },
+          complete: () => {
+            this.isLoading = false;
+          }
+        });
       }
     });
   }

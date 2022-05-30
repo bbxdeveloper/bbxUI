@@ -16,23 +16,42 @@ export interface OfferLineForPost {
     "showDiscount": boolean;
 }
 
-export class OfferLine implements IEditable, OfferLineForPost {
+export interface OfferLineFullData extends OfferLineForPost {
+    "id": number;
+    "offerID": number;
+    "productID": number;
+    "unitOfMeasureX": string;
+    "vatRateID": number;
+    "vatPercentage": number;
+}
+
+export class OfferLine implements IEditable, OfferLineFullData {
+    // OfferLineForPost
     "lineNumber": number = 0;
     "productCode": string;
     "lineDescription": string;
-    "vatRateCode": string;
-    "unitPrice": number = 0;
-    "unitVat": number = 0;
-    "unitGross": number = 0;
+    "originalUnitPrice": number = 0; // readonly
     "discount": number = 0;
+    "unitPrice": number = 0;
+    "vatRateCode": string;
+    "unitVat": number = 0; // unitPrice * vatRate // hidden
+    "unitGross": number = 0; // unitPrice + unitVat
     "showDiscount": boolean = true;
     
+    // Custom
     "lineNetAmount": number = 1.0; // price * quant
     "lineVatAmount": number = 1.0; // netamount * vat - hidden
     
     "quantity": number = 0.0;
     "unitOfMeasure": string;
-    "unitOfMeasureX"?: string;
+
+    // OfferLineFullData
+    "id": number = -1;
+    "offerID": number = -1;
+    "productID": number = -1;
+    "unitOfMeasureX": string = "";
+    "vatRateID": number = -1;
+    "vatPercentage": number = -1;
 
     get unitPriceWithDiscount(): number {
         let discount = this.discount === 0 ? 0.0 : this.discount / 100.0;
@@ -50,7 +69,7 @@ export class OfferLine implements IEditable, OfferLineForPost {
         
         var vat = this.lineVatAmount ?? 1.0;
 
-        return vat * priceWithDiscount * this.quantity;
+        return priceWithDiscount + (vat * priceWithDiscount);
     }
 
     IsUnfinished(): boolean {
@@ -106,6 +125,38 @@ export class OfferLine implements IEditable, OfferLineForPost {
         offerLine.unitOfMeasureX = product.unitOfMeasureX;
 
         console.log('FromProduct res: ', offerLine);
+
+        return offerLine;
+    }
+
+    static FromOfferLineFullData(data: OfferLineFullData): OfferLine {
+        let offerLine = new OfferLine();
+
+        // Object.keys(this).forEach((x: string) => {
+        //     offerLine[x as keyof OfferLine] = data[x];
+        // });
+
+        offerLine.lineNumber = data.lineNumber;
+        offerLine.productCode = data.productCode;
+        offerLine.lineDescription = data.lineDescription;
+        offerLine.vatRateCode = data.vatRateCode;
+        offerLine.unitPrice = data.unitPrice;
+        offerLine.unitVat = data.unitVat;
+        offerLine.unitGross = data.unitGross;
+        offerLine.discount = data.discount;
+        offerLine.showDiscount = data.showDiscount;
+        offerLine.unitOfMeasure = data.unitOfMeasure;
+
+        offerLine.lineNetAmount = 0;
+        offerLine.lineVatAmount = 0;
+        offerLine.quantity = 0;
+        
+        offerLine.id = data.id;
+        offerLine.offerID = data.offerID;
+        offerLine.productID = data.productID;
+        offerLine.unitOfMeasureX = data.unitOfMeasureX;
+        offerLine.vatRateID = data.vatRateID;
+        offerLine.vatPercentage = data.vatPercentage;
 
         return offerLine;
     }

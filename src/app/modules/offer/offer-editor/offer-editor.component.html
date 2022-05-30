@@ -1,4 +1,4 @@
-<app-head-line msg="Árajánlat felvétele"></app-head-line>
+<app-head-line msg="Árajánlat szerkesztés"></app-head-line>
 
 <div class="filter-div">
     <nb-card class="filter-card">
@@ -64,18 +64,21 @@
 
                 <div class="form-row">
                     <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Megjegyzés</label>
-                        <input nbInput type="text" formControlName='notice' class="{{TileCssClass}}"
-                            (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                        <app-form-control-error [form]="buyerFormNav" label="megjegyzés" controlName="notice">
-                        </app-form-control-error>
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Ajánlat száma</label>
                         <input nbInput type="text" formControlName='offerNumberX' class="{{TileCssClass}}"
                             (click)="buyerFormNav.HandleFormFieldClick($event)" readonly>
                     </nb-form-field>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Megjegyzés</label>
+                        <angular-editor formControlName="notice" [config]="editorConfig"
+                            placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre."
+                            class="{{TileCssClass}}"></angular-editor>
+                        <app-form-control-error [form]="buyerFormNav" label="megjegyzés" controlName="notice">
+                        </app-form-control-error>
+                    </div>
                 </div>
             </form>
         </nb-card-body>

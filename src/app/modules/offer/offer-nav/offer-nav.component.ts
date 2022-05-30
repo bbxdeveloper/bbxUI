@@ -393,10 +393,14 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.AddSearchButtonToFormMatrix();
     console.log(this.filterFormNav.Matrix);
 
-    this.dbDataTable.GenerateAndSetNavMatrices(false);
+    this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.DisableFooter = true;
 
-    this.kbS.SelectFirstTile();
+    setTimeout(() => {
+      this.kbS.SetCurrentNavigatable(this.filterFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    }, 200);
   }
   ngOnDestroy(): void {
     console.log('Detach');
@@ -579,7 +583,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const id = this.dbData[this.kbS.p.y].data.id;
-      this.router.navigate(['/offer-edit', id]);
+      this.router.navigate(['product/offers-edit', id, {}]);
     }
   }
 

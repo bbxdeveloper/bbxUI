@@ -1,3 +1,5 @@
+import { OfferLineFullData } from "./OfferLine";
+
 export interface Offer {
     "id": number,
     "offerNumber": string,
@@ -14,5 +16,13 @@ export interface Offer {
     "offerVaidityDate": string,
     "copies": number,
     "notice": string,
-    "deleted": boolean
+    "deleted": boolean,
+    "newOffer": boolean,
+
+    "offerNumberX": string,
+    "CustomerComment"?: string,
+    "offerVersion": number,
+    "latestVersion": boolean,
+
+    "OfferLines": OfferLineFullData[]
 }
