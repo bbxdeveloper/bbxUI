@@ -282,6 +282,8 @@ export class KeyboardNavigationService {
 
     console.log(`Current Max X: ${this.maxCurrentWorldX}`);
     console.log(`Current Max Y: ${this.maxCurrentWorldY}`);
+
+    this.LogMatrix();
   }
 
   private LogNeighbourStats(): void {

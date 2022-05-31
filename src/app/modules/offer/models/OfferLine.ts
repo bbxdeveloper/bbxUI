@@ -39,10 +39,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "showDiscount": boolean = true;
     
     // Custom
-    "lineNetAmount": number = 1.0; // price * quant
-    "lineVatAmount": number = 1.0; // netamount * vat - hidden
+    "vatRate": number = 1.0;
     
-    "quantity": number = 0.0;
     "unitOfMeasure": string;
 
     // OfferLineFullData
@@ -52,6 +50,42 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "unitOfMeasureX": string = "";
     "vatRateID": number = -1;
     "vatPercentage": number = -1;
+
+    // Discount get set
+    set Discount(val: number) {
+        this.discount = val;
+
+        let d = this.discount === 0 ? 0.0 : this.discount / 100.0;
+        let priceWithDiscount = this.originalUnitPrice;
+        priceWithDiscount -= this.originalUnitPrice * d;
+        this.unitPrice += priceWithDiscount;
+    }
+    get Discount() {
+        return this.discount;
+    }
+
+    // UnitPrice - with applied discount - get set
+    set OriginalUnitPrice(val: number) {
+        this.originalUnitPrice = val
+        this.unitPrice = val
+    }
+    set UnitPrice(val: number) {
+        this.discount = 0.0;
+        this.unitPrice = val;
+        this.UnitVat = this.unitPrice * this.vatRate;
+    }
+    get UnitPrice() {
+        return this.unitPrice;
+    }
+
+    // UnitVat
+    set UnitVat(val: number) {
+        this.unitVat = val;
+        this.unitGross = this.unitPrice + this.unitVat;
+    }
+    get UnitVat() {
+        return this.unitVat;
+    }
 
     get unitPriceWithDiscount(): number {
         let discount = this.discount === 0 ? 0.0 : this.discount / 100.0;
@@ -67,7 +101,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         priceWithDiscount -= this.unitPrice * discount;
         priceWithDiscount = priceWithDiscount === 0 ? 1 : priceWithDiscount;
         
-        var vat = this.lineVatAmount ?? 1.0;
+        var vat = this.vatRate ?? 1.0;
 
         return priceWithDiscount + (vat * priceWithDiscount);
     }
@@ -88,7 +122,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         offerLine.unitGross = invoiceLine.lineGrossAmount;
         offerLine.vatRateCode = invoiceLine.vatRateCode;
-        offerLine.unitVat = invoiceLine.lineVatAmount;
+        offerLine.UnitVat = invoiceLine.lineVatAmount;
         offerLine.unitPrice = invoiceLine.price;
 
         /*
@@ -110,16 +144,11 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.productCode = product.productCode;
 
         offerLine.vatRateCode = product.vatRateCode;
-        offerLine.unitVat = product.vatPercentage ?? 0;
+        offerLine.UnitVat = product.vatPercentage ?? 0;
 
-        offerLine.unitPrice = product.unitPrice1 ?? product.unitPrice2 ?? 0;
+        offerLine.OriginalUnitPrice = product.unitPrice1 ?? product.unitPrice2 ?? 0;
 
-        offerLine.quantity = 0;
-
-        offerLine.lineVatAmount = product.vatPercentage ?? 10;
-        offerLine.lineNetAmount = 
-            HelperFunctions.ToFloat(offerLine.quantity) * HelperFunctions.ToFloat(offerLine.unitPrice);
-        offerLine.unitGross = offerLine.lineVatAmount * offerLine.lineNetAmount;
+        offerLine.vatRate = product.vatPercentage ?? 10;
 
         offerLine.unitOfMeasure = product.unitOfMeasure;
         offerLine.unitOfMeasureX = product.unitOfMeasureX;
@@ -132,24 +161,18 @@ export class OfferLine implements IEditable, OfferLineFullData {
     static FromOfferLineFullData(data: OfferLineFullData): OfferLine {
         let offerLine = new OfferLine();
 
-        // Object.keys(this).forEach((x: string) => {
-        //     offerLine[x as keyof OfferLine] = data[x];
-        // });
-
         offerLine.lineNumber = data.lineNumber;
         offerLine.productCode = data.productCode;
         offerLine.lineDescription = data.lineDescription;
         offerLine.vatRateCode = data.vatRateCode;
-        offerLine.unitPrice = data.unitPrice;
-        offerLine.unitVat = data.unitVat;
+        offerLine.UnitPrice = data.unitPrice;
+        offerLine.UnitVat = data.unitVat;
         offerLine.unitGross = data.unitGross;
-        offerLine.discount = data.discount;
+        offerLine.Discount = data.discount;
         offerLine.showDiscount = data.showDiscount;
         offerLine.unitOfMeasure = data.unitOfMeasure;
 
-        offerLine.lineNetAmount = 0;
-        offerLine.lineVatAmount = 0;
-        offerLine.quantity = 0;
+        offerLine.vatRate = 0;
         
         offerLine.id = data.id;
         offerLine.offerID = data.offerID;

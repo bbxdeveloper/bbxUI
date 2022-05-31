@@ -15,9 +15,9 @@ export const environment = {
   flatDesignCRUDManagerDebug: false,
 
   navigationMiscLog: false,
-  navigationPositionLog: false,
-  navigationMoveLog: false,
-  navigationMatrixLog: false,
+  navigationPositionLog: true,
+  navigationMoveLog: true,
+  navigationMatrixLog: true,
   navigationSelectLog: false,
 };
 

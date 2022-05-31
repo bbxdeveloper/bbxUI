@@ -140,19 +140,17 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     placeholder: '',
   });
 
-  override colsToIgnore: string[] = ["vatRateCode", "unitGross", "unitPriceWithDiscount", "unitGrossWithDiscount"];
+  override colsToIgnore: string[] = ["vatRateCode", "unitGross", "unitOfMeasureX", "originalUnitPrice", "vatRateCode", "unitGross"];
   override allColumns = [
     'productCode',
     'lineDescription',
-    'quantity',
     'unitOfMeasureX',
-    'unitPrice',
-    'discount',
+    'originalUnitPrice',
+    'Discount',
     'showDiscount',
-    'unitPriceWithDiscount',
+    'UnitPrice',
     'vatRateCode',
-    'unitGross',
-    'unitGrossWithDiscount',
+    'unitGross'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -165,23 +163,18 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       defaultValue: '', type: 'string', mask: "", //fReadonly: true,
       colWidth: "30%", textAlign: "left",
     },
-    {
-      label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
-      defaultValue: '', type: 'number', mask: "",
-      colWidth: "5%", textAlign: "right", fInputType: 'formatted-number'
-    },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "5%", textAlign: "right"
     },
     {
-      label: 'Nettó Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
+      label: 'Nettó Ár', objectKey: 'originalUnitPrice', colKey: 'originalUnitPrice',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
-      label: 'Kedvezmény', objectKey: 'discount', colKey: 'discount',
+      label: 'Kedvezmény', objectKey: 'Discount', colKey: 'Discount',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -191,7 +184,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       colWidth: "16%", textAlign: "right", fInputType: 'checkbox'
     },
     {
-      label: 'Kedvezményes ár', objectKey: 'unitPriceWithDiscount', colKey: 'unitPriceWithDiscount',
+      label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "12%", textAlign: "center", fInputType: 'formatted-number'
     },
@@ -204,12 +197,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       label: 'Bruttó', objectKey: 'unitGross', colKey: 'unitGross',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
-    },
-    {
-      label: 'Bruttó Kedvezménnyel', objectKey: 'unitGrossWithDiscount', colKey: 'unitGrossWithDiscount',
-      defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
-    },
+    }
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
@@ -494,14 +482,11 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
               // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
               // tmp.unitPrice += tmp.unitPrice * discount;
 
-              product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.unitVat = (product.vatPercentage ?? 1);
+              tmp.vatRate = product.vatPercentage ?? 0.0;
+              tmp.OriginalUnitPrice = (product.unitPrice1 ?? product.unitPrice2 ?? 0);
+              tmp.unitVat = tmp.vatRate * tmp.unitPrice;
               product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
               tmp.vatRateCode = product.vatRateCode;
-
-              tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-              tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.unitVat);
-              tmp.unitGross = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
 
               this.dbData[index].data = tmp;
 
@@ -514,24 +499,25 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
             this.RecalcNetAndVat();
           }
         });
-      } else {
-        if (index !== undefined) {
-          let tmp = this.dbData[index].data;
+      } 
+      // else {
+      //   if (index !== undefined) {
+      //     let tmp = this.dbData[index].data;
 
-          // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
-          // tmp.unitPrice += tmp.unitPrice * discount;
+      //     // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
+      //     // tmp.unitPrice += tmp.unitPrice * discount;
 
-          tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-          tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.unitVat);
-          tmp.unitGross = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
+      //     tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
+      //     tmp.vatRate = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.unitVat);
+      //     tmp.unitGross = this.ToFloat(tmp.vatRate) + this.ToFloat(tmp.lineNetAmount);
 
-          this.dbData[index].data = tmp;
+      //     this.dbData[index].data = tmp;
 
-          this.dbDataDataSrc.setData(this.dbData);
-        }
+      //     this.dbDataDataSrc.setData(this.dbData);
+      //   }
 
-        this.RecalcNetAndVat();
-      }
+      //   this.RecalcNetAndVat();
+      // }
     }
   }
 
@@ -729,7 +715,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         "report_params":
         {
           "id": id,
-          "invoiceNumber": null
+          "offerNumber": null
         },
         // "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
