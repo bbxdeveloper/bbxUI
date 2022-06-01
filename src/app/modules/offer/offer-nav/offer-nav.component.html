@@ -11,13 +11,6 @@ wrapperClass="bbx-fd-sidebar-functions-left">
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Árajánlat szám</label>
-                        <input nbInput type="text" formControlName='OfferNumber' class="{{TileCssClass}}"
-                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                        <app-form-control-error [form]="filterFormNav" label="árajánlat szám" controlName="OfferNumber">
-                        </app-form-control-error>
-                    </nb-form-field>
 
                     <table class="customer-search-row">
                         <tr>
@@ -39,14 +32,34 @@ wrapperClass="bbx-fd-sidebar-functions-left">
                                     [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                                     (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél</label>
+                                    <input nbInput type="text" formControlName='CustomerName' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Cím</label>
+                                    <input nbInput type="text" formControlName='CustomerAddress' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Adószám</label>
+                                    <input nbInput type="text" formControlName='CustomerTaxNumber' readonly>
+                                </nb-form-field>
+                            </td>
                         </tr>
                     </table>
+                </div>
 
+                <div class="form-row">
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Ügyfél</label>
-                        <input nbInput type="text" formControlName='CustomerName' readonly
+                        <label>Árajánlat szám</label>
+                        <input nbInput type="text" formControlName='OfferNumber' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                        <app-form-control-error [form]="filterFormNav" label="árajánlat szám" controlName="CustomerName">
+                        <app-form-control-error [form]="filterFormNav" label="árajánlat szám" controlName="OfferNumber">
                         </app-form-control-error>
                     </nb-form-field>
                 </div>

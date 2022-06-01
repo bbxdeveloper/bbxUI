@@ -58,7 +58,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         let d = this.discount === 0 ? 0.0 : this.discount / 100.0;
         let priceWithDiscount = this.originalUnitPrice;
         priceWithDiscount -= this.originalUnitPrice * d;
-        this.unitPrice += priceWithDiscount;
+        this.unitPrice = HelperFunctions.ToFloat(priceWithDiscount);
+        this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
     }
     get Discount() {
         return this.discount;
@@ -68,11 +69,12 @@ export class OfferLine implements IEditable, OfferLineFullData {
     set OriginalUnitPrice(val: number) {
         this.originalUnitPrice = val
         this.unitPrice = val
+        this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
     }
     set UnitPrice(val: number) {
         this.discount = 0.0;
         this.unitPrice = val;
-        this.UnitVat = this.unitPrice * this.vatRate;
+        this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
     }
     get UnitPrice() {
         return this.unitPrice;
@@ -81,29 +83,11 @@ export class OfferLine implements IEditable, OfferLineFullData {
     // UnitVat
     set UnitVat(val: number) {
         this.unitVat = val;
-        this.unitGross = this.unitPrice + this.unitVat;
+        console.log(`Set unitGross, old val: ${this.unitGross}, new val: ${this.unitPrice + this.unitVat}, new unit price: ${this.unitPrice}`);
+        this.unitGross = HelperFunctions.ToFloat(this.unitPrice) + this.unitVat;
     }
     get UnitVat() {
         return this.unitVat;
-    }
-
-    get unitPriceWithDiscount(): number {
-        let discount = this.discount === 0 ? 0.0 : this.discount / 100.0;
-        let priceWithDiscount = this.unitPrice;
-        priceWithDiscount -= this.unitPrice * discount;
-        return priceWithDiscount;
-    }
-
-    get unitGrossWithDiscount(): number {
-        let discount = this.discount === 0 ? 0.0 : this.discount / 100.0;
-        
-        let priceWithDiscount = this.unitPrice;
-        priceWithDiscount -= this.unitPrice * discount;
-        priceWithDiscount = priceWithDiscount === 0 ? 1 : priceWithDiscount;
-        
-        var vat = this.vatRate ?? 1.0;
-
-        return priceWithDiscount + (vat * priceWithDiscount);
     }
 
     IsUnfinished(): boolean {

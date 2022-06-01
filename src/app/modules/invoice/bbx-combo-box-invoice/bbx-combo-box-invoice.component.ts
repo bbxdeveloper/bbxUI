@@ -18,11 +18,13 @@ export class BbxComboBoxInvoiceComponent implements OnInit, AfterViewInit {
   @Input() data$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   @Input() isWide: boolean = true;
   @Input() wrapperClass: string = 'mode-default';
+  @Input() simpleMode: boolean = false;
 
   blankOptionText: string = BlankComboBoxValue;
 
   comboBoxData: string[] = [];
   currentDataCount: number = 0;
+  get defaultDataCount(): number { return this.comboBoxData.length; }
   filteredData$: Observable<string[]> = of([]);
   currentFilteredData: string[] = [];
   currentTypedData: string = '';

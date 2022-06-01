@@ -74,7 +74,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         };
     }
 
-    readonly commandsOnTable: FooterCommandInfo[] = [
+    commandsOnTable: FooterCommandInfo[] = [
         { key: 'F1', value: '', disabled: false },
         { key: 'F2', value: 'Keresés', disabled: false },
         { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
@@ -86,7 +86,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         { key: 'F9', value: '', disabled: false },
         { key: 'F10', value: '', disabled: false },
     ];
-    readonly commandsOnTableEditMode: FooterCommandInfo[] = [
+    commandsOnTableEditMode: FooterCommandInfo[] = [
         { key: 'F1', value: '', disabled: false },
         { key: 'F2', value: 'Keresés', disabled: false },
         { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },

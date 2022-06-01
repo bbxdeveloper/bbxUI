@@ -37,6 +37,8 @@ import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
 
 @Component({
   selector: 'app-offer-creator',
@@ -180,7 +182,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     },
     {
       label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
-      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      defaultValue: '', type: 'number', mask: "",
       colWidth: "12%", textAlign: "center", fInputType: 'formatted-number'
     },
     {
@@ -200,8 +202,9 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   };
 
   override readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
+    { key: 'F1', value: 'Kedvezmény mutatás kapcsolás összes sorra', disabled: false },
     { key: 'F2', value: 'Keresés', disabled: false },
+    { key: 'F3', value: 'Kedvezmény megadása összes sorra', disabled: false },
     { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
     { key: 'F4', value: 'Keresés NAV-val (csak sikertelen rendes keresés esetén)', disabled: false },
     { key: 'F5', value: '', disabled: false },
@@ -299,6 +302,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       this.buyerForm = new FormGroup({
         customerSearch: new FormControl('', []),
         customerName: new FormControl('', [Validators.required]),
+        customerAddress: new FormControl('', [Validators.required]),
+        customerTaxNumber: new FormControl('', [Validators.required]),
         offerIssueDate: new FormControl('', [Validators.required, todaysDate]),
         offerVaidityDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
         notice: new FormControl('', []),
@@ -379,10 +384,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
-    this.buyerForm.controls['offerIssueDate'].setValue(dateStr);
-    this.buyerForm.controls['offerVaidityDate'].setValue(dateStr);
+    this.buyerForm.controls['offerIssueDate'].setValue(HelperFunctions.GetDateString());
+    this.buyerForm.controls['offerVaidityDate'].setValue(HelperFunctions.GetDateString(0, 1));
 
     this.buyerForm.controls['offerIssueDate'].valueChanges.subscribe({
       next: p => {
@@ -594,6 +597,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       'PRODUCT'
     );
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
+    this.dbDataTable!.commandsOnTable = this.commands;
+    this.dbDataTable!.commandsOnTableEditMode = this.commands;
     this.dbDataTable?.PushFooterCommandList();
 
     setTimeout(() => {
@@ -882,6 +887,18 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     return !isNaN(parseFloat(val2));
   }
 
+  private SetCustomerFormFields(data?: Customer) {
+    if (data === undefined) {
+      this.buyerForm.controls['customerName'].setValue(undefined);
+      this.buyerForm.controls['customerAddress'].setValue(undefined);
+      this.buyerForm.controls['customerTaxNumber'].setValue(undefined);
+      return;
+    }
+    this.buyerForm.controls['customerName'].setValue(data.customerName);
+    this.buyerForm.controls['customerAddress'].setValue(data.postalCode + ', ' + data.city);
+    this.buyerForm.controls['customerTaxNumber'].setValue(data.taxpayerNumber);
+  }
+
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
@@ -892,8 +909,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          //this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
-          this.buyerForm.controls['customerName'].setValue(res.data[0].customerName);
+          this.SetCustomerFormFields(res.data[0]);
           this.searchByTaxtNumber = false;
         } else {
           if (this.customerInputFilterString.length >= 8 &&
@@ -902,8 +918,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
           } else {
             this.searchByTaxtNumber = false;
           }
-          //this.buyerFormNav.FillForm({}, ['customerSearch']);
-          this.buyerForm.controls['customerName'].setValue(undefined);
+          this.SetCustomerFormFields(undefined);
         }
       },
       error: (err) => {
@@ -978,5 +993,46 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     if (event.ctrlKey && event.key == 'Enter') {
       this.Save();
     }
+    switch (event.key) {
+      case KeyBindings.F1: {
+        event.preventDefault();
+        this.ToggleAllShowDiscount();
+        break;
+      }
+      case KeyBindings.F3: {
+        event.preventDefault();
+        this.SetGlobalDiscount();
+        break;
+      }
+    }
+  }
+
+  ToggleAllShowDiscount(): void {
+    if (this.dbData.length === 0) {
+      return;
+    }
+    const newVal = !this.dbData[0].data.showDiscount;
+    this.dbData.forEach(x => {
+      x.data.showDiscount = newVal;
+    })
+  }
+
+  SetGlobalDiscount(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    const dialogRef = this.dialogService.open(OneNumberInputDialogComponent, {
+      context: {
+        title: 'Kedvezmény megadása összes sorra',
+        inputLabel: 'Kedvezmény %',
+      }
+    });
+    dialogRef.onClose.subscribe({
+      next: res => {
+        if (res.answer) {
+          this.dbData.forEach(x => {
+            x.data.Discount = HelperFunctions.ToFloat(res.value);
+          })
+        }
+      }
+    });
   }
 }

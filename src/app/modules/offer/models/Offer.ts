@@ -24,5 +24,5 @@ export interface Offer {
     "offerVersion": number,
     "latestVersion": boolean,
 
-    "OfferLines": OfferLineFullData[]
+    "offerLines": OfferLineFullData[]
 }

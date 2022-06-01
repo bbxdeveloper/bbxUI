@@ -41,6 +41,9 @@ import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { Offer } from '../models/Offer';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { GetCustomerParamListModel } from 'out/bbx-ui-win32-x64/resources/app/src/app/modules/customer/models/GetCustomerParamListModel';
+import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
 
 @Component({
   selector: 'app-offer-editor',
@@ -185,7 +188,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     },
     {
       label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
-      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      defaultValue: '', type: 'number', mask: "",
       colWidth: "12%", textAlign: "center", fInputType: 'formatted-number'
     },
     {
@@ -205,8 +208,9 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
   };
 
   override readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
+    { key: 'F1', value: 'Kedvezmény mutatás kapcsolás összes sorra', disabled: false },
     { key: 'F2', value: 'Keresés', disabled: false },
+    { key: 'F3', value: 'Kedvezmény megadása összes sorra', disabled: false },
     { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
     { key: 'F4', value: 'Keresés NAV-val (csak sikertelen rendes keresés esetén)', disabled: false },
     { key: 'F5', value: '', disabled: false },
@@ -313,7 +317,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       deleted: false,
       notice: '',
       newOffer: false,
-      OfferLines: [],
+      offerLines: [],
     } as Offer;
 
     this.dbData = [];
@@ -323,6 +327,8 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       this.buyerForm = new FormGroup({
         customerSearch: new FormControl('', []),
         customerName: new FormControl('', [Validators.required]),
+        customerAddress: new FormControl('', [Validators.required]),
+        customerTaxNumber: new FormControl('', [Validators.required]),
         offerIssueDate: new FormControl('', [Validators.required, todaysDate]),
         offerVaidityDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
         notice: new FormControl('', []),
@@ -404,14 +410,12 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
-    this.buyerForm.controls['offerIssueDate'].setValue(dateStr);
-    this.buyerForm.controls['offerVaidityDate'].setValue(dateStr);
+    this.buyerForm.controls['offerIssueDate'].setValue(HelperFunctions.GetDateString());
+    this.buyerForm.controls['offerVaidityDate'].setValue(HelperFunctions.GetDateString(0, 1));
 
     this.buyerForm.controls['offerIssueDate'].valueChanges.subscribe({
       next: p => {
-        this.buyerForm.controls['offerVaidityDate'].setValue(this.buyerForm.controls['invoiceDeliveryDate'].value);
+        this.buyerForm.controls['offerVaidityDate'].setValue(this.buyerForm.controls['offerVaidityDate'].value);
         this.buyerForm.controls['offerVaidityDate'].markAsTouched();
       }
     });
@@ -609,6 +613,8 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       next: res => {
         if (!!res) {
           this.buyerForm.controls['customerName'].setValue(res.customerName);
+          this.buyerForm.controls['customerAddress'].setValue(res.customerPostalCode + ', ' + res.customerCity);
+          this.buyerForm.controls['customerTaxNumber'].setValue(res.customerTaxpayerNumber);
           this.buyerForm.controls['offerIssueDate'].setValue(res.offerIssueDate);
           this.buyerForm.controls['offerVaidityDate'].setValue(res.offerVaidityDate);
           this.buyerForm.controls['notice'].setValue(res.notice);
@@ -617,9 +623,21 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
           this.offerData = res;
 
           this.buyerData.id = this.offerData.customerID;
-          // TODO set local customer
+          // this.seC.Get({ ID: this.buyerData.id } as GetCustomerParamListModel).subscribe({
+          //   next: res => {
+          //     if (!!res) {
+          //       this.buyerData = res;
+          //     }
+          //   },
+          //   error: (err) => {
+          //     this.cs.HandleError(err, `Hiba a ${this.buyerData.id} azonosítóval rendelkező ügyfél betöltése közben:\n`);
+          //   },
+          //   complete: () => {
+          //     this.isLoading = false;
+          //   }
+          // });
 
-          this.dbData = this.offerData.OfferLines!.map(x =>
+          this.dbData = this.offerData.offerLines!.map(x =>
             { return { data: OfferLine.FromOfferLineFullData(x) } as TreeGridNode<OfferLine> }
           ).concat(this.dbData);
 
@@ -659,6 +677,8 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       'PRODUCT'
     );
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
+    this.dbDataTable!.commandsOnTable = this.commands;
+    this.dbDataTable!.commandsOnTableEditMode = this.commands;
     this.dbDataTable?.PushFooterCommandList();
 
     setTimeout(() => {
@@ -687,19 +707,19 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     // this.offerData.invoiceNetAmount = 0;
     // this.offerData.invoiceVatAmount = 0;
 
-    this.offerData.OfferLines = this.dbData.map(x => x.data as OfferLineFullData);
+    this.offerData.offerLines = this.dbData.map(x => x.data as OfferLineFullData);
 
     // this.RecalcNetAndVat();
 
-    for (let i = 0; i < this.offerData.OfferLines.length - 1; i++) {
-      this.offerData.OfferLines[i].unitPrice = HelperFunctions.ToFloat(this.offerData.OfferLines[i].unitPrice);
+    for (let i = 0; i < this.offerData.offerLines.length - 1; i++) {
+      this.offerData.offerLines[i].unitPrice = HelperFunctions.ToFloat(this.offerData.offerLines[i].unitPrice);
       // this.offerData.OfferLines[i].quantity = this.ToFloat(this.offerData.OfferLines[i].quantity);
-      this.offerData.OfferLines[i].lineNumber = HelperFunctions.ToFloat(i);
+      this.offerData.offerLines[i].lineNumber = HelperFunctions.ToFloat(i);
     }
 
-    let lastIndex = this.offerData.OfferLines.length - 1;
-    if (OfferLine.IsInterfaceUnfinished(this.offerData.OfferLines[lastIndex])) {
-      this.offerData.OfferLines.splice(lastIndex, 1);
+    let lastIndex = this.offerData.offerLines.length - 1;
+    if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
+      this.offerData.offerLines.splice(lastIndex, 1);
     }
 
     // console.log('[UpdateOutGoingData]: ', this.offerData, this.outInvForm.controls['paymentMethod'].value);
@@ -908,6 +928,18 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     return !isNaN(parseFloat(val2));
   }
 
+  private SetCustomerFormFields(data?: Customer) {
+    if (data === undefined) {
+      this.buyerForm.controls['customerName'].setValue(undefined);
+      this.buyerForm.controls['customerAddress'].setValue(undefined);
+      this.buyerForm.controls['customerTaxNumber'].setValue(undefined);
+      return;
+    }
+    this.buyerForm.controls['customerName'].setValue(data.customerName);
+    this.buyerForm.controls['customerAddress'].setValue(data.postalCode + ', ' + data.city);
+    this.buyerForm.controls['customerTaxNumber'].setValue(data.taxpayerNumber);
+  }
+
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
@@ -918,8 +950,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          //this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
-          this.buyerForm.controls['customerName'].setValue(res.data[0].customerName);
+          this.SetCustomerFormFields(res.data[0]);
           this.searchByTaxtNumber = false;
         } else {
           if (this.customerInputFilterString.length >= 8 &&
@@ -928,8 +959,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
           } else {
             this.searchByTaxtNumber = false;
           }
-          //this.buyerFormNav.FillForm({}, ['customerSearch']);
-          this.buyerForm.controls['customerName'].setValue(undefined);
+          this.SetCustomerFormFields(undefined);
         }
       },
       error: (err) => {
@@ -1004,5 +1034,46 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     if (event.ctrlKey && event.key == 'Enter') {
       this.Save();
     }
+    switch(event.key) {
+      case KeyBindings.F1: {
+        event.preventDefault();
+        this.ToggleAllShowDiscount();
+        break;
+      }
+      case KeyBindings.F3: {
+        event.preventDefault();
+        this.SetGlobalDiscount();
+        break;
+      }
+    }
+  }
+
+  ToggleAllShowDiscount(): void {
+    if (this.dbData.length === 0) {
+      return;
+    }
+    const newVal = !this.dbData[0].data.showDiscount;
+    this.dbData.forEach(x => {
+      x.data.showDiscount = newVal;
+    })
+  }
+
+  SetGlobalDiscount(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    const dialogRef = this.dialogService.open(OneNumberInputDialogComponent, {
+      context: {
+        title: 'Kedvezmény megadása összes sorra',
+        inputLabel: 'Kedvezmény %',
+      }
+    });
+    dialogRef.onClose.subscribe({
+      next: res => {
+        if (res.answer) {
+          this.dbData.forEach(x => {
+            x.data.Discount = HelperFunctions.ToFloat(res.value);
+          })
+        }
+      }
+    });
   }
 }

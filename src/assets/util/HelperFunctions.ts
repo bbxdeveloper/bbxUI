@@ -6,6 +6,10 @@ import { UnitOfMeasure } from "src/app/modules/product/models/UnitOfMeasure";
 import { VatRate } from "src/app/modules/vat-rate/models/VatRate";
 import { WareHouse } from "src/app/modules/warehouse/models/WareHouse";
 import { BlankComboBoxValue } from "../model/navigation/Nav";
+import * as moment from 'moment';
+
+const DATE_FORMATSTRING = 'YYYY-MM-DD';
+const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
 
 export module HelperFunctions {
     export function ConvertChosenOriginToCode(comboVal?: string, data: Origin[] = [],
@@ -164,6 +168,18 @@ export module HelperFunctions {
     export function GenerateTodayFormFieldDateString(): string {
         const dateArray = new Date().toLocaleDateString('hu').split(". ");
         return dateArray[0] + '-' + dateArray[1] + '-' + dateArray[2].substring(0, 2);
+    }
+
+    export function GetDateString(
+        addDay: number = 0, addMonth: number = 0, addYear: number = 0,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): string {
+        moment.locale(dateLocale);
+        return moment(new Date())
+            .add(addDay, "days")
+            .add(addMonth, "months")
+            .add(addYear, "years")
+            .format(formatString);
     }
 
     export function ToFloat(p: any): number {

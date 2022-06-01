@@ -25,13 +25,21 @@
                                     (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
                             <td>
-                                <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                                <nb-form-field>
                                     <label>Ügyfél</label>
-                                    <input nbInput type="text" formControlName='customerName' readonly
-                                        (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél"
-                                        controlName="customerName">
-                                    </app-form-control-error>
+                                    <input nbInput type="text" formControlName='customerName' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Cím</label>
+                                    <input nbInput type="text" formControlName='customerAddress' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Adószám</label>
+                                    <input nbInput type="text" formControlName='customerTaxNumber' readonly>
                                 </nb-form-field>
                             </td>
                         </tr>

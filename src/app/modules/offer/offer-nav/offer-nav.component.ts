@@ -257,12 +257,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
-    this.filterForm.controls['OfferIssueDateFrom'].setValue(dateStr);
-    this.filterForm.controls['OfferIssueDateTo'].setValue(dateStr);
-    this.filterForm.controls['OfferVaidityDateForm'].setValue(dateStr);
-    this.filterForm.controls['OfferVaidityDateTo'].setValue(dateStr);
+    this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -1));
+    this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
+    this.filterForm.controls['OfferVaidityDateForm'].setValue(HelperFunctions.GetDateString(1));
+    this.filterForm.controls['OfferVaidityDateTo'].setValue(HelperFunctions.GetDateString(1, 1));
   }
 
   ToInt(p: any): number {
@@ -282,6 +280,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       CustomerSearch: new FormControl(undefined, []),
 
       CustomerName: new FormControl(undefined, []),
+      CustomerAddress: new FormControl(undefined, []),
+      CustomerTaxNumber: new FormControl(undefined, []),
 
       OfferIssueDateFrom: new FormControl(undefined, []),
       OfferIssueDateTo: new FormControl(undefined, []),
@@ -491,6 +491,18 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     });
   }
 
+  private SetCustomerFormFields(data?: Customer) {
+    if (data === undefined) {
+      this.filterForm.controls['CustomerName'].setValue(undefined);
+      this.filterForm.controls['CustomerAddress'].setValue(undefined);
+      this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
+      return;
+    }
+    this.filterForm.controls['CustomerName'].setValue(data.customerName);
+    this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
+    this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
+  }
+
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
@@ -501,7 +513,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          this.filterForm.controls["CustomerName"].setValue(res.data[0].customerName);
+          this.SetCustomerFormFields(res.data[0]);
           this.searchByTaxtNumber = false;
         } else {
           if (this.customerInputFilterString.length >= 8 &&
@@ -510,7 +522,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           } else {
             this.searchByTaxtNumber = false;
           }
-          this.filterForm.controls["CustomerName"].setValue('');
+          this.SetCustomerFormFields(undefined);
         }
       },
       error: (err) => {
@@ -582,7 +594,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y].data.id;
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
       this.router.navigate(['product/offers-edit', id, {}]);
     }
   }

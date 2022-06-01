@@ -26,6 +26,7 @@ import { DateIntervalDialogComponent } from './date-interval-dialog/date-interva
 import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-input-dialog.component';
 import { ToStringPipe } from './pipes/to-string.pipe';
 import { ReplacePipe } from './pipes/replace.pipe';
+import { OneNumberInputDialogComponent } from './one-number-input-dialog/one-number-input-dialog.component';
 
 
 @NgModule({
@@ -50,6 +51,7 @@ import { ReplacePipe } from './pipes/replace.pipe';
     OneTextInputDialogComponent,
     ToStringPipe,
     ReplacePipe,
+    OneNumberInputDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -99,7 +101,8 @@ import { ReplacePipe } from './pipes/replace.pipe';
     BbxComboBoxComponent,
     BbxTwoRowComboBoxComponent,
     ToStringPipe,
-    ReplacePipe
+    ReplacePipe,
+    OneNumberInputDialogComponent
   ],
   providers: [
     ConfirmationDialogComponent
