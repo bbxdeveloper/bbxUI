@@ -14,6 +14,8 @@ export module Constants {
     export const TITLE_WARNING: string = 'Figyelmeztetés';
     export const TITLE_INFO: string = 'Információ';
 
+    export const MSG_EMAIL_SUCCESFUL: string = 'Email sikeresen elküldve!'
+
     export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
 
@@ -34,6 +36,7 @@ export module Constants {
 
     export enum FileExtensions {
         PDF = "pdf",
+        CSV = "csv",
         UNKNOWN = "unknown"
     }
 
@@ -43,6 +46,8 @@ export module Constants {
         PRINT_INVOICE,
         ERROR,
         PRINT_OFFER,
+        DOWNLOAD_OFFER_NAV_CSV,
+        DOWNLOAD_BLOB
     }
 
     export enum DataOperation {
@@ -71,6 +76,20 @@ export module Constants {
         { title: 'Riport Letöltés', value: 0, msg: '0/3 - Kérés feldolgozása', isSimple: false },
         { title: 'Riport Letöltés', value: 50, msg: '1/3 - Generálás', isSimple: false },
         { title: 'Riport Letöltés', value: 100, msg: '2/3 - Letöltés előkészítése', isSimple: false }
+    ];
+
+    export enum DownloadOfferNavCSVProcessPhases { PROC_CMD, GENERATING, PROC_RESP }
+    export const DownloadOfferNavCSVStatuses: ProcessStatus[] = [
+        { title: 'CSV Letöltés', value: 0, msg: '0/3 - Kérés feldolgozása', isSimple: false },
+        { title: 'CSV Letöltés', value: 50, msg: '1/3 - Generálás', isSimple: false },
+        { title: 'CSV Letöltés', value: 100, msg: '2/3 - Letöltés előkészítése', isSimple: false }
+    ];
+
+    export enum DownloadProcessPhases { PROC_CMD, GENERATING, PROC_RESP }
+    export const DownloadStatuses: ProcessStatus[] = [
+        { title: 'Letöltés', value: 0, msg: '0/3 - Kérés feldolgozása', isSimple: false },
+        { title: 'Letöltés', value: 50, msg: '1/3 - Generálás', isSimple: false },
+        { title: 'Letöltés', value: 100, msg: '2/3 - Letöltés előkészítése', isSimple: false }
     ];
 
     export enum CRUDSavingPhases { SAVING }

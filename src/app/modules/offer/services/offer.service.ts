@@ -9,6 +9,8 @@ import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { Offer } from '../models/Offer';
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { CreateOfferResponse } from '../models/CreateOfferResponse';
+import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
+import { DeleteOfferResponse } from '../models/DeleteOfferResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +71,10 @@ export class OfferService {
     return this.http.put<CreateOfferResponse>(this.BaseUrl, req);
   }
 
+  Delete(req: DeleteOfferRequest): Observable<DeleteOfferResponse> {
+    return this.http.delete<DeleteOfferResponse>(this.BaseUrl + `?ID=${req.ID}`);
+  }
+
   GetReport(params: Constants.Dct): Observable<any> {
     let options = new HttpHeaders()
       .set('Content-Type', 'application/json')
@@ -77,6 +83,17 @@ export class OfferService {
     return this.http.post(
       `${this.BaseUrl}/print`,
       JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
+  }
+
+  GetCsv(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "text/csv");
+    return this.http.get(
+      `${this.BaseUrl}/csv` + `?ID=${params['ID']}`,
       { responseType: 'blob', headers: options }
     );
   }

@@ -413,3 +413,11 @@ nb-card-header {
     max-height: 100vh;
     overflow-y: hidden !important;
 }
+
+iframe.iframe-table-cell {
+    height: 30px;
+    background-color: #604889;
+    max-height: 100px;
+    max-width: 100%;
+    resize: vertical;
+}

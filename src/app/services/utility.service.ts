@@ -14,6 +14,12 @@ const POC_REPORT_ENDED =
 const REPORT_ENDED_WITH_ERROR =
   { Id: -1, CmdType: Constants.CommandType.POC_REPORT, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
 
+const BLOB_DOWNLOAD_ENDED =
+  { Id: -1, CmdType: Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV } as Constants.CommandDescriptor;
+
+const BLOB_DOWNLOAD_WITH_ERROR =
+  { Id: -1, CmdType: Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,7 +51,7 @@ export class UtilityService {
             this.print(fileType, this.offerService.GetReport(params), params);
             break;
           case Constants.DataOperation.DOWNLOAD_BLOB:
-            this.download(this.invS.GetReport(params));
+            this.downloadReportPDF(this.invS.GetReport(params));
             break;
         }
         break;
@@ -55,7 +61,7 @@ export class UtilityService {
             this.print(fileType, this.invS.GetReport(params), params);
             break;
           case Constants.DataOperation.DOWNLOAD_BLOB:
-            this.download(this.invS.GetReport(params));
+            this.downloadReportPDF(this.invS.GetReport(params));
             break;
         }
         break;
@@ -65,7 +71,7 @@ export class UtilityService {
             this.print(fileType, this.invS.GetReport(params), params);
             break;
           case Constants.DataOperation.DOWNLOAD_BLOB:
-            this.download(this.invS.GetReport(params));
+            this.downloadReportPDF(this.invS.GetReport(params));
             break;
         }
         break;
@@ -75,7 +81,14 @@ export class UtilityService {
             this.print(fileType, this.invS.GetGradesReport(params), params);
             break;
           case Constants.DataOperation.DOWNLOAD_BLOB:
-            this.download(this.invS.GetGradesReport(params));
+            this.downloadReportPDF(this.invS.GetGradesReport(params));
+            break;
+        }
+        break;
+      case Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV:
+        switch (params['data_operation'] as Constants.DataOperation) {
+          case Constants.DataOperation.DOWNLOAD_BLOB:
+            this.download(this.offerService.GetCsv(params), 'text/csv');
             break;
         }
         break;
@@ -197,12 +210,12 @@ export class UtilityService {
     });
   }
 
-  private download(resData: Observable<any>): void {
+  private downloadReportPDF(resData: Observable<any>): void {
     this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadReportProcessPhases.GENERATING]);
-    this.downloadBlobFromResponse(resData);
+    this.downloadReportPDFBlobFromResponse(resData);
   }
 
-  private downloadBlobFromResponse(resData: Observable<any>): void {
+  private downloadReportPDFBlobFromResponse(resData: Observable<any>): void {
     console.log(`Download blob from response. Waiting for data.`);
 
     resData.subscribe({
@@ -231,6 +244,44 @@ export class UtilityService {
         console.log(`Error while receiving print data.`);
         this.HandleError(err);
         this.CommandEnded.error(REPORT_ENDED_WITH_ERROR);
+      }
+    });
+  }
+
+  private download(resData: Observable<any>, mimeType: string): void {
+    this.sts.pushProcessStatus(Constants.DownloadStatuses[Constants.DownloadProcessPhases.GENERATING]);
+    this.downloadBlobFromResponse(resData, mimeType);
+  }
+
+  private downloadBlobFromResponse(resData: Observable<any>, mimeType: string): void {
+    console.log(`Download blob from response. Waiting for data.`);
+
+    resData.subscribe({
+      next: res => {
+        console.log(`Data acquired.`);
+
+        this.sts.pushProcessStatus(Constants.DownloadStatuses[Constants.DownloadProcessPhases.PROC_RESP]);
+        var blob = new Blob([res], { type: mimeType });
+        var blobURL = URL.createObjectURL(blob);
+
+        let a = document.createElement('a');
+
+        document.body.appendChild(a);
+        a.setAttribute('style', 'display: none');
+        a.href = blobURL;
+        a.download = res.filename;
+
+        a.click();
+
+        URL.revokeObjectURL(blobURL);
+        a.remove();
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        this.CommandEnded.next(BLOB_DOWNLOAD_ENDED);
+      },
+      error: err => {
+        console.log(`Error while blob data.`);
+        this.HandleError(err);
+        this.CommandEnded.error(BLOB_DOWNLOAD_WITH_ERROR);
       }
     });
   }

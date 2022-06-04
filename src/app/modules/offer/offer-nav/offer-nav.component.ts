@@ -31,6 +31,11 @@ import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
+import { SendEmailDialogComponent } from '../../infrastructure/send-email-dialog/send-email-dialog.component';
+import { IframeViewerDialogComponent } from '../../shared/iframe-viewer-dialog/iframe-viewer-dialog.component';
+import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
+import { SendEmailRequest } from '../../infrastructure/models/Email';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-offer-nav',
@@ -142,7 +147,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       objectKey: 'notice',
       colKey: 'notice',
       defaultValue: '',
-      type: 'string',
+      type: 'html',
       fInputType: 'text',
       fRequired: false,
       mask: '',
@@ -178,10 +183,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   override commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
-    { key: 'F2', value: '', disabled: false },
-    { key: 'F3', value: '', disabled: false },
-    { key: 'F4', value: '', disabled: false },
+    { key: 'F1', value: 'Megjegyzés megtekintése', disabled: false },
+    { key: 'F2', value: 'Ügyfél keresés', disabled: false },
+    { key: 'F3', value: 'Email', disabled: false },
+    { key: 'F4', value: 'CSV', disabled: false },
     { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
     { key: 'F6', value: '', disabled: false },
     { key: 'F7', value: 'Szerkesztés', disabled: false },
@@ -243,7 +248,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private seC: CustomerService,
     cs: CommonService,
     sts: StatusService,
-    private router: Router
+    private router: Router,
+    private infrastructureService: InfrastructureService,
+    private utS: UtilityService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -592,6 +599,74 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
+  DownLoadCSV(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
+
+      this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD]);
+      this.utS.execute(Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV, Constants.FileExtensions.CSV,
+        {
+          "ID": HelperFunctions.ToFloat(id),
+          "data_operation": Constants.DataOperation.DOWNLOAD_BLOB,
+        } as Constants.Dct);
+    }
+  }
+
+  SendEmail(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+      const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
+        context: {
+          subject: `RELAX árajánlat ${HelperFunctions.GetDateString()}`,
+        }
+      });
+      dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
+        if (!!res) {
+          this.isLoading = true;
+          this.infrastructureService.SendEmail(res).subscribe({
+            next: _ => {
+              this.toastrService.show(
+                Constants.MSG_EMAIL_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+            },
+            error: (err) => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+            },
+            complete: () => {
+              this.isLoading = false;
+
+              this.kbS.SetCurrentNavigatable(this.filterFormNav);
+              this.kbS.SelectFirstTile();
+              this.kbS.setEditMode(KeyboardModes.EDIT);
+            },  
+          });
+        }
+      });
+    }
+  }
+
+  ViewNotice(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+      const dialogRef = this.dialogService.open(IframeViewerDialogComponent, {
+        context: {
+          title: 'Megjegyzés Megtekintése',
+          srcDoc: this.dbData.find(x => x.data.id === id)?.data.notice ?? '',
+        }
+      });
+      dialogRef.onClose.subscribe((res: Customer) => {});
+    }
+  }
+
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const id = this.dbData[this.kbS.p.y - 1].data.id;
@@ -609,6 +684,23 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       event.stopImmediatePropagation();
       event.stopPropagation();
       return;
+    }
+    switch (event.key) {
+      // CSV
+      case KeyBindings.F4:
+        event.preventDefault();
+        this.DownLoadCSV();
+        break;
+      // Send Email
+      case KeyBindings.F3:
+        event.preventDefault();
+        this.SendEmail();
+        break;
+      // View Notice
+      case KeyBindings.F1:
+        event.preventDefault();
+        this.ViewNotice();
+        break;
     }
     switch (event.key) {
       case CrudManagerKeySettings[Actions.CrudNew].KeyCode:

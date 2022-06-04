@@ -27,6 +27,8 @@ import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-in
 import { ToStringPipe } from './pipes/to-string.pipe';
 import { ReplacePipe } from './pipes/replace.pipe';
 import { OneNumberInputDialogComponent } from './one-number-input-dialog/one-number-input-dialog.component';
+import { HtmlStringSanitizerPipe } from './pipes/html-string-sanitizer.pipe';
+import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewer-dialog.component';
 
 
 @NgModule({
@@ -52,6 +54,8 @@ import { OneNumberInputDialogComponent } from './one-number-input-dialog/one-num
     ToStringPipe,
     ReplacePipe,
     OneNumberInputDialogComponent,
+    HtmlStringSanitizerPipe,
+    IframeViewerDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -80,7 +84,7 @@ import { OneNumberInputDialogComponent } from './one-number-input-dialog/one-num
     InputMaskModule,
     NbSelectModule,
     NbIconModule,
-    NbAutocompleteModule,
+    NbAutocompleteModule
   ],
   exports: [
     BaseNavigatableComponentComponent,
@@ -102,7 +106,8 @@ import { OneNumberInputDialogComponent } from './one-number-input-dialog/one-num
     BbxTwoRowComboBoxComponent,
     ToStringPipe,
     ReplacePipe,
-    OneNumberInputDialogComponent
+    OneNumberInputDialogComponent,
+    HtmlStringSanitizerPipe
   ],
   providers: [
     ConfirmationDialogComponent

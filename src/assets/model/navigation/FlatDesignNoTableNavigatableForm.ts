@@ -248,10 +248,11 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     HandleFormFieldClick(event: any): void {
-        if (!!this.grid && this.kbS.IsCurrentNavigatable(this.grid)) {
+        if (!!this.grid && !this.kbS.IsCurrentNavigatable(this.grid)) {
             // this.GenerateAndSetNavMatrices(false);
             this.grid.JumpToFlatDesignFormByForm(event.target?.id);
         } else {
+            this.kbS.SetCurrentNavigatable(this);
             this.kbS.setEditMode(KeyboardModes.EDIT);
             this.kbS.SetPositionById(event.target?.id);
         }

@@ -182,6 +182,15 @@ export module HelperFunctions {
             .format(formatString);
     }
 
+    export function GetDateStringFromDate(
+        val: string,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): string {
+        moment.locale(dateLocale);
+        return moment(val)
+            .format(formatString);
+    }
+
     export function ToFloat(p: any): number {
         return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
     }

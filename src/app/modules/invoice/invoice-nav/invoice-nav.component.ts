@@ -39,13 +39,15 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
 
   override allColumns = [
     'invoiceNumber',
-    'customerName',
     'warehouse',
+    'customerName',
+    'customerCity',
     'invoiceDeliveryDate',
+    'invoiceIssueDate',
     'paymentDate',
-    'paymentMethodX',
     'invoiceNetAmount',
     'invoiceVatAmount',
+    'invoiceGrossAmount',
     'notice',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -57,14 +59,26 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '15%',
+      colWidth: '120px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Vevő',
+      label: 'Partner',
       objectKey: 'customerName',
       colKey: 'customerName',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '60%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Partner címe',
+      objectKey: 'customerCity',
+      colKey: 'customerCity',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
@@ -82,33 +96,46 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '20%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Számlázás ideje',
+      label: 'Teljesítés',
       objectKey: 'invoiceDeliveryDate',
       colKey: 'invoiceDeliveryDate',
       defaultValue: '',
-      type: 'string',
+      type: 'onlyDate',
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '120px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Fizetési határidő',
-      objectKey: 'paymentDate',
-      colKey: 'paymentDate',
+      label: 'Számlázás dátuma',
+      objectKey: 'invoiceIssueDate',
+      colKey: 'invoiceIssueDate',
       defaultValue: '',
-      type: 'string',
+      type: 'onlyDate',
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '185px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Fiz.hat.',
+      objectKey: 'paymentDate',
+      colKey: 'paymentDate',
+      defaultValue: '',
+      type: 'onlyDate',
+      fInputType: 'text',
+      fRequired: true,
+      mask: '',
+      colWidth: '120px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -130,11 +157,11 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       objectKey: 'invoiceNetAmount',
       colKey: 'invoiceNetAmount',
       defaultValue: '',
-      type: 'string',
+      type: 'formatted-number',
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
+      colWidth: '130px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -143,11 +170,24 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       objectKey: 'invoiceVatAmount',
       colKey: 'invoiceVatAmount',
       defaultValue: '',
-      type: 'string',
+      type: 'formatted-number',
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
+      colWidth: '130px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Bruttó érték',
+      objectKey: 'invoiceGrossAmount',
+      colKey: 'invoiceGrossAmount',
+      defaultValue: '',
+      type: 'formatted-number',
+      fInputType: 'text',
+      fRequired: false,
+      mask: '',
+      colWidth: '130px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -160,7 +200,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
+      colWidth: '30%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -344,14 +384,12 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
     this.filterForm.controls['Incoming'].setValue(false);
 
-    this.filterForm.controls['InvoiceIssueDateFrom'].setValue(dateStr);
-    this.filterForm.controls['InvoiceIssueDateTo'].setValue(dateStr);
-    this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(dateStr);
-    this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(dateStr);
+    this.filterForm.controls['InvoiceIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, 0, -1));
+    this.filterForm.controls['InvoiceIssueDateTo'].setValue(HelperFunctions.GetDateString());
+    this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(HelperFunctions.GetDateString());
+    this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(HelperFunctions.GetDateString());
 
     this.filterForm.controls['WarehouseCode'].setValue(this.wh[0]?.warehouseCode ?? '');
 
