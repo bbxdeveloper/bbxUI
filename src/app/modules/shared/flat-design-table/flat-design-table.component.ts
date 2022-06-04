@@ -23,6 +23,7 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() isLoading: boolean = true;
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
+  @Input() heightMargin: number = -1;
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -65,8 +66,11 @@ export class FlatDesignTableComponent implements OnInit {
 
   getTableClasses(): string {
     var classes = '';
-    classes += this.wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'
-    classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
+    classes += this.heightMargin > -1 ? ('table-wrapper-height-margin-' + this.heightMargin) : '';
+    if (this.heightMargin === -1) {
+      classes += this.wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'
+      classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
+    }
     return classes;
   }
 

@@ -71,7 +71,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '60%',
+      colWidth: '55%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -80,12 +80,18 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       objectKey: 'customerCity',
       colKey: 'customerCity',
       defaultValue: '',
-      type: 'string',
+      type: 'getter',
       fInputType: 'text',
       mask: '',
-      colWidth: '25%',
+      colWidth: '30%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
+      calc: (val: any) => {
+        let invoice = val as Invoice;
+        return invoice.customerPostalCode + ', ' + invoice.customerCity + 
+          (!!invoice.customerAdditionalAddressDetail && invoice.customerAdditionalAddressDetail.length > 0 ?
+            ', ' + invoice.customerAdditionalAddressDetail : '')
+      }
     },
     {
       label: 'Raktár',
@@ -386,7 +392,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   InitFormDefaultValues(): void {
     this.filterForm.controls['Incoming'].setValue(false);
 
-    this.filterForm.controls['InvoiceIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, 0, -1));
+    this.filterForm.controls['InvoiceIssueDateFrom'].setValue(HelperFunctions.GetDateString());
     this.filterForm.controls['InvoiceIssueDateTo'].setValue(HelperFunctions.GetDateString());
     this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(HelperFunctions.GetDateString());
     this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(HelperFunctions.GetDateString());
