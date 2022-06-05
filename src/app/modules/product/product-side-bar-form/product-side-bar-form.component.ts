@@ -55,7 +55,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   }
 
   moveCursor(codeInput: any): void {
-    setInterval(function() {
+    setTimeout(function() {
       codeInput.setSelectionRange(0, 0);
     }, 100);
   }
