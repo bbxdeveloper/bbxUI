@@ -887,7 +887,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         setTimeout(() => {
           this.kbS.setEditMode(KeyboardModes.EDIT);
           this.kbS.ClickCurrentElement();
-        }, 200);
+        }, 500);
       }
     });
   }

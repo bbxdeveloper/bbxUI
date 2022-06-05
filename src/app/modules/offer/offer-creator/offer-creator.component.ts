@@ -608,7 +608,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       this.kbS.setEditMode(KeyboardModes.EDIT);
 
       this.cdref.detectChanges();
-    }, 300);
+    }, 500);
   }
   ngOnDestroy(): void {
     console.log("Detach");
