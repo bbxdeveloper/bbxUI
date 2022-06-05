@@ -22,7 +22,7 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode" #codeInput
                         [dropSpecialCharacters]="false"
                         oninput="this.value = this.value.toUpperCase()"
-                        (focus)="codeInput.setSelectionRange(0, 0)"
+                        (focus)="moveCursor(codeInput)"
                         mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
                         [readonly]="isEditModeOff"
                         [patterns]="customPatterns" (click)="currentForm.HandleFormFieldClick($event)" required>

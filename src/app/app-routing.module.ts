@@ -47,10 +47,6 @@ const routes: Routes = [
         component: OriginManagerComponent,
       },
       {
-        path: "product",
-        component: ProductManagerComponent,
-      },
-      {
         path: "warehouse",
         component: WareHouseManagerComponent,
       },
@@ -74,6 +70,10 @@ const routes: Routes = [
     path: 'product',
     canActivate: [AuthGuard],
     children: [
+      {
+        path: "manage-products",
+        component: ProductManagerComponent,
+      },
       {
         path: "offers-nav",
         component: OfferNavComponent,

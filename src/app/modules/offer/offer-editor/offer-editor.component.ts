@@ -42,7 +42,6 @@ import { Offer } from '../models/Offer';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { GetCustomerParamListModel } from 'out/bbx-ui-win32-x64/resources/app/src/app/modules/customer/models/GetCustomerParamListModel';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
 
 @Component({
