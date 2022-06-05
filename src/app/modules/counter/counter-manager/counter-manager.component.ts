@@ -98,12 +98,12 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       objectKey: 'currentNumber',
       colKey: 'currentNumber',
       defaultValue: '',
-      type: 'formatted-number',
+      type: 'padded-formatted-integer',
       fInputType: 'text',
       fRequired: true,
       mask: '',
       colWidth: '30%',
-      textAlign: 'left',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -116,7 +116,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       fRequired: true,
       mask: '',
       colWidth: '30%',
-      textAlign: 'left',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
     {
