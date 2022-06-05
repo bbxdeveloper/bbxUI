@@ -71,10 +71,9 @@
                 </div>
 
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                    <nb-form-field>
                         <label>Ajánlat száma</label>
-                        <input nbInput type="text" formControlName='offerNumberX' class="{{TileCssClass}}"
-                            (click)="buyerFormNav.HandleFormFieldClick($event)" readonly>
+                        <input nbInput type="text" formControlName='offerNumberX' placeholder="Ajánlat sorszáma" readonly>
                     </nb-form-field>
                 </div>
 

@@ -715,6 +715,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       return;
     }
 
+    this.outInvForm.controls['invoiceOrdinal'].reset();
+
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
@@ -751,7 +753,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               dialogRef.onClose.subscribe({
                 next: res => {
                   if (res.answer) {
-                    this.utS.CommandEnded.subscribe({
+                    let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
@@ -765,16 +767,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                             Constants.TITLE_INFO,
                             Constants.TOASTR_SUCCESS
                           );
-                          this.utS.CommandEnded.unsubscribe();
+                          commandEndedSubscription.unsubscribe();
                         }
                         this.isLoading = false;
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
-                        if (cmdEnded?.CmdType === Constants.CommandType.PRINT_REPORT && cmdEnded?.State === Constants.CommandType.ERROR) {
-                          this.utS.CommandEnded.unsubscribe();
-                        }
+                        this.utS.CommandEnded.unsubscribe();
 
                         this.toastrService.show(
                           `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,

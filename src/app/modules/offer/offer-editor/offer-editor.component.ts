@@ -743,6 +743,11 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
 
   Save(): void {
     if (this.buyerForm.invalid) {
+      this.toastrService.show(
+        `Az űrlap hibásan vagy hiányosan van kitöltve.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
       return;
     }
 

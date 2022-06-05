@@ -677,8 +677,15 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
   Save(): void {
     if (this.buyerForm.invalid) {
+      this.toastrService.show(
+        `Az űrlap hibásan vagy hiányosan van kitöltve.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
       return;
     }
+
+    this.buyerForm.controls['offerNumber'].reset();
 
     this.UpdateOutGoingData();
 
@@ -712,7 +719,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
           dialogRef.onClose.subscribe({
             next: res => {
               if (res.answer) {
-                this.utS.CommandEnded.subscribe({
+                let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                   next: cmdEnded => {
                     console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
@@ -726,14 +733,14 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                         Constants.TITLE_INFO,
                         Constants.TOASTR_SUCCESS
                       );
-                      this.utS.CommandEnded.unsubscribe();
+                      commandEndedSubscription.unsubscribe();
                     }
                     this.isLoading = false;
                   },
                   error: cmdEnded => {
                     console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
-                    this.utS.CommandEnded.unsubscribe();
+                    commandEndedSubscription.unsubscribe();
                     this.toastrService.show(
                       `Az árajánlat nyomtatása közben hiba történt.`,
                       Constants.TITLE_ERROR,
