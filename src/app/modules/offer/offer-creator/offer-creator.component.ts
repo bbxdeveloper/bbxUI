@@ -306,6 +306,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         customerTaxNumber: new FormControl('', [Validators.required]),
         offerIssueDate: new FormControl('', [Validators.required, todaysDate]),
         offerVaidityDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
+        offerNumber: new FormControl('', []),
         notice: new FormControl('', []),
       });
     } else {
@@ -389,7 +390,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
     this.buyerForm.controls['offerIssueDate'].valueChanges.subscribe({
       next: p => {
-        this.buyerForm.controls['offerVaidityDate'].setValue(this.buyerForm.controls['invoiceDeliveryDate'].value);
+        this.buyerForm.controls['offerVaidityDate'].setValue(this.buyerForm.controls['offerVaidityDate'].value);
         this.buyerForm.controls['offerVaidityDate'].markAsTouched();
       }
     });
@@ -605,9 +606,9 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       this.kbS.SetCurrentNavigatable(this.buyerFormNav);
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.EDIT);
-    }, 200);
 
-    this.cdref.detectChanges();
+      this.cdref.detectChanges();
+    }, 300);
   }
   ngOnDestroy(): void {
     console.log("Detach");
@@ -713,10 +714,13 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               if (res.answer) {
                 this.utS.CommandEnded.subscribe({
                   next: cmdEnded => {
-                    console.log(`CommandEnded received: ${cmdEnded?.CmdType}`);
+                    console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
-                    if (cmdEnded?.CmdType === Constants.CommandType.PRINT_OFFER) {
+                    if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
                       this.Reset();
+                      if (!!d.data) {
+                        this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
+                      }
                       this.toastrService.show(
                         `Az árajánlat nyomtatása véget ért.`,
                         Constants.TITLE_INFO,
@@ -871,7 +875,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.buyerFormNav.FillForm(res);
+        this.SetCustomerFormFields(res);
 
         this.kbS.SetCurrentNavigatable(this.buyerFormNav);
         this.kbS.SelectFirstTile();
@@ -888,6 +892,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   private SetCustomerFormFields(data?: Customer) {
+    console.log('SetCustomerFormFields: ', data);
     if (data === undefined) {
       this.buyerForm.controls['customerName'].setValue(undefined);
       this.buyerForm.controls['customerAddress'].setValue(undefined);
@@ -1034,5 +1039,14 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         }
       }
     });
+  }
+
+  JumpToFirstCellAndEdit(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.kbS.SetCurrentNavigatable(this.dbDataTable);
+    this.kbS.SelectElementByCoordinate(0, 0);
+    setTimeout(() => {
+      this.kbS.ClickCurrentElement();
+    }, 100);
   }
 }

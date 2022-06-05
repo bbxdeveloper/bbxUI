@@ -42,6 +42,7 @@ export module Constants {
 
     export enum CommandType {
         POC_REPORT,
+        PRINT_REPORT,
         PRINT_POC_GRADES,
         PRINT_INVOICE,
         ERROR,
@@ -123,7 +124,12 @@ export module Constants {
 
     export interface CommandDescriptor {
         Id: number,
-        CmdType: CommandType;
+        /**
+         * Type of the result.
+         * Printing reports will be always PRINT_REPORT
+         * Downlading blob will be always DOWNLOAD_BLOB
+         */
+        ResultCmdType: CommandType;
         State?: CommandType;
     }
 }

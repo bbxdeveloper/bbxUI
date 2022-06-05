@@ -684,9 +684,9 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       this.kbS.SetCurrentNavigatable(this.buyerFormNav);
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.EDIT);
-    }, 200);
 
-    this.cdref.detectChanges();
+      this.cdref.detectChanges();
+    }, 300);
   }
   ngOnDestroy(): void {
     console.log("Detach");
@@ -1074,5 +1074,14 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         }
       }
     });
+  }
+
+  JumpToFirstCellAndEdit(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.kbS.SetCurrentNavigatable(this.dbDataTable);
+    this.kbS.SelectElementByCoordinate(0, 0);
+    setTimeout(() => {
+      this.kbS.ClickCurrentElement();
+    }, 100);
   }
 }

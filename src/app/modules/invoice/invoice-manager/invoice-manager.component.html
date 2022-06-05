@@ -67,6 +67,7 @@
                                     (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
                                     (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')">
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)"
                                         maxlength="80"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
                                         placeholder="Keresés" autocomplete="off" id="r00" />

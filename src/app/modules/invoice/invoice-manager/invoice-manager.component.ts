@@ -631,11 +631,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
 
-    this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-    this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
+    setTimeout(() => {
+      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
 
-    this.cdref.detectChanges();
+      this.cdref.detectChanges();
+    }, 300);
   }
   ngOnDestroy(): void {
     console.log("Detach");
@@ -739,8 +741,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
-              
-              // this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -753,10 +753,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                   if (res.answer) {
                     this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
-                        console.log(`CommandEnded received: ${cmdEnded?.CmdType}`);
+                        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
-                        if (cmdEnded?.CmdType === Constants.CommandType.POC_REPORT) {
+                        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
                           this.Reset();
+                          if (!!d.data) {
+                            this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+                          }
                           this.toastrService.show(
                             `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
@@ -769,7 +772,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
-                        if (cmdEnded?.CmdType === Constants.CommandType.POC_REPORT && cmdEnded?.State === Constants.CommandType.ERROR) {
+                        if (cmdEnded?.CmdType === Constants.CommandType.PRINT_REPORT && cmdEnded?.State === Constants.CommandType.ERROR) {
                           this.utS.CommandEnded.unsubscribe();
                         }
 

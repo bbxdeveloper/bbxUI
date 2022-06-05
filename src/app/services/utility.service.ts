@@ -8,17 +8,17 @@ import { InvoiceService } from '../modules/invoice/services/invoice.service';
 import { CommonService } from './common.service';
 import { OfferService } from '../modules/offer/services/offer.service';
 
-const POC_REPORT_ENDED =
-  { Id: -1, CmdType: Constants.CommandType.POC_REPORT } as Constants.CommandDescriptor;
+const REPORT_ENDED =
+  { Id: -1, ResultCmdType: Constants.CommandType.PRINT_REPORT } as Constants.CommandDescriptor;
 
 const REPORT_ENDED_WITH_ERROR =
-  { Id: -1, CmdType: Constants.CommandType.POC_REPORT, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
+  { Id: -1, ResultCmdType: Constants.CommandType.PRINT_REPORT, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
 
 const BLOB_DOWNLOAD_ENDED =
-  { Id: -1, CmdType: Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV } as Constants.CommandDescriptor;
+  { Id: -1, ResultCmdType: Constants.CommandType.DOWNLOAD_BLOB } as Constants.CommandDescriptor;
 
 const BLOB_DOWNLOAD_WITH_ERROR =
-  { Id: -1, CmdType: Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
+  { Id: -1, ResultCmdType: Constants.CommandType.DOWNLOAD_BLOB, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
 
 @Injectable({
   providedIn: 'root'
@@ -138,7 +138,7 @@ export class UtilityService {
             console.log(`Printing is in progress...`);
 
             stS.pushProcessStatus(Constants.BlankProcessStatus);
-            commandEnded.next(POC_REPORT_ENDED);
+            commandEnded.next(REPORT_ENDED);
           } catch (error) {
             handleError(error)
             commandEnded.error(REPORT_ENDED_WITH_ERROR);
@@ -193,7 +193,7 @@ export class UtilityService {
 
             console.log(`Printing is in progress...`);
             stS.pushProcessStatus(Constants.BlankProcessStatus);
-            commandEnded.next(POC_REPORT_ENDED);
+            commandEnded.next(REPORT_ENDED);
           }, 1);
           
           // Waiting 10 minute to make sure printing is done, then removing the iframe
@@ -238,7 +238,7 @@ export class UtilityService {
         URL.revokeObjectURL(blobURL);
         a.remove();
         this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        this.CommandEnded.next(POC_REPORT_ENDED);
+        this.CommandEnded.next(REPORT_ENDED);
       },
       error: err => {
         console.log(`Error while receiving print data.`);

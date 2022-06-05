@@ -70,15 +70,20 @@
                             controlName="offerVaidityDate">
                         </app-form-control-error>
                     </nb-form-field>
+
+                    <nb-form-field>
+                        <label>Ajánlatszám</label>
+                        <input nbInput type="text" formControlName='offerNumber' readonly>
+                    </nb-form-field>
                 </div>
 
                 <div class="form-row">
                     <div>
                         <label>Megjegyzés</label>
                         <angular-editor formControlName="notice" [config]="editorConfig"
-                        placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre." class="{{TileCssClass}}"></angular-editor>
-                        <!-- <input nbInput type="text" formControlName='notice' class="{{TileCssClass}}"
-                            (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff"> -->
+                            (keydown.esc)="JumpToFirstCellAndEdit()"
+                            placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre."
+                            class="{{TileCssClass}}"></angular-editor>
                         <app-form-control-error [form]="buyerFormNav" label="megjegyzés" controlName="notice">
                         </app-form-control-error>
                     </div>
