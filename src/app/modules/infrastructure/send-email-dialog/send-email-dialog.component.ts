@@ -6,6 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { EmailAddress, SendEmailRequest } from '../models/Email';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -54,7 +55,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     const dForm = new FormGroup({
       from: new FormControl('', [Validators.email]),
       to: new FormControl('', [Validators.required]),
-      subject: new FormControl(this.subject, [Validators.required]),
+      subject: new FormControl('', [Validators.required]),
       body: new FormControl('', []),
     });
 
@@ -73,6 +74,9 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     this.dataForm.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
+    if (!!this.subject) {
+      this.dataForm.form.controls['subject'].setValue(this.subject);
+    }
   }
 
   ngOnDestroy(): void {
