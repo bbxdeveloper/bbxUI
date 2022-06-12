@@ -190,8 +190,22 @@ export module HelperFunctions {
         return moment(val)
             .format(formatString);
     }
+    
+    export function IsDateStringValid(
+        val: string,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): boolean {
+        moment.locale(dateLocale);
+        console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
+        return moment(val)
+            .isValid()
+    }
 
     export function ToFloat(p: any): number {
         return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
+    }
+
+    export function ToInt(p: any): number {
+        return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
     }
 }

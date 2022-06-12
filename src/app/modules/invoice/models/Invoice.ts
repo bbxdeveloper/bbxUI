@@ -31,5 +31,6 @@ export interface Invoice {
     "notice": string,
     "invoiceNetAmount": number,
     "invoiceVatAmount": number,
+    "invoiceGrossAmount": number,
     "InvoiceLines": InvoiceLine[]
 }

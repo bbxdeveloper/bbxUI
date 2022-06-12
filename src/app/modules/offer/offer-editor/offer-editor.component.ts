@@ -43,6 +43,7 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-offer-editor',
@@ -706,7 +707,9 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     // this.offerData.invoiceNetAmount = 0;
     // this.offerData.invoiceVatAmount = 0;
 
-    this.offerData.offerLines = this.dbData.map(x => x.data as OfferLineFullData);
+    this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => 
+      x.data as OfferLineFullData
+    );
 
     // this.RecalcNetAndVat();
 
@@ -716,10 +719,10 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       this.offerData.offerLines[i].lineNumber = HelperFunctions.ToFloat(i);
     }
 
-    let lastIndex = this.offerData.offerLines.length - 1;
-    if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
-      this.offerData.offerLines.splice(lastIndex, 1);
-    }
+    // let lastIndex = this.offerData.offerLines.length - 1;
+    // if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
+    //   this.offerData.offerLines.splice(lastIndex, 1);
+    // }
 
     // console.log('[UpdateOutGoingData]: ', this.offerData, this.outInvForm.controls['paymentMethod'].value);
   }
@@ -750,60 +753,77 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       );
       return;
     }
+    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+      this.toastrService.show(
+        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
 
-    this.UpdateSaveData();
+    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE } });
+    confirmDialogRef.onClose.subscribe(res => {
+      if (res) {
+        this.UpdateSaveData();
 
-    console.log('Save: ', this.offerData);
+        console.log('Save: ', this.offerData);
 
-    this.isLoading = true;
+        this.isLoading = true;
 
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const dialogRef = this.dialogService.open(OfferUpdateDialogComponent, {
-      context: {}
-    });
-    dialogRef.onClose.subscribe((selectedSaveOption: number) => {
-      console.log("Selected option: ", selectedSaveOption);
-      if (selectedSaveOption !== undefined && selectedSaveOption >= 1 && selectedSaveOption <= 3) {
+        const dialogRef = this.dialogService.open(OfferUpdateDialogComponent, {
+          context: {}
+        });
+        dialogRef.onClose.subscribe((selectedSaveOption: number) => {
+          console.log("Selected option: ", selectedSaveOption);
+          if (selectedSaveOption !== undefined && selectedSaveOption >= 1 && selectedSaveOption <= 3) {
 
-        if (selectedSaveOption === 2) {
-          this.offerData.offerVersion += 1;
-        }
-        else if (selectedSaveOption === 3) {
-          this.offerData.offerVersion += 1;
-          this.offerData.newOffer = true;
-        }
-        
-        this.offerService.Update(this.offerData).subscribe({
-          next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
-
-              this.toastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
-              );
-              this.isLoading = false;
-
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isLoading = false;
+            if (selectedSaveOption === 2) {
+              this.offerData.offerVersion += 1;
             }
-          },
-          error: err => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-            if (selectedSaveOption > 1) {
-              this.offerData.offerVersion -= 1;
-              this.offerData.newOffer = false;
+            else if (selectedSaveOption === 3) {
+              this.offerData.offerVersion += 1;
+              this.offerData.newOffer = true;
             }
-          },
-          complete: () => {
-            this.isLoading = false;
+
+            this.offerService.Update(this.offerData).subscribe({
+              next: d => {
+                if (!!d.data) {
+                  console.log('Save response: ', d);
+
+                  if (!!d.data) {
+                    this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
+                  }
+
+                  this.toastrService.show(
+                    Constants.MSG_SAVE_SUCCESFUL,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS
+                  );
+                  this.isLoading = false;
+
+                  this.dbDataTable.RemoveEditRow();
+                  this.kbS.SelectFirstTile();
+
+                } else {
+                  this.cs.HandleError(d.errors);
+                  this.isLoading = false;
+                }
+              },
+              error: err => {
+                this.cs.HandleError(err);
+                this.isLoading = false;
+                if (selectedSaveOption > 1) {
+                  this.offerData.offerVersion -= 1;
+                  this.offerData.newOffer = false;
+                }
+              },
+              complete: () => {
+                this.isLoading = false;
+              }
+            });
           }
         });
       }

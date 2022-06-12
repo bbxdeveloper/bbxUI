@@ -39,6 +39,7 @@ import { OfferService } from '../services/offer.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-offer-creator',
@@ -628,7 +629,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     // this.offerData.invoiceNetAmount = 0;
     // this.offerData.invoiceVatAmount = 0;
 
-    this.offerData.offerLines = this.dbData.map(x => {
+    this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => {
       return {
         productCode: x.data.productCode,
         lineDescription: x.data.lineDescription,
@@ -650,10 +651,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       this.offerData.offerLines[i].lineNumber = i;
     }
 
-    let lastIndex = this.offerData.offerLines.length - 1;
-    if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
-      this.offerData.offerLines.splice(lastIndex, 1);
-    }
+    // let lastIndex = this.offerData.offerLines.length - 1;
+    // if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
+    //   this.offerData.offerLines.splice(lastIndex, 1);
+    // }
 
     // console.log('[UpdateOutGoingData]: ', this.offerData, this.outInvForm.controls['paymentMethod'].value);
   }
@@ -684,94 +685,109 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       );
       return;
     }
+    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+      this.toastrService.show(
+        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
 
-    this.buyerForm.controls['offerNumber'].reset();
+    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE } });
+    confirmDialogRef.onClose.subscribe(res => {
+      if (res) {
+        this.UpdateOutGoingData();
 
-    this.UpdateOutGoingData();
+        console.log('Save: ', this.offerData);
 
-    console.log('Save: ', this.offerData);
+        this.isLoading = true;
 
-    this.isLoading = true;
+        this.offerService.Create(this.offerData).subscribe({
+          next: d => {
+            if (!!d.data) {
+              console.log('Save response: ', d);
 
-    this.offerService.Create(this.offerData).subscribe({
-      next: d => {
-        if (!!d.data) {
-          console.log('Save response: ', d);
+              if (!!d.data) {
+                this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
+              }
 
-          this.toastrService.show(
-            Constants.MSG_SAVE_SUCCESFUL,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS
-          );
-          this.isLoading = false;
+              this.toastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+              this.isLoading = false;
 
-          this.dbDataTable.RemoveEditRow();
-          this.kbS.SelectFirstTile();
+              this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
 
-          // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
 
-          const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-            context: {
-              title: 'Ajánlat Nyomtatása',
-              inputLabel: 'Példányszám',
-            }
-          });
-          dialogRef.onClose.subscribe({
-            next: res => {
-              if (res.answer) {
-                let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                  next: cmdEnded => {
-                    console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+              const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+                context: {
+                  title: 'Ajánlat Nyomtatása',
+                  inputLabel: 'Példányszám',
+                }
+              });
+              dialogRef.onClose.subscribe({
+                next: res => {
+                  if (res.answer) {
 
-                    if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                      this.Reset();
-                      if (!!d.data) {
-                        this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
+                    this.buyerForm.controls['offerNumber'].reset();
+
+                    let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+                      next: cmdEnded => {
+                        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+                        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                          this.Reset();
+                          this.toastrService.show(
+                            `Az árajánlat nyomtatása véget ért.`,
+                            Constants.TITLE_INFO,
+                            Constants.TOASTR_SUCCESS
+                          );
+                          commandEndedSubscription.unsubscribe();
+                        }
+                        this.isLoading = false;
+                      },
+                      error: cmdEnded => {
+                        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+                        commandEndedSubscription.unsubscribe();
+                        this.toastrService.show(
+                          `Az árajánlat nyomtatása közben hiba történt.`,
+                          Constants.TITLE_ERROR,
+                          Constants.TOASTR_ERROR
+                        );
+                        this.isLoading = false;
                       }
-                      this.toastrService.show(
-                        `Az árajánlat nyomtatása véget ért.`,
-                        Constants.TITLE_INFO,
-                        Constants.TOASTR_SUCCESS
-                      );
-                      commandEndedSubscription.unsubscribe();
-                    }
-                    this.isLoading = false;
-                  },
-                  error: cmdEnded => {
-                    console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                    commandEndedSubscription.unsubscribe();
+                    });
+                    this.isLoading = true;
+                    this.printReport(d.data?.id, res.value);
+                  } else {
                     this.toastrService.show(
-                      `Az árajánlat nyomtatása közben hiba történt.`,
-                      Constants.TITLE_ERROR,
-                      Constants.TOASTR_ERROR
+                      `Az árajánlat számla nyomtatása nem történt meg.`,
+                      Constants.TITLE_INFO,
+                      Constants.TOASTR_SUCCESS
                     );
                     this.isLoading = false;
                   }
-                });
-                this.isLoading = true;
-                this.printReport(d.data?.id, res.value);
-              } else {
-                this.toastrService.show(
-                  `Az árajánlat számla nyomtatása nem történt meg.`,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS
-                );
-                this.isLoading = false;
-              }
+                }
+              });
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isLoading = false;
             }
-          });
-        } else {
-          this.cs.HandleError(d.errors);
-          this.isLoading = false;
-        }
-      },
-      error: err => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
+          },
+          error: err => {
+            this.cs.HandleError(err);
+            this.isLoading = false;
+          },
+          complete: () => {
+            this.isLoading = false;
+          }
+        });
       }
     });
   }

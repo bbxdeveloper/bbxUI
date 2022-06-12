@@ -40,6 +40,8 @@ export class FormControlErrorComponent {
         return this.label ? `A ${this.label} mezőben megadott dátum a megengedett intervallumon kívülre esik!` : ValidationMessage.ErrorMax;
       case ValidationMessage.ErrorTodaysDate:
         return this.label ? `A ${this.label} mezőben csak mai, vagy annál korábbi dátum adható meg!` : ValidationMessage.ErrorMax;
+      case ValidationMessage.ErrorValidDate:
+        return this.label ? `A ${this.label} mezőben megadott dátum érvénytelen!` : ValidationMessage.ErrorValidDate;
     }
   }
 

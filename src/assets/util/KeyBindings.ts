@@ -40,6 +40,7 @@ export enum KeyBindings {
     F11 = 'F11',
     F12 = 'F12',
     Tab = 'Tab',
+    Enter = 'Enter',
     // QUICK CRUD
     crudNew = F8,
     crudEdit = F7,

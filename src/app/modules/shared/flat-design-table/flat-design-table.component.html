@@ -83,7 +83,20 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div>
-                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' | replace:',':'.' }}
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'formatted-integer'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'2.0':'fr' | replace:',':'.' }}
                                 </div>
                             </td>
                         </ng-container>
@@ -96,7 +109,20 @@
                                 [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div>
-                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'8.0':'fr' }}
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'8.0':'fr' | removeWhitespaces }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.0'):'fr' | removeWhitespaces }}
                                 </div>
                             </td>
                         </ng-container>

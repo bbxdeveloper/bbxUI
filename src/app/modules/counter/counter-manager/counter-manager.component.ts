@@ -98,20 +98,23 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       objectKey: 'currentNumber',
       colKey: 'currentNumber',
       defaultValue: '',
-      type: 'padded-formatted-integer',
+      type: 'param-padded-formatted-integer',
       fInputType: 'text',
       fRequired: true,
       mask: '',
       colWidth: '30%',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
+      calc: (x: Counter) => {
+        return x.numbepartLength + '.0';
+      }
     },
     {
       label: 'Számláló számjegyek száma',
       objectKey: 'numbepartLength',
       colKey: 'numbepartLength',
       defaultValue: '',
-      type: 'formatted-number',
+      type: 'formatted-integer',
       fInputType: 'text',
       fRequired: true,
       mask: '',

@@ -1,4 +1,5 @@
 import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { HelperFunctions } from '../util/HelperFunctions';
 
 export function forbiddenValueValidator(valueRe: RegExp): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -31,4 +32,9 @@ export function maxDate(maxDate?: Date): ValidatorFn {
         const wrong = new Date(control.value) > maxDate;
         return wrong ? { maxDate: { value: control.value } } : null;
     };
+}
+
+export function validDate(control: AbstractControl) {
+    const wrong = !HelperFunctions.IsDateStringValid(control.value + '');
+    return wrong ? { validDate: { value: control.value } } : null;
 }
