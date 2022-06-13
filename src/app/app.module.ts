@@ -24,6 +24,8 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { InvoiceModule } from './modules/invoice/invoice.module';
 import { Error404Component } from './error404/error404.component';
+import { OfferModule } from './modules/offer/offer.module';
+import { InfrastructureModule } from './modules/infrastructure/infrastructure.module';
 registerLocaleData(localeFr, 'fr');
 
 const maskConfig: Partial<IConfig> = {
@@ -63,8 +65,10 @@ const maskConfig: Partial<IConfig> = {
     WarehouseModule,
     InvoiceModule,
     CounterModule,
+    OfferModule,
     InputMaskModule,
     CoreModule,
+    InfrastructureModule
   ],
   exports: [
     NbLayoutModule,

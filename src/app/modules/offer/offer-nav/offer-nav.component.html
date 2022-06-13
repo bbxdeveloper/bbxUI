@@ -1,0 +1,134 @@
+<app-head-line msg="Árajánlatok"></app-head-line>
+
+<app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="this"
+[newButton]="true" [editButton]="IsTableActive" [resetButton]="false" [saveButton]="false" [deleteButton]="false"
+wrapperClass="bbx-fd-sidebar-functions-left">
+</app-crud-buttons>
+
+<div class="filter-div">
+    <nb-card class="filter-card">
+        <nb-card-body class="filter-card-body">
+            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
+                (keydown.escape)="filterFormNav.HandleFormEscape()">
+                <div class="form-row">
+
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <nb-form-field class="search-row-nb-form-field"
+                                    (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                                    (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'CustomerSearch')">
+                                    <label>Ügyfél keresés</label>
+                                    <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}}"
+                                        (click)="filterFormNav.HandleFormFieldClick($event)"
+                                        (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
+                                        maxlength="80"
+                                        placeholder="Keresés" autocomplete="off" id="r00" />
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <button *ngIf="searchByTaxtNumber" nbButton
+                                    [disabled]="isLoading"
+                                    [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
+                                    (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél</label>
+                                    <input nbInput type="text" formControlName='CustomerName' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Cím</label>
+                                    <input nbInput type="text" formControlName='CustomerAddress' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Adószám</label>
+                                    <input nbInput type="text" formControlName='CustomerTaxNumber' readonly>
+                                </nb-form-field>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="form-row">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                        <label>Sorszám</label>
+                        <input nbInput type="text" formControlName='OfferNumber' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
+                        <app-form-control-error [form]="filterFormNav" label="Sorszám" controlName="OfferNumber">
+                        </app-form-control-error>
+                    </nb-form-field>
+                </div>
+
+                <div class="form-row">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                        <label>Kiállítás dátumától</label>
+                        <input nbInput type="datetime" formControlName='OfferIssueDateFrom' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                            [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" label="kiállítás dátumától"
+                            controlName="OfferIssueDateFrom">
+                        </app-form-control-error>
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                        <label>Kiállítás dátumig</label>
+                        <input nbInput type="datetime" formControlName='OfferIssueDateTo' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                            [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" label="kiállítás dátumig"
+                            controlName="OfferIssueDateTo">
+                        </app-form-control-error>
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                        <label>Érvényesség dátumától</label>
+                        <input nbInput type="datetime" formControlName='OfferVaidityDateForm' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                            [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" label="érvényesség dátumától"
+                            controlName="OfferVaidityDateForm">
+                        </app-form-control-error>
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                        <label>Érvényesség dátumig</label>
+                        <input nbInput type="datetime" formControlName='OfferVaidityDateTo' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                            [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" label="érvényesség dátumig"
+                            controlName="OfferVaidityDateTo">
+                        </app-form-control-error>
+                    </nb-form-field>
+                </div>
+            </form>
+        </nb-card-body>
+        <nb-card-footer class="offer-footer">
+            <div class="form-row">
+                <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)" status="primary"
+                    tabindex="-1">Keresés</button>
+            </div>
+        </nb-card-footer>
+    </nb-card>
+</div>
+
+<nb-card>
+    <nb-card-body>
+        <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="600" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+            [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+            (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+    </nb-card-body>
+    <nb-card-footer></nb-card-footer>
+</nb-card>
+
+<app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

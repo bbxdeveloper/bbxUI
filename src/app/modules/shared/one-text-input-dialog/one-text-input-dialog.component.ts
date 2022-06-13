@@ -15,6 +15,7 @@ import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogR
 export class OneTextInputDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   @Input() title: string = "";
   @Input() inputLabel: string = "";
+  @Input() defaultValue: any = "";
   
   closedManually = false;
 
@@ -52,7 +53,7 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
     this.Matrix = [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]];
 
     const inputForm = new FormGroup({
-      answer: new FormControl('', [Validators.required]),
+      answer: new FormControl(this.defaultValue, [Validators.required]),
     });
 
     this.formNav = new NavigatableForm(

@@ -26,6 +26,9 @@ import { DateIntervalDialogComponent } from './date-interval-dialog/date-interva
 import { OneTextInputDialogComponent } from './one-text-input-dialog/one-text-input-dialog.component';
 import { ToStringPipe } from './pipes/to-string.pipe';
 import { ReplacePipe } from './pipes/replace.pipe';
+import { OneNumberInputDialogComponent } from './one-number-input-dialog/one-number-input-dialog.component';
+import { HtmlStringSanitizerPipe } from './pipes/html-string-sanitizer.pipe';
+import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewer-dialog.component';
 
 
 @NgModule({
@@ -50,6 +53,9 @@ import { ReplacePipe } from './pipes/replace.pipe';
     OneTextInputDialogComponent,
     ToStringPipe,
     ReplacePipe,
+    OneNumberInputDialogComponent,
+    HtmlStringSanitizerPipe,
+    IframeViewerDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -78,7 +84,7 @@ import { ReplacePipe } from './pipes/replace.pipe';
     InputMaskModule,
     NbSelectModule,
     NbIconModule,
-    NbAutocompleteModule,
+    NbAutocompleteModule
   ],
   exports: [
     BaseNavigatableComponentComponent,
@@ -99,7 +105,9 @@ import { ReplacePipe } from './pipes/replace.pipe';
     BbxComboBoxComponent,
     BbxTwoRowComboBoxComponent,
     ToStringPipe,
-    ReplacePipe
+    ReplacePipe,
+    OneNumberInputDialogComponent,
+    HtmlStringSanitizerPipe
   ],
   providers: [
     ConfirmationDialogComponent

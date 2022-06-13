@@ -413,3 +413,24 @@ nb-card-header {
     max-height: 100vh;
     overflow-y: hidden !important;
 }
+
+iframe.iframe-table-cell {
+    height: 30px;
+    background-color: #604889;
+    max-height: 100px;
+    max-width: 100%;
+    // resize: vertical;
+    resize: none;
+    border: none;
+    overflow: hidden;
+}
+
+$heightManipulatorMax: 1000;
+
+@for $i from 0 through $heightManipulatorMax {
+    .table-wrapper-height-margin-#{$i} {
+        display: block;
+        width: calc(100vw - 100px) !important;
+        max-height: calc(100vh - #{$i}px) !important;
+    }
+}

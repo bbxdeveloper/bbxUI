@@ -6,4 +6,5 @@ export enum ValidationMessage {
     ErrorMaxDate = 'A mezőben megadott dátum nagyobb a megengedett maximumnál!',
     ErrorMinMaxDate = 'A mezőben megadott dátum a megengedett intervallumon kívülre esik!',
     ErrorTodaysDate = 'A mezőben csak mai, vagy annál korábbi dátum adható meg!',
+    ErrorValidDate = 'Érvénytelen dátum!',
 }

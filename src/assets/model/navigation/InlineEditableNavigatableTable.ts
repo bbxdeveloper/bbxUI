@@ -74,7 +74,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         };
     }
 
-    readonly commandsOnTable: FooterCommandInfo[] = [
+    commandsOnTable: FooterCommandInfo[] = [
         { key: 'F1', value: '', disabled: false },
         { key: 'F2', value: 'Keresés', disabled: false },
         { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
@@ -86,7 +86,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         { key: 'F9', value: '', disabled: false },
         { key: 'F10', value: '', disabled: false },
     ];
-    readonly commandsOnTableEditMode: FooterCommandInfo[] = [
+    commandsOnTableEditMode: FooterCommandInfo[] = [
         { key: 'F1', value: '', disabled: false },
         { key: 'F2', value: 'Keresés', disabled: false },
         { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
@@ -268,8 +268,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             let row = [];
             for (let x = 0; x < this.colDefs.length; x++) {
                 if (this.colsToIgnore.findIndex(a => a === this.colDefs[x].objectKey) !== -1) {
+                    console.log(`Col ${this.colDefs[x].objectKey}, ${this.idPrefix + "-" + x + '-' + y} ignored in matrix generation as requested.`)
                     continue;
                 }
+                console.log(`Col ${this.colDefs[x].objectKey}, ${this.idPrefix + "-" + x + '-' + y} pushed.`)
                 row.push(this.idPrefix + "-" + x + '-' + y);
             }
             this.Matrix.push(row);

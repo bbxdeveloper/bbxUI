@@ -22,6 +22,7 @@ import { BaseNoFormManagerComponent } from '../../shared/base-no-form-manager/ba
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { validDate } from 'src/assets/model/Validators';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -39,13 +40,16 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
 
   override allColumns = [
     'invoiceNumber',
-    'customerName',
     'warehouse',
-    'invoiceDeliveryDate',
-    'paymentDate',
+    'customerName',
+    'customerCity',
     'paymentMethodX',
+    'invoiceDeliveryDate',
+    'invoiceIssueDate',
+    'paymentDate',
     'invoiceNetAmount',
     'invoiceVatAmount',
+    'invoiceGrossAmount',
     'notice',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -57,19 +61,49 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '15%',
+      colWidth: '120px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Vevő',
+      label: 'Partner',
       objectKey: 'customerName',
       colKey: 'customerName',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '25%',
+      colWidth: '55%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Partner címe',
+      objectKey: 'customerCity',
+      colKey: 'customerCity',
+      defaultValue: '',
+      type: 'getter',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '30%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+      calc: (val: any) => {
+        let invoice = val as Invoice;
+        return invoice.customerPostalCode + ', ' + invoice.customerCity + 
+          (!!invoice.customerAdditionalAddressDetail && invoice.customerAdditionalAddressDetail.length > 0 ?
+            ', ' + invoice.customerAdditionalAddressDetail : '')
+      }
+    },
+    {
+      label: 'Fizetési mód',
+      objectKey: 'paymentMethodX',
+      colKey: 'paymentMethodX',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '55%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -82,46 +116,46 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '20%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Számlázás ideje',
+      label: 'Teljesítés',
       objectKey: 'invoiceDeliveryDate',
       colKey: 'invoiceDeliveryDate',
       defaultValue: '',
-      type: 'string',
+      type: 'onlyDate',
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '120px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Fizetési határidő',
+      label: 'Kelt.',
+      objectKey: 'invoiceIssueDate',
+      colKey: 'invoiceIssueDate',
+      defaultValue: '',
+      type: 'onlyDate',
+      fInputType: 'text',
+      fRequired: true,
+      mask: '',
+      colWidth: '185px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Fiz.hat.',
       objectKey: 'paymentDate',
       colKey: 'paymentDate',
       defaultValue: '',
-      type: 'string',
+      type: 'onlyDate',
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
-      textAlign: 'left',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Fizetési mód',
-      objectKey: 'paymentMethodX',
-      colKey: 'paymentMethodX',
-      defaultValue: '',
-      type: 'string',
-      fInputType: 'text',
-      fRequired: false,
-      mask: '',
-      colWidth: '25%',
+      colWidth: '120px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -130,12 +164,12 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       objectKey: 'invoiceNetAmount',
       colKey: 'invoiceNetAmount',
       defaultValue: '',
-      type: 'string',
+      type: 'formatted-number',
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
-      textAlign: 'left',
+      colWidth: '130px',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -143,12 +177,25 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       objectKey: 'invoiceVatAmount',
       colKey: 'invoiceVatAmount',
       defaultValue: '',
-      type: 'string',
+      type: 'formatted-number',
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
-      textAlign: 'left',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Bruttó érték',
+      objectKey: 'invoiceGrossAmount',
+      colKey: 'invoiceGrossAmount',
+      defaultValue: '',
+      type: 'formatted-number',
+      fInputType: 'text',
+      fRequired: false,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -160,7 +207,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
+      colWidth: '30%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -344,14 +391,12 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
     this.filterForm.controls['Incoming'].setValue(false);
 
-    this.filterForm.controls['InvoiceIssueDateFrom'].setValue(dateStr);
-    this.filterForm.controls['InvoiceIssueDateTo'].setValue(dateStr);
-    this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(dateStr);
-    this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(dateStr);
+    this.filterForm.controls['InvoiceIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, 0, -1));
+    this.filterForm.controls['InvoiceIssueDateTo'].setValue(HelperFunctions.GetDateString());
+    this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(HelperFunctions.GetDateString());
+    this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(HelperFunctions.GetDateString());
 
     this.filterForm.controls['WarehouseCode'].setValue(this.wh[0]?.warehouseCode ?? '');
 
@@ -383,16 +428,20 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       Incoming: new FormControl(false, []),
       WarehouseCode: new FormControl(undefined, []),
       InvoiceIssueDateFrom: new FormControl(undefined, [
-        this.validateInvoiceIssueDateFrom.bind(this)
+        this.validateInvoiceIssueDateFrom.bind(this),
+        validDate
       ]),
       InvoiceIssueDateTo: new FormControl(undefined, [
-        this.validateInvoiceIssueDateTo.bind(this)
+        this.validateInvoiceIssueDateTo.bind(this),
+        validDate
       ]),
       InvoiceDeliveryDateFrom: new FormControl(undefined, [
-        this.validateInvoiceDeliveryDateFrom.bind(this)
+        this.validateInvoiceDeliveryDateFrom.bind(this),
+        validDate
       ]),
       InvoiceDeliveryDateTo: new FormControl(undefined, [
-        this.validateInvoiceDeliveryDateTo.bind(this)
+        this.validateInvoiceDeliveryDateTo.bind(this),
+        validDate
       ]),
       DateFilterChooser: new FormControl(1, [])
     });
@@ -430,7 +479,10 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     this.filterForm.controls['InvoiceIssueDateFrom'].valueChanges.subscribe({
       next: newValue => {
         console.log('InvoiceIssueDateFrom value changed: ', newValue);
-        if (this.isIssueFilterSelectedAndValid) {
+        if (!this.filterForm.controls['InvoiceIssueDateTo'].valid && this.filterForm.controls['InvoiceIssueDateFrom'].valid) {
+          this.filterForm.controls['InvoiceIssueDateTo'].setValue(this.filterForm.controls['InvoiceIssueDateTo'].value);
+        }
+        else if (this.isIssueFilterSelectedAndValid) {
           this.Refresh(this.getInputParams);
         }
       }
@@ -439,7 +491,10 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     this.filterForm.controls['InvoiceIssueDateTo'].valueChanges.subscribe({
       next: newValue => {
         console.log('InvoiceIssueDateTo value changed: ', newValue);
-        if (this.isIssueFilterSelectedAndValid) {
+        if (!this.filterForm.controls['InvoiceIssueDateFrom'].valid && this.filterForm.controls['InvoiceIssueDateTo'].valid) {
+          this.filterForm.controls['InvoiceIssueDateFrom'].setValue(this.filterForm.controls['InvoiceIssueDateFrom'].value);
+        }
+        else if (this.isIssueFilterSelectedAndValid) {
           this.Refresh(this.getInputParams);
         }
       }
@@ -448,7 +503,10 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     this.filterForm.controls['InvoiceDeliveryDateFrom'].valueChanges.subscribe({
       next: newValue => {
         console.log('InvoiceDeliveryDateFrom value changed: ', newValue);
-        if (this.isDeliveryFilterSelectedAndValid) {
+        if (!this.filterForm.controls['InvoiceDeliveryDateTo'].valid && this.filterForm.controls['InvoiceDeliveryDateFrom'].valid) {
+          this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(this.filterForm.controls['InvoiceDeliveryDateTo'].value);
+        }
+        else if (this.isDeliveryFilterSelectedAndValid) {
           this.Refresh(this.getInputParams);
         }
       }
@@ -457,9 +515,14 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     this.filterForm.controls['InvoiceDeliveryDateTo'].valueChanges.subscribe({
       next: newValue => {
         console.log('InvoiceDeliveryDateTo value changed: ', newValue);
-        if (this.isDeliveryFilterSelectedAndValid) {
+        if (!this.filterForm.controls['InvoiceDeliveryDateFrom'].valid && this.filterForm.controls['InvoiceDeliveryDateTo'].valid) {
+          this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(this.filterForm.controls['InvoiceDeliveryDateFrom'].value);
+        }
+        else if (this.isDeliveryFilterSelectedAndValid) {
           this.Refresh(this.getInputParams);
         }
+        this.filterForm.controls['InvoiceDeliveryDateFrom'].markAsDirty();
+        this.cdref.detectChanges();
       }
     });
 

@@ -1,0 +1,10 @@
+<nb-card>
+    <nb-card-header>{{title}}</nb-card-header>
+    <nb-card-body class="form-col-1">
+        <iframe [srcdoc]="srcDoc | htmlStringSanitizer"></iframe>
+    </nb-card-body>
+    <nb-card-footer>
+        <button class="{{TileCssClass}}" id="dialog-button-close" nbButton (click)="close(true)"
+            status="danger" tabindex="-1">Bezárás</button>
+    </nb-card-footer>
+</nb-card>

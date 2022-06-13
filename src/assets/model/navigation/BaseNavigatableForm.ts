@@ -8,10 +8,11 @@ import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { TreeGridNode } from "../TreeGridNode";
 import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
+import { IFunctionHandler } from "./IFunctionHandler";
 import { BlankComboBoxValue } from "./Nav";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
 
-export class BaseNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
+export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigatable, IUpdater<T> {
     Matrix: string[][] = [[]];
 
     LastX?: number | undefined;

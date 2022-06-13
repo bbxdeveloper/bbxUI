@@ -27,10 +27,37 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div>
                                     {{ row.data[it.objectKey] }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'getter'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ !!it.calc ? it.calc(row.data) : '' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'onlyDate'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ GetDateString(row.data[it.objectKey]) }}
                                 </div>
                             </td>
                         </ng-container>
@@ -39,7 +66,8 @@
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
-                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div>
                                     {{ row.data[it.objectKey] }}
@@ -51,10 +79,63 @@
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
-                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div>
-                                    {{ row.data[it.objectKey] | number:'1.0':'fr' | removeWhitespaces }}
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'formatted-integer'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'2.0':'fr' | replace:',':'.' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'padded-formatted-integer'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'8.0':'fr' | removeWhitespaces }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'number-3-length'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:'3.0':'fr' | removeWhitespaces }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
+                                [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.0'):'fr' | removeWhitespaces }}
                                 </div>
                             </td>
                         </ng-container>
@@ -65,10 +146,26 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div>
                                     {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'html'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                                *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign"
+                                class="{{it.navMatrixCssClass}}">
+                                <div>
+                                    <iframe class="iframe-table-cell" [srcdoc]="row.data[it.objectKey] | htmlStringSanitizer"></iframe>
                                 </div>
                             </td>
                         </ng-container>

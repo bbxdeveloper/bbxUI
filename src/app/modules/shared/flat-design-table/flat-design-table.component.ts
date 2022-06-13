@@ -5,6 +5,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
@@ -22,6 +23,7 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() isLoading: boolean = true;
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
+  @Input() heightMargin: number = -1;
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -30,6 +32,10 @@ export class FlatDesignTableComponent implements OnInit {
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
   constructor(private sideBarService: BbxSidebarService) {}
+
+  GetDateString(val: string): string {
+    return HelperFunctions.GetDateStringFromDate(val)
+  }
 
   changeSort(sortRequest: NbSortRequest): void {
     this.dbDataDataSrc.sort(sortRequest);
@@ -60,8 +66,11 @@ export class FlatDesignTableComponent implements OnInit {
 
   getTableClasses(): string {
     var classes = '';
-    classes += this.wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'
-    classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
+    classes += this.heightMargin > -1 ? ('table-wrapper-height-margin-' + this.heightMargin) : '';
+    if (this.heightMargin === -1) {
+      classes += this.wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'
+      classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
+    }
     return classes;
   }
 

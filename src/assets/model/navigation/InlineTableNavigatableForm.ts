@@ -4,6 +4,7 @@ import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, Mov
 import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { IInlineManager } from "../IInlineManager";
+import { BlankComboBoxValue } from "./Nav";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
 
 export class InlineTableNavigatableForm implements INavigatable {
@@ -150,6 +151,32 @@ export class InlineTableNavigatableForm implements INavigatable {
         // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
         if (!this.kbS.isEditModeActivated && jumpNext) {
             this.JumpToNextInput(event);
+        }
+    }
+
+    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string): void {
+        console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+
+        const ad = (event.target as any).getAttribute("aria-activedescendant");
+        if (this.kbS.isEditModeActivated &&
+            ad === null &&
+            possibleItems !== undefined && typedValue !== undefined &&
+            (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            return;
+        }
+
+        if (ad !== null && itemCount > 1) {
+            this.kbS.toggleEdit();
+        } else {
+            if (!this.kbS.isEditModeActivated) {
+                this.kbS.toggleEdit();
+            } else {
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.JumpToNextInput(event);
+            }
         }
     }
 

@@ -15,7 +15,7 @@ import { NavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav'
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, CrudManagerKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -182,6 +182,16 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (event.key === KeyBindings.Tab) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+
+      // var press = jQuery.Event("keydown");
+      // press.ctrlKey = false;
+      // press.key = KeyBindings.Enter;
+      // $(window).trigger(press);
+    }
     switch (event.key) {
       case CrudManagerKeySettings[Actions.TableSearch].KeyCode: {
         event.preventDefault();

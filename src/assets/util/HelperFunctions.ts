@@ -6,6 +6,10 @@ import { UnitOfMeasure } from "src/app/modules/product/models/UnitOfMeasure";
 import { VatRate } from "src/app/modules/vat-rate/models/VatRate";
 import { WareHouse } from "src/app/modules/warehouse/models/WareHouse";
 import { BlankComboBoxValue } from "../model/navigation/Nav";
+import * as moment from 'moment';
+
+const DATE_FORMATSTRING = 'YYYY-MM-DD';
+const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
 
 export module HelperFunctions {
     export function ConvertChosenOriginToCode(comboVal?: string, data: Origin[] = [],
@@ -158,11 +162,50 @@ export module HelperFunctions {
     }
 
     export function FormFieldStringToDateTimeString(str: any): string {
-        return new Date(str + 'T00:00:00').toISOString()
+        return str.includes('T') ? new Date(str).toISOString() : new Date(str + 'T00:00:00').toISOString();
     }
 
     export function GenerateTodayFormFieldDateString(): string {
         const dateArray = new Date().toLocaleDateString('hu').split(". ");
         return dateArray[0] + '-' + dateArray[1] + '-' + dateArray[2].substring(0, 2);
+    }
+
+    export function GetDateString(
+        addDay: number = 0, addMonth: number = 0, addYear: number = 0,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): string {
+        moment.locale(dateLocale);
+        return moment(new Date())
+            .add(addDay, "days")
+            .add(addMonth, "months")
+            .add(addYear, "years")
+            .format(formatString);
+    }
+
+    export function GetDateStringFromDate(
+        val: string,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): string {
+        moment.locale(dateLocale);
+        return moment(val)
+            .format(formatString);
+    }
+    
+    export function IsDateStringValid(
+        val: string,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): boolean {
+        moment.locale(dateLocale);
+        console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
+        return moment(val)
+            .isValid()
+    }
+
+    export function ToFloat(p: any): number {
+        return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
+    }
+
+    export function ToInt(p: any): number {
+        return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
     }
 }

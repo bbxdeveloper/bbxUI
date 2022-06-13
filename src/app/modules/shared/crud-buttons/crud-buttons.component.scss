@@ -1,5 +1,15 @@
-.bbx-fd-sidebar-functions {
+.bbx-fd-sidebar-functions-center {
     display: flex;
     align-items: center !important;
     justify-content: center !important;
+}
+.bbx-fd-sidebar-functions-left {
+    display: flex;
+    align-items: center !important;
+    justify-content: left !important;
+}
+.bbx-fd-sidebar-functions-right {
+    display: flex;
+    align-items: center !important;
+    justify-content: right !important;
 }

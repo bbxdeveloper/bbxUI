@@ -8,7 +8,7 @@ export const environment = {
   apiUrl: "https://bbxbe.azurewebsites.net/", // https://localhost:44378/
   apiVersion: "/v1/",
   
-  debug: true,
+  debug: false,
 
   flatDesignFormDebug: false,
   flatDesignTableDebug: false,

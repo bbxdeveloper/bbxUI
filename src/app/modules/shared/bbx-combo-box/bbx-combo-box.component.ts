@@ -1,11 +1,9 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
-import { NbSidebarService } from '@nebular/theme';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
-import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
+import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 
 @Component({
   selector: 'app-bbx-combo-box',
@@ -13,17 +11,20 @@ import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/Fl
   styleUrls: ['./bbx-combo-box.component.scss']
 })
 export class BbxComboBoxComponent implements OnInit, AfterViewInit {
-  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm;
+  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';
   @Input() getData: () => string[] = () => [];
   @Input() data$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   @Input() isWide: boolean = true;
+  @Input() wrapperClass: string = 'mode-default';
+  @Input() simpleMode: boolean = false;
 
   blankOptionText: string = BlankComboBoxValue;
 
   comboBoxData: string[] = [];
   currentDataCount: number = 0;
+  get defaultDataCount(): number { return this.comboBoxData.length; }
   filteredData$: Observable<string[]> = of([]);
   currentFilteredData: string[] = [];
   currentTypedData: string = '';

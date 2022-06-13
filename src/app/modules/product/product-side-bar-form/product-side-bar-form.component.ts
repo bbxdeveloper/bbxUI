@@ -54,6 +54,12 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.refreshComboboxData();
   }
 
+  moveCursor(codeInput: any): void {
+    setTimeout(function() {
+      codeInput.setSelectionRange(0, 0);
+    }, 100);
+  }
+
   ngOnInit(): void {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
   }
