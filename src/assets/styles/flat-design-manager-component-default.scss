@@ -419,10 +419,13 @@ iframe.iframe-table-cell {
     background-color: #604889;
     max-height: 100px;
     max-width: 100%;
-    resize: vertical;
+    // resize: vertical;
+    resize: none;
+    border: none;
+    overflow: hidden;
 }
 
-$heightManipulatorMax: 500;
+$heightManipulatorMax: 1000;
 
 @for $i from 0 through $heightManipulatorMax {
     .table-wrapper-height-margin-#{$i} {

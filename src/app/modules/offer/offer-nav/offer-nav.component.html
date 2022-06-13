@@ -56,10 +56,10 @@ wrapperClass="bbx-fd-sidebar-functions-left">
 
                 <div class="form-row">
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Árajánlat szám</label>
+                        <label>Sorszám</label>
                         <input nbInput type="text" formControlName='OfferNumber' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                        <app-form-control-error [form]="filterFormNav" label="árajánlat szám" controlName="OfferNumber">
+                        <app-form-control-error [form]="filterFormNav" label="Sorszám" controlName="OfferNumber">
                         </app-form-control-error>
                     </nb-form-field>
                 </div>
@@ -122,7 +122,7 @@ wrapperClass="bbx-fd-sidebar-functions-left">
 
 <nb-card>
     <nb-card-body>
-        <app-flat-design-table [showMsgOnNoData]="false" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs"
+        <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="600" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs"
             [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
             [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
             (focusOutTable)="focusOnTable(false)">
