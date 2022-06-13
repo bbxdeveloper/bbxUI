@@ -116,7 +116,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "5%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "5%", textAlign: "right", fInputType: 'formatted-number-integer'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -398,7 +398,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   RecalcNetAndVat(): void {
-    this.outGoingInvoiceData.invoiceLines = this.dbData.map(x => x.data);
+    this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
@@ -666,10 +666,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     
     this.RecalcNetAndVat();
     
-    for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length - 1; i++) {
-      this.outGoingInvoiceData.invoiceLines[i].price = this.ToFloat(this.outGoingInvoiceData.invoiceLines[i].price);
-      this.outGoingInvoiceData.invoiceLines[i].quantity = this.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
-      this.outGoingInvoiceData.invoiceLines[i].lineNumber = i;
+    for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length; i++) {
+      this.outGoingInvoiceData.invoiceLines[i].price = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].price);
+      this.outGoingInvoiceData.invoiceLines[i].quantity = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
+      this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
     
     this.outGoingInvoiceData.currencyCode = 'HUF';
@@ -679,11 +679,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.incoming = false;
     this.outGoingInvoiceData.invoiceType = 'INV';
-
-    let lastIndex = this.outGoingInvoiceData.invoiceLines.length - 1;
-    if (this.outGoingInvoiceData.invoiceLines[lastIndex].IsUnfinished()) {
-      this.outGoingInvoiceData.invoiceLines.splice(lastIndex, 1);
-    }
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
   }
@@ -714,6 +709,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       );
       return;
     }
+    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+      this.toastrService.show(
+        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
@@ -733,6 +736,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           next: d => {
             if (!!d.data) {
               console.log('Save response: ', d);
+
+              if (!!d.data) {
+                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              }
               
               this.toastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
@@ -748,6 +755,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                 context: {
                   title: 'Számla Nyomtatása',
                   inputLabel: 'Példányszám',
+                  defaultValue: 1
                 }
               });
               dialogRef.onClose.subscribe({
@@ -759,9 +767,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
                         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
                           this.Reset();
-                          if (!!d.data) {
-                            this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                          }
+
                           this.toastrService.show(
                             `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
@@ -793,6 +799,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       Constants.TOASTR_SUCCESS
                     );
                     this.isLoading = false;
+                    this.Reset();
                   }
                 }
               });

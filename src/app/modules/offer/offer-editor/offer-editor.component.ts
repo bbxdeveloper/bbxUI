@@ -713,16 +713,10 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
 
     // this.RecalcNetAndVat();
 
-    for (let i = 0; i < this.offerData.offerLines.length - 1; i++) {
+    for (let i = 0; i < this.offerData.offerLines.length; i++) {
       this.offerData.offerLines[i].unitPrice = HelperFunctions.ToFloat(this.offerData.offerLines[i].unitPrice);
-      // this.offerData.OfferLines[i].quantity = this.ToFloat(this.offerData.OfferLines[i].quantity);
-      this.offerData.offerLines[i].lineNumber = HelperFunctions.ToFloat(i);
+      this.offerData.offerLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
-
-    // let lastIndex = this.offerData.offerLines.length - 1;
-    // if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
-    //   this.offerData.offerLines.splice(lastIndex, 1);
-    // }
 
     // console.log('[UpdateOutGoingData]: ', this.offerData, this.outInvForm.controls['paymentMethod'].value);
   }
@@ -762,7 +756,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       return;
     }
 
-    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE } });
+    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(res => {
       if (res) {
         this.UpdateSaveData();

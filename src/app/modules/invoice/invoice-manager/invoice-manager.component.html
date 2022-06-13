@@ -256,7 +256,7 @@
                                         {{
                                             it.calc !== undefined ? 
                                             it.calc(row.data) : 
-                                            row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' | replace:',':'.'
+                                            row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.'
                                         }}
                                     </div>
                                 </ng-container>
@@ -310,7 +310,7 @@
                                         {{
                                         it.calc !== undefined ?
                                         it.calc(row.data) :
-                                        row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' | replace:',':'.'
+                                        row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.'
                                         }}
                                     </div>
                                 </ng-container>
@@ -329,8 +329,8 @@
     <nb-card-footer class="invoice-table-statistics">
         <table class="table-statistics-net-vat-gross">
             <tr>
-                <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.1-2':'fr' | replace:',':'.'}}</td>
-                <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.1-2':'fr' | replace:',':'.'}}</td>
+                <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
             </tr>
         </table>
     </nb-card-footer>

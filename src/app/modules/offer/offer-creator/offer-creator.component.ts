@@ -645,16 +645,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
     // this.RecalcNetAndVat();
 
-    for (let i = 0; i < this.offerData.offerLines.length - 1; i++) {
+    for (let i = 0; i < this.offerData.offerLines.length; i++) {
       this.offerData.offerLines[i].unitPrice = this.ToFloat(this.offerData.offerLines[i].unitPrice);
-      // this.offerData.offerLines[i].quantity = this.ToFloat(this.offerData.offerLines[i].quantity);
-      this.offerData.offerLines[i].lineNumber = i;
+      this.offerData.offerLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
-
-    // let lastIndex = this.offerData.offerLines.length - 1;
-    // if (OfferLine.IsInterfaceUnfinished(this.offerData.offerLines[lastIndex])) {
-    //   this.offerData.offerLines.splice(lastIndex, 1);
-    // }
 
     // console.log('[UpdateOutGoingData]: ', this.offerData, this.outInvForm.controls['paymentMethod'].value);
   }
@@ -694,7 +688,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       return;
     }
 
-    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE } });
+    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(res => {
       if (res) {
         this.UpdateOutGoingData();
@@ -728,6 +722,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                 context: {
                   title: 'Ajánlat Nyomtatása',
                   inputLabel: 'Példányszám',
+                  defaultValue: 1
                 }
               });
               dialogRef.onClose.subscribe({
