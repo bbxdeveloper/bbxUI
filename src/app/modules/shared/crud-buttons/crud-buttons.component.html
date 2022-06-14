@@ -1,26 +1,37 @@
 <nb-actions *ngIf="!!currentForm" size="medium" [ngClass]="wrapperClass">
     <nb-action *ngIf="newButton" class="{{TileCssClass}}" id="fd-form-new" class="cl-header-menu" tabIndex="-1" nbTooltip="Új"
+        [disabled]="newButtonDisabled"
         nbTooltipStatus="primary" [icon]="{ icon: 'plus-circle-outline', pack: 'eva' }"
-        (click)="currentForm.HandleFunctionKey(keyBindings.crudNew)">
+        (click)="currentForm.HandleFunctionKey(newButtonKey)">
     </nb-action>
 
     <nb-action *ngIf="editButton" class="{{TileCssClass}}" id="fd-form-edit" class="cl-header-menu" tabIndex="-1" nbTooltip="Szerkesztés"
+        [disabled]="editButtonDisabled"
         nbTooltipStatus="primary" [icon]="{ icon: 'edit-outline', pack: 'eva' }"
-        (click)="currentForm.HandleFunctionKey(keyBindings.crudEdit)">
+        (click)="currentForm.HandleFunctionKey(editButtonKey)">
     </nb-action>
 
     <nb-action  *ngIf="resetButton"class="{{TileCssClass}}" id="fd-form-reset" class="cl-header-menu" tabIndex="-1" nbTooltip="Alaphelyzet"
+        [disabled]="resetButtonDisabled"
         nbTooltipStatus="primary" [icon]="{ icon: 'flip-2-outline', pack: 'eva' }"
-        (click)="currentForm.HandleFunctionKey(keyBindings.crudReset)">
+        (click)="currentForm.HandleFunctionKey(saveButtonKey)">
     </nb-action>
 
     <nb-action *ngIf="saveButton" class="{{TileCssClass}}" id="fd-form-edit" class="cl-header-menu" tabIndex="-1" nbTooltip="Mentés"
+        [disabled]="saveButtonDisabled"
         nbTooltipStatus="primary" [icon]="{ icon: 'save-outline', pack: 'eva' }"
-        (click)="currentForm.HandleFunctionKey(keyBindings.crudSave)">
+        (click)="currentForm.HandleFunctionKey(resetButtonKey)">
     </nb-action>
 
     <nb-action *ngIf="deleteButton" class="{{TileCssClass}}" id="fd-form-delete" class="cl-header-menu" tabIndex="-1" nbTooltip="Törlés"
+        [disabled]="deleteButtonDisabled || currentForm.isDeleteDisabled"
         nbTooltipStatus="primary" [icon]="{ icon: 'trash-2-outline', pack: 'eva' }"
-        [disabled]="currentForm.isDeleteDisabled" (click)="currentForm.HandleFunctionKey(keyBindings.crudDelete)">
+        (click)="currentForm.HandleFunctionKey(deleteButtonKey)">
+    </nb-action>
+
+    <nb-action *ngIf="printButton" class="{{TileCssClass}}" id="fd-form-print" class="cl-header-menu" tabIndex="-1" nbTooltip="Nyomtatás"
+        [disabled]="printButtonDisabled"
+        nbTooltipStatus="primary" [icon]="{ icon: 'printer-outline', pack: 'eva' }"
+        (click)="currentForm.HandleFunctionKey(printButtonKey)">
     </nb-action>
 </nb-actions>

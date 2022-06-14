@@ -47,6 +47,7 @@ export enum KeyBindings {
     crudReset = F9,
     crudSave = F10,
     crudDelete = F11,
+    crudPrint = F6,
 };
 
 export enum Actions {
@@ -56,6 +57,7 @@ export enum Actions {
     CrudReset = 'CrudReset',
     CrudSave = 'CrudSave',
     CrudDelete = 'CrudDelete',
+    CrudPrint = 'CrudPrint',
     OpenForm = 'OpenForm',
 }
 
@@ -66,5 +68,6 @@ export let CrudManagerKeySettings: Constants.KeySettingsDct = {
     CrudReset: { KeyCode: KeyBindings.F9, KeyLabel: KeyBindings.F9, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     CrudSave: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     CrudDelete: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
+    CrudPrint: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Nyomtatás', KeyType: Constants.KeyTypes.Fn },
     OpenForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Tétellap', KeyType: Constants.KeyTypes.Fn },
 };

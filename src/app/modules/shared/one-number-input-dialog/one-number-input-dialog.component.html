@@ -6,7 +6,8 @@
             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <label>{{inputLabel}}</label>
                 <input class="{{TileCssClass}}" nbInput type="text" formControlName='answer' required="true"
-                    [inputMask]="numberInputMask" placeholder="0.00000"
+                    [inputMask]="numberInputMask" [placeholder]="placeHolder"
+                    oninput="$event.target.setSelectionRange(0, 1)"
                     (click)="formNav.HandleFormFieldClick($event)">
             </nb-form-field>
         </form>

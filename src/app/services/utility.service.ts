@@ -269,6 +269,7 @@ export class UtilityService {
         document.body.appendChild(a);
         a.setAttribute('style', 'display: none');
         a.href = blobURL;
+
         a.download = res.filename;
 
         a.click();

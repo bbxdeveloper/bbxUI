@@ -16,8 +16,7 @@ import { createMask } from '@ngneat/input-mask';
 export class OneNumberInputDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   @Input() title: string = "";
   @Input() inputLabel: string = "";
-
-  numberInputMask = createMask({
+  @Input() numberInputMask: any = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
     digits: 2,
@@ -25,6 +24,7 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     prefix: '',
     placeholder: '0.0',
   });
+  @Input() placeHolder: string = '0.00';
 
   closedManually = false;
 

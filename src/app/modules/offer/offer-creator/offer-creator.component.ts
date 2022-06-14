@@ -129,6 +129,16 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     placeholder: '0.0',
   });
 
+  offerInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.0',
+    max: 999.99
+  });
+
   numberInputMaskInteger = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
@@ -172,12 +182,15 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       colWidth: "16%", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
-      label: 'Kedvezmény', objectKey: 'Discount', colKey: 'Discount',
+      label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "16%", textAlign: "right", fInputType: 'param-padded-formatted-integer',
+      calc: x => '1.2',
+      inputMask: this.offerInputMask,
+      placeHolder: '0.00'
     },
     {
-      label: 'Kedv. Mutatása', objectKey: 'showDiscount', colKey: 'showDiscount',
+      label: 'Kedv. Mut.', objectKey: 'showDiscount', colKey: 'showDiscount',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'checkbox'
     },
@@ -1046,6 +1059,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       context: {
         title: 'Kedvezmény megadása összes sorra',
         inputLabel: 'Kedvezmény %',
+        numberInputMask: this.offerInputMask,
+        placeHolder: '0.00'
       }
     });
     dialogRef.onClose.subscribe({

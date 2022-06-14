@@ -25,7 +25,6 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { createMask } from '@ngneat/input-mask';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
@@ -33,10 +32,9 @@ import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
-import { CreateOfferRequest } from '../models/CreateOfferRequest';
-import { OfferLine, OfferLineForPost, OfferLineFullData } from '../models/OfferLine';
+import { OfferLine, OfferLineFullData } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { Offer } from '../models/Offer';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
@@ -134,6 +132,16 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     placeholder: '0.0',
   });
 
+  offerInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.0',
+    max: 999.99
+  });
+
   numberInputMaskInteger = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
@@ -177,12 +185,15 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       colWidth: "16%", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
-      label: 'Kedvezmény', objectKey: 'Discount', colKey: 'Discount',
+      label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "16%", textAlign: "right", fInputType: 'param-padded-formatted-integer',
+      calc: x => '3.2',
+      inputMask: this.offerInputMask,
+      placeHolder: '0.00'
     },
     {
-      label: 'Kedv. Mutatása', objectKey: 'showDiscount', colKey: 'showDiscount',
+      label: 'Kedv. Mut.', objectKey: 'showDiscount', colKey: 'showDiscount',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'checkbox'
     },
@@ -276,6 +287,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
+    private router: Router,
     private route: ActivatedRoute,
   ) {
     super(dialogService, kbS, fS, cs, sts);
@@ -738,7 +750,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       } as Constants.Dct);
   }
 
-  Save(): void {
+  PrepareSave(): void {
     if (this.buyerForm.invalid) {
       this.toastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
@@ -759,65 +771,63 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(res => {
       if (res) {
-        this.UpdateSaveData();
+        setTimeout(() => {
+          this.Save();
+        }, 100);
+      }
+    });
+  }
 
-        console.log('Save: ', this.offerData);
+  private Save(): void {
+    this.UpdateSaveData();
 
-        this.isLoading = true;
+    console.log('Save: ', this.offerData);
 
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.isLoading = true;
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-        const dialogRef = this.dialogService.open(OfferUpdateDialogComponent, {
-          context: {}
-        });
-        dialogRef.onClose.subscribe((selectedSaveOption: number) => {
-          console.log("Selected option: ", selectedSaveOption);
-          if (selectedSaveOption !== undefined && selectedSaveOption >= 1 && selectedSaveOption <= 3) {
+    const dialogRef = this.dialogService.open(OfferUpdateDialogComponent, {
+      context: {}
+    });
+    dialogRef.onClose.subscribe((selectedSaveOption: number) => {
+      console.log("Selected option: ", selectedSaveOption);
+      if (selectedSaveOption !== undefined && selectedSaveOption >= 1 && selectedSaveOption <= 3) {
 
-            if (selectedSaveOption === 2) {
-              this.offerData.offerVersion += 1;
+        if (selectedSaveOption === 2) {
+          this.offerData.offerVersion += 1;
+        }
+        else if (selectedSaveOption === 3) {
+          this.offerData.offerVersion += 1;
+          this.offerData.newOffer = true;
+        }
+
+        this.offerService.Update(this.offerData).subscribe({
+          next: d => {
+            if (!!d.data) {
+              console.log('Save response: ', d);
+
+              this.toastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS
+              );
+
+              this.router.navigate(['product/offers-nav']);
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isLoading = false;
             }
-            else if (selectedSaveOption === 3) {
-              this.offerData.offerVersion += 1;
-              this.offerData.newOffer = true;
+          },
+          error: err => {
+            this.cs.HandleError(err);
+            this.isLoading = false;
+            if (selectedSaveOption > 1) {
+              this.offerData.offerVersion -= 1;
+              this.offerData.newOffer = false;
             }
-
-            this.offerService.Update(this.offerData).subscribe({
-              next: d => {
-                if (!!d.data) {
-                  console.log('Save response: ', d);
-
-                  if (!!d.data) {
-                    this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
-                  }
-
-                  this.toastrService.show(
-                    Constants.MSG_SAVE_SUCCESFUL,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS
-                  );
-                  this.isLoading = false;
-
-                  this.dbDataTable.RemoveEditRow();
-                  this.kbS.SelectFirstTile();
-
-                } else {
-                  this.cs.HandleError(d.errors);
-                  this.isLoading = false;
-                }
-              },
-              error: err => {
-                this.cs.HandleError(err);
-                this.isLoading = false;
-                if (selectedSaveOption > 1) {
-                  this.offerData.offerVersion -= 1;
-                  this.offerData.newOffer = false;
-                }
-              },
-              complete: () => {
-                this.isLoading = false;
-              }
-            });
+          },
+          complete: () => {
+            this.isLoading = false;
           }
         });
       }
@@ -1050,7 +1060,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter') {
-      this.Save();
+      this.PrepareSave();
     }
     switch(event.key) {
       case KeyBindings.F1: {
@@ -1082,6 +1092,8 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       context: {
         title: 'Kedvezmény megadása összes sorra',
         inputLabel: 'Kedvezmény %',
+        numberInputMask: this.offerInputMask,
+        placeHolder: '0.00'
       }
     });
     dialogRef.onClose.subscribe({

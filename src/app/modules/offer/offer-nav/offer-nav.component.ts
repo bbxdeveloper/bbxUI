@@ -36,6 +36,9 @@ import { IframeViewerDialogComponent } from '../../shared/iframe-viewer-dialog/i
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { SendEmailRequest } from '../../infrastructure/models/Email';
 import { UtilityService } from 'src/app/services/utility.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
+import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 
 @Component({
   selector: 'app-offer-nav',
@@ -44,6 +47,10 @@ import { UtilityService } from 'src/app/services/utility.service';
 })
 export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  public get keyBindings(): typeof KeyBindings {
+    return KeyBindings;
+  }
 
   readonly SearchButtonId: string = 'offers-button-search';
   IsTableFocused: boolean = false;
@@ -56,7 +63,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   customerInputFilterString: string = '';
 
-  isDeleteDisabled: boolean = true;
+  isDeleteDisabled: boolean = false;
 
   cachedCustomerName?: string;
   _searchByTaxtNumber: boolean = false;
@@ -87,7 +94,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '30%',
+      colWidth: '130px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -99,7 +106,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '50%',
+      colWidth: '30%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -151,7 +158,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
+      colWidth: '70%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -188,10 +195,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     { key: 'F3', value: 'Email', disabled: false },
     { key: 'F4', value: 'CSV', disabled: false },
     { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
-    { key: 'F6', value: '', disabled: false },
+    { key: 'F6', value: 'Árajánlat Nyomtatás', disabled: false },
     { key: 'F7', value: 'Szerkesztés', disabled: false },
     { key: 'F8', value: 'Új', disabled: false },
-    //{ key: 'F11', value: 'Törlés', disabled: false },
+    { key: 'Delete', value: 'Törlés', disabled: false },
   ];
 
   get invoiceOfferIssueDateFrom(): Date | undefined {
@@ -586,15 +593,21 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     switch (val) {
       // NEW
       case KeyBindings.crudNew:
-        this.router.navigate(['product/offers-create']);
+        this.Create();
         break;
       // EDIT
       case KeyBindings.crudEdit:
         this.Edit();
         break;
       // DELETE
-      case KeyBindings.crudDelete:
-        // Delete
+      case KeyBindings.delete:
+        if (!this.isDeleteDisabled) {
+          this.Delete();
+        }
+        break;
+      // DELETE
+      case KeyBindings.crudPrint:
+        this.Print();
         break;
     }
   }
@@ -667,11 +680,127 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
+  Create(): void {
+    this.router.navigate(['product/offers-create']);
+  }
+
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const id = this.dbData[this.kbS.p.y - 1].data.id;
       this.router.navigate(['product/offers-edit', id, {}]);
     }
+  }
+
+  Delete(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      this.isLoading = true;
+
+      const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_DELETE_OFFER } });
+      confirmDialogRef.onClose.subscribe(res => {
+        if (res) {
+          this.offerService.Delete({ ID: HelperFunctions.ToInt(id) } as DeleteOfferRequest).subscribe({
+            next: res => {
+              if (!!res && res.succeeded) {
+                this.toastrService.show(
+                  Constants.MSG_DELETE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS
+                );
+                this.Refresh(this.getInputParams);
+              } else {
+                this.cs.HandleError(res.errors);
+                this.isLoading = false;
+              }
+            },
+            error: (err) => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+            },
+            complete: () => {
+              this.isLoading = false;
+            },
+          });
+        }
+      });
+    }
+  }
+
+  Print(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      this.isLoading = true;
+
+      const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+        context: {
+          title: 'Ajánlat Nyomtatása',
+          inputLabel: 'Példányszám',
+          defaultValue: 1
+        }
+      });
+      dialogRef.onClose.subscribe({
+        next: res => {
+          if (res.answer) {
+            let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+              next: cmdEnded => {
+                console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+                if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                  this.toastrService.show(
+                    `Az árajánlat nyomtatása véget ért.`,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS
+                  );
+                  commandEndedSubscription.unsubscribe();
+                }
+                this.isLoading = false;
+              },
+              error: cmdEnded => {
+                console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+                commandEndedSubscription.unsubscribe();
+                this.toastrService.show(
+                  `Az árajánlat nyomtatása közben hiba történt.`,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                );
+                this.isLoading = false;
+              }
+            });
+            this.isLoading = true;
+            this.printReport(id, res.value);
+          } else {
+            this.toastrService.show(
+              `Az árajánlat számla nyomtatása nem történt meg.`,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS
+            );
+            this.isLoading = false;
+          }
+        }
+      });
+    }
+  }
+
+  printReport(id: any, copies: number): void {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
+    this.utS.execute(
+      Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
+      {
+        "section": "Szamla",
+        "fileType": "pdf",
+        "report_params":
+        {
+          "id": id,
+          "offerNumber": null
+        },
+        // "copies": copies,
+        "data_operation": Constants.DataOperation.PRINT_BLOB
+      } as Constants.Dct);
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
@@ -708,6 +837,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       case CrudManagerKeySettings[Actions.CrudReset].KeyCode:
       case CrudManagerKeySettings[Actions.CrudSave].KeyCode:
       case CrudManagerKeySettings[Actions.CrudDelete].KeyCode:
+      case KeyBindings.delete:
+      case CrudManagerKeySettings[Actions.CrudPrint].KeyCode:
       case CrudManagerKeySettings[Actions.OpenForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();

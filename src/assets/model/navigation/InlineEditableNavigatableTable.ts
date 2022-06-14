@@ -189,8 +189,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     SetCreatorRow(): void {
-        this.productCreatorRow = this.GenerateCreatorRow;
-        this.data.push(this.productCreatorRow);
+        if (this.data.length === 0 || (this.data.length > 0 && !this.data[this.data.length - 1].data.IsUnfinished())) {
+            this.productCreatorRow = this.GenerateCreatorRow;
+            this.data.push(this.productCreatorRow);
+        }
         this.dataSource.setData(this.data);
     }
 
