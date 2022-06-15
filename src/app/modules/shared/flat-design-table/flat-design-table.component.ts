@@ -8,6 +8,9 @@ import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
+export const FORMATTED_NUMBER_COL_TYPES = [
+  'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
+];
 @Component({
   selector: 'app-flat-design-table',
   templateUrl: './flat-design-table.component.html',

@@ -845,11 +845,11 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
             colKey: 'unitPrice1',
             defaultValue: '',
             type: 'string',
-            fInputType: 'text',
+            fInputType: 'formatted-number',
             fRequired: true,
             mask: '',
             colWidth: '30%',
-            textAlign: 'left',
+            textAlign: 'right',
             navMatrixCssClass: TileCssClass,
           },
           {
@@ -858,19 +858,20 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
             colKey: 'unitPrice2',
             defaultValue: '',
             type: 'string',
-            fInputType: 'bool',
+            fInputType: 'formatted-number',
             fRequired: false,
             mask: '',
             colWidth: '25%',
-            textAlign: 'left',
+            textAlign: 'right',
             navMatrixCssClass: TileCssClass,
-          }
+          },
         ]
       }
     });
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        res.unitPrice1 = 999999999.99;
         this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();

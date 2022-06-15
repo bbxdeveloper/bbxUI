@@ -188,7 +188,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'param-padded-formatted-integer',
-      calc: x => '3.2',
+      calc: x => '1.2',
       inputMask: this.offerInputMask,
       placeHolder: '0.00'
     },

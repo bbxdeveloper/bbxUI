@@ -1,6 +1,7 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup, FormControl } from "@angular/forms";
 import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/theme";
+import { FlatDesignTableComponent, FORMATTED_NUMBER_COL_TYPES } from "src/app/modules/shared/flat-design-table/flat-design-table.component";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { KeyBindings } from "src/assets/util/KeyBindings";
@@ -468,7 +469,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             this.cdref!.detectChanges();
             $('#' + inputId).trigger('focus');
 
-            if (fInputType === 'formatted-number' || fInputType === 'formatted-number-integer') {
+            if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
                 const _input = document.getElementById(inputId) as HTMLInputElement;
                 if (!!_input && _input.type === "text") {
                     window.setTimeout(function () {
