@@ -17,6 +17,7 @@ import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { createMask } from '@ngneat/input-mask';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -70,6 +71,34 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     { key: 'F11', value: '', disabled: false },
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
+
+  numberInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.00',
+  });
+
+  offerDiscountInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.00',
+    max: 999.99
+  });
+
+  numberInputMaskInteger = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 0,
+    digitsOptional: true,
+    prefix: '',
+    placeholder: '',
+  });
 
   constructor(
     @Optional() protected dialogService: NbDialogService,

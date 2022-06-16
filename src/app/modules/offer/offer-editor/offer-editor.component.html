@@ -138,25 +138,6 @@
                                     </div>
                                 </ng-container>
 
-                                <ng-container *ngSwitchCase="'formatted-number'">
-                                    <input
-                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
-                                        [inputMask]="numberInputMask" placeholder="0.00000"
-                                        oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
-                                        [style.text-align]="it.textAlign" />
-
-                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{
-                                        it.calc !== undefined ?
-                                        it.calc(row.data) :
-                                        row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' |
-                                        replace:',':'.'
-                                        }}
-                                    </div>
-                                </ng-container>
-
                                 <ng-container *ngSwitchCase="'checkbox'">
                                     <input
                                         *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
@@ -180,8 +161,7 @@
                                         [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] |
-                                        number:'1.1-5' }}
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] | number:'1.1-5' }}
                                     </div>
                                 </ng-container>
 
@@ -197,7 +177,22 @@
                                         {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
                                     </div>
                                 </ng-container>
-
+                                
+                                <ng-container *ngSwitchCase="'formatted-number'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
+                                        nbInput type="text" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        [inputMask]="numberInputMask" placeholder="0.00"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+                                
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{
+                                        it.calc !== undefined ?
+                                        it.calc(row.data) :
+                                        row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.'
+                                        }}
+                                    </div>
+                                </ng-container>
+                                
                                 <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
                                         nbInput type="text" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
@@ -205,8 +200,9 @@
                                         class="input-table-cell" [style.text-align]="it.textAlign" />
                                 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.2'):'fr' |
-                                        removeWhitespaces | replace:',':'.' }}
+                                        {{
+                                            row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.2'):'fr' | replace:',':'.'
+                                        }}
                                     </div>
                                 </ng-container>
 

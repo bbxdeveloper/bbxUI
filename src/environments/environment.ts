@@ -19,6 +19,8 @@ export const environment = {
   navigationMoveLog: false,
   navigationMatrixLog: false,
   navigationSelectLog: false,
+  utilityLogs: false,
+  getterSetterLogs: true,
 };
 
 /*

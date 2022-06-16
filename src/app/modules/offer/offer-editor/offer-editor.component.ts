@@ -25,7 +25,6 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
-import { createMask } from '@ngneat/input-mask';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
@@ -123,34 +122,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.0',
-  });
-
-  offerInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.0',
-    max: 999.99
-  });
-
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '',
-  });
-
   override colsToIgnore: string[] = ["vatRateCode", "unitGross", "unitOfMeasureX", "originalUnitPrice", "vatRateCode", "unitGross"];
   override allColumns = [
     'productCode',
@@ -189,18 +160,18 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'param-padded-formatted-integer',
       calc: x => '1.2',
-      inputMask: this.offerInputMask,
+      inputMask: this.offerDiscountInputMask,
       placeHolder: '0.00'
     },
     {
       label: 'Kedv. Mut.', objectKey: 'showDiscount', colKey: 'showDiscount',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'checkbox'
+      colWidth: "16%", textAlign: "center", fInputType: 'checkbox'
     },
     {
       label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "12%", textAlign: "center", fInputType: 'formatted-number'
+      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
     },
     {
       label: 'Áfakód', objectKey: 'vatRateCode', colKey: 'vatRateCode',
@@ -1092,7 +1063,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       context: {
         title: 'Kedvezmény megadása összes sorra',
         inputLabel: 'Kedvezmény %',
-        numberInputMask: this.offerInputMask,
+        numberInputMask: this.offerDiscountInputMask,
         placeHolder: '0.00'
       }
     });

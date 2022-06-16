@@ -404,6 +404,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         console.log('[HandleGridClick]: ', row, rowPos, col, colPos, inputId);
 
         this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+        
         this.ResetEdit();
 
         // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
@@ -415,14 +416,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType);
     }
 
-    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
-        //debugger;
-
-        console.log('[HandleGridEnter]: ', row, this.editedRow, rowPos, col, colPos, inputId, fInputType, row.data.IsUnfinished());
-
+    private ApplyGridEnterEffects(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
         // Switch between nav and edit mode
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
-        this.kbS.toggleEdit();
 
         // if (this.kbs.isEditModeActivated && this.editedRow === undefined) {
         //     this.editedRow = row;
@@ -460,7 +456,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
             }
 
-            console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
+            // console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
 
             this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
         } else {
@@ -502,6 +498,20 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.PushFooterCommandList();
 
         console.log((this.data[rowPos].data as any)[col]);
+    }
+
+    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
+        console.log('[HandleGridEnter]: colpos:', colPos, 'maximum colpos: ', this.Matrix[0].length - 1, row, this.editedRow, rowPos, col, inputId, fInputType, row.data.IsUnfinished());
+
+        if (this.kbS.isEditModeActivated) {
+            this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+            this.ApplyGridEnterEffects(row, rowPos, col, colPos, inputId, fInputType);
+        } else {
+            setTimeout(() => {
+                this.kbs.setEditMode(KeyboardModes.EDIT);
+                this.ApplyGridEnterEffects(row, rowPos, col, colPos, inputId, fInputType);
+            }, 10);
+        }
     }
 
     HandleGridDelete(event: Event, row: TreeGridNode<T>, rowPos: number, col: string): void {

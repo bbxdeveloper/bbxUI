@@ -25,7 +25,6 @@ import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
-import { createMask } from '@ngneat/input-mask';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { SumData } from '../models/SumData';
 import { ProductService } from '../../product/services/product.service';
@@ -73,24 +72,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.cdref.detectChanges();
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
-
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.0',
-  });
-
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '',
-  });
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
   override allColumns = [
