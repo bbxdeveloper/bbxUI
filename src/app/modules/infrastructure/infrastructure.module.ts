@@ -9,6 +9,8 @@ import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 
+import { AngularEditorModule } from '@kolkov/angular-editor';
+
 
 @NgModule({
   declarations: [
@@ -39,6 +41,7 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
     NbCheckboxModule,
     NbTooltipModule,
     SharedModule,
+    AngularEditorModule
   ],
   providers: [
     InfrastructureService

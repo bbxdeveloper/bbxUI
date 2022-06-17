@@ -271,10 +271,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   InitFormDefaultValues(): void {
-    this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -1));
+    this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
     this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
-    this.filterForm.controls['OfferVaidityDateForm'].setValue(HelperFunctions.GetDateString(1));
-    this.filterForm.controls['OfferVaidityDateTo'].setValue(HelperFunctions.GetDateString(1, 1));
+    this.filterForm.controls['OfferVaidityDateForm'].setValue(HelperFunctions.GetDateString(0, -4));
+    this.filterForm.controls['OfferVaidityDateTo'].setValue(HelperFunctions.GetDateString());
   }
 
   ToInt(p: any): number {
@@ -605,7 +605,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           this.Delete();
         }
         break;
-      // DELETE
+      // PRINT
       case KeyBindings.crudPrint:
         this.Print();
         break;
@@ -733,7 +733,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-      this.isLoading = true;
 
       const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
         context: {
@@ -744,6 +743,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       });
       dialogRef.onClose.subscribe({
         next: res => {
+          this.isLoading = true;
+
           if (res.answer) {
             let commandEndedSubscription = this.utS.CommandEnded.subscribe({
               next: cmdEnded => {
