@@ -15,7 +15,7 @@ import { NavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav'
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, OfferNavKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { createMask } from '@ngneat/input-mask';
 
@@ -222,7 +222,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       // $(window).trigger(press);
     }
     switch (event.key) {
-      case CrudManagerKeySettings[Actions.TableSearch].KeyCode: {
+      case OfferNavKeySettings[Actions.Search].KeyCode: {
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();

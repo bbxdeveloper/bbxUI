@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Constants } from 'src/assets/util/Constants';
+import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-crud-buttons',
@@ -17,13 +18,19 @@ export class CrudButtonsComponent implements OnInit {
   @Input() resetButton: boolean = true;
   @Input() deleteButton: boolean = true;
   @Input() printButton: boolean = false;
+  @Input() emailButton: boolean = false;
+  @Input() csvButton: boolean = false;
 
-  @Input() newButtonKey: KeyBindings = KeyBindings.crudNew;
-  @Input() editButtonKey: KeyBindings = KeyBindings.crudEdit;
-  @Input() saveButtonKey: KeyBindings = KeyBindings.crudSave;
-  @Input() resetButtonKey: KeyBindings = KeyBindings.crudReset;
-  @Input() deleteButtonKey: KeyBindings = KeyBindings.crudDelete;
-  @Input() printButtonKey: KeyBindings = KeyBindings.crudPrint;
+  @Input() KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
+
+  newButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudNew].KeyCode;
+  editButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudEdit].KeyCode;
+  saveButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudSave].KeyCode;
+  resetButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudReset].KeyCode;
+  deleteButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudDelete].KeyCode;
+  printButtonKey: KeyBindings = DefaultKeySettings[Actions.Print].KeyCode;
+  emailButtonKey: KeyBindings = DefaultKeySettings[Actions.Email].KeyCode;
+  csvButtonKey: KeyBindings = DefaultKeySettings[Actions.CSV].KeyCode;
 
   @Input() newButtonDisabled: boolean = false;
   @Input() editButtonDisabled: boolean = false;
@@ -31,32 +38,8 @@ export class CrudButtonsComponent implements OnInit {
   @Input() resetButtonDisabled: boolean = false;
   @Input() deleteButtonDisabled: boolean = false;
   @Input() printButtonDisabled: boolean = false;
-
-  // @Input() newButtonClickHandler?: (param: any) => void;
-  // @Input() editButtonClickHandler?: (param: any) => void;
-  // @Input() saveButtonClickHandler?: (param: any) => void;
-  // @Input() resetButtonClickHandler?: (param: any) => void;
-  // @Input() deleteButtonClickHandler?: (param: any) => void;
-  // @Input() printButtonClickHandler?: (param: any) => void;
-
-  // get NewButtonClickHandler(): (param: any) => void {
-  //   return !!this.newButtonClickHandler ? this.newButtonClickHandler : this.currentForm!.HandleFunctionKey;
-  // }
-  // get EditButtonClickHandler(): (param: any) => void {
-  //   return !!this.editButtonClickHandler ? this.editButtonClickHandler : this.currentForm!.HandleFunctionKey;
-  // }
-  // get SaveButtonClickHandler(): (param: any) => void {
-  //   return !!this.saveButtonClickHandler ? this.saveButtonClickHandler : this.currentForm!.HandleFunctionKey;
-  // }
-  // get ResetButtonClickHandler(): (param: any) => void {
-  //   return !!this.resetButtonClickHandler ? this.resetButtonClickHandler : this.currentForm!.HandleFunctionKey;
-  // }
-  // get DeleteButtonClickHandler(): (param: any) => void {
-  //   return !!this.deleteButtonClickHandler ? this.deleteButtonClickHandler : this.currentForm!.HandleFunctionKey;
-  // }
-  // get PrintButtonClickHandler(): (param: any) => void {
-  //   return !!this.printButtonClickHandler ? this.printButtonClickHandler : this.currentForm!.HandleFunctionKey;
-  // }
+  @Input() emailButtonDisabled: boolean = false;
+  @Input() csvButtonDisabled: boolean = false;
 
   @Input() wrapperClass: string = 'bbx-fd-sidebar-functions-center';
 
@@ -67,6 +50,7 @@ export class CrudButtonsComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log('KeySetting: ', this.KeySetting);
   }
 
 }

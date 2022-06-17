@@ -1,7 +1,8 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
-import { KeyBindings } from "src/assets/util/KeyBindings";
+import { Constants } from "src/assets/util/Constants";
+import { Actions, DefaultKeySettings, KeyBindings, OfferEditorKeySettings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { IInlineManager } from "../IInlineManager";
 import { BlankComboBoxValue } from "./Nav";
@@ -41,6 +42,8 @@ export class InlineTableNavigatableForm implements INavigatable {
     formId: string;
 
     parentComponent: IInlineManager;
+
+    public KeySetting: Constants.KeySettingsDct = OfferEditorKeySettings;
 
     constructor(
         f: FormGroup,
@@ -196,7 +199,7 @@ export class InlineTableNavigatableForm implements INavigatable {
 
     HandleKey(event: any, controlKey: string): void {
         switch (event.key) {
-            case KeyBindings.F2: {
+            case this.KeySetting[Actions.Search].KeyCode: {
                 event.preventDefault();
                 this.parentComponent.ChooseDataForForm();
                 break;

@@ -1,6 +1,6 @@
 <nb-card>
     <nb-card-body class="bbx-fd-ncb">
-        <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm">
+        <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm" [KeySetting]="KeySetting">
         </app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"

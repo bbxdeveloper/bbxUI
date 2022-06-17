@@ -14,7 +14,7 @@ import { TileCssClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, CrudManagerKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -192,7 +192,7 @@ export class BaseNoFormManagerComponent<T> {
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
-      case CrudManagerKeySettings[Actions.TableSearch].KeyCode: {
+      case OfferNavKeySettings[Actions.Search].KeyCode: {
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();

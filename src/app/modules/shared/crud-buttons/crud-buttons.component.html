@@ -34,4 +34,16 @@
         nbTooltipStatus="primary" [icon]="{ icon: 'printer-outline', pack: 'eva' }"
         (click)="currentForm.HandleFunctionKey(printButtonKey)">
     </nb-action>
+    
+    <nb-action *ngIf="emailButton" class="{{TileCssClass}}" id="fd-form-email" class="cl-header-menu" tabIndex="-1" nbTooltip="Email"
+        [disabled]="emailButtonDisabled"
+        nbTooltipStatus="primary" [icon]="{ icon: 'email-outline', pack: 'eva' }"
+        (click)="currentForm.HandleFunctionKey(emailButtonKey)">
+    </nb-action>
+
+    <nb-action *ngIf="csvButton" class="{{TileCssClass}}" id="fd-form-email" class="cl-header-menu" tabIndex="-1" nbTooltip="CSV"
+        [disabled]="csvButtonDisabled"
+        nbTooltipStatus="primary" [icon]="{ icon: 'arrow-downward-outline', pack: 'eva' }"
+        (click)="currentForm.HandleFunctionKey(csvButtonKey)">
+    </nb-action>
 </nb-actions>

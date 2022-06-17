@@ -28,7 +28,7 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
-import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, OfferNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { SendEmailDialogComponent } from '../../infrastructure/send-email-dialog/send-email-dialog.component';
@@ -189,17 +189,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  override commands: FooterCommandInfo[] = [
-    { key: 'F1', value: 'Megjegyzés megtekintése', disabled: false },
-    { key: 'F2', value: 'Ügyfél keresés', disabled: false },
-    { key: 'F3', value: 'Email', disabled: false },
-    { key: 'F4', value: 'CSV', disabled: false },
-    { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
-    { key: 'F6', value: 'Árajánlat Nyomtatás', disabled: false },
-    { key: 'F7', value: 'Szerkesztés', disabled: false },
-    { key: 'F8', value: 'Új', disabled: false },
-    { key: 'Delete', value: 'Törlés', disabled: false },
-  ];
+  public KeySetting: Constants.KeySettingsDct = OfferNavKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get invoiceOfferIssueDateFrom(): Date | undefined {
     if (!!!this.filterForm) {
@@ -590,23 +581,37 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   HandleFunctionKey(event: Event | KeyBindings): void {
     const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+    console.log(`[HandleFunctionKey]: ${val}`);
     switch (val) {
+      // CSV
+      case this.KeySetting[Actions.CSV].KeyCode:
+        this.DownLoadCSV();
+        break;
+      // Send Email
+      case this.KeySetting[Actions.Email].KeyCode:
+        this.SendEmail();
+        break;
+      // View Notice
+      case this.KeySetting[Actions.Details].KeyCode:
+        this.ViewNotice();
+        break;
       // NEW
-      case KeyBindings.crudNew:
+      case this.KeySetting[Actions.CrudNew].KeyCode:
         this.Create();
         break;
       // EDIT
-      case KeyBindings.crudEdit:
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
         this.Edit();
         break;
       // DELETE
-      case KeyBindings.delete:
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
         if (!this.isDeleteDisabled) {
           this.Delete();
         }
         break;
       // PRINT
-      case KeyBindings.crudPrint:
+      case this.KeySetting[Actions.Print].KeyCode:
         this.Print();
         break;
     }
@@ -817,30 +822,33 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     switch (event.key) {
       // CSV
-      case KeyBindings.F4:
+      case this.KeySetting[Actions.CSV].KeyCode:
         event.preventDefault();
         this.DownLoadCSV();
-        break;
+        return;
       // Send Email
-      case KeyBindings.F3:
+      case this.KeySetting[Actions.Email].KeyCode:
         event.preventDefault();
         this.SendEmail();
-        break;
+        return;
       // View Notice
-      case KeyBindings.F1:
+      case this.KeySetting[Actions.Details].KeyCode:
         event.preventDefault();
         this.ViewNotice();
-        break;
+        return;
     }
     switch (event.key) {
-      case CrudManagerKeySettings[Actions.CrudNew].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudEdit].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudReset].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudSave].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudDelete].KeyCode:
-      case KeyBindings.delete:
-      case CrudManagerKeySettings[Actions.CrudPrint].KeyCode:
-      case CrudManagerKeySettings[Actions.OpenForm].KeyCode:
+      case this.KeySetting[Actions.CSV].KeyCode:
+      case this.KeySetting[Actions.Email].KeyCode:
+      case this.KeySetting[Actions.Details].KeyCode:
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
+      case this.KeySetting[Actions.CrudReset].KeyCode:
+      case this.KeySetting[Actions.CrudSave].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Print].KeyCode:
+      case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();

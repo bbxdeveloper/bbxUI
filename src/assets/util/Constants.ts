@@ -63,7 +63,7 @@ export module Constants {
     }
 
     export enum KeyTypes {
-        Fn, Default
+        Fn, Default, Combo, Unset
     }
 
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
@@ -116,6 +116,7 @@ export module Constants {
 
     export interface KeySettingRow {
         KeyCode: KeyBindings;
+        AlternativeKeyCode?: KeyBindings;
         KeyLabel: string;
         FunctionLabel: string;
         KeyType: KeyTypes;

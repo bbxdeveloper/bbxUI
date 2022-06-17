@@ -2,7 +2,8 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
-import { CrudManagerKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Constants } from 'src/assets/util/Constants';
+import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-base-side-bar-form',
@@ -39,6 +40,8 @@ export class BaseSideBarFormComponent {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
+  public readonly KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
+
   constructor(protected kbS: KeyboardNavigationService) {
     // const _form = this.currentForm;
     // $("input").on("click", function (event) { _form?.HandleFormFieldClick(event); });
@@ -62,11 +65,12 @@ export class BaseSideBarFormComponent {
       return;
     }
     switch (event.key) {
-      case CrudManagerKeySettings[Actions.CrudNew].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudReset].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudSave].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudDelete].KeyCode:
-      case CrudManagerKeySettings[Actions.OpenForm].KeyCode:
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.CrudReset].KeyCode:
+      case this.KeySetting[Actions.CrudSave].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();

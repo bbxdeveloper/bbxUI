@@ -35,6 +35,7 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
+import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -125,19 +126,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-  override readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
-    { key: 'F2', value: 'Keresés', disabled: false },
-    { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
-    { key: 'F4', value: 'Keresés NAV-val (csak sikertelen rendes keresés esetén)', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-  ];
-
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
@@ -183,6 +171,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   // CountryCode
   countryCodes: CountryCode[] = [];
+
+  public KeySetting: Constants.KeySettingsDct = InvoiceKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -1039,8 +1030,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key == 'Enter') {
+    if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       this.Save();
+      return;
     }
   }
 }

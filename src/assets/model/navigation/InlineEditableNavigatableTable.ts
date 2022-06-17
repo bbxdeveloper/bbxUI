@@ -4,7 +4,8 @@ import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/them
 import { FlatDesignTableComponent, FORMATTED_NUMBER_COL_TYPES } from "src/app/modules/shared/flat-design-table/flat-design-table.component";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
-import { KeyBindings } from "src/assets/util/KeyBindings";
+import { Constants } from "src/assets/util/Constants";
+import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { IEditable } from "../IEditable";
@@ -100,33 +101,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         { key: 'F10', value: '', disabled: false },
     ];
 
-    // readonly commandsOnTable: FooterCommandInfo[] = [
-    //     { key: 'F1', value: 'Súgó', disabled: false },
-    //     { key: 'F2', value: '', disabled: false },
-    //     { key: 'F3', value: 'Megr. ->', disabled: false },
-    //     { key: 'F4', value: 'Számolás', disabled: false },
-    //     { key: 'F5', value: 'TkInf.', disabled: false },
-    //     { key: 'F6', value: 'Szml.', disabled: false },
-    //     { key: 'F7', value: 'Árkal.', disabled: false },
-    //     { key: 'F8', value: 'Töröl', disabled: false },
-    //     { key: 'F9', value: 'Új Sor', disabled: false },
-    //     { key: 'F10', value: 'Ügynk.', disabled: false },
-    // ];
-    // readonly commandsOnTableEditMode: FooterCommandInfo[] = [
-    //     { key: 'F1', value: 'Súgó', disabled: false },
-    //     { key: 'F2', value: 'AktívT', disabled: false },
-    //     { key: 'F3', value: 'Rend. ->', disabled: false },
-    //     { key: 'F4', value: 'KAktíT', disabled: false },
-    //     { key: 'F5', value: 'TkInf.', disabled: false },
-    //     { key: 'F6', value: 'ÖsszTk.', disabled: false },
-    //     { key: 'F7', value: '', disabled: false },
-    //     { key: 'F8', value: '', disabled: false },
-    //     { key: 'F9', value: '', disabled: false },
-    //     { key: 'F10', value: 'Ügynk.', disabled: false },
-    // ];
-
     idPrefix: string = '';
     parentComponent: IInlineManager;
+
+    public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
     constructor(
         private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
@@ -551,7 +529,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     HandleKey(event: any, rowIndex: number): void {
         switch (event.key) {
-            case KeyBindings.F2: {
+            case this.KeySetting[Actions.Search].KeyCode: {
                 event.preventDefault();
                 if (this.isEditModeOff) {
                     this.kbs.ClickCurrentElement();

@@ -5,7 +5,8 @@ import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
-import { KeyBindings } from "src/assets/util/KeyBindings";
+import { Constants } from "src/assets/util/Constants";
+import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
@@ -94,6 +95,8 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         };
     }
 
+    public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
+
     constructor(
         f: FormGroup,
         tag: string,
@@ -124,10 +127,6 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         this.allColumns = [];
         this.colDefs = colDefs;
         this.colsToIgnore = [];
-
-        // this.flatDesignForm = new FlatDesignNavigatableForm(
-        //     f, this.kbs, this.cdr, data, formId, formAttachDirection, this.colDefs, this.sidebarService, this.sidebarFormService, this, this.fS
-        // );
 
         this.tag = tag;
 
@@ -253,16 +252,6 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         this.prevSelectedRowPos = -1;
         this.prevSelectedCol = '';
         this.prevSelectedColPos = -1;
-
-        // this.flatDesignForm.SetDataForEdit(creatorRow, -1, '');
-        // this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
-        
-        // this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
-        // this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
-        
-        // this.flatDesignForm.SetClean();
-
-        // this.flatDesignForm.SetFormStateToNew();
         
         if (openSideBar) {
             this.sidebarService.expand();
@@ -273,31 +262,6 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         console.log(`Data: ${row}`);
 
         this.prevSelectedRow = row;
-        // this.prevSelectedRowPos = 0;
-        // this.prevSelectedCol = '';
-        // this.prevSelectedColPos = 0;
-
-        // this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!, this.prevSelectedCol!);
-        // this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
-
-        // this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
-        // this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
-
-        // this.flatDesignForm.SetClean();
-
-        // setTimeout(() => {
-        //     if (openSideBar) {
-        //         this.sidebarService.expand();
-        //     }
-
-        //     this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
-
-        //     if (jump) {
-        //         this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-        //     }
-
-        //     this.flatDesignForm.PushFooterCommandList();
-        // }, 200);
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
@@ -321,14 +285,6 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         this.prevSelectedRowPos = rowPos;
         this.prevSelectedCol = col;
         this.prevSelectedColPos = colPos;
-
-        // this.flatDesignForm.SetDataForEdit(row, rowPos, col);
-        // this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
-
-        // this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
-        // this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
-
-        // this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -410,63 +366,18 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         // this.kbs.LogMatrix();
     }
 
-    private HandleF12(setFormForNew: boolean = false): void {
-        if (setFormForNew) {
-            this.SetBlankInstanceForForm(!this.sidebarService.sideBarOpened);
-        } else {
-            if (!this.sidebarService.sideBarOpened) {
-                this.flatDesignForm.PushFooterCommandList();
-            } else {
-                this.PushFooterCommandList();
-            }
-            // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
-            if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
-                this.SetBlankInstanceForForm(true);
-            } else if (!this.sidebarService.sideBarOpened) {
-                this.sidebarService.expand();
-            } else {
-                this.sidebarService.collapse();
-            }
-        }
-    }
-
     HandleKey(event: any): void {
         switch (event.key) {
-            // case KeyBindings.F12: {
-            //     event.preventDefault();
-            //     this.HandleF12();
-            //     break;
-            // }
-            case KeyBindings.F5: {
+            case this.KeySetting[Actions.Refresh].KeyCode: {
                 event.preventDefault();
                 this.Refresh();
                 break;
             }
-            // case KeyBindings.F8: {
-            //     event.preventDefault();
-            //     this.HandleF12(true);
-            //     break;
-            // }
             default: { }
         }
     }
 
-    JumpToFlatDesignForm(tabKeyDownEvent?: Event, row?: TreeGridNode<T>, rowPos?: number, col?: string, colPos?: number): void {
-        // tabKeyDownEvent?.preventDefault();
-        // tabKeyDownEvent?.stopImmediatePropagation();
-        // tabKeyDownEvent?.stopPropagation();
-        
-        // if (row !== undefined && rowPos !== undefined && col !== undefined && colPos !== undefined) {
-        //     this.HandleGridClick(row, rowPos, col, colPos);
-        // }
-        
-        // this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-        // this.flatDesignForm.PushFooterCommandList();
-    }
+    JumpToFlatDesignForm(tabKeyDownEvent?: Event, row?: TreeGridNode<T>, rowPos?: number, col?: string, colPos?: number): void {}
 
-    JumpToFlatDesignFormByForm(formInputId: string): void {
-        // this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-        // this.flatDesignForm.PushFooterCommandList();
-        // this.kbs.SetPositionById(formInputId);
-    }
+    JumpToFlatDesignFormByForm(formInputId: string): void {}
 }

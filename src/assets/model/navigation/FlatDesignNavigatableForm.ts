@@ -6,7 +6,7 @@ import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
 import { Constants } from "src/assets/util/Constants";
-import { KeyBindings } from "src/assets/util/KeyBindings";
+import { Actions, DefaultKeySettings, GetFooterCommandListFromKeySettings as GetFooterCommandListFromKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
@@ -21,21 +21,8 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     colDefs: ModelFieldDescriptor[];
     private DataRowIndex: number = -1;
 
-    override readonly commandsOnForm: FooterCommandInfo[] = [
-        { key: 'Tab', value: 'Ugrás tétellapra', disabled: false },
-        { key: 'F1', value: '', disabled: false },
-        { key: 'F2', value: '', disabled: false },
-        { key: 'F3', value: '', disabled: false },
-        { key: 'F4', value: '', disabled: false },
-        { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
-        { key: 'F6', value: '', disabled: false },
-        { key: 'F7', value: '', disabled: false },
-        { key: 'F8', value: 'Új', disabled: false },
-        { key: 'F9', value: 'Alaphelyzet', disabled: false },
-        { key: 'F10', value: 'Mentés', disabled: false },
-        { key: 'F11', value: 'Törlés', disabled: false },
-        { key: 'F12', value: 'Tétellap', disabled: false }
-    ];
+    public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
+    override readonly commandsOnForm: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
     constructor(
         f: FormGroup,
@@ -130,7 +117,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         const val = event instanceof Event ? (event as KeyboardEvent).code : event;
         switch (val) {
             // NEW
-            case KeyBindings.crudNew:
+            case this.KeySetting[Actions.CrudNew].KeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.new:
                     case Constants.FormState.default:
@@ -142,11 +129,11 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 }
                 break;
             // RESET
-            case KeyBindings.crudReset:
+            case this.KeySetting[Actions.CrudReset].KeyCode:
                 this.ActionReset();
                 break;
             // SAVE
-            case KeyBindings.crudSave:
+            case this.KeySetting[Actions.CrudSave].KeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.new:
                         this.ActionNew();
@@ -157,7 +144,8 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 }
                 break;
             // DELETE
-            case KeyBindings.crudDelete:
+            case this.KeySetting[Actions.CrudDelete].KeyCode:
+            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         this.ActionDelete();
@@ -229,31 +217,32 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
 
     override HandleKey(event: any): void {
         switch (event.key) {
-            case KeyBindings.F8: {
+            case this.KeySetting[Actions.CrudNew].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionNew();
                 break;
             }
-            case KeyBindings.F9: {
+            case this.KeySetting[Actions.CrudReset].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionReset();
                 break;
             }
-            case KeyBindings.F10: {
+            case this.KeySetting[Actions.CrudSave].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionPut();
                 break;
             }
-            case KeyBindings.F11: {
+            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+            case this.KeySetting[Actions.CrudDelete].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionDelete();
                 break;
             }
-            case KeyBindings.F12: {
+            case this.KeySetting[Actions.ToggleForm].KeyCode: {
                 event.preventDefault();
                 this.kbS.isEditModeLocked = true;
                 this.sidebarService.collapse();

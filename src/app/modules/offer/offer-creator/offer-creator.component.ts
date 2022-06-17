@@ -36,7 +36,7 @@ import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
@@ -186,19 +186,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-  override readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: 'Kedvezmény mutatás kapcsolás összes sorra', disabled: false },
-    { key: 'F2', value: 'Keresés', disabled: false },
-    { key: 'F3', value: 'Kedvezmény megadása összes sorra', disabled: false },
-    { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
-    { key: 'F4', value: 'Keresés NAV-val (csak sikertelen rendes keresés esetén)', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-  ];
+  public KeySetting: Constants.KeySettingsDct = OfferEditorKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
@@ -998,16 +987,17 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key == 'Enter') {
+    if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       this.Save();
+      return;
     }
     switch (event.key) {
-      case KeyBindings.F1: {
+      case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
         event.preventDefault();
         this.ToggleAllShowDiscount();
         break;
       }
-      case KeyBindings.F3: {
+      case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {
         event.preventDefault();
         this.SetGlobalDiscount();
         break;
