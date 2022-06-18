@@ -33,6 +33,11 @@ export module Constants {
     export const TOASTR_ERROR: Partial<NbToastrConfig> =
         { duration: 0, status: 'danger' };
 
+    export const TOASTR_SUCCESS_5_SEC: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'primary' };
+    export const TOASTR_ERROR_5_SEC: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'danger' };
+
 
     // Util
 

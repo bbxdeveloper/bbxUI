@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -239,7 +239,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Offer>>,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private offerService: OfferService,
@@ -369,7 +370,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.bbxToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
@@ -484,7 +485,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             }
           });
         } else {
-          this.toastrService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {
@@ -646,10 +647,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           this.isLoading = true;
           this.infrastructureService.SendEmail(res).subscribe({
             next: _ => {
-              this.toastrService.show(
+              this.simpleToastrService.show(
                 Constants.MSG_EMAIL_SUCCESFUL,
                 Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
+                Constants.TOASTR_SUCCESS_5_SEC
               );
             },
             error: (err) => {
@@ -709,10 +710,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           this.offerService.Delete({ ID: HelperFunctions.ToInt(id) } as DeleteOfferRequest).subscribe({
             next: res => {
               if (!!res && res.succeeded) {
-                this.toastrService.show(
+                this.simpleToastrService.show(
                   Constants.MSG_DELETE_SUCCESFUL,
                   Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS
+                  Constants.TOASTR_SUCCESS_5_SEC
                 );
                 this.Refresh(this.getInputParams);
               } else {
@@ -756,10 +757,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
                 if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                  this.toastrService.show(
+                  this.simpleToastrService.show(
                     `Az árajánlat nyomtatása véget ért.`,
                     Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS
+                    Constants.TOASTR_SUCCESS_5_SEC
                   );
                   commandEndedSubscription.unsubscribe();
                 }
@@ -769,7 +770,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                 console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
                 commandEndedSubscription.unsubscribe();
-                this.toastrService.show(
+                this.bbxToastrService.show(
                   `Az árajánlat nyomtatása közben hiba történt.`,
                   Constants.TITLE_ERROR,
                   Constants.TOASTR_ERROR
@@ -780,10 +781,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             this.isLoading = true;
             this.printReport(id, res.value);
           } else {
-            this.toastrService.show(
+            this.simpleToastrService.show(
               `Az árajánlat számla nyomtatása nem történt meg.`,
               Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS
+              Constants.TOASTR_SUCCESS_5_SEC
             );
             this.isLoading = false;
           }
