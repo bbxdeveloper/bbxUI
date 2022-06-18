@@ -607,10 +607,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         productCode: x.data.productCode,
         lineDescription: x.data.lineDescription,
         vatRateCode: x.data.vatRateCode,
-        unitPrice: this.ToFloat(x.data.unitPrice),
+        unitPrice: x.data.UnitPriceForCalc,
         unitVat: this.ToFloat(x.data.unitVat),
         unitGross: this.ToFloat(x.data.unitGross),
-        discount: this.ToFloat(x.data.discount),
+        discount: x.data.DiscountForCalc,
         showDiscount: x.data.showDiscount,
         unitOfMeasure: x.data.unitOfMeasure
       } as OfferLineForPost;
@@ -702,7 +702,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                 next: res => {
 
                   this.Reset();
-                  
+
                   if (res.answer) {
 
                     this.buyerForm.controls['offerNumber'].reset();

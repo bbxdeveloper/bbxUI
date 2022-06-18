@@ -60,7 +60,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         this.discount = val; // HelperFunctions.ToFloat(val.replace(' ', ''))
 
-        let d = (HelperFunctions.ToFloat(this.discount) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.discount / 100.0);
+        let d = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
         let priceWithDiscount = this.originalUnitPrice;
         priceWithDiscount -= this.originalUnitPrice * d;
         this.unitPrice = HelperFunctions.ToFloat(priceWithDiscount);
@@ -70,12 +70,16 @@ export class OfferLine implements IEditable, OfferLineFullData {
         // console.log(`[GETTER Discount]: ${this.discount}`);
         return this.discount;
     }
+    get DiscountForCalc() {
+        // console.log(`[GETTER Discount]: ${this.discount}`);
+        return HelperFunctions.ToFloat((this.discount + '').replace(' ', ''));
+    }
 
     // UnitPrice - with applied discount - get set
     set OriginalUnitPrice(val: number) {
         this.originalUnitPrice = val
         this.unitPrice = val
-        this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
+        this.UnitVat = this.UnitPriceForCalc * this.vatRate;
     }
     set UnitPrice(val: number) {
         if (environment.getterSetterLogs) {
@@ -84,19 +88,24 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         this.discount = 0.0;
         this.unitPrice = val;
-        this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
+        this.UnitVat = this.UnitPriceForCalc * this.vatRate;
     }
     get UnitPrice() {
         return this.unitPrice;
+    }
+    get UnitPriceForCalc() {
+        return HelperFunctions.ToFloat((this.unitPrice + '').replace(' ', ''));
     }
 
     // UnitVat
     set UnitVat(val: number) {
         this.unitVat = val;
         if (environment.getterSetterLogs) {
-            console.log(`[SETTER UnitVat] Set unitGross, old val: ${this.unitGross}, new val: ${this.unitPrice + this.unitVat}, new unit price: ${this.unitPrice}`);
+            console.log(
+                `[SETTER UnitVat] Set unitGross, old val: ${this.unitGross}, new val: 
+                ${this.unitPrice + this.unitVat}, new unit price: ${this.unitPrice}, calc result: ${this.UnitPriceForCalc + this.unitVat}`);
         }
-        this.unitGross = HelperFunctions.ToFloat(this.unitPrice) + this.unitVat;
+        this.unitGross = this.UnitPriceForCalc + this.unitVat;
     }
     get UnitVat() {
         return this.unitVat;

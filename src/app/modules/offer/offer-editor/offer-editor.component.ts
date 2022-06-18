@@ -680,7 +680,25 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     // this.offerData.invoiceVatAmount = 0;
 
     this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => 
-      x.data as OfferLineFullData
+      {
+        return {
+          productCode: x.data.productCode,
+          lineDescription: x.data.lineDescription,
+          vatRateCode: x.data.vatRateCode,
+          unitPrice: x.data.UnitPriceForCalc,
+          unitVat: this.ToFloat(x.data.unitVat),
+          unitGross: this.ToFloat(x.data.unitGross),
+          discount: x.data.DiscountForCalc,
+          showDiscount: x.data.showDiscount,
+          unitOfMeasure: x.data.unitOfMeasure,
+          id: x.data.id,
+          offerID: x.data.offerID,
+          productID: x.data.productID,
+          unitOfMeasureX: x.data.unitOfMeasureX,
+          vatRateID: x.data.vatRateID,
+          vatPercentage: x.data.vatPercentage
+        } as OfferLineFullData
+      }
     );
 
     // this.RecalcNetAndVat();
