@@ -700,6 +700,9 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               });
               dialogRef.onClose.subscribe({
                 next: res => {
+
+                  this.Reset();
+                  
                   if (res.answer) {
 
                     this.buyerForm.controls['offerNumber'].reset();
@@ -709,7 +712,6 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
                         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.Reset();
                           this.toastrService.show(
                             `Az árajánlat nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
