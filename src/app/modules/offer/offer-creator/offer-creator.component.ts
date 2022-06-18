@@ -135,12 +135,12 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-      colWidth: "20%", textAlign: "left", fInputType: 'code-field'
+      colWidth: "30%", textAlign: "left", fInputType: 'code-field'
     },
     {
       label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
       defaultValue: '', type: 'string', mask: "", //fReadonly: true,
-      colWidth: "30%", textAlign: "left",
+      colWidth: "70%", textAlign: "left",
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -150,7 +150,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     {
       label: 'Nettó Ár', objectKey: 'originalUnitPrice', colKey: 'originalUnitPrice',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
       label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
@@ -163,7 +163,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     {
       label: 'Kedv. Mut.', objectKey: 'showDiscount', colKey: 'showDiscount',
       defaultValue: '', type: 'checkbox', mask: "",
-      colWidth: "16%", textAlign: "center", fInputType: 'checkbox'
+      colWidth: "130px", textAlign: "center", fInputType: 'checkbox'
     },
     {
       label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
