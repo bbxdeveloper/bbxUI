@@ -702,11 +702,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-      this.isLoading = true;
-
+      
       const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_DELETE_OFFER } });
       confirmDialogRef.onClose.subscribe(res => {
         if (res) {
+          this.isLoading = true;
           this.offerService.Delete({ ID: HelperFunctions.ToInt(id) } as DeleteOfferRequest).subscribe({
             next: res => {
               if (!!res && res.succeeded) {
