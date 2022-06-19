@@ -7,7 +7,7 @@ export interface SendEmailRequest {
     from: EmailAddress;
     to: EmailAddress;
     bodyPlainText?: string;
-    bodyHtmlText?: string;
+    body_html_text?: string;
     subject: string;
 }
 

@@ -689,7 +689,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
+                Constants.TOASTR_SUCCESS_5_SEC
               );
               this.isLoading = false;
 
@@ -722,7 +722,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                           this.simpleToastrService.show(
                             `Az árajánlat nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS
+                            Constants.TOASTR_SUCCESS_5_SEC
                           );
                           commandEndedSubscription.unsubscribe();
                         }
@@ -746,7 +746,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                     this.simpleToastrService.show(
                       `Az árajánlat számla nyomtatása nem történt meg.`,
                       Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS
+                      Constants.TOASTR_SUCCESS_5_SEC
                     );
                     this.isLoading = false;
                   }

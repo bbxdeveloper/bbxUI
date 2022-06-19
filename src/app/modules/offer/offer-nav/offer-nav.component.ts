@@ -567,7 +567,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.filterForm.controls["CustomerName"].setValue(res.customerName);
+        this.SetCustomerFormFields(res);
 
         this.kbS.SetCurrentNavigatable(this.filterFormNav);
         this.kbS.SelectFirstTile();

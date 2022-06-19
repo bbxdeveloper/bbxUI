@@ -148,7 +148,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
           email: this.dataForm.GetValue('to')
         } as EmailAddress,
         subject: this.dataForm.GetValue('subject'),
-        bodyPlainText: this.dataForm.GetValue('bodyPlainText')
+        body_html_text: this.dataForm.GetValue('body')
       } as SendEmailRequest);
     }
     if (answer && !this.dataForm.form.valid) {
@@ -161,7 +161,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     else {
       this.closedManually = true;
       this.kbS.RemoveWidgetNavigatable();
-      
+
       this.dialogRef.close(undefined);
     }
   }

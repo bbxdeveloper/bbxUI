@@ -806,7 +806,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
+                Constants.TOASTR_SUCCESS_5_SEC
               );
 
               this.ExitToNav();

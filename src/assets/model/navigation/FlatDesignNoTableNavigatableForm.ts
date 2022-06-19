@@ -127,6 +127,16 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         });
     }
 
+    FillForm(data: any, skip: string[] = []) {
+        if (!!data) {
+            Object.keys(this.form.controls).forEach((x: string) => {
+                if (!skip.includes(x)) {
+                    this.form.controls[x].setValue(data[x]);
+                }
+            });
+        }
+    }
+
     GetValue(formFieldName: string): any {
         return this.form.controls[formFieldName].value;
     }
