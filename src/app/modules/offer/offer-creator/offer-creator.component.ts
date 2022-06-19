@@ -710,7 +710,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
                   this.Reset();
 
-                  if (res.answer) {
+                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
 
                     this.buyerForm.controls['offerNumber'].reset();
 

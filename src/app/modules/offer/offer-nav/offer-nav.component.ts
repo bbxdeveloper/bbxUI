@@ -641,7 +641,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         context: {
           subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
         },
-        closeOnEsc: false
+        closeOnEsc: false,
+        closeOnBackdropClick: false
       });
       dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
         console.log(`[SendEmail]: to send: ${res}`);
@@ -751,7 +752,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       });
       dialogRef.onClose.subscribe({
         next: res => {
-          if (res.answer) {
+          if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
             this.isLoading = true;
 
             let commandEndedSubscription = this.utS.CommandEnded.subscribe({

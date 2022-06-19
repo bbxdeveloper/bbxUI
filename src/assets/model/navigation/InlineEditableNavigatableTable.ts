@@ -436,7 +436,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 }
                 let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
                 let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                this.kbs.ClickCurrentElement();
 
                 // Notify the parent component about the datachange
                 this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
