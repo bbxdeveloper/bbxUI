@@ -148,45 +148,45 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     {
       label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
       defaultValue: '', type: 'string', mask: "", //fReadonly: true,
-      colWidth: "70%", textAlign: "left",
+      colWidth: "50%", textAlign: "left",
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "5%", textAlign: "right"
+      colWidth: "80px", textAlign: "right"
     },
     {
       label: 'Nettó Ár', objectKey: 'originalUnitPrice', colKey: 'originalUnitPrice',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
       label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'param-padded-formatted-integer',
+      colWidth: "90px", textAlign: "right", fInputType: 'param-padded-formatted-integer',
       calc: x => '1.2',
       inputMask: this.offerDiscountInputMask,
       placeHolder: '0.00'
     },
     {
       label: 'Kedv. Mut.', objectKey: 'showDiscount', colKey: 'showDiscount',
-      defaultValue: '', type: 'number', mask: "",
-      colWidth: "130px", textAlign: "center", fInputType: 'checkbox'
+      defaultValue: '', type: 'checkbox', mask: "",
+      colWidth: "110px", textAlign: "center", fInputType: 'checkbox'
     },
     {
       label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
       label: 'Áfakód', objectKey: 'vatRateCode', colKey: 'vatRateCode',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", //fInputType: 'formatted-number'
+      colWidth: "80px", textAlign: "right", //fInputType: 'formatted-number'
     },
     {
       label: 'Bruttó', objectKey: 'unitGross', colKey: 'unitGross',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
     }
   ]
   customMaskPatterns = {
@@ -747,7 +747,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
 
   CheckSaveConditionsAndSave(): void {
     if (this.buyerForm.invalid) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -755,7 +755,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       return;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -983,7 +983,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.buyerFormNav.FillForm(res);
+        this.SetCustomerFormFields(res);
 
         this.kbS.SetCurrentNavigatable(this.buyerFormNav);
         this.kbS.SelectFirstTile();

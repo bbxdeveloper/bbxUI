@@ -145,7 +145,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '50px',
+      colWidth: '60px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },

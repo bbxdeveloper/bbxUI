@@ -120,7 +120,7 @@
                             (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
                             (keydown.F2)="dbDataTable.HandleKey($event, rowPos)"
                             (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)"
-                            [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                            [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                             id="{{'PRODUCT-' + colPos + '-' + rowPos}}" [ngSwitch]="it.fInputType">
                             <ng-container *ngIf="!it.fReadonly">
                                 <ng-container *ngSwitchCase="'code-field'">
