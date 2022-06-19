@@ -42,6 +42,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-offer-creator',
@@ -246,6 +247,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
+    private router: Router,
     private vatRateService: VatRateService
   ) {
     super(dialogService, kbS, fS, cs, sts);
@@ -1061,7 +1063,16 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         this.SetGlobalDiscount();
         break;
       }
+      case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
+        event.preventDefault();
+        this.ExitToNav();
+        break;
+      }
     }
+  }
+
+  private ExitToNav(): void {
+    this.router.navigate(['product/offers-nav']);
   }
 
   ToggleAllShowDiscount(): void {

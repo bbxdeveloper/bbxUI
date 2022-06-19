@@ -640,9 +640,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
           subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
-        }
+        },
+        closeOnEsc: false
       });
       dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
+        console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
           this.isLoading = true;
           this.infrastructureService.SendEmail(res).subscribe({
@@ -749,9 +751,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       });
       dialogRef.onClose.subscribe({
         next: res => {
-          this.isLoading = true;
-
           if (res.answer) {
+            this.isLoading = true;
+
             let commandEndedSubscription = this.utS.CommandEnded.subscribe({
               next: cmdEnded => {
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
@@ -778,7 +780,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                 this.isLoading = false;
               }
             });
-            this.isLoading = true;
             this.printReport(id, res.value);
           } else {
             this.simpleToastrService.show(

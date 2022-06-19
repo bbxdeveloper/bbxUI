@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
+import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -8,6 +8,7 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { EmailAddress, SendEmailRequest } from '../models/Email';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { Constants } from 'src/assets/util/Constants';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -77,7 +78,8 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   constructor(
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SendEmailDialogComponent>,
-    private kbS: KeyboardNavigationService
+    private kbS: KeyboardNavigationService,
+    private simpleToastrService: NbToastrService
   ) {
     super();
     this.Setup();
@@ -134,9 +136,10 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   }
 
   close(answer: boolean) {
-    this.closedManually = true;
-    this.kbS.RemoveWidgetNavigatable();
     if (answer && this.dataForm.form.valid) {
+      this.closedManually = true;
+      this.kbS.RemoveWidgetNavigatable();
+
       this.dialogRef.close({
         from: {
           email: this.dataForm.GetValue('from')
@@ -148,7 +151,17 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
         bodyPlainText: this.dataForm.GetValue('bodyPlainText')
       } as SendEmailRequest);
     }
-    else if (!answer) {
+    if (answer && !this.dataForm.form.valid) {
+      this.simpleToastrService.show(
+        `Az űrlap egyes mezői érvénytelenek vagy hiányosan vannak kitöltve.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR_5_SEC
+      );
+    }
+    else {
+      this.closedManually = true;
+      this.kbS.RemoveWidgetNavigatable();
+      
       this.dialogRef.close(undefined);
     }
   }
