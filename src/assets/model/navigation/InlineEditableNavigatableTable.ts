@@ -394,6 +394,89 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType);
     }
 
+    HandleGridEnterV1(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
+        //debugger;
+
+        console.log('[HandleGridEnter]: ', row, this.editedRow, rowPos, col, colPos, inputId, fInputType, row.data.IsUnfinished());
+
+        // Switch between nav and edit mode
+        let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
+        this.kbS.toggleEdit();
+
+        // Already in Edit mode
+        if (!!this.editedRow) {
+            const tmp = this.editedRow.data;
+
+            // Creator row edited
+            if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !this.editedRow.data.IsUnfinished()) {
+                this.productCreatorRow = this.GenerateCreatorRow;
+                this.data.push(this.productCreatorRow);
+
+                this.dataSource.setData(this.data);
+
+                this.GenerateAndSetNavMatrices(false);
+
+                this.isUnfinishedRowDeletable = true;
+            }
+
+            // this.kbS.toggleEdit();
+            this.ResetEdit();
+            this.cdref!.detectChanges();
+
+            let newX = this.MoveNextInTable();
+            if (wasEditActivatedPreviously) {
+                if (newX < colPos) {
+                    this.isUnfinishedRowDeletable = false;
+                }
+                let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
+                let nextRow = newX < colPos ? this.data[nextRowPost] : row;
+                this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+            }
+
+            console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
+
+            this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
+        } else {
+            // Entering edit mode
+            this.Edit(row, rowPos, col);
+            this.cdref!.detectChanges();
+            $('#' + inputId).trigger('focus');
+
+            if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
+                const _input = document.getElementById(inputId) as HTMLInputElement;
+                if (!!_input && _input.type === "text") {
+                    window.setTimeout(function () {
+                        const txtVal = ((row.data as any)[col] + '');
+                        console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
+                        if (!!txtVal) {
+                            const l = txtVal.split('.')[0].length;
+                            _input.setSelectionRange(0, l);
+                        } else {
+                            _input.setSelectionRange(0, 1);
+                        }
+                    }, 0);
+                }
+            } else {
+                const _input = document.getElementById(inputId) as HTMLInputElement;
+                if (!!_input && _input.type === "text") {
+                    window.setTimeout(function () {
+                        const txtVal = ((row.data as any)[col] as string);
+                        console.log('txtVal: ', txtVal);
+                        if (!!txtVal) {
+                            _input.setSelectionRange(txtVal.length, txtVal.length);
+                        } else {
+                            _input.setSelectionRange(0, 0);
+                        }
+                    }, 0);
+                }
+            }
+        }
+
+        this.PushFooterCommandList();
+
+        console.log((this.data[rowPos].data as any)[col]);
+    }
+
     private ApplyGridEnterEffects(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
         // Switch between nav and edit mode
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
@@ -485,8 +568,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             this.kbs.setEditMode(KeyboardModes.NAVIGATION);
             this.ApplyGridEnterEffects(row, rowPos, col, colPos, inputId, fInputType);
         } else {
+            this.kbs.setEditMode(KeyboardModes.EDIT);
             setTimeout(() => {
-                this.kbs.setEditMode(KeyboardModes.EDIT);
                 this.ApplyGridEnterEffects(row, rowPos, col, colPos, inputId, fInputType);
             }, 10);
         }

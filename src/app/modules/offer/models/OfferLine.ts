@@ -142,7 +142,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
-    static FromProduct(product: Product): OfferLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0): OfferLine {
         let offerLine = new OfferLine();
 
         offerLine.lineDescription = product.description ?? '';
@@ -157,6 +157,12 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         offerLine.unitOfMeasure = product.unitOfMeasure;
         offerLine.unitOfMeasureX = product.unitOfMeasureX;
+
+        offerLine.id = 0;
+        offerLine.offerID = offerId;
+        offerLine.productID = product.id;
+        offerLine.vatRateID = vatRateId;
+        offerLine.vatPercentage = HelperFunctions.ToFloat(product.vatPercentage ?? 0.0);
 
         console.log('FromProduct res: ', offerLine);
 

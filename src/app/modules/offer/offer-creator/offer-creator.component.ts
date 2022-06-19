@@ -36,9 +36,12 @@ import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
-import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferCreatorKeySettings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
+import { VatRateService } from '../../vat-rate/services/vat-rate.service';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-offer-creator',
@@ -186,7 +189,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-  public KeySetting: Constants.KeySettingsDct = OfferEditorKeySettings;
+  public KeySetting: Constants.KeySettingsDct = OfferCreatorKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   sortColumn: string = '';
@@ -237,11 +240,13 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     private seC: CustomerService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: NbToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
+    private vatRateService: VatRateService
   ) {
     super(dialogService, kbS, fS, cs, sts);
     this.InitialSetup();
@@ -404,7 +409,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
-            this.toastrService.show(
+            this.simpleToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -645,7 +650,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
   Save(): void {
     if (this.buyerForm.invalid) {
-      this.toastrService.show(
+      this.simpleToastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -653,7 +658,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       return;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.toastrService.show(
+      this.simpleToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -679,7 +684,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                 this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
               }
 
-              this.toastrService.show(
+              this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS
@@ -712,7 +717,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
                         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.toastrService.show(
+                          this.simpleToastrService.show(
                             `Az árajánlat nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
                             Constants.TOASTR_SUCCESS
@@ -725,7 +730,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
                         commandEndedSubscription.unsubscribe();
-                        this.toastrService.show(
+                        this.simpleToastrService.show(
                           `Az árajánlat nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
@@ -736,7 +741,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                     this.isLoading = true;
                     this.printReport(d.data?.id, res.value);
                   } else {
-                    this.toastrService.show(
+                    this.simpleToastrService.show(
                       `Az árajánlat számla nyomtatása nem történt meg.`,
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS
@@ -833,14 +838,59 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
-        res.unitPrice1 = 999999999.99;
-        this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.dbDataTable.MoveNextInTable();
-        setTimeout(() => {
-          this.kbS.setEditMode(KeyboardModes.EDIT);
-          this.kbS.ClickCurrentElement();
-        }, 200);
+        this.isLoading = true;
+
+        this.vatRateService.GetAll({} as GetVatRatesParamListModel).subscribe({
+          next: d => {
+            if (!!d.data) {
+              console.log('Vatrates: ', d.data);
+
+              let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
+
+              if (vatRateFromProduct === undefined) {
+                this.bbxToastrService.show(
+                  `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                );
+              }
+
+              this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isLoading = false;
+
+              this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+            }
+          },
+          error: err => {
+            this.cs.HandleError(err);
+            this.isLoading = false;
+
+            this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.dbDataTable.MoveNextInTable();
+            setTimeout(() => {
+              this.kbS.setEditMode(KeyboardModes.EDIT);
+              this.kbS.ClickCurrentElement();
+            }, 500);
+          },
+          complete: () => {
+            this.isLoading = false;
+          }
+        });
       }
     });
   }
@@ -900,6 +950,13 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
+
+    if (this.customerInputFilterString.replace(' ', '') === '') {
+      this.buyerData = { id: -1 } as Customer;
+      this.SetCustomerFormFields(undefined);
+      return;
+    }
+
     this.isLoading = true;
     this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
@@ -976,7 +1033,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
             }
           });
         } else {
-          this.toastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.simpleToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {
