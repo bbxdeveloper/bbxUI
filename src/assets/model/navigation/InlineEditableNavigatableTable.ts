@@ -394,87 +394,92 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType);
     }
 
-    HandleGridEnterV1(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
-        //debugger;
+    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
+        // Is there a currently edited row?
+        let wasEditActivatedPreviously = this.kbS.isEditModeActivated && !!this.editedRow;
+        
+        // Cache edited data
+        let tmp: T | undefined = this.editedRow?.data;
 
-        console.log('[HandleGridEnter]: ', row, this.editedRow, rowPos, col, colPos, inputId, fInputType, row.data.IsUnfinished());
+        // Stats
+        console.log(`[HandleGridEnter]: wasEditActivatedPreviously: ${wasEditActivatedPreviously}, IS EDIT MODE: ${this.kbS.isEditModeActivated}, ROW: ${row}, EDITEDROW: ${this.editedRow}, ROWPOS: ${rowPos}, COL: ${col}, COLPOS: ${colPos}, INPUT ID: ${inputId}, F INPUT TYPE: ${fInputType}, IS UNFINISHED: ${row.data.IsUnfinished()}`);
 
-        // Switch between nav and edit mode
-        let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
+        // Switch modes
         this.kbS.toggleEdit();
 
-        // Already in Edit mode
-        if (!!this.editedRow) {
-            const tmp = this.editedRow.data;
+        setTimeout(() => {
+            // Already in Edit mode
+            if (wasEditActivatedPreviously && !!tmp) {
 
-            // Creator row edited
-            if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !this.editedRow.data.IsUnfinished()) {
-                this.productCreatorRow = this.GenerateCreatorRow;
-                this.data.push(this.productCreatorRow);
+                // New blank row if needed
+                if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !tmp.IsUnfinished()) {
+                    this.productCreatorRow = this.GenerateCreatorRow;
+                    this.data.push(this.productCreatorRow);
 
-                this.dataSource.setData(this.data);
+                    this.dataSource.setData(this.data);
 
-                this.GenerateAndSetNavMatrices(false);
+                    this.GenerateAndSetNavMatrices(false);
 
-                this.isUnfinishedRowDeletable = true;
-            }
+                    this.isUnfinishedRowDeletable = true;
+                }
 
-            // this.kbS.toggleEdit();
-            this.ResetEdit();
-            this.cdref!.detectChanges();
+                // Clear edit data
+                this.ResetEdit();
 
-            let newX = this.MoveNextInTable();
-            if (wasEditActivatedPreviously) {
+                // Detect changes in DOM
+                this.cdref!.detectChanges();
+
+                // Move to the next cell and enter edit mode in it
+                let newX = this.MoveNextInTable();
                 if (newX < colPos) {
                     this.isUnfinishedRowDeletable = false;
                 }
                 let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
                 let nextRow = newX < colPos ? this.data[nextRowPost] : row;
                 this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
-            }
 
-            console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
-
-            this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
-        } else {
-            // Entering edit mode
-            this.Edit(row, rowPos, col);
-            this.cdref!.detectChanges();
-            $('#' + inputId).trigger('focus');
-
-            if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
-                const _input = document.getElementById(inputId) as HTMLInputElement;
-                if (!!_input && _input.type === "text") {
-                    window.setTimeout(function () {
-                        const txtVal = ((row.data as any)[col] + '');
-                        console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
-                        if (!!txtVal) {
-                            const l = txtVal.split('.')[0].length;
-                            _input.setSelectionRange(0, l);
-                        } else {
-                            _input.setSelectionRange(0, 1);
-                        }
-                    }, 0);
-                }
+                // Notify the parent component about the datachange
+                this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
             } else {
-                const _input = document.getElementById(inputId) as HTMLInputElement;
-                if (!!_input && _input.type === "text") {
-                    window.setTimeout(function () {
-                        const txtVal = ((row.data as any)[col] as string);
-                        console.log('txtVal: ', txtVal);
-                        if (!!txtVal) {
-                            _input.setSelectionRange(txtVal.length, txtVal.length);
-                        } else {
-                            _input.setSelectionRange(0, 0);
-                        }
-                    }, 0);
+                // Entering edit mode
+                this.Edit(row, rowPos, col);
+                this.cdref!.detectChanges();
+                $('#' + inputId).trigger('focus');
+
+                if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
+                    const _input = document.getElementById(inputId) as HTMLInputElement;
+                    if (!!_input && _input.type === "text") {
+                        window.setTimeout(function () {
+                            const txtVal = ((row.data as any)[col] + '');
+                            console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
+                            if (!!txtVal) {
+                                const l = txtVal.split('.')[0].length;
+                                _input.setSelectionRange(0, l);
+                            } else {
+                                _input.setSelectionRange(0, 1);
+                            }
+                        }, 0);
+                    }
+                } else {
+                    const _input = document.getElementById(inputId) as HTMLInputElement;
+                    if (!!_input && _input.type === "text") {
+                        window.setTimeout(function () {
+                            const txtVal = ((row.data as any)[col] as string);
+                            console.log('txtVal: ', txtVal);
+                            if (!!txtVal) {
+                                _input.setSelectionRange(txtVal.length, txtVal.length);
+                            } else {
+                                _input.setSelectionRange(0, 0);
+                            }
+                        }, 0);
+                    }
                 }
             }
-        }
 
-        this.PushFooterCommandList();
+            this.PushFooterCommandList();
 
-        console.log((this.data[rowPos].data as any)[col]);
+            console.log((this.data[rowPos].data as any)[col]);
+        }, 10);
     }
 
     private ApplyGridEnterEffects(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
@@ -561,7 +566,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         console.log((this.data[rowPos].data as any)[col]);
     }
 
-    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
+    HandleGridEnter1(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
         console.log('[HandleGridEnter]: colpos:', colPos, 'maximum colpos: ', this.Matrix[0].length - 1, row, this.editedRow, rowPos, col, inputId, fInputType, row.data.IsUnfinished());
 
         if (this.kbS.isEditModeActivated) {
