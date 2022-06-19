@@ -39,12 +39,6 @@ nb-card {
     
     max-height: calc(100vh - 260px) !important;
 
-    @media (max-height: 1000px) {
-        td {
-            padding: 0rem 0.5rem !important;
-        }
-    }
-
     tr > th {
         position: sticky;
         top: -1px;
