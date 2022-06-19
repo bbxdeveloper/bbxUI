@@ -164,6 +164,14 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     },
   ];
 
+  get CustomerId(): number | undefined {
+    if (!!this.buyerData && this.buyerData.id > -1) {
+      return this.buyerData.id;
+    } else {
+      return undefined
+    }
+  }
+
   override get getInputParams(): GetOffersParamsModel {
     return {
       PageNumber: this.dbDataTable.currentPage,
@@ -171,7 +179,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       OfferNumber: this.filterForm.controls['OfferNumber'].value,
 
-      CustomerID: this.buyerData?.id === undefined ? this.buyerData?.id : this.buyerData?.id + '',
+      CustomerID: this.CustomerId,
       
       OfferIssueDateFrom: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateFrom'].value),
       OfferIssueDateTo: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateTo'].value),
@@ -511,6 +519,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
+
+    if (this.customerInputFilterString.replace(' ', '') === '') {
+      this.buyerData = { id: -1 } as Customer;
+      this.SetCustomerFormFields(undefined);
+      return;
+    }
+
     this.isLoading = true;
     this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
