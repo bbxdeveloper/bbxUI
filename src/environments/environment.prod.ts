@@ -3,6 +3,8 @@ export const environment = {
   electron: false,
   apiUrl: "https://bbxbe.azurewebsites.net/",
   apiVersion: "/v1/",
+
+  buildType: 'production - dev test',
   
   debug: false,
 
