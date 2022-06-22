@@ -5,8 +5,8 @@
             (keydown.escape)="formNav.HandleFormEscape()">
             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <label>{{inputLabel}}</label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName='answer' required="true"
-                    [inputMask]="numberInputMask" placeholder="0.00000"
+                <input class="{{TileCssClass}} one-number-input-dialog-input" nbInput type="text" formControlName='answer' required="true"
+                    [inputMask]="numberInputMask" [placeholder]="placeHolder"
                     (click)="formNav.HandleFormFieldClick($event)">
             </nb-form-field>
         </form>

@@ -6,7 +6,7 @@ import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
 import { Constants } from "src/assets/util/Constants";
-import { KeyBindings } from "src/assets/util/KeyBindings";
+import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { IInlineManager } from "../IInlineManager";
@@ -81,6 +81,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     parentComponent!: IInlineManager;
 
+    public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
+
     constructor(
         f: FormGroup,
         private kbS: KeyboardNavigationService,
@@ -123,6 +125,16 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 this.kbS.isEditModeLocked = false;
             }
         });
+    }
+
+    FillForm(data: any, skip: string[] = []) {
+        if (!!data) {
+            Object.keys(this.form.controls).forEach((x: string) => {
+                if (!skip.includes(x)) {
+                    this.form.controls[x].setValue(data[x]);
+                }
+            });
+        }
     }
 
     GetValue(formFieldName: string): any {
@@ -202,7 +214,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         const val = event instanceof Event ? (event as KeyboardEvent).code : event;
         switch (val) {
             // NEW
-            case KeyBindings.crudNew:
+            case this.KeySetting[Actions.CrudNew].KeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.new:
                     case Constants.FormState.default:
@@ -213,11 +225,11 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 }
                 break;
             // RESET
-            case KeyBindings.crudReset:
+            case this.KeySetting[Actions.CrudReset].KeyCode:
                 this.ActionReset();
                 break;
             // SAVE
-            case KeyBindings.crudSave:
+            case this.KeySetting[Actions.CrudSave].KeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.new:
                         this.ActionNew();
@@ -228,7 +240,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 }
                 break;
             // DELETE
-            case KeyBindings.crudDelete:
+            case this.KeySetting[Actions.CrudDelete].KeyCode:
+            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         this.ActionDelete();
@@ -477,31 +490,32 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     HandleKey(event: any): void {
         switch (event.key) {
-            case KeyBindings.F8: {
+            case this.KeySetting[Actions.CrudNew].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionNew();
                 break;
             }
-            case KeyBindings.F9: {
+            case this.KeySetting[Actions.CrudReset].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionReset();
                 break;
             }
-            case KeyBindings.F10: {
+            case this.KeySetting[Actions.CrudSave].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionPut();
                 break;
             }
-            case KeyBindings.F11: {
+            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+            case this.KeySetting[Actions.CrudDelete].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionDelete();
                 break;
             }
-            case KeyBindings.F12: {
+            case this.KeySetting[Actions.ToggleForm].KeyCode: {
                 event.preventDefault();
                 this.kbS.isEditModeLocked = true;
                 this.sidebarService.collapse();

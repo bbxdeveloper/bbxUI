@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
+import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -7,6 +7,8 @@ import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { EmailAddress, SendEmailRequest } from '../models/Email';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { Constants } from 'src/assets/util/Constants';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -19,6 +21,52 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
 
   @Input() subject?: string;
 
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: 'auto',
+    minHeight: '0',
+    maxHeight: 'auto',
+    width: 'auto',
+    minWidth: '0',
+    translate: 'yes',
+    enableToolbar: true,
+    showToolbar: true,
+    placeholder: 'Enter text here...',
+    defaultParagraphSeparator: '',
+    defaultFontName: '',
+    defaultFontSize: '',
+    fonts: [
+      { class: 'arial', name: 'Arial' },
+      { class: 'times-new-roman', name: 'Times New Roman' },
+      { class: 'calibri', name: 'Calibri' },
+      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+    ],
+    customClasses: [
+      {
+        name: 'quote',
+        class: 'quote',
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: 'titleText',
+        class: 'titleText',
+        tag: 'h1',
+      },
+    ],
+    uploadUrl: 'v1/image',
+    uploadWithCredentials: false,
+    sanitize: true,
+    toolbarPosition: 'top',
+    toolbarHiddenButtons: [
+      ['bold', 'italic'],
+      ['fontSize']
+    ]
+  };
+
   dataForm!: NavigatableForm;
 
   TileCssClass = TileCssClass;
@@ -30,7 +78,8 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   constructor(
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SendEmailDialogComponent>,
-    private kbS: KeyboardNavigationService
+    private kbS: KeyboardNavigationService,
+    private simpleToastrService: NbToastrService
   ) {
     super();
     this.Setup();
@@ -87,9 +136,10 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   }
 
   close(answer: boolean) {
-    this.closedManually = true;
-    this.kbS.RemoveWidgetNavigatable();
     if (answer && this.dataForm.form.valid) {
+      this.closedManually = true;
+      this.kbS.RemoveWidgetNavigatable();
+
       this.dialogRef.close({
         from: {
           email: this.dataForm.GetValue('from')
@@ -98,10 +148,20 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
           email: this.dataForm.GetValue('to')
         } as EmailAddress,
         subject: this.dataForm.GetValue('subject'),
-        bodyPlainText: this.dataForm.GetValue('bodyPlainText')
+        body_html_text: this.dataForm.GetValue('body')
       } as SendEmailRequest);
     }
-    else if (!answer) {
+    if (answer && !this.dataForm.form.valid) {
+      this.simpleToastrService.show(
+        `Az űrlap egyes mezői érvénytelenek vagy hiányosan vannak kitöltve.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR_5_SEC
+      );
+    }
+    else {
+      this.closedManually = true;
+      this.kbS.RemoveWidgetNavigatable();
+
       this.dialogRef.close(undefined);
     }
   }

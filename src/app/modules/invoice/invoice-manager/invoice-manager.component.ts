@@ -25,7 +25,6 @@ import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
-import { createMask } from '@ngneat/input-mask';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { SumData } from '../models/SumData';
 import { ProductService } from '../../product/services/product.service';
@@ -36,6 +35,8 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
+import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -73,24 +74,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.cdref.detectChanges();
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
-
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.0',
-  });
-
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '',
-  });
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
   override allColumns = [
@@ -144,19 +127,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-  override readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
-    { key: 'F2', value: 'Keresés', disabled: false },
-    { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
-    { key: 'F4', value: 'Keresés NAV-val (csak sikertelen rendes keresés esetén)', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-  ];
-
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
@@ -202,6 +172,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   // CountryCode
   countryCodes: CountryCode[] = [];
+
+  public KeySetting: Constants.KeySettingsDct = InvoiceKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -828,64 +801,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
-        allColumns: [
-          'productCode',
-          'description',
-          'unitPrice1',
-          'unitPrice2',
-        ],
-        colDefs: [
-          {
-            label: 'Kód',
-            objectKey: 'productCode',
-            colKey: 'productCode',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'readonly',
-            mask: '',
-            colWidth: '15%',
-            textAlign: 'center',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Megnevezés',
-            objectKey: 'description',
-            colKey: 'description',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'text',
-            mask: '',
-            colWidth: '25%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Elad ár 1',
-            objectKey: 'unitPrice1',
-            colKey: 'unitPrice1',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'text',
-            fRequired: true,
-            mask: '',
-            colWidth: '30%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Elad ár 2',
-            objectKey: 'unitPrice2',
-            colKey: 'unitPrice2',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'bool',
-            fRequired: false,
-            mask: '',
-            colWidth: '25%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          }
-        ]
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Product) => {
@@ -910,16 +827,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
       context: {
         searchString: this.customerInputFilterString,
-        allColumns: [
-          'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId'
-        ],
-        colDefs: [
-          { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-        ]
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Customer) => {
@@ -1058,8 +967,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key == 'Enter') {
+    if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       this.Save();
+      return;
     }
   }
 }

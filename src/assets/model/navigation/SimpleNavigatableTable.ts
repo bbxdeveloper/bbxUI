@@ -3,7 +3,8 @@ import { FormGroup, FormControl } from "@angular/forms";
 import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/theme";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
-import { KeyBindings } from "src/assets/util/KeyBindings";
+import { Constants } from "src/assets/util/Constants";
+import { DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { IEditable } from "../IEditable";
@@ -62,6 +63,8 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
 
     selectedItem?: SelectedCell;
     parent: any;
+
+    public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
     constructor(
         private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,

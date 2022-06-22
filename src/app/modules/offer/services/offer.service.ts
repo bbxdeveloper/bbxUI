@@ -94,7 +94,7 @@ export class OfferService {
       .set("accept", "text/csv");
     return this.http.get(
       `${this.BaseUrl}/csv` + `?ID=${params['ID']}`,
-      { responseType: 'blob', headers: options }
+      { responseType: 'blob', headers: options, observe: 'response' }
     );
   }
 }

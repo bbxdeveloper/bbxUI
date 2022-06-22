@@ -5,9 +5,13 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
+import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 
+export const FORMATTED_NUMBER_COL_TYPES = [
+  'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
+];
 @Component({
   selector: 'app-flat-design-table',
   templateUrl: './flat-design-table.component.html',
@@ -30,6 +34,8 @@ export class FlatDesignTableComponent implements OnInit {
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
+
+  public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
   constructor(private sideBarService: BbxSidebarService) {}
 
@@ -78,7 +84,7 @@ export class FlatDesignTableComponent implements OnInit {
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
-      case KeyBindings.Tab: {
+      case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {
           return;
@@ -92,7 +98,7 @@ export class FlatDesignTableComponent implements OnInit {
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
-      case KeyBindings.F12: {
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
@@ -101,7 +107,7 @@ export class FlatDesignTableComponent implements OnInit {
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      case KeyBindings.F8: {
+      case this.KeySetting[Actions.CrudNew].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
@@ -110,7 +116,7 @@ export class FlatDesignTableComponent implements OnInit {
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      case KeyBindings.F5: {
+      case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();

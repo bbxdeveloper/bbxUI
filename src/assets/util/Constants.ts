@@ -10,6 +10,7 @@ export module Constants {
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
     export const MSG_CONFIRMATION_SAVE_DATA: string = "Adatok mentése?";
+    export const MSG_CONFIRMATION_DELETE_OFFER: string = "Biztosan törölni szeretné az ajánlatot?";
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
@@ -31,6 +32,11 @@ export module Constants {
         { duration: 0, status: 'primary' };
     export const TOASTR_ERROR: Partial<NbToastrConfig> =
         { duration: 0, status: 'danger' };
+
+    export const TOASTR_SUCCESS_5_SEC: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'primary' };
+    export const TOASTR_ERROR_5_SEC: Partial<NbToastrConfig> =
+        { duration: 5000, status: 'danger' };
 
 
     // Util
@@ -62,7 +68,7 @@ export module Constants {
     }
 
     export enum KeyTypes {
-        Fn, Default
+        Fn, Default, Combo, Unset
     }
 
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
@@ -115,6 +121,7 @@ export module Constants {
 
     export interface KeySettingRow {
         KeyCode: KeyBindings;
+        AlternativeKeyCode?: KeyBindings;
         KeyLabel: string;
         FunctionLabel: string;
         KeyType: KeyTypes;

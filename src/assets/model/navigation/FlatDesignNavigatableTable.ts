@@ -5,7 +5,8 @@ import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
-import { KeyBindings } from "src/assets/util/KeyBindings";
+import { Constants } from "src/assets/util/Constants";
+import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
@@ -91,6 +92,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             data: this.getBlankInstance()
         };
     }
+
+    public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
     constructor(
         f: FormGroup,
@@ -453,17 +456,17 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     HandleKey(event: any): void {
         switch (event.key) {
-            case KeyBindings.F12: {
+            case this.KeySetting[Actions.ToggleForm].KeyCode: {
                 event.preventDefault();
                 this.HandleF12();
                 break;
             }
-            case KeyBindings.F5: {
+            case this.KeySetting[Actions.Refresh].KeyCode: {
                 event.preventDefault();
                 this.Refresh();
                 break;
             }
-            case KeyBindings.F8: {
+            case this.KeySetting[Actions.CrudNew].KeyCode: {
                 event.preventDefault();
                 this.JumpToFirstFormField();
                 this.HandleF12(true);

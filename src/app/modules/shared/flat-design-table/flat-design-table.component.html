@@ -106,7 +106,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
-                                [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div>
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'8.0':'fr' | removeWhitespaces }}

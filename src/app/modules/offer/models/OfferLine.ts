@@ -1,5 +1,6 @@
 import { IEditable } from "src/assets/model/IEditable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
+import { environment } from "src/environments/environment";
 import { InvoiceLine } from "../../invoice/models/InvoiceLine";
 import { Product } from "../../product/models/Product";
 
@@ -52,39 +53,59 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "vatPercentage": number = -1;
 
     // Discount get set
-    set Discount(val: number) {
-        this.discount = val;
+    set Discount(val: any) {
+        if (environment.getterSetterLogs) {
+            console.log(`[SETTER Discount]: ${val}`);
+        }
 
-        let d = this.discount === 0 ? 0.0 : this.discount / 100.0;
+        this.discount = val; // HelperFunctions.ToFloat(val.replace(' ', ''))
+
+        let d = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
         let priceWithDiscount = this.originalUnitPrice;
         priceWithDiscount -= this.originalUnitPrice * d;
         this.unitPrice = HelperFunctions.ToFloat(priceWithDiscount);
         this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
     }
     get Discount() {
+        // console.log(`[GETTER Discount]: ${this.discount}`);
         return this.discount;
+    }
+    get DiscountForCalc() {
+        // console.log(`[GETTER Discount]: ${this.discount}`);
+        return HelperFunctions.ToFloat((this.discount + '').replace(' ', ''));
     }
 
     // UnitPrice - with applied discount - get set
     set OriginalUnitPrice(val: number) {
         this.originalUnitPrice = val
         this.unitPrice = val
-        this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
+        this.UnitVat = this.UnitPriceForCalc * this.vatRate;
     }
     set UnitPrice(val: number) {
+        if (environment.getterSetterLogs) {
+            console.log(`[SETTER UnitPrice]: ${val}`);
+        }
+
         this.discount = 0.0;
         this.unitPrice = val;
-        this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
+        this.UnitVat = this.UnitPriceForCalc * this.vatRate;
     }
     get UnitPrice() {
         return this.unitPrice;
+    }
+    get UnitPriceForCalc() {
+        return HelperFunctions.ToFloat((this.unitPrice + '').replace(' ', ''));
     }
 
     // UnitVat
     set UnitVat(val: number) {
         this.unitVat = val;
-        console.log(`Set unitGross, old val: ${this.unitGross}, new val: ${this.unitPrice + this.unitVat}, new unit price: ${this.unitPrice}`);
-        this.unitGross = HelperFunctions.ToFloat(this.unitPrice) + this.unitVat;
+        if (environment.getterSetterLogs) {
+            console.log(
+                `[SETTER UnitVat] Set unitGross, old val: ${this.unitGross}, new val: 
+                ${this.unitPrice + this.unitVat}, new unit price: ${this.unitPrice}, calc result: ${this.UnitPriceForCalc + this.unitVat}`);
+        }
+        this.unitGross = this.UnitPriceForCalc + this.unitVat;
     }
     get UnitVat() {
         return this.unitVat;
@@ -121,7 +142,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
-    static FromProduct(product: Product): OfferLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0): OfferLine {
         let offerLine = new OfferLine();
 
         offerLine.lineDescription = product.description ?? '';
@@ -136,6 +157,12 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         offerLine.unitOfMeasure = product.unitOfMeasure;
         offerLine.unitOfMeasureX = product.unitOfMeasureX;
+
+        offerLine.id = 0;
+        offerLine.offerID = offerId;
+        offerLine.productID = product.id;
+        offerLine.vatRateID = vatRateId;
+        offerLine.vatPercentage = HelperFunctions.ToFloat(product.vatPercentage ?? 0.0);
 
         console.log('FromProduct res: ', offerLine);
 

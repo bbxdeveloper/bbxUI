@@ -1,5 +1,5 @@
 import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
+import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -102,7 +102,8 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     private fs: FooterService,
     private sts: StatusService,
     private cs: CommonService,
-    private toastrService: BbxToastrService
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
   ) {
     super();
     this.Setup();
@@ -254,13 +255,21 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
           setTimeout(() => {
-            this.toastrService.show(Constants.MSG_SAVE_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+            this.simpleToastrService.show(
+              Constants.MSG_SAVE_SUCCESFUL,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
           }, 200);
 
           this.close(d.data);
         } else {
           console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-          this.toastrService.show(d.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
           this.isLoading = false;
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }

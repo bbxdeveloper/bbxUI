@@ -26,7 +26,6 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { createMask } from '@ngneat/input-mask';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
@@ -37,9 +36,14 @@ import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferCreatorKeySettings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
+import { VatRateService } from '../../vat-rate/services/vat-rate.service';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 
 @Component({
   selector: 'app-offer-creator',
@@ -120,24 +124,6 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.0',
-  });
-
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '',
-  });
-
   override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "originalUnitPrice", "vatRateCode", "unitGross"];
   override allColumns = [
     'productCode',
@@ -148,53 +134,56 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     'showDiscount',
     'UnitPrice',
     'vatRateCode',
-    'unitGross'
+    'unitGross',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-      colWidth: "20%", textAlign: "left", fInputType: 'code-field'
+      colWidth: "30%", textAlign: "left", fInputType: 'code-field'
     },
     {
       label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
       defaultValue: '', type: 'string', mask: "", //fReadonly: true,
-      colWidth: "30%", textAlign: "left",
+      colWidth: "50%", textAlign: "left",
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "5%", textAlign: "right"
+      colWidth: "80px", textAlign: "right"
     },
     {
       label: 'Nettó Ár', objectKey: 'originalUnitPrice', colKey: 'originalUnitPrice',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
-      label: 'Kedvezmény', objectKey: 'Discount', colKey: 'Discount',
+      label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "90px", textAlign: "right", fInputType: 'param-padded-formatted-integer',
+      calc: x => '1.2',
+      inputMask: this.offerDiscountInputMask,
+      placeHolder: '0.00'
     },
     {
-      label: 'Kedv. Mutatása', objectKey: 'showDiscount', colKey: 'showDiscount',
-      defaultValue: '', type: 'number', mask: "",
-      colWidth: "16%", textAlign: "right", fInputType: 'checkbox'
+      label: 'Kedv. Mut.', objectKey: 'showDiscount', colKey: 'showDiscount',
+      defaultValue: '', type: 'checkbox', mask: "",
+      colWidth: "110px", textAlign: "center", fInputType: 'checkbox'
     },
     {
       label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "12%", textAlign: "center", fInputType: 'formatted-number'
+      colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
       label: 'Áfakód', objectKey: 'vatRateCode', colKey: 'vatRateCode',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", //fInputType: 'formatted-number'
+      colWidth: "80px", textAlign: "right", //fInputType: 'formatted-number'
     },
     {
       label: 'Bruttó', objectKey: 'unitGross', colKey: 'unitGross',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "12%", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
     }
   ]
   customMaskPatterns = {
@@ -202,19 +191,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-  override readonly commands: FooterCommandInfo[] = [
-    { key: 'F1', value: 'Kedvezmény mutatás kapcsolás összes sorra', disabled: false },
-    { key: 'F2', value: 'Keresés', disabled: false },
-    { key: 'F3', value: 'Kedvezmény megadása összes sorra', disabled: false },
-    { key: 'Ctrl+Enter', value: 'Mentés (csak teljes kitöltöttség esetén)', disabled: false },
-    { key: 'F4', value: 'Keresés NAV-val (csak sikertelen rendes keresés esetén)', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-  ];
+  public KeySetting: Constants.KeySettingsDct = OfferCreatorKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
@@ -264,11 +242,14 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     private seC: CustomerService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: NbToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
+    private router: Router,
+    private vatRateService: VatRateService
   ) {
     super(dialogService, kbS, fS, cs, sts);
     this.InitialSetup();
@@ -431,7 +412,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
-            this.toastrService.show(
+            this.simpleToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -634,10 +615,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         productCode: x.data.productCode,
         lineDescription: x.data.lineDescription,
         vatRateCode: x.data.vatRateCode,
-        unitPrice: this.ToFloat(x.data.unitPrice),
+        unitPrice: x.data.UnitPriceForCalc,
         unitVat: this.ToFloat(x.data.unitVat),
         unitGross: this.ToFloat(x.data.unitGross),
-        discount: this.ToFloat(x.data.discount),
+        discount: x.data.DiscountForCalc,
         showDiscount: x.data.showDiscount,
         unitOfMeasure: x.data.unitOfMeasure
       } as OfferLineForPost;
@@ -672,7 +653,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
   Save(): void {
     if (this.buyerForm.invalid) {
-      this.toastrService.show(
+      this.bbxToastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -680,7 +661,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       return;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.toastrService.show(
+      this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -706,10 +687,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                 this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
               }
 
-              this.toastrService.show(
+              this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
+                Constants.TOASTR_SUCCESS_5_SEC
               );
               this.isLoading = false;
 
@@ -727,7 +708,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               });
               dialogRef.onClose.subscribe({
                 next: res => {
-                  if (res.answer) {
+
+                  this.Reset();
+
+                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
 
                     this.buyerForm.controls['offerNumber'].reset();
 
@@ -736,11 +720,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
                         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.Reset();
-                          this.toastrService.show(
+                          this.simpleToastrService.show(
                             `Az árajánlat nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS
+                            Constants.TOASTR_SUCCESS_5_SEC
                           );
                           commandEndedSubscription.unsubscribe();
                         }
@@ -750,7 +733,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
                         commandEndedSubscription.unsubscribe();
-                        this.toastrService.show(
+                        this.simpleToastrService.show(
                           `Az árajánlat nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
@@ -761,10 +744,10 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
                     this.isLoading = true;
                     this.printReport(d.data?.id, res.value);
                   } else {
-                    this.toastrService.show(
+                    this.simpleToastrService.show(
                       `Az árajánlat számla nyomtatása nem történt meg.`,
                       Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS
+                      Constants.TOASTR_SUCCESS_5_SEC
                     );
                     this.isLoading = false;
                   }
@@ -795,76 +778,66 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
-        allColumns: [
-          'productCode',
-          'description',
-          'unitPrice1',
-          'unitPrice2',
-        ],
-        colDefs: [
-          {
-            label: 'Kód',
-            objectKey: 'productCode',
-            colKey: 'productCode',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'readonly',
-            mask: '',
-            colWidth: '15%',
-            textAlign: 'center',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Megnevezés',
-            objectKey: 'description',
-            colKey: 'description',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'text',
-            mask: '',
-            colWidth: '25%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Elad ár 1',
-            objectKey: 'unitPrice1',
-            colKey: 'unitPrice1',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'text',
-            fRequired: true,
-            mask: '',
-            colWidth: '30%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Elad ár 2',
-            objectKey: 'unitPrice2',
-            colKey: 'unitPrice2',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'bool',
-            fRequired: false,
-            mask: '',
-            colWidth: '25%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          }
-        ]
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
-        this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.dbDataTable.MoveNextInTable();
-        setTimeout(() => {
-          this.kbS.setEditMode(KeyboardModes.EDIT);
-          this.kbS.ClickCurrentElement();
-        }, 200);
+        this.isLoading = true;
+
+        this.vatRateService.GetAll({} as GetVatRatesParamListModel).subscribe({
+          next: d => {
+            if (!!d.data) {
+              console.log('Vatrates: ', d.data);
+
+              let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
+
+              if (vatRateFromProduct === undefined) {
+                this.bbxToastrService.show(
+                  `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                );
+              }
+
+              this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isLoading = false;
+
+              this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+            }
+          },
+          error: err => {
+            this.cs.HandleError(err);
+            this.isLoading = false;
+
+            this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.dbDataTable.MoveNextInTable();
+            setTimeout(() => {
+              this.kbS.setEditMode(KeyboardModes.EDIT);
+              this.kbS.ClickCurrentElement();
+            }, 500);
+          },
+          complete: () => {
+            this.isLoading = false;
+          }
+        });
       }
     });
   }
@@ -877,16 +850,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
       context: {
         searchString: this.customerInputFilterString,
-        allColumns: [
-          'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId'
-        ],
-        colDefs: [
-          { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-        ]
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Customer) => {
@@ -924,6 +889,13 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
+
+    if (this.customerInputFilterString.replace(' ', '') === '') {
+      this.buyerData = { id: -1 } as Customer;
+      this.SetCustomerFormFields(undefined);
+      return;
+    }
+
     this.isLoading = true;
     this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
@@ -1000,7 +972,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
             }
           });
         } else {
-          this.toastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.simpleToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {
@@ -1013,21 +985,31 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key == 'Enter') {
+    if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       this.Save();
+      return;
     }
     switch (event.key) {
-      case KeyBindings.F1: {
+      case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
         event.preventDefault();
         this.ToggleAllShowDiscount();
         break;
       }
-      case KeyBindings.F3: {
+      case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {
         event.preventDefault();
         this.SetGlobalDiscount();
         break;
       }
+      case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
+        event.preventDefault();
+        this.ExitToNav();
+        break;
+      }
     }
+  }
+
+  private ExitToNav(): void {
+    this.router.navigate(['product/offers-nav']);
   }
 
   ToggleAllShowDiscount(): void {
@@ -1046,6 +1028,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       context: {
         title: 'Kedvezmény megadása összes sorra',
         inputLabel: 'Kedvezmény %',
+        numberInputMask: this.offerDiscountInputMask,
+        placeHolder: '0.00'
       }
     });
     dialogRef.onClose.subscribe({

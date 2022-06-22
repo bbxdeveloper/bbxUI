@@ -18,6 +18,8 @@ $nb-themes: nb-register-theme((
 
   sidebar-width: 350px,
 
-  spinner-basic-background-color: rgba(0, 0, 0, 0)
+  spinner-basic-background-color: rgba(0, 0, 0, 0),
+
+  tree-grid-cell-padding: 0rem 0.5rem
 
 ), cosmic, cosmic);

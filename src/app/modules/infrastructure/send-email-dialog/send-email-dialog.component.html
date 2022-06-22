@@ -1,35 +1,43 @@
 <nb-card>
     <nb-card-header>{{title}}</nb-card-header>
     <nb-card-body class="form-col-1">
-        <form id="dataForm" [formGroup]="dataForm.form" #formDirective="ngForm"
+        <form id="dataForm" [formGroup]="dataForm.form" #formDirective="ngForm" class="form-with-rows"
             (keydown.escape)="dataForm.HandleFormEscape()">
-            <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
-                <label>Feladó</label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName='from' required="true"
-                    (click)="dataForm.HandleFormFieldClick($event)">
-            </nb-form-field>
+            <div class="form-row">
+                <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
+                    <label>Feladó</label>
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='from' required="true"
+                        (click)="dataForm.HandleFormFieldClick($event)">
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
+                    <label>Címzett</label>
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='to' required="true"
+                        (click)="dataForm.HandleFormFieldClick($event)">
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
+                    <label>Tárgy</label>
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='subject' required="true"
+                        (click)="dataForm.HandleFormFieldClick($event)">
+                </nb-form-field>
 
-            <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
-                <label>Címzett</label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName='to' required="true"
-                    (click)="dataForm.HandleFormFieldClick($event)">
-            </nb-form-field>
+            </div>
 
-            <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
-                <label>Tárgy</label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName='subject' required="true"
-                    (click)="dataForm.HandleFormFieldClick($event)">
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
-                <label>Üzenet</label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName='body' required="false"
-                    (click)="dataForm.HandleFormFieldClick($event)">
-            </nb-form-field>
+            <div class="form-row">
+                <div>
+                    <label>Üzenet</label>
+                    <angular-editor formControlName="body" [config]="editorConfig"
+                        (keydown.tab)="MoveToSaveButtons($event)"
+                        placeholder="Szövegbevitel végeztével TAB (escape bezárja az ablakot) megnyomása után navigálhat el másik elemre."
+                        class="{{TileCssClass}}">
+                    </angular-editor>
+                </div>
+            </div>
         </form>
     </nb-card-body>
     <nb-card-footer>
-        <button class="{{TileCssClass}}" id="email-button-send" nbButton (click)="close(true)" status="primary"
+        <button class="{{TileCssClass}}" id="email-button-send" nbButton (click)="close(true)" (click)="close(true)" status="primary"
             tabindex="-1">Küldés</button>
         <button class="{{TileCssClass}}" id="email-button-cancel" nbButton (click)="close(false)" status="danger"
             tabindex="-1">Mégsem</button>

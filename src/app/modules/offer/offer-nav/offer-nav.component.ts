@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -28,7 +28,7 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
-import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, OfferNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { SendEmailDialogComponent } from '../../infrastructure/send-email-dialog/send-email-dialog.component';
@@ -36,6 +36,10 @@ import { IframeViewerDialogComponent } from '../../shared/iframe-viewer-dialog/i
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { SendEmailRequest } from '../../infrastructure/models/Email';
 import { UtilityService } from 'src/app/services/utility.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
+import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
+import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 
 @Component({
   selector: 'app-offer-nav',
@@ -44,6 +48,10 @@ import { UtilityService } from 'src/app/services/utility.service';
 })
 export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  public get keyBindings(): typeof KeyBindings {
+    return KeyBindings;
+  }
 
   readonly SearchButtonId: string = 'offers-button-search';
   IsTableFocused: boolean = false;
@@ -56,7 +64,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   customerInputFilterString: string = '';
 
-  isDeleteDisabled: boolean = true;
+  isDeleteDisabled: boolean = false;
 
   cachedCustomerName?: string;
   _searchByTaxtNumber: boolean = false;
@@ -87,7 +95,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '30%',
+      colWidth: '130px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -99,7 +107,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '50%',
+      colWidth: '30%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -138,7 +146,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '50px',
+      colWidth: '60px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -151,11 +159,19 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '25%',
+      colWidth: '70%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
   ];
+
+  get CustomerId(): number | undefined {
+    if (!!this.buyerData && this.buyerData.id > -1) {
+      return this.buyerData.id;
+    } else {
+      return undefined
+    }
+  }
 
   override get getInputParams(): GetOffersParamsModel {
     return {
@@ -164,7 +180,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       OfferNumber: this.filterForm.controls['OfferNumber'].value,
 
-      CustomerID: this.buyerData?.id === undefined ? this.buyerData?.id : this.buyerData?.id + '',
+      CustomerID: this.CustomerId,
       
       OfferIssueDateFrom: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateFrom'].value),
       OfferIssueDateTo: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateTo'].value),
@@ -182,17 +198,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  override commands: FooterCommandInfo[] = [
-    { key: 'F1', value: 'Megjegyzés megtekintése', disabled: false },
-    { key: 'F2', value: 'Ügyfél keresés', disabled: false },
-    { key: 'F3', value: 'Email', disabled: false },
-    { key: 'F4', value: 'CSV', disabled: false },
-    { key: 'F5', value: 'Táblázat újratöltése', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: 'Szerkesztés', disabled: false },
-    { key: 'F8', value: 'Új', disabled: false },
-    //{ key: 'F11', value: 'Törlés', disabled: false },
-  ];
+  public KeySetting: Constants.KeySettingsDct = OfferNavKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get invoiceOfferIssueDateFrom(): Date | undefined {
     if (!!!this.filterForm) {
@@ -241,7 +248,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Offer>>,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private offerService: OfferService,
@@ -264,10 +272,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   InitFormDefaultValues(): void {
-    this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -1));
+    this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
     this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
-    this.filterForm.controls['OfferVaidityDateForm'].setValue(HelperFunctions.GetDateString(1));
-    this.filterForm.controls['OfferVaidityDateTo'].setValue(HelperFunctions.GetDateString(1, 1));
+    this.filterForm.controls['OfferVaidityDateForm'].setValue(HelperFunctions.GetDateString(0, -4));
+    this.filterForm.controls['OfferVaidityDateTo'].setValue(HelperFunctions.GetDateString());
   }
 
   ToInt(p: any): number {
@@ -371,7 +379,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.bbxToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
@@ -486,7 +494,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             }
           });
         } else {
-          this.toastrService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {
@@ -512,6 +520,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   FillFormWithFirstAvailableCustomer(event: any): void {
     this.customerInputFilterString = event.target.value ?? '';
+
+    if (this.customerInputFilterString.replace(' ', '') === '') {
+      this.buyerData = { id: -1 } as Customer;
+      this.SetCustomerFormFields(undefined);
+      return;
+    }
+
     this.isLoading = true;
     this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
@@ -552,23 +567,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
       context: {
         searchString: this.customerInputFilterString,
-        allColumns: [
-          'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId'
-        ],
-        colDefs: [
-          { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-        ]
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Customer) => {
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.filterForm.controls["CustomerName"].setValue(res.customerName);
+        this.SetCustomerFormFields(res);
 
         this.kbS.SetCurrentNavigatable(this.filterFormNav);
         this.kbS.SelectFirstTile();
@@ -583,18 +590,38 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   HandleFunctionKey(event: Event | KeyBindings): void {
     const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+    console.log(`[HandleFunctionKey]: ${val}`);
     switch (val) {
+      // CSV
+      case this.KeySetting[Actions.CSV].KeyCode:
+        this.DownLoadCSV();
+        break;
+      // Send Email
+      case this.KeySetting[Actions.Email].KeyCode:
+        this.SendEmail();
+        break;
+      // View Notice
+      case this.KeySetting[Actions.Details].KeyCode:
+        this.ViewNotice();
+        break;
       // NEW
-      case KeyBindings.crudNew:
-        this.router.navigate(['product/offers-create']);
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+        this.Create();
         break;
       // EDIT
-      case KeyBindings.crudEdit:
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
         this.Edit();
         break;
       // DELETE
-      case KeyBindings.crudDelete:
-        // Delete
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+        if (!this.isDeleteDisabled) {
+          this.Delete();
+        }
+        break;
+      // PRINT
+      case this.KeySetting[Actions.Print].KeyCode:
+        this.Print();
         break;
     }
   }
@@ -621,17 +648,20 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
           subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
-        }
+        },
+        closeOnEsc: false,
+        closeOnBackdropClick: false
       });
       dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
+        console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
           this.isLoading = true;
           this.infrastructureService.SendEmail(res).subscribe({
             next: _ => {
-              this.toastrService.show(
+              this.simpleToastrService.show(
                 Constants.MSG_EMAIL_SUCCESFUL,
                 Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
+                Constants.TOASTR_SUCCESS_5_SEC
               );
             },
             error: (err) => {
@@ -667,11 +697,127 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
+  Create(): void {
+    this.router.navigate(['product/offers-create']);
+  }
+
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const id = this.dbData[this.kbS.p.y - 1].data.id;
       this.router.navigate(['product/offers-edit', id, {}]);
     }
+  }
+
+  Delete(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      
+      const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_DELETE_OFFER } });
+      confirmDialogRef.onClose.subscribe(res => {
+        if (res) {
+          this.isLoading = true;
+          this.offerService.Delete({ ID: HelperFunctions.ToInt(id) } as DeleteOfferRequest).subscribe({
+            next: res => {
+              if (!!res && res.succeeded) {
+                this.simpleToastrService.show(
+                  Constants.MSG_DELETE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                this.Refresh(this.getInputParams);
+              } else {
+                this.cs.HandleError(res.errors);
+                this.isLoading = false;
+              }
+            },
+            error: (err) => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+            },
+            complete: () => {
+              this.isLoading = false;
+            },
+          });
+        }
+      });
+    }
+  }
+
+  Print(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id;
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+      const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+        context: {
+          title: 'Ajánlat Nyomtatása',
+          inputLabel: 'Példányszám',
+          defaultValue: 1
+        }
+      });
+      dialogRef.onClose.subscribe({
+        next: res => {
+          if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+            this.isLoading = true;
+
+            let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+              next: cmdEnded => {
+                console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+                if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                  this.simpleToastrService.show(
+                    `Az árajánlat nyomtatása véget ért.`,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS_5_SEC
+                  );
+                  commandEndedSubscription.unsubscribe();
+                }
+                this.isLoading = false;
+              },
+              error: cmdEnded => {
+                console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+                commandEndedSubscription.unsubscribe();
+                this.bbxToastrService.show(
+                  `Az árajánlat nyomtatása közben hiba történt.`,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                );
+                this.isLoading = false;
+              }
+            });
+            this.printReport(id, res.value);
+          } else {
+            this.simpleToastrService.show(
+              `Az árajánlat számla nyomtatása nem történt meg.`,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+            this.isLoading = false;
+          }
+        }
+      });
+    }
+  }
+
+  printReport(id: any, copies: number): void {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
+    this.utS.execute(
+      Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
+      {
+        "section": "Szamla",
+        "fileType": "pdf",
+        "report_params":
+        {
+          "id": id,
+          "offerNumber": null
+        },
+        // "copies": copies,
+        "data_operation": Constants.DataOperation.PRINT_BLOB
+      } as Constants.Dct);
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
@@ -687,28 +833,33 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     switch (event.key) {
       // CSV
-      case KeyBindings.F4:
+      case this.KeySetting[Actions.CSV].KeyCode:
         event.preventDefault();
         this.DownLoadCSV();
-        break;
+        return;
       // Send Email
-      case KeyBindings.F3:
+      case this.KeySetting[Actions.Email].KeyCode:
         event.preventDefault();
         this.SendEmail();
-        break;
+        return;
       // View Notice
-      case KeyBindings.F1:
+      case this.KeySetting[Actions.Details].KeyCode:
         event.preventDefault();
         this.ViewNotice();
-        break;
+        return;
     }
     switch (event.key) {
-      case CrudManagerKeySettings[Actions.CrudNew].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudEdit].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudReset].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudSave].KeyCode:
-      case CrudManagerKeySettings[Actions.CrudDelete].KeyCode:
-      case CrudManagerKeySettings[Actions.OpenForm].KeyCode:
+      case this.KeySetting[Actions.CSV].KeyCode:
+      case this.KeySetting[Actions.Email].KeyCode:
+      case this.KeySetting[Actions.Details].KeyCode:
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
+      case this.KeySetting[Actions.CrudReset].KeyCode:
+      case this.KeySetting[Actions.CrudSave].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Print].KeyCode:
+      case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();

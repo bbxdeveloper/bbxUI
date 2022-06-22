@@ -7,6 +7,8 @@ export const environment = {
   electron: false,
   apiUrl: "https://bbxbe.azurewebsites.net/", // https://localhost:44378/
   apiVersion: "/v1/",
+
+  buildType: 'non production - local dev',
   
   debug: false,
 
@@ -19,6 +21,8 @@ export const environment = {
   navigationMoveLog: false,
   navigationMatrixLog: false,
   navigationSelectLog: false,
+  utilityLogs: false,
+  getterSetterLogs: true,
 };
 
 /*

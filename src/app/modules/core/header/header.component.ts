@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostListener, Input, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbDialogService, NbIconConfig, NbPopoverDirective } from '@nebular/theme';
+import { NbDialogService, NbIconConfig, NbPopoverDirective, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -75,7 +75,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private sts: StatusService,
     private authService: AuthService,
     private tokenService: TokenStorageService,
-    private toastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     private utS: UtilityService,) {
     super();
     this.OuterJump = true;
@@ -132,12 +133,12 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-    if (this.toastrService.IsToastrOpened) {
+    if (this.bbxToastrService.IsToastrOpened) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
 
-      this.toastrService.close();
+      this.bbxToastrService.close();
 
       return;
     }
@@ -217,8 +218,11 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           ).subscribe({
             next: res => {
               this.tokenService.token = res.token;
-              this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
-              // this.toastrService.show(Constants.MSG_LOGIN_SUCCESFUL, Constants.TITLE_INFO, { duration: 0 });
+              this.simpleToastrService.show(
+                Constants.MSG_LOGIN_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
               setTimeout(() => {
                 this.GenerateAndSetNavMatrices();
                 this.kbS.SelectFirstTile();
@@ -227,7 +231,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
               }, 200);
             },
             error: err => {
-              this.toastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+              this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
               this.isLoading = false;
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             },
@@ -254,7 +258,11 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     this.isLoading = true;
     this.authService.logout().subscribe({
       next: res => {
-        this.toastrService.show(Constants.MSG_LOGOUT_SUCCESFUL, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS);
+        this.simpleToastrService.show(
+          Constants.MSG_LOGOUT_SUCCESFUL,
+          Constants.TITLE_INFO,
+          Constants.TOASTR_SUCCESS_5_SEC
+        );
         this.tokenService.signOut();
         setTimeout(() => {
           this.GenerateAndSetNavMatrices();
@@ -263,7 +271,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         }, 200);
       },
       error: err => {
-        this.toastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        this.bbxToastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         this.isLoading = false;
       },
       complete: () => {

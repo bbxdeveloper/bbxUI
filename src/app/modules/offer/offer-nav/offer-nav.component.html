@@ -1,8 +1,9 @@
 <app-head-line msg="Árajánlatok"></app-head-line>
 
 <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="this"
-[newButton]="true" [editButton]="IsTableActive" [resetButton]="false" [saveButton]="false" [deleteButton]="false"
-wrapperClass="bbx-fd-sidebar-functions-left">
+    [newButton]="true" [editButton]="IsTableActive" [resetButton]="false" [saveButton]="false" [deleteButton]="true" [printButton]="true" [emailButton]="true" [csvButton]="true"
+    [KeySetting]="KeySetting"
+    wrapperClass="bbx-fd-sidebar-functions-left">
 </app-crud-buttons>
 
 <div class="filter-div">

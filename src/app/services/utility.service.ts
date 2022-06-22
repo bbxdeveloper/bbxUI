@@ -269,7 +269,9 @@ export class UtilityService {
         document.body.appendChild(a);
         a.setAttribute('style', 'display: none');
         a.href = blobURL;
-        a.download = res.filename;
+
+        let fileName = UtilityService.GetFileNameFromHeaders(res) ?? res.filename ?? res.fileName ?? '';
+        a.download = fileName;
 
         a.click();
 
@@ -284,5 +286,29 @@ export class UtilityService {
         this.CommandEnded.error(BLOB_DOWNLOAD_WITH_ERROR);
       }
     });
+  }
+
+  public static GetFileNameFromHeaders(res: any): string | undefined {
+    let headerParts = res.headers.get('content-disposition').split(';');
+    if (environment.utilityLogs) {
+      console.log(`[GetFileNameFromHeaders] content-disposition header: ${res.headers.get('content-disposition')}`);
+    }
+    if (headerParts.length > 0) {
+      let fileNameSection = headerParts[1].split('filename');
+      if (fileNameSection.length > 0) {
+        let fileNameSectionParts = fileNameSection[1].split('=');
+        if (fileNameSectionParts.length > 0) {
+          let fileName = fileNameSectionParts[1].trim();
+          if (environment.utilityLogs) {
+            console.log(`[GetFileNameFromHeaders] fileName: ${fileName}`);
+          }
+          return fileName;
+        }
+      }
+    }
+    if (environment.utilityLogs) {
+      console.log(`[GetFileNameFromHeaders] no filename was found`);
+    }
+    return undefined;
   }
 }

@@ -15,13 +15,14 @@ import { NavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav'
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, CrudManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, OfferNavKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { createMask } from '@ngneat/input-mask';
 
 @Component({
   selector: 'app-base-inline-manager',
   templateUrl: './base-inline-manager.component.html',
-  styleUrls: ['./base-inline-manager.component.scss']
+  styleUrls: ['./base-inline-manager.component.scss'],
 })
 export class BaseInlineManagerComponent<T extends IEditable> {
   searchInputId?: string;
@@ -42,7 +43,9 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   dbDataTable!: InlineEditableNavigatableTable<T>;
 
   tableIsFocused: boolean = false;
-  get IsTableFocused(): boolean { return this.tableIsFocused; }
+  get IsTableFocused(): boolean {
+    return this.tableIsFocused;
+  }
 
   isLoading: boolean = true;
 
@@ -71,13 +74,41 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
+  numberInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.00',
+  });
+
+  offerDiscountInputMask = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.00',
+    max: 999.99,
+  });
+
+  numberInputMaskInteger = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 0,
+    digitsOptional: true,
+    prefix: '',
+    placeholder: '',
+  });
+
   constructor(
     @Optional() protected dialogService: NbDialogService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected cs: CommonService,
-    protected sts: StatusService) {
-  }
+    protected sts: StatusService
+  ) {}
 
   HandleError(err: any): void {
     this.cs.HandleError(err);
@@ -96,18 +127,20 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   ActionNew(data?: IUpdateRequest<T>): void {
-    console.log("ActionNew: ", data);
+    console.log('ActionNew: ', data);
 
     if (data?.needConfirmation) {
-      const dialogRef = this.dialogService.open(
-        ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
-      );
-      dialogRef.onClose.subscribe(res => {
+      const dialogRef = this.dialogService.open(ConfirmationDialogComponent, {
+        context: { msg: Constants.MSG_CONFIRMATION_SAVE },
+      });
+      dialogRef.onClose.subscribe((res) => {
         if (res) {
           if (this.searchString !== undefined && this.searchString.length > 0) {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
-            dialogRef.onClose.subscribe(res => {
+            const dialogRef = this.dialogService.open(
+              ConfirmationDialogComponent,
+              { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } }
+            );
+            dialogRef.onClose.subscribe((res) => {
               if (res) {
                 this.clearSearch();
                 this.ProcessActionNew(data);
@@ -122,7 +155,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       this.ProcessActionNew(data);
     }
   }
-  ProcessActionNew(data?: IUpdateRequest<T>): void { }
+  ProcessActionNew(data?: IUpdateRequest<T>): void {}
 
   ActionReset(data?: IUpdateRequest<T>): void {
     this.ProcessActionReset(data);
@@ -132,17 +165,19 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   ActionPut(data?: IUpdateRequest<T>): void {
-    console.log("ActionPut: ", data);
+    console.log('ActionPut: ', data);
     if (data?.needConfirmation) {
-      const dialogRef = this.dialogService.open(
-        ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
-      );
-      dialogRef.onClose.subscribe(res => {
+      const dialogRef = this.dialogService.open(ConfirmationDialogComponent, {
+        context: { msg: Constants.MSG_CONFIRMATION_SAVE },
+      });
+      dialogRef.onClose.subscribe((res) => {
         if (res) {
           if (this.searchString !== undefined && this.searchString.length > 0) {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
-            dialogRef.onClose.subscribe(res => {
+            const dialogRef = this.dialogService.open(
+              ConfirmationDialogComponent,
+              { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } }
+            );
+            dialogRef.onClose.subscribe((res) => {
               if (res) {
                 this.clearSearch();
                 this.ProcessActionPut(data);
@@ -157,16 +192,15 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       this.ProcessActionPut(data);
     }
   }
-  ProcessActionPut(data?: IUpdateRequest<T>): void { }
+  ProcessActionPut(data?: IUpdateRequest<T>): void {}
 
   ActionDelete(data?: IUpdateRequest<T>): void {
-    console.log("ActionDelete: ", data);
+    console.log('ActionDelete: ', data);
     if (data?.needConfirmation) {
-      const dialogRef = this.dialogService.open(
-        ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_DELETE } }
-      );
-      dialogRef.onClose.subscribe(res => {
+      const dialogRef = this.dialogService.open(ConfirmationDialogComponent, {
+        context: { msg: Constants.MSG_CONFIRMATION_DELETE },
+      });
+      dialogRef.onClose.subscribe((res) => {
         if (res) {
           this.ProcessActionDelete(data);
         }
@@ -175,7 +209,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       this.ProcessActionDelete(data);
     }
   }
-  ProcessActionDelete(data?: IUpdateRequest<T>): void { }
+  ProcessActionDelete(data?: IUpdateRequest<T>): void {}
 
   ActionRefresh(data?: IUpdateRequest<T>): void {
     this.Refresh(this.getInputParams);
@@ -193,17 +227,18 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       // $(window).trigger(press);
     }
     switch (event.key) {
-      case CrudManagerKeySettings[Actions.TableSearch].KeyCode: {
+      case OfferNavKeySettings[Actions.Search].KeyCode: {
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();
         if (this.searchInputId !== undefined) {
-          console.log("F2 pressed, focusing search input");
+          console.log('F2 pressed, focusing search input');
           $(`#${this.searchInputId}`).trigger('focus');
         }
         break;
       }
-      default: { }
+      default: {
+      }
     }
   }
 
@@ -231,7 +266,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     this.Refresh(this.getInputParams);
   }
 
-  Refresh(params?: any): void { }
+  Refresh(params?: any): void {}
 
   RefreshTable(selectAfterRefresh?: any): void {
     this.dbDataTable.Setup(

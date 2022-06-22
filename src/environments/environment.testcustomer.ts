@@ -4,6 +4,8 @@ export const environment = {
     apiUrl: "https://bbxbetestcustomer.azurewebsites.net/",
     apiVersion: "/v1/",
 
+    buildType: 'production - customer test',
+
     debug: false,
 
     flatDesignFormDebug: false,
@@ -15,4 +17,6 @@ export const environment = {
     navigationMoveLog: false,
     navigationMatrixLog: false,
     navigationSelectLog: false,
+    utilityLogs: false,
+    getterSetterLogs: false,
 };

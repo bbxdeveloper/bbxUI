@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbDialogService, NbTable, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -151,7 +151,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     private seInv: CounterService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private wareHouseApi: WareHouseService,
@@ -239,10 +240,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                   this.dbData.push(newRow);
                   this.dbDataTable.SetDataForForm(newRow, false, false);
                   this.RefreshTable(newRow.data.id);
-                  this.toastrService.show(
+                  this.simpleToastrService.show(
                     Constants.MSG_SAVE_SUCCESFUL,
                     Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS
+                    Constants.TOASTR_SUCCESS_5_SEC
                   );
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
                   this.isLoading = false;
@@ -253,7 +254,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
             });
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.toastrService.show(
+            this.bbxToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -292,10 +293,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                   this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
                   this.dbDataTable.SetDataForForm(newRow, false, false);
                   this.RefreshTable();
-                  this.toastrService.show(
+                  this.simpleToastrService.show(
                     Constants.MSG_SAVE_SUCCESFUL,
                     Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS
+                    Constants.TOASTR_SUCCESS_5_SEC
                   );
                   this.dbDataTable.flatDesignForm.SetFormStateToDefault();
                   this.isLoading = false;
@@ -305,7 +306,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               error: (err) => { this.HandleError(err); },
             });
           } else {
-            this.toastrService.show(
+            this.bbxToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -333,16 +334,16 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
             if (d.succeeded && !!d.data) {
               const di = this.dbData.findIndex((x) => x.data.id === id);
               this.dbData.splice(di, 1);
-              this.toastrService.show(
+              this.simpleToastrService.show(
                 Constants.MSG_DELETE_SUCCESFUL,
                 Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
+                Constants.TOASTR_SUCCESS_5_SEC
               );
               this.HandleGridSelectionAfterDelete(di);
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.toastrService.show(
+              this.bbxToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
@@ -448,7 +449,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.bbxToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR

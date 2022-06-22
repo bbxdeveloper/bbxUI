@@ -16,8 +16,7 @@ import { createMask } from '@ngneat/input-mask';
 export class OneNumberInputDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   @Input() title: string = "";
   @Input() inputLabel: string = "";
-
-  numberInputMask = createMask({
+  @Input() numberInputMask: any = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
     digits: 2,
@@ -25,6 +24,7 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     prefix: '',
     placeholder: '0.0',
   });
+  @Input() placeHolder: string = '0.00';
 
   closedManually = false;
 
@@ -75,11 +75,29 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     this.OuterJump = true;
   }
 
+  private SelectFirstChar(): void {
+    const _input = document.getElementsByClassName('one-number-input-dialog-input')[0] as HTMLInputElement;
+    if (!!_input && _input.type === "text") {
+      window.setTimeout(function () {
+        const txtVal = $('.one-number-input-dialog-input')[0].innerText;
+        if (!!txtVal) {
+          const l = txtVal.split('.')[0].length;
+          _input.setSelectionRange(0, l);
+        } else {
+          _input.setSelectionRange(0, 1);
+        }
+      }, 0);
+    }
+  }
+
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
+    setTimeout(() => {
+      this.SelectFirstChar();
+    }, 100);
   }
 
   ngOnDestroy(): void {

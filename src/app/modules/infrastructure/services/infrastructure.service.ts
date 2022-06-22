@@ -13,6 +13,6 @@ export class InfrastructureService {
   constructor(private http: HttpClient) { }
 
   SendEmail(req: SendEmailRequest): Observable<SendEmailResponse> {
-    return this.http.post<SendEmailResponse>(this.BaseUrl, req);
+    return this.http.post<SendEmailResponse>(this.BaseUrl + "/SendEmail", req);
   }
 }

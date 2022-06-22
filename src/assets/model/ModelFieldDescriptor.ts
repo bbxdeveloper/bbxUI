@@ -24,4 +24,6 @@ export interface ModelFieldDescriptor {
     fUnclickable?: boolean;
 
     calc?: (x: any) => any;
+    inputMask?: any;
+    placeHolder?: string;
 }

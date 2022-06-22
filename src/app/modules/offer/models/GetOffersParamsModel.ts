@@ -4,7 +4,7 @@ export interface GetOffersParamsModel {
     PageNumber?: number;
     
     OfferNumber?: string;
-    CustomerID?: string;
+    CustomerID?: number;
     OfferIssueDateFrom?: string;
     OfferIssueDateTo?: string;
     OfferVaidityDateForm?: string;

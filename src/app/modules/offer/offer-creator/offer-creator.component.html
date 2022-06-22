@@ -120,7 +120,7 @@
                             (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
                             (keydown.F2)="dbDataTable.HandleKey($event, rowPos)"
                             (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)"
-                            [style.width]="it.colWidth" [style.text-align]="it.textAlign"
+                            [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                             id="{{'PRODUCT-' + colPos + '-' + rowPos}}" [ngSwitch]="it.fInputType">
                             <ng-container *ngIf="!it.fReadonly">
                                 <ng-container *ngSwitchCase="'code-field'">
@@ -144,15 +144,27 @@
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
                                         [inputMask]="numberInputMask" placeholder="0.00000"
-                                        oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
+                                        class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{
                                         it.calc !== undefined ?
                                         it.calc(row.data) :
-                                        row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' |
-                                        replace:',':'.'
+                                        row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.'
+                                        }}
+                                    </div>
+                                </ng-container>
+                                
+                                <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
+                                        nbInput type="text" name="PRODUCT-EDIT" [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                        [inputMask]="it.inputMask" [placeholder]="it.placeHolder"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+                                
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{
+                                            row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.2'):'fr' | replace:',':'.'
                                         }}
                                     </div>
                                 </ng-container>
@@ -161,7 +173,7 @@
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
-                                        oninput="$event.target.setSelectionRange(0, 1)" class="input-table-cell"
+                                        class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
                                 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
@@ -218,7 +230,7 @@
                                         {{
                                         it.calc !== undefined ?
                                         it.calc(row.data) :
-                                        row.data[it.objectKey] | removeWhitespaces | number:'1.1-2':'fr' |
+                                        row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' |
                                         replace:',':'.'
                                         }}
                                     </div>
