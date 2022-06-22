@@ -45,6 +45,7 @@ import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
+import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 
 @Component({
   selector: 'app-offer-editor',
@@ -839,64 +840,8 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
-        allColumns: [
-          'productCode',
-          'description',
-          'unitPrice1',
-          'unitPrice2',
-        ],
-        colDefs: [
-          {
-            label: 'Kód',
-            objectKey: 'productCode',
-            colKey: 'productCode',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'readonly',
-            mask: '',
-            colWidth: '15%',
-            textAlign: 'center',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Megnevezés',
-            objectKey: 'description',
-            colKey: 'description',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'text',
-            mask: '',
-            colWidth: '25%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Elad ár 1',
-            objectKey: 'unitPrice1',
-            colKey: 'unitPrice1',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'text',
-            fRequired: true,
-            mask: '',
-            colWidth: '30%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          },
-          {
-            label: 'Elad ár 2',
-            objectKey: 'unitPrice2',
-            colKey: 'unitPrice2',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'bool',
-            fRequired: false,
-            mask: '',
-            colWidth: '25%',
-            textAlign: 'left',
-            navMatrixCssClass: TileCssClass,
-          }
-        ]
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Product) => {
@@ -967,16 +912,8 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
       context: {
         searchString: this.customerInputFilterString,
-        allColumns: [
-          'customerName', 'taxpayerNumber', 'postalCode', 'city', 'thirdStateTaxId'
-        ],
-        colDefs: [
-          { label: 'Név', objectKey: 'customerName', colKey: 'customerName', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "30%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Belföldi Adószám', objectKey: 'taxpayerNumber', colKey: 'taxpayerNumber', defaultValue: '', type: 'string', fInputType: 'text', mask: "0000000-0-00", colWidth: "40%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Irsz.', objectKey: 'postalCode', colKey: 'postalCode', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Város', objectKey: 'city', colKey: 'city', defaultValue: '', type: 'string', fInputType: 'text', fRequired: true, mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-          { label: 'Külföldi Adószám', objectKey: 'thirdStateTaxId', colKey: 'thirdStateTaxId', defaultValue: '', type: 'string', fInputType: 'text', mask: "", colWidth: "25%", textAlign: "left", navMatrixCssClass: TileCssClass },
-        ]
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Customer) => {

@@ -13,32 +13,22 @@
 
         <span class="loading-label" *ngIf="isLoading">Betöltés...</span>
 
-        <!-- <table class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource" [nbSort]="dbDataSource"
-            [trackBy]="trackRows" equalColumnsWidth>
-            <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+        <!-- <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows">
+            <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
-                    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>
+                    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef
+                    [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth">
                         {{it.label}}
                     </th>
-                    <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
-                        *nbTreeGridCellDef="let row; let rowPos = index" (keydown.enter)="selectRow($event, row)"
-                        (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
-                        (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                        (dblclick)="selectRow($event, row)"
-                        id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
-                        <div>
-                            {{ row.data[it.objectKey] }}
-                        </div>
-                    </td>
                 </ng-container>
             </ng-container>
         </table> -->
 
         <table class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource" [nbSort]="dbDataSource"
-            [trackBy]="trackRows" equalColumnsWidth>
+            [trackBy]="trackRows">
         
-            <!-- <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr> -->
+            <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
             <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
         
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
@@ -53,8 +43,9 @@
                         (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
                         (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                         (dblclick)="selectRow($event, row)"
-                        [style.width]="it.colWidth" [style.text-align]="it.textAlign"
-                        id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}" [ngSwitch]="it.fInputType">
+                        [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
+                        [style.text-align]="it.textAlign"
+                        id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}" [ngSwitch]="it.type">
                         <ng-container>
                             <ng-container *ngSwitchCase="'code-field'">
                                 <div>
