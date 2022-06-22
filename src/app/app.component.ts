@@ -14,6 +14,7 @@ export class AppComponent implements OnInit {
   headerTitle: string = 'BBX';
   version: string = '';
   devVersion: boolean = false;
+  buildType: string = 'unknown';
 
   constructor(private es: ElectronService, private sidebarService: NbSidebarService, private title: Title) { }
 
@@ -26,6 +27,8 @@ export class AppComponent implements OnInit {
     
     this.devVersion = !environment.production;
     this.version = packageJson.version;
+
+    this.buildType = environment.buildType;
 
     this.title.setTitle('BBX v' + this.version);
   }
