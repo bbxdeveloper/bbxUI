@@ -12,7 +12,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { todaysDate } from 'src/assets/model/Validators';
+import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
@@ -243,9 +243,21 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (this.outInvForm === undefined) {
       this.outInvForm = new FormGroup({
         paymentMethod: new FormControl('', [Validators.required]),
-        invoiceDeliveryDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
-        invoiceIssueDate: new FormControl('', [Validators.required, todaysDate]),
-        paymentDate: new FormControl('', [Validators.required, (this.validatePaymentDateMinMax.bind(this))]),
+        invoiceDeliveryDate: new FormControl('', [
+          Validators.required,
+          this.validateInvoiceDeliveryDate.bind(this),
+          validDate
+        ]),
+        invoiceIssueDate: new FormControl('', [
+          Validators.required,
+          todaysDate,
+          validDate
+        ]),
+        paymentDate: new FormControl('', [
+          Validators.required,
+          this.validatePaymentDateMinMax.bind(this),
+          validDate
+        ]),
         invoiceOrdinal: new FormControl('', []), // in post response
         notice: new FormControl('', []),
       });

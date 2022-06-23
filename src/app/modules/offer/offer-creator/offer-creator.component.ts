@@ -12,7 +12,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { todaysDate } from 'src/assets/model/Validators';
+import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
@@ -286,8 +286,17 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         customerName: new FormControl('', [Validators.required]),
         customerAddress: new FormControl('', [Validators.required]),
         customerTaxNumber: new FormControl('', [Validators.required]),
-        offerIssueDate: new FormControl('', [Validators.required, todaysDate]),
-        offerVaidityDate: new FormControl('', [Validators.required, (this.validateInvoiceDeliveryDate.bind(this))]),
+        offerIssueDate: new FormControl('', [
+          Validators.required,
+          this.validateOfferIssueDate.bind(this),
+          todaysDate,
+          validDate
+        ]),
+        offerVaidityDate: new FormControl('', [
+          Validators.required,
+          this.validateOfferValidityDate.bind(this),
+          validDate
+        ]),
         offerNumber: new FormControl('', []),
         notice: new FormControl('', []),
       });
@@ -347,23 +356,20 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     return NbSortDirection.NONE;
   }
 
-  // invoiceDeliveryDate
-  validateInvoiceDeliveryDate(control: AbstractControl): any {
+  validateOfferIssueDate(control: AbstractControl): any {
+    if (this.offerValidityDateValue === undefined) {
+      return null;
+    }
+    const wrong = new Date(control.value) > this.offerValidityDateValue;
+    return wrong ? { minDate: { value: control.value } } : null;
+  }
+
+  validateOfferValidityDate(control: AbstractControl): any {
     if (this.offerIssueDateValue === undefined) {
       return null;
     }
     const wrong = new Date(control.value) < this.offerIssueDateValue;
     return wrong ? { minDate: { value: control.value } } : null;
-  }
-
-  // paymentDate
-  validatePaymentDateMinMax(control: AbstractControl): any {
-    if (this.offerIssueDateValue === undefined || this.offerValidityDateValue === undefined) {
-      return null;
-    }
-    const _date = new Date(control.value);
-    const wrong = _date < this.offerIssueDateValue || _date > this.offerValidityDateValue;
-    return wrong ? { minMaxDate: { value: control.value } } : null;
   }
 
   InitFormDefaultValues(): void {
