@@ -138,6 +138,7 @@ export class KeyboardNavigationService {
     $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
     if ($(idString).is(':button') || $(idString).is(':radio')) {
+      console.log("focus");
       $(idString).trigger('focus');
     } else {
       switch (this.CurrentNavigatable.TileSelectionMethod) {

@@ -432,7 +432,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-          if (!!product) {
+          if (!!product && !!product?.productCode) {
             this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
@@ -444,7 +444,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
             this.simpleToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
+              Constants.TOASTR_ERROR_5_SEC
             );
           }
         },

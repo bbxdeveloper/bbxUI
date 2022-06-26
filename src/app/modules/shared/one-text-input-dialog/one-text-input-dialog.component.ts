@@ -19,6 +19,7 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
   
   closedManually = false;
 
+  inputForm!: FormGroup;
   formNav!: NavigatableForm;
 
   TileCssClass = TileCssClass;
@@ -52,12 +53,12 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
     this.IsDialog = true;
     this.Matrix = [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]];
 
-    const inputForm = new FormGroup({
+    this.inputForm = new FormGroup({
       answer: new FormControl(this.defaultValue, [Validators.required]),
     });
 
     this.formNav = new NavigatableForm(
-      inputForm, this.kbS, this.cdrf, [], 'oneInputForm', AttachDirection.UP, {} as IInlineManager
+      this.inputForm, this.kbS, this.cdrf, [], 'oneInputForm', AttachDirection.UP, {} as IInlineManager
     );
 
     // We can move onto the confirmation buttons from the form.
@@ -69,8 +70,12 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
+    this.inputForm.controls['answer'].setValue(this.defaultValue);
     this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    setTimeout(() => {
+      this.kbS.ClickCurrentElement();
+    }, 100);
   }
 
   ngOnDestroy(): void {

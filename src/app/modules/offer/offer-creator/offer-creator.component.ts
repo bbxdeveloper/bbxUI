@@ -409,7 +409,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-          if (!!product) {
+          if (!!product && !!product?.productCode) {
             this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();

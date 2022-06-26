@@ -69,12 +69,12 @@
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         (click)="buyerFormNav.HandleFormFieldClick($event)"
                                         maxlength="80"
-                                        (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
+                                        (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="editEnabled"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
                             </td>
                             <td>
-                                <button *ngIf="searchByTaxtNumber" [disabled]="isLoading"
+                                <button *ngIf="searchByTaxtNumber" [disabled]="isLoading" [disabled]="!editEnabled"
                                         nbButton [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                                         (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                             </td>
@@ -129,12 +129,12 @@
             <form class="form-horizontal" [formGroup]="outInvForm" #formDirective="ngForm" [id]="outInvFormId"
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
                 <app-bbx-combo-box-invoice class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="paymentMethod" label="Fizetési mód"
-                    [data$]="paymentMethodOptions$" [simpleMode]="true"></app-bbx-combo-box-invoice>
+                    [data$]="paymentMethodOptions$" [simpleMode]="true" [readonly]="editEnabled"></app-bbx-combo-box-invoice>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Teljesítési időpont</label>
                     <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true"
-                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m01" mask="0000-00-00"
+                        class="{{TileCssClass}}" [readonly]="editEnabled" id="m01" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
                     <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont"
@@ -145,7 +145,7 @@
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Számla keltezése</label>
                     <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true"
-                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                        class="{{TileCssClass}}" [readonly]="editEnabled" id="m02" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
                     <app-form-control-error [form]="outInvFormNav" label="számla keltezése"
@@ -156,7 +156,7 @@
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Fizetési határidő</label>
                     <input nbInput type="datetime" formControlName='paymentDate' required="true"
-                        class="{{TileCssClass}}" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                        class="{{TileCssClass}}" [readonly]="editEnabled" id="m03" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
                     <app-form-control-error [form]="outInvFormNav" label="fizetési határidő" controlName="paymentDate"
@@ -175,7 +175,7 @@
                     (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <div class="form-field-full-width-inner-div">
                         <label>Egyéb adatok</label>
-                        <input nbInput type="text" formControlName='notice' [readonly]="isEditModeOff"
+                        <input nbInput type="text" formControlName='notice' [readonly]="editEnabled"
                             class="{{TileCssClass}}" placeholder="Egyéb adatok" id="m11">
                     </div>
                 </nb-form-field>

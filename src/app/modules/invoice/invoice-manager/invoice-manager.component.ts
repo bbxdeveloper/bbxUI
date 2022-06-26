@@ -37,6 +37,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -144,8 +145,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
 
-  get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  get editEnabled() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT && !this.isLoading && !this.isSilentLoading;
   }
 
   get invoiceIssueDateValue(): Date | undefined {
@@ -180,7 +181,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private seC: CustomerService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: NbToastrService,
+    private simpleToastrService: NbToastrService,
+    private bbxToastrService: BbxToastrService,
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
@@ -357,11 +359,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
-    this.outInvForm.controls['invoiceIssueDate'].setValue(dateStr);
-    this.outInvForm.controls['invoiceDeliveryDate'].setValue(dateStr);
-    this.outInvForm.controls['paymentDate'].setValue(dateStr);
+    this.outInvForm.controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0,0,0));
+    this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
 
     this.outInvForm.controls['invoiceIssueDate'].valueChanges.subscribe({
       next: p => {
@@ -393,8 +393,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   HandleGridCodeFieldEnter(row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
-    if (this.isEditModeOff) {
+    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editEnabled);
+    if (this.editEnabled) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
       setTimeout(() => {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -411,7 +411,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-          if (!!product) {
+          if (!!product && !!product?.productCode) {
             this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
@@ -420,7 +420,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
-            this.toastrService.show(
+            this.simpleToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -580,7 +580,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private filterBuyers(value: string): string[] {
-    if (this.isEditModeOff) {
+    if (this.editEnabled) {
       return [];
     }
     const filterValue = value.toLowerCase();
@@ -594,8 +594,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.AfterViewInitSetup();
   }
   private AfterViewInitSetup(): void {
-    this.InitFormDefaultValues();
-
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.buyerFormNav.GenerateAndSetNavMatrices(true);
@@ -611,6 +609,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     );
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
+    
+    this.InitFormDefaultValues();
 
     setTimeout(() => {
       this.kbS.SetCurrentNavigatable(this.buyerFormNav);
@@ -683,7 +683,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   Save(): void {
     if (this.outInvForm.invalid) {
-      this.toastrService.show(
+      this.simpleToastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -691,7 +691,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       return;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.toastrService.show(
+      this.simpleToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -704,6 +704,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
+
+    this.isSilentLoading = true;
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
@@ -713,8 +717,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     dialogRef.onClose.subscribe((res: SumData) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.isLoading = true;
         this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
           next: d => {
+            this.isSilentLoading = false;
             if (!!d.data) {
               console.log('Save response: ', d);
 
@@ -722,15 +728,17 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
               }
               
-              this.toastrService.show(
+              this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS
+                Constants.TOASTR_SUCCESS_5_SEC
               );
               this.isLoading = false;
 
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
+
+              this.isSilentLoading = true;
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -741,7 +749,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               });
               dialogRef.onClose.subscribe({
                 next: res => {
-                  if (res.answer) {
+                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
@@ -749,37 +757,40 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
                           this.Reset();
 
-                          this.toastrService.show(
-                            `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
+                          this.simpleToastrService.show(
+                            `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS
+                            Constants.TOASTR_SUCCESS_5_SEC
                           );
                           commandEndedSubscription.unsubscribe();
                         }
                         this.isLoading = false;
+                        this.isSilentLoading = false;
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
                         this.utS.CommandEnded.unsubscribe();
 
-                        this.toastrService.show(
-                          `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,
+                        this.simpleToastrService.show(
+                          `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR
+                          Constants.TOASTR_ERROR_5_SEC
                         );
                         this.isLoading = false;
+                        this.isSilentLoading = false;
                       }
                     });
                     this.isLoading = true;
                     this.printReport(d.data?.id, res.value);
                   } else {
-                    this.toastrService.show(
-                      `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása nem történt meg.`,
+                    this.simpleToastrService.show(
+                      `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                       Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS
+                      Constants.TOASTR_SUCCESS_5_SEC
                     );
                     this.isLoading = false;
+                    this.isSilentLoading = false;
                     this.Reset();
                   }
                 }
@@ -787,16 +798,21 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
+              this.isSilentLoading = false;
             }
           },
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
+            this.isSilentLoading = false;
           },
           complete: () => {
             this.isLoading = false;
+            this.isSilentLoading = false;
           }
         });
+      } else {
+        this.isSilentLoading = false;
       }
     });
   }
@@ -962,7 +978,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }
           });
         } else {
-          this.toastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.simpleToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {
