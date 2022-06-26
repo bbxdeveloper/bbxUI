@@ -81,7 +81,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     'productDescription',
     'quantity',
     'unitOfMeasureX',
-    'price',
+    'unitPrice',
     'lineNetAmount',
     'lineGrossAmount',
   ];
@@ -107,7 +107,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "5%", textAlign: "right"
     },
     {
-      label: 'Ár', objectKey: 'price', colKey: 'price',
+      label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "16%", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -154,8 +154,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
     const tmp = this.outInvForm.controls['invoiceIssueDate'].value;
 
-    // console.log(tmp, new Date(tmp));
-
     return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
   }
 
@@ -164,8 +162,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       return undefined;
     }
     const tmp = this.outInvForm.controls['invoiceDeliveryDate'].value;
-
-    // console.log(tmp, new Date(tmp));
 
     return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
   }
@@ -387,12 +383,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => this.ToFloat(x.price) * this.ToFloat(x.quantity))
+        .map(x => this.ToFloat(x.unitPrice) * this.ToFloat(x.quantity))
         .reduce((sum, current) => sum + current, 0);
 
     this.outGoingInvoiceData.lineGrossAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => (this.ToFloat(x.price) * this.ToFloat(x.quantity)) + this.ToFloat(x.lineVatAmount + ''))
+        .map(x => (this.ToFloat(x.unitPrice) * this.ToFloat(x.quantity)) + this.ToFloat(x.lineVatAmount + ''))
         .reduce((sum, current) => sum + current, 0);
   }
 
@@ -455,7 +451,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
               tmp.vatRateCode = product.vatRateCode;
 
-              tmp.lineNetAmount = this.ToFloat(tmp.price) * this.ToFloat(tmp.quantity);
+              tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
               tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
               tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
 
@@ -474,7 +470,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         if (index !== undefined) {
           let tmp = this.dbData[index].data;
 
-          tmp.lineNetAmount = this.ToFloat(tmp.price) * this.ToFloat(tmp.quantity);
+          tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
           tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
           tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
 
@@ -652,7 +648,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.RecalcNetAndVat();
     
     for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length; i++) {
-      this.outGoingInvoiceData.invoiceLines[i].price = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].price);
+      this.outGoingInvoiceData.invoiceLines[i].unitPrice = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].unitPrice);
       this.outGoingInvoiceData.invoiceLines[i].quantity = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
@@ -867,12 +863,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
-    res.price = p.unitPrice1!;
+    res.unitPrice = p.unitPrice1!;
     
     res.vatRateCode = p.vatRateCode;
 
     res.lineVatAmount = p.vatPercentage ?? 10;
-    res.lineNetAmount = this.ToFloat(res.quantity) * this.ToFloat(res.price);
+    res.lineNetAmount = this.ToFloat(res.quantity) * this.ToFloat(res.unitPrice);
     res.lineGrossAmount = res.lineVatAmount * res.lineNetAmount;
 
     res.unitOfMeasure = p.unitOfMeasure;

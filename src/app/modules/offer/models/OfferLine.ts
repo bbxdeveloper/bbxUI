@@ -128,7 +128,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.unitGross = invoiceLine.lineGrossAmount;
         offerLine.vatRateCode = invoiceLine.vatRateCode;
         offerLine.UnitVat = invoiceLine.lineVatAmount;
-        offerLine.unitPrice = invoiceLine.price;
+        offerLine.unitPrice = invoiceLine.unitPrice;
 
         /*
         productCode: x.data.productCode,
