@@ -121,11 +121,23 @@
                     Számlázás
                 </button>
             </nb-card-body>
-            <!-- <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress" (click)="printReport()">
-                    Számla Nyomtatás
+        </nb-card>
+    </ng-template>
+
+    <nb-action *ngIf="isLoggedIn" id="header-income" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
+        data-sub="header-income-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_income" [disabled]="InProgress">Bevételezés
+    </nb-action>
+    <nb-action *ngIf="!isLoggedIn" id="header-income" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
+        data-sub="header-income-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_income" [disabled]="InProgress">Bevételezés
+    </nb-action>
+    <ng-template #sub_income let-data>
+        <nb-card class="card-submenu-wrapper">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-income-sub-1" [disabled]="InProgress"
+                    (click)="goTo('income/invoice-income')">
+                    Bevételezés számlán
                 </button>
-            </nb-card-body> -->
+            </nb-card-body>
         </nb-card>
     </ng-template>
 
@@ -147,11 +159,6 @@
                     Számlák
                 </button>
             </nb-card-body>
-            <!-- <nb-card-body class="card-body-submenu-button">
-                <button nbButton status="primary" id="header-info-sub-2" [disabled]="InProgress" (click)="printGradesReport()">
-                    Összegfokozatos Riport Nyomtatás
-                </button>
-            </nb-card-body> -->
         </nb-card>
     </ng-template>
 

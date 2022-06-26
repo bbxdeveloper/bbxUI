@@ -14,6 +14,7 @@ import { SaveDialogComponent } from './save-dialog/save-dialog.component';
 import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
 import { TaxNumberSearchCustomerEditDialogComponent } from './tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-box-invoice.component';
+import { InvoiceIncomeManagerComponent } from './invoice-income-manager/invoice-income-manager.component';
 
 
 
@@ -25,7 +26,8 @@ import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-b
     SaveDialogComponent,
     InvoiceNavComponent,
     TaxNumberSearchCustomerEditDialogComponent,
-    BbxComboBoxInvoiceComponent
+    BbxComboBoxInvoiceComponent,
+    InvoiceIncomeManagerComponent
   ],
   imports: [
     CommonModule,
@@ -63,7 +65,8 @@ import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-b
     InvoiceNavComponent,
     TaxNumberSearchCustomerEditDialogComponent,
     CustomerSelectTableDialogComponent,
-    BbxComboBoxInvoiceComponent
+    BbxComboBoxInvoiceComponent,
+    InvoiceIncomeManagerComponent
   ]
 })
 export class InvoiceModule { }
