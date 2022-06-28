@@ -80,7 +80,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   buyersData: Customer[] = [];
 
   override allColumns = [
-    'offerNumber',
+    'offerNumberX',
     'customerName',
     'offerIssueDate',
     'offerVaidityDate',
@@ -90,8 +90,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Sorszám',
-      objectKey: 'offerNumber',
-      colKey: 'offerNumber',
+      objectKey: 'offerNumberX',
+      colKey: 'offerNumberX',
       defaultValue: '',
       type: 'string',
       fInputType: 'readonly',
