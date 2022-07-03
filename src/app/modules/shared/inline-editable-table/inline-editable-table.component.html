@@ -1,0 +1,142 @@
+<form *ngIf="!!dbDataTable">
+    <table class="card-table-wrapper" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
+        (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)" [id]="dbDataTableId">
+
+        <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+        <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+
+        <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+            <ng-container [ngSwitch]="it.type">
+                <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
+                    {{it.label}}
+                </th>
+
+                <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                    *nbTreeGridCellDef="let row; let rowPos = index"
+                    [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
+                    (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                    (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
+                    (keydown.enter)="colPos === 0 ? parent.HandleGridCodeFieldEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)
+                                : dbDataTable.HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)"
+                    (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
+                    (keydown.F2)="dbDataTable.HandleKey($event, rowPos)"
+                    (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)"
+                    [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                    [style.text-align]="it.textAlign" id="{{'PRODUCT-' + colPos + '-' + rowPos}}"
+                    [ngSwitch]="it.fInputType">
+                    <ng-container *ngIf="!it.fReadonly">
+                        <ng-container *ngSwitchCase="'code-field'">
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
+                                [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                oninput="this.value = this.value.toUpperCase()"
+                                oninput="$event.target.setSelectionRange(0, 0)" class="input-table-cell"
+                                [style.text-align]="it.textAlign" />
+
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'formatted-number'">
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"
+                                placeholder="0.00000" class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                {{
+                                it.calc !== undefined ?
+                                it.calc(row.data) :
+                                row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.'
+                                }}
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="it.inputMask"
+                                [placeholder]="it.placeHolder" class="input-table-cell"
+                                [style.text-align]="it.textAlign" />
+
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                {{
+                                row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) :
+                                '8.2'):'fr' | replace:',':'.'
+                                }}
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'checkbox'">
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
+                                [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
+                                [style.text-align]="it.textAlign" />
+
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                {{ row.data[it.objectKey] ? '✓' : '✗' }}
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'formatted-number-2'">
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"
+                                placeholder="0.00000" oninput="$event.target.setSelectionRange(0, 1)"
+                                class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] |
+                                number:'1.1-5' }}
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'formatted-number-integer'">
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
+                                [inputMask]="numberInputMaskInteger" placeholder="0" class="input-table-cell"
+                                [style.text-align]="it.textAlign" />
+
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngSwitchDefault="">
+                            <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
+                                [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                            <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                            </div>
+                        </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngIf="it.fReadonly">
+                        <ng-container *ngSwitchCase="'formatted-number'">
+                            <div>
+                                {{
+                                it.calc !== undefined ?
+                                it.calc(row.data) :
+                                row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' |
+                                replace:',':'.'
+                                }}
+                            </div>
+                        </ng-container>
+                        <ng-container *ngSwitchDefault="">
+                            <div>
+                                {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                            </div>
+                        </ng-container>
+                    </ng-container>
+                </td>
+            </ng-container>
+        </ng-container>
+    </table>
+</form>

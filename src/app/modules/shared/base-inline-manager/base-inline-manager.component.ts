@@ -18,6 +18,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Actions, OfferNavKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { createMask } from '@ngneat/input-mask';
+import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -75,33 +76,9 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.00',
-  });
-
-  offerDiscountInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.00',
-    max: 999.99,
-  });
-
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '',
-  });
+  numberInputMask = NgNeatInputMasks.numberInputMask;
+  offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
+  numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
 
   constructor(
     @Optional() protected dialogService: NbDialogService,
