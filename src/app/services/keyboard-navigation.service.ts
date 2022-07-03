@@ -103,6 +103,27 @@ export class KeyboardNavigationService {
     // throw new Error("debug");
   }
 
+  public IsElementCheckbox(id: string = ""): boolean {
+    if (id.length == 0) {
+      id = this.Here;
+    }
+    const source = $('#' + id);
+    console.log(`id: ${id}, result: ${source.is(':checkbox')}`);
+    return source.is(':checkbox');
+  }
+
+  public IsInnerInputCheckbox(id: string = ""): boolean {
+    if (id.length == 0) {
+      id = this.Here;
+    }
+    const source = $('#' + id).find('input').first();
+    if (!!!source) {
+      return false;
+    }
+    console.log(`id: ${id}, result: ${source.is(':checkbox') }`);
+    return source.is(':checkbox');
+  }
+
   public BalanceCheckboxAfterShiftEnter(id: string): void {
     const source = $('#' + id);
     if (source.is(':checkbox')) {

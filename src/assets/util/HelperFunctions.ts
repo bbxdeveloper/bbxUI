@@ -162,6 +162,9 @@ export module HelperFunctions {
     }
 
     export function FormFieldStringToDateTimeString(str: any): string {
+        if (str === undefined || str.trim() === ""){
+            return "";
+        }
         return str.includes('T') ? new Date(str).toISOString() : new Date(str + 'T00:00:00').toISOString();
     }
 

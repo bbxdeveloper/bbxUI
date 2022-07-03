@@ -275,8 +275,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   InitFormDefaultValues(): void {
     this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
     this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
-    this.filterForm.controls['OfferVaidityDateForm'].setValue(HelperFunctions.GetDateString(0, -4));
-    this.filterForm.controls['OfferVaidityDateTo'].setValue(HelperFunctions.GetDateString());
+    this.filterForm.controls['OfferVaidityDateForm'].setValue(undefined);
+    this.filterForm.controls['OfferVaidityDateTo'].setValue(undefined);
   }
 
   ToInt(p: any): number {

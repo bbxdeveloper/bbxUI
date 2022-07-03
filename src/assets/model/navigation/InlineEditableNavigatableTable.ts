@@ -407,7 +407,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         // Switch modes
         this.kbS.toggleEdit();
 
-        setTimeout(() => {
+        // Set timeout can cause checkboxes to malfunction
+        if (this.kbs.IsInnerInputCheckbox()) {
             // Already in Edit mode
             if (wasEditActivatedPreviously && !!tmp) {
 
@@ -480,7 +481,82 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             this.PushFooterCommandList();
 
             console.log((this.data[rowPos].data as any)[col]);
-        }, 10);
+        } else {
+            setTimeout(() => {
+                // Already in Edit mode
+                if (wasEditActivatedPreviously && !!tmp) {
+    
+                    // New blank row if needed
+                    if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !tmp.IsUnfinished()) {
+                        this.productCreatorRow = this.GenerateCreatorRow;
+                        this.data.push(this.productCreatorRow);
+    
+                        this.dataSource.setData(this.data);
+    
+                        this.GenerateAndSetNavMatrices(false);
+    
+                        this.isUnfinishedRowDeletable = true;
+                    }
+    
+                    // Clear edit data
+                    this.ResetEdit();
+    
+                    // Detect changes in DOM
+                    this.cdref!.detectChanges();
+    
+                    // Move to the next cell and enter edit mode in it
+                    let newX = this.MoveNextInTable();
+                    if (newX < colPos) {
+                        this.isUnfinishedRowDeletable = false;
+                    }
+                    let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
+                    let nextRow = newX < colPos ? this.data[nextRowPost] : row;
+                    // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                    this.kbs.ClickCurrentElement();
+    
+                    // Notify the parent component about the datachange
+                    this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
+                } else {
+                    // Entering edit mode
+                    this.Edit(row, rowPos, col);
+                    this.cdref!.detectChanges();
+                    $('#' + inputId).trigger('focus');
+    
+                    if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
+                        const _input = document.getElementById(inputId) as HTMLInputElement;
+                        if (!!_input && _input.type === "text") {
+                            window.setTimeout(function () {
+                                const txtVal = ((row.data as any)[col] + '');
+                                console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
+                                if (!!txtVal) {
+                                    const l = txtVal.split('.')[0].length;
+                                    _input.setSelectionRange(0, l);
+                                } else {
+                                    _input.setSelectionRange(0, 1);
+                                }
+                            }, 0);
+                        }
+                    } else {
+                        const _input = document.getElementById(inputId) as HTMLInputElement;
+                        if (!!_input && _input.type === "text") {
+                            window.setTimeout(function () {
+                                const txtVal = ((row.data as any)[col] as string);
+                                console.log('txtVal: ', txtVal);
+                                if (!!txtVal) {
+                                    _input.setSelectionRange(txtVal.length, txtVal.length);
+                                } else {
+                                    _input.setSelectionRange(0, 0);
+                                }
+                            }, 0);
+                        }
+                    }
+                }
+    
+                this.PushFooterCommandList();
+    
+                console.log((this.data[rowPos].data as any)[col]);
+            }, 10);
+        }
     }
 
     private ApplyGridEnterEffects(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
