@@ -30,7 +30,7 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] }}
                                 </div>
                             </td>
@@ -43,7 +43,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ !!it.calc ? it.calc(row.data) : '' }}
                                 </div>
                             </td>
@@ -56,7 +56,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ GetDateString(row.data[it.objectKey]) }}
                                 </div>
                             </td>
@@ -69,7 +69,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] }}
                                 </div>
                             </td>
@@ -82,7 +82,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.' }}
                                 </div>
                             </td>
@@ -95,7 +95,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'2.0':'fr' | replace:',':'.' }}
                                 </div>
                             </td>
@@ -108,7 +108,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'8.0':'fr' | removeWhitespaces }}
                                 </div>
                             </td>
@@ -121,7 +121,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'3.0':'fr' | removeWhitespaces }}
                                 </div>
                             </td>
@@ -134,7 +134,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.0'):'fr' | removeWhitespaces }}
                                 </div>
                             </td>
@@ -149,7 +149,7 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
                                 </div>
                             </td>
@@ -164,7 +164,7 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     <iframe class="iframe-table-cell" [srcdoc]="row.data[it.objectKey] | htmlStringSanitizer"></iframe>
                                 </div>
                             </td>

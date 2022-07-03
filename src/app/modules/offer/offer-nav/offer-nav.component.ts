@@ -175,6 +175,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   override get getInputParams(): GetOffersParamsModel {
+    let issueFrom = this.filterForm.controls['OfferIssueDateFrom'].value ?? "";
+    let issueTo = this.filterForm.controls['OfferIssueDateTo'].value ?? "";
+    let vaidityFrom = this.filterForm.controls['OfferVaidityDateForm'].value ?? "";
+    let vaidityTo = this.filterForm.controls['OfferVaidityDateTo'].value ?? "";
+    
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
@@ -183,11 +188,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       CustomerID: this.CustomerId,
       
-      OfferIssueDateFrom: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateFrom'].value),
-      OfferIssueDateTo: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateTo'].value),
+      OfferIssueDateFrom: issueFrom.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(issueFrom) : undefined,
+      OfferIssueDateTo: issueTo.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(issueTo) : undefined,
 
-      OfferVaidityDateForm: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferVaidityDateForm'].value),
-      OfferVaidityDateTo: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferVaidityDateTo'].value),
+      OfferVaidityDateForm: vaidityFrom.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(vaidityFrom) : undefined,
+      OfferVaidityDateTo: vaidityTo.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(vaidityTo) : undefined,
     };
   }
 
@@ -275,8 +280,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   InitFormDefaultValues(): void {
     this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
     this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
-    this.filterForm.controls['OfferVaidityDateForm'].setValue(undefined);
-    this.filterForm.controls['OfferVaidityDateTo'].setValue(undefined);
   }
 
   ToInt(p: any): number {

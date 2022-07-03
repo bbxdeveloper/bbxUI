@@ -14,6 +14,7 @@ import { OfferNavComponent } from './modules/offer/offer-nav/offer-nav.component
 import { OriginManagerComponent } from './modules/origin/origin-manager/origin-manager.component';
 import { ProductGroupManagerComponent } from './modules/product-group/product-group-manager/product-group-manager.component';
 import { ProductManagerComponent } from './modules/product/product-manager/product-manager.component';
+import { StockNavComponent } from './modules/stock/stock-nav/stock-nav.component';
 import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manager/ware-house-manager.component';
 
 const routes: Routes = [
@@ -106,6 +107,16 @@ const routes: Routes = [
       {
         path: "invoice-income",
         component: InvoiceIncomeManagerComponent,
+      }
+    ]
+  },
+  {
+    path: 'stock',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: "nav",
+        component: StockNavComponent,
       }
     ]
   },
