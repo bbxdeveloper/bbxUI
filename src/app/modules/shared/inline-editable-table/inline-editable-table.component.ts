@@ -1,15 +1,10 @@
-import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
-import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
-import { NbCollectionViewer } from '@nebular/theme/components/cdk/collections/collection-viewer';
-import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { Constants } from 'src/assets/util/Constants';
-import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-inline-editable-table',

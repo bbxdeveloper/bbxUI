@@ -475,19 +475,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
           tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
 
-          // console.log('--------------');
-          // console.log('Calculation:');
-          // console.log(tmp);
-          // console.log('this.ToFloat(tmp.price): ',this.ToFloat(tmp.price));
-          // console.log('this.ToFloat(tmp.quantity): ', this.ToFloat(tmp.quantity));
-          // console.log('this.ToFloat(tmp.vatRate): ', this.ToFloat(tmp.vatRate));
-          // console.log('tmp.lineGrossAmount: ', tmp.lineGrossAmount);
-          // console.log('tmp.lineNetAmount: ', tmp.lineNetAmount);
-          // console.log('tmp.lineVatAmount: ', tmp.lineVatAmount);
-          // console.log('this.ToFloat(tmp.lineNetAmount): ', this.ToFloat(tmp.lineNetAmount));
-          // console.log('this.ToFloat(tmp.lineVatAmount): ', this.ToFloat(tmp.lineVatAmount));
-          // console.log('--------------');
-
           this.dbData[index].data = tmp;
 
           this.dbDataDataSrc.setData(this.dbData);

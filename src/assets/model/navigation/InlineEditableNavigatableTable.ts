@@ -1,11 +1,11 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup, FormControl } from "@angular/forms";
 import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/theme";
-import { FlatDesignTableComponent, FORMATTED_NUMBER_COL_TYPES } from "src/app/modules/shared/flat-design-table/flat-design-table.component";
+import { FORMATTED_NUMBER_COL_TYPES } from "src/app/modules/shared/flat-design-table/flat-design-table.component";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { Constants } from "src/assets/util/Constants";
-import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
+import { Actions, DefaultKeySettings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { IEditable } from "../IEditable";
@@ -337,9 +337,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, upward: boolean): void {
         // Új sorokat generáló sort nem dobhatjuk el.
         if (rowPos !== this.data.length - 1) {
-            // event.preventDefault();
-            // event.stopImmediatePropagation();
-            // event.stopPropagation();
+            
             // Csak befejezetlen sort dobhatunk el, amikor nincs szerkesztésmód.
             let _data = row.data;
             if (!!_data && _data.IsUnfinished() && !this.kbS.isEditModeActivated) {
@@ -562,12 +560,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     private ApplyGridEnterEffects(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
         // Switch between nav and edit mode
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated;
-
-        // if (this.kbs.isEditModeActivated && this.editedRow === undefined) {
-        //     this.editedRow = row;
-        //     this.editedProperty = col;
-        //     this.editedRowPos = rowPos;
-        // }
 
         // Already in Edit mode
         if (!!this.editedRow) {

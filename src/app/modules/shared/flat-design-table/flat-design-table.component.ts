@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
-import { NbCollectionViewer } from '@nebular/theme/components/cdk/collections/collection-viewer';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';

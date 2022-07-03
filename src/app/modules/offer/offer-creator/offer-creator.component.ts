@@ -42,7 +42,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 
 @Component({
@@ -52,52 +52,6 @@ import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/ass
 })
 export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-  
-  editorConfig: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    height: 'auto',
-    minHeight: '0',
-    maxHeight: 'auto',
-    width: 'auto',
-    minWidth: '0',
-    translate: 'yes',
-    enableToolbar: true,
-    showToolbar: true,
-    placeholder: 'Enter text here...',
-    defaultParagraphSeparator: '',
-    defaultFontName: '',
-    defaultFontSize: '',
-    fonts: [
-      { class: 'arial', name: 'Arial' },
-      { class: 'times-new-roman', name: 'Times New Roman' },
-      { class: 'calibri', name: 'Calibri' },
-      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
-    ],
-    customClasses: [
-      {
-        name: 'quote',
-        class: 'quote',
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: 'titleText',
-        class: 'titleText',
-        tag: 'h1',
-      },
-    ],
-    uploadUrl: 'v1/image',
-    uploadWithCredentials: false,
-    sanitize: true,
-    toolbarPosition: 'top',
-    toolbarHiddenButtons: [
-      ['bold', 'italic'],
-      ['fontSize']
-    ]
-  };
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -338,7 +292,6 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     this.refresh();
   }
 
-
   changeSort(sortRequest: NbSortRequest): void {
     this.dbDataDataSrc.sort(sortRequest);
     this.sortColumn = sortRequest.column;
@@ -467,24 +420,6 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
           }
         });
       }
-      // else {
-      //   if (index !== undefined) {
-      //     let tmp = this.dbData[index].data;
-
-      //     // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
-      //     // tmp.unitPrice += tmp.unitPrice * discount;
-
-      //     tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-      //     tmp.vatRate = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.unitVat);
-      //     tmp.unitGross = this.ToFloat(tmp.vatRate) + this.ToFloat(tmp.lineNetAmount);
-
-      //     this.dbData[index].data = tmp;
-
-      //     this.dbDataDataSrc.setData(this.dbData);
-      //   }
-
-      //   this.RecalcNetAndVat();
-      // }
     }
   }
 

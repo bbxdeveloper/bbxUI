@@ -38,9 +38,8 @@ import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { Offer } from '../models/Offer';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferEditorKeySettings, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -55,53 +54,6 @@ import { OfferUtil } from '../models/OfferUtil';
 })
 export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  editorConfig: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    height: 'auto',
-    minHeight: '0',
-    maxHeight: 'auto',
-    width: 'auto',
-    minWidth: '0',
-    translate: 'yes',
-    enableToolbar: true,
-    showToolbar: true,
-    placeholder: 'Enter text here...',
-    defaultParagraphSeparator: '',
-    defaultFontName: '',
-    defaultFontSize: '',
-    fonts: [
-      { class: 'arial', name: 'Arial' },
-      { class: 'times-new-roman', name: 'Times New Roman' },
-      { class: 'calibri', name: 'Calibri' },
-      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
-    ],
-    customClasses: [
-      {
-        name: 'quote',
-        class: 'quote',
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: 'titleText',
-        class: 'titleText',
-        tag: 'h1',
-      },
-    ],
-    uploadUrl: 'v1/image',
-    uploadWithCredentials: false,
-    sanitize: true,
-    toolbarPosition: 'top',
-    toolbarHiddenButtons: [
-      ['bold', 'italic'],
-      ['fontSize']
-    ]
-  };
-
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -470,9 +422,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
 
               tmp.lineDescription = product.description ?? '';
 
-              // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
-              // tmp.unitPrice += tmp.unitPrice * discount;
-
               tmp.vatRate = product.vatPercentage ?? 0.0;
               tmp.OriginalUnitPrice = (product.unitPrice1 ?? product.unitPrice2 ?? 0);
               tmp.unitVat = tmp.vatRate * tmp.unitPrice;
@@ -490,25 +439,7 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
             this.RecalcNetAndVat();
           }
         });
-      } 
-      // else {
-      //   if (index !== undefined) {
-      //     let tmp = this.dbData[index].data;
-
-      //     // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
-      //     // tmp.unitPrice += tmp.unitPrice * discount;
-
-      //     tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-      //     tmp.vatRate = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.unitVat);
-      //     tmp.unitGross = this.ToFloat(tmp.vatRate) + this.ToFloat(tmp.lineNetAmount);
-
-      //     this.dbData[index].data = tmp;
-
-      //     this.dbDataDataSrc.setData(this.dbData);
-      //   }
-
-      //   this.RecalcNetAndVat();
-      // }
+      }
     }
   }
 
@@ -701,9 +632,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     this.offerData.offerVaidityDate =
       HelperFunctions.FormFieldStringToDateTimeString(this.buyerForm.controls['offerVaidityDate'].value);
 
-    // this.offerData.invoiceNetAmount = 0;
-    // this.offerData.invoiceVatAmount = 0;
-
     this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => 
       {
         return {
@@ -725,8 +653,6 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         } as OfferLineFullData
       }
     );
-
-    // this.RecalcNetAndVat();
 
     for (let i = 0; i < this.offerData.offerLines.length; i++) {
       this.offerData.offerLines[i].unitPrice = HelperFunctions.ToFloat(this.offerData.offerLines[i].unitPrice);
