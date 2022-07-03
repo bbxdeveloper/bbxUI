@@ -46,6 +46,7 @@ import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesPara
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { OfferUtil } from '../models/OfferUtil';
 
 @Component({
   selector: 'app-offer-editor',
@@ -793,13 +794,12 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
 
       this.isLoading = false;
 
-      if (selectedSaveOption !== undefined && selectedSaveOption >= 1 && selectedSaveOption <= 3) {
+      if (selectedSaveOption !== undefined && selectedSaveOption >= 0) {
 
-        if (selectedSaveOption === 2) {
+        if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITH_VERSIONING) {
           this.offerData.offerVersion += 1;
         }
-        else if (selectedSaveOption === 3) {
-          this.offerData.offerVersion += 1;
+        else if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_NEW_VERSION) {
           this.offerData.newOffer = true;
         }
 

@@ -297,7 +297,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
           this.validateOfferValidityDate.bind(this),
           validDate
         ]),
-        offerNumber: new FormControl('', []),
+        offerNumberX: new FormControl('', []),
         notice: new FormControl('', []),
       });
     } else {
@@ -690,7 +690,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               console.log('Save response: ', d);
 
               if (!!d.data) {
-                this.buyerForm.controls['offerNumber'].setValue(d.data.offerNumber ?? '');
+                this.buyerForm.controls['offerNumberX'].setValue(d.data.offerNumber ?? '');
               }
 
               this.simpleToastrService.show(
@@ -719,7 +719,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
 
                   if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
 
-                    this.buyerForm.controls['offerNumber'].reset();
+                    this.buyerForm.controls['offerNumberX'].reset();
 
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
