@@ -18,31 +18,38 @@ import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/Fl
 import { CustomerService } from '../../customer/services/customer.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
-import { Actions, StockNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, StockCardNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { UtilityService } from 'src/app/services/utility.service';
-import { GetStocksParamsModel } from '../models/GetStocksParamsModel';
-import { Stock } from '../models/Stock';
+import { GetStockCardsParamsModel } from '../models/GetStockCardsParamsModel';
+import { StockCard } from '../models/StockCard';
 import { StockService } from '../services/stock.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
+import { StockCardService } from '../services/stock-card.service';
+import { Product } from '../../product/models/Product';
+import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
+import { ProductService } from '../../product/services/product.service';
+import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
-  selector: 'app-stock-nav',
-  templateUrl: './stock-nav.component.html',
-  styleUrls: ['./stock-nav.component.scss']
+  selector: 'app-stock-card-nav',
+  templateUrl: './stock-card-nav.component.html',
+  styleUrls: ['./stock-card-nav.component.scss']
 })
-export class StockNavComponent extends BaseNoFormManagerComponent<Stock> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
+export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
 
-  readonly SearchButtonId: string = 'stocks-button-search';
+  readonly SearchButtonId: string = 'stock-card-button-search';
   IsTableFocused: boolean = false;
 
   TileCssClass = TileCssClass;
@@ -50,49 +57,143 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
 
   isDeleteDisabled: boolean = false;
 
+  // Product search
+  productInputFilterString: string = '';
+  cachedProductName?: string = "";
+
   // WareHouse
   wh: WareHouse[] = [];
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
+  productFilter?: Product;
+
   override allColumns = [
+    'scTypeX',
+    'warehouse',
+    'stockCardDate',
     'productCode',
-    'description',
-    'calcQty',
-    'realQty',
-    'outQty',
-    'avgCost',
-    'latestIn',
-    'latestOut',
+    'product',
+    'customerName',
+    'xRel',
+    'xCalcQty',
+    'xRealQty',
+    'xOutQty',
+    'nRealQty',
   ];
   override colDefs: ModelFieldDescriptor[] = [
+    {
+      label: 'Típus',
+      objectKey: 'scTypeX',
+      colKey: 'scTypeX',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'readonly',
+      mask: '',
+      colWidth: '100px',
+      textAlign: 'center',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Raktár',
+      objectKey: 'warehouse',
+      colKey: 'warehouse',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Dátum',
+      objectKey: 'stockCardDate',
+      colKey: 'stockCardDate',
+      defaultValue: '',
+      type: 'onlyDate',
+      fInputType: 'text',
+      fRequired: true,
+      mask: '',
+      colWidth: '120px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
     {
       label: 'Termékkód',
       objectKey: 'productCode',
       colKey: 'productCode',
       defaultValue: '',
       type: 'string',
-      fInputType: 'readonly',
-      mask: '',
-      colWidth: '50%',
-      textAlign: 'center',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Megnevezés',
-      objectKey: 'description',
-      colKey: 'description',
-      defaultValue: '',
-      type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '30%',
+      colWidth: '15%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Karton',
-      objectKey: 'calcQty',
-      colKey: 'calcQty',
+      label: 'Terméknév',
+      objectKey: 'product',
+      colKey: 'product',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '50%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Ügyfélnév',
+      objectKey: 'customerName',
+      colKey: 'customerName',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '35%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Kapcs.',
+      objectKey: 'xRel',
+      colKey: 'xRel',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '120px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Vált.Krt',
+      objectKey: 'xCalcQty',
+      colKey: 'xCalcQty',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: "120px",
+      textAlign: "right",
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Vált.Valós',
+      objectKey: 'xRealQty',
+      colKey: 'xRealQty',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: "120px",
+      textAlign: "right",
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Vált.Kiadott',
+      objectKey: 'xOutQty',
+      colKey: 'xOutQty',
       defaultValue: '',
       type: 'formatted-number',
       fRequired: true,
@@ -102,81 +203,40 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Valós',
-      objectKey: 'realQty',
-      colKey: 'realQty',
+      label: 'Új ELÁBÉ',
+      objectKey: 'nRealQty',
+      colKey: 'nRealQty',
       defaultValue: '',
       type: 'formatted-number',
       fRequired: true,
       mask: '',
-      colWidth: "125px",
+      colWidth: "120px",
       textAlign: "right",
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Árukiad.',
-      objectKey: 'outQty',
-      colKey: 'outQty',
-      defaultValue: '',
-      type: 'formatted-number',
-      fRequired: true,
-      mask: '',
-      colWidth: "125px",
-      textAlign: "right",
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Átl.besz.',
-      objectKey: 'avgCost',
-      colKey: 'avgCost',
-      defaultValue: '',
-      type: 'formatted-number',
-      fRequired: true,
-      mask: '',
-      colWidth: "125px",
-      textAlign: "right",
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Ut. bevét',
-      objectKey: 'latestIn',
-      colKey: 'latestIn',
-      defaultValue: '',
-      type: 'onlyDate',
-      fRequired: true,
-      mask: '',
-      colWidth: "125px",
-      textAlign: "left",
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Ut.kiad',
-      objectKey: 'latestOut',
-      colKey: 'latestOut',
-      defaultValue: '',
-      type: 'onlyDate',
-      fRequired: true,
-      mask: '',
-      colWidth: "125px",
-      textAlign: "left",
       navMatrixCssClass: TileCssClass,
     },
   ];
 
-  override get getInputParams(): GetStocksParamsModel {
+  override get getInputParams(): GetStockCardsParamsModel {
+    let productId = this.productFilter?.id;
+    if (productId !== undefined) {
+      productId = HelperFunctions.ToInt(productId);
+    }
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       WarehouseID: this.filterForm.controls['WarehouseID'].value,
+      InvoiceNumber: this.filterForm.controls['InvoiceNumber'].value,
+      StockCardDateFrom: this.filterForm.controls['StockCardDateFrom'].value,
+      StockCardDateTo: this.filterForm.controls['StockCardDateTo'].value,
 
-      SearchString: this.searchString,
+      OrderBy: "productCode",
 
-      OrderBy: "productCode"
+      ProductID: productId,
     };
   }
 
-  filterFormId = 'stocks-filter-form';
+  filterFormId = 'stock-card-filter-form';
   filterForm!: FormGroup;
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
@@ -184,7 +244,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  public KeySetting: Constants.KeySettingsDct = StockNavKeySettings;
+  public KeySetting: Constants.KeySettingsDct = StockCardNavKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get IsTableActive(): boolean {
@@ -194,15 +254,15 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Stock>>,
+    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<StockCard>>,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
     private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
-    private stockService: StockService,
-    private seC: CustomerService,
+    private stockCardService: StockCardService,
+    private seC: ProductService,
     cs: CommonService,
     sts: StatusService,
     private router: Router,
@@ -215,23 +275,16 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     this.refreshComboboxData();
 
     this.searchInputId = 'active-prod-search';
-    this.dbDataTableId = 'stocks-table';
-    this.dbDataTableEditId = 'stocks-cell-edit-input';
+    this.dbDataTableId = 'stock-card-table';
+    this.dbDataTableEditId = 'stock-card-cell-edit-input';
 
     this.kbS.ResetToRoot();
 
     this.Setup();
   }
 
-  ChooseDataForTableRow(rowIndex: number): void {
-    throw new Error('Method not implemented.');
-  }
-  ChooseDataForForm(): void {
-    throw new Error('Method not implemented.');
-  }
-
   InitFormDefaultValues(): void {
-    this.filterForm.controls['WarehouseID'].setValue(undefined);
+    // this.filterForm.controls['WarehouseID'].setValue(undefined);
   }
 
   ToInt(p: any): number {
@@ -246,7 +299,13 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     this.dbDataTableForm = new FormGroup({});
 
     this.filterForm = new FormGroup({
-      WarehouseID: new FormControl(undefined, [Validators.required]),
+      WarehouseID: new FormControl(undefined, []),
+      ProductSearch: new FormControl(undefined, []),
+      productCode: new FormControl(undefined, []),
+      productDescription: new FormControl(undefined, []),
+      StockCardDateFrom: new FormControl(undefined, []),
+      StockCardDateTo: new FormControl(undefined, []),
+      InvoiceNumber: new FormControl(undefined, [])
     });
 
     this.InitFormDefaultValues();
@@ -265,7 +324,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
 
     this.dbDataTable = new FlatDesignNoFormNavigatableTable(
       this.dbDataTableForm,
-      'Stock',
+      'StockCard',
       this.dataSourceBuilder,
       this.kbS,
       this.fS,
@@ -279,7 +338,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
       this.sidebarFormService,
       this,
       () => {
-        return {} as Stock;
+        return {} as StockCard;
       }
     );
     this.dbDataTable.PushFooterCommandList();
@@ -305,13 +364,13 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     });
   }
 
-  override Refresh(params?: GetStocksParamsModel): void {
+  override Refresh(params?: GetStockCardsParamsModel): void {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
-    this.stockService.GetAll(params).subscribe({
+    this.stockCardService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetStocks: response: ', d); // TODO: only for debug
+          console.log('GetStockCards: response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };
@@ -372,7 +431,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
-  private RefreshAll(params?: GetStocksParamsModel): void {
+  private RefreshAll(params?: GetStockCardsParamsModel): void {
     this.Refresh(params);
   }
 
@@ -419,11 +478,11 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     }
   }
 
-  Create(): void {}
+  Create(): void { }
 
-  Edit(): void {}
+  Edit(): void { }
 
-  Delete(): void {}
+  Delete(): void { }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
@@ -454,5 +513,74 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
         this.HandleFunctionKey(event);
         break;
     }
+  }
+
+  private SetProductFormFields(data?: Product) {
+    if (data === undefined) {
+      this.filterForm.controls['productCode'].setValue(undefined);
+      this.filterForm.controls['productDescription'].setValue(undefined);
+      return;
+    }
+    this.filterForm.controls['productCode'].setValue(data.productCode);
+    this.filterForm.controls['productDescription'].setValue(data.description);
+  }
+
+  FillFormWithFirstAvailableProduct(event: any): void {
+    this.productInputFilterString = event.target.value ?? '';
+
+    if (this.productInputFilterString.replace(' ', '') === '') {
+      this.productFilter = { id: -1 } as Product;
+      this.SetProductFormFields(undefined);
+      return;
+    }
+
+    this.isLoading = true;
+    this.seC.GetAll({
+      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString
+    } as GetProductsParamListModel).subscribe({
+      next: res => {
+        if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.productFilter = res.data[0];
+          this.cachedProductName = res.data[0].description;
+          this.SetProductFormFields(res.data[0]);
+        } else {
+          this.SetProductFormFields(undefined);
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  ChooseDataForTableRow(rowIndex: number): void { }
+
+  ChooseDataForForm(): void {
+    console.log("Selecting Product from avaiable data.");
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
+      context: {
+        searchString: this.productInputFilterString,
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+      }
+    });
+    dialogRef.onClose.subscribe((res: Product) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        this.productFilter = res;
+        this.SetProductFormFields(res);
+
+        this.kbS.SetCurrentNavigatable(this.filterFormNav);
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+      }
+    });
   }
 }

@@ -14,6 +14,7 @@ import { OfferNavComponent } from './modules/offer/offer-nav/offer-nav.component
 import { OriginManagerComponent } from './modules/origin/origin-manager/origin-manager.component';
 import { ProductGroupManagerComponent } from './modules/product-group/product-group-manager/product-group-manager.component';
 import { ProductManagerComponent } from './modules/product/product-manager/product-manager.component';
+import { StockCardNavComponent } from './modules/stock/stock-card-nav/stock-card-nav.component';
 import { StockNavComponent } from './modules/stock/stock-nav/stock-nav.component';
 import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manager/ware-house-manager.component';
 
@@ -117,6 +118,16 @@ const routes: Routes = [
       {
         path: "nav",
         component: StockNavComponent,
+      }
+    ]
+  },
+  {
+    path: 'stock-card',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: "nav",
+        component: StockCardNavComponent,
       }
     ]
   },

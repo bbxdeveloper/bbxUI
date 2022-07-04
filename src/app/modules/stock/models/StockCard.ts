@@ -1,0 +1,31 @@
+export class StockCard {
+    "id": number;
+    "stockID": number;
+    "warehouseID": number;
+    "warehouse": string;
+    "userID": number;
+    "userName"?: string;
+    "invoiceLineID": number;
+    "productID": number;
+    "productCode": string;
+    "product": string;
+    "customerID": number;
+    "customerName"?: string;
+    "customerCity"?: string;
+    "customerAdditionalAddressDetail"?: string;
+    "stockCardDate": string;
+    "scType": string;
+    "scTypeX": string;
+    "oCalcQty": number;
+    "oRealQty": number;
+    "oOutQty": number;
+    "xCalcQty": number;
+    "xRealQty": number;
+    "xOutQty": number;
+    "nCalcQty": number;
+    "nRealQty": number;
+    "nOutQty": number;
+    "oAvgCost": number;
+    "nAvgCost": number;
+    "xRel": string;
+}

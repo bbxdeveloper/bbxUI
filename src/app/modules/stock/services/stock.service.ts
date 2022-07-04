@@ -11,7 +11,7 @@ import { GetStockResponse } from '../models/GetStockResponse';
   providedIn: 'root'
 })
 export class StockService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Stock';
+  private readonly StockBaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Stock';
 
   constructor(private http: HttpClient) { }
 
@@ -33,7 +33,7 @@ export class StockService {
       });
     }
 
-    return this.http.get<GetStocksResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetStocksResponse>(this.StockBaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
   Get(params?: GetStockParamsModel): Observable<GetStockResponse> {
@@ -55,6 +55,6 @@ export class StockService {
     }
 
     // Get
-    return this.http.get<GetStockResponse>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetStockResponse>(this.StockBaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 }

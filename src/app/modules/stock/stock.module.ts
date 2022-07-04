@@ -11,10 +11,12 @@ import { InvoiceModule } from '../invoice/invoice.module';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { HttpClientModule } from '@angular/common/http';
 import { StockNavComponent } from './stock-nav/stock-nav.component';
+import { StockCardNavComponent } from './stock-card-nav/stock-card-nav.component';
 
 @NgModule({
   declarations: [
-    StockNavComponent
+    StockNavComponent,
+    StockCardNavComponent
   ],
   imports: [
     CommonModule,
@@ -51,7 +53,8 @@ import { StockNavComponent } from './stock-nav/stock-nav.component';
     AngularEditorModule
   ],
   exports: [
-    StockNavComponent
+    StockNavComponent,
+    StockCardNavComponent
   ]
 })
 export class StockModule { }
