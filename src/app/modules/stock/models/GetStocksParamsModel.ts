@@ -1,5 +1,5 @@
 export interface GetStocksParamsModel {
-    WarehouseID: number,
+    WarehouseID?: number,
     SearchString: string,
     OrderBy: string,
     PageSize: number,

@@ -221,11 +221,12 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     if (productId !== undefined) {
       productId = HelperFunctions.ToInt(productId);
     }
+    let wareHouseId = this.wh.find(x => x.warehouseDescription === this.filterForm.controls['WarehouseID'].value)?.id;
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
-      WarehouseID: this.filterForm.controls['WarehouseID'].value,
+      WarehouseID: wareHouseId,
       InvoiceNumber: this.filterForm.controls['InvoiceNumber'].value,
       StockCardDateFrom: this.filterForm.controls['StockCardDateFrom'].value,
       StockCardDateTo: this.filterForm.controls['StockCardDateTo'].value,
@@ -299,7 +300,7 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     this.dbDataTableForm = new FormGroup({});
 
     this.filterForm = new FormGroup({
-      WarehouseID: new FormControl(undefined, []),
+      WarehouseID: new FormControl(undefined, [Validators.required]),
       ProductSearch: new FormControl(undefined, []),
       productCode: new FormControl(undefined, []),
       productDescription: new FormControl(undefined, []),
@@ -351,7 +352,8 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
-    this.RefreshAll(this.getInputParams);
+    // this.RefreshAll(this.getInputParams);
+    this.isLoading = false;
   }
 
   private refreshComboboxData(): void {
@@ -366,6 +368,14 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
 
   override Refresh(params?: GetStockCardsParamsModel): void {
     console.log('Refreshing: ', params); // TODO: only for debug
+    if (this.filterForm.invalid) {
+      this.simpleToastrService.show(
+        Constants.MSG_INVALID_FILTER_FORM,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR_5_SEC
+      );
+      return;
+    }
     this.isLoading = true;
     this.stockCardService.GetAll(params).subscribe({
       next: (d) => {

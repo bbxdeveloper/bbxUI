@@ -164,13 +164,13 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
   ];
 
   override get getInputParams(): GetStocksParamsModel {
+    let wareHouseId = this.wh.find(x => x.warehouseDescription === this.filterForm.controls['WarehouseID'].value)?.id;
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
-      WarehouseID: this.filterForm.controls['WarehouseID'].value,
-
-      SearchString: this.searchString,
+      WarehouseID: wareHouseId,
+      SearchString: this.filterForm.controls['SearchString'].value,
 
       OrderBy: "productCode"
     };
@@ -247,6 +247,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
 
     this.filterForm = new FormGroup({
       WarehouseID: new FormControl(undefined, [Validators.required]),
+      SearchString: new FormControl(undefined, []),
     });
 
     this.InitFormDefaultValues();
@@ -292,7 +293,8 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
-    this.RefreshAll(this.getInputParams);
+    // this.RefreshAll(this.getInputParams);
+    this.isLoading = false;
   }
 
   private refreshComboboxData(): void {
@@ -307,6 +309,14 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
 
   override Refresh(params?: GetStocksParamsModel): void {
     console.log('Refreshing: ', params); // TODO: only for debug
+    if (this.filterForm.invalid) {
+      this.simpleToastrService.show(
+        Constants.MSG_INVALID_FILTER_FORM,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR_5_SEC
+      );
+      return;
+    }
     this.isLoading = true;
     this.stockService.GetAll(params).subscribe({
       next: (d) => {

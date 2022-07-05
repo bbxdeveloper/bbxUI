@@ -1,5 +1,5 @@
 export interface GetStockCardsParamsModel {
-    WarehouseID: number,
+    WarehouseID?: number,
     OrderBy: string,
     PageSize: number,
     PageNumber: number,
