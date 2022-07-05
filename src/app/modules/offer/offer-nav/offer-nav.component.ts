@@ -287,7 +287,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   validateOfferIssueDateFrom(control: AbstractControl): any {
-    if (this.invoiceOfferIssueDateTo === undefined || this.invoiceOfferVaidityDateTo === undefined) {
+    if (control.value === undefined || this.invoiceOfferIssueDateTo === undefined || this.invoiceOfferVaidityDateTo === undefined) {
       return null;
     }
 
@@ -301,7 +301,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return wrong ? { maxDate: { value: control.value } } : null;
   }
   validateOfferIssueDateTo(control: AbstractControl): any {
-    if (this.invoiceOfferIssueDateFrom === undefined || this.invoiceOfferVaidityDateTo === undefined) {
+    if (control.value === undefined || this.invoiceOfferIssueDateFrom === undefined || this.invoiceOfferVaidityDateTo === undefined) {
       return null;
     }
 
@@ -316,7 +316,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   validateOfferValidityDateFrom(control: AbstractControl): any {
-    if (this.invoiceOfferVaidityDateTo === undefined || this.invoiceOfferIssueDateFrom === undefined) {
+    if (control.value === undefined || this.invoiceOfferVaidityDateTo === undefined || this.invoiceOfferIssueDateFrom === undefined) {
       return null;
     }
 
@@ -330,7 +330,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return wrong ? { minDate: { value: control.value } } : null;
   }
   validateOfferValidityDateTo(control: AbstractControl): any {
-    if (this.invoiceOfferValidityDateFrom === undefined || this.invoiceOfferIssueDateFrom === undefined) {
+    if (control.value === undefined || this.invoiceOfferValidityDateFrom === undefined || this.invoiceOfferIssueDateFrom === undefined) {
       return null;
     }
 

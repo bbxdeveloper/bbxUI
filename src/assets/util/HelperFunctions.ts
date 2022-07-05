@@ -195,9 +195,12 @@ export module HelperFunctions {
     }
     
     export function IsDateStringValid(
-        val: string,
+        val: string | undefined,
         formatString: string = DATE_FORMATSTRING,
         dateLocale: string = 'hu-HU'): boolean {
+        if (val === undefined || val === null || val.length == 0) {
+            return false;
+        }
         moment.locale(dateLocale);
         console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
         return moment(val)
