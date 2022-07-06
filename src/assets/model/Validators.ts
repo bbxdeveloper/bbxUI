@@ -10,7 +10,9 @@ export function forbiddenValueValidator(valueRe: RegExp): ValidatorFn {
 
 export function todaysDate(control: AbstractControl) {
     const wrong = new Date(control.value) > new Date();
-    // console.log(new Date(control.value), new Date(), wrong);
+    if (control.value === null || control.value === undefined || (control.value + '').length === 0 || (control.value + '').trim().length === 0) {
+        return null;
+    }
     return wrong ? { todaysDate: { value: control.value } } : null;
 }
 
@@ -35,6 +37,9 @@ export function maxDate(maxDate?: Date): ValidatorFn {
 }
 
 export function validDate(control: AbstractControl) {
+    if (control.value === null || control.value === undefined || (control.value + '').length === 0 || (control.value + '').trim().length === 0) {
+        return null;
+    }
     const wrong = !HelperFunctions.IsDateStringValid(control.value + '');
     return wrong ? { validDate: { value: control.value } } : null;
 }

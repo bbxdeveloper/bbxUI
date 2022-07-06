@@ -264,13 +264,13 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
         customerTaxNumber: new FormControl('', [Validators.required]),
         offerIssueDate: new FormControl('', [
           Validators.required,
-          this.validateOfferIssueDate.bind(this),
+          //this.validateOfferIssueDate.bind(this),
           todaysDate,
           validDate
         ]),
         offerVaidityDate: new FormControl('', [
           Validators.required,
-          this.validateOfferValidityDate.bind(this),
+          //this.validateOfferValidityDate.bind(this),
           validDate
         ]),
         notice: new FormControl('', []),
