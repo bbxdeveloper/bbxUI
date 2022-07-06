@@ -6,7 +6,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class RemoveWhitespacesPipe implements PipeTransform {
 
   transform(value: any, ...args: unknown[]): any {
-    console.log('RemoveWhitespacesPipe: ', value);
     if (value === undefined) {
       return 'undefined';
     } else {

@@ -261,7 +261,7 @@ export class UtilityService {
         console.log(`Data acquired.`);
 
         this.sts.pushProcessStatus(Constants.DownloadStatuses[Constants.DownloadProcessPhases.PROC_RESP]);
-        var blob = new Blob([res], { type: mimeType });
+        var blob = new Blob([res.body], { type: mimeType });
         var blobURL = URL.createObjectURL(blob);
 
         let a = document.createElement('a');

@@ -89,6 +89,7 @@
         <nb-card-footer class="offer-footer">
             <div class="form-row">
                 <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)"
+                    [disabled]="filterForm?.invalid ?? true"
                     status="primary" tabindex="-1">Keresés</button>
             </div>
         </nb-card-footer>
