@@ -97,7 +97,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       fInputType: 'readonly',
       mask: '',
       colWidth: '130px',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -463,6 +463,21 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.RefreshAll(this.getInputParams);
   }
 
+  public RefreshAndJumpToTable(): void {
+    this.Refresh(this.getInputParams);
+    this.JumpToFirstCellAndNav();
+  }
+
+  JumpToFirstCellAndNav(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.kbS.SetCurrentNavigatable(this.dbDataTable);
+    this.kbS.SelectElementByCoordinate(0, 0);
+    setTimeout(() => {
+      this.kbS.ClickCurrentElement();
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    }, 100);
+  }
+
   override Refresh(params?: GetOffersParamsModel): void {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
@@ -767,7 +782,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
         console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
-          this.isLoading = true;
+          // this.silent = true;
           this.infrastructureService.SendEmail(res).subscribe({
             next: _ => {
               this.simpleToastrService.show(

@@ -1052,12 +1052,13 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     });
   }
 
-  JumpToFirstCellAndEdit(): void {
+  JumpToFirstCellAndNav(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.kbS.SetCurrentNavigatable(this.dbDataTable);
     this.kbS.SelectElementByCoordinate(0, 0);
     setTimeout(() => {
       this.kbS.ClickCurrentElement();
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }, 100);
   }
 }

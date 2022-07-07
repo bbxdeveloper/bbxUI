@@ -81,8 +81,8 @@
                     <div>
                         <label>Megjegyzés</label>
                         <angular-editor formControlName="notice" [config]="editorConfig"
-                            (keydown.esc)="JumpToFirstCellAndEdit()"
-                            (keydown.tab)="JumpToFirstCellAndEdit()"
+                            (keydown.esc)="JumpToFirstCellAndNav()"
+                            (keydown.tab)="JumpToFirstCellAndNav()"
                             placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre."
                             class="{{TileCssClass}}"></angular-editor>
                         <app-form-control-error [form]="buyerFormNav" label="megjegyzés" controlName="notice">

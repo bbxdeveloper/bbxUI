@@ -164,7 +164,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.vatRateID = vatRateId;
         offerLine.vatPercentage = HelperFunctions.ToFloat(product.vatPercentage ?? 0.0);
 
-        console.log('FromProduct res: ', offerLine);
+        // console.log('FromProduct res: ', offerLine);
 
         return offerLine;
     }
@@ -176,7 +176,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.productCode = data.productCode;
         offerLine.lineDescription = data.lineDescription;
         offerLine.vatRateCode = data.vatRateCode;
-        offerLine.UnitPrice = data.unitPrice;
+        offerLine.OriginalUnitPrice = data.unitPrice;
         offerLine.UnitVat = data.unitVat;
         offerLine.unitGross = data.unitGross;
         offerLine.Discount = data.discount;
@@ -191,6 +191,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.unitOfMeasureX = data.unitOfMeasureX;
         offerLine.vatRateID = data.vatRateID;
         offerLine.vatPercentage = data.vatPercentage;
+
+        console.log("[FromOfferLineFullData]: ", offerLine);
 
         return offerLine;
     }

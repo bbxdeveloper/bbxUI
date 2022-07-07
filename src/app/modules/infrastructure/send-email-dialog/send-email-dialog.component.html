@@ -29,6 +29,7 @@
                     <label>Üzenet</label>
                     <angular-editor formControlName="body" [config]="editorConfig"
                         (keydown.tab)="MoveToSaveButtons($event)"
+                        (keydown.esc)="MoveToSaveButtons($event)"
                         placeholder="Szövegbevitel végeztével TAB (escape bezárja az ablakot) megnyomása után navigálhat el másik elemre."
                         class="{{TileCssClass}}">
                     </angular-editor>
