@@ -149,7 +149,7 @@ export module InvoiceIncomeProductDialogTableSettings {
             type: 'string',
             mask: '',
             colWidth: '26ch',
-            textAlign: 'center',
+            textAlign: 'right',
             navMatrixCssClass: TileCssClass,
         },
         {
@@ -160,7 +160,7 @@ export module InvoiceIncomeProductDialogTableSettings {
             type: 'string',
             mask: '',
             colWidth: '70%',
-            textAlign: 'left',
+            textAlign: 'right',
             navMatrixCssClass: TileCssClass,
         },
         {
