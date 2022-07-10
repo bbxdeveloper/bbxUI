@@ -406,3 +406,8 @@ form.form-with-rows {
         justify-content: flex-start;
     }
 }
+
+.form-row-flex {
+        display: flex;
+        column-gap: 15px;
+}

@@ -44,6 +44,7 @@ import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { Router } from '@angular/router';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 
 @Component({
   selector: 'app-offer-creator',
@@ -592,6 +593,20 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       } as Constants.Dct);
   }
 
+  private FillOfferNumberX(id: number): void {
+    this.offerService.Get({ FullData: false, ID: id } as GetOfferParamsModel).subscribe({
+      next: data => {
+        if (!!data) {
+          this.buyerForm.controls['offerNumberX'].setValue(data.offerNumber ?? '');
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+      },
+      complete: () => {}
+    });
+  }
+
   Save(): void {
     if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
@@ -625,7 +640,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               console.log('Save response: ', d);
 
               if (!!d.data) {
-                this.buyerForm.controls['offerNumberX'].setValue(d.data.offerNumber ?? '');
+                this.FillOfferNumberX(d.data.id);
               }
 
               this.simpleToastrService.show(

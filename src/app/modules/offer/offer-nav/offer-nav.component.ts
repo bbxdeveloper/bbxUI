@@ -464,21 +464,21 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   public RefreshAndJumpToTable(): void {
-    this.Refresh(this.getInputParams);
-    this.JumpToFirstCellAndNav();
+    this.Refresh(this.getInputParams, true);
   }
 
   JumpToFirstCellAndNav(): void {
+    console.log("[JumpToFirstCellAndNav]");
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.kbS.SetCurrentNavigatable(this.dbDataTable);
     this.kbS.SelectElementByCoordinate(0, 0);
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     setTimeout(() => {
-      this.kbS.ClickCurrentElement();
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    }, 100);
+      this.kbS.MoveDown();
+    }, 300);
   }
 
-  override Refresh(params?: GetOffersParamsModel): void {
+  override Refresh(params?: GetOffersParamsModel, jumpToFirstTableCell: boolean = false): void {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
     this.seC.GetAllCountryCodes().subscribe({
@@ -505,6 +505,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             this.dbDataTable.itemsOnCurrentPage = tempData.length;
           }
           this.RefreshTable();
+          this.JumpToFirstCellAndNav();
         } else {
           this.bbxToastrService.show(
             d.errors!.join('\n'),
