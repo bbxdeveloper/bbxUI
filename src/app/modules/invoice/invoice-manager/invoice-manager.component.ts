@@ -145,7 +145,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
 
-  get editEnabled() {
+  get editDisabled() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT && !this.isLoading && !this.isSilentLoading;
   }
 
@@ -393,8 +393,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   HandleGridCodeFieldEnter(row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editEnabled);
-    if (this.editEnabled) {
+    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
+    if (this.editDisabled) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
       setTimeout(() => {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -547,12 +547,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
             console.log('Exporter: ', d);
             this.exporterForm = new FormGroup({
-              customerName: new FormControl(this.senderData.customerName, []),
-              zipCodeCity: new FormControl(this.senderData.postalCode + ' ' + this.senderData.city, []),
-              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail, []),
-              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber, []),
-              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber, []),
-              comment: new FormControl(this.senderData.comment, []),
+              customerName: new FormControl(this.senderData.customerName ?? '', []),
+              zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
+              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
+              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
+              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
+              comment: new FormControl(this.senderData.comment ?? '', []),
             });
 
             this.table?.renderRows();
@@ -580,7 +580,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private filterBuyers(value: string): string[] {
-    if (this.editEnabled) {
+    if (this.editDisabled) {
       return [];
     }
     const filterValue = value.toLowerCase();

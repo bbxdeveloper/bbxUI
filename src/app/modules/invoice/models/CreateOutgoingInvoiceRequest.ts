@@ -8,6 +8,7 @@ export interface CreateOutgoingInvoiceRequest {
     "paymentDate": any, // date
     
     "customerID": number,
+    "customerInvoiceNumber"?: string,
     
     "paymentMethod": string,
     

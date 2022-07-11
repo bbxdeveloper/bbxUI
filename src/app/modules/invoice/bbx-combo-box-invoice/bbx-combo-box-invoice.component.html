@@ -1,4 +1,4 @@
-<ng-container *ngIf="!isEditEnabled">
+<!-- <ng-container *ngIf="!isEditEnabled">
     <nb-form-field [ngClass]="wrapperClass"
         *ngIf="!!currentForm && !!(currentForm?.form) && !!currentForm.form.controls[formFieldName]"
         [formGroup]="currentForm!.form"
@@ -13,12 +13,12 @@
         <app-form-control-error [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">
         </app-form-control-error>
     </nb-form-field>
-    <!-- AUTOCOMPLETE -->
     <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxComplete [activeFirst]="false"
         (selectedChange)="currentForm?.HandleAutoCompleteSelect($event, formFieldName)">
     </nb-autocomplete>
-</ng-container>
-<ng-container *ngIf="isEditEnabled && simpleMode">
+</ng-container> -->
+<!-- TODO: readonly and not readonly modes -->
+<ng-container *ngIf="simpleMode">
     <nb-form-field [ngClass]="wrapperClass"
         *ngIf="!!currentForm && !!(currentForm?.form) && !!currentForm.form.controls[formFieldName]"
         [formGroup]="currentForm!.form"
@@ -41,7 +41,7 @@
         </nb-option>
     </nb-autocomplete>
 </ng-container>
-<ng-container *ngIf="isEditEnabled && !simpleMode">
+<ng-container *ngIf="!simpleMode">
     <nb-form-field [ngClass]="wrapperClass"
         *ngIf="!!currentForm && !!(currentForm?.form) && !!currentForm.form.controls[formFieldName]"
         [formGroup]="currentForm!.form"
