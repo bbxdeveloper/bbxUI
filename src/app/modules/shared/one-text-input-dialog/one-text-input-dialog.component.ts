@@ -16,6 +16,7 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
   @Input() title: string = "";
   @Input() inputLabel: string = "";
   @Input() defaultValue: any = "";
+  @Input() isReadonly: any = false;
   
   closedManually = false;
 
@@ -51,7 +52,9 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
 
   private Setup(): void {
     this.IsDialog = true;
-    this.Matrix = [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]];
+    this.Matrix = this.isReadonly ?
+      [["date-interval-dialog-button-yes"]] :
+      [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]];
 
     this.inputForm = new FormGroup({
       answer: new FormControl(this.defaultValue, [Validators.required]),
@@ -69,7 +72,9 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
 
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
-    this.formNav.GenerateAndSetNavMatrices(true);
+    if (!this.isReadonly) {
+      this.formNav.GenerateAndSetNavMatrices(true);
+    }
     this.inputForm.controls['answer'].setValue(this.defaultValue);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);

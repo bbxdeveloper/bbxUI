@@ -47,4 +47,9 @@ export class BbxToastrService {
       tmp?.toast.close();
     }
   }
+
+  logToastrStats(): void {
+    console.log(`Max toastrs: ${this.maxToastCount}, is any opened: ${this.IsToastrOpened}, current stack: `);
+    console.log(this.toastrRefStack);
+  }
 }

@@ -30,18 +30,24 @@
                                 <nb-form-field>
                                     <label>Ügyfél</label>
                                     <input nbInput type="text" formControlName='customerName' readonly>
+                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél" controlName="customerName">
+                                    </app-form-control-error>
                                 </nb-form-field>
                             </td>
                             <td>
                                 <nb-form-field>
                                     <label>Ügyfél Cím</label>
                                     <input nbInput type="text" formControlName='customerAddress' readonly>
+                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél cím" controlName="customerAddress">
+                                    </app-form-control-error>
                                 </nb-form-field>
                             </td>
                             <td>
                                 <nb-form-field>
                                     <label>Ügyfél Adószám</label>
                                     <input nbInput type="text" formControlName='customerTaxNumber' readonly>
+                                    <app-form-control-error [form]="buyerFormNav" label="ügyfél adószám" controlName="customerTaxNumber">
+                                    </app-form-control-error>
                                 </nb-form-field>
                             </td>
                         </tr>

@@ -243,13 +243,13 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
         customerTaxNumber: new FormControl('', [Validators.required]),
         offerIssueDate: new FormControl('', [
           Validators.required,
-          // this.validateOfferIssueDate.bind(this),
+          this.validateOfferIssueDate.bind(this),
           todaysDate,
           validDate
         ]),
         offerVaidityDate: new FormControl('', [
           Validators.required,
-          // this.validateOfferValidityDate.bind(this),
+          this.validateOfferValidityDate.bind(this),
           validDate
         ]),
         offerNumberX: new FormControl('', []),
@@ -311,7 +311,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   validateOfferIssueDate(control: AbstractControl): any {
-    if (this.offerValidityDateValue === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.offerValidityDateValue === undefined) {
       return null;
     }
     const wrong = new Date(control.value) > this.offerValidityDateValue;
@@ -319,7 +319,7 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   validateOfferValidityDate(control: AbstractControl): any {
-    if (this.offerIssueDateValue === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.offerIssueDateValue === undefined) {
       return null;
     }
     const wrong = new Date(control.value) < this.offerIssueDateValue;
@@ -598,6 +598,14 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       next: data => {
         if (!!data) {
           this.buyerForm.controls['offerNumberX'].setValue(data.offerNumber ?? '');
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          const confirmDialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+            context: {
+              isReadonly: true,
+              title: 'Sorszám',
+              defaultValue: this.buyerForm.controls['offerNumberX'].value
+            }
+          });
         }
       },
       error: err => {
@@ -608,6 +616,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   Save(): void {
+    this.buyerForm.markAllAsTouched();
+
     if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
@@ -624,6 +634,8 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
       );
       return;
     }
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(res => {
