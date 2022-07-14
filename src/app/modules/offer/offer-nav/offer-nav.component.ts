@@ -793,6 +793,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
           // this.silent = true;
+          this.isLoading = true;
           this.infrastructureService.SendEmail(res).subscribe({
             next: _ => {
               this.simpleToastrService.show(
