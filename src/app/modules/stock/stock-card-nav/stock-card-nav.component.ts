@@ -226,7 +226,7 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       WarehouseID: wareHouseId,
-      InvoiceNumber: this.filterForm.controls['InvoiceNumber'].value,
+      XRel: this.filterForm.controls['InvoiceNumber'].value,
       StockCardDateFrom: this.filterForm.controls['StockCardDateFrom'].value,
       StockCardDateTo: this.filterForm.controls['StockCardDateTo'].value,
 

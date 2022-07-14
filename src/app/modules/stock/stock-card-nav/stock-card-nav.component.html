@@ -77,10 +77,10 @@
                 
                 <div class="form-row">
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Bizonylat</label>
+                        <label>Kapcsolt bizonylat</label>
                         <input nbInput type="text" formControlName='InvoiceNumber' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                        <app-form-control-error [form]="filterFormNav" label="Bizonylat" controlName="InvoiceNumber">
+                        <app-form-control-error [form]="filterFormNav" label="Kapcsolt bizonylat" controlName="InvoiceNumber">
                         </app-form-control-error>
                     </nb-form-field>
                 </div>

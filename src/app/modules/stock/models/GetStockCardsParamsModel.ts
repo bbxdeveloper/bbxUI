@@ -5,6 +5,6 @@ export interface GetStockCardsParamsModel {
     PageNumber: number,
     StockCardDateFrom?: string;
     StockCardDateTo?: string;
-    InvoiceNumber?: string;
+    XRel?: string;
     ProductID?: number
 }
