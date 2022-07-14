@@ -6,7 +6,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { EmailAddress, SendEmailRequest } from '../models/Email';
-import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { Constants } from 'src/assets/util/Constants';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -19,8 +18,10 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 export class SendEmailDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   title: string = "Bejelentkezés";
   closedManually = false;
-
+  
   @Input() subject?: string;
+  @Input() message?: string;
+  @Input() OfferID?: number;
 
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -128,6 +129,9 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     if (!!this.subject) {
       this.dataForm.form.controls['subject'].setValue(this.subject);
     }
+    if (!!this.message) {
+      this.dataForm.form.controls['body'].setValue(this.message);
+    }
   }
 
   ngOnDestroy(): void {
@@ -150,7 +154,8 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
           email: this.dataForm.GetValue('to')
         } as EmailAddress,
         subject: this.dataForm.GetValue('subject'),
-        body_html_text: this.dataForm.GetValue('body')
+        body_html_text: this.dataForm.GetValue('body'),
+        OfferID: this.OfferID
       } as SendEmailRequest);
     }
     if (answer && !this.dataForm.form.valid) {

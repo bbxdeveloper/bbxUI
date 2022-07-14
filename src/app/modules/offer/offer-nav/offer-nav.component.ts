@@ -783,6 +783,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
           subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
+          message: this.dbData[this.kbS.p.y - 1].data.notice,
+          OfferID: this.dbData[this.kbS.p.y - 1].data.id,
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
