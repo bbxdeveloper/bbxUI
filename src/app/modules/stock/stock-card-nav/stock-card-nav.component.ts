@@ -551,9 +551,9 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     }
 
     this.isLoading = true;
-    
+
     this.Subscription_FillFormWithFirstAvailableProduct = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString
+      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString.trim()
     } as GetProductsParamListModel).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
@@ -593,10 +593,6 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
       if (!!res) {
         this.productFilter = res;
         this.SetProductFormFields(res);
-
-        this.kbS.SetCurrentNavigatable(this.filterFormNav);
-        this.kbS.SelectFirstTile();
-        this.kbS.setEditMode(KeyboardModes.EDIT);
       }
     });
   }

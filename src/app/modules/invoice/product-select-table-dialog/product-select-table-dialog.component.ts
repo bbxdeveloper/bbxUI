@@ -25,12 +25,16 @@ const NavMap: string[][] = [
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
+  get srcString(): string {
+    return (this.searchString ?? '').trim();
+  }
+
   get getInputParams(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '', PageSize: '10', PageNumber: '1', OrderBy: 'ProductCode' };
+    return { SearchString: this.srcString, PageSize: '10', PageNumber: '1', OrderBy: 'ProductCode' };
   }
 
   get getInputParamsForAll(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '', PageSize: '999999', OrderBy: 'ProductCode' };
+    return { SearchString: this.srcString, PageSize: '999999', OrderBy: 'ProductCode' };
   }
 
   isLoaded: boolean = false;

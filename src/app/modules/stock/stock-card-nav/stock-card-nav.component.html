@@ -20,23 +20,14 @@
                                     [data$]="wareHouseData$">
                                 </app-bbx-two-row-combo-box>
                             </td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="form-row">
-                
-                    <table class="customer-search-row">
-                        <tr>
                             <td>
                                 <nb-form-field class="search-row-nb-form-field"
                                     (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
                                     (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'ProductSearch')">
                                     <label>Termék</label>
                                     <input formControlName="ProductSearch" nbInput type="text" class="{{TileCssClass}}"
-                                        (click)="filterFormNav.HandleFormFieldClick($event)"
-                                        (input)="FillFormWithFirstAvailableProduct($event)" [readonly]="isEditModeOff" maxlength="80"
-                                        placeholder="Keresés" autocomplete="off" id="r00" />
+                                        (click)="filterFormNav.HandleFormFieldClick($event)" (input)="FillFormWithFirstAvailableProduct($event)"
+                                        [readonly]="isEditModeOff" maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
                             </td>
                             <td>
@@ -73,9 +64,7 @@
                         <app-form-control-error [form]="filterFormNav" label="dátumig" controlName="StockCardDateTo">
                         </app-form-control-error>
                     </nb-form-field>
-                </div>
-                
-                <div class="form-row">
+
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Kapcsolt bizonylat</label>
                         <input nbInput type="text" formControlName='InvoiceNumber' class="{{TileCssClass}}"
