@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map } from 'rxjs';
+import { Observable, of, startWith, map, Subscription } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -39,6 +39,8 @@ import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 })
 export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLine> implements IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  protected Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
   
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;

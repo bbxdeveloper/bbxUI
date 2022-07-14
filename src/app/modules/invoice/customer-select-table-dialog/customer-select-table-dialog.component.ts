@@ -112,9 +112,14 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override Refresh(params?: GetCustomersParamListModel): void {
+    if (!!this.Subscription_Search && !this.Subscription_Search.closed) {
+      this.Subscription_Search.unsubscribe();
+    }
+
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
-    this.customerService.GetAll(params).subscribe({
+    
+    this.Subscription_Search = this.customerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug

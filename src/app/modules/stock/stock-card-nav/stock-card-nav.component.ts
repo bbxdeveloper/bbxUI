@@ -35,6 +35,7 @@ import { ProductService } from '../../product/services/product.service';
 import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -43,6 +44,8 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 })
 export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  protected Subscription_FillFormWithFirstAvailableProduct?: Subscription;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -535,6 +538,10 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
   }
 
   FillFormWithFirstAvailableProduct(event: any): void {
+    if (!!this.Subscription_FillFormWithFirstAvailableProduct && !this.Subscription_FillFormWithFirstAvailableProduct.closed) {
+      this.Subscription_FillFormWithFirstAvailableProduct.unsubscribe();
+    }
+
     this.productInputFilterString = event.target.value ?? '';
 
     if (this.productInputFilterString.replace(' ', '') === '') {
@@ -544,7 +551,8 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     }
 
     this.isLoading = true;
-    this.seC.GetAll({
+    
+    this.Subscription_FillFormWithFirstAvailableProduct = this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString
     } as GetProductsParamListModel).subscribe({
       next: res => {

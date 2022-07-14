@@ -112,9 +112,14 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override Refresh(params?: GetProductsParamListModel): void {
+    if (!!this.Subscription_Search && !this.Subscription_Search.closed) {
+      this.Subscription_Search.unsubscribe();
+    }
+
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.productService.GetAll(params).subscribe({
+
+    this.Subscription_Search = this.productService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug

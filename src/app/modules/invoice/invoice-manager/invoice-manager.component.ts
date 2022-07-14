@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject } from 'rxjs';
+import { Observable, of, startWith, map, BehaviorSubject, Subscription } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -46,6 +46,8 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -901,9 +903,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   FillFormWithFirstAvailableCustomer(event: any): void {
+    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
+      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
+    }
+
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
-    this.seC.GetAll({
+    
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
     } as GetCustomersParamListModel).subscribe({
       next: res => {

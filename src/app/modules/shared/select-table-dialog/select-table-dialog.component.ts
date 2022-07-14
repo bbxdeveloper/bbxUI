@@ -1,5 +1,6 @@
 import { AfterContentInit, AfterViewChecked, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { Subscription } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IEditable } from 'src/assets/model/IEditable';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
@@ -19,6 +20,8 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   @Input() searchString: string = '';
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
+
+  protected Subscription_Search?: Subscription;
 
   responseMessage: string = '';
 

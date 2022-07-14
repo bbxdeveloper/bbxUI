@@ -11,6 +11,71 @@
                 <label>Megjegyzés</label>
             </nb-card-body>
         </nb-card>
+    </div><div class="card-col separator-vertical"></div>
+    
+    <div class="card-col-1">
+        <nb-card>
+            <nb-card-body class="form-col-2">
+                <form [formGroup]="activeForm" #formDirective="ngForm" (keydown.escape)="activeFormNav.HandleFormEscape()"
+                    [id]="activeFormId">
+    
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <nb-form-field class="search-row-nb-form-field"
+                                    (keydown.enter)="activeFormNav.HandleFormEnter($event, true, true, true)"
+                                    (keydown.F2)="activeFormNav.HandleKey($event, 'customerSearch')">
+                                    <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
+                                        (click)="activeFormNav.HandleFormFieldClick($event)" maxlength="80"
+                                        (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
+                                        placeholder="Keresés" autocomplete="off" id="r00" />
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <button *ngIf="searchByTaxtNumber" [disabled]="isLoading" nbButton
+                                    [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
+                                    (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
+                            </td>
+                            <td>
+                                <div class="card-header-row-txt card-header-top-margin">
+                                    Szállító
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+    
+                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='customerName' required="true" placeholder="Név" readonly
+                            id="r01">
+                    </nb-form-field>
+    
+                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='zipCodeCity' required="true"
+                            placeholder="Irányítószám és Város" readonly id="r01">
+                    </nb-form-field>
+    
+                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true"
+                            placeholder="Utca, házszám" readonly id="r02">
+                    </nb-form-field>
+    
+                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true"
+                            placeholder="Számlaszám" readonly id="r03">
+                    </nb-form-field>
+    
+                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" placeholder="Adószám"
+                            readonly id="r04">
+                    </nb-form-field>
+    
+                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
+                        <input nbInput type="text" formControlName='comment' required="false" placeholder="Megjegyzés"
+                            readonly id="r05">
+                    </nb-form-field>
+                </form>
+            </nb-card-body>
+        </nb-card>
     </div>
 
     <div class="card-col separator-vertical"></div>
@@ -51,73 +116,6 @@
             </nb-card-body>
         </nb-card>
     </div>
-
-    <div class="card-col separator-vertical"></div>
-
-    <div class="card-col-1">
-        <nb-card>
-            <nb-card-body class="form-col-2">
-                <form [formGroup]="activeForm" #formDirective="ngForm" (keydown.escape)="activeFormNav.HandleFormEscape()"
-                    [id]="activeFormId">
-
-                    <table class="customer-search-row">
-                        <tr>
-                            <td>
-                                <nb-form-field class="search-row-nb-form-field"
-                                    (keydown.enter)="activeFormNav.HandleFormEnter($event, true, true, true)"
-                                    (keydown.F2)="activeFormNav.HandleKey($event, 'customerSearch')">
-                                    <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
-                                        (click)="activeFormNav.HandleFormFieldClick($event)" maxlength="80"
-                                        (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
-                                        placeholder="Keresés" autocomplete="off" id="r00" />
-                                </nb-form-field>
-                            </td>
-                            <td>
-                                <button *ngIf="searchByTaxtNumber" [disabled]="isLoading" nbButton
-                                    [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
-                                    (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
-                            </td>
-                            <td>
-                                <div class="card-header-row-txt card-header-top-margin">
-                                    Szállító
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='customerName' required="true" placeholder="Név"
-                            readonly id="r01">
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='zipCodeCity' required="true"
-                            placeholder="Irányítószám és Város" readonly id="r01">
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true"
-                            placeholder="Utca, házszám" readonly id="r02">
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true"
-                            placeholder="Számlaszám" readonly id="r03">
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='taxpayerNumber' required="true"
-                            placeholder="Adószám" readonly id="r04">
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='comment' required="false" placeholder="Megjegyzés"
-                            readonly id="r05">
-                    </nb-form-field>
-                </form>
-            </nb-card-body>
-        </nb-card>
-    </div>
 </div>
 
 <div class="separator-horizontal"></div>
@@ -137,6 +135,9 @@
                         <label>Eredeti biz.</label>
                         <input nbInput type="text" formControlName='customerInvoiceNumber' class="{{TileCssClass}}"
                             [readonly]="isEditModeOff" readonly>
+ 
+                        <app-form-control-error [form]="outInvFormNav" label="eredeti bizonylat" controlName="customerInvoiceNumber">
+                        </app-form-control-error>
                     </nb-form-field>
                     
                     <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
@@ -187,8 +188,6 @@
                         </div>
                     </nb-form-field>
                 </div>
-
-                
             </form>
         </nb-card-body>
     </nb-card>

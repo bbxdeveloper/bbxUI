@@ -41,6 +41,7 @@ import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-offer-nav',
@@ -49,6 +50,8 @@ import { todaysDate, validDate } from 'src/assets/model/Validators';
 })
 export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -654,6 +657,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   FillFormWithFirstAvailableCustomer(event: any): void {
+    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
+      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
+    }
+
     this.customerInputFilterString = event.target.value ?? '';
 
     if (this.customerInputFilterString.replace(' ', '') === '') {
@@ -663,7 +670,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
 
     this.isLoading = true;
-    this.seC.GetAll({
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
     } as GetCustomersParamListModel).subscribe({
       next: res => {

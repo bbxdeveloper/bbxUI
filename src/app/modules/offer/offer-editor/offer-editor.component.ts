@@ -421,11 +421,15 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   }
 
   override FillFormWithFirstAvailableCustomer(event: any): void {
+    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
+      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
+    }
+
     this.customerInputFilterString = event.target.value ?? '';
 
     if (this.customerInputFilterString.replace(' ', '') === '') {
       this.isLoading = true;
-      this.seC.Get({ ID: this.originalCustomerId } as GetCustomerParamListModel).subscribe({
+      this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.Get({ ID: this.originalCustomerId } as GetCustomerParamListModel).subscribe({
         next: res => {
           if (!!res) {
             this.buyerData = res;
@@ -449,7 +453,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       });
     } else {
       this.isLoading = true;
-      this.seC.GetAll({
+      this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
         IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
       } as GetCustomersParamListModel).subscribe({
         next: res => {
