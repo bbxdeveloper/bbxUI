@@ -106,6 +106,12 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
+    /**
+     * Pressing enter doesn't move the navigation to the next cell
+     */
+    public repairMode: boolean = false;
+    mechanicalClick = false;
+
     constructor(
         private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
         private kbs: KeyboardNavigationService,
@@ -376,8 +382,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
-    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
-        console.log('[HandleGridClick]: ', row, rowPos, col, colPos, inputId);
+    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, mouseClick: boolean = false): void {
+        console.log('[HandleGridClick]: ', row, rowPos, col, colPos, inputId, this.kbs.isEditModeActivated, this.kbS.IsCurrentNavigatable(this), mouseClick);
+
+        const fromEditMode = this.kbs.isEditModeActivated && !!this.editedRow && !!this.editedRow?.data;
 
         this.kbs.setEditMode(KeyboardModes.NAVIGATION);
         
@@ -389,12 +397,24 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
         this.kbs.SetPosition(colPos, rowPos, this);
 
-        this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType);
+        this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, mouseClick);
     }
 
-    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
+    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false): void {
         // Is there a currently edited row?
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated && !!this.editedRow;
+
+        if (!this.repairMode) {
+            this.repairMode =
+                (!this.kbs.isEditModeActivated && !fromClickMethod) ||
+                (fromEditMode && fromClickMethod);
+        }
+        if (this.mechanicalClick) {
+            this.mechanicalClick = false;
+            fromClickMethod = false;
+            this.repairMode = false;
+        }
+
         
         // Cache edited data
         let tmp: T | undefined = this.editedRow?.data;
@@ -428,15 +448,21 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 // Detect changes in DOM
                 this.cdref!.detectChanges();
 
-                // Move to the next cell and enter edit mode in it
-                let newX = this.MoveNextInTable();
-                if (newX < colPos) {
-                    this.isUnfinishedRowDeletable = false;
+                if (!this.repairMode) {
+                    // Move to the next cell and enter edit mode in it
+                    let newX = this.MoveNextInTable();
+                    if (newX < colPos) {
+                        this.isUnfinishedRowDeletable = false;
+                    }
+                    let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
+                    let nextRow = newX < colPos ? this.data[nextRowPost] : row;
+                    // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                    this.mechanicalClick = true;
+                    this.kbs.ClickCurrentElement();
+                } else {
+                    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                    this.repairMode = false;
                 }
-                let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
-                let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
-                this.kbs.ClickCurrentElement();
 
                 // Notify the parent component about the datachange
                 this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
@@ -502,15 +528,21 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                     // Detect changes in DOM
                     this.cdref!.detectChanges();
     
-                    // Move to the next cell and enter edit mode in it
-                    let newX = this.MoveNextInTable();
-                    if (newX < colPos) {
-                        this.isUnfinishedRowDeletable = false;
+                    if (!this.repairMode) {
+                        // Move to the next cell and enter edit mode in it
+                        let newX = this.MoveNextInTable();
+                        if (newX < colPos) {
+                            this.isUnfinishedRowDeletable = false;
+                        }
+                        let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
+                        let nextRow = newX < colPos ? this.data[nextRowPost] : row;
+                        // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                        this.mechanicalClick = true;
+                        this.kbs.ClickCurrentElement();
+                    } else {
+                        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                        this.repairMode = false;
                     }
-                    let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
-                    let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                    // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
-                    this.kbs.ClickCurrentElement();
     
                     // Notify the parent component about the datachange
                     this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
