@@ -23,6 +23,13 @@ export class InvoiceService {
 
   constructor(private http: HttpClient) { }
 
+  GetTemporaryPaymentMethod(): Observable<PaymentMethod[]> {
+    return of([{
+      value: "-1",
+      text: "Feltöltés alatt..."
+    }] as PaymentMethod[]);
+  }
+
   GetPaymentMethods(): Observable<PaymentMethod[]> {
     return this.http.get<PaymentMethod[]>(this.BaseUrl + '/paymentmethod');
   }

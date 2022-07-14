@@ -492,8 +492,22 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   refresh(): void {
+    const tempPaymentSubscription = this.seInv.GetTemporaryPaymentMethod().subscribe({
+      next: d => {
+        console.log('[GetTemporaryPaymentMethod]: ', d);
+        this.paymentMethods = d;
+        this._paymentMethods = this.paymentMethods.map(x => x.text) ?? [];
+        this.paymentMethodOptions$.next(this._paymentMethods);
+        if (this._paymentMethods.length > 0) {
+          this.outInvForm.controls['paymentMethod'].setValue(this._paymentMethods[0])
+        }
+      }
+    });
     this.seInv.GetPaymentMethods().subscribe({
       next: d => {
+        if (!!tempPaymentSubscription && !tempPaymentSubscription.closed) {
+          tempPaymentSubscription.unsubscribe();
+        }
         console.log('[GetPaymentMethods]: ', d);
         this.paymentMethods = d;
         this._paymentMethods = this.paymentMethods.map(x => x.text) ?? [];
@@ -506,7 +520,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         this.cs.HandleError(err);
       },
       complete: () => { },
-    })
+    });
 
     this.seC.GetAllCountryCodes().subscribe({
       next: (data) => {
