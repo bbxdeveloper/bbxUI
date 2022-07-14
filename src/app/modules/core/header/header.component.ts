@@ -190,7 +190,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   goTo(link: string): void {
     this.kbS.MoveRight();
     this.popover?.forEach(x => x?.hide());
-    this.router.navigate([link]);
+    if (link === "home") {
+      this.router.navigate([link]);
+    } else {
+      this.router.navigate(["home"]);
+      setTimeout(() => {
+        this.router.navigate([link]);
+      }, 50);
+    }
   }
 
   quit(event: any): void {
