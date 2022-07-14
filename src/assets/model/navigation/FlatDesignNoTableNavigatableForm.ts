@@ -392,12 +392,17 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
         console.log('[HandleFormEnter]: ', event, jumpNext, toggleEditMode, preventEventInAnyCase);
-        
-        if (preventEventInAnyCase) {
+
+        if (this.kbS.IsLocked() || preventEventInAnyCase) {
             event.preventDefault();
             event.stopImmediatePropagation();
             event.stopPropagation();
         }
+
+        if (this.kbS.IsLocked()) {
+            return;
+        }
+
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }

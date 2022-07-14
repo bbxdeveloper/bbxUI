@@ -237,7 +237,7 @@ export class BaseNoFormManagerComponent<T> {
 
   Refresh(params?: any): void { }
 
-  RefreshTable(selectAfterRefresh?: any): void {
+  RefreshTable(selectAfterRefresh?: any, setAsCurrentNavigatable: boolean = true): void {
     this.dbDataTable.Setup(
       this.dbData,
       this.dbDataDataSrc,
@@ -246,7 +246,7 @@ export class BaseNoFormManagerComponent<T> {
       this.colsToIgnore
     );
     setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh, setAsCurrentNavigatable);
     }, 200);
   }
 

@@ -304,7 +304,15 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any): void {
+    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any, setAsCurrentNavigatable: boolean = true): void {
+        // try {
+        //     throw new Error("hmmm");
+        // } catch(error) {
+        //     console.error(error);
+        // }
+
+        // this.kbs.Lock();
+
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
@@ -356,7 +364,7 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         }
 
         if (attach) {
-            this.kbs.Attach(this, this.attachDirection);
+            this.kbs.Attach(this, this.attachDirection, setAsCurrentNavigatable);
         }
 
         if (idToSelectAfterGenerate !== undefined) {
@@ -364,6 +372,8 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         }
 
         // this.kbs.LogMatrix();
+
+        // this.kbs.Unlock();
     }
 
     HandleKey(event: any): void {

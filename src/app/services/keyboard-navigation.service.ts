@@ -83,7 +83,26 @@ export class KeyboardNavigationService {
 
   private previousIdString?: string = undefined;
 
+  private _locked = false;
+
   constructor() { }
+
+  public Lock(): void {
+    this._locked = true;
+  }
+
+  public Unlock(): void {
+    // try {
+    //     throw new Error("hmmm");
+    // } catch(error) {
+    //     console.error(error);
+    // }
+    this._locked = false;
+  }
+
+  public IsLocked(): boolean {
+    return this._locked;
+  }
 
   toggleEdit(): void {
     if (this.isEditModeLocked) {
@@ -146,6 +165,10 @@ export class KeyboardNavigationService {
   public SelectElement(id: string): void {
     this.LogSelectElement();
 
+    if (this._locked) {
+      return;
+    }
+
     const idString = '#' + id;
 
     if (environment.navigationSelectLog)
@@ -188,6 +211,10 @@ export class KeyboardNavigationService {
   }
 
   public ClickElement(id: string, excludeButtons: boolean = false): void {
+    if (this._locked) {
+      return;
+    }
+
     const idString = '#' + id;
 
     if (environment.navigationSelectLog)
@@ -218,12 +245,20 @@ export class KeyboardNavigationService {
    * @param y New Y coordinate.
    */
   public SelectElementByCoordinate(x: number, y: number): void {
+    if (this._locked) {
+      return;
+    }
+
     this.p.x = x;
     this.p.y = y;
     this.SelectCurrentElement();
   }
 
   public SetPosition(x: number, y: number, n?: INavigatable): void {
+    if (this._locked) {
+      return;
+    }
+
     this.p.x = x;
     this.p.y = y;
     if (!!n && this.CurrentNavigatable !== n) {
@@ -233,6 +268,10 @@ export class KeyboardNavigationService {
   }
 
   public SetPositionById(tileValue: string): boolean {
+    if (this._locked) {
+      return false;
+    }
+
     for (let y = 0; y < this.CurrentNavigatable.Matrix.length; y++) {
       for (let x = 0; x < this.CurrentNavigatable.Matrix[y].length; x++) {
         if (this.CurrentNavigatable.Matrix[y][x] === tileValue) {
@@ -253,6 +292,10 @@ export class KeyboardNavigationService {
   }
 
   public SelectFirstTile(): void {
+    if (this._locked) {
+      return;
+    }
+
     this.p.x = 0;
     this.p.y = 0;
     this.SelectCurrentElement();
@@ -463,6 +506,10 @@ export class KeyboardNavigationService {
 
     const res = { moved: false, jumped: false } as MoveRes;
 
+    if (this._locked) {
+      return res;
+    }
+
     if (this.CurrentNavigatable.IsSubMapping) {
       this.RemoveWidgetNavigatable();
       res.moved = true;
@@ -538,6 +585,10 @@ export class KeyboardNavigationService {
 
     const res = { moved: false, jumped: false } as MoveRes;
 
+    if (this._locked) {
+      return res;
+    }
+
     if (this.CurrentNavigatable.IsSubMapping) {
       this.RemoveWidgetNavigatable();
       res.moved = true;
@@ -612,6 +663,10 @@ export class KeyboardNavigationService {
     this.LogMoveStats(AttachDirection.UP, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
+
+    if (this._locked) {
+      return res;
+    }
 
     // At upper bound
     if (this.p.y === 0) {
@@ -691,6 +746,10 @@ export class KeyboardNavigationService {
     this.LogMoveStats(AttachDirection.DOWN, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
+
+    if (this._locked) {
+      return res;
+    }
 
     // At lower bound
     if (this.p.y === this.maxCurrentWorldY) {
@@ -793,6 +852,12 @@ export class KeyboardNavigationService {
       }
     }
     if (setAsCurrentNavigatable) {
+      console.log("[Attach] setting as current navigatable: ", (n as any).constructor.name);
+      // try {
+      //   throw new Error("hmmm");
+      // } catch (error) {
+      //   console.error(error);
+      // }
       this.CurrentNavigatable = n;
       this.SelectFirstTile();
     }

@@ -248,6 +248,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return this.kbS.IsCurrentNavigatable(this.dbDataTable);
   }
 
+  isPageReady: boolean = false;
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -504,8 +506,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             this.dbDataTable.totalItems = d.recordsFiltered;
             this.dbDataTable.itemsOnCurrentPage = tempData.length;
           }
-          this.RefreshTable();
-          this.JumpToFirstCellAndNav();
+          this.RefreshTable(undefined, this.isPageReady);
+          if (this.isPageReady) {
+            this.JumpToFirstCellAndNav();
+          }
         } else {
           this.bbxToastrService.show(
             d.errors!.join('\n'),
@@ -520,6 +524,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       },
       complete: () => {
         this.isLoading = false;
+        if (!this.isPageReady) {
+          this.isPageReady = true;
+        }
       },
     });
   }
@@ -536,7 +543,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.AddSearchButtonToFormMatrix();
     console.log(this.filterFormNav.Matrix);
 
-    this.dbDataTable.GenerateAndSetNavMatrices(true);
+    this.dbDataTable.GenerateAndSetNavMatrices(true, undefined, false);
     this.dbDataTable.DisableFooter = true;
 
     setTimeout(() => {

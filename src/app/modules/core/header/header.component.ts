@@ -142,6 +142,16 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
       return;
     }
+    
+    if (this.kbS.IsLocked()) {
+      console.log("[onKeyDown] Movement is locked!");
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+
+      return;
+    }
 
     switch (event.key) {
       case KeyBindings.up: {
