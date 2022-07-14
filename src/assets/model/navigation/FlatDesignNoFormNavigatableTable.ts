@@ -213,14 +213,14 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
     }
 
     PushFooterCommandList(): void {
-        if (this.sidebarService.sideBarOpened || this.DisableFooter) {
-            return;
-        }
-        if (this.kbs.isEditModeActivated) {
-            this.fS.pushCommands(this.commandsOnTableEditMode);
-        } else {
-            this.fS.pushCommands(this.commandsOnTable);
-        }
+        // if (this.sidebarService.sideBarOpened || this.DisableFooter) {
+        //     return;
+        // }
+        // if (this.kbs.isEditModeActivated) {
+        //     this.fS.pushCommands(this.commandsOnTableEditMode);
+        // } else {
+        //     this.fS.pushCommands(this.commandsOnTable);
+        // }
     }
 
     SelectRowById(id: any): void {

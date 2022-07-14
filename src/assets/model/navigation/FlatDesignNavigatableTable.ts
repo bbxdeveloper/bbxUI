@@ -221,14 +221,14 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     PushFooterCommandList(): void {
-        if (this.sidebarService.sideBarOpened) {
-            return;
-        }
-        if (this.kbs.isEditModeActivated) {
-            this.fS.pushCommands(this.commandsOnTableEditMode);
-        } else {
-            this.fS.pushCommands(this.commandsOnTable);
-        }
+        // if (this.sidebarService.sideBarOpened) {
+        //     return;
+        // }
+        // if (this.kbs.isEditModeActivated) {
+        //     this.fS.pushCommands(this.commandsOnTableEditMode);
+        // } else {
+        //     this.fS.pushCommands(this.commandsOnTable);
+        // }
     }
 
     SelectRowById(id: any): void {

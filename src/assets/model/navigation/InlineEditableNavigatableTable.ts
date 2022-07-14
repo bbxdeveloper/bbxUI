@@ -176,11 +176,11 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     PushFooterCommandList(): void {
-        if (this.kbS.isEditModeActivated) {
-            this.fS.pushCommands(this.commandsOnTableEditMode);
-        } else {
-            this.fS.pushCommands(this.commandsOnTable);
-        }
+        // if (this.kbS.isEditModeActivated) {
+        //     this.fS.pushCommands(this.commandsOnTableEditMode);
+        // } else {
+        //     this.fS.pushCommands(this.commandsOnTable);
+        // }
     }
 
     FillCurrentlyEditedRow(newRowData: TreeGridNode<T>): void {

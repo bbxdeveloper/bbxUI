@@ -3,6 +3,7 @@
         <app-head-line msg="Számlatömb kezelése"></app-head-line>
 
         <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [heightMargin]="350"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
             <label class="search-label" for="search">Keresés:</label>

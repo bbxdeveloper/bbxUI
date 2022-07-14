@@ -9,11 +9,10 @@ import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
-import { TileCssClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, DefaultKeySettings, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, InvoiceKeySettings, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -55,20 +54,8 @@ export class BaseManagerComponent<T> {
     return {};
   }
 
-  commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
-    { key: 'F2', value: '', disabled: false },
-    { key: 'F3', value: '', disabled: false },
-    { key: 'F4', value: '', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-    { key: 'F11', value: '', disabled: false },
-    { key: 'F12', value: 'Tétellap', disabled: false },
-  ];
+  public KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
+  public commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   constructor(
     @Optional() protected dialogService: NbDialogService,

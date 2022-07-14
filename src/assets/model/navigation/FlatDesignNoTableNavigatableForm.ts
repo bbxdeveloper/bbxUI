@@ -531,9 +531,9 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     PushFooterCommandList(): void {
-        if (this.IsFootersEnabled) {
-            this.fS.pushCommands(this.commandsOnForm);
-        }
+        // if (this.IsFootersEnabled) {
+        //     this.fS.pushCommands(this.commandsOnForm);
+        // }
     }
 
     ClearNeighbours(): void {
