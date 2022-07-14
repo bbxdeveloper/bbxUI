@@ -9,6 +9,7 @@ import { EmailAddress, SendEmailRequest } from '../models/Email';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { Constants } from 'src/assets/util/Constants';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -79,7 +80,8 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SendEmailDialogComponent>,
     private kbS: KeyboardNavigationService,
-    private simpleToastrService: NbToastrService
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
   ) {
     super();
     this.Setup();
@@ -152,10 +154,10 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
       } as SendEmailRequest);
     }
     if (answer && !this.dataForm.form.valid) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Az űrlap egyes mezői érvénytelenek vagy hiányosan vannak kitöltve.`,
         Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR_5_SEC
+        Constants.TOASTR_ERROR
       );
     }
     else {

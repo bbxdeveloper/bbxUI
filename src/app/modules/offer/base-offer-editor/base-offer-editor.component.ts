@@ -289,7 +289,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
-            this.simpleToastrService.show(
+            this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -559,7 +559,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             }
           });
         } else {
-          this.simpleToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {

@@ -425,7 +425,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
-            this.simpleToastrService.show(
+            this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -676,18 +676,18 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   Save(): void {
     if (this.outInvForm.invalid) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
         Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR_5_SEC
+        Constants.TOASTR_ERROR
       );
       return;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
         Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR_5_SEC
+        Constants.TOASTR_ERROR
       );
       return;
     }
@@ -756,10 +756,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
                         this.utS.CommandEnded.unsubscribe();
 
-                        this.simpleToastrService.show(
+                        this.bbxToastrService.show(
                           `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR_5_SEC
+                          Constants.TOASTR_ERROR
                         );
                         this.isLoading = false;
                       }

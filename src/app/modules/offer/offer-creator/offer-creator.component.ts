@@ -282,7 +282,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
                         commandEndedSubscription.unsubscribe();
-                        this.simpleToastrService.show(
+                        this.bbxToastrService.show(
                           `Az árajánlat nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR

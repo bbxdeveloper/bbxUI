@@ -420,7 +420,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
-            this.simpleToastrService.show(
+            this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
@@ -683,7 +683,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   Save(): void {
     if (this.outInvForm.invalid) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Az űrlap hibásan vagy hiányosan van kitöltve.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -691,7 +691,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       return;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
@@ -772,10 +772,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
                         this.utS.CommandEnded.unsubscribe();
 
-                        this.simpleToastrService.show(
+                        this.bbxToastrService.show(
                           `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR_5_SEC
+                          Constants.TOASTR_ERROR
                         );
                         this.isLoading = false;
                         this.isSilentLoading = false;
@@ -978,7 +978,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }
           });
         } else {
-          this.simpleToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {

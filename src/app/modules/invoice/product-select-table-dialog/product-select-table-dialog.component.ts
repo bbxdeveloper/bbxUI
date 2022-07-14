@@ -37,7 +37,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   override isLoading: boolean = false;
 
   constructor(
-    private toastrService: BbxToastrService,
+    private simpleToastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
     dialogRef: NbDialogRef<SelectTableDialogComponent<Product>>,
@@ -126,7 +127,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.bbxToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR

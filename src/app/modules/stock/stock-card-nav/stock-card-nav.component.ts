@@ -368,10 +368,10 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
   override Refresh(params?: GetStockCardsParamsModel): void {
     console.log('Refreshing: ', params); // TODO: only for debug
     if (this.filterForm.invalid) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         Constants.MSG_INVALID_FILTER_FORM,
         Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR_5_SEC
+        Constants.TOASTR_ERROR
       );
       return;
     }

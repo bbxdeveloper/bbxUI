@@ -1,5 +1,5 @@
 import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogRef, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -37,7 +37,8 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   override isLoading: boolean = false;
 
   constructor(
-    private toastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
     dialogRef: NbDialogRef<SelectTableDialogComponent<Customer>>,
@@ -126,7 +127,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.bbxToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR

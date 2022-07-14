@@ -339,7 +339,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Invoice>>,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: BbxToastrService,
+    private simpleToastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private invoiceService: InvoiceService,
@@ -599,7 +600,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
