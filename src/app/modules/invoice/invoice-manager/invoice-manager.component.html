@@ -137,7 +137,7 @@
                         class="{{TileCssClass}}" [readonly]="editDisabled" id="m01" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
-                    <app-form-control-error [form]="outInvFormNav" label="teljesítési időpont"
+                    <app-form-control-error [form]="outInvFormNav"
                         controlName="invoiceDeliveryDate" [validationParameterDate]="invoiceIssueDateValue">
                     </app-form-control-error>
                 </nb-form-field>
@@ -148,7 +148,7 @@
                         class="{{TileCssClass}}" [readonly]="editDisabled" id="m02" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
-                    <app-form-control-error [form]="outInvFormNav" label="számla keltezése"
+                    <app-form-control-error [form]="outInvFormNav"
                         controlName="invoiceIssueDate" [validationParameterDate]="invoiceIssueDateValue">
                     </app-form-control-error>
                 </nb-form-field>
@@ -159,7 +159,7 @@
                         class="{{TileCssClass}}" [readonly]="editDisabled" id="m03" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
-                    <app-form-control-error [form]="outInvFormNav" label="fizetési határidő" controlName="paymentDate"
+                    <app-form-control-error [form]="outInvFormNav" controlName="paymentDate"
                         [validationParameterDate]="invoiceIssueDateValue"
                         [validationParameterDateSecondary]="invoiceDeliveryDateValue">
                     </app-form-control-error>

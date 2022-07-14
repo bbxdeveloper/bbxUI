@@ -35,7 +35,7 @@
                     <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom' class="{{TileCssClass}}"
                         (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                         mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                    <app-form-control-error [form]="filterFormNav" label="számla keltezés kezdete"
+                    <app-form-control-error [form]="filterFormNav"
                         controlName="InvoiceIssueDateFrom" [validationParameterDate]="invoiceIssueDateToValue">
                     </app-form-control-error>
                 </nb-form-field>
@@ -46,7 +46,7 @@
                     <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' class="{{TileCssClass}}"
                         (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                         mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                    <app-form-control-error [form]="filterFormNav" label="számla keltezés vége"
+                    <app-form-control-error [form]="filterFormNav"
                         controlName="InvoiceIssueDateTo" [validationParameterDate]="invoiceIssueDateFromValue">
                     </app-form-control-error>
                 </nb-form-field>
@@ -57,7 +57,7 @@
                     <input nbInput type="datetime" formControlName='InvoiceDeliveryDateFrom' class="{{TileCssClass}}"
                         (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                         mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                    <app-form-control-error [form]="filterFormNav" label="számla teljesítésének kezdete"
+                    <app-form-control-error [form]="filterFormNav"
                         controlName="InvoiceDeliveryDateFrom" [validationParameterDate]="invoiceDeliveryDateToValue">
                     </app-form-control-error>
                 </nb-form-field>
@@ -68,10 +68,15 @@
                     <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo' class="{{TileCssClass}}"
                         (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                         mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                    <app-form-control-error [form]="filterFormNav" label="számla teljesítésének vége"
+                    <app-form-control-error [form]="filterFormNav"
                         controlName="InvoiceDeliveryDateTo" [validationParameterDate]="invoiceDeliveryDateFromValue">
                     </app-form-control-error>
                 </nb-form-field>
+                
+                <div class="form-row">
+                    <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)"
+                        [disabled]="filterForm?.invalid ?? true" status="primary" tabindex="-1">Keresés</button>
+                </div>
             </form>
         </nb-card-body>
     </nb-card>

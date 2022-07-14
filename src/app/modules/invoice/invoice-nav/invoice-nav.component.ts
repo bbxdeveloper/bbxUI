@@ -38,6 +38,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   readonly ChosenIssueFilterOptionValue: string = '1';
   readonly ChosenDeliveryFilterOptionValue: string = '2';
 
+  readonly SearchButtonId: string = 'stock-card-button-search';
+
   override allColumns = [
     'invoiceNumber',
     'warehouse',
@@ -447,24 +449,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       DateFilterChooser: new FormControl(1, [])
     });
 
-    this.filterForm.controls['Incoming'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('Incoming value changed: ', newValue);
-        if (this.isIssueFilterSelectedAndValid || this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
-      }
-    });
-
-    this.filterForm.controls['WarehouseCode'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('WarehouseCode value changed: ', newValue);
-        if (this.isIssueFilterSelectedAndValid || this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
-      }
-    });
-
     this.filterForm.controls['DateFilterChooser'].valueChanges.subscribe({
       next: newValue => {
         console.log('DateFilterChooser value changed: ', newValue);
@@ -483,9 +467,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         if (!this.filterForm.controls['InvoiceIssueDateTo'].valid && this.filterForm.controls['InvoiceIssueDateFrom'].valid) {
           this.filterForm.controls['InvoiceIssueDateTo'].setValue(this.filterForm.controls['InvoiceIssueDateTo'].value);
         }
-        else if (this.isIssueFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
       }
     });
 
@@ -494,9 +475,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         console.log('InvoiceIssueDateTo value changed: ', newValue);
         if (!this.filterForm.controls['InvoiceIssueDateFrom'].valid && this.filterForm.controls['InvoiceIssueDateTo'].valid) {
           this.filterForm.controls['InvoiceIssueDateFrom'].setValue(this.filterForm.controls['InvoiceIssueDateFrom'].value);
-        }
-        else if (this.isIssueFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
         }
       }
     });
@@ -507,9 +485,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         if (!this.filterForm.controls['InvoiceDeliveryDateTo'].valid && this.filterForm.controls['InvoiceDeliveryDateFrom'].valid) {
           this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(this.filterForm.controls['InvoiceDeliveryDateTo'].value);
         }
-        else if (this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
       }
     });
 
@@ -519,19 +494,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         if (!this.filterForm.controls['InvoiceDeliveryDateFrom'].valid && this.filterForm.controls['InvoiceDeliveryDateTo'].valid) {
           this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(this.filterForm.controls['InvoiceDeliveryDateFrom'].value);
         }
-        else if (this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
         this.filterForm.controls['InvoiceDeliveryDateFrom'].markAsDirty();
         this.cdref.detectChanges();
-      }
-    });
-
-    this.filterForm.controls['DateFilterChooser'].valueChanges.subscribe({
-      next: newValue => {
-        if (this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
       }
     });
 
@@ -631,6 +595,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     });
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+    this.AddSearchButtonToFormMatrix();
+
     this.dbDataTable.GenerateAndSetNavMatrices(false);
     this.dbDataTable.PushFooterCommandList();
 
@@ -641,6 +607,10 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
+  }
+
+  private AddSearchButtonToFormMatrix(): void {
+    this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
   private RefreshAll(params?: GetInvoicesParamListModel): void {
