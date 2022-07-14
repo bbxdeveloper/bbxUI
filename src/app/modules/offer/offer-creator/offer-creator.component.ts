@@ -357,6 +357,16 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
     }
   }
 
+  private RoundPrices(rowPos: number): void {
+    if ((this.dbData.length + 1) <= rowPos) {
+      return;
+    }
+    const d = this.dbData[rowPos]?.data;
+    if (!!d) {
+      d.Round();
+    }
+  }
+
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -387,7 +397,9 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    console.log('[TableRowDataChanged]');
+    if (index !== undefined) {
+      this.RoundPrices(index);
+    }
 
     if (!!changedData && !!changedData.productCode) {
       if ((!!col && col === 'productCode') || col === undefined) {
@@ -399,9 +411,6 @@ export class OfferCreatorComponent extends BaseInlineManagerComponent<OfferLine>
               let tmp = this.dbData[index].data;
 
               tmp.lineDescription = product.description ?? '';
-
-              // let discount = tmp.discount === 0 ? 1.0 : tmp.discount / 100.0;
-              // tmp.unitPrice += tmp.unitPrice * discount;
 
               tmp.vatRate = product.vatPercentage ?? 0.0;
               tmp.OriginalUnitPrice = (product.unitPrice1 ?? product.unitPrice2 ?? 0);

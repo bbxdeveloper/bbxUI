@@ -111,6 +111,13 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return this.unitVat;
     }
 
+    public Round(): void {
+        this.unitVat = HelperFunctions.Round(this.unitVat);
+        this.originalUnitPrice = HelperFunctions.Round(this.originalUnitPrice);
+        this.unitPrice = HelperFunctions.Round(this.unitPrice);
+        this.unitGross = HelperFunctions.Round(this.unitGross);
+    }
+
     IsUnfinished(): boolean {
         return this.productCode === undefined || this.productCode?.length === 0 || this.lineDescription?.length === 0;
     }

@@ -36,7 +36,6 @@ import { OfferService } from '../services/offer.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { Offer } from '../models/Offer';
-import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
@@ -379,6 +378,16 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
     }
   }
 
+  private RoundPrices(rowPos: number): void {
+    if ((this.dbData.length + 1) <= rowPos) {
+      return;
+    }
+    const d = this.dbData[rowPos]?.data;
+    if (!!d) {
+      d.Round();
+    }
+  }
+
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -409,6 +418,10 @@ export class OfferEditorComponent extends BaseInlineManagerComponent<OfferLine> 
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+    if (index !== undefined) {
+      this.RoundPrices(index);
+    }
+
     console.log('[TableRowDataChanged]');
 
     if (!!changedData && !!changedData.productCode) {

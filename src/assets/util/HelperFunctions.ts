@@ -214,4 +214,8 @@ export module HelperFunctions {
     export function ToInt(p: any): number {
         return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
     }
+
+    export function Round(p: string | number): number {
+        return Math.round(ToFloat(p));
+    }
 }
