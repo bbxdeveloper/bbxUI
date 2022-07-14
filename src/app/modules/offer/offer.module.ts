@@ -14,13 +14,15 @@ import { OfferEditorComponent } from './offer-editor/offer-editor.component';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { HttpClientModule } from '@angular/common/http';
 import { OfferUpdateDialogComponent } from './offer-update-dialog/offer-update-dialog.component';
+import { BaseOfferEditorComponent } from './base-offer-editor/base-offer-editor.component';
 
 @NgModule({
   declarations: [
     OfferNavComponent,
     OfferCreatorComponent,
     OfferEditorComponent,
-    OfferUpdateDialogComponent
+    OfferUpdateDialogComponent,
+    BaseOfferEditorComponent
   ],
   imports: [
     CommonModule,
