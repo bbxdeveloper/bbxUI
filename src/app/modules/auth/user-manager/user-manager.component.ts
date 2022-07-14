@@ -105,7 +105,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       type: 'bool',
       fInputType: 'bool',
       mask: '',
-      colWidth: '10%',
+      colWidth: '80px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
       fRequired: true

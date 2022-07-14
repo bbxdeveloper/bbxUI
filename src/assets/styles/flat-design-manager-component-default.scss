@@ -50,6 +50,55 @@ nb-card {
     width: 100% !important;
 }
 
+.card-table-header {
+    display: block;
+    position: sticky;
+    top: 0;
+    width: -moz-fit-content;
+    width: fit-content;
+    table-layout: fixed;
+
+    tr > th {
+        position: sticky;
+        top: -1px;
+    }
+
+    th,
+    td {
+        min-width: 16vw;
+        max-width: 16vw;
+
+        height: 50px;
+
+        &.table-cell-edited {
+            padding: 0px;
+
+            .input-table-cell {
+                max-width: 80%;
+
+                border: none;
+                background: none;
+                text-align: left;
+                padding-left: 20px;
+
+                font-size: 1.1rem !important;
+
+                color: #ffffff;
+                font-family: Open Sans, sans-serif;
+                font-weight: 400;
+                line-height: 1.25rem;
+            }
+        }
+    }
+
+    th {
+        text-align: center;
+        background: rgb(35, 35, 75);
+        padding: 0px;
+        margin: 0px;
+    }
+}
+
 .card-table-wrapper {
     position: sticky;
     top: 0;

@@ -25,7 +25,6 @@ import { InfrastructureService } from '../../infrastructure/services/infrastruct
 import { UtilityService } from 'src/app/services/utility.service';
 import { GetStockCardsParamsModel } from '../models/GetStockCardsParamsModel';
 import { StockCard } from '../models/StockCard';
-import { StockService } from '../services/stock.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
