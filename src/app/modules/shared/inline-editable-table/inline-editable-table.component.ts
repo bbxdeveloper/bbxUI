@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
@@ -42,7 +43,7 @@ export class InlineEditableTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor() { }
+  constructor(private sideBarService: BbxSidebarService) { }
 
   focusOnTable(focusIn: boolean): void {
     if (focusIn) {
@@ -50,6 +51,16 @@ export class InlineEditableTableComponent implements OnInit {
     } else {
       this.focusOutTable.emit('focusOutTable');
     }
+  }
+
+  getTableClasses(): string {
+    var classes = '';
+    classes += this.heightMargin > -1 ? ('table-wrapper-height-margin-' + this.heightMargin) : '';
+    if (this.heightMargin === -1) {
+      classes += this.wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'
+      classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
+    }
+    return classes;
   }
 
   ngOnInit(): void {
