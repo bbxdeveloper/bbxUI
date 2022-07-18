@@ -53,6 +53,10 @@ export class KeyboardNavigationService {
 
   isEditModeLocked: boolean = false;
 
+  get GetCurrentNavigatable(): INavigatable | undefined {
+    return this.CurrentNavigatable;
+  }
+
   get AroundHere(): string[][] {
     return this.CurrentNavigatable.Matrix;
   }

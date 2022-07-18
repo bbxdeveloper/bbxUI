@@ -1,8 +1,10 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
+import { INavigatable } from 'src/assets/model/navigation/Navigatable';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { Constants } from 'src/assets/util/Constants';
 import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
@@ -29,6 +31,13 @@ export class InlineEditableTableComponent implements OnInit {
 
   @Input() parent: any = undefined;
 
+  get currentNavigatable(): INavigatable | undefined {
+    return this.kbs.GetCurrentNavigatable
+  }
+  get isEditModeOn(): boolean {
+    return this.kbs.isEditModeActivated;
+  }
+
   numberInputMask = NgNeatInputMasks.numberInputMask;
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
@@ -43,7 +52,7 @@ export class InlineEditableTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(private sideBarService: BbxSidebarService) { }
+  constructor(private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService) {}
 
   focusOnTable(focusIn: boolean): void {
     if (focusIn) {

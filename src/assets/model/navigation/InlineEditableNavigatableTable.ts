@@ -229,6 +229,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.cdref!.detectChanges();
         this.kbS.SelectCurrentElement();
         this.PushFooterCommandList();
+        this.repairMode = true;
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -382,12 +383,13 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
-    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, mouseClick: boolean = false): void {
+    HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, mouseClick: boolean = false, clickEvent?: any, navigatable?: INavigatable): void {
         console.log('[HandleGridClick]: ', row, rowPos, col, colPos, inputId, this.kbs.isEditModeActivated, this.kbS.IsCurrentNavigatable(this), mouseClick);
+        let firstCol = colPos === 0;
 
-        const fromEditMode = this.kbs.isEditModeActivated && !!this.editedRow && !!this.editedRow?.data;
+        const fromEditMode = this.kbs.isEditModeActivated; // && !!this.editedRow && !!this.editedRow?.data;
 
-        this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+        this.kbs.setEditMode(firstCol ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT);
         
         this.ResetEdit();
 
@@ -397,33 +399,55 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
         this.kbs.SetPosition(colPos, rowPos, this);
 
-        this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, mouseClick);
+        this.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, mouseClick, navigatable);
     }
 
-    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false): void {
+    HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
         // Is there a currently edited row?
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated && !!this.editedRow;
+        let firstCol = colPos === 0;
 
-        if (!this.repairMode) {
-            this.repairMode =
-                (!this.kbs.isEditModeActivated && !fromClickMethod) ||
-                (fromEditMode && fromClickMethod);
+        console.log(navigatable);
+        if ((navigatable !== undefined && (this !== navigatable))) {
+            this.repairMode = true;
         }
-        if (this.mechanicalClick) {
-            this.mechanicalClick = false;
-            fromClickMethod = false;
+
+        if (firstCol) {
             this.repairMode = false;
         }
+
+        // Stats
+        console.log(
+            `            ==========[HandleGridEnter]========
+            wasEditActivatedPreviously: ${wasEditActivatedPreviously}, IS EDIT MODE: ${this.kbS.isEditModeActivated}, 
+            ROW: ${row}, EDITEDROW: ${this.editedRow}, ROWPOS: ${rowPos}, COL: ${col}, COLPOS: ${colPos},
+            INPUT ID: ${inputId}, F INPUT TYPE: ${fInputType}, IS UNFINISHED: ${row.data.IsUnfinished()}
+            --------------
+            repair: ${this.repairMode}, fromEditMode: ${fromEditMode}, fromClickMethod: ${fromClickMethod}, this.kbs.isEditModeActivated: ${this.kbs.isEditModeActivated}
+            first column: ${colPos === 0}, mechanical click: ${this.mechanicalClick}
+            ===================================`
+        );
+
+        //this.repairMode = !fromEditMode && !firstCol;
+        // if (!this.repairMode) {
+        //     this.repairMode =
+        //         !firstCol &&
+        //         (!this.kbs.isEditModeActivated && !fromClickMethod) ||
+        //         (fromEditMode && fromClickMethod);
+        // }
+        // if (this.mechanicalClick) {
+        //     this.mechanicalClick = false;
+        //     fromClickMethod = false;
+        //     this.repairMode = false;
+        // }
 
         
         // Cache edited data
         let tmp: T | undefined = this.editedRow?.data;
 
-        // Stats
-        console.log(`[HandleGridEnter]: wasEditActivatedPreviously: ${wasEditActivatedPreviously}, IS EDIT MODE: ${this.kbS.isEditModeActivated}, ROW: ${row}, EDITEDROW: ${this.editedRow}, ROWPOS: ${rowPos}, COL: ${col}, COLPOS: ${colPos}, INPUT ID: ${inputId}, F INPUT TYPE: ${fInputType}, IS UNFINISHED: ${row.data.IsUnfinished()}`);
-
         // Switch modes
-        this.kbS.toggleEdit();
+        if (firstCol)
+            this.kbS.toggleEdit();
 
         // Set timeout can cause checkboxes to malfunction
         if (this.kbs.IsInnerInputCheckbox()) {
