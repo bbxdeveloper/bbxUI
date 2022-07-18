@@ -50,27 +50,27 @@
                     </nb-form-field>
     
                     <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='zipCodeCity' required="true"
+                        <input nbInput type="text" formControlName='zipCodeCity'
                             placeholder="Irányítószám és Város" readonly id="r01">
                     </nb-form-field>
     
                     <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true"
+                        <input nbInput type="text" formControlName='additionalAddressDetail'
                             placeholder="Utca, házszám" readonly id="r02">
                     </nb-form-field>
     
                     <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true"
+                        <input nbInput type="text" formControlName='customerBankAccountNumber'
                             placeholder="Számlaszám" readonly id="r03">
                     </nb-form-field>
     
                     <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" placeholder="Adószám"
+                        <input nbInput type="text" formControlName='taxpayerNumber' placeholder="Adószám"
                             readonly id="r04">
                     </nb-form-field>
     
                     <nb-form-field (keydown.enter)="activeFormNav.HandleFormEnter($event, true)">
-                        <input nbInput type="text" formControlName='comment' required="false" placeholder="Megjegyzés"
+                        <input nbInput type="text" formControlName='comment' placeholder="Megjegyzés"
                             readonly id="r05">
                     </nb-form-field>
                 </form>
@@ -136,7 +136,7 @@
                         <input nbInput type="text" formControlName='customerInvoiceNumber' class="{{TileCssClass}}"
                             [readonly]="isEditModeOff" readonly>
  
-                        <app-form-control-error [form]="outInvFormNav" label="eredeti bizonylat" controlName="customerInvoiceNumber">
+                        <app-form-control-error [form]="outInvFormNav" controlName="customerInvoiceNumber">
                         </app-form-control-error>
                     </nb-form-field>
                     
@@ -150,9 +150,7 @@
                             [validationParameterDate]="invoiceIssueDateValue">
                         </app-form-control-error>
                     </nb-form-field>
-                </div>
-
-                <div class="form-row">
+                    
                     <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                         <label>Számla keltezése</label>
                         <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true" class="{{TileCssClass}}"
@@ -174,12 +172,14 @@
                             [validationParameterDate]="invoiceIssueDateValue" [validationParameterDateSecondary]="invoiceDeliveryDateValue">
                         </app-form-control-error>
                     </nb-form-field>
-
+                    
                     <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                         <label>Számla sorszáma</label>
                         <input nbInput type="text" formControlName='invoiceOrdinal' readonly placeholder="Számla sorszáma" id="m04">
                     </nb-form-field>
+                </div>
 
+                <div class="form-row-screen-wide">
                     <nb-form-field class="form-field-full-width" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                         <div class="form-field-full-width-inner-div">
                             <label>Egyéb adatok</label>

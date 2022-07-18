@@ -179,37 +179,33 @@ nb-card-header {
     }
 }
 
-
-
 ////////////////////////////////////////
 
-
-
 .nb-overlay-bottom {
-  background: transparent !important;
-  box-shadow: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
 .layout {
-  min-height: 10vh !important;
-  padding: 0px !important;
+    min-height: 10vh !important;
+    padding: 0px !important;
 }
 
 .card-header-txt-center {
-  text-align: center;
-  font-size: larger;
-  text-transform: uppercase;
+    text-align: center;
+    font-size: larger;
+    text-transform: uppercase;
 }
 
 .card-title {
-  background: none !important;
-  border: none !important;
+    background: none !important;
+    border: none !important;
 
-  margin-bottom: 0px !important;
+    margin-bottom: 0px !important;
 
-  text-align: center;
-  font-size: larger !important;
-  text-transform: uppercase;
+    text-align: center;
+    font-size: larger !important;
+    text-transform: uppercase;
 }
 
 tr:nth-child(even) {
@@ -237,28 +233,28 @@ nb-layout-column {
 }
 
 .header-blank {
-  color: transparent !important;
+    color: transparent !important;
 }
 
 .flex-text-center {
-  display: flex;
-  justify-items: center;
+    display: flex;
+    justify-items: center;
 }
 
 .separator-vertical {
-  background: #3ed820;
-  width: 5px;
-  border: #000000 1px solid;
-  border-radius: 50px;
-  margin-left: 30px;
-  margin-right: 30px;
+    background: #3ed820;
+    width: 5px;
+    border: #000000 1px solid;
+    border-radius: 50px;
+    margin-left: 30px;
+    margin-right: 30px;
 }
 
 .separator-horizontal {
-  background: #3ed820;
-  height: 5px;
-  border: #000000 1px solid;
-  margin: auto;
+    background: #3ed820;
+    height: 5px;
+    border: #000000 1px solid;
+    margin: auto;
 }
 
 ::ng-deep nb-card-header {
@@ -266,13 +262,16 @@ nb-layout-column {
 }
 
 nb-layout-footer.custom {
-  nav {
-    padding: 0px !important;
-    background: none !important;
-  }
+    nav {
+        padding: 0px !important;
+        background: none !important;
+    }
 }
 
-input, label, th, td {
+input,
+label,
+th,
+td {
     font-size: 1.1rem;
 }
 
@@ -328,8 +327,8 @@ input, label, th, td {
 }
 
 .card-header-top-margin {
-  margin-top: 25px;
-  margin-bottom: 5px;
+    margin-top: 25px;
+    margin-bottom: 5px;
 }
 
 table.table-statistics-net-vat-gross {
@@ -358,5 +357,41 @@ form.form-with-rows {
         display: flex;
         justify-content: flex-start;
         column-gap: 25px;
+    }
+
+    .form-row-screen-wide {
+        @extend .form-row;
+        min-width: 95vw;
+
+        .form-field-full-width {
+            display: flex !important;
+            flex-direction: row;
+            align-content: center;
+            justify-content: center;
+            align-items: center !important;
+            max-width: 100% !important;
+            margin: auto !important;
+        }
+
+        .form-field-full-width-inner-div {
+            // display: flex !important;
+            flex-direction: row;
+            align-content: center;
+            justify-content: center;
+            align-items: center !important;
+            max-width: 100% !important;
+            margin: auto !important;
+
+            column-gap: 25px;
+
+            input {
+                // max-width: 100% !important;
+                min-width: calc(100vw - 25px) !important;
+            }
+
+            label {
+                min-width: fit-content;
+            }
+        }
     }
 }

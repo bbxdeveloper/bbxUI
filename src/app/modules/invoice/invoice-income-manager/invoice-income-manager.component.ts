@@ -694,13 +694,22 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.activeForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
 
-    if (this.activeForm.invalid || this.outInvForm.invalid) {
+    let valid = true;
+    if (this.activeForm.invalid) {
       this.bbxToastrService.show(
-        `Az űrlap hibásan vagy hiányosan van kitöltve.`,
+        `Nincs megadva szállító.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
-      return;
+      valid = false;
+    }
+    if (this.outInvForm.invalid) {
+      this.bbxToastrService.show(
+        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      valid = false;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.show(
@@ -708,6 +717,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
+      valid = false;
+    }
+    if (!valid) {
       return;
     }
 

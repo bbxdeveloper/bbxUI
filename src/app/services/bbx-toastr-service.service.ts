@@ -11,7 +11,7 @@ export interface ToastRef {
   providedIn: 'root'
 })
 export class BbxToastrService {
-  private maxToastCount: number = 2;
+  private maxToastCount: number = 5;
 
   private _toastrRef?: ToastRef;
   private _toastrOpened: boolean = false;
