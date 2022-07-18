@@ -729,6 +729,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     console.log('Save: ', this.outGoingInvoiceData);
 
+    this.isSilentLoading = true;
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData
@@ -781,6 +785,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                           commandEndedSubscription.unsubscribe();
                         }
                         this.isLoading = false;
+                        this.isSilentLoading = false;
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
@@ -793,6 +798,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                           Constants.TOASTR_ERROR
                         );
                         this.isLoading = false;
+                        this.isSilentLoading = false;
                       }
                     });
                     this.isLoading = true;
@@ -804,6 +810,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
                     this.isLoading = false;
+                    this.isSilentLoading = false;
                     this.Reset();
                   }
                 }
@@ -811,14 +818,17 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
+              this.isSilentLoading = false;
             }
           },
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
+            this.isSilentLoading = false;
           },
           complete: () => {
             this.isLoading = false;
+            this.isSilentLoading = false;
           }
         });
       }
@@ -1002,7 +1012,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+    if (!this.isSilentLoading && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       this.Save();
       return;
     }

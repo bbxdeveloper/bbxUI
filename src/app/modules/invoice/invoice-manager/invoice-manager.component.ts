@@ -751,7 +751,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.isLoading = true;
         this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
           next: d => {
-            this.isSilentLoading = false;
+            //this.isSilentLoading = false;
             if (!!d.data) {
               console.log('Save response: ', d);
 
@@ -780,6 +780,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               });
               dialogRef.onClose.subscribe({
                 next: res => {
+                  console.log("OneTextInputDialogComponent: ", res);
                   if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
@@ -1027,7 +1028,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+    if (!this.isSilentLoading && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       this.Save();
       return;
     }

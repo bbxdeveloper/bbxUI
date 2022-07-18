@@ -75,7 +75,7 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     'stockCardDate',
     'productCode',
     'product',
-    'customerName',
+    'customer',
     'xRel',
     'xCalcQty',
     'xRealQty',
@@ -92,7 +92,7 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
       fInputType: 'readonly',
       mask: '',
       colWidth: '100px',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -146,8 +146,8 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     },
     {
       label: 'Ügyfélnév',
-      objectKey: 'customerName',
-      colKey: 'customerName',
+      objectKey: 'customer',
+      colKey: 'customer',
       defaultValue: '',
       type: 'string',
       fInputType: 'text',

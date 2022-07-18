@@ -4,7 +4,6 @@ export class Stock {
     "productID": number;
     "productCode": string;
     "product": string;
-    "description": string;
     "calcQty": number;
     "realQty": number;
     "outQty": number;

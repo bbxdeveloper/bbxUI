@@ -10,7 +10,7 @@ export class StockCard {
     "productCode": string;
     "product": string;
     "customerID": number;
-    "customerName"?: string;
+    "customer"?: string;
     "customerCity"?: string;
     "customerAdditionalAddressDetail"?: string;
     "stockCardDate": string;
