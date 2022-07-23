@@ -148,7 +148,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   get NextTabIndex() { return this.tabIndex++; }
 
   get editDisabled() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT && !this.isLoading && !this.isSilentLoading;
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT && !this.isLoading && !this.isSaveInProgress;
   }
 
   get invoiceIssueDateValue(): Date | undefined {
@@ -736,7 +736,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     console.log('Save: ', this.outGoingInvoiceData);
 
-    this.isSilentLoading = true;
+    this.isSaveInProgress = true;
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     
@@ -769,7 +769,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
 
-              this.isSilentLoading = true;
+              this.isSaveInProgress = true;
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -797,7 +797,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                           commandEndedSubscription.unsubscribe();
                         }
                         this.isLoading = false;
-                        this.isSilentLoading = false;
+                        this.isSaveInProgress = false;
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
@@ -810,7 +810,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                           Constants.TOASTR_ERROR
                         );
                         this.isLoading = false;
-                        this.isSilentLoading = false;
+                        this.isSaveInProgress = false;
                       }
                     });
                     this.isLoading = true;
@@ -822,7 +822,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
                     this.isLoading = false;
-                    this.isSilentLoading = false;
+                    this.isSaveInProgress = false;
                     this.Reset();
                   }
                 }
@@ -830,21 +830,20 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
-              this.isSilentLoading = false;
+              this.isSaveInProgress = false;
             }
           },
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
-            this.isSilentLoading = false;
+            this.isSaveInProgress = false;
           },
           complete: () => {
             this.isLoading = false;
-            this.isSilentLoading = false;
           }
         });
       } else {
-        this.isSilentLoading = false;
+        this.isSaveInProgress = false;
       }
     });
   }
@@ -1028,7 +1027,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
-    if (!this.isSilentLoading && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+    if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       this.Save();
       return;
     }

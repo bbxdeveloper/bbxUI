@@ -46,7 +46,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   isLoading: boolean = true;
-  isSilentLoading: boolean = false;
+  isSaveInProgress: boolean = false;
 
   protected uid = 0;
   protected nextUid() {
