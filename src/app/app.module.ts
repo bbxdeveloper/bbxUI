@@ -27,6 +27,8 @@ import { Error404Component } from './error404/error404.component';
 import { OfferModule } from './modules/offer/offer.module';
 import { InfrastructureModule } from './modules/infrastructure/infrastructure.module';
 import { StockModule } from './modules/stock/stock.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+
 registerLocaleData(localeFr, 'fr');
 
 const maskConfig: Partial<IConfig> = {
@@ -71,6 +73,7 @@ const maskConfig: Partial<IConfig> = {
     CoreModule,
     InfrastructureModule,
     StockModule,
+    InventoryModule
   ],
   exports: [
     NbLayoutModule,
