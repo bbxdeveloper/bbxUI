@@ -23,6 +23,7 @@ export const environment = {
   navigationSelectLog: false,
   utilityLogs: false,
   getterSetterLogs: true,
+  managerComponentLogs: true,
 };
 
 /*

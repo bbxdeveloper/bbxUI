@@ -24,6 +24,11 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InventoryService } from '../services/inventory.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { DeleteInvCtrlPeriodParamListModel } from '../models/DeleteInvCtrlPeriodParamListModel';
+import { environment } from 'src/environments/environment';
+import { GetFooterCommandListFromKeySettings, InventoryPeriodsKeySettings } from 'src/assets/util/KeyBindings';
+import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodParamListModel';
+import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
 
 @Component({
   selector: 'app-inv-ctrl-period-manager',
@@ -34,6 +39,9 @@ export class InvCtrlPeriodManagerComponent
   extends BaseManagerComponent<InvCtrlPeriod>
   implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  public override KeySetting: Constants.KeySettingsDct = InventoryPeriodsKeySettings;
+  public override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   override allColumns = [
     'id',
@@ -146,6 +154,9 @@ export class InvCtrlPeriodManagerComponent
       data.warehouseID =
         this.wareHouses.find((x) => x.id == data.warehouseID)?.warehouseDescription ?? '';
     }
+    if (environment.managerComponentLogs) {
+      console.log(`[ConvertCombosForGet] res: `, data);
+    }
     return data;
   }
 
@@ -157,6 +168,9 @@ export class InvCtrlPeriodManagerComponent
       dateTo: p.dateTo,
       warehouseID: warehouseID,
     } as CreateInvCtrlPeriodRequest;
+    if (environment.managerComponentLogs) {
+      console.log(`[InvCtrlPeriodToCreateRequest] res: `, res);
+    }
     return res;
   }
 
@@ -164,12 +178,68 @@ export class InvCtrlPeriodManagerComponent
     let warehouseID = HelperFunctions.ToInt(this.wareHouses.find(x => x.warehouseDescription === p.warehouseID)?.id ?? 0);
     p.warehouseID = warehouseID;
     p.id = HelperFunctions.ToInt(p.id);
-    return {
+    const res = {
       id: p.id,
       dateFrom: p.dateFrom,
       dateTo: p.dateTo,
       warehouseID: p.warehouseID
     } as UpdateInvCtrlPeriodRequest;
+    if (environment.managerComponentLogs) {
+      console.log(`[InvCtrlPeriodToUpdateRequest] res: `, res);
+    }
+    return res;
+  }
+
+  override ProcessActionLock(data?: IUpdateRequest<InvCtrlPeriod>): void {
+    console.log('ActionNew: ', data?.data);
+    if (!!data && !!data.data) {
+      data.data.id = parseInt(data.data.id + '');
+
+      this.sts.pushProcessStatus(
+        Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]
+      );
+      this.seInv.Close({ ID: data.data.id } as CloseInvCtrlPeriodParamListModel).subscribe({
+        next: (d) => {
+          if (d.succeeded && !!d.data) {
+            this.seInv.Get({ ID: data.data.id } as GetInvCtrlPeriodParamListModel).subscribe({
+              next: getRes => {
+                const newRow = { data: this.ConvertCombosForGet(getRes) } as TreeGridNode<InvCtrlPeriod>;
+                this.dbData[data.rowIndex] = newRow;
+                this.dbDataTable.SetDataForForm(newRow, false, false);
+                this.RefreshTable();
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              },
+              error: (err) => {
+                this.cs.HandleError(err);
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              },
+            });
+          } else {
+            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
+            this.bbxToastrService.show(
+              d.errors!.join('\n'),
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          }
+        },
+        error: (err) => {
+          this.cs.HandleError(err);
+          this.isLoading = false;
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+      });
+    }
   }
 
   override ProcessActionNew(data?: IUpdateRequest<InvCtrlPeriod>): void {
@@ -185,7 +255,7 @@ export class InvCtrlPeriodManagerComponent
       this.seInv.Create(createRequest).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            const newRow = { data: d.data } as TreeGridNode<InvCtrlPeriod>;
+            const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
             this.dbData.push(newRow);
             this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable(newRow.data.id);
@@ -236,7 +306,7 @@ export class InvCtrlPeriodManagerComponent
       this.seInv.Update(updateRequest).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
-            const newRow = { data: d.data } as TreeGridNode<InvCtrlPeriod>;
+            const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
             this.dbData[data.rowIndex] = newRow;
             this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();

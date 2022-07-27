@@ -70,6 +70,15 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         });
     }
 
+    override ActionLock(data?: IUpdateRequest<T>): void {
+        const dt = this.FillObjectWithForm();
+        this.grid.Lock({
+            data: dt,
+            rowIndex: this.DataRowIndex,
+            needConfirmation: false
+        } as IUpdateRequest);
+    }
+
     override ActionNew(data?: IUpdateRequest<T>): void {
         const dt = this.FillObjectWithForm();
         if (this.form.invalid) {
@@ -142,6 +151,10 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                         this.ActionPut();
                         break;
                 }
+                break;
+            // SAVE
+            case this.KeySetting[Actions.Lock].KeyCode:
+                this.ActionLock();
                 break;
             // DELETE
             case this.KeySetting[Actions.CrudDelete].KeyCode:

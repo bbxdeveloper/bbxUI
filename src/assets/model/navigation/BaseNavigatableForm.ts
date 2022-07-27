@@ -111,6 +111,11 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         this.formMode = Constants.FormState.new;
     }
 
+    IsFormInNewState(): boolean {
+        return this.formMode == Constants.FormState.new;
+    }
+
+    ActionLock(data?: IUpdateRequest<T>): void { }
     ActionNew(data?: IUpdateRequest<T>): void { }
     ActionReset(data?: IUpdateRequest<T>): void { }
     ActionPut(data?: IUpdateRequest<T>): void { }

@@ -1,4 +1,5 @@
 export interface IUpdatable<T = any> {
+    Lock(data?: IUpdateRequest<T>): void;
     New(data?: IUpdateRequest<T>): void;
     Reset(data?: IUpdateRequest<T>): void;
     Put(data?: IUpdateRequest<T>): void;
@@ -7,6 +8,7 @@ export interface IUpdatable<T = any> {
 }
 
 export interface IUpdater<T = any> {
+    ActionLock(data?: IUpdateRequest<T>): void;
     ActionNew(data?: IUpdateRequest<T>): void;
     ActionReset(data?: IUpdateRequest<T>): void;
     ActionPut(data?: IUpdateRequest<T>): void;

@@ -20,6 +20,7 @@ export class CrudButtonsComponent implements OnInit {
   @Input() printButton: boolean = false;
   @Input() emailButton: boolean = false;
   @Input() csvButton: boolean = false;
+  @Input() lockButton: boolean = false;
 
   @Input() KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
@@ -31,6 +32,7 @@ export class CrudButtonsComponent implements OnInit {
   printButtonKey: KeyBindings = DefaultKeySettings[Actions.Print].KeyCode;
   emailButtonKey: KeyBindings = DefaultKeySettings[Actions.Email].KeyCode;
   csvButtonKey: KeyBindings = DefaultKeySettings[Actions.CSV].KeyCode;
+  lockButtonKey: KeyBindings = DefaultKeySettings[Actions.Lock].KeyCode;
 
   @Input() newButtonDisabled: boolean = false;
   @Input() editButtonDisabled: boolean = false;
@@ -40,6 +42,7 @@ export class CrudButtonsComponent implements OnInit {
   @Input() printButtonDisabled: boolean = false;
   @Input() emailButtonDisabled: boolean = false;
   @Input() csvButtonDisabled: boolean = false;
+  @Input() lockButtonDisabled: boolean = false;
 
   @Input() wrapperClass: string = 'bbx-fd-sidebar-functions-center';
 

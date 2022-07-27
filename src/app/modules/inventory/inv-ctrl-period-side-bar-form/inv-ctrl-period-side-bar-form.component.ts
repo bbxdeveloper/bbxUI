@@ -3,7 +3,8 @@ import { NbSidebarService } from '@nebular/theme';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Constants } from 'src/assets/util/Constants';
+import { InventoryPeriodsKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 
@@ -33,6 +34,8 @@ export class InvCtrlPeriodSideBarFormComponent extends BaseSideBarFormComponent 
   ngAfterViewInit(): void {
     this.currentForm?.AfterViewInitSetup();
   }
+
+  public override readonly KeySetting: Constants.KeySettingsDct = InventoryPeriodsKeySettings;
 
   private refreshComboboxData(): void {
     // CountryCodes

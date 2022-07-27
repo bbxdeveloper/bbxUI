@@ -135,6 +135,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.getBlankInstance = getBlankInstance;
     }
 
+    Lock(data?: IUpdateRequest): void {
+        this.updater.ActionLock(data);
+        this.PushFooterCommandList();
+    }
+
     New(data?: IUpdateRequest): void {
         this.updater.ActionNew(data);
         this.PushFooterCommandList();

@@ -90,6 +90,11 @@ export class BaseManagerComponent<T> {
     this.dbDataTable.flatDesignForm.SetFormStateToDefault();
   }
 
+  ActionLock(data?: IUpdateRequest<T>): void {
+    this.ProcessActionLock(data);
+  }
+  ProcessActionLock(data?: IUpdateRequest<T>): void {}
+
   ActionNew(data?: IUpdateRequest<T>): void {
     console.log("ActionNew: ", data);
 

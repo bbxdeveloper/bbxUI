@@ -1,6 +1,6 @@
 <nb-card>
     <nb-card-body class="bbx-fd-ncb">
-        <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm"
+        <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm" [lockButton]="true"
             [KeySetting]="KeySetting"></app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
@@ -42,7 +42,7 @@
                 </app-form-control-error>
             </nb-form-field>
 
-            <div class="bbx-fd-form-field-wrapper-div-row">
+            <!-- <div class="bbx-fd-form-field-wrapper-div-row" *ngIf="!currentForm.IsFormInNewState()">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
                     (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <label class="label-checkbox">Lezárt</label>
@@ -53,7 +53,7 @@
                 </div>
             </div>
             <app-form-control-error [form]="currentForm" label="magánszemély" controlName="closed">
-            </app-form-control-error>
+            </app-form-control-error> -->
         </form>
     </nb-card-body>
 </nb-card>

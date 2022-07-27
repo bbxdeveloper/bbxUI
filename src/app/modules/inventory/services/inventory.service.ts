@@ -12,6 +12,8 @@ import { DeleteInvCtrlPeriodResponse } from '../models/DeleteInvCtrlPeriodRespon
 import { DeleteInvCtrlPeriodParamListModel } from '../models/DeleteInvCtrlPeriodParamListModel';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { GetAllInvCtrlPeriodsResponse } from '../models/GetAllInvCtrlPeriodsResponse';
+import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodParamListModel';
+import { CloseInvCtrlPeriodResponse } from '../models/CloseInvCtrlPeriodResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -91,5 +93,26 @@ export class InventoryService {
     }
 
     return this.http.delete<DeleteInvCtrlPeriodResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  Close(params: CloseInvCtrlPeriodParamListModel): Observable<CloseInvCtrlPeriodResponse> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof DeleteInvCtrlPeriodParamListModel] != undefined && params[key as keyof DeleteInvCtrlPeriodParamListModel] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof DeleteInvCtrlPeriodParamListModel];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof DeleteInvCtrlPeriodParamListModel];
+          }
+          index++;
+        }
+      });
+    }
+
+    return this.http.get<CloseInvCtrlPeriodResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 }
