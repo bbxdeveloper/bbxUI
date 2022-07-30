@@ -106,7 +106,7 @@ $heightManipulatorMax: 1000;
 @for $i from 0 through $heightManipulatorMax {
     .table-wrapper-height-margin-#{$i} {
         display: block;
-        width: calc(100vw - 100px) !important;
+        // width: calc(100vw - 100px) !important;
         max-height: calc(100vh - #{$i}px) !important;
     }
 }

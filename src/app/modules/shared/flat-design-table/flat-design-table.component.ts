@@ -72,10 +72,11 @@ export class FlatDesignTableComponent implements OnInit {
   getTableClasses(): string {
     var classes = '';
     classes += this.heightMargin > -1 ? ('table-wrapper-height-margin-' + this.heightMargin) : '';
+    console.log("[getTableClasses] this.sideBarService.sideBarOpened: " + this.sideBarService.sideBarOpened);
     if (this.heightMargin === -1) {
       classes += this.wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'
-      classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
     }
+    classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
     return classes;
   }
 
