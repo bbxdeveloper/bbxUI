@@ -472,6 +472,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+    this.SetTableAndFormCommandListFromManager();
+
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();
 

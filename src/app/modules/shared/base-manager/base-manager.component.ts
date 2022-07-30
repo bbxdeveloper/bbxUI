@@ -258,4 +258,12 @@ export class BaseManagerComponent<T> {
     }
   }
 
+  protected SetTableAndFormCommandListFromManager(): void {
+    this.dbDataTable.flatDesignForm.KeySetting = this.KeySetting;
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
+
+    this.dbDataTable.commandsOnTableEditMode = this.commands;
+    this.dbDataTable.commandsOnTable = this.commands;
+  }
+
 }

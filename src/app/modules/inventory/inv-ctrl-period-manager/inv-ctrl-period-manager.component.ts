@@ -191,7 +191,7 @@ export class InvCtrlPeriodManagerComponent
   }
 
   override ProcessActionLock(data?: IUpdateRequest<InvCtrlPeriod>): void {
-    console.log('ActionNew: ', data?.data);
+    console.log('ActionLock: ', data?.data);
     if (!!data && !!data.data) {
       data.data.id = parseInt(data.data.id + '');
 
@@ -485,6 +485,8 @@ export class InvCtrlPeriodManagerComponent
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+    this.SetTableAndFormCommandListFromManager();
+    
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();
 

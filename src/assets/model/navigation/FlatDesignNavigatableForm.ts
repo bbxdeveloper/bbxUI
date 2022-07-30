@@ -22,7 +22,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     private DataRowIndex: number = -1;
 
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
-    override readonly commandsOnForm: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+    override commandsOnForm: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
     constructor(
         f: FormGroup,
