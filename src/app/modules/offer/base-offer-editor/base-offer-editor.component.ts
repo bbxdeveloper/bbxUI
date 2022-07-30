@@ -154,7 +154,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
     // console.log(tmp, new Date(tmp));
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   get offerValidityDateValue(): Date | undefined {
@@ -165,7 +165,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
     // console.log(tmp, new Date(tmp));
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   // CountryCode

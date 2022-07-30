@@ -216,7 +216,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     const tmp = this.filterForm.controls['OfferIssueDateFrom'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceOfferIssueDateTo(): Date | undefined {
     if (!!!this.filterForm) {
@@ -224,7 +224,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     const tmp = this.filterForm.controls['OfferIssueDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   get invoiceOfferValidityDateFrom(): Date | undefined {
@@ -233,7 +233,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     const tmp = this.filterForm.controls['OfferVaidityDateForm'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceOfferVaidityDateTo(): Date | undefined {
     if (!!!this.filterForm) {
@@ -241,7 +241,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     const tmp = this.filterForm.controls['OfferVaidityDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   // CountryCode
@@ -292,60 +292,44 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   validateOfferIssueDateFrom(control: AbstractControl): any {
-    if (control.value === undefined || this.invoiceOfferIssueDateTo === undefined || this.invoiceOfferVaidityDateTo === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferIssueDateTo === undefined) {
       return null;
     }
 
     let v = new Date(control.value);
     let wrong = v > this.invoiceOfferIssueDateTo;
 
-    if (wrong) {
-      return wrong ? { maxDate: { value: control.value } } : null;
-    }
-    wrong = v > this.invoiceOfferVaidityDateTo;
     return wrong ? { maxDate: { value: control.value } } : null;
   }
   validateOfferIssueDateTo(control: AbstractControl): any {
-    if (control.value === undefined || this.invoiceOfferIssueDateFrom === undefined || this.invoiceOfferVaidityDateTo === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferIssueDateFrom === undefined) {
       return null;
     }
 
     let v = new Date(control.value);
     let wrong = v < this.invoiceOfferIssueDateFrom;
     
-    if (wrong) {
-      return wrong ? { minDate: { value: control.value } } : null;
-    }
-    wrong = v > this.invoiceOfferVaidityDateTo;
-    return wrong ? { maxDate: { value: control.value } } : null;
+    return wrong ? { minDate: { value: control.value } } : null;
   }
 
   validateOfferValidityDateFrom(control: AbstractControl): any {
-    if (control.value === undefined || this.invoiceOfferVaidityDateTo === undefined || this.invoiceOfferIssueDateFrom === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferVaidityDateTo === undefined) {
       return null;
     }
 
     let v = new Date(control.value);
     let wrong = v > this.invoiceOfferVaidityDateTo;
     
-    if (wrong) {
-      return wrong ? { maxDate: { value: control.value } } : null;
-    }
-    wrong = v < this.invoiceOfferIssueDateFrom;
-    return wrong ? { minDate: { value: control.value } } : null;
+    return wrong ? { maxDate: { value: control.value } } : null;
   }
   validateOfferValidityDateTo(control: AbstractControl): any {
-    if (control.value === undefined || this.invoiceOfferValidityDateFrom === undefined || this.invoiceOfferIssueDateFrom === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferValidityDateFrom === undefined) {
       return null;
     }
 
     let v = new Date(control.value);
     let wrong = v < this.invoiceOfferValidityDateFrom;
 
-    if (wrong) {
-      return wrong ? { minDate: { value: control.value } } : null;
-    }
-    wrong = v < this.invoiceOfferIssueDateFrom;
     return wrong ? { minDate: { value: control.value } } : null;
   }
 
@@ -367,20 +351,20 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       OfferIssueDateFrom: new FormControl(undefined, [
         validDate,
-        // this.validateOfferIssueDateFrom.bind(this),
+        this.validateOfferIssueDateFrom.bind(this),
       ]),
       OfferIssueDateTo: new FormControl(undefined, [
         validDate,
-        // this.validateOfferIssueDateTo.bind(this),
+        this.validateOfferIssueDateTo.bind(this),
       ]),
 
       OfferVaidityDateForm: new FormControl(undefined, [
         validDate,
-        // this.validateOfferValidityDateFrom.bind(this),
+        this.validateOfferValidityDateFrom.bind(this),
       ]),
       OfferVaidityDateTo: new FormControl(undefined, [
         validDate,
-        // this.validateOfferValidityDateTo.bind(this),
+        this.validateOfferValidityDateTo.bind(this),
       ]),
     });
 

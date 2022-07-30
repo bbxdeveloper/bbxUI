@@ -102,13 +102,11 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         customerTaxNumber: new FormControl('', [Validators.required]),
         offerIssueDate: new FormControl('', [
           Validators.required,
-          this.validateOfferIssueDate.bind(this),
           todaysDate,
           validDate
         ]),
         offerVaidityDate: new FormControl('', [
           Validators.required,
-          this.validateOfferValidityDate.bind(this),
           validDate
         ]),
         offerNumberX: new FormControl('', []),
