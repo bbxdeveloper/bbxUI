@@ -42,39 +42,57 @@
                                     <input nbInput type="text" formControlName='customerTaxNumber' readonly>
                                 </nb-form-field>
                             </td>
+                            <td>
+                                <app-form-control-error [form]="buyerFormNav" label="ügyfél" controlName="customerName">
+                                </app-form-control-error>
+                            </td>
+                            <td>
+                                <app-form-control-error [form]="buyerFormNav" label="ügyfél cím" controlName="customerAddress">
+                                </app-form-control-error>
+                            </td>
+                            <td>
+                                <app-form-control-error [form]="buyerFormNav" label="ügyfél adószám" controlName="customerTaxNumber">
+                                </app-form-control-error>
+                            </td>
                         </tr>
                     </table>
                 </div>
 
                 <div class="form-row">
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Kiállítás dátuma</label>
-                        <input nbInput type="datetime" formControlName='offerIssueDate' class="{{TileCssClass}}"
-                            (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
-                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                            [validation]="true">
-                        <app-form-control-error [form]="buyerFormNav" label="kiállítás dátuma"
-                            controlName="offerIssueDate">
-                        </app-form-control-error>
-                    </nb-form-field>
-
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
-                        <label>Érvényesség dátuma</label>
-                        <input nbInput type="datetime" formControlName='offerVaidityDate' class="{{TileCssClass}}"
-                            (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
-                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                            [validation]="true">
-                        <app-form-control-error [form]="buyerFormNav" label="érvényesség dátuma"
-                            controlName="offerVaidityDate">
-                        </app-form-control-error>
-                    </nb-form-field>
-                </div>
-
-                <div class="form-row">
-                    <nb-form-field>
-                        <label>Sorszám</label>
-                        <input nbInput type="text" formControlName='offerNumberX' placeholder="Sorszám" readonly>
-                    </nb-form-field>
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                                    <label>Kiállítás dátuma</label>
+                                    <input nbInput type="datetime" formControlName='offerIssueDate' class="{{TileCssClass}}"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                                    <label>Érvényesség dátuma</label>
+                                    <input nbInput type="datetime" formControlName='offerVaidityDate' class="{{TileCssClass}}"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Sorszám</label>
+                                    <input nbInput type="text" formControlName='offerNumberX' placeholder="Sorszám" readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <app-form-control-error [form]="buyerFormNav" label="kiállítás dátuma" controlName="offerIssueDate">
+                                </app-form-control-error>
+                            </td>
+                            <td>
+                                <app-form-control-error [form]="buyerFormNav" label="érvényesség dátuma" controlName="offerVaidityDate">
+                                </app-form-control-error>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
                 <div class="form-row">
@@ -85,8 +103,6 @@
                             (keydown.tab)="JumpToFirstCellAndNav()"
                             placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre."
                             class="{{TileCssClass}}"></angular-editor>
-                        <app-form-control-error [form]="buyerFormNav" label="megjegyzés" controlName="notice">
-                        </app-form-control-error>
                     </div>
                 </div>
             </form>
