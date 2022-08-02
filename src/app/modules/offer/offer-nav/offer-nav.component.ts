@@ -191,11 +191,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       CustomerID: this.CustomerId,
       
-      OfferIssueDateFrom: issueFrom.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(issueFrom) : undefined,
-      OfferIssueDateTo: issueTo.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(issueTo) : undefined,
+      OfferIssueDateFrom: issueFrom.length > 0 ? issueFrom : undefined,
+      OfferIssueDateTo: issueTo.length > 0 ? issueTo : undefined,
 
-      OfferVaidityDateForm: vaidityFrom.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(vaidityFrom) : undefined,
-      OfferVaidityDateTo: vaidityTo.length > 0 ? HelperFunctions.FormFieldStringToDateTimeString(vaidityTo) : undefined,
+      OfferVaidityDateForm: vaidityFrom.length > 0 ? vaidityFrom : undefined,
+      OfferVaidityDateTo: vaidityTo.length > 0 ? vaidityTo : undefined,
     };
   }
 

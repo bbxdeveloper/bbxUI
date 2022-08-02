@@ -227,15 +227,15 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
 
       // Radio 1
       InvoiceIssueDateFrom: this.isIssueFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceIssueDateFrom'].value) : null,
+        this.filterForm.controls['InvoiceIssueDateFrom'].value : null,
       InvoiceIssueDateTo: this.isIssueFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceIssueDateTo'].value) : null,
+        this.filterForm.controls['InvoiceIssueDateTo'].value : null,
 
       // Radio 2
       InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceDeliveryDateFrom'].value) : null,
+        this.filterForm.controls['InvoiceDeliveryDateFrom'].value : null,
       InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceDeliveryDateTo'].value) : null,
+        this.filterForm.controls['InvoiceDeliveryDateTo'].value : null,
     };
   }
 
@@ -307,7 +307,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceIssueDateFrom'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceIssueDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
@@ -315,7 +315,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceIssueDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   get invoiceDeliveryDateFromValue(): Date | undefined {
@@ -324,7 +324,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceDeliveryDateFrom'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceDeliveryDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
@@ -332,7 +332,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceDeliveryDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   constructor(

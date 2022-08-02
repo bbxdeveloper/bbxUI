@@ -251,10 +251,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
     this.offerData.notice = this.buyerForm.controls['notice'].value;
 
-    this.offerData.offerIssueDate =
-      HelperFunctions.FormFieldStringToDateTimeString(this.buyerForm.controls['offerIssueDate'].value);
-    this.offerData.offerVaidityDate =
-      HelperFunctions.FormFieldStringToDateTimeString(this.buyerForm.controls['offerVaidityDate'].value);
+    this.offerData.offerIssueDate = this.buyerForm.controls['offerIssueDate'].value;
+    this.offerData.offerVaidityDate = this.buyerForm.controls['offerVaidityDate'].value;
 
     this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => 
       {

@@ -157,7 +157,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
     const tmp = this.outInvForm.controls['invoiceIssueDate'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   get invoiceDeliveryDateValue(): Date | undefined {
@@ -166,7 +166,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
     const tmp = this.outInvForm.controls['invoiceDeliveryDate'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   // CountryCode
@@ -646,12 +646,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
     
-    this.outGoingInvoiceData.invoiceDeliveryDate =
-      HelperFunctions.FormFieldStringToDateTimeString(this.outInvForm.controls['invoiceDeliveryDate'].value);
-    this.outGoingInvoiceData.invoiceIssueDate =
-      HelperFunctions.FormFieldStringToDateTimeString(this.outInvForm.controls['invoiceIssueDate'].value);
-    this.outGoingInvoiceData.paymentDate =
-      HelperFunctions.FormFieldStringToDateTimeString(this.outInvForm.controls['paymentDate'].value);
+    this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+    this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
+    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
     
     this.outGoingInvoiceData.paymentMethod =
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
