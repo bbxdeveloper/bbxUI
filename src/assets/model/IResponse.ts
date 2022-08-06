@@ -1,4 +1,4 @@
-export interface Response<T> {
+export interface IResponse<T> {
     pageNumber: number,
     pageSize: number,
     recordsFiltered: number,

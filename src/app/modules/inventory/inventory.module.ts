@@ -8,13 +8,15 @@ import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabse
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
+import { InvCtrlItemManagerComponent } from './inv-ctrl-item-manager/inv-ctrl-item-manager.component';
 
 
 
 @NgModule({
   declarations: [
     InvCtrlPeriodManagerComponent,
-    InvCtrlPeriodSideBarFormComponent
+    InvCtrlPeriodSideBarFormComponent,
+    InvCtrlItemManagerComponent
   ],
   imports: [
     CommonModule,
