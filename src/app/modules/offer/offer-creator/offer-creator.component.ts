@@ -194,14 +194,14 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       next: data => {
         if (!!data) {
           this.buyerForm.controls['offerNumberX'].setValue(data.offerNumber ?? '');
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          const confirmDialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-            context: {
-              isReadonly: true,
-              title: 'Sorszám',
-              defaultValue: this.buyerForm.controls['offerNumberX'].value
-            }
-          });
+          // this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          // const confirmDialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+          //   context: {
+          //     isReadonly: true,
+          //     title: 'Sorszám',
+          //     defaultValue: this.buyerForm.controls['offerNumberX'].value
+          //   }
+          // });
         }
       },
       error: err => {
