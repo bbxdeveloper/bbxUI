@@ -19,6 +19,8 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
   @Input() isWide: boolean = true;
   @Input() wrapperClass: string = 'mode-default';
   @Input() simpleMode: boolean = false;
+  @Input() needErrorMsg: boolean = true;
+  @Input() labelAboveField: boolean = false;
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -34,6 +36,10 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  }
+
+  get cssClasses(): string {
+    return this.labelAboveField ? "display-as-block" : "";
   }
 
   constructor(private kbS: KeyboardNavigationService) {

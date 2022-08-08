@@ -9,7 +9,7 @@
                     <table class="customer-search-row">
                         <tr>
                             <td>
-                                <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="buyerFormNav" formFieldName="warehouse" label="Raktár*"
+                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav" formFieldName="warehouse" label="Raktár*"
                                     [data$]="wareHouseComboData$"></app-bbx-combo-box>
                             </td>
                             <td>
@@ -19,6 +19,14 @@
                                         (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
                                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                                 </nb-form-field>
+                            </td>
+                            <td>
+                                <app-form-control-error [form]="buyerFormNav"
+                                    controlName="warehouse">
+                                </app-form-control-error>
+                                <app-form-control-error [form]="buyerFormNav"
+                                    controlName="invCtrlDate">
+                                </app-form-control-error>
                             </td>
                         </tr>
                     </table>

@@ -267,7 +267,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   private UpdateOutGoingData(): void {
-    this.offerData.items = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => {
+    this.offerData.items = this.dbData.filter((x, index: number) => index !== this.dbData.length - 1).map(x => {
       return {
         "warehouseID": this.SelectedWareHouseId,
         "invCtlPeriodID": HelperFunctions.ToInt(x.data.invCtlPeriodID),
