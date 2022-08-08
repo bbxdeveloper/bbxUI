@@ -3,19 +3,21 @@ import { Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvCtrlItemParamListModel } from '../models/GetInvCtrlItemParamListModel';
-import { InvCtrlItem } from '../models/InvCtrlItem';
+import { InvCtrlItemLine } from '../models/InvCtrlItem';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { CreateInvCtrlItemResponse } from '../models/CreateInvCtrlItemResponse';
 import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
 import { GetAllInvCtrlItemsResponse } from '../models/GetAllInvCtrlItemsResponse';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { GetAllInvCtrlPeriodsResponse } from '../models/GetAllInvCtrlPeriodsResponse';
+import { InvCtrl } from '../models/InvCtrl';
+import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryCtrlItemService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlItem';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlICP';
 
   constructor(private http: HttpClient) { }
 
@@ -40,28 +42,28 @@ export class InventoryCtrlItemService {
     return this.http.get<GetAllInvCtrlItemsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  GetAllRecords(params?: GetAllInvCtrlPeriodsParamListModel): Observable<GetAllInvCtrlPeriodsResponse> {
+  GetAllRecords(params?: GetAllInvCtrlItemRecordsParamListModel): Observable<InvCtrl> {
     // Process params
     var queryParams = '';
     var index = 0;
 
     if (!!params) {
       Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetAllInvCtrlPeriodsParamListModel] != undefined && params[key as keyof GetAllInvCtrlPeriodsParamListModel] != null) {
+        if (params[key as keyof GetAllInvCtrlItemRecordsParamListModel] != undefined && params[key as keyof GetAllInvCtrlItemRecordsParamListModel] != null) {
           if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetAllInvCtrlPeriodsParamListModel];
+            queryParams += key + '=' + params[key as keyof GetAllInvCtrlItemRecordsParamListModel];
           } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetAllInvCtrlPeriodsParamListModel];
+            queryParams += '&' + key + '=' + params[key as keyof GetAllInvCtrlItemRecordsParamListModel];
           }
           index++;
         }
       });
     }
 
-    return this.http.get<GetAllInvCtrlPeriodsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<InvCtrl>(this.BaseUrl + '/record' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Get(params?: GetInvCtrlItemParamListModel): Observable<InvCtrlItem> {
+  Get(params?: GetInvCtrlItemParamListModel): Observable<InvCtrlItemLine> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -80,7 +82,7 @@ export class InventoryCtrlItemService {
     }
 
     // Get
-    return this.http.get<InvCtrlItem>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<InvCtrlItemLine>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
   Create(req: CreateInvCtrlItemRequest): Observable<CreateInvCtrlItemResponse> {

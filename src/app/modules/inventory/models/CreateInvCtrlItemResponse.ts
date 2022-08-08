@@ -1,4 +1,4 @@
 import { IResponse } from "src/assets/model/IResponse";
-import { InvCtrlItem } from "./InvCtrlItem";
+import { InvCtrlItemLine } from "./InvCtrlItem";
 
-export interface CreateInvCtrlItemResponse extends IResponse<InvCtrlItem> { }
+export interface CreateInvCtrlItemResponse extends IResponse<InvCtrlItemLine> { }

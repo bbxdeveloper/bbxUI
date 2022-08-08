@@ -185,6 +185,14 @@ export module HelperFunctions {
             .format(formatString);
     }
 
+    export function GetOnlyDateFromUtcDateString(val: string): string {
+        if (val === undefined || val === null || val.length == 0 || val.indexOf("T") === -1) {
+            return "";
+        } else {
+            return val.split("T")[0];
+        }
+    }
+
     export function GetDateStringFromDate(
         val: string,
         formatString: string = DATE_FORMATSTRING,

@@ -1,1 +1,40 @@
-<p>inv-ctrl-item-manager works!</p>
+<app-head-line msg="Leltári tételek felvitele"></app-head-line>
+
+<div class="filter-div">
+    <nb-card class="filter-card">
+        <nb-card-body class="filter-card-body">
+            <form [formGroup]="buyerForm" #formDirective="ngForm" [id]="buyerFormId" class="form-with-rows"
+                (keydown.escape)="buyerFormNav.HandleFormEscape()">
+                <div class="form-row">
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="buyerFormNav" formFieldName="warehouse" label="Raktár*"
+                                    [data$]="wareHouseComboData$"></app-bbx-combo-box>
+                            </td>
+                            <td>
+                                <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                                    <label>Leltározás dátuma</label>
+                                    <input nbInput type="datetime" formControlName='invCtrlDate' class="{{TileCssClass}}"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                                </nb-form-field>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+        </nb-card-body>
+    </nb-card>
+</div>
+
+<nb-card [nbSpinner]="isLoading" *ngIf="!!dbDataTable">
+    <nb-card-body>
+        <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc" [heightMargin]="640" [dbDataTable]="dbDataTable"
+            [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-inline-editable-table>
+    </nb-card-body>
+    <nb-card-footer class="invoice-table-statistics"></nb-card-footer>
+</nb-card>

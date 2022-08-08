@@ -6,6 +6,8 @@ import { GetStocksResponse } from '../models/GetStocksResponse';
 import { GetStocksParamsModel } from '../models/GetStocksParamsModel';
 import { GetStockParamsModel } from '../models/GetStockParamsModel';
 import { GetStockResponse } from '../models/GetStockResponse';
+import { GetStockRecordParamsModel } from '../models/GetStockRecordParamsModel';
+import { Stock } from '../models/Stock';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +38,28 @@ export class StockService {
     return this.http.get<GetStocksResponse>(this.StockBaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Get(params?: GetStockParamsModel): Observable<GetStockResponse> {
+  Record(params?: GetStockRecordParamsModel): Observable<Stock> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof GetStockRecordParamsModel] != undefined && params[key as keyof GetStockRecordParamsModel] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof GetStockRecordParamsModel];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof GetStockRecordParamsModel];
+          }
+          index++;
+        }
+      });
+    }
+
+    return this.http.get<Stock>(this.StockBaseUrl + '/record' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  Get(params?: GetStockParamsModel): Observable<Stock> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -55,6 +78,6 @@ export class StockService {
     }
 
     // Get
-    return this.http.get<GetStockResponse>(this.StockBaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Stock>(this.StockBaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 }

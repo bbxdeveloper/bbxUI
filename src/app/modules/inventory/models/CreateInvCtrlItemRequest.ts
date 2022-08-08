@@ -1,5 +1,5 @@
-import { InvCtrlItem } from "./InvCtrlItem";
+import { InvCtrlItemForPost, InvCtrlItemLine } from "./InvCtrlItem";
 
 export interface CreateInvCtrlItemRequest {
-    "items": InvCtrlItem[]
+    "items": InvCtrlItemForPost[]
 }
