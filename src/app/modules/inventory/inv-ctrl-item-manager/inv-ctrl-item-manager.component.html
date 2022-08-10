@@ -10,7 +10,7 @@
                         <tr>
                             <td>
                                 <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav" formFieldName="warehouse" label="Raktár*"
-                                    [data$]="wareHouseComboData$"></app-bbx-combo-box>
+                                    [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
                             </td>
                             <td>
                                 <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">

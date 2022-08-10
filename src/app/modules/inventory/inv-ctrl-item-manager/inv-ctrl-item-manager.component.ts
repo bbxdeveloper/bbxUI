@@ -44,6 +44,7 @@ import { GetStocksParamsModel } from '../../stock/models/GetStocksParamsModel';
 import { GetStockRecordParamsModel } from '../../stock/models/GetStockRecordParamsModel';
 import { OneButtonMessageDialogComponent } from '../../shared/one-button-message-dialog/one-button-message-dialog.component';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
+import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -62,15 +63,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   TileCssColClass = TileCssColClass;
 
   // WareHouse
-  wareHouses: string[] = [];
-  wareHouseValues: { [key: string]: any } = {};
-  wareHouseComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  invCtrlPeriods: string[] = [];
+  invCtrlPeriodValues: { [key: string]: InvCtrlPeriod } = {};
+  invCtrlPeriodComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get SelectedWareHouseId(): number {
-    return HelperFunctions.ToInt(this.wareHouseValues[this.buyerForm.controls['warehouse'].value ?? -1]);
+    return HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1]?.warehouseID);
   }
 
-  override colsToIgnore: string[] = ["lineDescription", "difference", "unitPrice", "unitOfMeasureX, realQty"];
+  override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", "unitPrice", "realQty", "difference"];
   override allColumns = [
     'productCode',
     'lineDescription',
@@ -109,7 +110,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     {
       label: 'Lelt.Klt', objectKey: 'nRealQty', colKey: 'nRealQty',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Eltérés', objectKey: 'difference', colKey: 'difference',
@@ -155,7 +156,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private router: Router,
     private vatRateService: VatRateService,
     private route: ActivatedRoute,
-    private wareHouseApi: WareHouseService,
+    private invCtrlPeriodApi: WareHouseService,
     private stockService: StockService
   ) {
     super(dialogService, kbS, fS, cs, sts);
@@ -270,7 +271,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.offerData.items = this.dbData.filter((x, index: number) => index !== this.dbData.length - 1).map(x => {
       return {
         "warehouseID": this.SelectedWareHouseId,
-        "invCtlPeriodID": HelperFunctions.ToInt(x.data.invCtlPeriodID),
+        "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1].id),
         "productID": HelperFunctions.ToInt(x.data.productID),
         "invCtrlDate": this.buyerForm.controls['invCtrlDate'].value,
         "nRealQty": HelperFunctions.ToInt(x.data.nRealQty),
@@ -690,13 +691,13 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.invCtrlPeriodService.GetAll().subscribe({
       next: data => {
         console.log("[refreshComboboxData]: ", data);
-        this.wareHouses =
+        this.invCtrlPeriods =
           data?.data?.map(x => {
             let res = x.warehouse + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
-            this.wareHouseValues[res] = x.warehouseID;
+            this.invCtrlPeriodValues[res] = x;
             return res;
           }) ?? [];
-        this.wareHouseComboData$.next(this.wareHouses);
+        this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
       }
     });
   }
