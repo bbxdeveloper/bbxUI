@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -68,7 +68,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   invCtrlPeriodComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get SelectedWareHouseId(): number {
-    return HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1]?.warehouseID);
+    return this.buyerForm.controls['warehouse'].value !== undefined ?
+      HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1]?.warehouseID) : -1;
+  }
+  get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
+    return this.buyerForm.controls['warehouse'].value !== undefined ?
+      this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1] : undefined;
   }
 
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", "unitPrice", "realQty", "difference"];
@@ -137,6 +142,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
+  get invCtrlDate(): Date | undefined {
+    if (!!!this.buyerForm) {
+      return undefined;
+    }
+    const tmp = this.buyerForm.controls['invCtrlDate'].value;
+
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -163,6 +177,23 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.InitialSetup();
   }
 
+  validateInvCtrlDate(control: AbstractControl): any {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !!!this.SelectedInvCtrlPeriod
+      || !HelperFunctions.IsDateStringValid(this.SelectedInvCtrlPeriod.dateFrom) || !HelperFunctions.IsDateStringValid(this.SelectedInvCtrlPeriod.dateTo)) {
+      return null;
+    }
+
+    var ctrlPeriod = this.SelectedInvCtrlPeriod;
+
+    let v = new Date(control.value);
+    let to = new Date(ctrlPeriod.dateTo);
+    let from = new Date(ctrlPeriod.dateFrom);
+
+    let wrong = v > to || v < from;
+
+    return wrong ? { minMaxDate: { value: control.value } } : null;
+  }
+
   InitialSetup(): void {
     this.dbDataTableId = "offers-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
@@ -179,7 +210,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         warehouse: new FormControl('', [Validators.required]),
         invCtrlDate: new FormControl('', [
           Validators.required,
-          // todaysDate,
+          this.validateInvCtrlDate.bind(this),
           validDate
         ])
       });
