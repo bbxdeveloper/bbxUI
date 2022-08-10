@@ -36,13 +36,15 @@ import { ProductSelectTableDialogComponent } from '../../invoice/product-select-
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Subscription } from 'rxjs';
+import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
+import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 
 @Component({
   selector: 'app-stock-card-nav',
   templateUrl: './stock-card-nav.component.html',
   styleUrls: ['./stock-card-nav.component.scss']
 })
-export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
+export class StockCardNavComponent extends BaseManagerComponent<StockCard> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
 
   protected Subscription_FillFormWithFirstAvailableProduct?: Subscription;
@@ -247,7 +249,7 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  public KeySetting: Constants.KeySettingsDct = StockCardNavKeySettings;
+  public override KeySetting: Constants.KeySettingsDct = StockCardNavKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get IsTableActive(): boolean {
@@ -325,7 +327,30 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
       this
     );
 
-    this.dbDataTable = new FlatDesignNoFormNavigatableTable(
+    this.dbDataTableForm = new FormGroup({
+      id: new FormControl(0, []),
+      scTypeX: new FormControl(undefined, []),
+      warehouse: new FormControl(undefined, []),
+      stockCardDate: new FormControl(undefined, []),
+      productCode: new FormControl(undefined, []),
+      product: new FormControl(undefined, []),
+      customer: new FormControl(undefined, []),
+      customerAdditionalAddressDetail: new FormControl(undefined, []),
+      xRel: new FormControl(undefined, []),
+      oCalcQty: new FormControl(undefined, []),
+      oRealQty: new FormControl(undefined, []),
+      oOutQty: new FormControl(undefined, []),
+      xCalcQty: new FormControl(undefined, []),
+      xRealQty: new FormControl(undefined, []),
+      xOutQty: new FormControl(undefined, []),
+      nCalcQty: new FormControl(undefined, []),
+      nRealQty: new FormControl(undefined, []),
+      nOutQty: new FormControl(undefined, []),
+      oAvgCost: new FormControl(undefined, []),
+      nAvgCost: new FormControl(undefined, []),
+    });
+    
+    this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
       'StockCard',
       this.dataSourceBuilder,
@@ -426,7 +451,7 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
     console.log(this.filterFormNav.Matrix);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.DisableFooter = true;
+    this.dbDataTable.ReadonlyForm = true;
 
     setTimeout(() => {
       this.kbS.SetCurrentNavigatable(this.filterFormNav);
@@ -508,17 +533,17 @@ export class StockCardNavComponent extends BaseNoFormManagerComponent<StockCard>
       return;
     }
     switch (event.key) {
-      case this.KeySetting[Actions.CSV].KeyCode:
-      case this.KeySetting[Actions.Email].KeyCode:
-      case this.KeySetting[Actions.Details].KeyCode:
       case this.KeySetting[Actions.CrudNew].KeyCode:
       case this.KeySetting[Actions.CrudEdit].KeyCode:
-      case this.KeySetting[Actions.CrudReset].KeyCode:
-      case this.KeySetting[Actions.CrudSave].KeyCode:
       case this.KeySetting[Actions.CrudDelete].KeyCode:
       case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
-      case this.KeySetting[Actions.Print].KeyCode:
-      case this.KeySetting[Actions.ToggleForm].KeyCode:
+      case this.KeySetting[Actions.JumpToForm].KeyCode:
+      // case this.KeySetting[Actions.CSV].KeyCode:
+      // case this.KeySetting[Actions.Email].KeyCode:
+      // case this.KeySetting[Actions.Details].KeyCode:
+      // case this.KeySetting[Actions.CrudReset].KeyCode:
+      // case this.KeySetting[Actions.CrudSave].KeyCode:
+      // case this.KeySetting[Actions.Print].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();

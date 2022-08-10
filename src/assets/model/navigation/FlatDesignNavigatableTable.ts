@@ -95,6 +95,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
+    public ReadonlyForm: boolean = false;
+
     constructor(
         f: FormGroup,
         tag: string,
@@ -440,6 +442,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     private HandleF12(setFormForNew: boolean = false): void {
+        if (this.ReadonlyForm &&
+            (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
+            return;
+        }
         if (setFormForNew) {
             this.SetBlankInstanceForForm(!this.sidebarService.sideBarOpened);
         } else {
@@ -482,6 +488,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     JumpToFirstFormField(): void {
+        if (this.ReadonlyForm) {
+            return;
+        }
         if (this.sidebarService.sideBarOpened) {
             this.kbs.Jump(this.flatDesignForm.attachDirection, true);
             this.kbs.setEditMode(KeyboardModes.NAVIGATION);
@@ -491,6 +500,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     JumpToFlatDesignForm(tabKeyDownEvent?: Event, row?: TreeGridNode<T>, rowPos?: number, col?: string, colPos?: number): void {
+        if (this.ReadonlyForm) {
+            return;
+        }
         tabKeyDownEvent?.preventDefault();
         tabKeyDownEvent?.stopImmediatePropagation();
         tabKeyDownEvent?.stopPropagation();
@@ -504,6 +516,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     JumpToFlatDesignFormByForm(formInputId: string): void {
+        if (this.ReadonlyForm) {
+            return;
+        }
         this.kbs.Jump(this.flatDesignForm.attachDirection, true);
         this.flatDesignForm.PushFooterCommandList();
         this.kbs.SetPositionById(formInputId);

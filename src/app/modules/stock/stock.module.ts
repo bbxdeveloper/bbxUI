@@ -12,11 +12,13 @@ import { AngularEditorModule } from '@kolkov/angular-editor';
 import { HttpClientModule } from '@angular/common/http';
 import { StockNavComponent } from './stock-nav/stock-nav.component';
 import { StockCardNavComponent } from './stock-card-nav/stock-card-nav.component';
+import { StockCardSideBarFormComponent } from './stock-card-side-bar-form/stock-card-side-bar-form.component';
 
 @NgModule({
   declarations: [
     StockNavComponent,
-    StockCardNavComponent
+    StockCardNavComponent,
+    StockCardSideBarFormComponent
   ],
   imports: [
     CommonModule,
@@ -50,7 +52,7 @@ import { StockCardNavComponent } from './stock-card-nav/stock-card-nav.component
     NbToggleModule,
     InvoiceModule,
     HttpClientModule,
-    AngularEditorModule
+    AngularEditorModule,
   ],
   exports: [
     StockNavComponent,
