@@ -451,7 +451,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     console.log(this.filterFormNav.Matrix);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.ReadonlyForm = true;
+    this.dbDataTable.ReadonlyFormByDefault = true;
 
     setTimeout(() => {
       this.kbS.SetCurrentNavigatable(this.filterFormNav);

@@ -95,7 +95,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-    public ReadonlyForm: boolean = false;
+    public ReadonlyPredicator: (x: T) => boolean = (x: T) => { return false; }
+    public ReadonlyFormByDefault: boolean = false;
+    public get ReadonlyForm(): boolean {
+        return this.ReadonlyFormByDefault || this.ReadonlyPredicator(this.flatDesignForm.DataToEdit?.data);
+    }
 
     constructor(
         f: FormGroup,

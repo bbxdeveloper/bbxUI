@@ -124,6 +124,13 @@ export class InvCtrlPeriodManagerComponent
     };
   }
 
+  public ReadonlyPredicator: (x: InvCtrlPeriod) => boolean = (x: InvCtrlPeriod) => {
+    if (!!x) {
+      return x.closed;
+    }
+    return false;
+  }
+
   wareHouses: WareHouse[] = [];
 
   constructor(
@@ -143,7 +150,7 @@ export class InvCtrlPeriodManagerComponent
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
-    this.dbDataTableId = 'customer-table';
+    this.dbDataTableId = 'inv-ctrl-period-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
@@ -419,6 +426,7 @@ export class InvCtrlPeriodManagerComponent
         this.Refresh(this.getInputParams);
       },
     });
+    this.dbDataTable.ReadonlyPredicator = this.ReadonlyPredicator;
 
     this.sidebarService.collapse();
 

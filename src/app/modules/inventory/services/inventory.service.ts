@@ -92,7 +92,7 @@ export class InventoryService {
       });
     }
 
-    return this.http.delete<DeleteInvCtrlPeriodResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.delete<DeleteInvCtrlPeriodResponse>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
   Close(params: CloseInvCtrlPeriodParamListModel): Observable<CloseInvCtrlPeriodResponse> {
