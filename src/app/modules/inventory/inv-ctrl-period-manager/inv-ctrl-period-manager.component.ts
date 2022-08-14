@@ -102,7 +102,7 @@ export class InvCtrlPeriodManagerComponent
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Zárolt',
+      label: 'Lezárt',
       objectKey: 'closed',
       colKey: 'closed',
       defaultValue: '',

@@ -16,6 +16,8 @@ export class OneButtonMessageDialogComponent extends BaseNavigatableComponentCom
 
   closedManually = false;
 
+  disableButton: boolean = true;
+
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
@@ -39,6 +41,9 @@ export class OneButtonMessageDialogComponent extends BaseNavigatableComponentCom
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
     this.kbS.SelectFirstTile();
+    setTimeout(() => {
+      this.disableButton = false;
+    }, 500);
   }
 
   ngOnDestroy(): void {

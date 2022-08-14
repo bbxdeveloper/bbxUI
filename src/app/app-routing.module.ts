@@ -91,7 +91,13 @@ const routes: Routes = [
       {
         path: "offers-edit/:id",
         component: OfferEditorComponent,
-      },
+      }
+    ]
+  },
+  {
+    path: 'inventory',
+    canActivate: [AuthGuard],
+    children: [
       {
         path: "invctrlperiod",
         component: InvCtrlPeriodManagerComponent,

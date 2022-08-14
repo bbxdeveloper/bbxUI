@@ -5,6 +5,6 @@
     </nb-card-body>
     <nb-card-footer>
         <button class="{{TileCssClass}}" id="dialog-button-close" nbButton (click)="close(true)" status="danger"
-            tabindex="-1">Ok</button>
+            [disabled]="disableButton" tabindex="-1">Ok</button>
     </nb-card-footer>
 </nb-card>

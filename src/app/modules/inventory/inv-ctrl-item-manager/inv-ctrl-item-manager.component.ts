@@ -380,6 +380,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
       this.cdref.detectChanges();
     }, 500);
+
+    this.buyerForm.controls['invCtrlPeriod'].valueChanges.subscribe({
+      next: newValue => {
+        const selected = this.SelectedInvCtrlPeriod;
+        if (selected?.dateFrom !== undefined && HelperFunctions.IsDateStringValid(selected.dateFrom)) {
+          this.buyerForm.controls['invCtrlDate'].setValue(selected.dateFrom)
+        }
+      }
+    });
   }
 
   InitFormDefaultValues(): void {
@@ -464,10 +473,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
             }
 
             this.invCtrlItemService.GetAllRecords(
-              { ProductID: productId, WarehouseID: this.SelectedWareHouseId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
+              { ProductID: productId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
               .subscribe({
                 next: data => {
-                  if (!!data) {
+                  if (!!data && data.id !== 0) {
+                    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                     const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
                       context: {
                         title: 'Leltár információ',
@@ -483,7 +493,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
               });
             this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
               next: data => {
-                if (!!data) {
+                if (!!data && data.id !== 0) {
                   this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                   this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
                 }
@@ -640,6 +650,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
             return res;
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
+        setTimeout(() => {
+          if (this.invCtrlPeriods.length > 0) {
+            this.buyerForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+          }
+        }, 100);
       }
     });
   }

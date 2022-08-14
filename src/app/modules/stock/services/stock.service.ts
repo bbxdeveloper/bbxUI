@@ -8,6 +8,7 @@ import { GetStockParamsModel } from '../models/GetStockParamsModel';
 import { GetStockResponse } from '../models/GetStockResponse';
 import { GetStockRecordParamsModel } from '../models/GetStockRecordParamsModel';
 import { Stock } from '../models/Stock';
+import { StockRecord } from '../models/StockRecord';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +39,7 @@ export class StockService {
     return this.http.get<GetStocksResponse>(this.StockBaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Record(params?: GetStockRecordParamsModel): Observable<Stock> {
+  Record(params?: GetStockRecordParamsModel): Observable<StockRecord> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -56,7 +57,7 @@ export class StockService {
       });
     }
 
-    return this.http.get<Stock>(this.StockBaseUrl + '/record' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<StockRecord>(this.StockBaseUrl + '/record' + (!!params ? ('?' + queryParams) : ''));
   }
 
   Get(params?: GetStockParamsModel): Observable<Stock> {
