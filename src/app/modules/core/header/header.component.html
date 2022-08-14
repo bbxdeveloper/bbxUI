@@ -78,10 +78,10 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-prod" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        data-sub="header-product-sub-1,header-product-sub-2,header-product-sub-3,header-product-sub-4,header-product-sub-5,header-product-sub-6,header-product-sub-7" nbPopoverPlacement="bottom" [nbPopover]="sub_product" [disabled]="InProgress">Termékek
+        data-sub="header-product-sub-1,header-product-sub-2,header-product-sub-3,header-product-sub-4,header-product-sub-5,header-product-sub-6,header-product-sub-7,header-product-sub-8" nbPopoverPlacement="bottom" [nbPopover]="sub_product" [disabled]="InProgress">Termékek
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        data-sub="header-product-sub-1,header-product-sub-2,header-product-sub-3,header-product-sub-4,header-product-sub-5,header-product-sub-6,header-product-sub-7" nbPopoverPlacement="bottom" [nbPopover]="sub_product" [disabled]="InProgress">Termékek
+        data-sub="header-product-sub-1,header-product-sub-2,header-product-sub-3,header-product-sub-4,header-product-sub-5,header-product-sub-6,header-product-sub-7,header-product-sub-8" nbPopoverPlacement="bottom" [nbPopover]="sub_product" [disabled]="InProgress">Termékek
     </nb-action>
     <ng-template #sub_product let-data>
         <nb-card class="card-submenu-wrapper">
@@ -123,6 +123,12 @@
                 <button nbButton status="primary" id="header-product-sub-7" [disabled]="InProgress"
                     (click)="goTo('product/invctrlicp')">
                     Leltári tételek felvitele
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-product-sub-8" [disabled]="InProgress"
+                    (click)="goTo('product/invrownav')">
+                    Leltárívek
                 </button>
             </nb-card-body>
         </nb-card>

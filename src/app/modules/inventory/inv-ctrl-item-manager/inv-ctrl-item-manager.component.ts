@@ -10,16 +10,14 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { todaysDate, validDate } from 'src/assets/model/Validators';
+import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
-import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
@@ -40,7 +38,6 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { InventoryService } from '../services/inventory.service';
 import { StockService } from '../../stock/services/stock.service';
-import { GetStocksParamsModel } from '../../stock/models/GetStocksParamsModel';
 import { GetStockRecordParamsModel } from '../../stock/models/GetStockRecordParamsModel';
 import { OneButtonMessageDialogComponent } from '../../shared/one-button-message-dialog/one-button-message-dialog.component';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
@@ -62,18 +59,17 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  // WareHouse
   invCtrlPeriods: string[] = [];
   invCtrlPeriodValues: { [key: string]: InvCtrlPeriod } = {};
   invCtrlPeriodComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get SelectedWareHouseId(): number {
-    return this.buyerForm.controls['warehouse'].value !== undefined ?
-      HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1]?.warehouseID) : -1;
+    return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
+      HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1]?.warehouseID) : -1;
   }
   get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
-    return this.buyerForm.controls['warehouse'].value !== undefined ?
-      this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1] : undefined;
+    return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
+      this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
   }
 
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", "unitPrice", "realQty", "difference"];
@@ -155,7 +151,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvCtrlItemLine>>,
-    private seInv: InvoiceService,
     private invCtrlItemService: InventoryCtrlItemService,
     private invCtrlPeriodService: InventoryService,
     private seC: CustomerService,
@@ -166,11 +161,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private utS: UtilityService,
-    private router: Router,
     private vatRateService: VatRateService,
-    private route: ActivatedRoute,
-    private invCtrlPeriodApi: WareHouseService,
     private stockService: StockService
   ) {
     super(dialogService, kbS, fS, cs, sts);
@@ -207,7 +198,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     if (this.buyerForm === undefined) {
       this.buyerForm = new FormGroup({
-        warehouse: new FormControl('', [Validators.required]),
+        invCtrlPeriod: new FormControl('', [Validators.required]),
         invCtrlDate: new FormControl('', [
           Validators.required,
           this.validateInvCtrlDate.bind(this),
@@ -255,7 +246,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   refresh(): void {
     this.refreshComboboxData();
     this.seC.GetAll({ IsOwnData: false }).subscribe({
-      next: d => {
+      next: () => {
         // Products
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
@@ -282,7 +273,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
   }
@@ -302,7 +292,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.offerData.items = this.dbData.filter((x, index: number) => index !== this.dbData.length - 1).map(x => {
       return {
         "warehouseID": this.SelectedWareHouseId,
-        "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['warehouse'].value ?? -1].id),
+        "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1].id),
         "productID": HelperFunctions.ToInt(x.data.productID),
         "invCtrlDate": this.buyerForm.controls['invCtrlDate'].value,
         "nRealQty": HelperFunctions.ToInt(x.data.nRealQty),
@@ -328,10 +318,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
             if (!!d.data) {
               console.log('Save response: ', d);
 
-              // if (!!d.data) {
-              //   this.FillInvCtrlItemNumberX(d.data.id);
-              // }
-
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
@@ -342,65 +328,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
 
-              // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-
               this.Reset();
-              return;
-
-              const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-                context: {
-                  title: 'Ajánlat Nyomtatása',
-                  inputLabel: 'Példányszám',
-                  defaultValue: 1
-                }
-              });
-              dialogRef.onClose.subscribe({
-                next: res => {
-
-                  this.Reset();
-
-                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
-
-                    this.buyerForm.controls['offerNumberX'].reset();
-
-                    let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                      next: cmdEnded => {
-                        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.simpleToastrService.show(
-                            `Az árajánlat nyomtatása véget ért.`,
-                            Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS_5_SEC
-                          );
-                          commandEndedSubscription.unsubscribe();
-                        }
-                        this.isLoading = false;
-                      },
-                      error: cmdEnded => {
-                        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                        commandEndedSubscription.unsubscribe();
-                        this.bbxToastrService.show(
-                          `Az árajánlat nyomtatása közben hiba történt.`,
-                          Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR
-                        );
-                        this.isLoading = false;
-                      }
-                    });
-                    this.isLoading = true;
-                    //this.printReport(d.data?.id, res.value);
-                  } else {
-                    this.simpleToastrService.show(
-                      `Az árajánlat számla nyomtatása nem történt meg.`,
-                      Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS_5_SEC
-                    );
-                    this.isLoading = false;
-                  }
-                }
-              });
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
@@ -417,23 +345,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       }
     });
   }
-
-  // printReport(id: any, copies: number): void {
-  //   this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-  //   this.utS.execute(
-  //     Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
-  //     {
-  //       "section": "Szamla",
-  //       "fileType": "pdf",
-  //       "report_params":
-  //       {
-  //         "id": id,
-  //         "offerNumber": null
-  //       },
-  //       // "copies": copies,
-  //       "data_operation": Constants.DataOperation.PRINT_BLOB
-  //     } as Constants.Dct);
-  // }
 
   protected Reset(): void {
     console.log(`Reset.`);
@@ -563,11 +474,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                         message: `A ${data.product} termék ${data.invCtrlDate} napon leltározva volt, készlet: ${data.nRealQty}.`,
                       }
                     });
-                    dialogRef.onClose.subscribe((res: Customer) => { });
+                    dialogRef.onClose.subscribe(() => { });
                     this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
                   }
                 },
-                error: err => { },
+                error: () => { },
                 complete: () => { }
               });
             this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
@@ -577,7 +488,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                   this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
                 }
               },
-              error: err => { },
+              error: () => { },
               complete: () => { }
             });
           }
@@ -629,7 +540,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
             );
           }
         },
-        error: err => {
+        error: () => {
           this.RecalcNetAndVat();
         },
         complete: () => {
@@ -650,11 +561,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                     message: `A ${data.product} termék ${data.invCtrlDate} napon leltározva volt, készlet: ${data.nRealQty}.`,
                   }
                 });
-                dialogRef.onClose.subscribe((res: Customer) => { });
+                dialogRef.onClose.subscribe(() => { });
                 this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
               }
             },
-            error: err => { },
+            error: () => { },
             complete: () => { }
           });
           this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
@@ -664,7 +575,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                 this.dbDataTable.data[rowPos].data.realQty = data.realQty;
               }
             },
-            error: err => {},
+            error: () => {},
             complete: () => {}
           });
         }
@@ -710,7 +621,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
             this.RecalcNetAndVat();
           },
-          error: err => {
+          error: () => {
             this.RecalcNetAndVat();
           }
         });

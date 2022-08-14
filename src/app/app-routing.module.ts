@@ -7,6 +7,7 @@ import { CounterManagerComponent } from './modules/counter/counter-manager/count
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
 import { InvCtrlItemManagerComponent } from './modules/inventory/inv-ctrl-item-manager/inv-ctrl-item-manager.component';
 import { InvCtrlPeriodManagerComponent } from './modules/inventory/inv-ctrl-period-manager/inv-ctrl-period-manager.component';
+import { InvRowNavComponent } from './modules/inventory/inv-row-nav/inv-row-nav.component';
 import { InvoiceIncomeManagerComponent } from './modules/invoice/invoice-income-manager/invoice-income-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
 import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
@@ -98,6 +99,10 @@ const routes: Routes = [
       {
         path: "invctrlicp",
         component: InvCtrlItemManagerComponent,
+      },
+      {
+        path: "invrownav",
+        component: InvRowNavComponent,
       }
     ]
   },

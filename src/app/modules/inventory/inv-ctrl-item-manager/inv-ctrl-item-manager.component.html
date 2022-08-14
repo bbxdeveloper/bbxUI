@@ -9,7 +9,7 @@
                     <table class="customer-search-row">
                         <tr>
                             <td>
-                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav" formFieldName="warehouse" label="Raktár*"
+                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav" formFieldName="invCtrlPeriod" label="Leltári időszak"
                                     [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
                             </td>
                             <td>
@@ -22,7 +22,7 @@
                             </td>
                             <td>
                                 <app-form-control-error [form]="buyerFormNav"
-                                    controlName="warehouse">
+                                    controlName="invCtrlPeriod">
                                 </app-form-control-error>
                                 <app-form-control-error [form]="buyerFormNav"
                                     controlName="invCtrlDate">

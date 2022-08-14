@@ -55,6 +55,7 @@ export module Constants {
         PRINT_INVOICE,
         ERROR,
         PRINT_OFFER,
+        PRINT_GENERIC,
         DOWNLOAD_OFFER_NAV_CSV,
         DOWNLOAD_BLOB
     }

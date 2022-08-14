@@ -9,6 +9,7 @@ import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { InvCtrlItemManagerComponent } from './inv-ctrl-item-manager/inv-ctrl-item-manager.component';
+import { InvRowNavComponent } from './inv-row-nav/inv-row-nav.component';
 
 
 
@@ -16,7 +17,8 @@ import { InvCtrlItemManagerComponent } from './inv-ctrl-item-manager/inv-ctrl-it
   declarations: [
     InvCtrlPeriodManagerComponent,
     InvCtrlPeriodSideBarFormComponent,
-    InvCtrlItemManagerComponent
+    InvCtrlItemManagerComponent,
+    InvRowNavComponent
   ],
   imports: [
     CommonModule,

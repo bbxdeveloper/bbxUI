@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvCtrlItemParamListModel } from '../models/GetInvCtrlItemParamListModel';
-import { InvCtrlItemLine } from '../models/InvCtrlItem';
+import { InvCtrlItemForGet, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { CreateInvCtrlItemResponse } from '../models/CreateInvCtrlItemResponse';
 import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
@@ -12,6 +12,7 @@ import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPerio
 import { GetAllInvCtrlPeriodsResponse } from '../models/GetAllInvCtrlPeriodsResponse';
 import { InvCtrl } from '../models/InvCtrl';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
+import { Constants } from 'src/assets/util/Constants';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,18 @@ export class InventoryCtrlItemService {
   private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlICP';
 
   constructor(private http: HttpClient) { }
+
+  GetReport(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "application/pdf");
+    return this.http.post(
+      `${this.BaseUrl}/print`,
+      JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
+  }
 
   GetAll(params?: GetAllInvCtrlItemsParamListModel): Observable<GetAllInvCtrlItemsResponse> {
     // Process params
@@ -63,7 +76,7 @@ export class InventoryCtrlItemService {
     return this.http.get<InvCtrl>(this.BaseUrl + '/record' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Get(params?: GetInvCtrlItemParamListModel): Observable<InvCtrlItemLine> {
+  Get(params?: GetInvCtrlItemParamListModel): Observable<InvCtrlItemForGet> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -82,7 +95,7 @@ export class InventoryCtrlItemService {
     }
 
     // Get
-    return this.http.get<InvCtrlItemLine>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<InvCtrlItemForGet>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
   Create(req: CreateInvCtrlItemRequest): Observable<CreateInvCtrlItemResponse> {

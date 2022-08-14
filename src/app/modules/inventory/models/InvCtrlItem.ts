@@ -11,6 +11,26 @@ export interface InvCtrlItemForPost {
     "userID": number;
 }
 
+export interface InvCtrlItemForGet {
+    "invCtrlType": string;
+    "invCtrlTypeX": string;
+    "id": number;
+    "warehouseID": number;
+    "warehouse": string;
+    "invCtlPeriodID": number;
+    "invCtlPeriod"?: any;
+    "productID": number;
+    "productCode": string;
+    "product": string;
+    "invCtrlDate": string;
+    "oCalcQty": number;
+    "oRealQty": number;
+    "nCalcQty": number;
+    "nRealQty": number;
+    "avgCost": number;
+    "userID": number;
+}
+
 export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
     // OfferLineForPost
     "lineNumber": number = 0;
