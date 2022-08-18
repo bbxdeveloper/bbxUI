@@ -10,6 +10,7 @@ import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { InvCtrlItemManagerComponent } from './inv-ctrl-item-manager/inv-ctrl-item-manager.component';
 import { InvRowNavComponent } from './inv-row-nav/inv-row-nav.component';
+import { InvCtrlAbsentComponent } from './inv-ctrl-absent/inv-ctrl-absent.component';
 
 
 
@@ -18,7 +19,8 @@ import { InvRowNavComponent } from './inv-row-nav/inv-row-nav.component';
     InvCtrlPeriodManagerComponent,
     InvCtrlPeriodSideBarFormComponent,
     InvCtrlItemManagerComponent,
-    InvRowNavComponent
+    InvRowNavComponent,
+    InvCtrlAbsentComponent
   ],
   imports: [
     CommonModule,

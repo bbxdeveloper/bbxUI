@@ -117,11 +117,11 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-inventory" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        data-sub="header-inventory-sub-1,header-inventory-sub-2,header-inventory-sub-3"
+        data-sub="header-inventory-sub-1,header-inventory-sub-2,header-inventory-sub-3,header-inventory-sub-4"
         nbPopoverPlacement="bottom" [nbPopover]="sub_inventory" [disabled]="InProgress">Leltár
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-inventory" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
-        data-sub="header-inventory-sub-1,header-inventory-sub-2,header-inventory-sub-3"
+        data-sub="header-inventory-sub-1,header-inventory-sub-2,header-inventory-sub-3,header-inventory-sub-4"
         nbPopoverPlacement="bottom" [nbPopover]="sub_inventory" [disabled]="InProgress">Leltár
     </nb-action>
     <ng-template #sub_inventory let-data>
@@ -142,6 +142,12 @@
                 <button nbButton status="primary" id="header-inventory-sub-3" [disabled]="InProgress"
                     (click)="goTo('inventory/invrownav')">
                     Leltárívek
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-inventory-sub-4" [disabled]="InProgress"
+                    (click)="goTo('inventory/invctrlabsent')">
+                    Letárból kimaradt cikkek
                 </button>
             </nb-card-body>
         </nb-card>

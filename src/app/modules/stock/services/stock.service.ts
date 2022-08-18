@@ -9,6 +9,8 @@ import { GetStockResponse } from '../models/GetStockResponse';
 import { GetStockRecordParamsModel } from '../models/GetStockRecordParamsModel';
 import { Stock } from '../models/Stock';
 import { StockRecord } from '../models/StockRecord';
+import { GetAllInvCtrlAbsentParamsModel } from '../models/GetAllInvCtrlAbsentParamsModel';
+import { GetAllInvCtrlAbsentResponse } from '../models/GetAllInvCtrlAbsentResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -80,5 +82,26 @@ export class StockService {
 
     // Get
     return this.http.get<Stock>(this.StockBaseUrl + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  GetAllAbsent(params?: GetAllInvCtrlAbsentParamsModel): Observable<GetAllInvCtrlAbsentResponse> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof GetAllInvCtrlAbsentParamsModel] != undefined && params[key as keyof GetAllInvCtrlAbsentParamsModel] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof GetAllInvCtrlAbsentParamsModel];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof GetAllInvCtrlAbsentParamsModel];
+          }
+          index++;
+        }
+      });
+    }
+
+    return this.http.get<GetAllInvCtrlAbsentResponse>(this.StockBaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 }

@@ -197,6 +197,9 @@ export module HelperFunctions {
         val: string,
         formatString: string = DATE_FORMATSTRING,
         dateLocale: string = 'hu-HU'): string {
+        if (!IsDateStringValid(val)) {
+            return "";
+        }
         moment.locale(dateLocale);
         return moment(val)
             .format(formatString);

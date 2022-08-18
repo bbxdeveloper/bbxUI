@@ -34,6 +34,18 @@ export class InventoryCtrlItemService {
     );
   }
 
+  GetAbsentReport(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "application/pdf");
+    return this.http.post(
+      `${this.BaseUrl}/print`,
+      JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
+  }
+
   GetAll(params?: GetAllInvCtrlItemsParamListModel): Observable<GetAllInvCtrlItemsResponse> {
     // Process params
     var queryParams = '';
