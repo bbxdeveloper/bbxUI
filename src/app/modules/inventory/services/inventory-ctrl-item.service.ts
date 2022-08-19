@@ -28,7 +28,7 @@ export class InventoryCtrlItemService {
       .set("charset", "utf8")
       .set("accept", "application/pdf");
     return this.http.post(
-      `${this.BaseUrl}/print`,
+      `${this.BaseUrl}/invctrlicpreport`,
       JSON.stringify(params['report_params']),
       { responseType: 'blob', headers: options }
     );
@@ -40,7 +40,7 @@ export class InventoryCtrlItemService {
       .set("charset", "utf8")
       .set("accept", "application/pdf");
     return this.http.post(
-      `${this.BaseUrl}/print`,
+      `${this.BaseUrl}/invctrlicpabsenedreport`,
       JSON.stringify(params['report_params']),
       { responseType: 'blob', headers: options }
     );

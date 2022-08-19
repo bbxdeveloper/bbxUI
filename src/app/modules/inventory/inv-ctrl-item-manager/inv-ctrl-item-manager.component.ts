@@ -395,6 +395,167 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.buyerForm.controls['invCtrlDate'].setValue(HelperFunctions.GetDateString());
   }
 
+  OpenAlreadyInventoryDialog(product: string, dateWithUtc: string, nRealQty: number): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
+      context: {
+        title: 'Leltár információ',
+        message: `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
+      }
+    });
+    dialogRef.onClose.subscribe(() => { });
+  }
+
+  HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
+    let productId: number = -1;
+
+    this.isLoading = true;
+
+    productId = res.id;
+
+    if (productId === undefined || productId === -1) {
+      return;
+    }
+
+    if (this.dbData.findIndex(x => x.data?.productID === productId) > -1) {
+      this.bbxToastrService.show(
+        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      this.isLoading = false;
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.invCtrlItemService.GetAllRecords(
+      { ProductID: productId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
+      .subscribe({
+        next: data => {
+          if (!!data && data.id !== 0) {
+            this.OpenAlreadyInventoryDialog(data.product, data.invCtrlDate, data.nRealQty);
+            this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
+          }
+        },
+        error: () => { },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
+
+    this.isLoading = true;
+
+    this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
+      next: data => {
+        if (!!data && data.id !== 0) {
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
+        }
+      },
+      error: () => { },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
+
+    this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0) });
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.dbDataTable.MoveNextInTable();
+    setTimeout(() => {
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+      this.kbS.ClickCurrentElement();
+    }, 500);
+
+    return;
+
+    this.vatRateService.GetAll({} as GetVatRatesParamListModel).subscribe({
+      next: d => {
+        if (!!d.data) {
+          console.log('Vatrates: ', d.data);
+
+          let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
+
+          if (vatRateFromProduct === undefined) {
+            this.bbxToastrService.show(
+              `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
+          }
+
+          this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          this.dbDataTable.MoveNextInTable();
+          setTimeout(() => {
+            this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.ClickCurrentElement();
+          }, 500);
+        } else {
+          this.cs.HandleError(d.errors);
+          this.isLoading = false;
+
+          this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res) });
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          this.dbDataTable.MoveNextInTable();
+          setTimeout(() => {
+            this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.ClickCurrentElement();
+          }, 500);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+
+        this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res) });
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 500);
+      },
+      complete: () => {
+        this.isLoading = false;
+
+        if (productId === undefined || productId === -1) {
+          return;
+        }
+
+        this.invCtrlItemService.GetAllRecords(
+          { ProductID: productId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
+          .subscribe({
+            next: data => {
+              if (!!data && data.id !== 0) {
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
+                  context: {
+                    title: 'Leltár információ',
+                    message: `A ${data.product} termék ${data.invCtrlDate} napon leltározva volt, készlet: ${data.nRealQty}.`,
+                  }
+                });
+                dialogRef.onClose.subscribe(() => { });
+                this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
+              }
+            },
+            error: () => { },
+            complete: () => { }
+          });
+        this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
+          next: data => {
+            if (!!data && data.id !== 0) {
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
+            }
+          },
+          error: () => { },
+          complete: () => { }
+        });
+      }
+    });
+  }
+
   ChooseDataForTableRow(rowIndex: number): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
@@ -414,95 +575,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
-        this.isLoading = true;
-
-        productId = res.id;
-
-        this.vatRateService.GetAll({} as GetVatRatesParamListModel).subscribe({
-          next: d => {
-            if (!!d.data) {
-              console.log('Vatrates: ', d.data);
-
-              let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
-
-              if (vatRateFromProduct === undefined) {
-                this.bbxToastrService.show(
-                  `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
-                );
-              }
-
-              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isLoading = false;
-
-              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res) });
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-            }
-          },
-          error: err => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-
-            this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res) });
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 500);
-          },
-          complete: () => {
-            this.isLoading = false;
-
-            if (productId === undefined || productId === -1) {
-              return;
-            }
-
-            this.invCtrlItemService.GetAllRecords(
-              { ProductID: productId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
-              .subscribe({
-                next: data => {
-                  if (!!data && data.id !== 0) {
-                    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                    const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
-                      context: {
-                        title: 'Leltár információ',
-                        message: `A ${data.product} termék ${data.invCtrlDate} napon leltározva volt, készlet: ${data.nRealQty}.`,
-                      }
-                    });
-                    dialogRef.onClose.subscribe(() => { });
-                    this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
-                  }
-                },
-                error: () => { },
-                complete: () => { }
-              });
-            this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
-              next: data => {
-                if (!!data && data.id !== 0) {
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
-                }
-              },
-              error: () => { },
-              complete: () => { }
-            });
-          }
-        });
+        this.HandleProductSelectionFromDialog(res, rowIndex);
       }
     });
   }
@@ -525,7 +598,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos])
+    console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
+
+    let alreadyAdded = false;
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let productId: number = -1;
@@ -535,13 +610,24 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
           if (!!product && !!product?.productCode) {
             productId = product.id
-            this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product) });
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 200);
+
+            if (this.dbData.findIndex(x => x.data?.productID === productId) > -1) {
+              alreadyAdded = true;
+              this.bbxToastrService.show(
+                Constants.MSG_PRODUCT_ALREADY_THERE,
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+            } else {
+              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product) });
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 200);
+            }
+
           } else {
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
@@ -556,7 +642,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         complete: () => {
           this.isLoading = false;
 
-          if (productId === undefined || productId === -1) {
+          if (productId === undefined || productId === -1 || alreadyAdded) {
             return;
           }
 
@@ -564,14 +650,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
             { ProductID: productId, WarehouseID: this.SelectedWareHouseId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
           .subscribe({
             next: data => {
-              if (!!data) {
-                const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
-                  context: {
-                    title: 'Leltár információ',
-                    message: `A ${data.product} termék ${data.invCtrlDate} napon leltározva volt, készlet: ${data.nRealQty}.`,
-                  }
-                });
-                dialogRef.onClose.subscribe(() => { });
+              if (!!data && data.id !== 0) {
+                this.OpenAlreadyInventoryDialog(data.product, data.invCtrlDate, data.nRealQty);
                 this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
               }
             },
@@ -580,7 +660,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           });
           this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
             next: data => {
-              if (!!data) {
+              if (!!data && data.id !== 0) {
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                 this.dbDataTable.data[rowPos].data.realQty = data.realQty;
               }

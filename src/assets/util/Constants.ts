@@ -23,6 +23,7 @@ export module Constants {
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
 
     export const MSG_NO_PRODUCT_FOUND: string = 'Nincs a begépelt kódnak megfelelő termék! Kérem próbálja meg a keresőablak használatával.';
+    export const MSG_PRODUCT_ALREADY_THERE: string = 'Ez a termék már szerepel a felvett tételek között.';
 
     export const MSG_LOGIN_SUCCESFUL: string = 'Sikeres bejelentkezés!'
     export const MSG_LOGIN_FAILED: string = 'Sikertelen bejelentkezés!'

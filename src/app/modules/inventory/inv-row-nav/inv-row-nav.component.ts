@@ -134,6 +134,10 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       this.invCtrlPeriodValues[this.filterForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
   }
 
+  get SelectedInvCtrlPeriodComboValue(): string | undefined {
+    return this.filterForm.controls['invCtrlPeriod'].value;
+  }
+
   override get getInputParams(): GetAllInvCtrlItemsParamListModel {
 
     return {
@@ -410,6 +414,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   Print(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable) && this.SelectedInvCtrlPeriod?.id !== undefined) {
       const id = this.SelectedInvCtrlPeriod.id;
+      const title = this.SelectedInvCtrlPeriodComboValue;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -451,7 +456,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
                 this.isLoading = false;
               }
             });
-            this.printReport(id, res.value);
+            this.printReport(id, res.value, title!);
           } else {
             this.simpleToastrService.show(
               `Az leltári időszak nyomtatása nem történt meg.`,
@@ -465,7 +470,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }
   }
 
-  printReport(id: any, copies: number): void {
+  printReport(id: any, copies: number, title: string): void {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
     this.utS.execute(
       Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
@@ -480,7 +485,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryCtrlItemService.GetReport({
-        "id": id
+        "InvCtrlPeriodID": id, "InvPeriodTitle": title
       }));
   }
 

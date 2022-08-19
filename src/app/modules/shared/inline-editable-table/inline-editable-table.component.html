@@ -27,7 +27,7 @@
                             (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
                             (keydown.enter)="colPos === 0 ? parent.HandleGridCodeFieldEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)
                                         : dbDataTable.HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
-                            (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
+                            (keydown.F8)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
                             (keydown.F2)="dbDataTable.HandleKey($event, rowPos)"
                             (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, true, $event, currentNavigatable)"
                             [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"

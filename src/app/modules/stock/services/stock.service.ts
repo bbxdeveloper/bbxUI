@@ -102,6 +102,6 @@ export class StockService {
       });
     }
 
-    return this.http.get<GetAllInvCtrlAbsentResponse>(this.StockBaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetAllInvCtrlAbsentResponse>(this.StockBaseUrl + "/queryinvctrlabsent" + (!!params ? ('?' + queryParams) : ''));
   }
 }

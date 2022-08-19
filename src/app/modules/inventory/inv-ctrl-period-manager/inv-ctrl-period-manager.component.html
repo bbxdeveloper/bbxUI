@@ -6,13 +6,6 @@
             [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
             [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
             (focusOutTable)="focusOnTable(false)">
-            <label class="search-label" for="search">Név / adószám:</label>
-            <input #searchInput nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)"
-                autocomplete="off">
-            <button nbSuffix nbButton ghost (click)="clearSearch(searchInput)" id="active-prod-search-clear">
-                <nb-icon icon="close-outline" pack="eva" attr.aria-label="clear search">
-                </nb-icon>
-            </button>
         </app-flat-design-table>
 
         <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

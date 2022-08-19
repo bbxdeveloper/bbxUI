@@ -1,3 +1,5 @@
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
+
 export interface InvCtrlPeriod {
     "id": number;
     "warehouseID": any;
@@ -12,8 +14,8 @@ export function BlankInvCtrlPeriod(): InvCtrlPeriod {
         id: 0,
         warehouseID: '',
         warehouse: '',
-        dateFrom: '',
-        dateTo: '',
+        dateFrom: HelperFunctions.GetDateString(0,0,0),
+        dateTo: HelperFunctions.GetDateString(1, 0, 0),
         closed: false
     } as InvCtrlPeriod
 }

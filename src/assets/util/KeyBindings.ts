@@ -108,7 +108,7 @@ export let InventoryPeriodsKeySettings: Constants.KeySettingsDct = {
     CrudReset: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Visszaállítás', KeyType: Constants.KeyTypes.Fn },
     CrudSave: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Fn },
     CrudDelete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.delete, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
-    Lock: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Zárolás', KeyType: Constants.KeyTypes.Fn },
+    Lock: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Leltáridőszak zárása', KeyType: Constants.KeyTypes.Fn },
     ToggleForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Tétellap', KeyType: Constants.KeyTypes.Fn },
     JumpToForm: { KeyCode: KeyBindings.Tab, KeyLabel: KeyBindings.Tab, FunctionLabel: 'Ugrás tétellapra', KeyType: Constants.KeyTypes.Default },
 
@@ -273,7 +273,7 @@ export let InvCtrlItemCreatorKeySettings: Constants.KeySettingsDct = {
     Search: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Fn },
     CloseAndSave: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Combo },
-    CrudDelete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.delete, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
+    CrudDelete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.delete, KeyLabel: KeyBindings.delete, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
     
     // Unset
     ToggleAllDiscounts: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Kedvezmény mutatás összesre', KeyType: Constants.KeyTypes.Unset },
@@ -298,7 +298,7 @@ export let OfferEditorKeySettings: Constants.KeySettingsDct = {
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Fn },
     ToggleAllDiscounts: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Kedvezmény mutatás összesre', KeyType: Constants.KeyTypes.Fn },
     SetGlobalDiscount: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Kedvezmény összesre', KeyType: Constants.KeyTypes.Fn },
-    CrudDelete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.delete, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
+    CrudDelete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.F8, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
     EscapeEditor1: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Visszalépés Navigációba', KeyType: Constants.KeyTypes.Fn },
     CloseAndSave: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Combo },
     
