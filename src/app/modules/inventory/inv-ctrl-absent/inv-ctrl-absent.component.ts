@@ -56,22 +56,10 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  readonly ChosenIssueFilterOptionValue: string = '1';
-  readonly ChosenDeliveryFilterOptionValue: string = '2';
-
   customerInputFilterString: string = '';
 
   isDeleteDisabled: boolean = false;
 
-  cachedCustomerName?: string;
-  _searchByTaxtNumber: boolean = false;
-  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
-  set searchByTaxtNumber(value: boolean) {
-    this._searchByTaxtNumber = value;
-    this.cdref.detectChanges();
-    this.filterFormNav.GenerateAndSetNavMatrices(false, true);
-    this.AddSearchButtonToFormMatrix();
-  }
   buyerData!: Customer;
   buyersData: Customer[] = [];
 
@@ -303,7 +291,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       next: data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
-          data?.data?.map(x => {
+          data?.data?.filter(x => !x.closed).map(x => {
             let res = 
               x.warehouse + ' ' +
               HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' +
