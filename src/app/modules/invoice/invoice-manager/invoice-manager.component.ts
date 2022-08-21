@@ -38,6 +38,7 @@ import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/
 import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -189,8 +190,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
+    sideBarService: BbxSidebarService
   ) {
-    super(dialogService, kbS, fS, cs, sts);
+    super(dialogService, kbS, fS, cs, sts, sideBarService);
     this.InitialSetup();
     this.isPageReady = true;
   }

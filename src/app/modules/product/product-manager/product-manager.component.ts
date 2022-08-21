@@ -470,7 +470,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       this.blankProductRow
@@ -499,7 +499,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       }
     }
 
-    this.sidebarService.collapse();
+    this.bbxSidebarService.collapse();
 
     this.RefreshAll(this.getInputParams);
   }
@@ -517,10 +517,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {

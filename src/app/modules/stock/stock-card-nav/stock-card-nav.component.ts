@@ -321,7 +321,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       this.cdref, [], this.filterFormId,
       AttachDirection.DOWN,
       this.colDefs,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.fS,
       this.dbDataTable,
       this
@@ -362,7 +362,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.UP,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
@@ -414,10 +414,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {

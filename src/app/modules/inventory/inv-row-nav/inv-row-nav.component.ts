@@ -253,7 +253,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
-    this.RefreshAll(this.getInputParams);
+    this.refreshComboboxData(true);
+    // this.RefreshAll(this.getInputParams);
   }
 
   public RefreshAndJumpToTable(): void {
@@ -271,7 +272,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }, 300);
   }
 
-  private refreshComboboxData(): void {
+  private refreshComboboxData(setIsLoad = false): void {
+    this.isLoading = true;
     this.inventoryService.GetAll().subscribe({
       next: data => {
         console.log("[refreshComboboxData]: ", data);
@@ -282,6 +284,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
             return res;
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
+      },
+      complete: () => {
+        this.isLoading = false;
       }
     });
   }
@@ -311,10 +316,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable(undefined, this.isPageReady);
           if (this.isPageReady) {
@@ -477,15 +479,14 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       {
         "section": "Leltári időszak",
         "fileType": "pdf",
-        "report_params":
-        {
-          "id": id
-        },
+        "report_params": {},
         // "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryCtrlItemService.GetReport({
-        "InvCtrlPeriodID": id, "InvPeriodTitle": title
+        "report_params": {
+          "InvCtrlPeriodID": id, "InvPeriodTitle": title
+        }
       }));
   }
 

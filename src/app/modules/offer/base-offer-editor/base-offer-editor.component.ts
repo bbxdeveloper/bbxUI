@@ -31,6 +31,7 @@ import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -189,8 +190,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected router: Router,
     protected vatRateService: VatRateService,
     protected route: ActivatedRoute,
+    protected sidebarService: BbxSidebarService
   ) {
-    super(dialogService, kbS, fS, cs, sts);
+    super(dialogService, kbS, fS, cs, sts, sidebarService);
   }
 
   protected Reset(): void {

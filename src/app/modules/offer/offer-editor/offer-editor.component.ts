@@ -36,6 +36,7 @@ import { GetCustomerParamListModel } from '../../customer/models/GetCustomerPara
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { OfferUtil } from '../models/OfferUtil';
 import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor.component';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 
 @Component({
   selector: 'app-offer-editor',
@@ -72,11 +73,12 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     utS: UtilityService,
     router: Router,
     route: ActivatedRoute,
+    sidebarService: BbxSidebarService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
-      sts, productService, utS, router, vatRateService, route
+      sts, productService, utS, router, vatRateService, route, sidebarService
     );
     this.InitialSetup();
   }

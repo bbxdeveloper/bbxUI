@@ -157,6 +157,12 @@ export class InvCtrlPeriodManagerComponent
   }
 
   private ConvertCombosForGet(data: InvCtrlPeriod): InvCtrlPeriod {
+    if (!!!data.warehouse) {
+      let warehouse = this.wareHouses.find(x => x.id === data.warehouseID);
+      if (!!warehouse) {
+        data.warehouse = warehouse.warehouseCode + "-" + warehouse.warehouseDescription;
+      }
+    }
     if (data.warehouseID !== undefined && this.wareHouses.length > 0) {
       data.warehouseID =
         this.wareHouses.find((x) => x.id == data.warehouseID)?.warehouseDescription ?? '';
@@ -412,7 +418,7 @@ export class InvCtrlPeriodManagerComponent
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
@@ -428,7 +434,7 @@ export class InvCtrlPeriodManagerComponent
     });
     this.dbDataTable.ReadonlyPredicator = this.ReadonlyPredicator;
 
-    this.sidebarService.collapse();
+    this.bbxSidebarService.collapse();
 
     this.RefreshAll(this.getInputParams);
   }
@@ -443,10 +449,9 @@ export class InvCtrlPeriodManagerComponent
         this.isLoading = false;
       },
       complete: () => {
-        this.isLoading = false;
+        this.Refresh(params);
       },
     });
-    this.Refresh(params);
   }
 
   override Refresh(params?: GetAllInvCtrlPeriodsParamListModel): void {
@@ -461,13 +466,7 @@ export class InvCtrlPeriodManagerComponent
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
             });
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(
-              d.recordsFiltered,
-              d.pageSize
-            );
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {

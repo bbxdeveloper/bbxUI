@@ -16,6 +16,7 @@ import { Actions, OfferNavKeySettings, KeyBindings } from 'src/assets/util/KeyBi
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -128,8 +129,11 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected cs: CommonService,
-    protected sts: StatusService
-  ) {}
+    protected sts: StatusService,
+    protected sideBarService: BbxSidebarService
+  ) {
+    this.sideBarService.collapse();
+  }
 
   HandleError(err: any): void {
     this.cs.HandleError(err);

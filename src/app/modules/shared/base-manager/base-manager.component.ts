@@ -1,6 +1,6 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
+import { NbDialogService, NbSidebarService, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -41,7 +41,7 @@ export class BaseManagerComponent<T> {
   isLoading: boolean = true;
   
   get isSideBarOpened(): boolean {
-    return this.sidebarService.sideBarOpened;
+    return this.bbxSidebarService.sideBarOpened;
   }
   
   private uid = 0;
@@ -61,14 +61,10 @@ export class BaseManagerComponent<T> {
     @Optional() protected dialogService: NbDialogService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
-    protected sidebarService: BbxSidebarService,
+    protected bbxSidebarService: BbxSidebarService,
     protected cs: CommonService,
     protected sts: StatusService) {
-  }
-
-  GetPageCount(recordsFiltered: number, pageSize: number): number {
-    const tmp = Math.round(recordsFiltered / pageSize);
-    return tmp === 0 ? 1 : tmp;
+      this.bbxSidebarService.collapse();
   }
   
   HandleError(err: any): void {

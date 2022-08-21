@@ -78,11 +78,7 @@ export class BaseNoFormManagerComponent<T> {
     protected sidebarService: BbxSidebarService,
     protected cs: CommonService,
     protected sts: StatusService) {
-  }
-
-  GetPageCount(recordsFiltered: number, pageSize: number): number {
-    const tmp = Math.round(recordsFiltered / pageSize);
-    return tmp === 0 ? 1 : tmp;
+      this.sidebarService.collapse();
   }
 
   HandleError(err: any): void {

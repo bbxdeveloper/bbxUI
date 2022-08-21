@@ -42,6 +42,7 @@ import { GetStockRecordParamsModel } from '../../stock/models/GetStockRecordPara
 import { OneButtonMessageDialogComponent } from '../../shared/one-button-message-dialog/one-button-message-dialog.component';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -162,9 +163,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     sts: StatusService,
     private productService: ProductService,
     private vatRateService: VatRateService,
-    private stockService: StockService
+    private stockService: StockService,
+    sideBarService: BbxSidebarService
   ) {
-    super(dialogService, kbS, fS, cs, sts);
+    super(dialogService, kbS, fS, cs, sts, sideBarService);
     this.InitialSetup();
   }
 
@@ -430,7 +432,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.isLoading = true;
 
     this.invCtrlItemService.GetAllRecords(
-      { ProductID: productId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
+      { ProductID: productId, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
       .subscribe({
         next: data => {
           if (!!data && data.id !== 0) {
@@ -647,7 +649,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           }
 
           this.invCtrlItemService.GetAllRecords(
-            { ProductID: productId, WarehouseID: this.SelectedWareHouseId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
+            { ProductID: productId, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
           .subscribe({
             next: data => {
               if (!!data && data.id !== 0) {

@@ -342,10 +342,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable(undefined, this.isPageReady);
           if (this.isPageReady) {
@@ -509,15 +506,14 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       {
         "section": "Leltári időszak",
         "fileType": "pdf",
-        "report_params":
-        {
-          "id": id
-        },
+        "report_params": {},
         // "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryCtrlItemService.GetAbsentReport({
-        "InvCtrlPeriodID": id, "InvPeriodTitle": title
+        "report_params": {
+          "InvCtrlPeriodID": id, "InvPeriodTitle": title
+        }
       }));
   }
 

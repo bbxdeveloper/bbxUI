@@ -230,7 +230,7 @@ export class ProductGroupManagerComponent
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
@@ -245,7 +245,7 @@ export class ProductGroupManagerComponent
       },
     });
 
-    this.sidebarService.collapse();
+    this.bbxSidebarService.collapse();
 
     this.Refresh(this.getInputParams);
   }
@@ -262,10 +262,7 @@ export class ProductGroupManagerComponent
               return { data: x, uid: this.nextUid() };
             });
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {
