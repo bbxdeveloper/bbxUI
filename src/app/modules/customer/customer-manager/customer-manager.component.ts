@@ -22,6 +22,7 @@ import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { PieController } from 'chart.js';
 import { CountryCode } from '../models/CountryCode';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 
 @Component({
   selector: 'app-customer-manager',
@@ -44,6 +45,16 @@ export class CustomerManagerComponent
     'thirdStateTaxId',
     'isOwnData',
   ];
+  allColumnsWithOpenedSideBar = [
+    'id',
+    'customerName',
+    'taxpayerNumber',
+    'thirdStateTaxId',
+    'isOwnData',
+  ];
+
+  AllColumns: ReplaySubject<string[]> = new ReplaySubject<string[]>();
+
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
@@ -53,7 +64,7 @@ export class CustomerManagerComponent
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '130px',
+      colWidth: '120px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -90,7 +101,7 @@ export class CustomerManagerComponent
       type: 'string',
       fInputType: 'text',
       mask: '0000000-0-00',
-      colWidth: '170px',
+      colWidth: '150px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -102,7 +113,7 @@ export class CustomerManagerComponent
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '170px',
+      colWidth: '150px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -224,11 +235,31 @@ export class CustomerManagerComponent
     sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
+    this.SetAllColumns();
+    this.bbxSidebarService.expandEvent.subscribe({
+      next: () => {
+        this.SetAllColumns();
+      }
+    });
+    this.bbxSidebarService.collapseEvent.subscribe({
+      next: () => {
+        this.SetAllColumns();
+      }
+    });
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'customer-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+
+  SetAllColumns(): void {
+    if (this.bbxSidebarService.sideBarOpened) {
+      this.AllColumns.next(this.allColumnsWithOpenedSideBar);
+    } else {
+      this.AllColumns.next(this.allColumns);
+    }
   }
 
   private ConvertCombosForGet(data: Customer): Customer {

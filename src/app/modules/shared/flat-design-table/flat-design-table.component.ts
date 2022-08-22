@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
@@ -19,6 +20,7 @@ export const FORMATTED_NUMBER_COL_TYPES = [
 export class FlatDesignTableComponent implements OnInit {
   @Input() dbDataTable?: FlatDesignNavigatableTable<any> | FlatDesignNoFormNavigatableTable<any>;
   @Input() allColumns: string[] = [];
+  @Input() allColumnsAsync: ReplaySubject<string[]> = new ReplaySubject<string[]>();
   @Input() colDefs: ModelFieldDescriptor[] = [];
   @Input() dbDataTableId: any;
   @Input() dbDataDataSrc!: NbTreeGridDataSource<any>;
