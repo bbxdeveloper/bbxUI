@@ -274,18 +274,21 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                           );
                           commandEndedSubscription.unsubscribe();
                         }
+                        
                         this.isLoading = false;
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
+                        this.isLoading = false;
+
                         commandEndedSubscription.unsubscribe();
+
                         this.bbxToastrService.show(
                           `Az árajánlat nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
                         );
-                        this.isLoading = false;
                       }
                     });
                     this.isLoading = true;

@@ -111,7 +111,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       'TABLE-CELL'
     );
     setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined, false);
+      this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined, true);
     }, 200);
   }
 

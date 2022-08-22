@@ -236,16 +236,6 @@ export class CustomerManagerComponent
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.SetAllColumns();
-    this.bbxSidebarService.expandEvent.subscribe({
-      next: () => {
-        this.SetAllColumns();
-      }
-    });
-    this.bbxSidebarService.collapseEvent.subscribe({
-      next: () => {
-        this.SetAllColumns();
-      }
-    });
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'customer-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
@@ -254,11 +244,13 @@ export class CustomerManagerComponent
   }
 
 
-  SetAllColumns(): void {
+  SetAllColumns(): string[] {
     if (this.bbxSidebarService.sideBarOpened) {
       this.AllColumns.next(this.allColumnsWithOpenedSideBar);
+      return this.allColumnsWithOpenedSideBar;
     } else {
       this.AllColumns.next(this.allColumns);
+      return this.allColumns;
     }
   }
 
@@ -489,6 +481,33 @@ export class CustomerManagerComponent
     this.bbxSidebarService.collapse();
 
     this.RefreshAll(this.getInputParams);
+
+    this.bbxSidebarService.expandEvent.subscribe({
+      next: () => {
+        this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        // this.kbS.RemoveSelectedElementClasses();
+        let tmp = this.SetAllColumns();
+        // if (!!this.dbDataTable) {
+        //   this.dbDataTable!.allColumns = tmp;
+        // }
+        // this.dbDataTable?.GenerateAndSetNavMatrices(false);
+        //this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        //this.cdref.markForCheck();
+      }
+    });
+    this.bbxSidebarService.collapseEvent.subscribe({
+      next: () => {
+        this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        // this.kbS.RemoveSelectedElementClasses();
+        let tmp = this.SetAllColumns();
+        // if (!!this.dbDataTable) {
+        //   this.dbDataTable!.allColumns = tmp;
+        // }
+        //this.dbDataTable?.GenerateAndSetNavMatrices(false);
+        //this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        //this.cdref.markForCheck();
+      }
+    });
   }
 
   private RefreshAll(params?: GetCustomersParamListModel): void {

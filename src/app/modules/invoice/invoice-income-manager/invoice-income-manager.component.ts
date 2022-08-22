@@ -35,7 +35,7 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, InvoiceIncomeProductDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -173,7 +173,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   // CountryCode
   countryCodes: CountryCode[] = [];
 
-  public KeySetting: Constants.KeySettingsDct = InvoiceKeySettings;
+  public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   constructor(
@@ -783,21 +783,23 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                           );
                           commandEndedSubscription.unsubscribe();
                         }
+                        
                         this.isLoading = false;
                         this.isSaveInProgress = false;
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
-                        this.utS.CommandEnded.unsubscribe();
+                        this.isLoading = false;
+                        this.isSaveInProgress = false;
+
+                        commandEndedSubscription.unsubscribe();
 
                         this.bbxToastrService.show(
                           `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
                         );
-                        this.isLoading = false;
-                        this.isSaveInProgress = false;
                       }
                     });
                     this.isLoading = true;
