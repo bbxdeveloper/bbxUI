@@ -162,7 +162,8 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
-      SearchString: this.filterForm.controls['searchString'].value
+      SearchString: this.filterForm.controls['searchString'].value,
+      IsInStock: this.filterForm.controls['isInStock'].value
     };
   }
 
@@ -226,6 +227,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
     this.filterForm = new FormGroup({
       invCtrlPeriod: new FormControl(undefined, [Validators.required]),
+      isInStock: new FormControl(false, []),
       searchString: new FormControl(undefined, [])
     });
 
