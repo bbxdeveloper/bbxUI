@@ -113,6 +113,6 @@ export class InventoryService {
       });
     }
 
-    return this.http.get<CloseInvCtrlPeriodResponse>(this.BaseUrl + '/close' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.patch<CloseInvCtrlPeriodResponse>(this.BaseUrl + '/close' + (!!params ? ('?' + queryParams) : ''), {}, {});
   }
 }

@@ -213,12 +213,12 @@ export class InvCtrlPeriodManagerComponent
       );
       this.seInv.Close({ ID: data.data.id } as CloseInvCtrlPeriodParamListModel).subscribe({
         next: (d) => {
-          if (d.succeeded && !!d.data) {
+          if (d.succeeded) {
             this.seInv.Get({ ID: data.data.id } as GetInvCtrlPeriodParamListModel).subscribe({
               next: getRes => {
-                const newRow = { data: this.ConvertCombosForGet(getRes) } as TreeGridNode<InvCtrlPeriod>;
-                this.dbData[data.rowIndex] = newRow;
-                this.dbDataTable.SetDataForForm(newRow, false, false);
+                const index = this.dbData.findIndex(x => x.data.id === data.data.id);
+                this.dbData[index].data.closed = true;
+                this.dbDataTable.SetDataForForm(this.dbData[index], false, false);
                 this.RefreshTable();
                 this.simpleToastrService.show(
                   Constants.MSG_SAVE_SUCCESFUL,
@@ -236,7 +236,7 @@ export class InvCtrlPeriodManagerComponent
               },
             });
           } else {
-            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
+            console.log(d.errors!, d.errors?.join('\n'), d.errors?.join(', '));
             this.bbxToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
@@ -320,7 +320,8 @@ export class InvCtrlPeriodManagerComponent
         next: (d) => {
           if (d.succeeded && !!d.data) {
             const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
-            this.dbData[data.rowIndex] = newRow;
+            const index = this.dbData.findIndex(x => x.data.id === data.data.id);
+            this.dbData[index] = newRow;
             this.dbDataTable.SetDataForForm(newRow, false, false);
             this.RefreshTable();
             this.simpleToastrService.show(
@@ -403,7 +404,7 @@ export class InvCtrlPeriodManagerComponent
       warehouseID: new FormControl(undefined, [Validators.required]),
       dateFrom: new FormControl(undefined, [Validators.required, validDate]),
       dateTo: new FormControl(undefined, [Validators.required, validDate]),
-      closed: new FormControl(undefined, []),
+      closed: new FormControl({value: false, disabled: true}, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
