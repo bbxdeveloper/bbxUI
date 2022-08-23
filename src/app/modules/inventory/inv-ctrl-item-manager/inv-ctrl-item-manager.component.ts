@@ -409,17 +409,13 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
-    let productId: number = -1;
-
     this.isLoading = true;
 
-    productId = res.id;
-
-    if (productId === undefined || productId === -1) {
+    if (res.id === undefined || res.id === -1) {
       return;
     }
 
-    if (this.dbData.findIndex(x => x.data?.productID === productId) > -1) {
+    if (this.dbData.findIndex(x => x.data?.productID === res.id) > -1) {
       this.bbxToastrService.show(
         Constants.MSG_PRODUCT_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -432,11 +428,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.isLoading = true;
 
     this.invCtrlItemService.GetAllRecords(
-      { ProductID: productId, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
+      { ProductID: res.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
       .subscribe({
         next: data => {
           if (!!data && data.id !== 0) {
-            this.OpenAlreadyInventoryDialog(data.product, data.invCtrlDate, data.nRealQty);
+            this.OpenAlreadyInventoryDialog(res.description ?? "", data.invCtrlDate, data.nRealQty);
             this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
           }
         },
@@ -448,7 +444,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     this.isLoading = true;
 
-    this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
+    this.stockService.Record({ ProductID: res.id, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
       next: data => {
         if (!!data && data.id !== 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -470,92 +466,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     }, 500);
 
     return;
-
-    this.vatRateService.GetAll({} as GetVatRatesParamListModel).subscribe({
-      next: d => {
-        if (!!d.data) {
-          console.log('Vatrates: ', d.data);
-
-          let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
-
-          if (vatRateFromProduct === undefined) {
-            this.bbxToastrService.show(
-              `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-          }
-
-          this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.MoveNextInTable();
-          setTimeout(() => {
-            this.kbS.setEditMode(KeyboardModes.EDIT);
-            this.kbS.ClickCurrentElement();
-          }, 500);
-        } else {
-          this.cs.HandleError(d.errors);
-          this.isLoading = false;
-
-          this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res) });
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.MoveNextInTable();
-          setTimeout(() => {
-            this.kbS.setEditMode(KeyboardModes.EDIT);
-            this.kbS.ClickCurrentElement();
-          }, 500);
-        }
-      },
-      error: err => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-
-        this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res) });
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.dbDataTable.MoveNextInTable();
-        setTimeout(() => {
-          this.kbS.setEditMode(KeyboardModes.EDIT);
-          this.kbS.ClickCurrentElement();
-        }, 500);
-      },
-      complete: () => {
-        this.isLoading = false;
-
-        if (productId === undefined || productId === -1) {
-          return;
-        }
-
-        this.invCtrlItemService.GetAllRecords(
-          { ProductID: productId, InvCtlPeriodID: undefined } as GetAllInvCtrlItemRecordsParamListModel)
-          .subscribe({
-            next: data => {
-              if (!!data && data.id !== 0) {
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
-                  context: {
-                    title: 'Leltár információ',
-                    message: `A ${data.product} termék ${data.invCtrlDate} napon leltározva volt, készlet: ${data.nRealQty}.`,
-                  }
-                });
-                dialogRef.onClose.subscribe(() => { });
-                this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
-              }
-            },
-            error: () => { },
-            complete: () => { }
-          });
-        this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
-          next: data => {
-            if (!!data && data.id !== 0) {
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
-            }
-          },
-          error: () => { },
-          complete: () => { }
-        });
-      }
-    });
   }
 
   ChooseDataForTableRow(rowIndex: number): void {
@@ -564,8 +474,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     console.log("[TableCodeFieldChanged] at rowIndex: ", this.dbDataTable.data[rowIndex])
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    let productId: number = -1;
 
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
@@ -605,15 +513,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     let alreadyAdded = false;
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      let productId: number = -1;
+      let _product: Product = { id: -1 } as Product;
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            productId = product.id
+            _product = product;
 
-            if (this.dbData.findIndex(x => x.data?.productID === productId) > -1) {
+            if (this.dbData.findIndex(x => x.data?.productID === _product.id) > -1) {
               alreadyAdded = true;
               this.bbxToastrService.show(
                 Constants.MSG_PRODUCT_ALREADY_THERE,
@@ -644,23 +552,23 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         complete: () => {
           this.isLoading = false;
 
-          if (productId === undefined || productId === -1 || alreadyAdded) {
+          if (_product.id === undefined || _product.id === -1 || alreadyAdded) {
             return;
           }
 
           this.invCtrlItemService.GetAllRecords(
-            { ProductID: productId, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
+            { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
           .subscribe({
             next: data => {
               if (!!data && data.id !== 0) {
-                this.OpenAlreadyInventoryDialog(data.product, data.invCtrlDate, data.nRealQty);
+                this.OpenAlreadyInventoryDialog(_product?.description ?? "", data.invCtrlDate, data.nRealQty);
                 this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
               }
             },
             error: () => { },
             complete: () => { }
           });
-          this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
+          this.stockService.Record({ ProductID: _product.id, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
             next: data => {
               if (!!data && data.id !== 0) {
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);
