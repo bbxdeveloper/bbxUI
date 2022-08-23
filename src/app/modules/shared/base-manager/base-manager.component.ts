@@ -87,7 +87,20 @@ export class BaseManagerComponent<T> {
   }
 
   ActionLock(data?: IUpdateRequest<T>): void {
-    this.ProcessActionLock(data);
+    console.log("ActionLock: ", data);
+    if (data?.needConfirmation) {
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: Constants.MSG_CONFIRMATION_LOCK } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          this.ProcessActionLock(data);
+        }
+      });
+    } else {
+      this.ProcessActionLock(data);
+    }
   }
   ProcessActionLock(data?: IUpdateRequest<T>): void {}
 

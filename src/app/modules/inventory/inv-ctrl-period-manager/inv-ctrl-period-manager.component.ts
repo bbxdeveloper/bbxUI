@@ -40,6 +40,8 @@ export class InvCtrlPeriodManagerComponent
   implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
 
+  firstRefresh: boolean = true;
+
   public override KeySetting: Constants.KeySettingsDct = InventoryPeriodsKeySettings;
   public override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
@@ -470,6 +472,14 @@ export class InvCtrlPeriodManagerComponent
             this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
+          setTimeout(() => {
+            if (this.firstRefresh) {
+              this.firstRefresh = false;
+              this.kbS.SetCurrentNavigatable(this.dbDataTable);
+              this.kbS.SelectElementByCoordinate(0,0);
+              this.kbS.SelectCurrentElement();
+            }
+          }, 300);
         } else {
           this.bbxToastrService.show(
             d.errors!.join('\n'),
@@ -497,8 +507,8 @@ export class InvCtrlPeriodManagerComponent
     
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();
-
-    this.kbS.SelectFirstTile();
+    
+    //this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
     console.log('Detach');

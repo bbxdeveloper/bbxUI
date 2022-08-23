@@ -292,8 +292,10 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     }, 300);
   }
 
-  private refreshComboboxData(): void {
-    this.isLoading = true;
+  private refreshComboboxData(setIsLoad = false): void {
+    if (setIsLoad) {
+      this.isLoading = true;
+    }
 
     this.inventoryService.GetAll().subscribe({
       next: data => {
@@ -313,7 +315,9 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         }
       },
       complete: () => {
-        this.isLoading = false;
+        if (setIsLoad) {
+          this.isLoading = false;
+        }
       }
     });
   }
@@ -403,7 +407,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   private RefreshAll(params?: GetAllInvCtrlItemsParamListModel): void {
     // this.Refresh(params);
-    this.refreshComboboxData();
+    this.refreshComboboxData(true);
   }
 
   MoveToSaveButtons(event: any): void {

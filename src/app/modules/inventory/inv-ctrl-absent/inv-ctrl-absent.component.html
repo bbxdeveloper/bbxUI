@@ -44,6 +44,7 @@
         <nb-card-footer class="offer-footer">
             <div class="form-row-flex">
                 <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshAndJumpToTable()"
+                    [disabled]="!!filterForm && filterForm.invalid"
                     status="primary" tabindex="-1">Keresés</button>
 
                 <app-form-control-error [form]="filterFormNav" label="leltári időszak" controlName="invCtrlPeriod">

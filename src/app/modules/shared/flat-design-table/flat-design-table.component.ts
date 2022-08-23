@@ -126,6 +126,33 @@ export class FlatDesignTableComponent implements OnInit {
         this.dbDataTable?.HandleKey(event);
         break;
       }
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`F5 Pressed: ${event}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.CrudEdit].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`F5 Pressed: ${event}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.CrudDelete].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`F5 Pressed: ${event}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
       default: { }
     }
   }

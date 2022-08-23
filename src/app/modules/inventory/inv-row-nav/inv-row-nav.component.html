@@ -15,6 +15,7 @@
                         <tr>
                             <td>
                                 <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="filterFormNav"
+                                    [needBlankOption]="false"
                                     formFieldName="invCtrlPeriod" label="Leltári időszak" [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
                             </td>
                             <td>
@@ -32,6 +33,7 @@
         <nb-card-footer class="offer-footer">
             <div class="form-row-flex">
                 <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshAndJumpToTable()"
+                [disabled]="!!filterForm && filterForm.invalid"
                     status="primary" tabindex="-1">Keresés</button>
 
                 <app-form-control-error [form]="filterFormNav" label="leltári időszak" controlName="invCtrlPeriod">

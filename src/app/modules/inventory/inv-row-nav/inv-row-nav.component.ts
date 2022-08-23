@@ -273,7 +273,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   }
 
   private refreshComboboxData(setIsLoad = false): void {
-    this.isLoading = true;
+    if (setIsLoad) {
+      this.isLoading = true;
+    }
     this.inventoryService.GetAll().subscribe({
       next: data => {
         console.log("[refreshComboboxData]: ", data);
@@ -284,9 +286,14 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
             return res;
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
+        if (this.invCtrlPeriods.length > 0) {
+          this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+        }
       },
       complete: () => {
-        this.isLoading = false;
+        if (setIsLoad) {
+          this.isLoading = false;
+        }
       }
     });
   }

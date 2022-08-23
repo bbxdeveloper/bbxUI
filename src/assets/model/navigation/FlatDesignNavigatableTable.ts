@@ -487,6 +487,28 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 this.HandleF12(true);
                 break;
             }
+            case this.KeySetting[Actions.CrudEdit].KeyCode: {
+                event.preventDefault();
+                this.JumpToFirstFormField();
+                this.HandleF12(false);
+                break;
+            }
+            case this.KeySetting[Actions.CrudDelete].KeyCode: {
+                if (!!this.prevSelectedRow) {
+                    event.preventDefault();
+                    this.JumpToFirstFormField();
+                    this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                }
+                break;
+            }
+            case this.KeySetting[Actions.Lock].KeyCode: {
+                if (!!this.prevSelectedRow) {
+                    event.preventDefault();
+                    this.JumpToFirstFormField();
+                    this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                }
+                break;
+            }
             default: { }
         }
     }
