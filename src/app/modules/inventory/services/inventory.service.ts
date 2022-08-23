@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
@@ -14,6 +14,7 @@ import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPerio
 import { GetAllInvCtrlPeriodsResponse } from '../models/GetAllInvCtrlPeriodsResponse';
 import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodParamListModel';
 import { CloseInvCtrlPeriodResponse } from '../models/CloseInvCtrlPeriodResponse';
+import { Constants } from 'src/assets/util/Constants';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +43,18 @@ export class InventoryService {
     }
 
     return this.http.get<GetAllInvCtrlPeriodsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  GetAbsentReport(params: Constants.Dct): Observable<any> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+      .set("accept", "application/pdf");
+    return this.http.post(
+      `${this.BaseUrl}/report`,
+      JSON.stringify(params['report_params']),
+      { responseType: 'blob', headers: options }
+    );
   }
 
   Get(params?: GetInvCtrlPeriodParamListModel): Observable<InvCtrlPeriod> {

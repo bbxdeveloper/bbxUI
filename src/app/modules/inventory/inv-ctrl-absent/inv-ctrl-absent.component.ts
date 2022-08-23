@@ -516,7 +516,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         // "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
-      this.inventoryCtrlItemService.GetAbsentReport({
+      this.inventoryService.GetAbsentReport({
         "report_params": {
           "InvCtrlPeriodID": id, "InvPeriodTitle": title
         }

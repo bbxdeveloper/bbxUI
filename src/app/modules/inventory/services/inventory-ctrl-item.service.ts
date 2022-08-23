@@ -28,19 +28,7 @@ export class InventoryCtrlItemService {
       .set("charset", "utf8")
       .set("accept", "application/pdf");
     return this.http.post(
-      `${this.BaseUrl}/invctrlicpreport`,
-      JSON.stringify(params['report_params']),
-      { responseType: 'blob', headers: options }
-    );
-  }
-
-  GetAbsentReport(params: Constants.Dct): Observable<any> {
-    let options = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set("charset", "utf8")
-      .set("accept", "application/pdf");
-    return this.http.post(
-      `${this.BaseUrl}/invctrlicpabsenedreport`,
+      `${this.BaseUrl}/report`,
       JSON.stringify(params['report_params']),
       { responseType: 'blob', headers: options }
     );
