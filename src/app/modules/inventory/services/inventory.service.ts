@@ -45,7 +45,8 @@ export class InventoryService {
     return this.http.get<GetAllInvCtrlPeriodsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  GetAbsentReport(params: Constants.Dct): Observable<any> {
+  GetReport(params: Constants.Dct): Observable<any> {
+    console.log("GetAbsentReport: ", params);
     let options = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set("charset", "utf8")

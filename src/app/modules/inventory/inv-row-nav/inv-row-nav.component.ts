@@ -421,7 +421,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   }
 
   Print(): void {
-    if (this.kbS.IsCurrentNavigatable(this.dbDataTable) && this.SelectedInvCtrlPeriod?.id !== undefined) {
+    if (this.SelectedInvCtrlPeriod?.id !== undefined) {
       const id = this.SelectedInvCtrlPeriod.id;
       const title = this.SelectedInvCtrlPeriodComboValue;
 
@@ -449,20 +449,22 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
                     Constants.TITLE_INFO,
                     Constants.TOASTR_SUCCESS_5_SEC
                   );
+                  this.isLoading = false;
                   commandEndedSubscription.unsubscribe();
+                } else {
+                  this.isLoading = false;
                 }
-                this.isLoading = false;
               },
               error: cmdEnded => {
                 console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
+                
+                this.isLoading = false;
                 commandEndedSubscription.unsubscribe();
                 this.bbxToastrService.show(
                   `Az leltári időszak nyomtatása közben hiba történt.`,
                   Constants.TITLE_ERROR,
                   Constants.TOASTR_ERROR
                 );
-                this.isLoading = false;
               }
             });
             this.printReport(id, res.value, title!);
@@ -490,9 +492,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         // "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
-      this.inventoryCtrlItemService.GetReport({
+      this.inventoryService.GetReport({
         "report_params": {
-          "InvCtrlPeriodID": id, "InvPeriodTitle": title
+          "invCtrlPeriodID": id, "invPeriodTitle": title
         }
       }));
   }

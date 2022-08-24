@@ -22,7 +22,8 @@ export class InventoryCtrlItemService {
 
   constructor(private http: HttpClient) { }
 
-  GetReport(params: Constants.Dct): Observable<any> {
+  GetAbsentReport(params: Constants.Dct): Observable<any> {
+    console.log("GetReport: ", params);
     let options = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set("charset", "utf8")
