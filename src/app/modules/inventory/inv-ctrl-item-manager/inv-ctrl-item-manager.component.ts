@@ -494,7 +494,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   RefreshData(): void {}
   RecalcNetAndVat(): void {}
 
-  HandleGridCodeFieldEnter(row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    
+    if (!!event) {
+      this.bbxToastrService.close();
+      event.stopPropagation();
+    }
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
     if (this.isEditModeOff) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);

@@ -23,13 +23,13 @@
                         <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                             *nbTreeGridCellDef="let row; let rowPos = index"
                             [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
-                            (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
-                            (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
-                            (keydown.enter)="colPos === 0 ? parent.HandleGridCodeFieldEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)
-                                        : dbDataTable.HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
-                            (keydown.delete)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
-                            (keydown.F8)="dbDataTable.HandleGridDelete($event, row, rowPos, it.objectKey)"
-                            (keydown.F2)="dbDataTable.HandleKey($event, rowPos)"
+                            (keydown.escape)="HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                            (keydown)="HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
+                            (keydown.enter)="colPos === 0 ? HandleGridCodeFieldEnter($event, row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)
+                                        : HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
+                            (keydown.delete)="HandleGridDelete($event, row, rowPos, it.objectKey)"
+                            (keydown.F8)="HandleGridDelete($event, row, rowPos, it.objectKey)"
+                            (keydown.F2)="HandleKey($event, rowPos)"
                             (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, true, $event, currentNavigatable)"
                             [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                             [style.text-align]="it.textAlign" id="{{'PRODUCT-' + colPos + '-' + rowPos}}"

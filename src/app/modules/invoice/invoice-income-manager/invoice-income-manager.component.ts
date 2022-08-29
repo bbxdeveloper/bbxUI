@@ -401,7 +401,11 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         .reduce((sum, current) => sum + current, 0);
   }
 
-  HandleGridCodeFieldEnter(row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (!!event) {
+      this.bbxToastrService.close();
+      event.stopPropagation();
+    }
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
     if (this.isEditModeOff) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
