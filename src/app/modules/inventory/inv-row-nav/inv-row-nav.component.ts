@@ -326,7 +326,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
             this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable(undefined, this.isPageReady);
-          if (this.isPageReady) {
+          if (!!d.data && d.data.length > 0) {
             this.JumpToFirstCellAndNav();
           }
         } else {

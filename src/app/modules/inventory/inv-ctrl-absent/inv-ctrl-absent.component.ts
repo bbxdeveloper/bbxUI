@@ -351,7 +351,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
             this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable(undefined, this.isPageReady);
-          if (this.isPageReady) {
+          if (!!d.data && d.data.length > 0) {
             this.JumpToFirstCellAndNav();
           }
         } else {
