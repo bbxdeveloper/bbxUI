@@ -87,6 +87,9 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   }
 
   selectRow(event: any, row: TreeGridNode<T>): void {
+    if (!!event) {
+      event.stopPropagation();
+    }
     this.close(row.data);
   }
 

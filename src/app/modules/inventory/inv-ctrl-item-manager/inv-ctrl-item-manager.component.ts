@@ -432,7 +432,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       .subscribe({
         next: data => {
           if (!!data && data.id !== 0) {
-            this.OpenAlreadyInventoryDialog(res.description ?? "", data.invCtrlDate, data.nRealQty);
+            this.OpenAlreadyInventoryDialog((res.productCode + ' ' + res.description) ?? "", data.invCtrlDate, data.nRealQty);
             this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
           }
         },
@@ -561,7 +561,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           .subscribe({
             next: data => {
               if (!!data && data.id !== 0) {
-                this.OpenAlreadyInventoryDialog(_product?.description ?? "", data.invCtrlDate, data.nRealQty);
+                this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
                 this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
               }
             },
