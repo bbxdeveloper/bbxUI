@@ -82,15 +82,13 @@
     </nb-card>
 </div>
 
+<app-flat-design-table [showMsgOnNoData]="false" [wide]="false" [allColumns]="allColumns" [colDefs]="colDefs"
+    [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [heightMargin]="385"
+    [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+    (focusOutTable)="focusOnTable(false)">
+</app-flat-design-table>
+
 <nb-card>
-    <nb-card-body>
-        <app-flat-design-table [showMsgOnNoData]="false" [wide]="false" [allColumns]="allColumns" [colDefs]="colDefs"
-            [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
-            [heightMargin]="350"
-            [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
-            (focusOutTable)="focusOnTable(false)">
-        </app-flat-design-table>
-    </nb-card-body>
     <nb-card-footer>
         <table class="table-statistics-net-vat-gross">
             <tr>
@@ -101,5 +99,3 @@
         </table>
     </nb-card-footer>
 </nb-card>
-
-<app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

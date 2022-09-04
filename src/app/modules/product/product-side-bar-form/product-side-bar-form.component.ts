@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { BlankComboBoxValue } from 'src/assets/model/navigation/Nav';
+import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
 import { Origin } from '../../origin/models/Origin';
@@ -24,10 +25,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     return KeyBindings;
   }
 
-  customPatterns = {
-    A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') }
-  };
+  customPatterns = Constants.ProductCodePatterns;
 
   // ProductGroup
   _productGroups: ProductGroup[] = [];

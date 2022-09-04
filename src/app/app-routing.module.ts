@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
+import { NavigationGuard } from './modules/auth/guards/navigation.guard';
 import { UserManagerComponent } from './modules/auth/user-manager/user-manager.component';
 import { DashboardComponent } from './modules/core/dashboard/dashboard.component';
 import { CounterManagerComponent } from './modules/counter/counter-manager/counter-manager.component';
@@ -24,12 +25,14 @@ import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manage
 
 const routes: Routes = [
   {
+    canDeactivate: [NavigationGuard],
     path: 'home',
     component: DashboardComponent
   },
   {
     path: 'admin',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "user",
@@ -40,6 +43,7 @@ const routes: Routes = [
   {
     path: 'manage',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "customers",
@@ -66,6 +70,7 @@ const routes: Routes = [
   {
     path: 'invoice',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "invoice",
@@ -76,6 +81,7 @@ const routes: Routes = [
   {
     path: 'product',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "manage-products",
@@ -98,6 +104,7 @@ const routes: Routes = [
   {
     path: 'inventory',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "invctrlperiod",
@@ -120,6 +127,7 @@ const routes: Routes = [
   {
     path: 'information',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "invoices",
@@ -130,6 +138,7 @@ const routes: Routes = [
   {
     path: 'income',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "invoice-income",
@@ -140,6 +149,7 @@ const routes: Routes = [
   {
     path: 'stock',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "nav",
@@ -150,6 +160,7 @@ const routes: Routes = [
   {
     path: 'stock-card',
     canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
     children: [
       {
         path: "nav",

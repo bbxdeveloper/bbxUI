@@ -141,7 +141,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   wareHouses: WareHouse[] = [];
 
   override get getInputParams(): GetCountersParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return { OrderBy: "counterCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
   }
 
   constructor(

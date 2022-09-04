@@ -115,7 +115,7 @@
 <nb-card [nbSpinner]="isLoading" *ngIf="!!dbDataTable">
     <nb-card-body>
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
-            [dbDataDataSrc]="dbDataDataSrc" [heightMargin]="640" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+            [dbDataDataSrc]="dbDataDataSrc" [heightMargin]="560" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
             [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
         </app-inline-editable-table>
     </nb-card-body>

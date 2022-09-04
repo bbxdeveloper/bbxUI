@@ -23,6 +23,8 @@ import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/Fl
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { validDate } from 'src/assets/model/Validators';
+import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { OfferNavKeySettings, GetFooterCommandListFromKeySettings, InvoiceNavKeySettings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -281,6 +283,9 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
   get chosenDateFilter(): string {
     return this.filterForm.controls['DateFilterChooser'].value ?? this.DefaultChosenDateFilter;
   }
+
+  public KeySetting: Constants.KeySettingsDct = InvoiceNavKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get isIssueFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenIssueFilterOptionValue; }
   get isDeliveryFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenDeliveryFilterOptionValue; }

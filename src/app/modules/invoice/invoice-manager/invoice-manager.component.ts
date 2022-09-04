@@ -92,7 +92,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
-      defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "30%", textAlign: "left", fInputType: 'code-field'
     },
     {
@@ -126,10 +126,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
   ]
-  customMaskPatterns = {
-    A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') }
-  };
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;

@@ -118,15 +118,12 @@
     </nb-card>
 </div>
 
-<nb-card>
-    <nb-card-body>
-        <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="650" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs"
-            [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
-            [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
-            (focusOutTable)="focusOnTable(false)">
-        </app-flat-design-table>
-    </nb-card-body>
-    <nb-card-footer></nb-card-footer>
-</nb-card>
+<nb-card-body>
+    <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="610" [wide]="false" [allColumns]="allColumns"
+        [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+        [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+        (focusOutTable)="focusOnTable(false)">
+    </app-flat-design-table>
+</nb-card-body>
 
 <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

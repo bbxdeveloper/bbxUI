@@ -92,7 +92,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
-      defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "30%", textAlign: "left", fInputType: 'code-field'
     },
     {

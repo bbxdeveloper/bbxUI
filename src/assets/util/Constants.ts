@@ -41,6 +41,11 @@ export module Constants {
     export const TOASTR_ERROR_5_SEC: Partial<NbToastrConfig> =
         { duration: 5000, status: 'danger' };
 
+    export const ProductCodePatterns = {
+        A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') },
+        C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
+    };
+    export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 
     // Util
 

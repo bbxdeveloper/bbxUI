@@ -78,11 +78,11 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     'productCode',
     'product',
     'customer',
-    'xRel',
-    'xCalcQty',
-    'xRealQty',
-    'xOutQty',
-    'nRealQty',
+    //'xRel',
+    //'xCalcQty',
+    //'xRealQty',
+    //'xOutQty',
+    //'nRealQty',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {

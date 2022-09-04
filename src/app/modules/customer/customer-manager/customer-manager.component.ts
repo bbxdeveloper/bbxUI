@@ -212,6 +212,7 @@ export class CustomerManagerComponent
       PageNumber: this.dbDataTable.currentPage + '',
       PageSize: this.dbDataTable.pageSize,
       SearchString: this.searchString ?? '',
+      OrderBy: "id"
     };
   }
 

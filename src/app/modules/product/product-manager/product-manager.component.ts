@@ -141,7 +141,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   vats: VatRate[] = [];
 
   override get getInputParams(): GetProductsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return { OrderBy: "ProductCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
   }
 
   get blankProductRow(): () => Product {

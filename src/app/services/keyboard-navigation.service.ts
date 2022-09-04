@@ -91,6 +91,12 @@ export class KeyboardNavigationService {
 
   constructor() { }
 
+  public clear(): void {
+    this.ResetToRoot();
+    this.CurrentNavigatable.ClearNeighbours(); 
+    this.SelectFirstTile();
+  }
+
   public Lock(): void {
     this._locked = true;
   }

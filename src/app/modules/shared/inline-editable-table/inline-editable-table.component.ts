@@ -44,10 +44,7 @@ export class InlineEditableTableComponent implements OnInit {
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
 
-  customMaskPatterns = {
-    A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') }
-  };
+  customMaskPatterns = Constants.ProductCodePatterns;
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
