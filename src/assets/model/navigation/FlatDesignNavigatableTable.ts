@@ -445,7 +445,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    private HandleF12(setFormForNew: boolean = false): void {
+    private HandleToggleSideBarForm(setFormForNew: boolean = false): void {
         if (this.ReadonlyForm &&
             (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
             return;
@@ -469,11 +469,32 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
+    private HandleEditAndNew(setFormForNew: boolean = false): void {
+        if (this.ReadonlyForm &&
+            (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
+            return;
+        }
+        if (setFormForNew) {
+            this.SetBlankInstanceForForm(!this.sidebarService.sideBarOpened);
+        } else {
+            if (!this.sidebarService.sideBarOpened) {
+                this.flatDesignForm.PushFooterCommandList();
+            } else {
+                this.PushFooterCommandList();
+            }
+            if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
+                this.SetBlankInstanceForForm(true);
+            } else if (!this.sidebarService.sideBarOpened) {
+                this.sidebarService.expand();
+            }
+        }
+    }
+
     HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
                 event.preventDefault();
-                this.HandleF12();
+                this.HandleToggleSideBarForm();
                 break;
             }
             case this.KeySetting[Actions.Refresh].KeyCode: {
@@ -484,13 +505,13 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             case this.KeySetting[Actions.CrudNew].KeyCode: {
                 event.preventDefault();
                 this.JumpToFirstFormField();
-                this.HandleF12(true);
+                this.HandleEditAndNew(true);
                 break;
             }
             case this.KeySetting[Actions.CrudEdit].KeyCode: {
                 event.preventDefault();
                 this.JumpToFirstFormField();
-                this.HandleF12(false);
+                this.HandleEditAndNew(false);
                 break;
             }
             case this.KeySetting[Actions.CrudDelete].KeyCode: {

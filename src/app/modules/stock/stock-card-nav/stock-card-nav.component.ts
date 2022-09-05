@@ -375,6 +375,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         this.Refresh(this.getInputParams);
       },
     });
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;

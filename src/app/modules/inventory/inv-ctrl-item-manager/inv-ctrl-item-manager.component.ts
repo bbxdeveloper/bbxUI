@@ -182,7 +182,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     let to = new Date(ctrlPeriod.dateTo);
     let from = new Date(ctrlPeriod.dateFrom);
 
-    let wrong = v > to || v < from;
+    let wrong = v >= to || v <= from;
 
     return wrong ? { minMaxDate: { value: control.value } } : null;
   }

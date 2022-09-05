@@ -159,6 +159,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   override get getInputParams(): GetAllInvCtrlAbsentParamsModel {
 
     return {
+      OrderBy: "ProductCode",
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
