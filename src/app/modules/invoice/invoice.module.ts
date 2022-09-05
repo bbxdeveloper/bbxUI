@@ -15,6 +15,7 @@ import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
 import { TaxNumberSearchCustomerEditDialogComponent } from './tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-box-invoice.component';
 import { InvoiceIncomeManagerComponent } from './invoice-income-manager/invoice-income-manager.component';
+import { InvoiceNavSideBarFormComponent } from './invoice-nav-side-bar-form/invoice-nav-side-bar-form.component';
 
 
 
@@ -27,7 +28,8 @@ import { InvoiceIncomeManagerComponent } from './invoice-income-manager/invoice-
     InvoiceNavComponent,
     TaxNumberSearchCustomerEditDialogComponent,
     BbxComboBoxInvoiceComponent,
-    InvoiceIncomeManagerComponent
+    InvoiceIncomeManagerComponent,
+    InvoiceNavSideBarFormComponent
   ],
   imports: [
     CommonModule,

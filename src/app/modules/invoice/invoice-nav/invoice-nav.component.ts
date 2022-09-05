@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -24,18 +24,25 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { validDate } from 'src/assets/model/Validators';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { OfferNavKeySettings, GetFooterCommandListFromKeySettings, InvoiceNavKeySettings } from 'src/assets/util/KeyBindings';
+import { OfferNavKeySettings, GetFooterCommandListFromKeySettings, InvoiceNavKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
+import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
+import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 
 @Component({
   selector: 'app-invoice-nav',
   templateUrl: './invoice-nav.component.html',
   styleUrls: ['./invoice-nav.component.scss']
 })
-export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> implements OnInit, AfterViewInit {
+export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
+
+  IsTableFocused: boolean = false;
+  isDeleteDisabled: boolean = false;
 
   readonly ChosenIssueFilterOptionValue: string = '1';
   readonly ChosenDeliveryFilterOptionValue: string = '2';
@@ -50,10 +57,10 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     'paymentMethodX',
     'invoiceDeliveryDate',
     'invoiceIssueDate',
-    'paymentDate',
-    'invoiceNetAmount',
-    'invoiceVatAmount',
-    'invoiceGrossAmount',
+    //'paymentDate',
+    //'invoiceNetAmount',
+    //'invoiceVatAmount',
+    //'invoiceGrossAmount',
     'notice',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -284,7 +291,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     return this.filterForm.controls['DateFilterChooser'].value ?? this.DefaultChosenDateFilter;
   }
 
-  public KeySetting: Constants.KeySettingsDct = InvoiceNavKeySettings;
+  override KeySetting: Constants.KeySettingsDct = InvoiceNavKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get isIssueFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenIssueFilterOptionValue; }
@@ -512,14 +519,30 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       this.cdref, [], this.filterFormId,
       AttachDirection.DOWN,
       this.colDefs,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.fS,
-      this.dbDataTable
+      this.dbDataTable,
+      this
     );
 
-    this.dbDataTable = new FlatDesignNoFormNavigatableTable(
+    this.dbDataTableForm = new FormGroup({
+      invoiceNumber: new FormControl(0, []),
+      warehouse: new FormControl(undefined, []),
+      customerName: new FormControl(undefined, []),
+      customerCity: new FormControl(undefined, []),
+      paymentMethodX: new FormControl(undefined, []),
+      invoiceDeliveryDate: new FormControl(undefined, []),
+      invoiceIssueDate: new FormControl(undefined, []),
+      paymentDate: new FormControl(undefined, []),
+      invoiceNetAmount: new FormControl(undefined, []),
+      invoiceVatAmount: new FormControl(undefined, []),
+      invoiceGrossAmount: new FormControl(undefined, []),
+      notice: new FormControl(undefined, [])
+    });
+
+    this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
-      'Product',
+      'InvoiceNav',
       this.dataSourceBuilder,
       this.kbS,
       this.fS,
@@ -529,7 +552,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.UP,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
@@ -542,6 +565,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         this.Refresh(this.getInputParams);
       },
     });
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
@@ -600,7 +624,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     this.AddSearchButtonToFormMatrix();
 
     this.dbDataTable.GenerateAndSetNavMatrices(false);
-    this.dbDataTable.PushFooterCommandList();
+    this.dbDataTable.ReadonlyFormByDefault = true;
 
     // this.filterFormNav?.AfterViewInitSetup();
 
@@ -630,4 +654,65 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       },
     });
   }
+
+  RefreshData(): void { }
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
+  RecalcNetAndVat(): void { }
+
+  HandleFunctionKey(event: Event | KeyBindings): void {
+    const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+    console.log(`[HandleFunctionKey]: ${val}`);
+    switch (val) {
+      // NEW
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+        break;
+      // EDIT
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
+        break;
+      // DELETE
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+        break;
+    }
+  }
+
+  Create(): void { }
+
+  Edit(): void { }
+
+  Delete(): void { }
+
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this.filterFormNav?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    switch (event.key) {
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.JumpToForm].KeyCode:
+      // case this.KeySetting[Actions.CSV].KeyCode:
+      // case this.KeySetting[Actions.Email].KeyCode:
+      // case this.KeySetting[Actions.Details].KeyCode:
+      // case this.KeySetting[Actions.CrudReset].KeyCode:
+      // case this.KeySetting[Actions.CrudSave].KeyCode:
+      // case this.KeySetting[Actions.Print].KeyCode:
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        this.HandleFunctionKey(event);
+        break;
+    }
+  }
+
+  ChooseDataForTableRow(rowIndex: number): void { }
+  ChooseDataForForm(): void {}
 }
