@@ -361,13 +361,14 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       this.dbDataTableId,
       AttachDirection.DOWN,
       'sideBarForm',
-      AttachDirection.UP,
+      AttachDirection.RIGHT,
       this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
         return {} as StockCard;
-      }
+      },
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({

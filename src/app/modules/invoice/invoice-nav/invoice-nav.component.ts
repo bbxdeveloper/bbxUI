@@ -551,13 +551,14 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       this.dbDataTableId,
       AttachDirection.DOWN,
       'sideBarForm',
-      AttachDirection.UP,
+      AttachDirection.RIGHT,
       this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
         return {} as Invoice;
-      }
+      },
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
@@ -623,10 +624,10 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
     this.AddSearchButtonToFormMatrix();
 
-    this.dbDataTable.GenerateAndSetNavMatrices(false);
+    this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.ReadonlyFormByDefault = true;
 
-    // this.filterFormNav?.AfterViewInitSetup();
+    this.filterFormNav.DownNeighbour = this.dbDataTable;
 
     this.kbS.SelectFirstTile();
   }

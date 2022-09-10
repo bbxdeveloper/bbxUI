@@ -244,7 +244,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     SelectRowById(id: any): void {
         const rowIndex = this.data.findIndex(x => (x.data as any).id === id);
-        console.log(rowIndex);
+        if (environment.flatDesignTableDebug) {
+            console.log(rowIndex);
+        }
         if (rowIndex !== -1) {
             const filterValue = this.includeSearchInNavigationMatrix ? 1 : 0;
             // this.kbs.SetCurrentNavigatable(this);
@@ -263,7 +265,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     SetBlankInstanceForForm(openSideBar: boolean, jump: boolean = true): void {
         const creatorRow = this.GenerateCreatorRow;
 
-        console.log(`Blank instance: ${creatorRow}`);
+        if (environment.flatDesignTableDebug) {
+            console.log(`Blank instance: ${creatorRow}`);
+        }
 
         this.prevSelectedRow = creatorRow;
         this.prevSelectedRowPos = -1;
@@ -286,7 +290,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
-        console.log(`Data: ${row}`);
+        if (environment.flatDesignTableDebug) {
+            console.log(`Data: ${row}`);
+        }
 
         this.prevSelectedRow = row;
         // this.prevSelectedRowPos = 0;
@@ -319,7 +325,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
         this.kbs.setEditMode(KeyboardModes.NAVIGATION);
 
-        console.log('[HandleGridClick]');
+        if (environment.flatDesignTableDebug) {
+            console.log('[HandleGridClick]');
+        }
 
         if (this.includeSearchInNavigationMatrix) {
             ++rowPos;
@@ -423,13 +431,17 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             const tempX = this.kbs.p.x;
             const tempY = this.kbs.p.y;
 
-            console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+            if (environment.flatDesignTableDebug) {
+                console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+            }
 
             this.cdr.detectChanges();
 
             this.kbs.SelectElementByCoordinate(tempX, tempY);
 
-            console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+            if (environment.flatDesignTableDebug) {
+                console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+            }
         }
 
         if (idToSelectAfterGenerate !== undefined) {
