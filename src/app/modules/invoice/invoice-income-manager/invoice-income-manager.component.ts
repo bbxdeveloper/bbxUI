@@ -39,6 +39,7 @@ import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, Invoi
 import { CustomerDialogTableSettings, InvoiceIncomeProductDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -190,9 +191,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
-    sidebarService: BbxSidebarService
+    sidebarService: BbxSidebarService,
+    khs: KeyboardHelperService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sidebarService);
+    super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
     this.InitialSetup();
     this.isPageReady = true;
   }

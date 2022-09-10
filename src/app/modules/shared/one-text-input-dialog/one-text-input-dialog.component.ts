@@ -98,9 +98,10 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
         answer: true,
         value: this.formNav.GetValue('answer'),
       } as DateIntervalDialogResponse);
+    } else {
+      this.dialogRef.close({
+        answer: false
+      } as DateIntervalDialogResponse);
     }
-    this.dialogRef.close({
-      answer: false
-    } as DateIntervalDialogResponse);
   }
 }

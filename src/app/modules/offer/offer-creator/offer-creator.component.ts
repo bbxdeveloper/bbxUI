@@ -36,6 +36,7 @@ import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-offer-creator',
@@ -68,12 +69,13 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     router: Router,
     vatRateService: VatRateService,
     route: ActivatedRoute,
-    sidebarService: BbxSidebarService
+    sidebarService: BbxSidebarService,
+    khs: KeyboardHelperService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
-      sts, productService, utS, router, vatRateService, route, sidebarService
+      sts, productService, utS, router, vatRateService, route, sidebarService, khs
     );
     this.InitialSetup();
   }

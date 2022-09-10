@@ -40,6 +40,7 @@ export class KeyboardNavigationService {
   private CurrentNavigatable: INavigatable = NullNavigatable.Instance;
   private CurrentSubMappingRootKey?: string;
   private NavigatableStack: INavigatable[] = [];
+  private WidgetStack: INavigatable[] = [];
 
   private _currentKeyboardMode: KeyboardModes = KeyboardModes.NAVIGATION;
   get currentKeyboardMode() {
@@ -925,15 +926,22 @@ export class KeyboardNavigationService {
     this.CurrentNavigatable.LastY = this.p.y;
 
     this.NavigatableStack.push(this.CurrentNavigatable);
+    this.WidgetStack.push(n);
 
     this.CurrentNavigatable = n;
 
     this.p.x = 0;
     this.p.y = 0;
   }
+  
+  public IsDialogOpen(): boolean {
+    // console.log("IsDialogOpen: ", this.WidgetStack);
+    return this.WidgetStack.length > 0;
+  }
 
   public RemoveWidgetNavigatable(): void {
     this.CurrentNavigatable = this.NavigatableStack.pop() ?? this.Root;
+    this.WidgetStack.pop();
 
     this.p.x = this.CurrentNavigatable.LastX!;
     this.p.y = this.CurrentNavigatable.LastY!;

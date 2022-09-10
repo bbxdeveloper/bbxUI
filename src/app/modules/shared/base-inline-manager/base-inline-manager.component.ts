@@ -17,6 +17,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -130,7 +131,8 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     protected fS: FooterService,
     protected cs: CommonService,
     protected sts: StatusService,
-    protected sideBarService: BbxSidebarService
+    protected sideBarService: BbxSidebarService,
+    protected khs: KeyboardHelperService
   ) {
     this.sideBarService.collapse();
   }
@@ -241,6 +243,12 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     if (event.key === KeyBindings.Tab) {
       event.preventDefault();
       event.stopImmediatePropagation();

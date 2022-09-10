@@ -23,7 +23,7 @@
                         <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                             *nbTreeGridCellDef="let row; let rowPos = index"
                             [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
-                            (keydown.escape)="HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                            (keydown.escape)="HandleGridEscape($event, row, rowPos, it.objectKey, colPos)"
                             (keydown)="HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
                             (keydown.enter)="colPos === 0 ? HandleGridCodeFieldEnter($event, row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType)
                                         : HandleGridEnter(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"

@@ -2,6 +2,8 @@ import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@a
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
@@ -29,6 +31,7 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
+  @Input() checkIfDialogOpened: boolean = true;
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -38,7 +41,7 @@ export class FlatDesignTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(private sideBarService: BbxSidebarService) {}
+  constructor(private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService, private khs: KeyboardHelperService) {}
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)
@@ -84,6 +87,12 @@ export class FlatDesignTableComponent implements OnInit {
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if ((this.checkIfDialogOpened && this.khs.IsDialogOpened) || this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     switch (event.key) {
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable

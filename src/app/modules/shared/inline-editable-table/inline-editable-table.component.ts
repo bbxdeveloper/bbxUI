@@ -2,6 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@a
 import { NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
@@ -27,6 +28,7 @@ export class InlineEditableTableComponent implements OnInit {
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
+  @Input() checkIfDialogOpened: boolean = true;
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -51,7 +53,8 @@ export class InlineEditableTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService, private bbxToastrService: BbxToastrService) {}
+  constructor(private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
+              private bbxToastrService: BbxToastrService, private khs: KeyboardHelperService) {}
 
   focusOnTable(focusIn: boolean): void {
     if (focusIn) {
@@ -74,7 +77,7 @@ export class InlineEditableTableComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  HandleGridEscape(row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
+  HandleGridEscape(event: Event, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
     if (!this.ShouldContinueWithEvent(event)) {
       return;
     }
@@ -117,6 +120,12 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   private ShouldContinueWithEvent(event: any): boolean {
+    if ((this.checkIfDialogOpened && this.khs.IsDialogOpened) || this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return false;
+    }
     if (!!event && this.bbxToastrService.IsToastrOpened) {
       event.preventDefault();
       event.stopImmediatePropagation();

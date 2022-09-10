@@ -44,6 +44,7 @@ import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlI
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import * as moment from 'moment';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -168,9 +169,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private productService: ProductService,
     private vatRateService: VatRateService,
     private stockService: StockService,
-    sideBarService: BbxSidebarService
+    sideBarService: BbxSidebarService,
+    khs: KeyboardHelperService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.InitialSetup();
   }
 

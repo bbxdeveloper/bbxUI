@@ -37,6 +37,7 @@ import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { OfferUtil } from '../models/OfferUtil';
 import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-offer-editor',
@@ -73,12 +74,13 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     utS: UtilityService,
     router: Router,
     route: ActivatedRoute,
-    sidebarService: BbxSidebarService
+    sidebarService: BbxSidebarService,
+    khs: KeyboardHelperService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
-      sts, productService, utS, router, vatRateService, route, sidebarService
+      sts, productService, utS, router, vatRateService, route, sidebarService, khs
     );
     this.InitialSetup();
   }

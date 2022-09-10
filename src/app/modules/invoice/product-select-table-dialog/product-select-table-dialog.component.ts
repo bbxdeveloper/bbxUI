@@ -8,6 +8,7 @@ import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
@@ -82,6 +83,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override refreshFilter(event: any): void {
+    if (event.ctrlKey || event.key == KeyBindings.F2) {
+      return;
+    }
+    
     console.log("Search: ", event.target.value);
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {

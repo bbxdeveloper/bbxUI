@@ -114,6 +114,11 @@ export module Constants {
         { title: 'Mentés', value: 0, msg: '1/1 - Új rekord mentése', isSimple: true }
     ];
 
+    export enum GeneralSavingPhases { SAVING }
+    export const GeneralSavingStatuses: ProcessStatus[] = [
+        { title: 'Mentés', value: 0, msg: '1/1 - Mentés', isSimple: true }
+    ];
+
     export enum CRUDPutPhases { UPDATING }
     export const CRUDPutStatuses: ProcessStatus[] = [
         { title: 'Mentés', value: 0, msg: '1/1 - Rekord változásának mentése', isSimple: true }

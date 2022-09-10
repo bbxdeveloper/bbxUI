@@ -18,6 +18,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { DateIntervalDialogComponent } from '../../shared/date-interval-dialog/date-interval-dialog.component';
 import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-header',
@@ -77,7 +78,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private tokenService: TokenStorageService,
     private bbxToastrService: BbxToastrService,
     private simpleToastrService: NbToastrService,
-    private utS: UtilityService,) {
+    private utS: UtilityService,
+    private status: StatusService,
+    private khs: KeyboardHelperService) {
     super();
     this.OuterJump = true;
   }
@@ -143,7 +146,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       return;
     }
     
-    if (this.kbS.IsLocked()) {
+    if (this.kbS.IsLocked() || this.status.InProgress || this.khs.IsKeyboardBlocked) {
       console.log("[onKeyDown] Movement is locked!");
 
       event.preventDefault();
@@ -187,6 +190,13 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           event.preventDefault();
         }
         this.kbS.ClickCurrentElement();
+        break;
+      }
+      case KeyBindings.exitIE:
+      case KeyBindings.exit: {
+        if (!this.khs.IsDialogOpened) {
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        }
         break;
       }
       default: { }

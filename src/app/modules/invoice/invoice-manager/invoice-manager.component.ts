@@ -39,6 +39,7 @@ import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, Invoi
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -186,9 +187,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
-    sideBarService: BbxSidebarService
+    private status: StatusService,
+    sideBarService: BbxSidebarService,
+    khs: KeyboardHelperService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.InitialSetup();
     this.isPageReady = true;
   }
@@ -703,7 +706,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     let valid = true;
     if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
-        `Nincs megadva szállító.`,
+        `Nincs megadva vevő.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
@@ -746,10 +749,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe((res: SumData) => {
       console.log("Selected item: ", res);
+      this.status.pushProcessStatus(Constants.GeneralSavingStatuses[0]);
       if (!!res) {
         this.isLoading = true;
         this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
           next: d => {
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
             //this.isSilentLoading = false;
             if (!!d.data) {
               console.log('Save response: ', d);
@@ -837,6 +842,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }
           },
           error: err => {
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
             this.cs.HandleError(err);
             this.isLoading = false;
             this.isSaveInProgress = false;
