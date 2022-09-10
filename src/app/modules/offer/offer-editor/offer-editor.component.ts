@@ -253,7 +253,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   private UpdateSaveData(): void {
     this.offerData.customerID = this.buyerData.id;
 
-    this.offerData.notice = this.buyerForm.controls['notice'].value;
+    this.offerData.notice = this.buyerForm.controls['notice'].value ?? "";
 
     this.offerData.offerIssueDate = this.buyerForm.controls['offerIssueDate'].value;
     this.offerData.offerVaidityDate = this.buyerForm.controls['offerVaidityDate'].value;
