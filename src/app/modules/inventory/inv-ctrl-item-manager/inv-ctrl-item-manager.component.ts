@@ -43,6 +43,7 @@ import { OneButtonMessageDialogComponent } from '../../shared/one-button-message
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -69,8 +70,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1]?.warehouseID) : -1;
   }
   get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
-    return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
-      this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
+    if (!!this.buyerForm && this.buyerForm.controls !== undefined) {
+      return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
+        this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
+    }
+    return undefined;
   }
 
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", "unitPrice", "realQty", "difference"];
@@ -171,18 +175,23 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   validateInvCtrlDate(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || !!!this.SelectedInvCtrlPeriod
-      || !HelperFunctions.IsDateStringValid(this.SelectedInvCtrlPeriod.dateFrom) || !HelperFunctions.IsDateStringValid(this.SelectedInvCtrlPeriod.dateTo)) {
+    if (!!!this.SelectedInvCtrlPeriod) {
       return null;
     }
 
     var ctrlPeriod = this.SelectedInvCtrlPeriod;
 
-    let v = new Date(control.value);
-    let to = new Date(ctrlPeriod.dateTo);
-    let from = new Date(ctrlPeriod.dateFrom);
+    let v = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let to = HelperFunctions.GetDateIfDateStringValid(ctrlPeriod?.dateTo);
+    let from = HelperFunctions.GetDateIfDateStringValid(ctrlPeriod?.dateFrom);
 
-    let wrong = v >= to || v <= from;
+    if (v === undefined || from === undefined || to === undefined) {
+      return null;
+    }
+
+    console.log("validateInvCtrlDate: ", from, to, v);
+
+    let wrong = !v.isBetween(from, to, null, '[]');
 
     return wrong ? { minMaxDate: { value: control.value } } : null;
   }

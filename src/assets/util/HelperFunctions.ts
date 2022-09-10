@@ -218,6 +218,19 @@ export module HelperFunctions {
             .isValid()
     }
 
+    export function GetDateIfDateStringValid(
+        val: string | undefined,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): moment.Moment | undefined  {
+        // console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
+        if (val === undefined || val === null || val.length == 0) {
+            return undefined;
+        }
+        moment.locale(dateLocale);
+        return moment(val)
+            .isValid() ? moment(val) : undefined
+    }
+
     export function ToFloat(p: any): number {
         return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
     }
