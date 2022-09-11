@@ -104,7 +104,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`Tab on searchfield Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
@@ -113,7 +113,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F12 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -122,7 +122,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F12 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.CrudNew].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudNew].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -131,7 +131,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F5 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -140,7 +140,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F5 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -149,7 +149,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F5 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.CrudEdit].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudEdit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -158,7 +158,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F5 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.CrudDelete].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudDelete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }

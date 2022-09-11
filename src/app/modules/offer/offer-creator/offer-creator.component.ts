@@ -322,7 +322,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
-  override ChooseDataForTableRow(rowIndex: number): void {
+  override ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -439,21 +439,45 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+      if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        return;
+      }
       this.CheckSaveConditionsAndSave();
       return;
     }
     switch (event.key) {
       case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
+        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          return;
+        }
         event.preventDefault();
         this.ToggleAllShowDiscount();
         break;
       }
       case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {
+        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          return;
+        }
         event.preventDefault();
         this.SetGlobalDiscount();
         break;
       }
       case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
+        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          return;
+        }
         event.preventDefault();
         this.ExitToNav();
         break;

@@ -83,6 +83,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     private prevSelectedRowPos?: number;
     private prevSelectedCol?: string;
     private prevSelectedColPos?: number;
+    private formAttachDirection: AttachDirection = AttachDirection.RIGHT;
 
     private tag: string = '';
 
@@ -121,6 +122,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         colDefs: ModelFieldDescriptor[] = []
     ) {
         super();
+
+        this.formAttachDirection = formAttachDirection;
 
         this._data = data;
         this.attachDirection = attachDirection;
@@ -312,7 +315,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 this.sidebarService.expand();
             }
 
-            this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
+            this.flatDesignForm.GenerateAndSetNavMatrices(false, true);
+            this.SetAsNeighbour(this.formAttachDirection, this.flatDesignForm);
 
             if (jump) {
                 this.kbs.Jump(this.flatDesignForm.attachDirection, true);
@@ -320,6 +324,27 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
             this.flatDesignForm.PushFooterCommandList();
         }, 200);
+    }
+
+    SetAsNeighbour(direction: AttachDirection, navigatable: INavigatable): void {
+        switch(direction) {
+            case AttachDirection.DOWN:
+                this.DownNeighbour = navigatable;
+                navigatable.UpNeighbour = this;
+                break;
+            case AttachDirection.LEFT:
+                this.LeftNeighbour = navigatable;
+                navigatable.RightNeighbour = this;
+                break;
+            case AttachDirection.UP:
+                this.UpNeighbour = navigatable;
+                navigatable.DownNeighbour = this;
+                break;
+            case AttachDirection.RIGHT:
+                this.RightNeighbour = navigatable;
+                navigatable.LeftNeighbour = this;
+                break;
+        }
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
@@ -352,7 +377,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
 
-        this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
+        this.flatDesignForm.GenerateAndSetNavMatrices(false, false);
+        this.SetAsNeighbour(this.formAttachDirection, this.flatDesignForm);
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -516,29 +542,29 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             }
             case this.KeySetting[Actions.CrudNew].KeyCode: {
                 event.preventDefault();
-                this.JumpToFirstFormField();
                 this.HandleEditAndNew(true);
+                this.JumpToFirstFormField();
                 break;
             }
             case this.KeySetting[Actions.CrudEdit].KeyCode: {
                 event.preventDefault();
-                this.JumpToFirstFormField();
                 this.HandleEditAndNew(false);
+                this.JumpToFirstFormField();
                 break;
             }
             case this.KeySetting[Actions.CrudDelete].KeyCode: {
                 if (!!this.prevSelectedRow) {
                     event.preventDefault();
-                    this.JumpToFirstFormField();
                     this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.JumpToFirstFormField();
                 }
                 break;
             }
             case this.KeySetting[Actions.Lock].KeyCode: {
                 if (!!this.prevSelectedRow) {
                     event.preventDefault();
-                    this.JumpToFirstFormField();
                     this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.JumpToFirstFormField();
                 }
                 break;
             }

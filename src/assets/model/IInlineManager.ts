@@ -1,5 +1,5 @@
 export interface IInlineManager {
-    ChooseDataForTableRow(rowIndex: number): void;
+    ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void;
     ChooseDataForForm(): void;
     RefreshData(): void;
     IsTableFocused: boolean;

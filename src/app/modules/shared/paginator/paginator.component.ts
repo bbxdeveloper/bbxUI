@@ -15,27 +15,27 @@ export class PaginatorComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-    switch (event.key) {
-      case KeyBindings.pgUp: {
-        this.paginator?.previousPage();
-        break;
-      }
-      case KeyBindings.pgDown: {
-        this.paginator?.nextPage();
-        break;
-      }
-      case KeyBindings.home: {
-        this.paginator?.firstPage();
-        break;
-      }
-      case KeyBindings.end: {
-        this.paginator?.lastPage();
-        break;
-      }
-      default: { }
-    }
-  }
+  // @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+  //   switch (event.key) {
+  //     case KeyBindings.pgUp: {
+  //       this.paginator?.previousPage();
+  //       break;
+  //     }
+  //     case KeyBindings.pgDown: {
+  //       this.paginator?.nextPage();
+  //       break;
+  //     }
+  //     case KeyBindings.home: {
+  //       this.paginator?.firstPage();
+  //       break;
+  //     }
+  //     case KeyBindings.end: {
+  //       this.paginator?.lastPage();
+  //       break;
+  //     }
+  //     default: { }
+  //   }
+  // }
 
   PageSizeSelected(newSize: number): void {
     this.paginator?.newPageSizeSelected();

@@ -390,6 +390,16 @@ export let GeneralFlatDesignKeySettings: Constants.KeySettingsDct = {
     Lock: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Zárolás', KeyType: Constants.KeyTypes.Unset },
 };
 
+export function IsKeyFunctionKey(keyVal: string): boolean {
+    for (let key in GeneralFlatDesignKeySettings) {
+        let keyRow = GeneralFlatDesignKeySettings[key as keyof Constants.KeySettingsDct];
+        if (keyRow.KeyLabel === keyVal) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export function GetFooterCommandListFromKeySettings(keySettings: Constants.KeySettingsDct): FooterCommandInfo[] {
     let commands: FooterCommandInfo[] = [];
     

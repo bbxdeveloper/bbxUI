@@ -474,7 +474,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   Save(): void {}
 
-  ChooseDataForTableRow(rowIndex: number): void {}
+  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
 
   ChooseDataForForm(): void {
     console.log("Selecting Customer from avaiable data.");

@@ -479,7 +479,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     return;
   }
 
-  ChooseDataForTableRow(rowIndex: number): void {
+  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
     console.log("[TableCodeFieldChanged] at rowIndex: ", this.dbDataTable.data[rowIndex])
@@ -496,7 +496,14 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
-        this.HandleProductSelectionFromDialog(res, rowIndex);
+        if (!wasInNavigationMode) {
+          this.HandleProductSelectionFromDialog(res, rowIndex);
+        } else {
+          const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
+          if (index !== -1) {
+            this.kbS.SelectElementByCoordinate(0, index);
+          }
+        }
       }
     });
   }
@@ -690,6 +697,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+      if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        return;
+      }
       this.CheckSaveConditionsAndSave();
       return;
     }

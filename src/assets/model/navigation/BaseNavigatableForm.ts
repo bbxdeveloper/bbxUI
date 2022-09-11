@@ -418,8 +418,8 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         this.kbS.Detach(x, y);
     }
 
-    AfterViewInitSetup(): void {
-        this.GenerateAndSetNavMatrices(true, false);
+    AfterViewInitSetup(attach: boolean = false): void {
+        this.GenerateAndSetNavMatrices(attach, false);
 
         this.PushFooterCommandList();
 

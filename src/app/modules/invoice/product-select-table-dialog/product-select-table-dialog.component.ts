@@ -103,6 +103,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override showLess(): void {
+    this.kbS.SelectFirstTile();
     this.Refresh(this.getInputParams);
   }
 

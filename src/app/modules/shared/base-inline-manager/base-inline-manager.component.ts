@@ -12,7 +12,7 @@ import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/Inli
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, OfferNavKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, OfferNavKeySettings, KeyBindings, IsKeyFunctionKey } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
@@ -243,7 +243,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-    if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+    if ((this.khs.IsDialogOpened && IsKeyFunctionKey(event.key)) || this.khs.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
