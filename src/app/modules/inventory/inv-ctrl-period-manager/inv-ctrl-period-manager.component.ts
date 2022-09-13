@@ -17,7 +17,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { StatusService } from 'src/app/services/status.service';
 import { CreateInvCtrlPeriodRequest } from '../models/CreateInvCtrlPeriodRequest';
 import { UpdateInvCtrlPeriodRequest } from '../models/UpdateInvCtrlPeriodRequest';
-import { validDate } from 'src/assets/model/Validators';
+import { notWhiteSpaceOrNull, validDate } from 'src/assets/model/Validators';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
@@ -403,7 +403,7 @@ export class InvCtrlPeriodManagerComponent
 
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(0, []),
-      warehouseID: new FormControl(undefined, [Validators.required]),
+      warehouseID: new FormControl(undefined, [Validators.required, notWhiteSpaceOrNull]),
       dateFrom: new FormControl(undefined, [Validators.required, validDate]),
       dateTo: new FormControl(undefined, [Validators.required, validDate]),
       closed: new FormControl({value: false, disabled: true}, []),

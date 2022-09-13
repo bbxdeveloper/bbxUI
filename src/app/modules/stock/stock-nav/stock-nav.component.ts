@@ -29,6 +29,7 @@ import { StockService } from '../services/stock.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
+import { notWhiteSpaceOrNull } from 'src/assets/model/Validators';
 
 @Component({
   selector: 'app-stock-nav',
@@ -246,7 +247,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     this.dbDataTableForm = new FormGroup({});
 
     this.filterForm = new FormGroup({
-      WarehouseID: new FormControl(undefined, [Validators.required]),
+      WarehouseID: new FormControl(undefined, [Validators.required, notWhiteSpaceOrNull]),
       SearchString: new FormControl(undefined, []),
     });
 

@@ -122,52 +122,6 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.grid.Refresh();
     }
 
-    override HandleFunctionKey(event: Event | KeyBindings): void {
-        const val = event instanceof Event ? (event as KeyboardEvent).code : event;
-        switch (val) {
-            // NEW
-            case this.KeySetting[Actions.CrudNew].KeyCode:
-                switch (this.formMode) {
-                    case Constants.FormState.new:
-                    case Constants.FormState.default:
-                    default:
-                        this.grid.SetBlankInstanceForForm(false, false);
-                        this.formMode = Constants.FormState.new;
-                        this.grid.JumpToFirstFormField();
-                        break;
-                }
-                break;
-            // RESET
-            case this.KeySetting[Actions.CrudReset].KeyCode:
-                this.ActionReset();
-                break;
-            // SAVE
-            case this.KeySetting[Actions.CrudSave].KeyCode:
-                switch (this.formMode) {
-                    case Constants.FormState.new:
-                        this.ActionNew();
-                        break;
-                    case Constants.FormState.default:
-                        this.ActionPut();
-                        break;
-                }
-                break;
-            // SAVE
-            case this.KeySetting[Actions.Lock].KeyCode:
-                this.ActionLock();
-                break;
-            // DELETE
-            case this.KeySetting[Actions.CrudDelete].KeyCode:
-            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
-                switch (this.formMode) {
-                    case Constants.FormState.default:
-                        this.ActionDelete();
-                        break;
-                }
-                break;
-        }
-    }
-
     override HandleFormFieldClick(event: any): void {
         if (this.kbS.IsCurrentNavigatable(this.grid)) {
             // this.GenerateAndSetNavMatrices(false);
@@ -228,6 +182,53 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         }
     }
 
+    override HandleFunctionKey(event: Event | KeyBindings): void {
+        const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+        switch (val) {
+            // NEW
+            case this.KeySetting[Actions.CrudNew].KeyCode:
+                switch (this.formMode) {
+                    case Constants.FormState.new:
+                    case Constants.FormState.default:
+                    default:
+                        this.grid.SetBlankInstanceForForm(false, false);
+                        this.formMode = Constants.FormState.new;
+                        this.grid.JumpToFirstFormField();
+                        break;
+                }
+                break;
+            // RESET
+            case this.KeySetting[Actions.CrudReset].KeyCode:
+                this.ActionReset();
+                break;
+            // SAVE
+            case this.KeySetting[Actions.CrudSave].KeyCode:
+                switch (this.formMode) {
+                    case Constants.FormState.new:
+                        this.ActionNew();
+                        break;
+                    case Constants.FormState.default:
+                        this.ActionPut();
+                        break;
+                }
+                break;
+            // SAVE
+            case this.KeySetting[Actions.Lock].KeyCode:
+                this.ActionLock();
+                break;
+            // DELETE
+            case this.KeySetting[Actions.CrudDelete].KeyCode:
+                switch (this.formMode) {
+                    case Constants.FormState.default:
+                        if (this.sidebarService.sideBarOpened) {
+                            this.ActionDelete();
+                        }
+                        break;
+                }
+                break;
+        }
+    }
+
     override HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.CrudNew].KeyCode: {
@@ -248,11 +249,16 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 this.ActionPut();
                 break;
             }
-            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
             case this.KeySetting[Actions.CrudDelete].KeyCode: {
-                event.preventDefault();
-                event.stopPropagation();
-                this.ActionDelete();
+                switch (this.formMode) {
+                    case Constants.FormState.default:
+                        if (this.sidebarService.sideBarOpened) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            this.ActionDelete();
+                        }
+                        break;
+                }
                 break;
             }
             case this.KeySetting[Actions.ToggleForm].KeyCode: {

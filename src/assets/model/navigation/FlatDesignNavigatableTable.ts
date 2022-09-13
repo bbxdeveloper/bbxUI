@@ -553,7 +553,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 break;
             }
             case this.KeySetting[Actions.CrudDelete].KeyCode: {
-                if (!!this.prevSelectedRow) {
+                if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default && this.sidebarService.sideBarOpened) {
                     event.preventDefault();
                     this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();

@@ -16,6 +16,12 @@ export function todaysDate(control: AbstractControl) {
     return wrong ? { todaysDate: { value: control.value } } : null;
 }
 
+export function notWhiteSpaceOrNull(control: AbstractControl) {
+    const val = ((control.value ?? "") + "").trim();
+    const wrong = val.length === 0
+    return wrong ? { notWhiteSpaceOrNull: { value: control.value } } : null;
+}
+
 export function minDate(minDate?: Date): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
         if (minDate === undefined) {
