@@ -187,6 +187,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         switch (val) {
             // NEW
             case this.KeySetting[Actions.CrudNew].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudNew].FunctionLabel}, ${Actions[Actions.CrudNew]}`);
                 switch (this.formMode) {
                     case Constants.FormState.new:
                     case Constants.FormState.default:
@@ -199,10 +200,12 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 break;
             // RESET
             case this.KeySetting[Actions.CrudReset].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudReset].FunctionLabel}, ${Actions[Actions.CrudReset]}`);
                 this.ActionReset();
                 break;
             // SAVE
             case this.KeySetting[Actions.CrudSave].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudSave].FunctionLabel}, ${Actions[Actions.CrudSave]}`);
                 switch (this.formMode) {
                     case Constants.FormState.new:
                         this.ActionNew();
@@ -214,10 +217,12 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 break;
             // SAVE
             case this.KeySetting[Actions.Lock].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
                 this.ActionLock();
                 break;
             // DELETE
             case this.KeySetting[Actions.CrudDelete].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudDelete].FunctionLabel}, ${Actions[Actions.CrudDelete]}`);
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         if (this.sidebarService.sideBarOpened) {
@@ -232,24 +237,28 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     override HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.CrudNew].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudNew].FunctionLabel}, ${Actions[Actions.CrudNew]}`);
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionNew();
                 break;
             }
             case this.KeySetting[Actions.CrudReset].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudReset].FunctionLabel}, ${Actions[Actions.CrudReset]}`);
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionReset();
                 break;
             }
             case this.KeySetting[Actions.CrudSave].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudSave].FunctionLabel}, ${Actions[Actions.CrudSave]}`);
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionPut();
                 break;
             }
             case this.KeySetting[Actions.CrudDelete].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudDelete].FunctionLabel}, ${Actions[Actions.CrudDelete]}`);
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         if (this.sidebarService.sideBarOpened) {
@@ -262,6 +271,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 break;
             }
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
                 event.preventDefault();
                 this.kbS.isEditModeLocked = true;
                 this.sidebarService.collapse();

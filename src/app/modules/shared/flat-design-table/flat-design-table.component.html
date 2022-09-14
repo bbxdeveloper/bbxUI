@@ -5,7 +5,7 @@
     <nb-card-body *ngIf="!!dbDataTable">
         <form class="card-table-wrapper-form">
             <table class="card-table-header" [ngClass]="getTableClasses()"  [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
-                nbSort (sort)="changeSort($event)">
+                nbSort (sort)="changeSort($event)" id="table_header">
                 <ng-container *ngIf="allColumns.length > 0">
                     <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
                 </ng-container>
@@ -23,7 +23,7 @@
                 </ng-container>
             </table>
 
-            <table class="card-table-wrapper"
+            <table class="card-table-wrapper" id="table_body"
                 [ngClass]="getTableClasses()" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
                  *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
                  equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">

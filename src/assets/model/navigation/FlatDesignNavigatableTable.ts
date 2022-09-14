@@ -531,28 +531,33 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
                 event.preventDefault();
                 this.HandleToggleSideBarForm();
                 break;
             }
             case this.KeySetting[Actions.Refresh].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Refresh].FunctionLabel}, ${Actions[Actions.Refresh]}`);
                 event.preventDefault();
                 this.Refresh();
                 break;
             }
             case this.KeySetting[Actions.CrudNew].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudNew].FunctionLabel}, ${Actions[Actions.CrudNew]}`);
                 event.preventDefault();
                 this.HandleEditAndNew(true);
                 this.JumpToFirstFormField();
                 break;
             }
             case this.KeySetting[Actions.CrudEdit].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudEdit].FunctionLabel}, ${Actions[Actions.CrudEdit]}`);
                 event.preventDefault();
                 this.HandleEditAndNew(false);
                 this.JumpToFirstFormField();
                 break;
             }
             case this.KeySetting[Actions.CrudDelete].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudDelete].FunctionLabel}, ${Actions[Actions.CrudDelete]}`);
                 if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default && this.sidebarService.sideBarOpened) {
                     event.preventDefault();
                     this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
@@ -561,6 +566,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 break;
             }
             case this.KeySetting[Actions.Lock].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
                 if (!!this.prevSelectedRow) {
                     event.preventDefault();
                     this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);

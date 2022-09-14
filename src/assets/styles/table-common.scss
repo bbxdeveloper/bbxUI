@@ -29,7 +29,8 @@ nb-card-body {
 }
 .card-table-wrapper-opened-form {
     max-height: calc(100vh - 290px) !important;
-    width: 100% !important;
+    width: calc(100vw - 100px) !important;
+    max-width: 40vw;
 }
 
 // TABLE: Header

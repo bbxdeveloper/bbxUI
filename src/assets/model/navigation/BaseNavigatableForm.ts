@@ -64,7 +64,15 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         { key: 'F12', value: '', disabled: false }
     ];
 
-    formMode: Constants.FormState = Constants.FormState.default;
+    _formMode: Constants.FormState = Constants.FormState.default;
+    get formMode(): Constants.FormState { return this._formMode; }
+    set formMode(val: Constants.FormState) {
+        console.log("-------------");
+        console.log("Old formstate: ", Constants.FormState[this._formMode]);
+        this._formMode = val;
+        console.log("New formstate: ", Constants.FormState[this._formMode]);
+    }
+
 
     get isDeleteDisabled() { return this.formMode === Constants.FormState.new; }
 
