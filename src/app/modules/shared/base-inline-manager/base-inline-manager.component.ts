@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { IEditable } from 'src/assets/model/IEditable';
@@ -18,6 +18,10 @@ import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
+import { Customer } from '../../customer/models/Customer';
+import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
+import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -326,5 +330,29 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     } else {
       this.fS.pushCommands(this.commands);
     }
+  }
+
+  SetDataForForm(data: any): void {}
+
+  CreateCustomer(event: any): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+      context: {
+        createCustomer: true
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (res: Customer) => {
+        console.log("Selected item: ", res);
+        if (!!res) {
+          this.SetDataForForm(res);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+      }
+    });
   }
 }

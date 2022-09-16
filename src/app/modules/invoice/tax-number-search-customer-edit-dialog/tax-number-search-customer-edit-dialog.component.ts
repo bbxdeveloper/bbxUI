@@ -33,6 +33,7 @@ const defaultPattern: string = '00000000-00000000-00000000';
 })
 export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
   @Input() data!: Customer;
+  @Input() createCustomer: boolean = false;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -134,17 +135,19 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     // this.kbS.SelectFirstTile();
   }
   ngAfterContentInit(): void {
-    this.sumForm.controls['id'].setValue(this.data.id);
-    this.sumForm.controls['customerName'].setValue(this.data.customerName);
-    this.sumForm.controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
-    this.sumForm.controls['taxpayerNumber'].setValue(this.data.taxpayerNumber);
-    this.sumForm.controls['thirdStateTaxId'].setValue(this.data.thirdStateTaxId);
-    this.sumForm.controls['countryCode'].setValue(this.data.countryCode);
-    this.sumForm.controls['postalCode'].setValue(this.data.postalCode);
-    this.sumForm.controls['city'].setValue(this.data.city);
-    this.sumForm.controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
-    this.sumForm.controls['privatePerson'].setValue(this.data.privatePerson);
-    this.sumForm.controls['comment'].setValue(this.data.comment);
+    if (!this.createCustomer) {
+      this.sumForm.controls['id'].setValue(this.data.id);
+      this.sumForm.controls['customerName'].setValue(this.data.customerName);
+      this.sumForm.controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
+      this.sumForm.controls['taxpayerNumber'].setValue(this.data.taxpayerNumber);
+      this.sumForm.controls['thirdStateTaxId'].setValue(this.data.thirdStateTaxId);
+      this.sumForm.controls['countryCode'].setValue(this.data.countryCode);
+      this.sumForm.controls['postalCode'].setValue(this.data.postalCode);
+      this.sumForm.controls['city'].setValue(this.data.city);
+      this.sumForm.controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
+      this.sumForm.controls['privatePerson'].setValue(this.data.privatePerson);
+      this.sumForm.controls['comment'].setValue(this.data.comment);
+    }
   }
   ngOnDestroy(): void {
     if (!this.closedManually) {

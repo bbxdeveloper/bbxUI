@@ -22,6 +22,8 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   @Input() subject?: string;
   @Input() message?: string;
   @Input() OfferID?: number;
+  @Input() DefaultFrom?: string;
+  @Input() UserName?: string;
 
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -132,6 +134,9 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     if (!!this.message) {
       this.dataForm.form.controls['body'].setValue(this.message);
     }
+    if (!!this.DefaultFrom) {
+      this.dataForm.form.controls['from'].setValue(this.DefaultFrom);
+    }
   }
 
   ngOnDestroy(): void {
@@ -148,6 +153,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
 
       this.dialogRef.close({
         from: {
+          name: this.UserName,
           email: this.dataForm.GetValue('from')
         } as EmailAddress,
         to: {

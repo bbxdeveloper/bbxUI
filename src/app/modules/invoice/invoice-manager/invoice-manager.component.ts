@@ -999,6 +999,17 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return data;
   }
 
+  override SetDataForForm(data: any): void {
+    if (!!data) {
+      this.buyerData = data as Customer;
+      this.buyerFormNav.FillForm(data);
+
+      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    }
+  }
+
   ChoseDataForFormByTaxtNumber(): void {
     console.log("Selecting Customer from avaiable data by taxtnumber.");
 
@@ -1018,14 +1029,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           dialogRef.onClose.subscribe({
             next: (res: Customer) => {
               console.log("Selected item: ", res);
-              if (!!res) {
-                this.buyerData = res;
-                this.buyerFormNav.FillForm(res);
-
-                this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-                this.kbS.SelectFirstTile();
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-              }
+              this.SetDataForForm(res);
             },
             error: err => {
               this.cs.HandleError(err);

@@ -24,7 +24,8 @@
                             <td>
                                 <nb-form-field class="search-row-nb-form-field"
                                     (keydown.enter)="activeFormNav.HandleFormEnter($event, true, true, true)"
-                                    (keydown.F2)="activeFormNav.HandleKey($event, 'customerSearch')">
+                                    (keydown.F2)="activeFormNav.HandleKey($event, 'customerSearch')"
+                                    (keydown.F3)="CreateCustomer($event)">
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         (click)="activeFormNav.HandleFormFieldClick($event)" maxlength="80"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"

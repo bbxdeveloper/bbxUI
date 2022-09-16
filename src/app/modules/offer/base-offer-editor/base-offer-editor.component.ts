@@ -536,6 +536,17 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     return data;
   }
 
+  override SetDataForForm(data: any): void {
+    if (!!data) {
+      this.buyerData = data as Customer;
+      this.buyerForm.controls['customerName'].setValue(data.customerName);
+
+      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    }
+  }
+
   ChoseDataForFormByTaxtNumber(): void {
     console.log("Selecting Customer from avaiable data by taxtnumber.");
 
@@ -556,12 +567,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             next: (res: Customer) => {
               console.log("Selected item: ", res);
               if (!!res) {
-                this.buyerData = res;
-                this.buyerForm.controls['customerName'].setValue(res.customerName);
-
-                this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-                this.kbS.SelectFirstTile();
-                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.SetDataForForm(res);
               }
             },
             error: err => {

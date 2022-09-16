@@ -42,6 +42,7 @@ import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { Subscription } from 'rxjs';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-offer-nav',
@@ -270,6 +271,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private router: Router,
     private infrastructureService: InfrastructureService,
     private utS: UtilityService,
+    private tokenService: TokenStorageService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -768,11 +770,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+      const user = this.tokenService.user;
+
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
           subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
           message: this.dbData[this.kbS.p.y - 1].data.notice,
           OfferID: this.dbData[this.kbS.p.y - 1].data.id,
+          DefaultFrom: user?.email,
+          UserName: user?.name
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
