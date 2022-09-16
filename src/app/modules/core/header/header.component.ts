@@ -244,18 +244,25 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
             res.name, res.pswd
           ).subscribe({
             next: res => {
-              this.tokenService.token = res.token;
-              this.simpleToastrService.show(
-                Constants.MSG_LOGIN_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              setTimeout(() => {
-                this.GenerateAndSetNavMatrices();
-                this.kbS.SelectFirstTile();
+              if (res.succeeded && res?.data?.token !== undefined && res?.data?.user !== undefined) {
+                this.tokenService.token = res?.data?.token;
+                this.tokenService.user = res?.data?.user;
+                this.simpleToastrService.show(
+                  Constants.MSG_LOGIN_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                setTimeout(() => {
+                  this.GenerateAndSetNavMatrices();
+                  this.kbS.SelectFirstTile();
+                  this.isLoading = false;
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                }, 200);
+              } else {
+                this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
                 this.isLoading = false;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              }, 200);
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);  
+              }
             },
             error: err => {
               this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
@@ -291,6 +298,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           Constants.TOASTR_SUCCESS_5_SEC
         );
         this.tokenService.signOut();
+        this.router.navigate(['/home']);
         setTimeout(() => {
           this.GenerateAndSetNavMatrices();
           this.kbS.SelectFirstTile();

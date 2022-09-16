@@ -8,3 +8,10 @@ export interface IResponse<T> {
     errors?: any,
     data?: T[]
 }
+
+export interface IResponseSingleData<T> {
+    succeeded: boolean,
+    message?: any,
+    errors?: any,
+    data?: T
+}

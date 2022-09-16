@@ -28,6 +28,7 @@ import { OfferModule } from './modules/offer/offer.module';
 import { InfrastructureModule } from './modules/infrastructure/infrastructure.module';
 import { StockModule } from './modules/stock/stock.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { authInterceptorProviders } from 'src/assets/util/auth.interceptor';
 
 registerLocaleData(localeFr, 'fr');
 
@@ -81,7 +82,8 @@ const maskConfig: Partial<IConfig> = {
   ],
   providers: [
     NbSidebarService,
-    Title
+    Title,
+    authInterceptorProviders
   ],
   bootstrap: [AppComponent]
 })
