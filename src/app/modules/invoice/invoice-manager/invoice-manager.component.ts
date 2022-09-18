@@ -40,6 +40,7 @@ import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/ass
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { ActivatedRoute, UrlSegment } from '@angular/router';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -48,6 +49,9 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  private InvoiceType: string = "";
+  private Incoming: boolean = false;
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -189,11 +193,29 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private utS: UtilityService,
     private status: StatusService,
     sideBarService: BbxSidebarService,
-    khs: KeyboardHelperService
+    khs: KeyboardHelperService,
+    private activatedRoute: ActivatedRoute
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.InitialSetup();
+    this.activatedRoute.url.subscribe(params => {
+      this.SetModeBasedOnRoute(params);
+    })
     this.isPageReady = true;
+  }
+
+  private SetModeBasedOnRoute(params: UrlSegment[]): void {
+    console.log("ActivatedRoute: ", params[0].path);
+    const path = params[0].path;
+    if (path === 'invoice') {
+      this.InvoiceType = 'INV';
+      this.Incoming = false;
+    } else if (path === 'outgoing-delivery-note-income') {
+      this.InvoiceType = 'DNI';
+      this.Incoming = false;
+    }
+    console.log("InvoiceType: ", this.InvoiceType);
+    console.log("Incoming: ", this.Incoming);
   }
 
   private Reset(): void {
@@ -676,8 +698,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.warehouseCode = '001';
 
-    this.outGoingInvoiceData.incoming = false;
-    this.outGoingInvoiceData.invoiceType = 'INV';
+    this.outGoingInvoiceData.incoming = this.Incoming;
+    this.outGoingInvoiceData.invoiceType = this.InvoiceType;
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
   }

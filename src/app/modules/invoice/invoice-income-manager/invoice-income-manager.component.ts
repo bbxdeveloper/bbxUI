@@ -40,6 +40,7 @@ import { CustomerDialogTableSettings, InvoiceIncomeProductDialogTableSettings, P
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { ActivatedRoute, UrlSegment } from '@angular/router';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -48,6 +49,9 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 })
 export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  private InvoiceType: string = "";
+  private Incoming: boolean = false;
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -192,11 +196,29 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     private productService: ProductService,
     private utS: UtilityService,
     sidebarService: BbxSidebarService,
-    khs: KeyboardHelperService
+    khs: KeyboardHelperService,
+    private activatedRoute: ActivatedRoute
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
     this.InitialSetup();
+    this.activatedRoute.url.subscribe(params => {
+      this.SetModeBasedOnRoute(params);
+    })
     this.isPageReady = true;
+  }
+
+  private SetModeBasedOnRoute(params: UrlSegment[]): void {
+    console.log("ActivatedRoute: ", params[0].path);
+    const path = params[0].path;
+    if (path === 'invoice-income') {
+      this.InvoiceType = 'INC';
+      this.Incoming = true;
+    } else if (path === 'incoming-delivery-note-income') {
+      this.InvoiceType = 'DNI';
+      this.Incoming = true;
+    }
+    console.log("InvoiceType: ", this.InvoiceType);
+    console.log("Incoming: ", this.Incoming);
   }
 
   private Reset(): void {
@@ -672,8 +694,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outGoingInvoiceData.warehouseCode = '001';
 
-    this.outGoingInvoiceData.incoming = true;
-    this.outGoingInvoiceData.invoiceType = 'INC';
+    this.outGoingInvoiceData.incoming = this.Incoming;
+    this.outGoingInvoiceData.invoiceType = this.InvoiceType;
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
   }
