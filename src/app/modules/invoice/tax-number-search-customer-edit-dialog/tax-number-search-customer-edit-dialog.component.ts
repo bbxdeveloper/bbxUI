@@ -39,6 +39,14 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     return KeyBindings;
   }
 
+  public get saveIsDisabled(): boolean {
+    if (this.currentForm !== undefined && this.currentForm.form !== undefined) {
+      return this.currentForm.form.invalid;
+    } else {
+      return true;
+    }
+  }
+
   customPatterns: any = {
     'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
     'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },

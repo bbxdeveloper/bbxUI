@@ -346,6 +346,11 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
       },
       complete: () => {
         this.isLoading = false;
+        setTimeout(() => {
+          if (this.kbS.Here === this.SearchButtonId) {
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          }
+        }, 150);
       },
     });
   }

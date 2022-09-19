@@ -75,6 +75,10 @@ const routes: Routes = [
       {
         path: "invoice",
         component: InvoiceManagerComponent,
+      },
+      {
+        path: "outgoing-delivery-note-income",
+        component: InvoiceManagerComponent,
       }
     ]
   },
@@ -147,10 +151,6 @@ const routes: Routes = [
       {
         path: "incoming-delivery-note-income",
         component: InvoiceIncomeManagerComponent,
-      },
-      {
-        path: "outgoing-delivery-note-income",
-        component: InvoiceManagerComponent,
       }
     ]
   },
