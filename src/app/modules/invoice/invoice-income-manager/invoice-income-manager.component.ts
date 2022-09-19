@@ -1052,7 +1052,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
-      if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+      if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();
