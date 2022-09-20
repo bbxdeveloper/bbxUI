@@ -52,6 +52,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   private InvoiceType: string = "";
   private Incoming: boolean = false;
+  Delivery: boolean = false;
+  DeliveryPaymentMethod: string = 'OTHER';
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -213,6 +215,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     } else if (path === 'outgoing-delivery-note-income') {
       this.InvoiceType = 'DNI';
       this.Incoming = false;
+      this.Delivery = true;
     }
     console.log("InvoiceType: ", this.InvoiceType);
     console.log("Incoming: ", this.Incoming);
@@ -677,7 +680,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
     
-    this.outGoingInvoiceData.paymentMethod =
+    this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
     
     this.outGoingInvoiceData.warehouseCode = '1';
