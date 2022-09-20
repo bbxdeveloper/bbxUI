@@ -518,11 +518,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
     this.buyerForm.controls['customerName'].setValue(data.customerName);
     let address = "";
-    if (data.postalCode !== undefined && data.city !== undefined) {
+    if (data.postalCode !== undefined && data.city !== undefined && data.postalCode !== null && data.city !== null) {
       address = data.postalCode + ', ' + data.city;
-    } else if (data.postalCode !== undefined) {
+    } else if (data.postalCode !== undefined || data.postalCode !== null) {
       address = data.postalCode;
-    } else {
+    } else if (data.city !== undefined || data.city !== null) {
       address = data.city;
     }
     this.buyerForm.controls['customerAddress'].setValue(address);
