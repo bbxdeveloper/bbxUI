@@ -154,11 +154,11 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1"
+        data-sub="header-invo-sub-1, header-invo-sub-2"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1"
+        data-sub="header-invo-sub-1, header-invo-sub-2"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <ng-template #sub_invo let-data>
@@ -169,33 +169,33 @@
                     Számla
                 </button>
             </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress"
+                    (click)="goTo('invoice/outgoing-delivery-note-income')">
+                    Szállítólevél
+                </button>
+            </nb-card-body>
         </nb-card>
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-income" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-income-sub-1, header-income-sub-2, header-income-sub-3" nbPopoverPlacement="bottom" [nbPopover]="sub_income" [disabled]="InProgress">Bevételezés
+        data-sub="header-income-sub-1, header-income-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_income" [disabled]="InProgress">Bevételezés
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-income" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-income-sub-1, header-income-sub-2, header-income-sub-3" nbPopoverPlacement="bottom" [nbPopover]="sub_income" [disabled]="InProgress">Bevételezés
+        data-sub="header-income-sub-1, header-income-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_income" [disabled]="InProgress">Bevételezés
     </nb-action>
     <ng-template #sub_income let-data>
         <nb-card class="card-submenu-wrapper">
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-income-sub-1" [disabled]="InProgress"
                     (click)="goTo('income/invoice-income')">
-                    Bevételezés számlán
+                    Bev. számla
                 </button>
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress"
                     (click)="goTo('income/incoming-delivery-note-income')">
-                    Bev. Számla
-                </button>
-            </nb-card-body>
-            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-invo-sub-3" [disabled]="InProgress"
-                    (click)="goTo('income/outgoing-delivery-note-income')">
-                    Szállítólevél
+                    Bev. Szállítólevél
                 </button>
             </nb-card-body>
         </nb-card>

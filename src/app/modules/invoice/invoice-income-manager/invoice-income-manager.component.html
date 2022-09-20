@@ -128,7 +128,8 @@
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
 
                 <div class="form-row">
-                    <app-bbx-combo-box-invoice class="bbx-sidebar-combo" [currentForm]="outInvFormNav"
+                    <label class="single_label bbx-sidebar-combo" *ngIf="Delivery">Szállítólevél</label>
+                    <app-bbx-combo-box-invoice *ngIf="!Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav"
                         formFieldName="paymentMethod" label="Fizetési mód" [data$]="paymentMethodOptions$"
                         [simpleMode]="true"></app-bbx-combo-box-invoice>
 
