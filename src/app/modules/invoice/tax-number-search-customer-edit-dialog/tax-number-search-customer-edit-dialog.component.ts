@@ -93,7 +93,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   get privatePersonDefaultValue(): Boolean {
-    return (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
+    return !this.createCustomer && (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
       (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
   }
 
@@ -228,6 +228,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       event.stopImmediatePropagation();
       event.stopPropagation();
       this.kbS.Jump(AttachDirection.DOWN, false);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }
   }
 

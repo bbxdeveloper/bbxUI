@@ -87,7 +87,7 @@ export class FlatDesignTableComponent implements OnInit {
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
-    if ((this.checkIfDialogOpened && this.khs.IsDialogOpened) || this.khs.IsKeyboardBlocked) {
+    if (this.khs.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();

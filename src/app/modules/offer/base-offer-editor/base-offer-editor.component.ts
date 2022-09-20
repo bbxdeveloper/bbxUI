@@ -517,7 +517,15 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       return;
     }
     this.buyerForm.controls['customerName'].setValue(data.customerName);
-    this.buyerForm.controls['customerAddress'].setValue(data.postalCode + ', ' + data.city);
+    let address = "";
+    if (data.postalCode !== undefined && data.city !== undefined) {
+      address = data.postalCode + ', ' + data.city;
+    } else if (data.postalCode !== undefined) {
+      address = data.postalCode;
+    } else {
+      address = data.city;
+    }
+    this.buyerForm.controls['customerAddress'].setValue(address);
     this.buyerForm.controls['customerTaxNumber'].setValue(data.taxpayerNumber);
   }
 
@@ -540,6 +548,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     if (!!data) {
       this.buyerData = data as Customer;
       this.buyerForm.controls['customerName'].setValue(data.customerName);
+      this.SetCustomerFormFields(data);
 
       this.kbS.SetCurrentNavigatable(this.buyerFormNav);
       this.kbS.SelectFirstTile();
