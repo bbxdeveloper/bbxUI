@@ -611,6 +611,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 console.log((this.data[rowPos].data as any)[col]);
             }, 10);
         }
+        
+        this.parentComponent.RecalcNetAndVat();
     }
 
     private ApplyGridEnterEffects(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
@@ -703,6 +705,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 this.ApplyGridEnterEffects(row, rowPos, col, colPos, inputId, fInputType);
             }, 10);
         }
+
+        this.parentComponent.RecalcNetAndVat();
     }
 
     HandleGridDelete(event: Event, row: TreeGridNode<T>, rowPos: number, col: string): void {

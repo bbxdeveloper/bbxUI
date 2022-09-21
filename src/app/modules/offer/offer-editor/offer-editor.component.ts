@@ -85,6 +85,20 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     this.InitialSetup();
   }
 
+  override RecalcNetAndVat(): void {
+    console.log("RecalcNetAndVat: ", this.dbData);
+
+    this.offerData.offerNetAmount =
+      this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => this.ToFloat(x.data.UnitPrice) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity))
+        .reduce((sum, current) => sum + current, 0);
+
+    this.offerData.offerGrossAmount =
+      this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => (this.ToFloat(x.data.unitGross) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity)))
+        .reduce((sum, current) => sum + current, 0);
+  }
+
   override InitialSetup(): void {
     this.dbDataTableId = "offers-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
@@ -114,6 +128,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       notice: '',
       newOffer: false,
       offerLines: [],
+      offerGrossAmount: 0,
+      offerNetAmount: 0
     } as Offer;
 
     this.dbData = [];
@@ -226,6 +242,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           ).concat(this.dbData);
 
           this.table?.renderRows();
+
+          this.RecalcNetAndVat();
         }
       },
       error: (err) => {
@@ -275,7 +293,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           productID: x.data.productID,
           unitOfMeasureX: x.data.unitOfMeasureX,
           vatRateID: x.data.vatRateID,
-          vatPercentage: x.data.vatPercentage
+          vatPercentage: x.data.vatPercentage,
+          quantity: HelperFunctions.ToInt(x.data.quantity)
         } as OfferLineFullData
       }
     );

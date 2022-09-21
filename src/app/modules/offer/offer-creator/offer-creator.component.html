@@ -120,5 +120,12 @@
             [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
         </app-inline-editable-table>
     </nb-card-body>
-    <nb-card-footer class="invoice-table-statistics"></nb-card-footer>
+    <nb-card-footer class="invoice-table-statistics">
+        <table class="table-statistics-net-vat-gross">
+            <tr>
+                <td>Összes nettó: {{offerData.offerNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                <td>Összes bruttó: {{offerData.offerGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+            </tr>
+        </table>
+    </nb-card-footer>
 </nb-card>

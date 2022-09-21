@@ -67,17 +67,19 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
-  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "originalUnitPrice", "vatRateCode", "unitGross"];
+  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "originalUnitPrice", "vatRateCode", "UnitGrossVal"];
   override allColumns = [
     'productCode',
     'lineDescription',
+    'Quantity',
     'unitOfMeasureX',
     'originalUnitPrice',
     'Discount',
     'showDiscount',
     'UnitPrice',
+    'UnitPriceVal',
     'vatRateCode',
-    'unitGross',
+    'UnitGrossVal',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -89,6 +91,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
       defaultValue: '', type: 'string', mask: "", //fReadonly: true,
       colWidth: "50%", textAlign: "left",
+    },
+    {
+      label: 'Menny.', objectKey: 'Quantity', colKey: 'Quantity',
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number-integer'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -114,7 +121,12 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "110px", textAlign: "center", fInputType: 'checkbox'
     },
     {
-      label: 'Nettó árlista ár', objectKey: 'UnitPrice', colKey: 'UnitPrice',
+      label: 'Nettó árlist.', objectKey: 'UnitPrice', colKey: 'UnitPrice',
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
+    },
+    {
+      label: 'Nettó ért.', objectKey: 'UnitPriceVal', colKey: 'UnitPriceVal',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -124,7 +136,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "80px", textAlign: "right", //fInputType: 'formatted-number'
     },
     {
-      label: 'Bruttó', objectKey: 'unitGross', colKey: 'unitGross',
+      label: 'Bruttó ért.', objectKey: 'UnitGrossVal', colKey: 'UnitGrossVal',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
     }
@@ -255,7 +267,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
   }
 
-  RecalcNetAndVat(): void { }
+  RecalcNetAndVat(): void {}
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!event) {
@@ -305,6 +317,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               Constants.TOASTR_ERROR
             );
           }
+
+          this.RecalcNetAndVat();
         },
         error: err => {
           this.RecalcNetAndVat();
@@ -655,6 +669,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+    if (this.dbData.find(x => x.data.quantity === undefined || x.data.quantity <= 1) === undefined) {
+      this.bbxToastrService.show(
+        `Minden tételnek pozitív mennyiséggel kell rendelkeznie.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );

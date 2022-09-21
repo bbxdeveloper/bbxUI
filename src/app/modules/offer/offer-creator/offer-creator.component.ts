@@ -80,6 +80,23 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     this.InitialSetup();
   }
 
+  override RecalcNetAndVat(): void {
+    console.log("RecalcNetAndVat: ", this.dbData, this.dbData.filter(x => !x.data.IsUnfinished()), this.dbData[0].data.UnitPriceVal);
+
+    this.offerData.offerNetAmount =
+      this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => HelperFunctions.ToFloat(x.data.UnitPriceVal) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity))
+        .reduce((sum, current) => sum + current, 0);
+
+    console.log("RecalcNetAndVat after: ", this.offerData.offerNetAmount);
+
+
+    this.offerData.offerGrossAmount =
+      this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => (HelperFunctions.ToFloat(x.data.UnitGrossVal) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity)))
+        .reduce((sum, current) => sum + current, 0);
+  }
+
   override InitialSetup(): void {
     this.dbDataTableId = "offers-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
@@ -93,6 +110,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       offerVaidityDate: '',
       notice: '',
       offerLines: [],
+      offerGrossAmount: 0,
+      offerNetAmount: 0
     } as CreateOfferRequest;
 
     this.dbData = [];
@@ -183,7 +202,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         unitGross: this.ToFloat(x.data.unitGross),
         discount: x.data.DiscountForCalc,
         showDiscount: x.data.showDiscount,
-        unitOfMeasure: x.data.unitOfMeasure
+        unitOfMeasure: x.data.unitOfMeasure,
+        quantity: HelperFunctions.ToInt(x.data.quantity)
       } as OfferLineForPost;
     });
 

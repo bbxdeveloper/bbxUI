@@ -1,3 +1,4 @@
+import { TouchBarScrubber } from "electron";
 import { IEditable } from "src/assets/model/IEditable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { environment } from "src/environments/environment";
@@ -15,6 +16,7 @@ export interface OfferLineForPost {
     "discount": number;
     "unitOfMeasure": string;
     "showDiscount": boolean;
+    "quantity": number;
 }
 
 export interface OfferLineFullData extends OfferLineForPost {
@@ -24,6 +26,7 @@ export interface OfferLineFullData extends OfferLineForPost {
     "unitOfMeasureX": string;
     "vatRateID": number;
     "vatPercentage": number;
+    "quantity": number;
 }
 
 export class OfferLine implements IEditable, OfferLineFullData {
@@ -38,6 +41,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "unitVat": number = 0; // unitPrice * vatRate // hidden
     "unitGross": number = 0; // unitPrice + unitVat
     "showDiscount": boolean = true;
+    "quantity": number = 0;
     
     // Custom
     "vatRate": number = 1.0;
@@ -51,6 +55,24 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "unitOfMeasureX": string = "";
     "vatRateID": number = -1;
     "vatPercentage": number = -1;
+
+    // Quantity
+    get Quantity(): number {
+        return this.quantity;
+    }
+    set Quantity(val: any) {
+        this.quantity = HelperFunctions.ToInt(val);
+    }
+
+    // UnitPriceVal
+    get UnitPriceVal(): number {
+        return HelperFunctions.ToFloat(this.UnitPrice) * HelperFunctions.ToInt(this.quantity === 0 ? 1 : this.quantity);
+    }
+
+    // UnitGrossVal
+    get UnitGrossVal(): number {
+        return HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToInt(this.quantity === 0 ? 1 : this.quantity);
+    }
 
     // Discount get set
     set Discount(val: any) {
@@ -137,6 +159,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.UnitVat = invoiceLine.lineVatAmount;
         offerLine.unitPrice = invoiceLine.unitPrice;
 
+        offerLine.quantity = HelperFunctions.ToInt(invoiceLine.quantity ?? 0);
+
         /*
         productCode: x.data.productCode,
         lineDescription: x.data.productDescription,
@@ -189,6 +213,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.Discount = data.discount;
         offerLine.showDiscount = data.showDiscount;
         offerLine.unitOfMeasure = data.unitOfMeasure;
+
+        offerLine.quantity = HelperFunctions.ToInt(data.quantity ?? 0);
 
         offerLine.vatRate = 0;
         
