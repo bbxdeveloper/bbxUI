@@ -84,17 +84,17 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     console.log("RecalcNetAndVat: ", this.dbData, this.dbData.filter(x => !x.data.IsUnfinished()), this.dbData[0].data.UnitPriceVal);
 
     this.offerData.offerNetAmount =
-      this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => HelperFunctions.ToFloat(x.data.UnitPriceVal) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity))
-        .reduce((sum, current) => sum + current, 0);
+      HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => HelperFunctions.ToFloat(x.data.UnitPriceVal) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity))
+        .reduce((sum, current) => sum + current, 0));
 
     console.log("RecalcNetAndVat after: ", this.offerData.offerNetAmount);
 
 
     this.offerData.offerGrossAmount =
-      this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => (HelperFunctions.ToFloat(x.data.UnitGrossVal) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity)))
-        .reduce((sum, current) => sum + current, 0);
+      HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => (HelperFunctions.ToFloat(x.data.UnitGrossVal) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity)))
+        .reduce((sum, current) => sum + current, 0));
   }
 
   override InitialSetup(): void {
@@ -203,7 +203,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         discount: x.data.DiscountForCalc,
         showDiscount: x.data.showDiscount,
         unitOfMeasure: x.data.unitOfMeasure,
-        quantity: HelperFunctions.ToInt(x.data.quantity)
+        quantity: HelperFunctions.ToFloat(x.data.quantity)
       } as OfferLineForPost;
     });
 

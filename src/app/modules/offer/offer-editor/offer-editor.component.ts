@@ -89,14 +89,14 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     console.log("RecalcNetAndVat: ", this.dbData);
 
     this.offerData.offerNetAmount =
-      this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => this.ToFloat(x.data.UnitPrice) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity))
-        .reduce((sum, current) => sum + current, 0);
+      HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => this.ToFloat(x.data.UnitPrice) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity))
+        .reduce((sum, current) => sum + current, 0));
 
     this.offerData.offerGrossAmount =
-      this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => (this.ToFloat(x.data.unitGross) * HelperFunctions.ToInt(x.data.quantity === 0 ? 1 : x.data.quantity)))
-        .reduce((sum, current) => sum + current, 0);
+      HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => (this.ToFloat(x.data.unitGross) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity)))
+        .reduce((sum, current) => sum + current, 0));
   }
 
   override InitialSetup(): void {
@@ -294,7 +294,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           unitOfMeasureX: x.data.unitOfMeasureX,
           vatRateID: x.data.vatRateID,
           vatPercentage: x.data.vatPercentage,
-          quantity: HelperFunctions.ToInt(x.data.quantity)
+          quantity: HelperFunctions.ToFloat(x.data.quantity)
         } as OfferLineFullData
       }
     );

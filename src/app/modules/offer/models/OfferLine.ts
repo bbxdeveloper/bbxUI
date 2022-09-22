@@ -61,17 +61,17 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return this.quantity;
     }
     set Quantity(val: any) {
-        this.quantity = HelperFunctions.ToInt(val);
+        this.quantity = val;
     }
 
     // UnitPriceVal
     get UnitPriceVal(): number {
-        return HelperFunctions.ToFloat(this.UnitPrice) * HelperFunctions.ToInt(this.quantity === 0 ? 1 : this.quantity);
+        return HelperFunctions.ToInt(HelperFunctions.ToFloat(this.UnitPrice) * HelperFunctions.ToFloat(this.quantity === 0 ? 1 : this.quantity));
     }
 
     // UnitGrossVal
     get UnitGrossVal(): number {
-        return HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToInt(this.quantity === 0 ? 1 : this.quantity);
+        return HelperFunctions.ToInt(HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToFloat(this.quantity === 0 ? 1 : this.quantity));
     }
 
     // Discount get set
@@ -159,7 +159,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.UnitVat = invoiceLine.lineVatAmount;
         offerLine.unitPrice = invoiceLine.unitPrice;
 
-        offerLine.quantity = HelperFunctions.ToInt(invoiceLine.quantity ?? 0);
+        offerLine.quantity = HelperFunctions.ToFloat(invoiceLine.quantity ?? 0);
 
         /*
         productCode: x.data.productCode,
@@ -214,7 +214,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.showDiscount = data.showDiscount;
         offerLine.unitOfMeasure = data.unitOfMeasure;
 
-        offerLine.quantity = HelperFunctions.ToInt(data.quantity ?? 0);
+        offerLine.quantity = HelperFunctions.ToFloat(data.quantity ?? 0);
 
         offerLine.vatRate = 0;
         

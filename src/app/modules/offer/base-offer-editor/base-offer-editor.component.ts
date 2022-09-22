@@ -95,7 +95,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     {
       label: 'Menny.', objectKey: 'Quantity', colKey: 'Quantity',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number-integer'
+      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -674,7 +674,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       );
       return;
     }
-    if (this.dbData.find(x => x.data.quantity === undefined || x.data.quantity <= 1) === undefined) {
+    if (this.dbData.find(x => x.data.quantity === undefined || x.data.quantity === 0) === undefined) {
       this.bbxToastrService.show(
         `Minden tételnek pozitív mennyiséggel kell rendelkeznie.`,
         Constants.TITLE_ERROR,
