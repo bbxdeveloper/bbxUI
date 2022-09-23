@@ -24,7 +24,7 @@ export class CustDiscount implements IEditable, CustDiscountForPostItem, CustDic
     "customerID": number = -1;
     "productGroupID": number = -1;
     "productGroupCode": string;
-    "discount": number = Number.MIN_SAFE_INTEGER;
+    "discount": number = 0;
     "customer": any;
     "productGroup": string;
     "id": number = 0;
@@ -58,13 +58,13 @@ export class CustDiscount implements IEditable, CustDiscountForPostItem, CustDic
     }
 
     IsUnfinished(): boolean {
-        return !HelperFunctions.IsStringValid(this.productGroup) || !HelperFunctions.IsStringValid(this.productGroupCode) || this.discount === Number.MIN_SAFE_INTEGER;
+        return !HelperFunctions.IsStringValid(this.productGroupCode);
     }
 
     ToCustDiscountForPostItem(): CustDiscountForPostItem {
         return {
-            discount: this.Discount,
-            productGroupID: this.productGroupID
+            discount: HelperFunctions.ToFloat(this.Discount),
+            productGroupID: HelperFunctions.ToInt(this.productGroupID)
         } as CustDiscountForPostItem;
     }
 }

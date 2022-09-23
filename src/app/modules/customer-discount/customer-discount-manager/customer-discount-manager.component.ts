@@ -287,7 +287,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     // this.dbData.forEach(x => {
     //   x.data.productGroupID = this.productGroups.find(y => y.productGroupCode === x.data.productGroupCode)?.id ?? -1;
     // });
-    console.log("[UpdateOutGoingData]: ", this.productGroups);
+    console.log("[UpdateOutGoingData]: ", this.dbData);
     this.custDiscountData.items =
       this.dbData.filter((x, index: number) => index !== this.dbData.length - 1 && !x.data.IsUnfinished()).map(x => x.data.ToCustDiscountForPostItem());
     this.custDiscountData.customerID = this.buyerData.id;
@@ -663,14 +663,14 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       );
       return;
     }
-    // if (this.dbData.find(x => this.productGroups.find(y => y.id === x.data.productGroupID) === undefined) !== undefined) {
-    //   this.bbxToastrService.show(
-    //     `Nem létező termékcsoport(ok) van(nak) megadva a tételek között.`,
-    //     Constants.TITLE_ERROR,
-    //     Constants.TOASTR_ERROR
-    //   );
-    //   return;
-    // }
+    if (this.dbData.find(x => this.productGroups.find(y => y.id === x.data.productGroupID) === undefined || !HelperFunctions.IsStringValid(x.data.productGroup) || x.data.discount === undefined) !== undefined) {
+      this.bbxToastrService.show(
+        `Néhány tétel hiányosan vagy hibásan van megadva.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
 
     this.Save();
   }
