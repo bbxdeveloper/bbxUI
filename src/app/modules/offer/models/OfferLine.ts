@@ -33,6 +33,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
     // OfferLineForPost
     "lineNumber": number = 0;
     "productCode": string;
+    "productGroup": string;
     "lineDescription": string;
     "originalUnitPrice": number = 0; // readonly
     "discount": number = 0;
@@ -194,6 +195,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.productID = product.id;
         offerLine.vatRateID = vatRateId;
         offerLine.vatPercentage = HelperFunctions.ToFloat(product.vatPercentage ?? 0.0);
+
+        offerLine.productGroup = product.productGroup;
 
         // console.log('FromProduct res: ', offerLine);
 

@@ -38,6 +38,7 @@ import { OfferUtil } from '../models/OfferUtil';
 import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 
 @Component({
   selector: 'app-offer-editor',
@@ -75,12 +76,13 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     router: Router,
     route: ActivatedRoute,
     sidebarService: BbxSidebarService,
-    khs: KeyboardHelperService
+    khs: KeyboardHelperService,
+    custDiscountService: CustomerDiscountService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
-      sts, productService, utS, router, vatRateService, route, sidebarService, khs
+      sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService
     );
     this.InitialSetup();
   }
@@ -399,13 +401,31 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 );
               }
 
-              this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, this.offerData.id, vatRateFromProduct?.id ?? 0)});
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
+              this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }).subscribe({
+                next: data => {
+                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                  const _d = this.dbData[rowIndex].data;
+                  this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 500);
+                },
+                error: err => {
+                  this.cs.HandleError(d.errors);
+
+                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 500);
+                },
+                complete: () => {}
+              });
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;

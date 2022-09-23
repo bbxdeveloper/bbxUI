@@ -33,6 +33,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -204,7 +205,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected vatRateService: VatRateService,
     protected route: ActivatedRoute,
     protected sidebarService: BbxSidebarService,
-    khs: KeyboardHelperService
+    khs: KeyboardHelperService,
+    protected custDiscountService: CustomerDiscountService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
   }
@@ -303,13 +305,31 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 200);
+            this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }).subscribe({
+              next: data => {
+                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
+                const _d = this.dbData[rowPos].data;
+                this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.dbDataTable.MoveNextInTable();
+                setTimeout(() => {
+                  this.kbS.setEditMode(KeyboardModes.EDIT);
+                  this.kbS.ClickCurrentElement();
+                }, 200);
+              },
+              error: err => {
+                this.cs.HandleError(err);
+
+                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.dbDataTable.MoveNextInTable();
+                setTimeout(() => {
+                  this.kbS.setEditMode(KeyboardModes.EDIT);
+                  this.kbS.ClickCurrentElement();
+                }, 500);
+              },
+              complete: () => { }
+            });
           } else {
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
