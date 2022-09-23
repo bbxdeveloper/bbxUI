@@ -242,4 +242,16 @@ export module HelperFunctions {
     export function Round(p: string | number): number {
         return Math.round(ToFloat(p));
     }
+
+    export function IsStringValid(str: any): boolean {
+        if (str !== undefined && str !== null && (str + '').length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    export function IsNumber(val: string): boolean {
+        let val2 = val.replace(' ', '');
+        return !isNaN(parseFloat(val2));
+    }
 }

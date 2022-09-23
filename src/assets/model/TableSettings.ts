@@ -75,6 +75,55 @@ export module CustomerDialogTableSettings {
     ];
 }
 
+export module ProductGroupDialogTableSettings {
+    export const ProductGroupSelectorDialogAllColumns: string[] = [
+        'id',
+        'productGroupCode',
+        'productGroupDescription'
+    ];
+    export const ProductGroupSelectorDialogColDefs: ModelFieldDescriptor[] = [
+        {
+            label: 'Azonosító',
+            objectKey: 'id',
+            colKey: 'id',
+            defaultValue: '',
+            type: 'number',
+            fInputType: 'readonly',
+            mask: '',
+            colWidth: '20%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Kód',
+            objectKey: 'productGroupCode',
+            colKey: 'productGroupCode',
+            defaultValue: '',
+            type: 'string',
+            fInputType: 'code-field',
+            fRequired: true,
+            mask: '',
+            colWidth: '130px',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Név',
+            objectKey: 'productGroupDescription',
+            colKey: 'productGroupDescription',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            fInputType: 'text',
+            mask: 'Set in sidebar form.',
+            colWidth: '80%',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+            fLast: true
+        },
+    ];
+}
+
 export module ProductDialogTableSettings {
     export const ProductSelectorDialogAllColumns: string[] = [
         'productCode',
