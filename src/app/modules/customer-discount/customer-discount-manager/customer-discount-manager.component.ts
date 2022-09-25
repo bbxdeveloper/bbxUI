@@ -13,18 +13,14 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
-import { Product } from '../../product/models/Product';
-import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings, CustDiscountKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, CustDiscountKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { CustomerDialogTableSettings, ProductDialogTableSettings, ProductGroupDialogTableSettings } from 'src/assets/model/TableSettings';
+import { CustomerDialogTableSettings, ProductGroupDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Subscription } from 'rxjs';
-import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustDiscount, CustDiscountFromCustDiscountForGet } from '../models/CustDiscount';
@@ -39,6 +35,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-nu
 import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
+import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
 
 @Component({
   selector: 'app-customer-discount-manager',
@@ -61,30 +58,19 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   countryCodes: CountryCode[] = [];
   productGroups: ProductGroup[] = [];
 
-  // get SelectedWareHouseId(): number {
-  //   return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
-  //     HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1]?.warehouseID) : -1;
-  // }
-  // get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
-  //   if (!!this.buyerForm && this.buyerForm.controls !== undefined) {
-  //     return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
-  //       this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
-  //   }
-  //   return undefined;
-  // }
+  get ProductGroupGetAllParams(): GetProductGroupsParamListModel {
+    return {
+      PageSize: '1000'
+    };
+  }
 
-  override colsToIgnore: string[] = [];
+  override colsToIgnore: string[] = ['ProductGroup'];
   override allColumns = [
     'ProductGroupCode',
     'ProductGroup',
     'Discount',
   ];
   override colDefs: ModelFieldDescriptor[] = [
-    // {
-    //   label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
-    //   defaultValue: '', type: 'string', mask: "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
-    //   colWidth: "30%", textAlign: "left", fInputType: 'code-field'
-    // },
     {
       label: 'Tcs.kód', objectKey: 'ProductGroupCode', colKey: 'ProductGroupCode',
       defaultValue: '', type: 'string', mask: "", fReadonly: false,
@@ -92,7 +78,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     },
     {
       label: 'Megnevezés', objectKey: 'ProductGroup', colKey: 'ProductGroup',
-      defaultValue: '', type: 'string', mask: "", fReadonly: false,
+      defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "80%", textAlign: "right"
     },
     {
@@ -154,7 +140,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     private simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
-    private productService: ProductService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private productGroupService: ProductGroupService,
@@ -220,9 +205,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     this.dbDataTable!.OuterJump = true;
 
     this.isLoading = false;
-
-    // Refresh data
-    // this.refresh();
   }
 
   public RefreshAndJumpToTable(): void {
@@ -238,7 +220,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         this.cs.HandleError(err);
       }
     });
-    this.productGroupService.GetAll().subscribe({
+    this.productGroupService.GetAll(this.ProductGroupGetAllParams).subscribe({
       next: (data) => {
         if (!!data) this.productGroups = data.data ?? [];
       },
@@ -246,7 +228,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         this.cs.HandleError(err);
       }
     });
-    // this.refreshComboboxData();
+
     if (this.buyerData?.id === undefined || this.buyerData?.id < 0) {
       return;
     }
@@ -268,6 +250,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       },
       complete: () => {
         this.isLoading = false;
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+          this.kbS.Jump(AttachDirection.DOWN, false);
+        }
       },
     });
   }
@@ -284,12 +270,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   }
 
   private UpdateOutGoingData() {
-    // this.dbData.forEach(x => {
-    //   x.data.productGroupID = this.productGroups.find(y => y.productGroupCode === x.data.productGroupCode)?.id ?? -1;
-    // });
     console.log("[UpdateOutGoingData]: ", this.dbData);
-    this.custDiscountData.items =
-      this.dbData.filter((x, index: number) => index !== this.dbData.length - 1 && !x.data.IsUnfinished()).map(x => x.data.ToCustDiscountForPostItem());
+
+    const _dbData = this.dbData.slice(0, this.dbData.length - 1);
+    this.custDiscountData.items = _dbData.map(x => x.data.ToCustDiscountForPostItem());
     this.custDiscountData.customerID = this.buyerData.id;
 
     console.log("[UpdateOutGoingData]: ", this.custDiscountData, this.dbData);
@@ -375,24 +359,11 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
       this.cdref.detectChanges();
     }, 500);
-
-    // this.buyerForm.controls['invCtrlPeriod'].valueChanges.subscribe({
-    //   next: newValue => {
-    //     const selected = this.SelectedInvCtrlPeriod;
-    //     if (selected?.dateFrom !== undefined && HelperFunctions.IsDateStringValid(selected.dateFrom)) {
-    //       this.buyerForm.controls['invCtrlDate'].setValue(selected.dateFrom)
-    //     }
-    //   }
-    // });
   }
 
-  InitFormDefaultValues(): void {
-    // this.buyerForm.controls['invCtrlDate'].setValue(HelperFunctions.GetDateString());
-  }
+  InitFormDefaultValues(): void {}
 
   HandleProductSelectionFromDialog(res: ProductGroup, rowIndex: number) {
-    // this.isLoading = true;
-
     if (res.id === undefined || res.id === -1) {
       return;
     }
@@ -407,11 +378,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       return;
     }
 
-    // this.isLoading = true;
-
     let changedData = this.dbData[rowIndex].data;
     changedData.productGroupCode = res.productGroupCode;
-    // changedData.productGroup = res.productGroupDescription;
+    changedData.productGroup = res.productGroupDescription;
     changedData.productGroupID = res.id;
     this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
 
@@ -526,7 +495,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               } else {
   
                 changedData.productGroupCode = productGroup.productGroupCode;
-                // changedData.productGroupDescription = productGroup.productGroupDescription;
+                changedData.productGroup = productGroup.productGroupDescription;
                 changedData.productGroupID = productGroup.id;
                 this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
                 
@@ -555,29 +524,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           if (_product.id === undefined || _product.id === -1 || alreadyAdded) {
             return;
           }
-
-          // this.invCtrlItemService.GetAllRecords(
-          //   { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
-          //   .subscribe({
-          //     next: data => {
-          //       if (!!data && data.id !== 0) {
-          //         this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
-          //         this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
-          //       }
-          //     },
-          //     error: () => { },
-          //     complete: () => { }
-          //   });
-          // this.stockService.Record({ ProductID: _product.id, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
-          //   next: data => {
-          //     if (!!data && data.id !== 0) {
-          //       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          //       this.dbDataTable.data[rowPos].data.realQty = data.realQty;
-          //     }
-          //   },
-          //   error: () => { },
-          //   complete: () => { }
-          // });
         }
       });
     }
@@ -594,10 +540,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    // if (index !== undefined) {
-    //   this.RoundPrices(index);
-    // }
-
     if (!!changedData && !!changedData.productCode) {
       if ((!!col && col === 'productCode') || col === undefined) {
         this.productGroupService.Get({ ID: this.productGroups.find(x => x.productGroupCode === changedData.productGroupCode)?.id ?? -1 }).subscribe({
@@ -624,26 +566,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     }
   }
 
-  private refreshComboboxData(): void {
-    // this.invCtrlPeriodService.GetAll().subscribe({
-    //   next: data => {
-    //     console.log("[refreshComboboxData]: ", data);
-    //     this.invCtrlPeriods =
-    //       data?.data?.map(x => {
-    //         let res = x.warehouse + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
-    //         this.invCtrlPeriodValues[res] = x;
-    //         return res;
-    //       }) ?? [];
-    //     this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
-    //     setTimeout(() => {
-    //       if (this.invCtrlPeriods.length > 0) {
-    //         this.buyerForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
-    //       }
-    //     }, 100);
-    //   }
-    // });
-  }
-
   CheckSaveConditionsAndSave(): void {
     this.buyerForm.markAllAsTouched();
 
@@ -663,16 +585,30 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       );
       return;
     }
-    if (this.dbData.find(x => this.productGroups.find(y => y.id === x.data.productGroupID) === undefined || !HelperFunctions.IsStringValid(x.data.productGroup) || x.data.discount === undefined) !== undefined) {
-      this.bbxToastrService.show(
-        `Néhány tétel hiányosan vagy hibásan van megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    }
+    const _dbData = this.dbData.slice(0, this.dbData.length - 1);
+    this.productGroupService.GetAll(this.ProductGroupGetAllParams).subscribe({
+      next: (data) => {
+        if (!!data) {
+          this.productGroups = data.data ?? [];
 
-    this.Save();
+          if (_dbData.find(x => this.productGroups.find(y => y.id === x.data.productGroupID) === undefined || x.data.discount === undefined) !== undefined) {
+            this.bbxToastrService.show(
+              `Néhány tétel hiányosan vagy hibásan van megadva.`,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
+          } else {
+            this.Save();
+          }
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   protected SetCustomerFormFields(data?: Customer) {
@@ -815,7 +751,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
   LoadRemainingProductGroups(): void {
     this.isLoading = true;
-    this.productGroupService.GetAll().subscribe({
+    this.productGroupService.GetAll(this.ProductGroupGetAllParams).subscribe({
       next: (data) => {
         if (!!data) {
           this.productGroups = data.data ?? [];
@@ -825,6 +761,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               let newItem = new CustDiscount();
               newItem.Discount = 0;
               newItem.productGroupCode = pg.productGroupCode;
+              newItem.productGroup = pg.productGroupDescription;
               newItem.productGroupID = pg.id;
               newItem.customerID = this.buyerData?.id ?? -1;
   
