@@ -18,6 +18,9 @@ export class FormControlErrorComponent {
   @Input() validationParameterDateSecondary?: Date | undefined;
   @Input() label?: string;
 
+  @Input() formGroupMode: boolean = false;
+  @Input() formGroupMessage: string = "";
+
   public get ValidationMessage(): typeof ValidationMessage {
     return ValidationMessage;
   }

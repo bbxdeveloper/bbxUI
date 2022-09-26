@@ -212,8 +212,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (path === 'invoice') {
       this.InvoiceType = 'INV';
       this.Incoming = false;
+      this.Delivery = false;
     } else if (path === 'outgoing-delivery-note-income') {
-      this.InvoiceType = 'DNI';
+      this.InvoiceType = 'DNO';
       this.Incoming = false;
       this.Delivery = true;
     }

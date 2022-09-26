@@ -117,9 +117,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       placeHolder: '0.00'
     },
     {
-      label: 'Kedv. Mut.', objectKey: 'showDiscount', colKey: 'showDiscount',
+      label: 'Kd.', objectKey: 'showDiscount', colKey: 'showDiscount',
       defaultValue: '', type: 'checkbox', mask: "",
-      colWidth: "110px", textAlign: "center", fInputType: 'checkbox'
+      colWidth: "40px", textAlign: "center", fInputType: 'checkbox'
     },
     {
       label: 'Nettó árlist.', objectKey: 'UnitPrice', colKey: 'UnitPrice',
@@ -132,9 +132,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Áfakód', objectKey: 'vatRateCode', colKey: 'vatRateCode',
+      label: 'Áfa%', objectKey: 'vatRateCode', colKey: 'vatRateCode',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "80px", textAlign: "right", //fInputType: 'formatted-number'
+      colWidth: "70px", textAlign: "right", //fInputType: 'formatted-number'
     },
     {
       label: 'Bruttó ért.', objectKey: 'UnitGrossVal', colKey: 'UnitGrossVal',

@@ -759,6 +759,8 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           this.productGroups = data.data ?? [];
 
           this.productGroups.forEach(pg => {
+            console.log("ProductGroup: ", pg);
+
             if (this.dbData.find(x => x.data.productGroupCode === pg.productGroupCode) === undefined) {
               let newItem = new CustDiscount();
               newItem.Discount = 0;
@@ -767,7 +769,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               newItem.productGroupID = pg.id;
               newItem.customerID = this.buyerData?.id ?? -1;
   
-              this.dbData.splice(this.dbData.length - 2, 0, { data: newItem });
+              this.dbData.splice(0, 0, { data: newItem });
             }
           });
 

@@ -42,15 +42,8 @@
                                 </nb-form-field>
                             </td>
                             <td>
-                                <app-form-control-error [form]="buyerFormNav" label="ügyfél" controlName="customerName">
-                                </app-form-control-error>
-                            </td>
-                            <td>
-                                <app-form-control-error [form]="buyerFormNav" label="ügyfél cím" controlName="customerAddress">
-                                </app-form-control-error>
-                            </td>
-                            <td>
-                                <app-form-control-error [form]="buyerFormNav" label="ügyfél adószám" controlName="customerTaxNumber">
+                                <app-form-control-error [formGroupMode]="true" formGroupMessage="Partner választása kötelező!"
+                                [form]="buyerFormNav" controlName="customerName">
                                 </app-form-control-error>
                             </td>
                         </tr>
