@@ -78,7 +78,6 @@ export module CustomerDialogTableSettings {
 export module ProductGroupDialogTableSettings {
     export const ProductGroupSelectorDialogAllColumns: string[] = [
         'id',
-        'productGroupCode',
         'productGroupDescription'
     ];
     export const ProductGroupSelectorDialogColDefs: ModelFieldDescriptor[] = [
@@ -90,21 +89,8 @@ export module ProductGroupDialogTableSettings {
             type: 'number',
             fInputType: 'readonly',
             mask: '',
-            colWidth: '20%',
-            textAlign: 'center',
-            navMatrixCssClass: TileCssClass,
-        },
-        {
-            label: 'Kód',
-            objectKey: 'productGroupCode',
-            colKey: 'productGroupCode',
-            defaultValue: '',
-            type: 'string',
-            fInputType: 'code-field',
-            fRequired: true,
-            mask: '',
             colWidth: '130px',
-            textAlign: 'left',
+            textAlign: 'center',
             navMatrixCssClass: TileCssClass,
         },
         {
@@ -116,7 +102,7 @@ export module ProductGroupDialogTableSettings {
             fRequired: true,
             fInputType: 'text',
             mask: 'Set in sidebar form.',
-            colWidth: '80%',
+            colWidth: '100%',
             textAlign: 'left',
             navMatrixCssClass: TileCssClass,
             fLast: true

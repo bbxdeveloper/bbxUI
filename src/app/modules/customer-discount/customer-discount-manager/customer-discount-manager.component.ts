@@ -73,13 +73,13 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Tcs.kód', objectKey: 'ProductGroupCode', colKey: 'ProductGroupCode',
-      defaultValue: '', type: 'string', mask: "", fReadonly: false,
-      colWidth: "200px", textAlign: "right"
+      defaultValue: '', type: 'string', mask: Constants.CustDiscountCodeMask, fReadonly: false,
+      colWidth: "200px", textAlign: "left", fInputType: "code-field"
     },
     {
       label: 'Megnevezés', objectKey: 'ProductGroup', colKey: 'ProductGroup',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "80%", textAlign: "right"
+      colWidth: "80%", textAlign: "left"
     },
     {
       label: 'Eng%', objectKey: 'Discount', colKey: 'Discount',
@@ -272,8 +272,13 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   private UpdateOutGoingData() {
     console.log("[UpdateOutGoingData]: ", this.dbData);
 
-    const _dbData = this.dbData.slice(0, this.dbData.length - 1);
-    this.custDiscountData.items = _dbData.map(x => x.data.ToCustDiscountForPostItem());
+    if (this.dbData.length === 1) {
+      this.custDiscountData.items = [];
+    } else {
+      const _dbData = this.dbData.slice(0, this.dbData.length - 1);
+      this.custDiscountData.items = _dbData.map(x => x.data.ToCustDiscountForPostItem());
+    }
+    
     this.custDiscountData.customerID = this.buyerData.id;
 
     console.log("[UpdateOutGoingData]: ", this.custDiscountData, this.dbData);
@@ -282,45 +287,42 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   Save(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
-    confirmDialogRef.onClose.subscribe(res => {
-      if (res) {
-        this.UpdateOutGoingData();
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_DATA, () => {
+      this.UpdateOutGoingData();
 
-        console.log('Save: ', this.custDiscountData);
+      console.log('Save: ', this.custDiscountData);
 
-        this.isLoading = true;
+      this.isLoading = true;
 
-        this.custDiscountService.Create(this.custDiscountData).subscribe({
-          next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
+      this.custDiscountService.Create(this.custDiscountData).subscribe({
+        next: d => {
+          if (!!d.data) {
+            console.log('Save response: ', d);
 
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.isLoading = false;
-
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-              this.Reset();
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isLoading = false;
-            }
-          },
-          error: err => {
-            this.cs.HandleError(err);
+            this.simpleToastrService.show(
+              Constants.MSG_SAVE_SUCCESFUL,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
             this.isLoading = false;
-          },
-          complete: () => {
+
+            this.dbDataTable.RemoveEditRow();
+            this.kbS.SelectFirstTile();
+
+            this.Reset();
+          } else {
+            this.cs.HandleError(d.errors);
             this.isLoading = false;
           }
-        });
-      }
+        },
+        error: err => {
+          this.cs.HandleError(err);
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
     });
   }
 
@@ -577,14 +579,14 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       );
       return;
     }
-    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    }
+    // if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+    //   this.bbxToastrService.show(
+    //     `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+    //     Constants.TITLE_ERROR,
+    //     Constants.TOASTR_ERROR
+    //   );
+    //   return;
+    // }
     const _dbData = this.dbData.slice(0, this.dbData.length - 1);
     this.productGroupService.GetAll(this.ProductGroupGetAllParams).subscribe({
       next: (data) => {
@@ -814,7 +816,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           return;
         }
         event.preventDefault();
-        this.LoadRemainingProductGroups();
+        HelperFunctions.confirm(this.dialogService, Constants.MSG_LOAD_REMAINING_TSC, () => {
+          this.LoadRemainingProductGroups();
+        });
         break;
       }
     }

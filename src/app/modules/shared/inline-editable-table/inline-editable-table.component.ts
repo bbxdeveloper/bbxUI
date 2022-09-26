@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
-import { NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
+import { Component, Input, OnInit, Output, EventEmitter, HostListener, Optional } from '@angular/core';
+import { NbDialogService, NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -10,6 +10,7 @@ import { INavigatable } from 'src/assets/model/navigation/Navigatable';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 
 @Component({
@@ -29,6 +30,7 @@ export class InlineEditableTableComponent implements OnInit {
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
   @Input() checkIfDialogOpened: boolean = true;
+  @Input() confirmRowDelete: boolean = false;
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -53,7 +55,8 @@ export class InlineEditableTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
+  constructor(@Optional() protected dialogService: NbDialogService,
+              private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
               private bbxToastrService: BbxToastrService, private khs: KeyboardHelperService) {}
 
   focusOnTable(focusIn: boolean): void {
@@ -102,7 +105,13 @@ export class InlineEditableTableComponent implements OnInit {
     if (!this.ShouldContinueWithEvent(event)) {
       return;
     }
-    this.dbDataTable?.HandleGridDelete(event, row, rowPos, col)
+    if (this.confirmRowDelete) {
+      HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_DELETE, () => {
+        this.dbDataTable?.HandleGridDelete(event, row, rowPos, col)
+      });
+    } else {
+      this.dbDataTable?.HandleGridDelete(event, row, rowPos, col)
+    }
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {

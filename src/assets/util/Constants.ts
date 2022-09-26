@@ -13,6 +13,7 @@ export module Constants {
     export const MSG_CONFIRMATION_SAVE_DATA: string = "Adatok mentése?";
     export const MSG_CONFIRMATION_DELETE_OFFER: string = "Biztosan törölni szeretné az ajánlatot?";
     export const MSG_INVALID_FILTER_FORM: string = "Hiányos vagy hibásan kitöltött mezők vannak a szűrőben!";
+    export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
@@ -48,6 +49,7 @@ export module Constants {
         C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
     };
     export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+    export const CustDiscountCodeMask = "CCC";
 
     // Util
 
