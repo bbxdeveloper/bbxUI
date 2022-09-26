@@ -8,9 +8,12 @@ export module Constants {
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
+    export const MSG_CONFIRMATION_LOCK: string = "Biztosan végre szeretné hajtani a zárást?";
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
     export const MSG_CONFIRMATION_SAVE_DATA: string = "Adatok mentése?";
     export const MSG_CONFIRMATION_DELETE_OFFER: string = "Biztosan törölni szeretné az ajánlatot?";
+    export const MSG_INVALID_FILTER_FORM: string = "Hiányos vagy hibásan kitöltött mezők vannak a szűrőben!";
+    export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
@@ -22,6 +25,9 @@ export module Constants {
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
 
     export const MSG_NO_PRODUCT_FOUND: string = 'Nincs a begépelt kódnak megfelelő termék! Kérem próbálja meg a keresőablak használatával.';
+    export const MSG_NO_PRODUCT_GROUP_FOUND: string = 'Nincs a begépelt kódnak megfelelő termékcsoport! Kérem próbálja meg a keresőablak használatával.';
+    export const MSG_PRODUCT_ALREADY_THERE: string = 'Ez a termék már szerepel a felvett tételek között.';
+    export const MSG_PRODUCT_GROUP_ALREADY_THERE: string = 'Ez a termékcsoport már szerepel a felvett tételek között.';
 
     export const MSG_LOGIN_SUCCESFUL: string = 'Sikeres bejelentkezés!'
     export const MSG_LOGIN_FAILED: string = 'Sikertelen bejelentkezés!'
@@ -38,6 +44,12 @@ export module Constants {
     export const TOASTR_ERROR_5_SEC: Partial<NbToastrConfig> =
         { duration: 5000, status: 'danger' };
 
+    export const ProductCodePatterns = {
+        A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') },
+        C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
+    };
+    export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+    export const CustDiscountCodeMask = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 
     // Util
 
@@ -54,6 +66,7 @@ export module Constants {
         PRINT_INVOICE,
         ERROR,
         PRINT_OFFER,
+        PRINT_GENERIC,
         DOWNLOAD_OFFER_NAV_CSV,
         DOWNLOAD_BLOB
     }
@@ -103,6 +116,11 @@ export module Constants {
     export enum CRUDSavingPhases { SAVING }
     export const CRUDSavingStatuses: ProcessStatus[] = [
         { title: 'Mentés', value: 0, msg: '1/1 - Új rekord mentése', isSimple: true }
+    ];
+
+    export enum GeneralSavingPhases { SAVING }
+    export const GeneralSavingStatuses: ProcessStatus[] = [
+        { title: 'Mentés', value: 0, msg: '1/1 - Mentés', isSimple: true }
     ];
 
     export enum CRUDPutPhases { UPDATING }

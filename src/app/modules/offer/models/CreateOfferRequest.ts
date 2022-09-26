@@ -5,5 +5,8 @@ export interface CreateOfferRequest {
     "offerIssueDate": string,
     "offerVaidityDate": string,
     "notice": string,
-    "offerLines": OfferLineForPost[]
+    "offerLines": OfferLineForPost[],
+
+    "offerNetAmount": number,
+    "offerGrossAmount": number,
 }

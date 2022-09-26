@@ -1,5 +1,5 @@
 import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogRef, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -8,6 +8,7 @@ import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
@@ -37,7 +38,8 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   override isLoading: boolean = false;
 
   constructor(
-    private toastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
     dialogRef: NbDialogRef<SelectTableDialogComponent<Customer>>,
@@ -77,6 +79,10 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override refreshFilter(event: any): void {
+    if (event.ctrlKey || event.key == KeyBindings.F2) {
+      return;
+    }
+
     console.log("Search: ", event.target.value);
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
@@ -93,6 +99,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override showLess(): void {
+    this.kbS.SelectFirstTile();
     this.Refresh(this.getInputParams);
   }
 
@@ -111,9 +118,14 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override Refresh(params?: GetCustomersParamListModel): void {
+    if (!!this.Subscription_Search && !this.Subscription_Search.closed) {
+      this.Subscription_Search.unsubscribe();
+    }
+
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
-    this.customerService.GetAll(params).subscribe({
+    
+    this.Subscription_Search = this.customerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug
@@ -126,7 +138,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.bbxToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR

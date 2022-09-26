@@ -78,11 +78,7 @@ export class BaseNoFormManagerComponent<T> {
     protected sidebarService: BbxSidebarService,
     protected cs: CommonService,
     protected sts: StatusService) {
-  }
-
-  GetPageCount(recordsFiltered: number, pageSize: number): number {
-    const tmp = Math.round(recordsFiltered / pageSize);
-    return tmp === 0 ? 1 : tmp;
+      this.sidebarService.collapse();
   }
 
   HandleError(err: any): void {
@@ -103,6 +99,11 @@ export class BaseNoFormManagerComponent<T> {
     }
     this.dbDataTable.flatDesignForm.SetFormStateToDefault();
   }
+
+  ActionLock(data?: IUpdateRequest<T>): void {
+    this.ProcessActionLock(data);
+  }
+  ProcessActionLock(data?: IUpdateRequest<T>): void { }
 
   ActionNew(data?: IUpdateRequest<T>): void {
     console.log("ActionNew: ", data);
@@ -237,7 +238,7 @@ export class BaseNoFormManagerComponent<T> {
 
   Refresh(params?: any): void { }
 
-  RefreshTable(selectAfterRefresh?: any): void {
+  RefreshTable(selectAfterRefresh?: any, setAsCurrentNavigatable: boolean = true): void {
     this.dbDataTable.Setup(
       this.dbData,
       this.dbDataDataSrc,
@@ -246,7 +247,7 @@ export class BaseNoFormManagerComponent<T> {
       this.colsToIgnore
     );
     setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh, setAsCurrentNavigatable);
     }, 200);
   }
 

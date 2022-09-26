@@ -69,7 +69,6 @@ export class BaseSideBarFormComponent {
       case this.KeySetting[Actions.CrudReset].KeyCode:
       case this.KeySetting[Actions.CrudSave].KeyCode:
       case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();

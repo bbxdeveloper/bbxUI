@@ -5,16 +5,20 @@
             (keydown.escape)="formNav.HandleFormEscape()">
             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <label>{{inputLabel}}</label>
-                <input class="{{TileCssClass}}" nbInput type="text"
+                <input *ngIf="!isReadonly" class="{{TileCssClass}}" nbInput type="text"
                     formControlName='answer' required="true"
                     (click)="formNav.HandleFormFieldClick($event)">
+                <input *ngIf="isReadonly" nbInput type="text"
+                    formControlName='answer' required="true" readonly>
             </nb-form-field>
         </form>
     </nb-card-body>
     <nb-card-footer>
-        <button class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton (click)="close(true)"
+        <button *ngIf="isReadonly" class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton (click)="close(true)"
+            status="primary" tabindex="-1">Bezárás</button>
+        <button *ngIf="!isReadonly" class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton (click)="close(true)"
             status="primary" tabindex="-1">Igen</button>
-        <button class="{{TileCssClass}}" id="date-interval-dialog-button-no" nbButton (click)="close(false)"
+        <button *ngIf="!isReadonly"class="{{TileCssClass}}" id="date-interval-dialog-button-no" nbButton (click)="close(false)"
             status="danger" tabindex="-1">Nem</button>
     </nb-card-footer>
 </nb-card>

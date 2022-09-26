@@ -64,7 +64,15 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         { key: 'F12', value: '', disabled: false }
     ];
 
-    formMode: Constants.FormState = Constants.FormState.default;
+    _formMode: Constants.FormState = Constants.FormState.default;
+    get formMode(): Constants.FormState { return this._formMode; }
+    set formMode(val: Constants.FormState) {
+        console.log("-------------");
+        console.log("Old formstate: ", Constants.FormState[this._formMode]);
+        this._formMode = val;
+        console.log("New formstate: ", Constants.FormState[this._formMode]);
+    }
+
 
     get isDeleteDisabled() { return this.formMode === Constants.FormState.new; }
 
@@ -111,6 +119,11 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         this.formMode = Constants.FormState.new;
     }
 
+    IsFormInNewState(): boolean {
+        return this.formMode == Constants.FormState.new;
+    }
+
+    ActionLock(data?: IUpdateRequest<T>): void { }
     ActionNew(data?: IUpdateRequest<T>): void { }
     ActionReset(data?: IUpdateRequest<T>): void { }
     ActionPut(data?: IUpdateRequest<T>): void { }
@@ -413,8 +426,8 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         this.kbS.Detach(x, y);
     }
 
-    AfterViewInitSetup(): void {
-        this.GenerateAndSetNavMatrices(true, false);
+    AfterViewInitSetup(attach: boolean = false): void {
+        this.GenerateAndSetNavMatrices(attach, false);
 
         this.PushFooterCommandList();
 

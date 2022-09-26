@@ -80,7 +80,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
       this.currentForm.form.controls['customerBankAccountNumber'].valueChanges.subscribe({
         next: val => {
-          const currentTypeBankAccountNumber = val;
+          const currentTypeBankAccountNumber = val !== undefined && val !== null ? val : "";
           const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
           if (currentTypeBankAccountNumber.length > 1) {
             return;
@@ -93,7 +93,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   private checkIfIbanStarted(typedVal: string): boolean {
-    return typedVal.length > 0 && (typedVal.charAt(0) <= '0' || typedVal.charAt(0) >= '9');
+    return typedVal !== undefined && typedVal !== null && typedVal.length > 0 && (typedVal.charAt(0) <= '0' || typedVal.charAt(0) >= '9');
   }
 
   GetBankAccountMask(): string {

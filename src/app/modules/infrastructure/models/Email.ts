@@ -6,9 +6,9 @@ export interface EmailAddress {
 export interface SendEmailRequest {
     from: EmailAddress;
     to: EmailAddress;
-    bodyPlainText?: string;
     body_html_text?: string;
     subject: string;
+    OfferID: number;
 }
 
 export interface SendEmailResponse {

@@ -26,6 +26,11 @@ import { InvoiceModule } from './modules/invoice/invoice.module';
 import { Error404Component } from './error404/error404.component';
 import { OfferModule } from './modules/offer/offer.module';
 import { InfrastructureModule } from './modules/infrastructure/infrastructure.module';
+import { StockModule } from './modules/stock/stock.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { authInterceptorProviders } from 'src/assets/util/auth.interceptor';
+import { CustomerDiscountModule } from './modules/customer-discount/customer-discount.module';
+
 registerLocaleData(localeFr, 'fr');
 
 const maskConfig: Partial<IConfig> = {
@@ -68,7 +73,10 @@ const maskConfig: Partial<IConfig> = {
     OfferModule,
     InputMaskModule,
     CoreModule,
-    InfrastructureModule
+    InfrastructureModule,
+    StockModule,
+    InventoryModule,
+    CustomerDiscountModule
   ],
   exports: [
     NbLayoutModule,
@@ -76,7 +84,8 @@ const maskConfig: Partial<IConfig> = {
   ],
   providers: [
     NbSidebarService,
-    Title
+    Title,
+    authInterceptorProviders
   ],
   bootstrap: [AppComponent]
 })

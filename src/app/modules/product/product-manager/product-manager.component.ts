@@ -54,7 +54,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '15%',
+      colWidth: '200px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -65,7 +65,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '25%',
+      colWidth: '30%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -77,7 +77,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'string',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '35%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -89,7 +89,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'string',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '35%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -141,7 +141,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   vats: VatRate[] = [];
 
   override get getInputParams(): GetProductsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return { OrderBy: "ProductCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
   }
 
   get blankProductRow(): () => Product {
@@ -470,7 +470,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       this.blankProductRow
@@ -499,7 +499,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       }
     }
 
-    this.sidebarService.collapse();
+    this.bbxSidebarService.collapse();
 
     this.RefreshAll(this.getInputParams);
   }
@@ -517,10 +517,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {
@@ -546,6 +543,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.SetTableAndFormCommandListFromManager();
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();

@@ -133,6 +133,11 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         this.getBlankInstance = getBlankInstance;
     }
 
+    Lock(data?: IUpdateRequest): void {
+        this.updater.ActionLock(data);
+        this.PushFooterCommandList();
+    }
+
     New(data?: IUpdateRequest): void {
         this.updater.ActionNew(data);
         this.PushFooterCommandList();
@@ -213,14 +218,14 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
     }
 
     PushFooterCommandList(): void {
-        if (this.sidebarService.sideBarOpened || this.DisableFooter) {
-            return;
-        }
-        if (this.kbs.isEditModeActivated) {
-            this.fS.pushCommands(this.commandsOnTableEditMode);
-        } else {
-            this.fS.pushCommands(this.commandsOnTable);
-        }
+        // if (this.sidebarService.sideBarOpened || this.DisableFooter) {
+        //     return;
+        // }
+        // if (this.kbs.isEditModeActivated) {
+        //     this.fS.pushCommands(this.commandsOnTableEditMode);
+        // } else {
+        //     this.fS.pushCommands(this.commandsOnTable);
+        // }
     }
 
     SelectRowById(id: any): void {
@@ -304,7 +309,15 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         }
     }
 
-    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any): void {
+    GenerateAndSetNavMatrices(attach: boolean, idToSelectAfterGenerate?: any, setAsCurrentNavigatable: boolean = true): void {
+        // try {
+        //     throw new Error("hmmm");
+        // } catch(error) {
+        //     console.error(error);
+        // }
+
+        // this.kbs.Lock();
+
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
@@ -356,7 +369,7 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         }
 
         if (attach) {
-            this.kbs.Attach(this, this.attachDirection);
+            this.kbs.Attach(this, this.attachDirection, setAsCurrentNavigatable);
         }
 
         if (idToSelectAfterGenerate !== undefined) {
@@ -364,6 +377,8 @@ export class FlatDesignNoFormNavigatableTable<T> extends SimplePaginator impleme
         }
 
         // this.kbs.LogMatrix();
+
+        // this.kbs.Unlock();
     }
 
     HandleKey(event: any): void {

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -23,20 +23,31 @@ import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/Fl
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { validDate } from 'src/assets/model/Validators';
+import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { OfferNavKeySettings, GetFooterCommandListFromKeySettings, InvoiceNavKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
+import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
+import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 
 @Component({
   selector: 'app-invoice-nav',
   templateUrl: './invoice-nav.component.html',
   styleUrls: ['./invoice-nav.component.scss']
 })
-export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> implements OnInit, AfterViewInit {
+export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
+  IsTableFocused: boolean = false;
+  isDeleteDisabled: boolean = false;
+
   readonly ChosenIssueFilterOptionValue: string = '1';
   readonly ChosenDeliveryFilterOptionValue: string = '2';
+
+  readonly SearchButtonId: string = 'stock-card-button-search';
 
   override allColumns = [
     'invoiceNumber',
@@ -46,10 +57,10 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     'paymentMethodX',
     'invoiceDeliveryDate',
     'invoiceIssueDate',
-    'paymentDate',
-    'invoiceNetAmount',
-    'invoiceVatAmount',
-    'invoiceGrossAmount',
+    //'paymentDate',
+    //'invoiceNetAmount',
+    //'invoiceVatAmount',
+    //'invoiceGrossAmount',
     'notice',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -66,6 +77,19 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       navMatrixCssClass: TileCssClass,
     },
     {
+      label: 'Raktár',
+      objectKey: 'warehouse',
+      colKey: 'warehouse',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      fRequired: true,
+      mask: '',
+      colWidth: '120px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
       label: 'Partner',
       objectKey: 'customerName',
       colKey: 'customerName',
@@ -73,7 +97,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '55%',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -85,7 +109,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       type: 'getter',
       fInputType: 'text',
       mask: '',
-      colWidth: '30%',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       calc: (val: any) => {
@@ -103,20 +127,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '55%',
-      textAlign: 'left',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Raktár',
-      objectKey: 'warehouse',
-      colKey: 'warehouse',
-      defaultValue: '',
-      type: 'string',
-      fInputType: 'text',
-      fRequired: true,
-      mask: '',
-      colWidth: '20%',
+      colWidth: '65px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -142,7 +153,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '185px',
+      colWidth: '120px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -168,7 +179,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '120px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -181,7 +192,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '120px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -194,7 +205,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '120px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -207,7 +218,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       fInputType: 'text',
       fRequired: false,
       mask: '',
-      colWidth: '30%',
+      colWidth: '110px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -225,15 +236,15 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
 
       // Radio 1
       InvoiceIssueDateFrom: this.isIssueFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceIssueDateFrom'].value) : null,
+        this.filterForm.controls['InvoiceIssueDateFrom'].value : null,
       InvoiceIssueDateTo: this.isIssueFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceIssueDateTo'].value) : null,
+        this.filterForm.controls['InvoiceIssueDateTo'].value : null,
 
       // Radio 2
       InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceDeliveryDateFrom'].value) : null,
+        this.filterForm.controls['InvoiceDeliveryDateFrom'].value : null,
       InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ?
-        HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['InvoiceDeliveryDateTo'].value) : null,
+        this.filterForm.controls['InvoiceDeliveryDateTo'].value : null,
     };
   }
 
@@ -280,6 +291,9 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     return this.filterForm.controls['DateFilterChooser'].value ?? this.DefaultChosenDateFilter;
   }
 
+  override KeySetting: Constants.KeySettingsDct = InvoiceNavKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+
   get isIssueFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenIssueFilterOptionValue; }
   get isDeliveryFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenDeliveryFilterOptionValue; }
 
@@ -305,7 +319,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceIssueDateFrom'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceIssueDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
@@ -313,7 +327,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceIssueDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   get invoiceDeliveryDateFromValue(): Date | undefined {
@@ -322,7 +336,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceDeliveryDateFrom'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceDeliveryDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
@@ -330,7 +344,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     }
     const tmp = this.filterForm.controls['InvoiceDeliveryDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   constructor(
@@ -339,7 +353,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Invoice>>,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private toastrService: BbxToastrService,
+    private simpleToastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private invoiceService: InvoiceService,
@@ -446,24 +461,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       DateFilterChooser: new FormControl(1, [])
     });
 
-    this.filterForm.controls['Incoming'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('Incoming value changed: ', newValue);
-        if (this.isIssueFilterSelectedAndValid || this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
-      }
-    });
-
-    this.filterForm.controls['WarehouseCode'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('WarehouseCode value changed: ', newValue);
-        if (this.isIssueFilterSelectedAndValid || this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
-      }
-    });
-
     this.filterForm.controls['DateFilterChooser'].valueChanges.subscribe({
       next: newValue => {
         console.log('DateFilterChooser value changed: ', newValue);
@@ -482,9 +479,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         if (!this.filterForm.controls['InvoiceIssueDateTo'].valid && this.filterForm.controls['InvoiceIssueDateFrom'].valid) {
           this.filterForm.controls['InvoiceIssueDateTo'].setValue(this.filterForm.controls['InvoiceIssueDateTo'].value);
         }
-        else if (this.isIssueFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
       }
     });
 
@@ -493,9 +487,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         console.log('InvoiceIssueDateTo value changed: ', newValue);
         if (!this.filterForm.controls['InvoiceIssueDateFrom'].valid && this.filterForm.controls['InvoiceIssueDateTo'].valid) {
           this.filterForm.controls['InvoiceIssueDateFrom'].setValue(this.filterForm.controls['InvoiceIssueDateFrom'].value);
-        }
-        else if (this.isIssueFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
         }
       }
     });
@@ -506,9 +497,6 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         if (!this.filterForm.controls['InvoiceDeliveryDateTo'].valid && this.filterForm.controls['InvoiceDeliveryDateFrom'].valid) {
           this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(this.filterForm.controls['InvoiceDeliveryDateTo'].value);
         }
-        else if (this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
       }
     });
 
@@ -518,19 +506,8 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         if (!this.filterForm.controls['InvoiceDeliveryDateFrom'].valid && this.filterForm.controls['InvoiceDeliveryDateTo'].valid) {
           this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(this.filterForm.controls['InvoiceDeliveryDateFrom'].value);
         }
-        else if (this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
         this.filterForm.controls['InvoiceDeliveryDateFrom'].markAsDirty();
         this.cdref.detectChanges();
-      }
-    });
-
-    this.filterForm.controls['DateFilterChooser'].valueChanges.subscribe({
-      next: newValue => {
-        if (this.isDeliveryFilterSelectedAndValid) {
-          this.Refresh(this.getInputParams);
-        }
       }
     });
 
@@ -542,14 +519,30 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       this.cdref, [], this.filterFormId,
       AttachDirection.DOWN,
       this.colDefs,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.fS,
-      this.dbDataTable
+      this.dbDataTable,
+      this
     );
 
-    this.dbDataTable = new FlatDesignNoFormNavigatableTable(
+    this.dbDataTableForm = new FormGroup({
+      invoiceNumber: new FormControl(0, []),
+      warehouse: new FormControl(undefined, []),
+      customerName: new FormControl(undefined, []),
+      customerCity: new FormControl(undefined, []),
+      paymentMethodX: new FormControl(undefined, []),
+      invoiceDeliveryDate: new FormControl(undefined, []),
+      invoiceIssueDate: new FormControl(undefined, []),
+      paymentDate: new FormControl(undefined, []),
+      invoiceNetAmount: new FormControl(undefined, []),
+      invoiceVatAmount: new FormControl(undefined, []),
+      invoiceGrossAmount: new FormControl(undefined, []),
+      notice: new FormControl(undefined, [])
+    });
+
+    this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
-      'Product',
+      'InvoiceNav',
       this.dataSourceBuilder,
       this.kbS,
       this.fS,
@@ -558,13 +551,14 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       this.dbDataTableId,
       AttachDirection.DOWN,
       'sideBarForm',
-      AttachDirection.UP,
-      this.sidebarService,
+      AttachDirection.RIGHT,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
         return {} as Invoice;
-      }
+      },
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
@@ -572,6 +566,7 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
         this.Refresh(this.getInputParams);
       },
     });
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
@@ -592,14 +587,11 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
@@ -630,16 +622,22 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
     });
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
-    this.dbDataTable.GenerateAndSetNavMatrices(false);
-    this.dbDataTable.PushFooterCommandList();
+    this.AddSearchButtonToFormMatrix();
 
-    // this.filterFormNav?.AfterViewInitSetup();
+    this.dbDataTable.GenerateAndSetNavMatrices(true);
+    this.dbDataTable.ReadonlyFormByDefault = true;
+
+    this.filterFormNav.DownNeighbour = this.dbDataTable;
 
     this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
+  }
+
+  private AddSearchButtonToFormMatrix(): void {
+    this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
   private RefreshAll(params?: GetInvoicesParamListModel): void {
@@ -657,4 +655,65 @@ export class InvoiceNavComponent extends BaseNoFormManagerComponent<Invoice> imp
       },
     });
   }
+
+  RefreshData(): void { }
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
+  RecalcNetAndVat(): void { }
+
+  HandleFunctionKey(event: Event | KeyBindings): void {
+    const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+    console.log(`[HandleFunctionKey]: ${val}`);
+    switch (val) {
+      // NEW
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+        break;
+      // EDIT
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
+        break;
+      // DELETE
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+        break;
+    }
+  }
+
+  Create(): void { }
+
+  Edit(): void { }
+
+  Delete(): void { }
+
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this.filterFormNav?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    switch (event.key) {
+      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.CrudEdit].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.JumpToForm].KeyCode:
+      // case this.KeySetting[Actions.CSV].KeyCode:
+      // case this.KeySetting[Actions.Email].KeyCode:
+      // case this.KeySetting[Actions.Details].KeyCode:
+      // case this.KeySetting[Actions.CrudReset].KeyCode:
+      // case this.KeySetting[Actions.CrudSave].KeyCode:
+      // case this.KeySetting[Actions.Print].KeyCode:
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        this.HandleFunctionKey(event);
+        break;
+    }
+  }
+
+  ChooseDataForTableRow(rowIndex: number): void { }
+  ChooseDataForForm(): void {}
 }

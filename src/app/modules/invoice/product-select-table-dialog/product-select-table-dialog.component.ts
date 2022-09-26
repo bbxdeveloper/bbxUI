@@ -8,6 +8,7 @@ import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
@@ -25,19 +26,24 @@ const NavMap: string[][] = [
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
+  get srcString(): string {
+    return (this.searchString ?? '').trim();
+  }
+
   get getInputParams(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '', PageSize: '10', PageNumber: '1', OrderBy: 'ProductCode' };
+    return { SearchString: this.srcString, PageSize: '10', PageNumber: '1', OrderBy: 'ProductCode' };
   }
 
   get getInputParamsForAll(): GetProductsParamListModel {
-    return { SearchString: this.searchString ?? '', PageSize: '999999', OrderBy: 'ProductCode' };
+    return { SearchString: this.srcString, PageSize: '999999', OrderBy: 'ProductCode' };
   }
 
   isLoaded: boolean = false;
   override isLoading: boolean = false;
 
   constructor(
-    private toastrService: BbxToastrService,
+    private simpleToastrService: BbxToastrService,
+    private bbxToastrService: BbxToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
     dialogRef: NbDialogRef<SelectTableDialogComponent<Product>>,
@@ -77,6 +83,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override refreshFilter(event: any): void {
+    if (event.ctrlKey || event.key == KeyBindings.F2) {
+      return;
+    }
+    
     console.log("Search: ", event.target.value);
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
@@ -93,6 +103,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override showLess(): void {
+    this.kbS.SelectFirstTile();
     this.Refresh(this.getInputParams);
   }
 
@@ -111,9 +122,14 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override Refresh(params?: GetProductsParamListModel): void {
+    if (!!this.Subscription_Search && !this.Subscription_Search.closed) {
+      this.Subscription_Search.unsubscribe();
+    }
+
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.productService.GetAll(params).subscribe({
+
+    this.Subscription_Search = this.productService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
@@ -126,7 +142,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
           }
           this.RefreshTable();
         } else {
-          this.toastrService.show(
+          this.bbxToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR

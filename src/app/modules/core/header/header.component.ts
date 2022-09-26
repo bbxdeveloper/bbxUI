@@ -18,6 +18,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { DateIntervalDialogComponent } from '../../shared/date-interval-dialog/date-interval-dialog.component';
 import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-header',
@@ -77,7 +78,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private tokenService: TokenStorageService,
     private bbxToastrService: BbxToastrService,
     private simpleToastrService: NbToastrService,
-    private utS: UtilityService,) {
+    private utS: UtilityService,
+    private status: StatusService,
+    private khs: KeyboardHelperService) {
     super();
     this.OuterJump = true;
   }
@@ -142,6 +145,16 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
       return;
     }
+    
+    if (this.kbS.IsLocked() || this.status.InProgress || this.khs.IsKeyboardBlocked) {
+      console.log("[onKeyDown] Movement is locked!");
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+
+      return;
+    }
 
     switch (event.key) {
       case KeyBindings.up: {
@@ -179,6 +192,13 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         this.kbS.ClickCurrentElement();
         break;
       }
+      case KeyBindings.exitIE:
+      case KeyBindings.exit: {
+        if (!this.khs.IsDialogOpened) {
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        }
+        break;
+      }
       default: { }
     }
   }
@@ -190,7 +210,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   goTo(link: string): void {
     this.kbS.MoveRight();
     this.popover?.forEach(x => x?.hide());
-    this.router.navigate([link]);
+    if (link === "home") {
+      this.router.navigate([link]);
+    } else {
+      this.router.navigate(["home"]);
+      setTimeout(() => {
+        this.router.navigate([link]);
+      }, 50);
+    }
   }
 
   quit(event: any): void {
@@ -217,18 +244,25 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
             res.name, res.pswd
           ).subscribe({
             next: res => {
-              this.tokenService.token = res.token;
-              this.simpleToastrService.show(
-                Constants.MSG_LOGIN_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              setTimeout(() => {
-                this.GenerateAndSetNavMatrices();
-                this.kbS.SelectFirstTile();
+              if (res.succeeded && res?.data?.token !== undefined && res?.data?.user !== undefined) {
+                this.tokenService.token = res?.data?.token;
+                this.tokenService.user = res?.data?.user;
+                this.simpleToastrService.show(
+                  Constants.MSG_LOGIN_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                setTimeout(() => {
+                  this.GenerateAndSetNavMatrices();
+                  this.kbS.SelectFirstTile();
+                  this.isLoading = false;
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                }, 200);
+              } else {
+                this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
                 this.isLoading = false;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              }, 200);
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);  
+              }
             },
             error: err => {
               this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
@@ -264,6 +298,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           Constants.TOASTR_SUCCESS_5_SEC
         );
         this.tokenService.signOut();
+        this.router.navigate(['/home']);
         setTimeout(() => {
           this.GenerateAndSetNavMatrices();
           this.kbS.SelectFirstTile();

@@ -22,7 +22,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     private DataRowIndex: number = -1;
 
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
-    override readonly commandsOnForm: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+    override commandsOnForm: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
     constructor(
         f: FormGroup,
@@ -70,6 +70,15 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         });
     }
 
+    override ActionLock(data?: IUpdateRequest<T>): void {
+        const dt = this.FillObjectWithForm();
+        this.grid.Lock({
+            data: dt,
+            rowIndex: this.DataRowIndex,
+            needConfirmation: false
+        } as IUpdateRequest);
+    }
+
     override ActionNew(data?: IUpdateRequest<T>): void {
         const dt = this.FillObjectWithForm();
         if (this.form.invalid) {
@@ -111,48 +120,6 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
 
     override ActionRefresh(data?: IUpdateRequest<T>): void {
         this.grid.Refresh();
-    }
-
-    override HandleFunctionKey(event: Event | KeyBindings): void {
-        const val = event instanceof Event ? (event as KeyboardEvent).code : event;
-        switch (val) {
-            // NEW
-            case this.KeySetting[Actions.CrudNew].KeyCode:
-                switch (this.formMode) {
-                    case Constants.FormState.new:
-                    case Constants.FormState.default:
-                    default:
-                        this.grid.SetBlankInstanceForForm(false, false);
-                        this.formMode = Constants.FormState.new;
-                        this.grid.JumpToFirstFormField();
-                        break;
-                }
-                break;
-            // RESET
-            case this.KeySetting[Actions.CrudReset].KeyCode:
-                this.ActionReset();
-                break;
-            // SAVE
-            case this.KeySetting[Actions.CrudSave].KeyCode:
-                switch (this.formMode) {
-                    case Constants.FormState.new:
-                        this.ActionNew();
-                        break;
-                    case Constants.FormState.default:
-                        this.ActionPut();
-                        break;
-                }
-                break;
-            // DELETE
-            case this.KeySetting[Actions.CrudDelete].KeyCode:
-            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
-                switch (this.formMode) {
-                    case Constants.FormState.default:
-                        this.ActionDelete();
-                        break;
-                }
-                break;
-        }
     }
 
     override HandleFormFieldClick(event: any): void {
@@ -215,34 +182,96 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         }
     }
 
+    override HandleFunctionKey(event: Event | KeyBindings): void {
+        const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+        switch (val) {
+            // NEW
+            case this.KeySetting[Actions.CrudNew].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudNew].FunctionLabel}, ${Actions[Actions.CrudNew]}`);
+                switch (this.formMode) {
+                    case Constants.FormState.new:
+                    case Constants.FormState.default:
+                    default:
+                        this.grid.SetBlankInstanceForForm(false, false);
+                        this.formMode = Constants.FormState.new;
+                        this.grid.JumpToFirstFormField();
+                        break;
+                }
+                break;
+            // RESET
+            case this.KeySetting[Actions.CrudReset].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudReset].FunctionLabel}, ${Actions[Actions.CrudReset]}`);
+                this.ActionReset();
+                break;
+            // SAVE
+            case this.KeySetting[Actions.CrudSave].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudSave].FunctionLabel}, ${Actions[Actions.CrudSave]}`);
+                switch (this.formMode) {
+                    case Constants.FormState.new:
+                        this.ActionNew();
+                        break;
+                    case Constants.FormState.default:
+                        this.ActionPut();
+                        break;
+                }
+                break;
+            // SAVE
+            case this.KeySetting[Actions.Lock].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
+                this.ActionLock();
+                break;
+            // DELETE
+            case this.KeySetting[Actions.CrudDelete].KeyCode:
+                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.CrudDelete].FunctionLabel}, ${Actions[Actions.CrudDelete]}`);
+                switch (this.formMode) {
+                    case Constants.FormState.default:
+                        if (this.sidebarService.sideBarOpened) {
+                            this.ActionDelete();
+                        }
+                        break;
+                }
+                break;
+        }
+    }
+
     override HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.CrudNew].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudNew].FunctionLabel}, ${Actions[Actions.CrudNew]}`);
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionNew();
                 break;
             }
             case this.KeySetting[Actions.CrudReset].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudReset].FunctionLabel}, ${Actions[Actions.CrudReset]}`);
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionReset();
                 break;
             }
             case this.KeySetting[Actions.CrudSave].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudSave].FunctionLabel}, ${Actions[Actions.CrudSave]}`);
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionPut();
                 break;
             }
-            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
             case this.KeySetting[Actions.CrudDelete].KeyCode: {
-                event.preventDefault();
-                event.stopPropagation();
-                this.ActionDelete();
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.CrudDelete].FunctionLabel}, ${Actions[Actions.CrudDelete]}`);
+                switch (this.formMode) {
+                    case Constants.FormState.default:
+                        if (this.sidebarService.sideBarOpened) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            this.ActionDelete();
+                        }
+                        break;
+                }
                 break;
             }
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
+                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
                 event.preventDefault();
                 this.kbS.isEditModeLocked = true;
                 this.sidebarService.collapse();

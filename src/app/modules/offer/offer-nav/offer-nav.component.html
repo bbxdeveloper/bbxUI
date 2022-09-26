@@ -60,8 +60,6 @@
                         <label>Sorszám</label>
                         <input nbInput type="text" formControlName='OfferNumber' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                        <app-form-control-error [form]="filterFormNav" label="Sorszám" controlName="OfferNumber">
-                        </app-form-control-error>
                     </nb-form-field>
                 </div>
 
@@ -72,9 +70,6 @@
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                             [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" label="kiállítás dátumától"
-                            controlName="OfferIssueDateFrom">
-                        </app-form-control-error>
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
@@ -83,9 +78,6 @@
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                             [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" label="kiállítás dátumig"
-                            controlName="OfferIssueDateTo">
-                        </app-form-control-error>
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
@@ -94,9 +86,6 @@
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                             [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" label="érvényesség dátumától"
-                            controlName="OfferVaidityDateForm">
-                        </app-form-control-error>
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
@@ -105,31 +94,36 @@
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                             [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" label="érvényesség dátumig"
-                            controlName="OfferVaidityDateTo">
-                        </app-form-control-error>
                     </nb-form-field>
                 </div>
             </form>
         </nb-card-body>
         <nb-card-footer class="offer-footer">
-            <div class="form-row">
-                <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)" status="primary"
+            <div class="form-row-flex">
+                <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshAndJumpToTable()" status="primary"
                     tabindex="-1">Keresés</button>
+                
+                <app-form-control-error [form]="filterFormNav" label="Sorszám" controlName="OfferNumber">
+                    </app-form-control-error>
+                <app-form-control-error [form]="filterFormNav" label="kiállítás dátumától" controlName="OfferIssueDateFrom">
+                    </app-form-control-error>
+                <app-form-control-error [form]="filterFormNav" label="kiállítás dátumig" controlName="OfferIssueDateTo">
+                    </app-form-control-error>
+                <app-form-control-error [form]="filterFormNav" label="érvényesség dátumától" controlName="OfferVaidityDateForm">
+                    </app-form-control-error>
+                <app-form-control-error [form]="filterFormNav" label="érvényesség dátumig" controlName="OfferVaidityDateTo">
+                    </app-form-control-error>
             </div>
         </nb-card-footer>
     </nb-card>
 </div>
 
-<nb-card>
-    <nb-card-body>
-        <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="600" [wide]="true" [allColumns]="allColumns" [colDefs]="colDefs"
-            [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
-            [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
-            (focusOutTable)="focusOnTable(false)">
-        </app-flat-design-table>
-    </nb-card-body>
-    <nb-card-footer></nb-card-footer>
-</nb-card>
+<nb-card-body>
+    <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="610" [wide]="false" [allColumns]="allColumns"
+        [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+        [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+        (focusOutTable)="focusOnTable(false)">
+    </app-flat-design-table>
+</nb-card-body>
 
 <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

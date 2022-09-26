@@ -8,11 +8,11 @@ import { SendEmailRequest, SendEmailResponse } from '../models/Email';
   providedIn: 'root'
 })
 export class InfrastructureService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Infrastructure';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Offer';
 
   constructor(private http: HttpClient) { }
 
   SendEmail(req: SendEmailRequest): Observable<SendEmailResponse> {
-    return this.http.post<SendEmailResponse>(this.BaseUrl + "/SendEmail", req);
+    return this.http.post<SendEmailResponse>(this.BaseUrl + "/SendOfferEmail", req);
   }
 }

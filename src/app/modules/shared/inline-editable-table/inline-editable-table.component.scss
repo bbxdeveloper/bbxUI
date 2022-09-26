@@ -1,0 +1,292 @@
+@import 'table-common';
+
+$td-height: 30px;
+
+.nb-overlay-bottom {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.layout {
+    min-height: 10vh !important;
+    padding: 0px !important;
+}
+
+.card-header-txt-center {
+    text-align: center;
+    font-size: larger;
+    text-transform: uppercase;
+}
+
+.card-title {
+    background: none !important;
+    border: none !important;
+
+    margin-bottom: 0px !important;
+
+    text-align: center;
+    font-size: larger !important;
+    text-transform: uppercase;
+}
+.header-blank {
+    color: transparent !important;
+}
+
+.flex-text-center {
+    display: flex;
+    justify-items: center;
+}
+
+::ng-deep nb-card-header {
+    font-size: 2rem !important;
+}
+
+nb-layout-footer.custom {
+    nav {
+        padding: 0px !important;
+        background: none !important;
+    }
+}
+
+.card-header-top-margin {
+    margin-top: 25px;
+    margin-bottom: 5px;
+}
+
+form.form-with-rows {
+    display: flex;
+    align-items: flex-start;
+    grid-column-gap: 10px;
+    column-gap: 10px;
+    row-gap: 10px;
+    flex-direction: column;
+
+    .form-row {
+        display: flex;
+        justify-content: flex-start;
+    }
+}
+
+// Paginator
+
+// TABLE: Rows
+
+.card-table-wrapper {
+    position: sticky;
+    top: 0;
+
+    nb-form-field {
+        margin: 10px;
+
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    nb-form-field {
+        margin: 0px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    th {
+        background: rgb(35, 35, 75);
+        text-align: center;
+        font-weight: bold;
+        font-variant: small-caps;
+    }
+
+    tr > th {
+        position: sticky;
+        top: -1px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #493668 !important;
+
+        th,
+        td {
+            height: $td-height;
+
+            &.table-cell-edited {
+                padding: 0px;
+
+                background-color: #5f4981 !important;
+
+                .input-table-cell {
+                    width: 100%;
+
+                    border: none;
+                    background: none;
+                    text-align: left;
+
+                    padding: 0px;
+
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                        padding-right: 20px;
+                    }
+
+                    font-size: 1.1rem !important;
+
+                    color: #ffffff;
+                    font-family: Open Sans, sans-serif;
+                    font-weight: 400;
+                    line-height: 1.25rem;
+                }
+
+                div {
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+                }
+            }
+        }
+    }
+
+    tr:nth-child(odd) {
+        background-color: #323258 !important;
+
+        th,
+        td {
+            height: $td-height;
+
+            &.table-cell-edited {
+                padding: 0px;
+
+                background-color: #3b3b63 !important;
+
+                .input-table-cell {
+                    width: 100%;
+
+                    border: none;
+                    background: none;
+                    text-align: left;
+
+                    padding: 0px;
+
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                        padding-right: 20px;
+                    }
+
+                    font-size: 1.1rem !important;
+
+                    color: #ffffff;
+                    font-family: Open Sans, sans-serif;
+                    font-weight: 400;
+                    line-height: 1.25rem;
+                }
+
+                div {
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+                }
+            }
+        }
+    }
+
+    th {
+        background: rgb(35, 35, 75);
+        text-align: center;
+        font-weight: bold;
+        font-variant: small-caps;
+    }
+
+    .td-focusable:focus {
+        background: darkblue;
+    }
+
+    tr:last-child {
+        background-color: #524469 !important;
+
+        th,
+        td {
+            height: $td-height;
+
+            &.table-cell-edited {
+                padding: 0px;
+
+                background-color: rgb(75, 75, 121) !important;
+
+                .input-table-cell {
+                    width: 100%;
+
+                    border: none;
+                    background: none;
+                    text-align: left;
+
+                    padding: 0px;
+
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+
+                    font-size: 1.1rem !important;
+
+                    color: #ffffff;
+                    font-family: Open Sans, sans-serif;
+                    font-weight: 400;
+                    line-height: 1.25rem;
+                }
+
+                div {
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+nb-card-header {
+    padding: 0px;
+}
+
+// TABLE: Statistics
+
+.invoice-table-statistics {
+    padding: 0px;
+    padding-right: 75px;
+
+    width: 100%;
+    text-align: right;
+
+    span.line-amount {
+        font-size: 1rem;
+        margin-left: 25px;
+    }
+}
+
+table.table-statistics-net-vat-gross {
+    right: 100px !important;
+    position: fixed;
+
+    column-gap: 25px;
+    padding: 5px;
+    border-spacing: 15px 0px;
+
+    td {
+        min-width: 300px;
+        text-align: left;
+    }
+}

@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -40,6 +40,9 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
+import { todaysDate, validDate } from 'src/assets/model/Validators';
+import { Subscription } from 'rxjs';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-offer-nav',
@@ -48,6 +51,8 @@ import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 })
 export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -79,7 +84,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   buyersData: Customer[] = [];
 
   override allColumns = [
-    'offerNumber',
+    'offerNumberX',
     'customerName',
     'offerIssueDate',
     'offerVaidityDate',
@@ -89,14 +94,14 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Sorszám',
-      objectKey: 'offerNumber',
-      colKey: 'offerNumber',
+      objectKey: 'offerNumberX',
+      colKey: 'offerNumberX',
       defaultValue: '',
       type: 'string',
       fInputType: 'readonly',
       mask: '',
       colWidth: '130px',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -174,6 +179,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   override get getInputParams(): GetOffersParamsModel {
+    let issueFrom = this.filterForm.controls['OfferIssueDateFrom'].value ?? "";
+    let issueTo = this.filterForm.controls['OfferIssueDateTo'].value ?? "";
+    let vaidityFrom = this.filterForm.controls['OfferVaidityDateForm'].value ?? "";
+    let vaidityTo = this.filterForm.controls['OfferVaidityDateTo'].value ?? "";
+    
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
@@ -182,11 +192,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       CustomerID: this.CustomerId,
       
-      OfferIssueDateFrom: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateFrom'].value),
-      OfferIssueDateTo: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferIssueDateTo'].value),
+      OfferIssueDateFrom: issueFrom.length > 0 ? issueFrom : undefined,
+      OfferIssueDateTo: issueTo.length > 0 ? issueTo : undefined,
 
-      OfferVaidityDateForm: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferVaidityDateForm'].value),
-      OfferVaidityDateTo: HelperFunctions.FormFieldStringToDateTimeString(this.filterForm.controls['OfferVaidityDateTo'].value),
+      OfferVaidityDateForm: vaidityFrom.length > 0 ? vaidityFrom : undefined,
+      OfferVaidityDateTo: vaidityTo.length > 0 ? vaidityTo : undefined,
     };
   }
 
@@ -205,9 +215,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     if (!!!this.filterForm) {
       return undefined;
     }
-    const tmp = this.filterForm.controls['InvoiceIssueDateFrom'].value;
+    const tmp = this.filterForm.controls['OfferIssueDateFrom'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceOfferIssueDateTo(): Date | undefined {
     if (!!!this.filterForm) {
@@ -215,16 +225,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     const tmp = this.filterForm.controls['OfferIssueDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
-  get invoiceOfferVaidityDateForm(): Date | undefined {
+  get invoiceOfferValidityDateFrom(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
     }
     const tmp = this.filterForm.controls['OfferVaidityDateForm'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
   get invoiceOfferVaidityDateTo(): Date | undefined {
     if (!!!this.filterForm) {
@@ -232,7 +242,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
     const tmp = this.filterForm.controls['OfferVaidityDateTo'].value;
 
-    return tmp === '____-__-__' || tmp === '' || tmp === undefined ? undefined : new Date(tmp);
+    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   // CountryCode
@@ -241,6 +251,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   get IsTableActive(): boolean {
     return this.kbS.IsCurrentNavigatable(this.dbDataTable);
   }
+
+  isPageReady: boolean = false;
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -259,6 +271,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private router: Router,
     private infrastructureService: InfrastructureService,
     private utS: UtilityService,
+    private tokenService: TokenStorageService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -274,12 +287,52 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   InitFormDefaultValues(): void {
     this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
     this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
-    this.filterForm.controls['OfferVaidityDateForm'].setValue(HelperFunctions.GetDateString(0, -4));
-    this.filterForm.controls['OfferVaidityDateTo'].setValue(HelperFunctions.GetDateString());
   }
 
   ToInt(p: any): number {
     return parseInt(p + '');
+  }
+
+  validateOfferIssueDateFrom(control: AbstractControl): any {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferIssueDateTo === undefined) {
+      return null;
+    }
+
+    let v = new Date(control.value);
+    let wrong = v > this.invoiceOfferIssueDateTo;
+
+    return wrong ? { maxDate: { value: control.value } } : null;
+  }
+  validateOfferIssueDateTo(control: AbstractControl): any {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferIssueDateFrom === undefined) {
+      return null;
+    }
+
+    let v = new Date(control.value);
+    let wrong = v < this.invoiceOfferIssueDateFrom;
+    
+    return wrong ? { minDate: { value: control.value } } : null;
+  }
+
+  validateOfferValidityDateFrom(control: AbstractControl): any {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferVaidityDateTo === undefined) {
+      return null;
+    }
+
+    let v = new Date(control.value);
+    let wrong = v > this.invoiceOfferVaidityDateTo;
+    
+    return wrong ? { maxDate: { value: control.value } } : null;
+  }
+  validateOfferValidityDateTo(control: AbstractControl): any {
+    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferValidityDateFrom === undefined) {
+      return null;
+    }
+
+    let v = new Date(control.value);
+    let wrong = v < this.invoiceOfferValidityDateFrom;
+
+    return wrong ? { minDate: { value: control.value } } : null;
   }
 
   private Setup(): void {
@@ -298,11 +351,61 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       CustomerAddress: new FormControl(undefined, []),
       CustomerTaxNumber: new FormControl(undefined, []),
 
-      OfferIssueDateFrom: new FormControl(undefined, []),
-      OfferIssueDateTo: new FormControl(undefined, []),
+      OfferIssueDateFrom: new FormControl(undefined, [
+        validDate,
+        this.validateOfferIssueDateFrom.bind(this),
+      ]),
+      OfferIssueDateTo: new FormControl(undefined, [
+        validDate,
+        this.validateOfferIssueDateTo.bind(this),
+      ]),
 
-      OfferVaidityDateForm: new FormControl(undefined, []),
-      OfferVaidityDateTo: new FormControl(undefined, []),
+      OfferVaidityDateForm: new FormControl(undefined, [
+        validDate,
+        this.validateOfferValidityDateFrom.bind(this),
+      ]),
+      OfferVaidityDateTo: new FormControl(undefined, [
+        validDate,
+        this.validateOfferValidityDateTo.bind(this),
+      ]),
+    });
+
+    this.filterForm.controls['OfferIssueDateFrom'].valueChanges.subscribe({
+      next: newValue => {
+        console.log('OfferIssueDateFrom value changed: ', newValue);
+        if (!this.filterForm.controls['OfferIssueDateTo'].valid && this.filterForm.controls['OfferIssueDateFrom'].valid) {
+          this.filterForm.controls['OfferIssueDateTo'].setValue(this.filterForm.controls['OfferIssueDateTo'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferIssueDateTo'].valueChanges.subscribe({
+      next: newValue => {
+        console.log('OfferIssueDateTo value changed: ', newValue);
+        if (!this.filterForm.controls['OfferIssueDateFrom'].valid && this.filterForm.controls['OfferIssueDateTo'].valid) {
+          this.filterForm.controls['OfferIssueDateFrom'].setValue(this.filterForm.controls['OfferIssueDateFrom'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferVaidityDateForm'].valueChanges.subscribe({
+      next: newValue => {
+        console.log('OfferVaidityDateForm value changed: ', newValue);
+        if (!this.filterForm.controls['OfferVaidityDateTo'].valid && this.filterForm.controls['OfferVaidityDateForm'].valid) {
+          this.filterForm.controls['OfferVaidityDateTo'].setValue(this.filterForm.controls['OfferVaidityDateTo'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferVaidityDateTo'].valueChanges.subscribe({
+      next: newValue => {
+        console.log('OfferVaidityDateTo value changed: ', newValue);
+        if (!this.filterForm.controls['OfferVaidityDateForm'].valid && this.filterForm.controls['OfferVaidityDateTo'].valid) {
+          this.filterForm.controls['OfferVaidityDateForm'].setValue(this.filterForm.controls['OfferVaidityDateForm'].value);
+        }
+        this.filterForm.controls['OfferVaidityDateForm'].markAsDirty();
+        this.cdref.detectChanges();
+      }
     });
 
     this.InitFormDefaultValues();
@@ -351,7 +454,22 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.RefreshAll(this.getInputParams);
   }
 
-  override Refresh(params?: GetOffersParamsModel): void {
+  public RefreshAndJumpToTable(): void {
+    this.Refresh(this.getInputParams, true);
+  }
+
+  JumpToFirstCellAndNav(): void {
+    console.log("[JumpToFirstCellAndNav]");
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.kbS.SetCurrentNavigatable(this.dbDataTable);
+    this.kbS.SelectElementByCoordinate(0, 0);
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    setTimeout(() => {
+      this.kbS.MoveDown();
+    }, 300);
+  }
+
+  override Refresh(params?: GetOffersParamsModel, jumpToFirstTableCell: boolean = false): void {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
     this.seC.GetAllCountryCodes().subscribe({
@@ -372,12 +490,12 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
-          this.RefreshTable();
+          this.RefreshTable(undefined, this.isPageReady);
+          if (this.isPageReady) {
+            this.JumpToFirstCellAndNav();
+          }
         } else {
           this.bbxToastrService.show(
             d.errors!.join('\n'),
@@ -392,6 +510,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       },
       complete: () => {
         this.isLoading = false;
+        if (!this.isPageReady) {
+          this.isPageReady = true;
+        }
       },
     });
   }
@@ -408,7 +529,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.AddSearchButtonToFormMatrix();
     console.log(this.filterFormNav.Matrix);
 
-    this.dbDataTable.GenerateAndSetNavMatrices(true);
+    this.dbDataTable.GenerateAndSetNavMatrices(true, undefined, false);
     this.dbDataTable.DisableFooter = true;
 
     setTimeout(() => {
@@ -519,6 +640,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   FillFormWithFirstAvailableCustomer(event: any): void {
+    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
+      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
+    }
+
     this.customerInputFilterString = event.target.value ?? '';
 
     if (this.customerInputFilterString.replace(' ', '') === '') {
@@ -528,7 +653,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
 
     this.isLoading = true;
-    this.seC.GetAll({
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
     } as GetCustomersParamListModel).subscribe({
       next: res => {
@@ -645,9 +770,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+      const user = this.tokenService.user;
+
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
           subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
+          message: this.dbData[this.kbS.p.y - 1].data.notice,
+          OfferID: this.dbData[this.kbS.p.y - 1].data.id,
+          DefaultFrom: user?.email,
+          UserName: user?.name
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -655,6 +786,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
         console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
+          // this.silent = true;
           this.isLoading = true;
           this.infrastructureService.SendEmail(res).subscribe({
             next: _ => {

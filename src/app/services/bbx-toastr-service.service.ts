@@ -11,7 +11,7 @@ export interface ToastRef {
   providedIn: 'root'
 })
 export class BbxToastrService {
-  private maxToastCount: number = 2;
+  private maxToastCount: number = 5;
 
   private _toastrRef?: ToastRef;
   private _toastrOpened: boolean = false;
@@ -46,5 +46,10 @@ export class BbxToastrService {
       const tmp = this.toastrRefStack[this.toastrRefStack.length - 1] ?? undefined;
       tmp?.toast.close();
     }
+  }
+
+  logToastrStats(): void {
+    console.log(`Max toastrs: ${this.maxToastCount}, is any opened: ${this.IsToastrOpened}, current stack: `);
+    console.log(this.toastrRefStack);
   }
 }

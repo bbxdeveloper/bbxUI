@@ -37,7 +37,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       type: 'number',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '15vw',
+      colWidth: '100px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -50,7 +50,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       fInputType: 'code-field',
       fRequired: true,
       mask: '',
-      colWidth: '30vw',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -63,7 +63,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       fRequired: true,
       fInputType: 'text',
       mask: 'Set in sidebar form.',
-      colWidth: '55vw',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fLast: true
@@ -230,7 +230,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
@@ -245,7 +245,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
       },
     });
 
-    this.sidebarService.collapse();
+    this.bbxSidebarService.collapse();
 
     this.Refresh(this.getInputParams);
   }
@@ -262,10 +262,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
               return { data: x, uid: this.nextUid() };
             });
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {
@@ -289,6 +286,8 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   }
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.SetTableAndFormCommandListFromManager();
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();

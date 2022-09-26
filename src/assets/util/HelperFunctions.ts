@@ -7,6 +7,8 @@ import { VatRate } from "src/app/modules/vat-rate/models/VatRate";
 import { WareHouse } from "src/app/modules/warehouse/models/WareHouse";
 import { BlankComboBoxValue } from "../model/navigation/Nav";
 import * as moment from 'moment';
+import { NbDialogService } from "@nebular/theme";
+import { ConfirmationDialogComponent } from "src/app/modules/shared/confirmation-dialog/confirmation-dialog.component";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -162,6 +164,9 @@ export module HelperFunctions {
     }
 
     export function FormFieldStringToDateTimeString(str: any): string {
+        if (str === undefined || str.trim() === ""){
+            return "";
+        }
         return str.includes('T') ? new Date(str).toISOString() : new Date(str + 'T00:00:00').toISOString();
     }
 
@@ -182,23 +187,50 @@ export module HelperFunctions {
             .format(formatString);
     }
 
+    export function GetOnlyDateFromUtcDateString(val: string): string {
+        if (val === undefined || val === null || val.length == 0 || val.indexOf("T") === -1) {
+            return "";
+        } else {
+            return val.split("T")[0];
+        }
+    }
+
     export function GetDateStringFromDate(
         val: string,
         formatString: string = DATE_FORMATSTRING,
         dateLocale: string = 'hu-HU'): string {
+        if (!IsDateStringValid(val)) {
+            return "";
+        }
         moment.locale(dateLocale);
         return moment(val)
             .format(formatString);
     }
     
     export function IsDateStringValid(
-        val: string,
+        val: string | undefined,
         formatString: string = DATE_FORMATSTRING,
         dateLocale: string = 'hu-HU'): boolean {
+        // console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
+        if (val === undefined || val === null || val.length == 0) {
+            return false;
+        }
         moment.locale(dateLocale);
-        console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
         return moment(val)
             .isValid()
+    }
+
+    export function GetDateIfDateStringValid(
+        val: string | undefined,
+        formatString: string = DATE_FORMATSTRING,
+        dateLocale: string = 'hu-HU'): moment.Moment | undefined  {
+        // console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
+        if (val === undefined || val === null || val.length == 0) {
+            return undefined;
+        }
+        moment.locale(dateLocale);
+        return moment(val)
+            .isValid() ? moment(val) : undefined
     }
 
     export function ToFloat(p: any): number {
@@ -207,5 +239,32 @@ export module HelperFunctions {
 
     export function ToInt(p: any): number {
         return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
+    }
+
+    export function Round(p: string | number): number {
+        return Math.round(ToFloat(p));
+    }
+
+    export function IsStringValid(str: any): boolean {
+        if (str !== undefined && str !== null && (str + '').length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    export function IsNumber(val: string): boolean {
+        let val2 = val.replace(' ', '');
+        return !isNaN(parseFloat(val2));
+    }
+
+    export function confirm(dialogService: NbDialogService, msg: string, yesFunction: any, noFunction: any = () => {}): void {
+        const confirmDialogRef = dialogService.open(ConfirmationDialogComponent, { context: { msg: msg } });
+        confirmDialogRef.onClose.subscribe(res => {
+            if (res) {
+                yesFunction();
+            } else {
+                noFunction();
+            }
+        });
     }
 }

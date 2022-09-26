@@ -124,6 +124,10 @@ nb-form-field {
     width: 600px;
 }
 
+.display-as-block {
+    display: block;
+}
+
 $colSizeLimit: 80;
 
 @for $i from 0 through $colSizeLimit {

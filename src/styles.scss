@@ -175,3 +175,7 @@ input[type="radio"].current-keyboard-nav-selected {
 tr.parent-of-current-keyboard-nav-selected {
   background: darkblue !important;
 }
+
+input:read-only {
+  background-color: #401740 !important; // #161632 #16162c
+}

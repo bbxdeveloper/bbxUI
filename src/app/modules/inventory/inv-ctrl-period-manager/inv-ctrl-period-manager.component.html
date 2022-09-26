@@ -1,0 +1,17 @@
+<as-split direction="horizontal">
+    <as-split-area [size]="50">
+        <app-head-line msg="Leltári időszakok kezelése"></app-head-line>
+
+        <app-flat-design-table [heightMargin]="350" [allColumns]="allColumns" [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+            [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+            (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+
+        <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+        <app-inv-ctrl-period-side-bar-form class="bbx-sidebar"></app-inv-ctrl-period-side-bar-form>
+    </as-split-area>
+</as-split>

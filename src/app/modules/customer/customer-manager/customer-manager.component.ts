@@ -22,6 +22,7 @@ import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { PieController } from 'chart.js';
 import { CountryCode } from '../models/CountryCode';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 
 @Component({
   selector: 'app-customer-manager',
@@ -44,6 +45,16 @@ export class CustomerManagerComponent
     'thirdStateTaxId',
     'isOwnData',
   ];
+  allColumnsWithOpenedSideBar = [
+    'id',
+    'customerName',
+    'taxpayerNumber',
+    'thirdStateTaxId',
+    'isOwnData',
+  ];
+
+  AllColumns: ReplaySubject<string[]> = new ReplaySubject<string[]>();
+
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
@@ -53,7 +64,7 @@ export class CustomerManagerComponent
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '10%',
+      colWidth: '120px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -66,7 +77,7 @@ export class CustomerManagerComponent
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '25%',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -90,7 +101,7 @@ export class CustomerManagerComponent
       type: 'string',
       fInputType: 'text',
       mask: '0000000-0-00',
-      colWidth: '20%',
+      colWidth: '150px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -102,7 +113,7 @@ export class CustomerManagerComponent
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '30%',
+      colWidth: '150px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -127,7 +138,7 @@ export class CustomerManagerComponent
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '10%',
+      colWidth: '80px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -140,7 +151,7 @@ export class CustomerManagerComponent
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '15%',
+      colWidth: '130px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -153,7 +164,7 @@ export class CustomerManagerComponent
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '40%',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -190,7 +201,7 @@ export class CustomerManagerComponent
       type: 'bool',
       fInputType: 'bool',
       mask: '',
-      colWidth: '25%',
+      colWidth: '70px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -201,6 +212,7 @@ export class CustomerManagerComponent
       PageNumber: this.dbDataTable.currentPage + '',
       PageSize: this.dbDataTable.pageSize,
       SearchString: this.searchString ?? '',
+      OrderBy: "id"
     };
   }
 
@@ -224,11 +236,23 @@ export class CustomerManagerComponent
     sts: StatusService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
+    this.SetAllColumns();
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'customer-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+
+  SetAllColumns(): string[] {
+    if (this.bbxSidebarService.sideBarOpened) {
+      this.AllColumns.next(this.allColumnsWithOpenedSideBar);
+      return this.allColumnsWithOpenedSideBar;
+    } else {
+      this.AllColumns.next(this.allColumns);
+      return this.allColumns;
+    }
   }
 
   private ConvertCombosForGet(data: Customer): Customer {
@@ -440,7 +464,7 @@ export class CustomerManagerComponent
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
@@ -455,9 +479,36 @@ export class CustomerManagerComponent
       },
     });
 
-    this.sidebarService.collapse();
+    this.bbxSidebarService.collapse();
 
     this.RefreshAll(this.getInputParams);
+
+    this.bbxSidebarService.expandEvent.subscribe({
+      next: () => {
+        this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        // this.kbS.RemoveSelectedElementClasses();
+        let tmp = this.SetAllColumns();
+        // if (!!this.dbDataTable) {
+        //   this.dbDataTable!.allColumns = tmp;
+        // }
+        // this.dbDataTable?.GenerateAndSetNavMatrices(false);
+        //this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        //this.cdref.markForCheck();
+      }
+    });
+    this.bbxSidebarService.collapseEvent.subscribe({
+      next: () => {
+        this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        // this.kbS.RemoveSelectedElementClasses();
+        let tmp = this.SetAllColumns();
+        // if (!!this.dbDataTable) {
+        //   this.dbDataTable!.allColumns = tmp;
+        // }
+        //this.dbDataTable?.GenerateAndSetNavMatrices(false);
+        //this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
+        //this.cdref.markForCheck();
+      }
+    });
   }
 
   private RefreshAll(params?: GetCustomersParamListModel): void {
@@ -491,13 +542,7 @@ export class CustomerManagerComponent
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
             });
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(
-              d.recordsFiltered,
-              d.pageSize
-            );
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = this.dbData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {
@@ -522,6 +567,8 @@ export class CustomerManagerComponent
   }
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.SetTableAndFormCommandListFromManager();
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();

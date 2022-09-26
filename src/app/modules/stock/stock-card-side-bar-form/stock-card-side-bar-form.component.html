@@ -1,0 +1,199 @@
+<nb-card>
+    <nb-card-body class="bbx-fd-ncb">
+        <!-- <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm"
+            [KeySetting]="KeySetting"></app-crud-buttons> -->
+
+        <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
+            (keydown.escape)="currentForm.HandleFormEscape()" (focusout)="currentForm.HandleFormFocusOut()"
+            (click)="currentForm.HandleFormClick()">
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Azonosító</label>
+                    <input nbInput type="text" formControlName="id"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Típus</label>
+                    <input nbInput type="text" formControlName="scTypeX"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Raktár</label>
+                    <input nbInput type="text" formControlName="warehouse"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Dátum</label>
+                    <input nbInput type="text" formControlName="stockCardDate"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Termékkód</label>
+                    <input nbInput type="text" formControlName="productCode"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Terméknév</label>
+                    <input nbInput type="text" formControlName="product"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Ügyfélnév</label>
+                    <input nbInput type="text" formControlName="customer"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Cím</label>
+                    <input nbInput type="text" formControlName="customerAdditionalAddressDetail"
+                        readonly>
+                </div>
+            </nb-form-field>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Kapcsolódó adatok</label>
+                    <input nbInput type="text" formControlName="xRel"
+                        readonly>
+                </div>
+            </nb-form-field>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">E.Krt.</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="oCalcQty"
+                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">E.Valós</label>
+            
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="oRealQty" [readonly]="isEditModeOff"
+                            [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">E.Kiadott</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="oOutQty"
+                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">V.Krt</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="xCalcQty"
+                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">V.Valós</label>
+            
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="xRealQty" [readonly]="isEditModeOff"
+                            [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">V.Kiadott</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="xOutQty"
+                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Új Krt</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="nCalcQty"
+                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Új Valós</label>
+            
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="nRealQty" [readonly]="isEditModeOff"
+                            [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Új Kiadott</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="nOutQty"
+                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Eredeti ELÁBÉ</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="oAvgCost"
+                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Új ELÁBÉ</label>
+            
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="nAvgCost" [readonly]="isEditModeOff"
+                            [inputMask]="numberInputMask" placeholder="0.00000"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+        </form>
+    </nb-card-body>
+</nb-card>

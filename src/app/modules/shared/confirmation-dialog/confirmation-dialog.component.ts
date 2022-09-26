@@ -1,6 +1,6 @@
 import { AfterContentInit, Component, Input, OnDestroy } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
 
 @Component({
@@ -28,6 +28,9 @@ export class ConfirmationDialogComponent extends BaseNavigatableComponentCompone
   ngAfterContentInit(): void {
     this.kBs.SetWidgetNavigatable(this);
     this.kBs.SelectFirstTile();
+    setTimeout(() => {
+      this.kBs.setEditMode(KeyboardModes.NAVIGATION);
+    }, 300);
   }
 
   ngOnDestroy(): void {

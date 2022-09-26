@@ -1,0 +1,67 @@
+<app-head-line msg="Letárból kimaradt cikkek"></app-head-line>
+
+<app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="this" [newButton]="false"
+    [editButton]="false" [resetButton]="false" [saveButton]="false" [deleteButton]="false" [printButton]="true"
+    [emailButton]="false" [csvButton]="false" [KeySetting]="KeySetting" wrapperClass="bbx-fd-sidebar-functions-left">
+</app-crud-buttons>
+
+<div class="filter-div">
+    <nb-card class="filter-card">
+        <nb-card-body class="filter-card-body">
+            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
+                (keydown.escape)="filterFormNav.HandleFormEscape()">
+                <div class="form-row">
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false"
+                                    [needBlankOption]="false"
+                                    [currentForm]="filterFormNav" formFieldName="invCtrlPeriod" label="Leltári időszak"
+                                    [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
+                            </td>
+                            <td>
+                                <div class="checkbox-field"
+                                    (keydown.enter)="filterFormNav.HandleFormEnter($event)">
+                                    <label class="label-checkbox">Csak készletes?</label>
+                                
+                                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isInStock"
+                                        [readonly]="isEditModeOff" (click)="filterFormNav.HandleFormFieldClick($event)">
+                                </div>
+                            </td>
+                            <td>
+                                <nb-form-field
+                                    (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                                    <label>Keresés</label>
+                                    <input nbInput type="text" formControlName='searchString' class="{{TileCssClass}}"
+                                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
+                                </nb-form-field>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+        </nb-card-body>
+        <nb-card-footer class="offer-footer">
+            <div class="form-row-flex">
+                <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshAndJumpToTable()"
+                    [disabled]="!!filterForm && filterForm.invalid"
+                    status="primary" tabindex="-1">Keresés</button>
+
+                <app-form-control-error [form]="filterFormNav" label="leltári időszak" controlName="invCtrlPeriod">
+                </app-form-control-error>
+            </div>
+        </nb-card-footer>
+    </nb-card>
+</div>
+
+<nb-card>
+    <nb-card-body>
+        <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="470" [wide]="true" [allColumns]="allColumns"
+            [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
+            [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+    </nb-card-body>
+</nb-card>
+
+<app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

@@ -1,0 +1,98 @@
+<as-split direction="horizontal">
+    <as-split-area [size]="50">
+        <app-head-line msg="Készletkarton"></app-head-line>
+        
+        <div class="filter-div">
+            <nb-card class="filter-card">
+                <nb-card-body class="filter-card-body">
+                    <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
+                        (keydown.escape)="filterFormNav.HandleFormEscape()">
+                        <div class="form-row">
+        
+                            <table class="customer-search-row">
+                                <tr>
+                                    <td>
+                                        <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
+                                            formFieldName="WarehouseID" class="nav-configuration" label="Raktár"
+                                            [data$]="wareHouseData$">
+                                        </app-bbx-two-row-combo-box>
+                                    </td>
+                                    <td>
+                                        <nb-form-field class="search-row-nb-form-field"
+                                            (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                                            (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'ProductSearch')">
+                                            <label>Termék</label>
+                                            <input formControlName="ProductSearch" nbInput type="text" class="{{TileCssClass}}"
+                                                (click)="filterFormNav.HandleFormFieldClick($event)"
+                                                (input)="FillFormWithFirstAvailableProduct($event)" [readonly]="isEditModeOff"
+                                                maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
+                                        </nb-form-field>
+                                    </td>
+                                    <td>
+                                        <nb-form-field>
+                                            <label>Termékkód</label>
+                                            <input nbInput type="text" formControlName='productCode' readonly>
+                                        </nb-form-field>
+                                    </td>
+                                    <td>
+                                        <nb-form-field>
+                                            <label>Terméknév</label>
+                                            <input nbInput type="text" formControlName='productDescription' readonly>
+                                        </nb-form-field>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+        
+                        <div class="form-row">
+                            <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                                <label>Dátumtól</label>
+                                <input nbInput type="datetime" formControlName='StockCardDateFrom' class="{{TileCssClass}}"
+                                    (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                                    mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                    [validation]="true">
+                                <app-form-control-error [form]="filterFormNav" label="dátumtól" controlName="StockCardDateFrom">
+                                </app-form-control-error>
+                            </nb-form-field>
+        
+                            <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                                <label>Dátumig</label>
+                                <input nbInput type="datetime" formControlName='StockCardDateTo' class="{{TileCssClass}}"
+                                    (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                                    mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                    [validation]="true">
+                                <app-form-control-error [form]="filterFormNav" label="dátumig" controlName="StockCardDateTo">
+                                </app-form-control-error>
+                            </nb-form-field>
+        
+                            <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                                <label>Kapcsolt bizonylat</label>
+                                <input nbInput type="text" formControlName='InvoiceNumber' class="{{TileCssClass}}"
+                                    (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
+                                <app-form-control-error [form]="filterFormNav" label="Kapcsolt bizonylat"
+                                    controlName="InvoiceNumber">
+                                </app-form-control-error>
+                            </nb-form-field>
+                        </div>
+                    </form>
+                </nb-card-body>
+                <nb-card-footer class="search-footer">
+                    <div class="form-row">
+                        <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)"
+                            [disabled]="filterForm?.invalid ?? true" status="primary" tabindex="-1">Keresés</button>
+                    </div>
+                </nb-card-footer>
+            </nb-card>
+        </div>
+        
+        <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="530" [allColumns]="allColumns" [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows"
+            [isLoading]="isLoading" (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+        
+        <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+        <app-stock-card-side-bar-form class="bbx-sidebar"></app-stock-card-side-bar-form>
+    </as-split-area>
+</as-split>

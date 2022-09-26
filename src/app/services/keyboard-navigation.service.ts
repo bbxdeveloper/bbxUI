@@ -40,6 +40,7 @@ export class KeyboardNavigationService {
   private CurrentNavigatable: INavigatable = NullNavigatable.Instance;
   private CurrentSubMappingRootKey?: string;
   private NavigatableStack: INavigatable[] = [];
+  private WidgetStack: INavigatable[] = [];
 
   private _currentKeyboardMode: KeyboardModes = KeyboardModes.NAVIGATION;
   get currentKeyboardMode() {
@@ -52,6 +53,10 @@ export class KeyboardNavigationService {
   ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   isEditModeLocked: boolean = false;
+
+  get GetCurrentNavigatable(): INavigatable | undefined {
+    return this.CurrentNavigatable;
+  }
 
   get AroundHere(): string[][] {
     return this.CurrentNavigatable.Matrix;
@@ -83,7 +88,32 @@ export class KeyboardNavigationService {
 
   private previousIdString?: string = undefined;
 
+  private _locked = false;
+
   constructor() { }
+
+  public clear(): void {
+    this.ResetToRoot();
+    this.CurrentNavigatable.ClearNeighbours(); 
+    this.SelectFirstTile();
+  }
+
+  public Lock(): void {
+    this._locked = true;
+  }
+
+  public Unlock(): void {
+    // try {
+    //     throw new Error("hmmm");
+    // } catch(error) {
+    //     console.error(error);
+    // }
+    this._locked = false;
+  }
+
+  public IsLocked(): boolean {
+    return this._locked;
+  }
 
   toggleEdit(): void {
     if (this.isEditModeLocked) {
@@ -101,6 +131,27 @@ export class KeyboardNavigationService {
     this._currentKeyboardMode = mode;
 
     // throw new Error("debug");
+  }
+
+  public IsElementCheckbox(id: string = ""): boolean {
+    if (id.length == 0) {
+      id = this.Here;
+    }
+    const source = $('#' + id);
+    console.log(`id: ${id}, result: ${source.is(':checkbox')}`);
+    return source.is(':checkbox');
+  }
+
+  public IsInnerInputCheckbox(id: string = ""): boolean {
+    if (id.length == 0) {
+      id = this.Here;
+    }
+    const source = $('#' + id).find('input').first();
+    if (!!!source) {
+      return false;
+    }
+    console.log(`id: ${id}, result: ${source.is(':checkbox') }`);
+    return source.is(':checkbox');
   }
 
   public BalanceCheckboxAfterShiftEnter(id: string): void {
@@ -125,6 +176,10 @@ export class KeyboardNavigationService {
   public SelectElement(id: string): void {
     this.LogSelectElement();
 
+    if (this._locked) {
+      return;
+    }
+
     const idString = '#' + id;
 
     if (environment.navigationSelectLog)
@@ -138,6 +193,7 @@ export class KeyboardNavigationService {
     $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
     if ($(idString).is(':button') || $(idString).is(':radio')) {
+      console.log("focus");
       $(idString).trigger('focus');
     } else {
       switch (this.CurrentNavigatable.TileSelectionMethod) {
@@ -166,6 +222,10 @@ export class KeyboardNavigationService {
   }
 
   public ClickElement(id: string, excludeButtons: boolean = false): void {
+    if (this._locked) {
+      return;
+    }
+
     const idString = '#' + id;
 
     if (environment.navigationSelectLog)
@@ -196,12 +256,20 @@ export class KeyboardNavigationService {
    * @param y New Y coordinate.
    */
   public SelectElementByCoordinate(x: number, y: number): void {
+    if (this._locked) {
+      return;
+    }
+
     this.p.x = x;
     this.p.y = y;
     this.SelectCurrentElement();
   }
 
   public SetPosition(x: number, y: number, n?: INavigatable): void {
+    if (this._locked) {
+      return;
+    }
+
     this.p.x = x;
     this.p.y = y;
     if (!!n && this.CurrentNavigatable !== n) {
@@ -211,6 +279,10 @@ export class KeyboardNavigationService {
   }
 
   public SetPositionById(tileValue: string): boolean {
+    if (this._locked) {
+      return false;
+    }
+
     for (let y = 0; y < this.CurrentNavigatable.Matrix.length; y++) {
       for (let x = 0; x < this.CurrentNavigatable.Matrix[y].length; x++) {
         if (this.CurrentNavigatable.Matrix[y][x] === tileValue) {
@@ -231,6 +303,10 @@ export class KeyboardNavigationService {
   }
 
   public SelectFirstTile(): void {
+    if (this._locked) {
+      return;
+    }
+
     this.p.x = 0;
     this.p.y = 0;
     this.SelectCurrentElement();
@@ -441,6 +517,10 @@ export class KeyboardNavigationService {
 
     const res = { moved: false, jumped: false } as MoveRes;
 
+    if (this._locked) {
+      return res;
+    }
+
     if (this.CurrentNavigatable.IsSubMapping) {
       this.RemoveWidgetNavigatable();
       res.moved = true;
@@ -516,6 +596,10 @@ export class KeyboardNavigationService {
 
     const res = { moved: false, jumped: false } as MoveRes;
 
+    if (this._locked) {
+      return res;
+    }
+
     if (this.CurrentNavigatable.IsSubMapping) {
       this.RemoveWidgetNavigatable();
       res.moved = true;
@@ -590,6 +674,10 @@ export class KeyboardNavigationService {
     this.LogMoveStats(AttachDirection.UP, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
+
+    if (this._locked) {
+      return res;
+    }
 
     // At upper bound
     if (this.p.y === 0) {
@@ -669,6 +757,10 @@ export class KeyboardNavigationService {
     this.LogMoveStats(AttachDirection.DOWN, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
+
+    if (this._locked) {
+      return res;
+    }
 
     // At lower bound
     if (this.p.y === this.maxCurrentWorldY) {
@@ -771,6 +863,12 @@ export class KeyboardNavigationService {
       }
     }
     if (setAsCurrentNavigatable) {
+      console.log("[Attach] setting as current navigatable: ", (n as any).constructor.name);
+      // try {
+      //   throw new Error("hmmm");
+      // } catch (error) {
+      //   console.error(error);
+      // }
       this.CurrentNavigatable = n;
       this.SelectFirstTile();
     }
@@ -828,15 +926,22 @@ export class KeyboardNavigationService {
     this.CurrentNavigatable.LastY = this.p.y;
 
     this.NavigatableStack.push(this.CurrentNavigatable);
+    this.WidgetStack.push(n);
 
     this.CurrentNavigatable = n;
 
     this.p.x = 0;
     this.p.y = 0;
   }
+  
+  public IsDialogOpen(): boolean {
+    // console.log("IsDialogOpen: ", this.WidgetStack);
+    return this.WidgetStack.length > 0;
+  }
 
   public RemoveWidgetNavigatable(): void {
     this.CurrentNavigatable = this.NavigatableStack.pop() ?? this.Root;
+    this.WidgetStack.pop();
 
     this.p.x = this.CurrentNavigatable.LastX!;
     this.p.y = this.CurrentNavigatable.LastY!;

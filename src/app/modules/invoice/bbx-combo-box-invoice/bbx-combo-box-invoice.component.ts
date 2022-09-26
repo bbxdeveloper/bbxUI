@@ -19,6 +19,11 @@ export class BbxComboBoxInvoiceComponent implements OnInit, AfterViewInit {
   @Input() isWide: boolean = true;
   @Input() wrapperClass: string = 'mode-default';
   @Input() simpleMode: boolean = false;
+  @Input() readonly: boolean = false;
+
+  get isEditEnabled() {
+    return !this.readonly && this.isEditModeOff;
+  }
 
   blankOptionText: string = BlankComboBoxValue;
 

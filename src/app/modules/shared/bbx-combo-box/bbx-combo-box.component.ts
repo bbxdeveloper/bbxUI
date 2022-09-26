@@ -19,6 +19,9 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
   @Input() isWide: boolean = true;
   @Input() wrapperClass: string = 'mode-default';
   @Input() simpleMode: boolean = false;
+  @Input() needErrorMsg: boolean = true;
+  @Input() labelAboveField: boolean = false;
+  @Input() needBlankOption: boolean = true;
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -27,13 +30,17 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
   get defaultDataCount(): number { return this.comboBoxData.length; }
   filteredData$: Observable<string[]> = of([]);
   currentFilteredData: string[] = [];
-  currentTypedData: string = '';
+  currentTypedData: string = ''
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  }
+
+  get cssClasses(): string {
+    return this.labelAboveField ? "display-as-block" : "";
   }
 
   constructor(private kbS: KeyboardNavigationService) {
@@ -51,7 +58,11 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
     this.data$.subscribe({
       next: data => {
         console.log('[BbxComboBox data$.subscribe next]: ', data);
-        this.comboBoxData = [this.blankOptionText].concat(data ?? []);
+        if (this.needBlankOption) {
+            this.comboBoxData = [this.blankOptionText].concat(data ?? []);
+        } else {
+            this.comboBoxData = data ?? [];
+        }
         this.filteredData$ = of(this.comboBoxData);
         this.currentFilteredData = this.comboBoxData;
         this.currentDataCount = this.comboBoxData.length;
@@ -77,7 +88,11 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
       return this.comboBoxData;
     }
     const filterValue = value.toLowerCase();
-    return this.comboBoxData.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
+    if (this.needBlankOption) {
+      return this.comboBoxData.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
+    } else {
+      return this.comboBoxData.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+    }
   }
 
 }

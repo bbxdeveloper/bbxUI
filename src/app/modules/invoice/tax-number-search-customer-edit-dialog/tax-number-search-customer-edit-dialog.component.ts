@@ -33,9 +33,18 @@ const defaultPattern: string = '00000000-00000000-00000000';
 })
 export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
   @Input() data!: Customer;
+  @Input() createCustomer: boolean = false;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
+  }
+
+  public get saveIsDisabled(): boolean {
+    if (this.currentForm !== undefined && this.currentForm.form !== undefined) {
+      return this.currentForm.form.invalid;
+    } else {
+      return true;
+    }
   }
 
   customPatterns: any = {
@@ -84,7 +93,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   get privatePersonDefaultValue(): Boolean {
-    return (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
+    return !this.createCustomer && (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
       (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
   }
 
@@ -134,17 +143,19 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     // this.kbS.SelectFirstTile();
   }
   ngAfterContentInit(): void {
-    this.sumForm.controls['id'].setValue(this.data.id);
-    this.sumForm.controls['customerName'].setValue(this.data.customerName);
-    this.sumForm.controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
-    this.sumForm.controls['taxpayerNumber'].setValue(this.data.taxpayerNumber);
-    this.sumForm.controls['thirdStateTaxId'].setValue(this.data.thirdStateTaxId);
-    this.sumForm.controls['countryCode'].setValue(this.data.countryCode);
-    this.sumForm.controls['postalCode'].setValue(this.data.postalCode);
-    this.sumForm.controls['city'].setValue(this.data.city);
-    this.sumForm.controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
-    this.sumForm.controls['privatePerson'].setValue(this.data.privatePerson);
-    this.sumForm.controls['comment'].setValue(this.data.comment);
+    if (!this.createCustomer) {
+      this.sumForm.controls['id'].setValue(this.data.id);
+      this.sumForm.controls['customerName'].setValue(this.data.customerName);
+      this.sumForm.controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
+      this.sumForm.controls['taxpayerNumber'].setValue(this.data.taxpayerNumber);
+      this.sumForm.controls['thirdStateTaxId'].setValue(this.data.thirdStateTaxId);
+      this.sumForm.controls['countryCode'].setValue(this.data.countryCode);
+      this.sumForm.controls['postalCode'].setValue(this.data.postalCode);
+      this.sumForm.controls['city'].setValue(this.data.city);
+      this.sumForm.controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
+      this.sumForm.controls['privatePerson'].setValue(this.data.privatePerson);
+      this.sumForm.controls['comment'].setValue(this.data.comment);
+    }
   }
   ngOnDestroy(): void {
     if (!this.closedManually) {
@@ -217,6 +228,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       event.stopImmediatePropagation();
       event.stopPropagation();
       this.kbS.Jump(AttachDirection.DOWN, false);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }
   }
 

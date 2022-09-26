@@ -30,7 +30,7 @@ const MOCK_USERS = {
   providedIn: 'root'
 })
 export class UserService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'USR';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'User';
 
   constructor(private http: HttpClient) { }
 

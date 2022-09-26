@@ -29,6 +29,8 @@ import { ReplacePipe } from './pipes/replace.pipe';
 import { OneNumberInputDialogComponent } from './one-number-input-dialog/one-number-input-dialog.component';
 import { HtmlStringSanitizerPipe } from './pipes/html-string-sanitizer.pipe';
 import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewer-dialog.component';
+import { InlineEditableTableComponent } from './inline-editable-table/inline-editable-table.component';
+import { OneButtonMessageDialogComponent } from './one-button-message-dialog/one-button-message-dialog.component';
 
 
 @NgModule({
@@ -56,6 +58,8 @@ import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewe
     OneNumberInputDialogComponent,
     HtmlStringSanitizerPipe,
     IframeViewerDialogComponent,
+    InlineEditableTableComponent,
+    OneButtonMessageDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -107,7 +111,9 @@ import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewe
     ToStringPipe,
     ReplacePipe,
     OneNumberInputDialogComponent,
-    HtmlStringSanitizerPipe
+    HtmlStringSanitizerPipe,
+    InlineEditableTableComponent,
+    OneButtonMessageDialogComponent
   ],
   providers: [
     ConfirmationDialogComponent

@@ -6,9 +6,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { EmailAddress, SendEmailRequest } from '../models/Email';
-import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { Constants } from 'src/assets/util/Constants';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -18,8 +18,12 @@ import { Constants } from 'src/assets/util/Constants';
 export class SendEmailDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   title: string = "Bejelentkezés";
   closedManually = false;
-
+  
   @Input() subject?: string;
+  @Input() message?: string;
+  @Input() OfferID?: number;
+  @Input() DefaultFrom?: string;
+  @Input() UserName?: string;
 
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -79,7 +83,8 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SendEmailDialogComponent>,
     private kbS: KeyboardNavigationService,
-    private simpleToastrService: NbToastrService
+    private bbxToastrService: BbxToastrService,
+    private simpleToastrService: NbToastrService,
   ) {
     super();
     this.Setup();
@@ -126,6 +131,12 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     if (!!this.subject) {
       this.dataForm.form.controls['subject'].setValue(this.subject);
     }
+    if (!!this.message) {
+      this.dataForm.form.controls['body'].setValue(this.message);
+    }
+    if (!!this.DefaultFrom) {
+      this.dataForm.form.controls['from'].setValue(this.DefaultFrom);
+    }
   }
 
   ngOnDestroy(): void {
@@ -142,20 +153,22 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
 
       this.dialogRef.close({
         from: {
+          name: this.UserName,
           email: this.dataForm.GetValue('from')
         } as EmailAddress,
         to: {
           email: this.dataForm.GetValue('to')
         } as EmailAddress,
         subject: this.dataForm.GetValue('subject'),
-        body_html_text: this.dataForm.GetValue('body')
+        body_html_text: this.dataForm.GetValue('body'),
+        OfferID: this.OfferID
       } as SendEmailRequest);
     }
     if (answer && !this.dataForm.form.valid) {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         `Az űrlap egyes mezői érvénytelenek vagy hiányosan vannak kitöltve.`,
         Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR_5_SEC
+        Constants.TOASTR_ERROR
       );
     }
     else {

@@ -1,0 +1,55 @@
+<nb-card>
+    <nb-card-body class="bbx-fd-ncb">
+        <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm" [lockButton]="true"
+            [KeySetting]="KeySetting"></app-crud-buttons>
+
+        <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
+            (keydown.escape)="currentForm.HandleFormEscape()" (focusout)="currentForm.HandleFormFocusOut()"
+            (click)="currentForm.HandleFormClick()">
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Azonosító</label>
+                    <input nbInput type="text" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)"
+                        readonly>
+                </div>
+            </nb-form-field>
+            
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="warehouseID" label="Raktár*"
+                [data$]="wareHouseComboData$" [needBlankOption]="false"></app-bbx-combo-box>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Kezdő dátum</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="dateFrom"
+                    [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)"
+                    mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </div>
+                <app-form-control-error [form]="currentForm" label="kezdő dátum" controlName="dateFrom">
+                </app-form-control-error>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Végdátum</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="dateTo" [readonly]="isEditModeOff"
+                        (click)="currentForm.HandleFormFieldClick($event)" mask="0000-00-00" [dropSpecialCharacters]="false"
+                        [showMaskTyped]="true" [validation]="true">
+                </div>
+                <app-form-control-error [form]="currentForm" label="végdátum" controlName="dateTo">
+                </app-form-control-error>
+            </nb-form-field>
+
+            <div class="bbx-fd-form-field-wrapper-div-row" *ngIf="!currentForm.IsFormInNewState()">
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33">
+                    <label class="label-checkbox">Lezárt</label>
+
+                    <input class="bbx-fd-checkbox" type="checkbox"
+                        formControlName="closed" readonly>
+                </div>
+            </div>
+        </form>
+    </nb-card-body>
+</nb-card>

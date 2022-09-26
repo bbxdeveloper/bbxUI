@@ -163,6 +163,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         this.formMode = Constants.FormState.new;
     }
 
+    ActionLock(data?: IUpdateRequest<T>): void { }
+
     ActionNew(data?: IUpdateRequest<T>): void {
         const dt = this.FillObjectWithForm();
         if (this.form.invalid) {
@@ -392,12 +394,17 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
         console.log('[HandleFormEnter]: ', event, jumpNext, toggleEditMode, preventEventInAnyCase);
-        
-        if (preventEventInAnyCase) {
+
+        if (this.kbS.IsLocked() || preventEventInAnyCase) {
             event.preventDefault();
             event.stopImmediatePropagation();
             event.stopPropagation();
         }
+
+        if (this.kbS.IsLocked()) {
+            return;
+        }
+
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }
@@ -526,9 +533,9 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     PushFooterCommandList(): void {
-        if (this.IsFootersEnabled) {
-            this.fS.pushCommands(this.commandsOnForm);
-        }
+        // if (this.IsFootersEnabled) {
+        //     this.fS.pushCommands(this.commandsOnForm);
+        // }
     }
 
     ClearNeighbours(): void {

@@ -16,6 +16,7 @@ export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
   @Input() getData: () => string[] = () => [];
   @Input() data$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   @Input() isWide: boolean = true;
+  @Input() needBlankOption: boolean = true;
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -47,7 +48,11 @@ export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
     this.data$.subscribe({
       next: data => {
         console.log('[BbxComboBox data$.subscribe next]: ', data);
-        this.comboBoxData = [this.blankOptionText].concat(data ?? []);
+        if (this.needBlankOption) {
+          this.comboBoxData = [this.blankOptionText].concat(data ?? []);
+        } else {
+          this.comboBoxData = data ?? [];
+        }
         this.filteredData$ = of(this.comboBoxData);
         this.currentFilteredData = this.comboBoxData;
         this.currentDataCount = this.comboBoxData.length;
@@ -73,7 +78,11 @@ export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
       return this.comboBoxData;
     }
     const filterValue = value.toLowerCase();
-    return this.comboBoxData.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
+    if (this.needBlankOption) {
+      return this.comboBoxData.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
+    } else {
+      return this.comboBoxData.filter(optionValue => optionValue.toLowerCase().includes(filterValue));
+    }
   }
 
 }

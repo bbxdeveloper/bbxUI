@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header">
         <span>Gyorskeresés</span>
     </nb-card-header>
-    <nb-card-body class="modal-product-active-body">
+    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
 
         <label class="search-label" for="search">Keresés:</label>
         <input nbInput id="active-prod-search" class="search-input"
@@ -13,25 +13,22 @@
 
         <span class="loading-label" *ngIf="isLoading">Betöltés...</span>
 
-        <!-- <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
+        <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
-                    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>
+                    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef
+                    [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth">
                         {{it.label}}
                     </th>
                 </ng-container>
             </ng-container>
-        </table> -->
+        </table>
 
         <table [nbSpinner]="isLoading" class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
-            <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
             <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
-                    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth">
-                        {{it.label}}
-                    </th>
                     <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                         *nbTreeGridCellDef="let row; let rowPos = index" (keydown.enter)="selectRow($event, row)"
                         (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
@@ -49,5 +46,4 @@
 
         <div class="msg">{{responseMessage}}</div>
     </nb-card-body>
-    <nb-card-footer class="modal-product-active-footer"></nb-card-footer>
 </nb-card>

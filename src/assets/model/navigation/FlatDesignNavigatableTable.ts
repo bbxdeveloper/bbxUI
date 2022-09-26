@@ -83,6 +83,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     private prevSelectedRowPos?: number;
     private prevSelectedCol?: string;
     private prevSelectedColPos?: number;
+    private formAttachDirection: AttachDirection = AttachDirection.RIGHT;
 
     private tag: string = '';
 
@@ -94,6 +95,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
+
+    public ReadonlyPredicator: (x: T) => boolean = (x: T) => { return false; }
+    public ReadonlyFormByDefault: boolean = false;
+    public get ReadonlyForm(): boolean {
+        return this.ReadonlyFormByDefault || this.ReadonlyPredicator(this.flatDesignForm.DataToEdit?.data);
+    }
 
     constructor(
         f: FormGroup,
@@ -116,6 +123,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     ) {
         super();
 
+        this.formAttachDirection = formAttachDirection;
+
         this._data = data;
         this.attachDirection = attachDirection;
         this.tableId = tableId;
@@ -133,6 +142,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.tag = tag;
 
         this.getBlankInstance = getBlankInstance;
+    }
+
+    Lock(data?: IUpdateRequest): void {
+        this.updater.ActionLock(data);
+        this.PushFooterCommandList();
     }
 
     New(data?: IUpdateRequest): void {
@@ -221,19 +235,21 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     PushFooterCommandList(): void {
-        if (this.sidebarService.sideBarOpened) {
-            return;
-        }
-        if (this.kbs.isEditModeActivated) {
-            this.fS.pushCommands(this.commandsOnTableEditMode);
-        } else {
-            this.fS.pushCommands(this.commandsOnTable);
-        }
+        // if (this.sidebarService.sideBarOpened) {
+        //     return;
+        // }
+        // if (this.kbs.isEditModeActivated) {
+        //     this.fS.pushCommands(this.commandsOnTableEditMode);
+        // } else {
+        //     this.fS.pushCommands(this.commandsOnTable);
+        // }
     }
 
     SelectRowById(id: any): void {
         const rowIndex = this.data.findIndex(x => (x.data as any).id === id);
-        console.log(rowIndex);
+        if (environment.flatDesignTableDebug) {
+            console.log(rowIndex);
+        }
         if (rowIndex !== -1) {
             const filterValue = this.includeSearchInNavigationMatrix ? 1 : 0;
             // this.kbs.SetCurrentNavigatable(this);
@@ -252,7 +268,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     SetBlankInstanceForForm(openSideBar: boolean, jump: boolean = true): void {
         const creatorRow = this.GenerateCreatorRow;
 
-        console.log(`Blank instance: ${creatorRow}`);
+        if (environment.flatDesignTableDebug) {
+            console.log(`Blank instance: ${creatorRow}`);
+        }
 
         this.prevSelectedRow = creatorRow;
         this.prevSelectedRowPos = -1;
@@ -275,7 +293,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
-        console.log(`Data: ${row}`);
+        if (environment.flatDesignTableDebug) {
+            console.log(`Data: ${row}`);
+        }
 
         this.prevSelectedRow = row;
         // this.prevSelectedRowPos = 0;
@@ -295,7 +315,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 this.sidebarService.expand();
             }
 
-            this.flatDesignForm.GenerateAndSetNavMatrices(true, true);
+            this.flatDesignForm.GenerateAndSetNavMatrices(false, true);
+            this.SetAsNeighbour(this.formAttachDirection, this.flatDesignForm);
 
             if (jump) {
                 this.kbs.Jump(this.flatDesignForm.attachDirection, true);
@@ -305,10 +326,33 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }, 200);
     }
 
+    SetAsNeighbour(direction: AttachDirection, navigatable: INavigatable): void {
+        switch(direction) {
+            case AttachDirection.DOWN:
+                this.DownNeighbour = navigatable;
+                navigatable.UpNeighbour = this;
+                break;
+            case AttachDirection.LEFT:
+                this.LeftNeighbour = navigatable;
+                navigatable.RightNeighbour = this;
+                break;
+            case AttachDirection.UP:
+                this.UpNeighbour = navigatable;
+                navigatable.DownNeighbour = this;
+                break;
+            case AttachDirection.RIGHT:
+                this.RightNeighbour = navigatable;
+                navigatable.LeftNeighbour = this;
+                break;
+        }
+    }
+
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
         this.kbs.setEditMode(KeyboardModes.NAVIGATION);
 
-        console.log('[HandleGridClick]');
+        if (environment.flatDesignTableDebug) {
+            console.log('[HandleGridClick]');
+        }
 
         if (this.includeSearchInNavigationMatrix) {
             ++rowPos;
@@ -333,7 +377,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
 
-        this.flatDesignForm.GenerateAndSetNavMatrices(true, false);
+        this.flatDesignForm.GenerateAndSetNavMatrices(false, false);
+        this.SetAsNeighbour(this.formAttachDirection, this.flatDesignForm);
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -412,13 +457,17 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             const tempX = this.kbs.p.x;
             const tempY = this.kbs.p.y;
 
-            console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+            if (environment.flatDesignTableDebug) {
+                console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+            }
 
             this.cdr.detectChanges();
 
             this.kbs.SelectElementByCoordinate(tempX, tempY);
 
-            console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+            if (environment.flatDesignTableDebug) {
+                console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+            }
         }
 
         if (idToSelectAfterGenerate !== undefined) {
@@ -434,7 +483,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
-    private HandleF12(setFormForNew: boolean = false): void {
+    private HandleToggleSideBarForm(setFormForNew: boolean = false): void {
+        if (this.ReadonlyForm &&
+            (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
+            return;
+        }
         if (setFormForNew) {
             this.SetBlankInstanceForForm(!this.sidebarService.sideBarOpened);
         } else {
@@ -454,22 +507,71 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
+    private HandleEditAndNew(setFormForNew: boolean = false): void {
+        if (this.ReadonlyForm &&
+            (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
+            return;
+        }
+        if (setFormForNew) {
+            this.SetBlankInstanceForForm(!this.sidebarService.sideBarOpened);
+        } else {
+            if (!this.sidebarService.sideBarOpened) {
+                this.flatDesignForm.PushFooterCommandList();
+            } else {
+                this.PushFooterCommandList();
+            }
+            if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
+                this.SetBlankInstanceForForm(true);
+            } else if (!this.sidebarService.sideBarOpened) {
+                this.sidebarService.expand();
+            }
+        }
+    }
+
     HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
                 event.preventDefault();
-                this.HandleF12();
+                this.HandleToggleSideBarForm();
                 break;
             }
             case this.KeySetting[Actions.Refresh].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Refresh].FunctionLabel}, ${Actions[Actions.Refresh]}`);
                 event.preventDefault();
                 this.Refresh();
                 break;
             }
             case this.KeySetting[Actions.CrudNew].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudNew].FunctionLabel}, ${Actions[Actions.CrudNew]}`);
                 event.preventDefault();
+                this.HandleEditAndNew(true);
                 this.JumpToFirstFormField();
-                this.HandleF12(true);
+                break;
+            }
+            case this.KeySetting[Actions.CrudEdit].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudEdit].FunctionLabel}, ${Actions[Actions.CrudEdit]}`);
+                event.preventDefault();
+                this.HandleEditAndNew(false);
+                this.JumpToFirstFormField();
+                break;
+            }
+            case this.KeySetting[Actions.CrudDelete].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudDelete].FunctionLabel}, ${Actions[Actions.CrudDelete]}`);
+                if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default && this.sidebarService.sideBarOpened) {
+                    event.preventDefault();
+                    this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.JumpToFirstFormField();
+                }
+                break;
+            }
+            case this.KeySetting[Actions.Lock].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
+                if (!!this.prevSelectedRow) {
+                    event.preventDefault();
+                    this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.JumpToFirstFormField();
+                }
                 break;
             }
             default: { }
@@ -477,6 +579,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     JumpToFirstFormField(): void {
+        if (this.ReadonlyForm) {
+            return;
+        }
         if (this.sidebarService.sideBarOpened) {
             this.kbs.Jump(this.flatDesignForm.attachDirection, true);
             this.kbs.setEditMode(KeyboardModes.NAVIGATION);
@@ -486,6 +591,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     JumpToFlatDesignForm(tabKeyDownEvent?: Event, row?: TreeGridNode<T>, rowPos?: number, col?: string, colPos?: number): void {
+        if (this.ReadonlyForm) {
+            return;
+        }
         tabKeyDownEvent?.preventDefault();
         tabKeyDownEvent?.stopImmediatePropagation();
         tabKeyDownEvent?.stopPropagation();
@@ -499,6 +607,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     JumpToFlatDesignFormByForm(formInputId: string): void {
+        if (this.ReadonlyForm) {
+            return;
+        }
         this.kbs.Jump(this.flatDesignForm.attachDirection, true);
         this.flatDesignForm.PushFooterCommandList();
         this.kbs.SetPositionById(formInputId);

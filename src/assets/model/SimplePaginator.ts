@@ -27,6 +27,21 @@ export class SimplePaginator {
         }
     }
 
+    CalcPageCount(recordsFiltered: number, pageSize: number): number {
+        const tmp = Math.round(recordsFiltered / pageSize);
+        return tmp === 0 ? 1 : tmp;
+    }
+
+    SetPaginatorData(response: any): void {
+        this.currentPage = response.pageNumber;
+        this.allPages = this.CalcPageCount(response.recordsFiltered, response.pageSize);
+        this.totalItems = response.recordsFiltered;
+        this.itemsOnCurrentPage = response?.data?.length ?? 0;
+        console.log(
+            `[SetPaginatorData]: pageNumber: ${this.currentPage}, allPages: ${this.allPages}, recordsFiltered: ${response.recordsFiltered}, pageSize: ${response.pageSize}, totalItems: ${this.totalItems}, itemsOnCurrentPage: ${this.itemsOnCurrentPage}` 
+        );
+    }
+
     nextPage(): void {
         if (!this.isLastPage) {
             this.NewPageSelected.emit(++(this.currentPage));

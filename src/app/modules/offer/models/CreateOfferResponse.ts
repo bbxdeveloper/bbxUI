@@ -4,6 +4,7 @@ export interface CreateOfferResponse {
     "errors"?: any[],
     "data"?: {
         "offerNumber": string,
+        "offerNumberX": string,
         "offerIssueDate": string,
         "offerVaidityDate": string,
         "customerID": number,

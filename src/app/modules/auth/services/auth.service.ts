@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LoginResponse } from '../models/LoginResponse';
 import { User } from '../models/User';
+import { TokenStorageService } from './token-storage.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -15,30 +16,20 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly BaseUrl = environment.apiUrl + 'auth' + environment.apiVersion;
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Auth';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private tokenService: TokenStorageService) { }
 
   login(nm: string, pswd: string): Observable<LoginResponse> {
-    let loginData: { email?: string; password: string; phone?: string; };
-
-    // Email
-    if (nm.indexOf("@") != -1) {
-      loginData = { email: nm, password: pswd };
-    } else {
-      loginData = { phone: nm, password: pswd };
-    }
-
-    // return this.http.post(this.BaseUrl + 'login', loginData, httpOptions);
-    return of({ token: 'token' } as LoginResponse)
+    let loginData = { loginName: nm, password: pswd };
+    return this.http.post<LoginResponse>(this.BaseUrl + '/auth/' + environment.apiVersion + '/login', loginData, httpOptions);
   }
 
   logout(): Observable<any> {
-    // return this.http.post(this.BaseUrl + 'logout', {}, httpOptions);
-    return of(true);
+    return this.http.post(this.BaseUrl + '/auth/' + environment.apiVersion + '/logout', {}, httpOptions);
   }
 
-  getLoggedUser(): Observable<User> {
-    return of({name: 'Admin', loginName: 'Admin'} as User);
+  getLoggedUser(): Observable<User | null> {
+    return of(this.tokenService.user);
   }
 }

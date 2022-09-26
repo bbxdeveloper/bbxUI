@@ -1,6 +1,6 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
+import { NbDialogService, NbSidebarService, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -9,11 +9,10 @@ import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
-import { TileCssClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, DefaultKeySettings, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, InvoiceKeySettings, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -42,7 +41,7 @@ export class BaseManagerComponent<T> {
   isLoading: boolean = true;
   
   get isSideBarOpened(): boolean {
-    return this.sidebarService.sideBarOpened;
+    return this.bbxSidebarService.sideBarOpened;
   }
   
   private uid = 0;
@@ -55,33 +54,17 @@ export class BaseManagerComponent<T> {
     return {};
   }
 
-  commands: FooterCommandInfo[] = [
-    { key: 'F1', value: '', disabled: false },
-    { key: 'F2', value: '', disabled: false },
-    { key: 'F3', value: '', disabled: false },
-    { key: 'F4', value: '', disabled: false },
-    { key: 'F5', value: '', disabled: false },
-    { key: 'F6', value: '', disabled: false },
-    { key: 'F7', value: '', disabled: false },
-    { key: 'F8', value: '', disabled: false },
-    { key: 'F9', value: '', disabled: false },
-    { key: 'F10', value: '', disabled: false },
-    { key: 'F11', value: '', disabled: false },
-    { key: 'F12', value: 'Tétellap', disabled: false },
-  ];
+  public KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
+  public commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   constructor(
     @Optional() protected dialogService: NbDialogService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
-    protected sidebarService: BbxSidebarService,
+    protected bbxSidebarService: BbxSidebarService,
     protected cs: CommonService,
     protected sts: StatusService) {
-  }
-
-  GetPageCount(recordsFiltered: number, pageSize: number): number {
-    const tmp = Math.round(recordsFiltered / pageSize);
-    return tmp === 0 ? 1 : tmp;
+      this.bbxSidebarService.collapse();
   }
   
   HandleError(err: any): void {
@@ -102,6 +85,24 @@ export class BaseManagerComponent<T> {
     }
     this.dbDataTable.flatDesignForm.SetFormStateToDefault();
   }
+
+  ActionLock(data?: IUpdateRequest<T>): void {
+    console.log("ActionLock: ", data);
+    if (data?.needConfirmation) {
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: Constants.MSG_CONFIRMATION_LOCK } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          this.ProcessActionLock(data);
+        }
+      });
+    } else {
+      this.ProcessActionLock(data);
+    }
+  }
+  ProcessActionLock(data?: IUpdateRequest<T>): void {}
 
   ActionNew(data?: IUpdateRequest<T>): void {
     console.log("ActionNew: ", data);
@@ -264,6 +265,14 @@ export class BaseManagerComponent<T> {
     } else {
       this.fS.pushCommands(this.commands);
     }
+  }
+
+  protected SetTableAndFormCommandListFromManager(): void {
+    this.dbDataTable.flatDesignForm.KeySetting = this.KeySetting;
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
+
+    this.dbDataTable.commandsOnTableEditMode = this.commands;
+    this.dbDataTable.commandsOnTable = this.commands;
   }
 
 }

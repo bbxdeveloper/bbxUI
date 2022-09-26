@@ -1,23 +1,27 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
-import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { IEditable } from 'src/assets/model/IEditable';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { NavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, OfferNavKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, OfferNavKeySettings, KeyBindings, IsKeyFunctionKey } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { createMask } from '@ngneat/input-mask';
+import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
+import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
+import { Customer } from '../../customer/models/Customer';
+import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
+import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -48,6 +52,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   isLoading: boolean = true;
+  isSaveInProgress: boolean = false;
 
   protected uid = 0;
   protected nextUid() {
@@ -74,41 +79,67 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     { key: 'F12', value: 'Tétellap', disabled: false },
   ];
 
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.00',
-  });
-
-  offerDiscountInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0.00',
-    max: 999.99,
-  });
-
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '',
-  });
+  numberInputMask = NgNeatInputMasks.numberInputMask;
+  offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
+  numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
+  
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: 'auto',
+    minHeight: '0',
+    maxHeight: 'auto',
+    width: 'auto',
+    minWidth: '0',
+    translate: 'yes',
+    enableToolbar: true,
+    showToolbar: true,
+    placeholder: 'Enter text here...',
+    defaultParagraphSeparator: '',
+    defaultFontName: '',
+    defaultFontSize: '',
+    fonts: [
+      { class: 'arial', name: 'Arial' },
+      { class: 'times-new-roman', name: 'Times New Roman' },
+      { class: 'calibri', name: 'Calibri' },
+      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+    ],
+    customClasses: [
+      {
+        name: 'quote',
+        class: 'quote',
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: 'titleText',
+        class: 'titleText',
+        tag: 'h1',
+      },
+    ],
+    uploadUrl: 'v1/image',
+    uploadWithCredentials: false,
+    sanitize: true,
+    toolbarPosition: 'top',
+    toolbarHiddenButtons: [
+      ['bold', 'italic'],
+      ['fontSize']
+    ]
+  };
 
   constructor(
     @Optional() protected dialogService: NbDialogService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected cs: CommonService,
-    protected sts: StatusService
-  ) {}
+    protected sts: StatusService,
+    protected sideBarService: BbxSidebarService,
+    protected khs: KeyboardHelperService
+  ) {
+    this.sideBarService.collapse();
+  }
 
   HandleError(err: any): void {
     this.cs.HandleError(err);
@@ -216,6 +247,12 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if ((this.khs.IsDialogOpened && IsKeyFunctionKey(event.key)) || this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     if (event.key === KeyBindings.Tab) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -293,5 +330,29 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     } else {
       this.fS.pushCommands(this.commands);
     }
+  }
+
+  SetDataForForm(data: any): void {}
+
+  CreateCustomer(event: any): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+      context: {
+        createCustomer: true
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (res: Customer) => {
+        console.log("Selected item: ", res);
+        if (!!res) {
+          this.SetDataForForm(res);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+      }
+    });
   }
 }

@@ -13,10 +13,13 @@ export class BbxSidebarService {
     this.isSideBarOpened = state;
     if (!this.isSideBarOpened) {
       this.collapseEvent.next({});
+    } else {
+      this.expandEvent.next({});
     }
   };
 
   collapseEvent: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  expandEvent: BehaviorSubject<any> = new BehaviorSubject<any>({});
 
   constructor() { }
 
@@ -24,11 +27,14 @@ export class BbxSidebarService {
     this.isSideBarOpened = !this.isSideBarOpened;
     if (!this.isSideBarOpened) {
       this.collapseEvent.next({});
+    } else {
+      this.expandEvent.next({});
     }
   }
 
   expand(): void {
     this.isSideBarOpened = true;
+    this.expandEvent.next({});
   }
 
   collapse(): void {
@@ -38,5 +44,9 @@ export class BbxSidebarService {
 
   onCollapse(): BehaviorSubject<any> {
     return this.collapseEvent;
+  }
+
+  onExpand(): BehaviorSubject<any> {
+    return this.expandEvent;
   }
 }

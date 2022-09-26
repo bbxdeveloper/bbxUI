@@ -1,0 +1,10 @@
+<nb-card>
+    <nb-card-header>{{title}}</nb-card-header>
+    <nb-card-body class="form-col-1">
+        <p>{{message}}</p>
+    </nb-card-body>
+    <nb-card-footer class="button-footer">
+        <button class="{{TileCssClass}}" id="dialog-button-close" nbButton (click)="close(true)" status="danger"
+            [disabled]="disableButton" tabindex="-1">Ok</button>
+    </nb-card-footer>
+</nb-card>

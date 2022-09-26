@@ -45,6 +45,16 @@ export class UtilityService {
     params: Constants.Dct = {}, obs?: Observable<any>): void {
     console.log(`Execute command: ${commandType}, fileType: ${fileType}`);
     switch (commandType) {
+      case Constants.CommandType.PRINT_GENERIC:
+        switch (params['data_operation'] as Constants.DataOperation) {
+          case Constants.DataOperation.PRINT_BLOB:
+            this.print(fileType, obs!, params);
+            break;
+          case Constants.DataOperation.DOWNLOAD_BLOB:
+            this.downloadReportPDF(obs!);
+            break;
+        }
+        break;
       case Constants.CommandType.PRINT_OFFER:
         switch (params['data_operation'] as Constants.DataOperation) {
           case Constants.DataOperation.PRINT_BLOB:
@@ -261,7 +271,7 @@ export class UtilityService {
         console.log(`Data acquired.`);
 
         this.sts.pushProcessStatus(Constants.DownloadStatuses[Constants.DownloadProcessPhases.PROC_RESP]);
-        var blob = new Blob([res], { type: mimeType });
+        var blob = new Blob([res.body], { type: mimeType });
         var blobURL = URL.createObjectURL(blob);
 
         let a = document.createElement('a');

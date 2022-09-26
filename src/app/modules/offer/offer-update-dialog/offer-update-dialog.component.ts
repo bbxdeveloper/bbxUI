@@ -2,6 +2,7 @@ import { AfterContentInit, Component, Input, OnDestroy } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
+import { OfferUtil } from '../models/OfferUtil';
 
 @Component({
   selector: 'app-offer-update-dialog',
@@ -11,6 +12,10 @@ import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable
 export class OfferUpdateDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy {
   @Input() msg: string = "";
   closedManually = false;
+
+  public get offerEditSaveOptions(): typeof OfferUtil.EditSaveModes {
+    return OfferUtil.EditSaveModes;
+  }
 
   constructor(
     protected dialogRef: NbDialogRef<OfferUpdateDialogComponent>,

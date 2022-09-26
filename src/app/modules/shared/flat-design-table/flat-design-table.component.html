@@ -4,23 +4,37 @@
     </nb-card-header>
     <nb-card-body *ngIf="!!dbDataTable">
         <form class="card-table-wrapper-form">
-            <table class="card-table-wrapper"
-                nbSort (sort)="changeSort($event)"
+            <table class="card-table-header" [ngClass]="getTableClasses()"  [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
+                nbSort (sort)="changeSort($event)" id="table_header">
+                <ng-container *ngIf="allColumns.length > 0">
+                    <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+                </ng-container>
+                <ng-container *ngIf="allColumns.length === 0">
+                    <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsAsync | async"></tr>
+                </ng-container>
+                <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+                    <ng-container [ngSwitch]="it.type">
+                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef
+                            [nbSortHeader]="getDirection(it.colKey)"
+                            [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth">
+                            {{it.label}}
+                        </th>
+                    </ng-container>
+                </ng-container>
+            </table>
+
+            <table class="card-table-wrapper" id="table_body"
                 [ngClass]="getTableClasses()" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
                  *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
                  equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
-
-                <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
-                <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
-
+                <ng-container *ngIf="allColumns.length > 0">
+                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+                </ng-container>
+                <ng-container *ngIf="allColumns.length === 0">
+                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: (allColumnsAsync | async)"></tr>
+                </ng-container>
                 <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                     <ng-container [ngSwitch]="it.type">
-
-                        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [style.width]="it.colWidth"
-                            [nbSortHeader]="getDirection(it.colKey)">
-                            {{it.label}}
-                        </th>
-
                         <ng-container *ngSwitchCase="'string'">
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                 *nbTreeGridCellDef="let row; let rowPos = index"
@@ -30,7 +44,7 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] }}
                                 </div>
                             </td>
@@ -43,7 +57,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ !!it.calc ? it.calc(row.data) : '' }}
                                 </div>
                             </td>
@@ -56,7 +70,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ GetDateString(row.data[it.objectKey]) }}
                                 </div>
                             </td>
@@ -69,7 +83,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] }}
                                 </div>
                             </td>
@@ -82,7 +96,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.' }}
                                 </div>
                             </td>
@@ -95,7 +109,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'2.0':'fr' | replace:',':'.' }}
                                 </div>
                             </td>
@@ -108,7 +122,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'8.0':'fr' | removeWhitespaces }}
                                 </div>
                             </td>
@@ -121,7 +135,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'3.0':'fr' | removeWhitespaces }}
                                 </div>
                             </td>
@@ -134,7 +148,7 @@
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
                                 [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.0'):'fr' | removeWhitespaces }}
                                 </div>
                             </td>
@@ -149,7 +163,7 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] ? '&check;' : '&times;' }}
                                 </div>
                             </td>
@@ -164,7 +178,7 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div>
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     <iframe class="iframe-table-cell" [srcdoc]="row.data[it.objectKey] | htmlStringSanitizer"></iframe>
                                 </div>
                             </td>

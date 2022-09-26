@@ -1,7 +1,9 @@
-import { Component, Input, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, HostListener, AfterViewInit } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
-import { NbCollectionViewer } from '@nebular/theme/components/cdk/collections/collection-viewer';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
@@ -20,6 +22,7 @@ export const FORMATTED_NUMBER_COL_TYPES = [
 export class FlatDesignTableComponent implements OnInit {
   @Input() dbDataTable?: FlatDesignNavigatableTable<any> | FlatDesignNoFormNavigatableTable<any>;
   @Input() allColumns: string[] = [];
+  @Input() allColumnsAsync: ReplaySubject<string[]> = new ReplaySubject<string[]>();
   @Input() colDefs: ModelFieldDescriptor[] = [];
   @Input() dbDataTableId: any;
   @Input() dbDataDataSrc!: NbTreeGridDataSource<any>;
@@ -28,6 +31,7 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
+  @Input() checkIfDialogOpened: boolean = true;
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -37,7 +41,7 @@ export class FlatDesignTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(private sideBarService: BbxSidebarService) {}
+  constructor(private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService, private khs: KeyboardHelperService) {}
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)
@@ -75,14 +79,20 @@ export class FlatDesignTableComponent implements OnInit {
     classes += this.heightMargin > -1 ? ('table-wrapper-height-margin-' + this.heightMargin) : '';
     if (this.heightMargin === -1) {
       classes += this.wide ? 'card-table-wrapper-wide' : 'card-table-wrapper-default'
-      classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
     }
+    classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
     return classes;
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     switch (event.key) {
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
@@ -94,7 +104,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`Tab on searchfield Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
@@ -103,7 +113,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F12 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -112,7 +122,7 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F12 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.CrudNew].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudNew].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -121,7 +131,34 @@ export class FlatDesignTableComponent implements OnInit {
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`F5 Pressed: ${event}`);
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.CrudEdit].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.CrudEdit].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudEdit].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.CrudDelete].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.CrudDelete].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudDelete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }

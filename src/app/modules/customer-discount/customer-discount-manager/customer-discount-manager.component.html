@@ -1,0 +1,71 @@
+<app-head-line msg="Partnerkedvezmények"></app-head-line>
+
+<div class="filter-div">
+    <nb-card class="filter-card">
+        <nb-card-body class="filter-card-body">
+            <form [formGroup]="buyerForm" #formDirective="ngForm" [id]="buyerFormId" class="form-with-rows"
+                (keydown.escape)="buyerFormNav.HandleFormEscape()">
+                <div class="form-row">
+                    <table class="customer-search-row">
+                        <tr>
+                            <td>
+                                <nb-form-field class="search-row-nb-form-field"
+                                    (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
+                                    (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')" (keydown.F3)="CreateCustomer($event)">
+                                    <label>Ügyfél keresés</label>
+                                    <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}" maxlength="80"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)" (input)="FillFormWithFirstAvailableCustomer($event)"
+                                        [readonly]="isEditModeOff" placeholder="Keresés" autocomplete="off" id="r00" />
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <button *ngIf="searchByTaxtNumber" nbButton [disabled]="isLoading"
+                                    [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
+                                    (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél</label>
+                                    <input nbInput type="text" formControlName='customerName' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Cím</label>
+                                    <input nbInput type="text" formControlName='customerAddress' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Ügyfél Adószám</label>
+                                    <input nbInput type="text" formControlName='customerTaxNumber' readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <app-form-control-error [formGroupMode]="true" formGroupMessage="Partner választása kötelező!"
+                                [form]="buyerFormNav" controlName="customerName">
+                                </app-form-control-error>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshAndJumpToTable()"
+                                    status="primary" tabindex="-1" [disabled]="buyerForm.invalid">Keresés</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+        </nb-card-body>
+    </nb-card>
+</div>
+
+<nb-card [nbSpinner]="isLoading" *ngIf="!!dbDataTable">
+    <nb-card-body>
+        <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [confirmRowDelete]="true"
+            [dbDataDataSrc]="dbDataDataSrc" [heightMargin]="400" [dbDataTable]="dbDataTable"
+            [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-inline-editable-table>
+    </nb-card-body>
+</nb-card>

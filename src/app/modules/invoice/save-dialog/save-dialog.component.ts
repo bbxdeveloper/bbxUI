@@ -38,10 +38,13 @@ import { InvoiceService } from '../services/invoice.service';
 import { createMask } from '@ngneat/input-mask';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { SumData } from '../models/SumData';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
 ];
+
+interface VatRateRow { Id: string, Value: number };
 
 @Component({
   selector: 'app-save-dialog',
@@ -50,6 +53,15 @@ const NavMap: string[][] = [
 })
 export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
   @Input() data!: CreateOutgoingInvoiceRequest;
+
+  numberInputMask: any = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.0',
+  });
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -60,6 +72,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   sumForm: FormGroup;
   sumFormId: string = "outgoing-invoice-form";
 
+  vatRateCodes: VatRateRow[] = [];
+
   constructor(
     protected dialogRef: NbDialogRef<SaveDialogComponent>,
     private kBs: KeyboardNavigationService
@@ -68,10 +82,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.Setup();
 
     this.sumForm = new FormGroup({
-      invoiceNetAmount: new FormControl('', [Validators.required]),
-      invoiceVatAmount: new FormControl('', [Validators.required]),
-      lineGrossAmount: new FormControl('', [Validators.required]),
-      invoiceLinesCount: new FormControl('', [Validators.required]),
+      // invoiceNetAmount: new FormControl('', [Validators.required]),
+      // invoiceVatAmount: new FormControl('', [Validators.required]),
+      // lineGrossAmount: new FormControl('', [Validators.required]),
+      // invoiceLinesCount: new FormControl('', [Validators.required]),
     });
   }
 
@@ -80,13 +94,39 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
   }
 
+  private prepareVatRateCodes(): void {
+    var result: VatRateRow[] = [];
+    this.data.invoiceLines.reduce(function (res: any, value) {
+      if (!res[value.vatRateCode]) {
+        res[value.vatRateCode] = { Id: value.vatRateCode, Value: value.lineVatAmount } as VatRateRow;
+        result.push(res[value.vatRateCode]);
+      }
+      res[value.vatRateCode].Value += HelperFunctions.ToFloat(value.lineVatAmount)
+      return res;
+    }, {});
+    this.vatRateCodes = result;
+  }
+
   ngAfterContentInit(): void {
-    this.sumForm.controls['invoiceNetAmount'].setValue(this.data.invoiceNetAmount);
-    this.sumForm.controls['invoiceVatAmount'].setValue(this.data.invoiceLines[0].vatRateCode);
-    this.sumForm.controls['lineGrossAmount'].setValue(this.data.lineGrossAmount);
-    this.sumForm.controls['invoiceLinesCount'].setValue(this.data.invoiceLines.length);
+    this.prepareVatRateCodes();
+    const vatRateRowCount = this.vatRateCodes.length;
+
+    this.sumForm.addControl('invoiceNetAmount', new FormControl(this.data.invoiceNetAmount, [Validators.required]));
+
+    this.vatRateCodes.forEach((row: VatRateRow, index: number) => {
+      this.sumForm.addControl('vatRateFormControl-' + (index + ''), new FormControl(row.Value, [Validators.required]));
+    });
+
+    this.sumForm.addControl('lineGrossAmount', new FormControl(this.data.lineGrossAmount, [Validators.required]));
+    this.sumForm.addControl('invoiceLinesCount', new FormControl(this.data.invoiceLines.length, [Validators.required]));
+
+    // this.sumForm.controls['invoiceNetAmount'].setValue(this.data.invoiceNetAmount);
+    // this.sumForm.controls['invoiceVatAmount'].setValue(this.data.invoiceLines[0].vatRateCode);
+    // this.sumForm.controls['lineGrossAmount'].setValue(this.data.lineGrossAmount);
+    // this.sumForm.controls['invoiceLinesCount'].setValue(this.data.invoiceLines.length);
 
     this.kBs.SetWidgetNavigatable(this);
+    this.kBs.setEditMode(KeyboardModes.NAVIGATION);
     this.kBs.SelectFirstTile();
   }
   ngOnDestroy(): void {

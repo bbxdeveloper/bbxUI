@@ -51,7 +51,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '15%',
+      colWidth: '130px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -63,7 +63,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '25%',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -76,7 +76,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -89,7 +89,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '130px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -102,7 +102,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '100px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
       calc: (x: Counter) => {
@@ -118,7 +118,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '100px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -131,7 +131,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       fInputType: 'text',
       fRequired: true,
       mask: '',
-      colWidth: '30%',
+      colWidth: '85px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -141,7 +141,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   wareHouses: WareHouse[] = [];
 
   override get getInputParams(): GetCountersParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return { OrderBy: "counterCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
   }
 
   constructor(
@@ -385,7 +385,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       AttachDirection.DOWN,
       'sideBarForm',
       AttachDirection.RIGHT,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
@@ -424,7 +424,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       }
     }
 
-    this.sidebarService.collapse();
+    this.bbxSidebarService.collapse();
 
     this.RefreshAll(this.getInputParams);
   }
@@ -442,10 +442,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.currentPage = d.pageNumber;
-            this.dbDataTable.allPages = this.GetPageCount(d.recordsFiltered, d.pageSize);
-            this.dbDataTable.totalItems = d.recordsFiltered;
-            this.dbDataTable.itemsOnCurrentPage = tempData.length;
+            this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
         } else {
@@ -471,6 +468,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   }
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.SetTableAndFormCommandListFromManager();
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();

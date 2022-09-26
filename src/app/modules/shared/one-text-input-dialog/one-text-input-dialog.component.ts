@@ -16,9 +16,11 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
   @Input() title: string = "";
   @Input() inputLabel: string = "";
   @Input() defaultValue: any = "";
+  @Input() isReadonly: any = false;
   
   closedManually = false;
 
+  inputForm!: FormGroup;
   formNav!: NavigatableForm;
 
   TileCssClass = TileCssClass;
@@ -50,14 +52,16 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
 
   private Setup(): void {
     this.IsDialog = true;
-    this.Matrix = [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]];
+    this.Matrix = this.isReadonly ?
+      [["date-interval-dialog-button-yes"]] :
+      [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]];
 
-    const inputForm = new FormGroup({
+    this.inputForm = new FormGroup({
       answer: new FormControl(this.defaultValue, [Validators.required]),
     });
 
     this.formNav = new NavigatableForm(
-      inputForm, this.kbS, this.cdrf, [], 'oneInputForm', AttachDirection.UP, {} as IInlineManager
+      this.inputForm, this.kbS, this.cdrf, [], 'oneInputForm', AttachDirection.UP, {} as IInlineManager
     );
 
     // We can move onto the confirmation buttons from the form.
@@ -68,9 +72,15 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
 
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
-    this.formNav.GenerateAndSetNavMatrices(true);
+    if (!this.isReadonly) {
+      this.formNav.GenerateAndSetNavMatrices(true);
+    }
+    this.inputForm.controls['answer'].setValue(this.defaultValue);
     this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    setTimeout(() => {
+      this.kbS.ClickCurrentElement();
+    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -88,9 +98,10 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
         answer: true,
         value: this.formNav.GetValue('answer'),
       } as DateIntervalDialogResponse);
+    } else {
+      this.dialogRef.close({
+        answer: false
+      } as DateIntervalDialogResponse);
     }
-    this.dialogRef.close({
-      answer: false
-    } as DateIntervalDialogResponse);
   }
 }
