@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, Subscription } from 'rxjs';
+import { Observable, of, startWith, map, Subscription, lastValueFrom } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -53,7 +53,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   buyerData!: Customer;
 
   buyersData: Customer[] = [];
-  paymentMethods: PaymentMethod[] = [];
 
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
@@ -403,51 +402,16 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        this.seInv.GetPaymentMethods().subscribe({
-          next: d => {
-            this.paymentMethods = d;
-            console.log('[GetPaymentMethods]: ', d);
-            this.paymentMethodOptions$ = of(d.map(d => d.text));
-          },
-          error: (err) => {
-            this.cs.HandleError(err);
-          },
-          complete: () => { },
-        })
+        this.table?.renderRows();
+        this.RefreshTable();
 
-
-        this.seC.GetAllCountryCodes().subscribe({
-          next: (data) => {
-            if (!!data) this.countryCodes = data;
-          },
-          error: (err) => {
-            this.cs.HandleError(err);
-          }
-        });
-
-        this.seC.GetAll({ IsOwnData: true }).subscribe({
-          next: d => {
-            console.log('Exporter: ', d);
-
-            this.table?.renderRows();
-            this.RefreshTable();
-
-            this.isLoading = false;
-          },
-          error: (err) => {
-            this.cs.HandleError(err); this.isLoading = false;
-          },
-          complete: () => {
-            this.isLoading = false;
-          },
-        });
+        this.isLoading = false;
       },
       error: (err) => {
         this.cs.HandleError(err); this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
   }
@@ -565,13 +529,15 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   FillFormWithFirstAvailableCustomer(event: any): void {}
 
-  protected PrepareCustomer(data: Customer): Customer {
+  protected async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
+    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+
+    if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
     }
 
@@ -596,13 +562,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     this.isLoading = true;
 
     this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: this.PrepareCustomer(res.data)
+              data: await this.PrepareCustomer(res.data)
             },
             closeOnEsc: false
           });

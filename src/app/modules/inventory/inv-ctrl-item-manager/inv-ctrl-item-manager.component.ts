@@ -258,36 +258,14 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   refresh(): void {
     this.refreshComboboxData();
-    this.seC.GetAll({ IsOwnData: false }).subscribe({
-      next: () => {
-        // Products
-        this.dbData = [];
-        this.dbDataDataSrc.setData(this.dbData);
+    
+    this.dbData = [];
+    this.dbDataDataSrc.setData(this.dbData);
 
-        this.seC.GetAll({ IsOwnData: true }).subscribe({
-          next: d => {
-            console.log('Exporter: ', d);
+    this.table?.renderRows();
+    this.RefreshTable();
 
-            this.table?.renderRows();
-            this.RefreshTable();
-
-            this.isLoading = false;
-          },
-          error: (err) => {
-            this.cs.HandleError(err); this.isLoading = false;
-          },
-          complete: () => {
-            this.isLoading = false;
-          },
-        });
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
+    this.isLoading = false;
   }
 
   ngOnInit(): void {

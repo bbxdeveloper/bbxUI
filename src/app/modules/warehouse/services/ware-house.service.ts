@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { catchError, lastValueFrom, Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetWareHousesParamListModel } from '../models/GetWareHousesParamListModel';
@@ -12,6 +12,8 @@ import { UpdateWareHouseRequest } from '../models/UpdateWareHouseRequest';
 import { UpdateWareHouseResponse } from '../models/UpdateWareHouseResponse';
 import { DeleteWareHouseRequest } from '../models/DeleteWareHouseRequest';
 import { DeleteWareHouseResponse } from '../models/DeleteWareHouseResponse';
+import { map } from 'jquery';
+import { CommonService } from 'src/app/services/common.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +21,7 @@ import { DeleteWareHouseResponse } from '../models/DeleteWareHouseResponse';
 export class WareHouseService {
   private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'WareHouse';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private cs: CommonService) { }
 
   GetAll(params?: GetWareHousesParamListModel): Observable<GetWareHousesResponse> {
     // Process params
@@ -41,6 +43,15 @@ export class WareHouseService {
     }
 
     return this.http.get<GetWareHousesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  async GetAllPromise(params?: GetWareHousesParamListModel): Promise<GetWareHousesResponse> {
+    return lastValueFrom(this.GetAll(params).pipe(
+      catchError((err, c) => {
+        this.cs.HandleError(err);
+        return c;
+      })
+    ));
   }
 
   Get(params?: GetWareHouseParamListModel): Observable<WareHouse> {

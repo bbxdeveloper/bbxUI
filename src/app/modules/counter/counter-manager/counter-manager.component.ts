@@ -24,6 +24,7 @@ import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { environment } from 'src/environments/environment';
 import { StatusService } from 'src/app/services/status.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-counter-manager',
@@ -191,6 +192,18 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     return data;
   }
 
+  private async GetWareHouses(): Promise<WareHouse[]> {
+    const wHouses = await this.wareHouseApi.GetAllPromise({ PageSize: '1000' });
+    if (wHouses.succeeded && !!wHouses.data) {
+      this.wareHouses = wHouses.data;
+      return wHouses.data;
+    } else {
+      this.wareHouses = [];
+      this.HandleError(wHouses.errors);
+    }
+    return Promise.reject();
+  }
+
   private CounterToCreateRequest(p: Counter): CreateCounterRequest {
     const res = {
       counterCode: p.counterCode,
@@ -222,48 +235,50 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
 
-      const createRequest = this.CounterToCreateRequest(data.data);
+      this.GetWareHouses().then(res => {
+        const createRequest = this.CounterToCreateRequest(data.data);
 
-      console.log('ActionNew request: ', createRequest);
+        console.log('ActionNew request: ', createRequest);
 
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
-      this.seInv.Create(createRequest).subscribe({
-        next: (d) => {
-          if (d.succeeded && !!d.data) {
-            this.seInv.Get({ ID: d.data.id }).subscribe({
-              next: newData => {
-                if (!!newData) {
-                  d.data = this.ConvertCombosForGet(newData);
-                  console.log("New counter: ", d.data);
-                  const newRow = { data: newData } as TreeGridNode<Counter>;
-                  this.dbData.push(newRow);
-                  this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable(newRow.data.id);
-                  this.simpleToastrService.show(
-                    Constants.MSG_SAVE_SUCCESFUL,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                  this.isLoading = false;
-                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                }
-              },
-              error: (err) => { this.HandleError(err); },
-            });
-          } else {
-            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.bbxToastrService.show(
-              d.errors!.join('\n'),
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          }
-        },
-        error: (err) => { this.HandleError(err); },
+        this.seInv.Create(createRequest).subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              this.seInv.Get({ ID: d.data.id }).subscribe({
+                next: newData => {
+                  if (!!newData) {
+                    d.data = this.ConvertCombosForGet(newData);
+                    console.log("New counter: ", d.data);
+                    const newRow = { data: newData } as TreeGridNode<Counter>;
+                    this.dbData.push(newRow);
+                    this.dbDataTable.SetDataForForm(newRow, false, false);
+                    this.RefreshTable(newRow.data.id);
+                    this.simpleToastrService.show(
+                      Constants.MSG_SAVE_SUCCESFUL,
+                      Constants.TITLE_INFO,
+                      Constants.TOASTR_SUCCESS_5_SEC
+                    );
+                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                    this.isLoading = false;
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  }
+                },
+                error: (err) => { this.HandleError(err); },
+              });
+            } else {
+              console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
+              this.bbxToastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          },
+          error: (err) => { this.HandleError(err); },
+        });
       });
     }
   }
@@ -272,50 +287,52 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
 
-      const updateRequest = this.CounterToUpdateRequest(data.data);
+      this.GetWareHouses().then(res => {
+        const updateRequest = this.CounterToUpdateRequest(data.data);
 
-      console.log('ActionPut request: ', updateRequest);
+        console.log('ActionPut request: ', updateRequest);
 
-      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
+        this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
 
-      data.data.id = parseInt(data.data.id + ''); // TODO
-      this.seInv.Update(updateRequest).subscribe({
-        next: (d) => {
-          if (d.succeeded && !!d.data) {
-            this.seInv.Get({ ID: d.data.id }).subscribe({
-              next: newData => {
-                if (!!newData) {
-                  d.data = this.ConvertCombosForGet(newData);
-                  const newRow = {
-                    data: newData,
-                  } as TreeGridNode<Counter>
-                  const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-                  this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable();
-                  this.simpleToastrService.show(
-                    Constants.MSG_SAVE_SUCCESFUL,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                  this.isLoading = false;
-                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                }
-              },
-              error: (err) => { this.HandleError(err); },
-            });
-          } else {
-            this.bbxToastrService.show(
-              d.errors!.join('\n'),
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          }
-        },
-        error: (err) => { this.HandleError(err); },
+        data.data.id = parseInt(data.data.id + ''); // TODO
+        this.seInv.Update(updateRequest).subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              this.seInv.Get({ ID: d.data.id }).subscribe({
+                next: newData => {
+                  if (!!newData) {
+                    d.data = this.ConvertCombosForGet(newData);
+                    const newRow = {
+                      data: newData,
+                    } as TreeGridNode<Counter>
+                    const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
+                    this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
+                    this.dbDataTable.SetDataForForm(newRow, false, false);
+                    this.RefreshTable();
+                    this.simpleToastrService.show(
+                      Constants.MSG_SAVE_SUCCESFUL,
+                      Constants.TITLE_INFO,
+                      Constants.TOASTR_SUCCESS_5_SEC
+                    );
+                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                    this.isLoading = false;
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  }
+                },
+                error: (err) => { this.HandleError(err); },
+              });
+            } else {
+              this.bbxToastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          },
+          error: (err) => { this.HandleError(err); },
+        });
       });
     }
   }
@@ -482,17 +499,6 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   }
 
   private RefreshAll(params?: GetCountersParamListModel): void {
-    this.wareHouseApi.GetAll().subscribe({
-      next: (data) => {
-        if (!!data.data) this.wareHouses = data.data;
-      },
-      error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.Refresh(params);
-      },
-    });
+    this.Refresh(params);
   }
 }

@@ -41,7 +41,7 @@ import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
@@ -472,14 +472,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   override Refresh(params?: GetOffersParamsModel, jumpToFirstTableCell: boolean = false): void {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
-    this.seC.GetAllCountryCodes().subscribe({
-      next: (data) => {
-        if (!!data) this.countryCodes = data;
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-      }
-    });
     this.offerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
@@ -568,13 +560,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return !isNaN(parseFloat(val2));
   }
 
-  private PrepareCustomer(data: Customer): Customer {
+  private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
+    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+
+    if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
     }
 
@@ -588,13 +582,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.isLoading = true;
 
     this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: this.PrepareCustomer(res.data)
+              data: await this.PrepareCustomer(res.data)
             },
             closeOnEsc: false
           });

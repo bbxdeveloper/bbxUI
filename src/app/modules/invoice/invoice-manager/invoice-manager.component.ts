@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject, Subscription } from 'rxjs';
+import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -172,9 +172,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
-
-  // CountryCode
-  countryCodes: CountryCode[] = [];
 
   public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
@@ -560,15 +557,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       },
       complete: () => { },
     })
-
-    this.seC.GetAllCountryCodes().subscribe({
-      next: (data) => {
-        if (!!data) this.countryCodes = data;
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-      }
-    });
 
     this.seC.GetAll({ IsOwnData: false }).subscribe({
       next: d => {
@@ -1012,14 +1000,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  private PrepareCustomer(data: Customer): Customer {
+  private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
-      data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
+    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+
+    if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
+      data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
     }
 
     return data;
@@ -1042,13 +1032,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.isLoading = true;
 
     this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: this.PrepareCustomer(res.data)
+              data: await this.PrepareCustomer(res.data)
             },
             closeOnEsc: false
           });
