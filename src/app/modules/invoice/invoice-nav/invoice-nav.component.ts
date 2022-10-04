@@ -47,8 +47,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   readonly ChosenIssueFilterOptionValue: string = '1';
   readonly ChosenDeliveryFilterOptionValue: string = '2';
 
-  readonly SearchButtonId: string = 'stock-card-button-search';
-
   override allColumns = [
     'invoiceNumber',
     'warehouse',
@@ -364,8 +362,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
-    this.refreshComboboxData();
-
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'invoices-table';
     this.dbDataTableEditId = 'invoices-cell-edit-input';
@@ -416,16 +412,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.filterForm.controls['WarehouseCode'].setValue(this.wh[0]?.warehouseCode ?? '');
 
     this.filterForm.controls['DateFilterChooser'].setValue(this.DefaultChosenDateFilter);
-  }
-
-  private refreshComboboxData(): void {
-    // WareHouse
-    this.wareHouseApi.GetAll().subscribe({
-      next: data => {
-        this.wh = data?.data ?? [];
-        this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
-      }
-    });
   }
 
   ToInt(p: any): number {
@@ -561,11 +547,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       false
     );
     this.dbDataTable.PushFooterCommandList();
-    this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
-      },
-    });
+    // this.dbDataTable.NewPageSelected.subscribe({
+    //   next: () => {
+    //     this.Refresh(this.getInputParams);
+    //   },
+    // });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
     this.filterFormNav!.OuterJump = true;
@@ -578,7 +564,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
     this.invoiceService.GetAll(params).subscribe({
-      next: (d) => {
+      next: async (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
@@ -590,6 +576,12 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
             this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable();
+
+          const wHouseRes = await this.wareHouseApi.GetAllPromise();
+          if (!!wHouseRes && !!wHouseRes.data) {
+            this.wh = wHouseRes.data;
+            this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+          }
         } else {
           this.simpleToastrService.show(
             d.errors!.join('\n'),
@@ -622,7 +614,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     });
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
-    this.AddSearchButtonToFormMatrix();
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.ReadonlyFormByDefault = true;
@@ -636,24 +627,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.kbS.Detach();
   }
 
-  private AddSearchButtonToFormMatrix(): void {
-    this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
-  }
-
   private RefreshAll(params?: GetInvoicesParamListModel): void {
-    // WareHouses
-    this.wareHouseApi.GetAll().subscribe({
-      next: (data) => {
-        if (!!data.data) this.wh = data.data;
-      },
-      error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.Refresh(params);
-      },
-    });
+    this.Refresh(params);
   }
 
   RefreshData(): void { }
@@ -695,17 +670,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       return;
     }
     switch (event.key) {
-      case this.KeySetting[Actions.CrudNew].KeyCode:
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
       case this.KeySetting[Actions.JumpToForm].KeyCode:
-      // case this.KeySetting[Actions.CSV].KeyCode:
-      // case this.KeySetting[Actions.Email].KeyCode:
-      // case this.KeySetting[Actions.Details].KeyCode:
-      // case this.KeySetting[Actions.CrudReset].KeyCode:
-      // case this.KeySetting[Actions.CrudSave].KeyCode:
-      // case this.KeySetting[Actions.Print].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();

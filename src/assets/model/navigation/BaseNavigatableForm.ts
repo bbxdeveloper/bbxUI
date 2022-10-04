@@ -273,8 +273,14 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         }
     }
 
-    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string): void {
+    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false): void {
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+
+        if (preventEvent) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+        }
 
         const ad = (event.target as any).getAttribute("aria-activedescendant");
         if (this.kbS.isEditModeActivated &&
