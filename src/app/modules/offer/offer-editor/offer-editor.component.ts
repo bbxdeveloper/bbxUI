@@ -258,17 +258,17 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       },
       complete: () => {
         this.isLoading = false;
+        this.AfterViewInitSetup();
       },
     });
   }
 
   ngOnInit(): void {
-    this.LoadAndSetDataForEdit();
-    
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
-    this.AfterViewInitSetup();
+    // this.AfterViewInitSetup();
+    this.LoadAndSetDataForEdit();
   }
   ngOnDestroy(): void {
     console.log("Detach");
