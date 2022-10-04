@@ -71,12 +71,12 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   override allColumns = [
     'productCode',
     'lineDescription',
-    'Quantity',
+    'quantity',
     'unitOfMeasureX',
     'originalUnitPrice',
-    'Discount',
+    'discount',
     'showDiscount',
-    'UnitPrice',
+    'unitPrice',
     'UnitPriceVal',
     'vatRateCode',
     'UnitGrossVal',
@@ -93,7 +93,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "50%", textAlign: "left",
     },
     {
-      label: 'Menny.', objectKey: 'Quantity', colKey: 'Quantity',
+      label: 'Menny.', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -108,7 +108,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
-      label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
+      label: 'Kedv.', objectKey: 'discount', colKey: 'discount',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "90px", textAlign: "right", fInputType: 'param-padded-formatted-integer',
       calc: x => '1.2',
@@ -121,7 +121,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "40px", textAlign: "center", fInputType: 'checkbox'
     },
     {
-      label: 'Nettó árlist.', objectKey: 'UnitPrice', colKey: 'UnitPrice',
+      label: 'Nettó árlist.', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
     },

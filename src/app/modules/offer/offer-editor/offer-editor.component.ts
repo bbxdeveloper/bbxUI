@@ -39,6 +39,7 @@ import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import { InputBlurredEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-offer-editor',
@@ -85,6 +86,10 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService
     );
     this.InitialSetup();
+  }
+
+  public inlineInputBlurred(inputBlurredEvent: InputBlurredEvent): void {
+    this.dbData[inputBlurredEvent.RowPos].data.ReCalc(inputBlurredEvent.ObjectKey === "unitPrice");
   }
 
   override RecalcNetAndVat(): void {

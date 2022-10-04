@@ -38,6 +38,7 @@ import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import { InputBlurredEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-offer-creator',
@@ -82,20 +83,24 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     this.InitialSetup();
   }
 
+  public inlineInputBlurred(inputBlurredEvent: InputBlurredEvent): void {
+    this.dbData[inputBlurredEvent.RowPos].data.ReCalc(inputBlurredEvent.ObjectKey === "unitPrice");
+  }
+
   override RecalcNetAndVat(): void {
     console.log("RecalcNetAndVat: ", this.dbData, this.dbData.filter(x => !x.data.IsUnfinished()), this.dbData[0].data.UnitPriceVal);
 
     this.offerData.offerNetAmount =
-      HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => HelperFunctions.ToFloat(x.data.UnitPriceVal) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity))
+      HelperFunctions.Round(this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => HelperFunctions.ToFloat(x.data.UnitPriceVal))
         .reduce((sum, current) => sum + current, 0));
 
     console.log("RecalcNetAndVat after: ", this.offerData.offerNetAmount);
 
 
     this.offerData.offerGrossAmount =
-      HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => (HelperFunctions.ToFloat(x.data.UnitGrossVal) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity)))
+      HelperFunctions.Round(this.dbData.filter(x => !x.data.IsUnfinished())
+        .map(x => (HelperFunctions.ToFloat(x.data.UnitGrossVal)))
         .reduce((sum, current) => sum + current, 0));
   }
 

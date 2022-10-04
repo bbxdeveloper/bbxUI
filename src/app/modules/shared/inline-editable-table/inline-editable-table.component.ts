@@ -13,6 +13,8 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 
+export interface InputBlurredEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, ObjectKey: string, ColPos: number }
+
 @Component({
   selector: 'app-inline-editable-table',
   templateUrl: './inline-editable-table.component.html',
@@ -34,6 +36,7 @@ export class InlineEditableTableComponent implements OnInit {
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
+  @Output() inputBlurred: EventEmitter<InputBlurredEvent> = new EventEmitter();
 
   @Input() parent: any = undefined;
 
@@ -145,6 +148,10 @@ export class InlineEditableTableComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  public inlineInputBlurred(event: any, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
+    this.inputBlurred.emit({ Event: event, Row: row, RowPos: rowPos, ObjectKey: col, ColPos: colPos } as InputBlurredEvent);
   }
 
 }
