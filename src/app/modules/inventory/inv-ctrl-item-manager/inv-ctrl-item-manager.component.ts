@@ -45,6 +45,7 @@ import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import * as moment from 'moment';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -76,6 +77,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
     }
     return undefined;
+  }
+
+  get getAllPeriodsParams(): GetAllInvCtrlPeriodsParamListModel {
+    return {
+      PageSize: 1000
+    } as GetAllInvCtrlPeriodsParamListModel;
   }
 
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", "unitPrice", "realQty", "difference"];
@@ -631,7 +638,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   private refreshComboboxData(): void {
-    this.invCtrlPeriodService.GetAll().subscribe({
+    this.invCtrlPeriodService.GetAll(this.getAllPeriodsParams).subscribe({
       next: data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =

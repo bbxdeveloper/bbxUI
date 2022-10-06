@@ -136,7 +136,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       newOffer: false,
       offerLines: [],
       offerGrossAmount: 0,
-      offerNetAmount: 0
+      offerNetAmount: 0,
+      sumNetAmount: 0,
+      sumBrtAmount: 0
     } as Offer;
 
     this.dbData = [];

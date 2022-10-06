@@ -28,4 +28,7 @@ export interface Offer {
 
     "offerNetAmount": number,
     "offerGrossAmount": number,
+
+    "sumBrtAmount": number,
+    "sumNetAmount": number
 }

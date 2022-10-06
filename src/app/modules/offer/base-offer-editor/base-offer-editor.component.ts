@@ -254,7 +254,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   InitFormDefaultValues(): void {
     this.buyerForm.controls['offerIssueDate'].setValue(HelperFunctions.GetDateString());
-    this.buyerForm.controls['offerVaidityDate'].setValue(HelperFunctions.GetDateString(0, 1));
+    this.buyerForm.controls['offerVaidityDate'].setValue(HelperFunctions.GetDateString(5));
 
     this.buyerForm.controls['offerIssueDate'].valueChanges.subscribe({
       next: p => {

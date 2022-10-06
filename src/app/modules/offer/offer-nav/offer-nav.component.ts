@@ -89,6 +89,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     'offerIssueDate',
     'offerVaidityDate',
     'copies',
+    'sumNetAmount',
+    'sumBrtAmount',
     'notice',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -156,6 +158,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       navMatrixCssClass: TileCssClass,
     },
     {
+      label: 'Nettó össz', objectKey: 'sumNetAmount', colKey: 'sumNetAmount',
+      defaultValue: '', mask: "", fReadonly: true,
+      colWidth: "130px", textAlign: "right", type: 'formatted-number'
+    },
+    {
+      label: 'Bruttó össz', objectKey: 'sumBrtAmount', colKey: 'sumBrtAmount',
+      defaultValue: '', mask: "",
+      colWidth: "130px", textAlign: "right", type: 'formatted-number'
+    },
+    {
       label: 'Megjegyzés',
       objectKey: 'notice',
       colKey: 'notice',
@@ -169,6 +181,21 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       navMatrixCssClass: TileCssClass,
     },
   ];
+
+  /*
+{
+      label: 'Elad ár 2',
+      objectKey: 'unitPrice2',
+      colKey: 'unitPrice2',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: false,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+  */
 
   get CustomerId(): number | undefined {
     if (!!this.buyerData && this.buyerData.id > -1) {
