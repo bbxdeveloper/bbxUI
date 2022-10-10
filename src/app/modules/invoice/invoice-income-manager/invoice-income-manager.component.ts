@@ -924,7 +924,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     res.quantity = 0;
 
-    res.unitPrice = p.latestSupplyPrice!;
+    res.unitPrice = p.unitPrice2!;
 
     res.vatRateCode = p.vatRateCode;
 

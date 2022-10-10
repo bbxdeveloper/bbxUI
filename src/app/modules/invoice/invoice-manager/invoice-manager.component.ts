@@ -942,7 +942,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
-    res.unitPrice = p.unitPrice1!;
+    res.unitPrice = p.unitPrice2!;
     
     res.vatRateCode = p.vatRateCode;
 

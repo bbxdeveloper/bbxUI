@@ -81,7 +81,7 @@ export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
         return Math.abs(this.NRealQty - this.RealQty);
     }
 
-    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0): InvCtrlItemLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, price: number = 0): InvCtrlItemLine {
         let offerLine = new InvCtrlItemLine();
 
         offerLine.lineDescription = product.description ?? '';
@@ -91,6 +91,8 @@ export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
         //offerLine.UnitVat = product.vatPercentage ?? 0;
 
         //offerLine.OriginalUnitPrice = product.unitPrice1 ?? product.unitPrice2 ?? 0;
+        offerLine.originalUnitPrice = price;
+        offerLine.unitPrice = price;
 
         offerLine.vatRate = product.vatPercentage ?? 10;
 

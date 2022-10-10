@@ -71,7 +71,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   ];
 
   override get getInputParams(): GetWareHousesParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '', OrderBy: 'warehouseCode' };
   }
 
   constructor(

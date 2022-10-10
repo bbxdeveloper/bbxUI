@@ -33,7 +33,7 @@ import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { InventoryService } from '../services/inventory.service';
@@ -46,6 +46,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import * as moment from 'moment';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
+import { StockRecord } from '../../stock/models/StockRecord';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -112,7 +113,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       colWidth: "80px", textAlign: "right"
     },
     {
-      label: 'Nettó Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
+      label: 'Átl. besz', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
@@ -404,7 +405,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     dialogRef.onClose.subscribe(() => { });
   }
 
-  HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
+  async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
     this.isLoading = true;
 
     if (res.id === undefined || res.id === -1) {
@@ -440,24 +441,21 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     this.isLoading = true;
 
-    this.stockService.Record({ ProductID: res.id, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
-      next: data => {
-        if (!!data && data.id !== 0) {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
-        }
-      },
-      error: () => { },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
+    const stockRecord = await this.GetStockRecordForProduct(res.id);
 
-    this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0) });
+    let price = res.latestSupplyPrice;
+    if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
+      price = stockRecord.avgCost;
+      // this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      this.dbDataTable.data[rowIndex].data.realQty = stockRecord.realQty;
+    }
+
+    this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price) });
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.dbDataTable.MoveNextInTable();
     setTimeout(() => {
       this.kbS.setEditMode(KeyboardModes.EDIT);
+      this.isLoading = false;
       this.kbS.ClickCurrentElement();
     }, 500);
 
@@ -478,11 +476,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Product) => {
+    dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
         if (!wasInNavigationMode) {
-          this.HandleProductSelectionFromDialog(res, rowIndex);
+          await this.HandleProductSelectionFromDialog(res, rowIndex);
         } else {
           const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
           if (index !== -1) {
@@ -515,6 +513,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     }
   }
 
+  private async GetStockRecordForProduct(productId: number): Promise<StockRecord> {
+    return lastValueFrom(this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel));
+  }
+
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
 
@@ -523,7 +525,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
+        next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
@@ -537,7 +539,14 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                 Constants.TOASTR_ERROR
               );
             } else {
-              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product) });
+              const stockRecord = await this.GetStockRecordForProduct(product.id);
+
+              let price = product.latestSupplyPrice;
+              if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
+                price = stockRecord.avgCost;
+              }
+
+              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product, 0, 0, price) });
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
               this.dbDataTable.MoveNextInTable();
               setTimeout(() => {
@@ -557,7 +566,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         error: () => {
           this.RecalcNetAndVat();
         },
-        complete: () => {
+        complete: async () => {
           this.isLoading = false;
 
           if (_product.id === undefined || _product.id === -1 || alreadyAdded) {
@@ -576,16 +585,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
             error: () => { },
             complete: () => { }
           });
-          this.stockService.Record({ ProductID: _product.id, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
-            next: data => {
-              if (!!data && data.id !== 0) {
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.data[rowPos].data.realQty = data.realQty;
-              }
-            },
-            error: () => {},
-            complete: () => {}
-          });
+          const stockRecord = await this.GetStockRecordForProduct(_product.id);
+          if (stockRecord && stockRecord.id !== 0) {
+            console.log("STOCKRECORD");
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.dbDataTable.data[rowPos].data.realQty = stockRecord.realQty;
+          }
         }
       });
     }
