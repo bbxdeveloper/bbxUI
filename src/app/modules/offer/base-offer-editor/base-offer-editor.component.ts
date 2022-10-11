@@ -121,14 +121,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "40px", textAlign: "center", fInputType: 'checkbox'
     },
     {
-      label: 'Nettó árlist.', objectKey: 'unitPrice', colKey: 'unitPrice',
+      label: 'Kedv.ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
       label: 'Nettó ért.', objectKey: 'UnitPriceVal', colKey: 'UnitPriceVal',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "170px", textAlign: "right", fInputType: 'formatted-number-single'
     },
     {
       label: 'Áfa%', objectKey: 'vatRateCode', colKey: 'vatRateCode',
@@ -138,7 +138,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     {
       label: 'Bruttó ért.', objectKey: 'UnitGrossVal', colKey: 'UnitGrossVal',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number-integer'
     }
   ]
   customMaskPatterns = {

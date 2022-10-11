@@ -267,4 +267,15 @@ export module HelperFunctions {
             }
         });
     }
+
+    export function Round2(n: number, r: number): number {
+        let int = Math.floor(n).toString()
+        if (typeof n !== 'number' || typeof r !== 'number') {
+            return n;
+        }
+        if (int[0] == '-' || int[0] == '+') {
+            int = int.slice(1, int.length)
+        } 
+        return HelperFunctions.ToFloat(n.toPrecision(int.length + r));
+    }
 }

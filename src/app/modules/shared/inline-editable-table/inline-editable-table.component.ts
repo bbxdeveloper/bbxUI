@@ -11,7 +11,7 @@ import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 
 export interface InputBlurredEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, ObjectKey: string, ColPos: number }
 
@@ -48,6 +48,7 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   numberInputMask = NgNeatInputMasks.numberInputMask;
+  numberInputMaskSingle = NgNeatInputMasks.numberInputMaskSingle;
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
 
@@ -152,6 +153,26 @@ export class InlineEditableTableComponent implements OnInit {
 
   public inlineInputBlurred(event: any, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
     this.inputBlurred.emit({ Event: event, Row: row, RowPos: rowPos, ObjectKey: col, ColPos: colPos } as InputBlurredEvent);
+  }
+
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    switch (event.key) {
+      case KeyBindings.F5: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
+      default: { }
+    }
   }
 
 }

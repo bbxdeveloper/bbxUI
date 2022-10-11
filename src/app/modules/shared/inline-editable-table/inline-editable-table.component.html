@@ -65,6 +65,21 @@
                                         }}
                                     </div>
                                 </ng-container>
+
+                                <ng-container *ngSwitchCase="'formatted-number-single'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
+                                        nbInput type="text" name="PRODUCT-EDIT" (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMaskSingle" placeholder="0.0"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+                                
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{
+                                        it.calc !== undefined ?
+                                        it.calc(row.data) :
+                                        row.data[it.objectKey] | removeWhitespaces | number:'1.1':'fr' | replace:',':'.'
+                                        }}
+                                    </div>
+                                </ng-container>
         
                                 <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
