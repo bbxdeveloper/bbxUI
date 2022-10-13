@@ -943,7 +943,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
               }
             });
             this.printReport(id, res.value);
-            this.Refresh(this.getInputParams);
           } else {
             this.simpleToastrService.show(
               `Az árajánlat számla nyomtatása nem történt meg.`,

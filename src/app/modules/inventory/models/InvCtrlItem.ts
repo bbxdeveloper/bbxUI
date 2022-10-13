@@ -105,7 +105,7 @@ export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
         offerLine.vatRateID = vatRateId;
         offerLine.vatPercentage = HelperFunctions.ToFloat(product.vatPercentage ?? 0.0);
 
-        // console.log('FromProduct res: ', offerLine);
+        console.log('FromProduct res: ', offerLine);
 
         return offerLine;
     }

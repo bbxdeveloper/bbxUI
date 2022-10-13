@@ -321,7 +321,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                     });
                     this.isLoading = true;
                     this.printReport(d.data?.id, res.value);
-                    this.refresh();
                   } else {
                     this.simpleToastrService.show(
                       `Az árajánlat számla nyomtatása nem történt meg.`,

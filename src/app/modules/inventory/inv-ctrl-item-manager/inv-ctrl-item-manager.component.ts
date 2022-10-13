@@ -288,7 +288,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   private UpdateOutGoingData(): void {
-    this.offerData.items = this.dbData.filter((x, index: number) => index !== this.dbData.length - 1).map(x => {
+    this.offerData.items = this.dbDataTable.data.filter((x, index: number) => index !== this.dbDataTable.data.length - 1).map(x => {
+      debugger;
       return {
         "warehouseID": this.SelectedWareHouseId,
         "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1].id),
@@ -388,6 +389,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         }
       }
     });
+
+    // TODO
+    if (this.dbDataTable.data.length > 1) {
+      this.dbDataTable.data = [this.dbDataTable.data[0]];
+      this.dbDataDataSrc.setData(this.dbDataTable.data);
+    }
   }
 
   InitFormDefaultValues(): void {
@@ -451,6 +458,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     }
 
     this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price) });
+
+    console.log("after HandleProductSelectionFromDialog: ", this.dbDataTable.data[rowIndex]);
+
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.dbDataTable.MoveNextInTable();
     setTimeout(() => {
@@ -465,7 +475,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
-    console.log("[TableCodeFieldChanged] at rowIndex: ", this.dbDataTable.data[rowIndex])
+    console.log("[ChooseDataForTableRow] at rowIndex: ", this.dbDataTable.data[rowIndex])
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -477,7 +487,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
-      console.log("Selected item: ", res);
+      console.log("ChooseDataForTableRow Selected item: ", res);
       if (!!res) {
         if (!wasInNavigationMode) {
           await this.HandleProductSelectionFromDialog(res, rowIndex);
@@ -526,7 +536,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       let _product: Product = { id: -1 } as Product;
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+          console.log('[TableCodeFieldChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
             _product = product;
@@ -547,6 +557,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
               }
 
               this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product, 0, 0, price) });
+              console.log("after TableCodeFieldChanged: ", this.dbDataTable.data);
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
               this.dbDataTable.MoveNextInTable();
               setTimeout(() => {
@@ -627,9 +638,13 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
               product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
               tmp.vatRateCode = product.vatRateCode;
 
+              tmp.productID = product.id;
+
               this.dbData[index].data = tmp;
 
               this.dbDataDataSrc.setData(this.dbData);
+
+              console.log("after TableRowDataChanged: ", this.dbDataTable.data);
             }
 
             this.RecalcNetAndVat();

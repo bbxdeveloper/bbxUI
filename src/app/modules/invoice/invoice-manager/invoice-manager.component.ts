@@ -41,6 +41,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -193,7 +194,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private custDiscountService: CustomerDiscountService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.InitialSetup();
@@ -438,11 +440,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
+        next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
+            this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -885,11 +887,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Product) => {
+    dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
         if (!wasInNavigationMode) {
-          this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+          this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
           this.dbDataTable.MoveNextInTable();
           setTimeout(() => {
@@ -933,7 +935,17 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   RefreshData(): void { }
 
-  ProductToInvoiceLine(p: Product): InvoiceLine {
+  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number> {
+    const discounts = await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }));
+    if (discounts) {
+      const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
+      return res !== undefined ? (res / 100.0) : 0.0;
+    } else {
+      return 0.0;
+    }
+  }
+
+  async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine();
 
     res.productCode = p.productCode!;
@@ -942,7 +954,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
-    res.unitPrice = p.unitPrice2!;
+    const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
+    const discountedPrice = p.unitPrice2! * discountForPrice;
+    res.unitPrice = this.Delivery ? (p.unitPrice2! - discountedPrice) : p.unitPrice2!;
     
     res.vatRateCode = p.vatRateCode;
 
