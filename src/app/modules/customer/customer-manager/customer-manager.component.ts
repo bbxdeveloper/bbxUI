@@ -450,6 +450,7 @@ export class CustomerManagerComponent
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
+      email: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(

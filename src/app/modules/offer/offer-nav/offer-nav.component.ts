@@ -799,15 +799,35 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           message: this.dbData[this.kbS.p.y - 1].data.notice,
           OfferID: this.dbData[this.kbS.p.y - 1].data.id,
           DefaultFrom: user?.email,
+          DefaultTo: this.buyerData?.email,
           UserName: user?.name
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
       });
-      dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
+      dialogRef.onClose.subscribe(async (res?: SendEmailRequest) => {
         console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
-          // this.silent = true;
+
+          // seC
+          if (!!this.buyerData?.email && !!(this.buyerData.email.trim()) && res.to.email !== this.buyerData.email) {
+            this.buyerData.email = res.to.email;
+            const updateRes = await lastValueFrom(this.seC.Update(this.buyerData));
+            if (updateRes && updateRes.succeeded) {
+              this.simpleToastrService.show(
+                Constants.MSG_EMAIL_CUSTOMER_UPDATE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
+            } else {
+              this.bbxToastrService.show(
+                Constants.MSG_EMAIL_CUSTOMER_UPDATE_FAILED,
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+            }
+          }
+
           this.isLoading = true;
           this.infrastructureService.SendEmail(res).subscribe({
             next: _ => {

@@ -125,7 +125,7 @@
             
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
-                    (keydown.enter)="currentForm.HandleFormLastEnter($event)">
+                    (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <label class="label-checkbox">Saját adat</label>
             
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isOwnData"
@@ -134,6 +134,15 @@
                 </div>
             </div>
             <app-form-control-error [form]="currentForm" label="saját adat" controlName="isOwnData"></app-form-control-error>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Email</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="email" formControlName="email" [readonly]="isEditModeOff"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+            </nb-form-field>
         </form>
     </nb-card-body>
 </nb-card>

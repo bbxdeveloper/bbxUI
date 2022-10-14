@@ -24,6 +24,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   @Input() OfferID?: number;
   @Input() DefaultFrom?: string;
   @Input() UserName?: string;
+  @Input() DefaultTo?: string;
 
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -128,14 +129,17 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     this.dataForm.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
-    if (!!this.subject) {
+    if (!!this.subject && !!(this.subject.trim())) {
       this.dataForm.form.controls['subject'].setValue(this.subject);
     }
-    if (!!this.message) {
+    if (!!this.message && !!(this.message.trim())) {
       this.dataForm.form.controls['body'].setValue(this.message);
     }
-    if (!!this.DefaultFrom) {
+    if (!!this.DefaultFrom && !!(this.DefaultFrom.trim())) {
       this.dataForm.form.controls['from'].setValue(this.DefaultFrom);
+    }
+    if (!!this.DefaultTo && !!(this.DefaultTo.trim())) {
+      this.dataForm.form.controls['to'].setValue(this.DefaultTo);
     }
   }
 

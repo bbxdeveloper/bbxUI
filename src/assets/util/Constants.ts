@@ -20,6 +20,8 @@ export module Constants {
     export const TITLE_INFO: string = 'Információ';
 
     export const MSG_EMAIL_SUCCESFUL: string = 'Email sikeresen elküldve!'
+    export const MSG_EMAIL_CUSTOMER_UPDATE_SUCCESFUL: string = 'Ügyfél email cím sikeresen frissítve!'
+    export const MSG_EMAIL_CUSTOMER_UPDATE_FAILED: string = 'Ügyfél email cím frissítése sikertelen!'
 
     export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
