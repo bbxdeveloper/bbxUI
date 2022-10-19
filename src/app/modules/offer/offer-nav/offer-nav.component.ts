@@ -920,6 +920,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   Print(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const rowIndex = this.kbS.p.y - 1; 
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -932,7 +933,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         }
       });
       dialogRef.onClose.subscribe({
-        next: res => {
+        next: async res => {
           if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
             this.isLoading = true;
 
@@ -962,7 +963,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                 this.isLoading = false;
               }
             });
-            this.printReport(id, res.value);
+
+            await this.printReport(id, res.value);
+
+            const updatedOffer = await this.GetOffer(id);
+            if (updatedOffer) {
+              this.dbData[rowIndex].data.copies = updatedOffer.copies;
+            }
           } else {
             this.simpleToastrService.show(
               `Az árajánlat számla nyomtatása nem történt meg.`,
@@ -976,21 +983,27 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
-  printReport(id: any, copies: number): void {
+  private async GetOffer(id: number): Promise<Offer> {
+    const offerRes = lastValueFrom(this.offerService.Get({ ID: id, FullData: true }));
+    return offerRes;
+  }
+
+  async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
-      Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
+    let params = {
+      "section": "Szamla",
+      "fileType": "pdf",
+      "report_params":
       {
-        "section": "Szamla",
-        "fileType": "pdf",
-        "report_params":
-        {
-          "id": id,
-          "offerNumber": null
-        },
-        // "copies": copies,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
+        "id": id,
+        "offerNumber": null
+      },
+      "copies": copies,
+      "data_operation": Constants.DataOperation.PRINT_BLOB,
+      "blob_data": null
+    } as Constants.Dct;
+    params["blob_data"] = await lastValueFrom(this.offerService.GetReport(params));
+    this.utS.execute(Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF, params);
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {

@@ -704,7 +704,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           "id": id,
           "invoiceNumber": null
         },
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct);
   }

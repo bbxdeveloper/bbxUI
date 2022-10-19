@@ -489,7 +489,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         "section": "Leltári időszak",
         "fileType": "pdf",
         "report_params": {},
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryService.GetReport({

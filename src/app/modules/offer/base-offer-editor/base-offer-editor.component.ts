@@ -465,7 +465,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
           "id": id,
           "offerNumber": null
         },
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct);
   }

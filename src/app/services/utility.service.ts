@@ -58,10 +58,18 @@ export class UtilityService {
       case Constants.CommandType.PRINT_OFFER:
         switch (params['data_operation'] as Constants.DataOperation) {
           case Constants.DataOperation.PRINT_BLOB:
-            this.print(fileType, this.offerService.GetReport(params), params);
+            if (params['blob_data']) {
+              this.printWithData(fileType, params['blob_data'], params);
+            } else {
+              this.print(fileType, this.offerService.GetReport(params), params);
+            }
             break;
           case Constants.DataOperation.DOWNLOAD_BLOB:
-            this.downloadReportPDF(this.invS.GetReport(params));
+            if (params['blob_data']) {
+              this.downloadReportPDFWithPrintData(params['blob_data']);
+            } else {
+              this.downloadReportPDF(this.invS.GetReport(params));
+            }
             break;
         }
         break;
@@ -117,6 +125,57 @@ export class UtilityService {
         }
         break;
     }
+  }
+
+  private printWithData(fileType: Constants.FileExtensions, printData: any, params: Constants.Dct = {}): void {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.GENERATING]);
+    console.log(`Print: ${fileType}`);
+    switch (fileType) {
+      case Constants.FileExtensions.PDF:
+        if (environment.electron) {
+          this.sendPdfToElectronWithPrintData(printData);
+        } else {
+          this.printPdfFromResponseWithPrintData(printData);
+        }
+        break;
+    }
+  }
+
+  private sendPdfToElectronWithPrintData(printData: any, params: Constants.Dct = {}): void {
+    console.log(`Preparing electron print. Waiting for print data.`);
+
+    console.log(`Print data acquired.`);
+
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_RESP]);
+    var blob = new Blob([printData], { type: 'application/pdf' });
+    var blobURL = URL.createObjectURL(blob);
+
+    console.log(`Processing blob...`);
+
+    // Read blob data as binary string
+    const reader = new FileReader();
+    const stS = this.sts;
+    const handleError = this.HandleError;
+    const commandEnded = this.CommandEnded;
+
+    reader.onload = function () {
+      console.log(`Sending for printer...`);
+
+      try {
+        const event = new CustomEvent('print-pdf', { detail: { bloburl: blobURL, buffer: this.result, copies: params['copies'] } });
+        document.dispatchEvent(event);
+
+        console.log(`Printing is in progress...`);
+
+        stS.pushProcessStatus(Constants.BlankProcessStatus);
+        commandEnded.next(REPORT_ENDED);
+      } catch (error) {
+        handleError(error)
+        commandEnded.error(REPORT_ENDED_WITH_ERROR);
+      }
+    };
+    reader.readAsBinaryString(blob);
+    stS.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.SEND_TO_PRINTER]);
   }
 
   private sendPdfToElectron(resData: Observable<any>, params: Constants.Dct = {}): void {
@@ -220,9 +279,60 @@ export class UtilityService {
     });
   }
 
+  private printPdfFromResponseWithPrintData(printData: any, params: Constants.Dct = {}): void {
+    console.log(`Preparing web print. Waiting for print data.`);
+
+    console.log(`Print data acquired.`);
+
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_RESP]);
+    var blob = new Blob([printData], { type: 'application/pdf' });
+    var blobURL = URL.createObjectURL(blob);
+
+    console.log(`Processing blob...`);
+
+    // Load content in an iframe to print later
+    let iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+
+    console.log(`Loading data...`);
+
+    iframe.style.display = 'none';
+    iframe.src = blobURL;
+
+    const stS = this.sts;
+    const commandEnded = this.CommandEnded;
+
+    iframe.onload = () => {
+      console.log(`Sending for printer...`);
+
+      this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.SEND_TO_PRINTER]);
+      // Print
+      setTimeout(function () {
+        console.log(`Start printing...`);
+
+        iframe.focus();
+        iframe.contentWindow!.print();
+
+        console.log(`Printing is in progress...`);
+        stS.pushProcessStatus(Constants.BlankProcessStatus);
+        commandEnded.next(REPORT_ENDED);
+      }, 1);
+
+      // Waiting 10 minute to make sure printing is done, then removing the iframe
+      setTimeout(function () {
+        document.body.removeChild(iframe);
+      }, 600000);
+    };
+  }
+
   private downloadReportPDF(resData: Observable<any>): void {
     this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadReportProcessPhases.GENERATING]);
     this.downloadReportPDFBlobFromResponse(resData);
+  }
+
+  private downloadReportPDFWithPrintData(resData: any): void {
+    this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadReportProcessPhases.GENERATING]);
+    this.downloadReportPDFBlobFromResponseWithData(resData);
   }
 
   private downloadReportPDFBlobFromResponse(resData: Observable<any>): void {
@@ -256,6 +366,30 @@ export class UtilityService {
         this.CommandEnded.error(REPORT_ENDED_WITH_ERROR);
       }
     });
+  }
+
+  private downloadReportPDFBlobFromResponseWithData(res: any): void {
+    console.log(`Download blob from response. Waiting for data.`);
+
+    console.log(`Data acquired.`);
+
+    this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadReportProcessPhases.PROC_RESP]);
+    var blob = new Blob([res], { type: 'application/pdf' });
+    var blobURL = URL.createObjectURL(blob);
+
+    let a = document.createElement('a');
+
+    document.body.appendChild(a);
+    a.setAttribute('style', 'display: none');
+    a.href = blobURL;
+    a.download = res.filename;
+
+    a.click();
+
+    URL.revokeObjectURL(blobURL);
+    a.remove();
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.CommandEnded.next(REPORT_ENDED);
   }
 
   private download(resData: Observable<any>, mimeType: string): void {

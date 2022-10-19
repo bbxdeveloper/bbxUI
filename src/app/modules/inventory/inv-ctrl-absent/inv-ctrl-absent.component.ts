@@ -516,7 +516,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         "section": "Leltári időszak",
         "fileType": "pdf",
         "report_params": {},
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryCtrlItemService.GetAbsentReport({
