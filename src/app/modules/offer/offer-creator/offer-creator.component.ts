@@ -282,7 +282,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                 }
               });
               dialogRef.onClose.subscribe({
-                next: res => {
+                next: async res => {
 
                   this.Reset();
 
@@ -320,7 +320,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                       }
                     });
                     this.isLoading = true;
-                    this.printReport(d.data?.id, res.value);
+                    await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
                       `Az árajánlat számla nyomtatása nem történt meg.`,

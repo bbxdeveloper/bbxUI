@@ -435,7 +435,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         }
       });
       dialogRef.onClose.subscribe({
-        next: res => {
+        next: async res => {
           if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
             this.isLoading = true;
 
@@ -467,7 +467,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
                 );
               }
             });
-            this.printReport(id, res.value, title!);
+            await this.printReport(id, res.value, title!);
           } else {
             this.simpleToastrService.show(
               `Az leltári időszak nyomtatása nem történt meg.`,
@@ -481,9 +481,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }
   }
 
-  printReport(id: any, copies: number, title: string): void {
+  async printReport(id: any, copies: number, title: string): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
+    await this.utS.execute(
       Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
       {
         "section": "Leltári időszak",

@@ -692,9 +692,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
   }
 
-  printReport(id: any, copies: number): void {
+  async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
+    await this.utS.execute(
       Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
       {
         "section": "Szamla",
@@ -787,7 +787,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                 }
               });
               dialogRef.onClose.subscribe({
-                next: res => {
+                next: async res => {
                   if (res.answer) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
@@ -823,7 +823,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                       }
                     });
                     this.isLoading = true;
-                    this.printReport(d.data?.id, res.value);
+                    await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
                       `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása nem történt meg.`,

@@ -1002,8 +1002,12 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       "data_operation": Constants.DataOperation.PRINT_BLOB,
       "blob_data": null
     } as Constants.Dct;
-    params["blob_data"] = await lastValueFrom(this.offerService.GetReport(params));
-    this.utS.execute(Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF, params);
+    await this.utS.execute(
+      Constants.CommandType.PRINT_OFFER,
+      Constants.FileExtensions.PDF,
+      params,
+      this.offerService.GetReport(params)
+    );
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {

@@ -453,9 +453,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }, 500);
   }
 
-  printReport(id: any, copies: number): void {
+  async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
+    await this.utS.execute(
       Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
       {
         "section": "Szamla",
