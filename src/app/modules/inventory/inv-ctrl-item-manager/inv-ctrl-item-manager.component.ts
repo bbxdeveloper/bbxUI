@@ -551,7 +551,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           if (!!product && !!product?.productCode) {
             _product = product;
 
-            if (this.dbData.findIndex(x => x.data?.productID === _product.id) > -1) {
+            if (this.dbDataTable.data.findIndex(x => x.data?.productID === _product.id) > -1) {
               alreadyAdded = true;
               this.bbxToastrService.show(
                 Constants.MSG_PRODUCT_ALREADY_THERE,
@@ -604,7 +604,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
               }    
             }
           );
-          
+
           const stockRecord = await this.GetStockRecordForProduct(_product.id);
           if (stockRecord && stockRecord.id !== 0) {
             console.log("STOCKRECORD");

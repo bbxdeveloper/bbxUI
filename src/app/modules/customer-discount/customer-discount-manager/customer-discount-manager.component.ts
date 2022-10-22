@@ -370,7 +370,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       return;
     }
 
-    if (this.dbData.findIndex(x => x.data?.id === res.id) > -1) {
+    if (this.dbDataTable.data.findIndex(x => x.data?.productGroupID === res.id) > -1) {
       this.bbxToastrService.show(
         Constants.MSG_PRODUCT_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -487,7 +487,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
             if (!!productGroup && !!productGroup?.productGroupCode) {
               _product = productGroup;
   
-              if (this.dbData.findIndex(x => x.data?.productGroupID === _product.id) > -1) {
+              if (this.dbDataTable.data.findIndex(x => x.data?.productGroupID === _product.id) > -1) {
                 alreadyAdded = true;
                 this.bbxToastrService.show(
                   Constants.MSG_PRODUCT_GROUP_ALREADY_THERE,
