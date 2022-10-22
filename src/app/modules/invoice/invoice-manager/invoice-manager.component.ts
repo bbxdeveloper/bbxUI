@@ -42,6 +42,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import moment from 'moment';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -111,7 +112,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number-integer'
+      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -276,12 +277,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         ]),
         invoiceIssueDate: new FormControl('', [
           Validators.required,
-          todaysDate,
+          this.validateInvoiceIssueDate.bind(this),
           validDate
         ]),
         paymentDate: new FormControl('', [
           Validators.required,
-          this.validatePaymentDateMinMax.bind(this),
+          this.validatePaymentDate.bind(this),
           validDate
         ]),
         invoiceOrdinal: new FormControl('', []), // in post response
@@ -372,18 +373,37 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (this.invoiceIssueDateValue === undefined) {
       return null;
     }
-    const wrong = new Date(control.value) > this.invoiceIssueDateValue;
-    return wrong ? { maxDate: { value: control.value } } : null;
+
+    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
+
+    const wrong = deliveryDate?.isAfter(issueDate) || deliveryDate?.isAfter()
+    return wrong ? { wrongDate: { value: control.value } } : null;
+  }
+
+  validateInvoiceIssueDate(control: AbstractControl): any {
+    if (this.invoiceDeliveryDateValue === undefined) {
+      return null;
+    }
+
+    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
+
+    const wrong = issueDate?.isBefore(deliveryDate) || issueDate?.isAfter();
+    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   // paymentDate
-  validatePaymentDateMinMax(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined || this.invoiceDeliveryDateValue === undefined) {
+  validatePaymentDate(control: AbstractControl): any {
+    if (this.invoiceIssueDateValue === undefined) {
       return null;
     }
-    const _date = new Date(control.value);
-    const wrong = _date < this.invoiceIssueDateValue || _date > this.invoiceDeliveryDateValue;
-    return wrong ? { minMaxDate: { value: control.value } } : null;
+
+    let paymentDate = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toString());
+
+    const wrong = paymentDate?.isBefore(issueDate);
+    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   InitFormDefaultValues(): void {

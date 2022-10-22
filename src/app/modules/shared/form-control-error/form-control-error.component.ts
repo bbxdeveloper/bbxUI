@@ -45,6 +45,8 @@ export class FormControlErrorComponent {
         return this.label ? `A ${this.label} legfeljebb mai dátum lehet!` : ValidationMessage.ErrorTodaysDate;
       case ValidationMessage.ErrorValidDate:
         return this.label ? `A ${this.label} értéke érvénytelen dátum!` : ValidationMessage.ErrorValidDate;
+      case ValidationMessage.ErrorWrongDate:
+        return this.label ? `A ${this.label} értéke helytelen!` : ValidationMessage.ErrorWrongDate;
     }
   }
 

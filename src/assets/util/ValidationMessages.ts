@@ -7,4 +7,5 @@ export enum ValidationMessage {
     ErrorMinMaxDate = 'Dátum értékhatárokon kívülre esik!',
     ErrorTodaysDate = 'Mainál későbbi dátum nem adható meg!',
     ErrorValidDate = 'Érvénytelen dátum!',
+    ErrorWrongDate = "Helytelen dátum!"
 }

@@ -300,10 +300,14 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
 
   private refreshComboboxData(): void {
     // WareHouse
+    this.isLoading = true;
     this.wareHouseApi.GetAll().subscribe({
       next: data => {
         this.wh = data?.data ?? [];
         this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+      },
+      complete: () => {
+        this.isLoading = false;
       }
     });
   }

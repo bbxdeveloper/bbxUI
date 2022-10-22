@@ -54,6 +54,10 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   isLoading: boolean = true;
   isSaveInProgress: boolean = false;
 
+  get showSpinnerOnTable(): boolean {
+    return this.isLoading && !this.sts.InProgress;
+  }
+
   protected uid = 0;
   protected nextUid() {
     ++this.uid;

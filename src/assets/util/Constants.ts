@@ -20,8 +20,10 @@ export module Constants {
     export const TITLE_INFO: string = 'Információ';
 
     export const MSG_EMAIL_SUCCESFUL: string = 'Email sikeresen elküldve!'
-    export const MSG_EMAIL_CUSTOMER_UPDATE_SUCCESFUL: string = 'Ügyfél email cím sikeresen frissítve!'
-    export const MSG_EMAIL_CUSTOMER_UPDATE_FAILED: string = 'Ügyfél email cím frissítése sikertelen!'
+    export const MSG_CUSTOMER_UPDATE_SUCCESFUL: string = 'Ügyfél sikeresen frissítve!'
+    export const MSG_CUSTOMER_UPDATE_FAILED: string = 'Ügyfél frissítése sikertelen!'
+
+    export const MSG_USER_GET_FAILED: string = 'Felhasználó lekérése sikertelen! Név: '
 
     export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
@@ -133,6 +135,11 @@ export module Constants {
     export enum CRUDDeletePhases { DELETING }
     export const CRUDDeleteStatuses: ProcessStatus[] = [
         { title: 'Törlés', value: 0, msg: '1/1 - Rekord törlése', isSimple: true }
+    ];
+
+    export enum LoadDataPhases { LOADING }
+    export const LoadDataStatuses: ProcessStatus[] = [
+        { title: 'Betöltés', value: 0, msg: '1/1 - Adatok betöltése folyamatban...', isSimple: true }
     ];
 
     export const BlankProcessStatus: ProcessStatus = { value: -1 } as ProcessStatus;

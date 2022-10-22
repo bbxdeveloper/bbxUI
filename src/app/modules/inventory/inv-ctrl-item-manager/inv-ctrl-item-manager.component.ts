@@ -33,7 +33,7 @@ import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { BehaviorSubject, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { InventoryService } from '../services/inventory.service';
@@ -55,6 +55,8 @@ import { StockRecord } from '../../stock/models/StockRecord';
 })
 export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvCtrlItemLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  Subscription_Search?: Subscription;
 
   public KeySetting: Constants.KeySettingsDct = InvCtrlItemCreatorKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
@@ -403,13 +405,18 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   OpenAlreadyInventoryDialog(product: string, dateWithUtc: string, nRealQty: number): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
-      context: {
-        title: 'Leltár információ',
-        message: `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
-      }
-    });
-    dialogRef.onClose.subscribe(() => { });
+    this.bbxToastrService.show(
+      `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
+      'Leltár információ',
+      Constants.TOASTR_ERROR
+    );
+    // const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
+    //   context: {
+    //     title: 'Leltár információ',
+    //     message: `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
+    //   }
+    // });
+    // dialogRef.onClose.subscribe(() => { });
   }
 
   async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
@@ -419,7 +426,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       return;
     }
 
-    if (this.dbData.findIndex(x => x.data?.productID === res.id) > -1) {
+    if (this.dbDataTable.data.findIndex(x => x.data?.productID === res.id) > -1) {
       this.bbxToastrService.show(
         Constants.MSG_PRODUCT_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -487,6 +494,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       console.log("ChooseDataForTableRow Selected item: ", res);
       if (!!res) {
         if (!wasInNavigationMode) {
@@ -498,6 +506,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           }
         }
       }
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
   }
 

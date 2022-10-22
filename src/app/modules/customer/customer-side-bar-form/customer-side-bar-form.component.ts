@@ -32,8 +32,9 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   get privatePersonDefaultValue(): Boolean {
-    return (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
-      (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
+    return false;
+    // return (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
+    //   (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
   }
 
   get formValueFormCustomerBankAccNm(): string {

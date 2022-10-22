@@ -11,17 +11,32 @@
                 </nb-form-field>
                 
                 <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
+                    <label>Neve</label>
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='fromName' required="true"
+                        (click)="dataForm.HandleFormFieldClick($event)">
+                </nb-form-field>
+            </div>
+
+            <div class="form-row">
+                <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
                     <label>Címzett</label>
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName='to' required="true"
                         (click)="dataForm.HandleFormFieldClick($event)">
                 </nb-form-field>
-                
+
+                <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
+                    <label>Neve</label>
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='toName' required="true"
+                        (click)="dataForm.HandleFormFieldClick($event)">
+                </nb-form-field>
+            </div>
+
+            <div class="form-row">
                 <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
                     <label>Tárgy</label>
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName='subject' required="true"
                         (click)="dataForm.HandleFormFieldClick($event)">
                 </nb-form-field>
-
             </div>
 
             <div class="form-row">

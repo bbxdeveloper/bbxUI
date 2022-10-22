@@ -16,7 +16,7 @@ export class User implements IEditable {
         this.loginName = LoginName;
         this.email = Email;
         this.comment = Comment;
-        this.active = Active ?? false;
+        this.active = Active === undefined ? true : Active;
     }
 
     IsUnfinished(): boolean {

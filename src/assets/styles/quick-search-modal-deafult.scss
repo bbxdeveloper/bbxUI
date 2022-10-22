@@ -1,9 +1,9 @@
 .modal-product-active {
     border: 4px yellow double;
 
-    min-width: 700px;
+    min-width: 1025px;
     max-width: 1025px;
-    max-height: 675px;
+    max-height: 455px;
 
     button {
         margin-right: 25px;
@@ -86,6 +86,7 @@
     .modal-product-active-body {
         padding-left: 0px;
         padding-right: 0px;
+        overflow: hidden;
     }
 
     .separator-horizontal {
@@ -154,8 +155,8 @@
 
         margin: auto;
 
-        height: 305px !important;
-        width: fit-content;
+        height: 260px !important;
+        //width: fit-content;
 
         table-layout: fixed;
 
@@ -169,7 +170,7 @@
             // min-width: 16vw;
             // max-width: 16vw;
 
-            height: 50px;
+            height: 25px;
 
             &.table-cell-edited {
                 padding: 0px;

@@ -266,6 +266,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     SetBlankInstanceForForm(openSideBar: boolean, jump: boolean = true): void {
+        console.log("SetBlankInstanceForForm");
+        
         const creatorRow = this.GenerateCreatorRow;
 
         if (environment.flatDesignTableDebug) {

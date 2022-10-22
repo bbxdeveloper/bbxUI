@@ -536,6 +536,40 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     });
   }
 
+  async RefreshAsync(params?: GetOffersParamsModel, jumpToFirstTableCell: boolean = false) {
+    console.log('Refreshing: ', params); // TODO: only for debug
+    this.isLoading = true;
+    await lastValueFrom(this.offerService.GetAll(params))
+      .then(getAllResult => {
+        if (getAllResult.succeeded && getAllResult.data) {
+          console.log('GetProducts response: ', getAllResult); // TODO: only for debug
+          if (!!getAllResult) {
+            const tempData = getAllResult.data.map((x) => {
+              return { data: x, uid: this.nextUid() };
+            });
+            this.dbData = tempData;
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(getAllResult);
+          }
+          this.RefreshTable(undefined, this.isPageReady);
+          if (this.isPageReady) {
+            this.JumpToFirstCellAndNav();
+          }
+        } else if (getAllResult.errors) {
+          this.bbxToastrService.show(
+            getAllResult.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {});
+    this.isLoading = false;
+  }
+
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
   }
@@ -785,22 +819,31 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
-  SendEmail(): void {
+  async SendEmail() {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y - 1].data.id;
+      const selectedData = this.dbData[this.kbS.p.y - 1].data;
+      const id = selectedData.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
       const user = this.tokenService.user;
 
+      let offerCustomer: Customer;
+      if (!this.buyerData) {
+        offerCustomer = await this.GetCustomer(selectedData.customerID);
+      } else {
+        offerCustomer = this.buyerData;
+      }
+
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
-          subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
-          message: this.dbData[this.kbS.p.y - 1].data.notice,
-          OfferID: this.dbData[this.kbS.p.y - 1].data.id,
+          subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(selectedData.offerIssueDate)}`,
+          message: selectedData.notice,
+          OfferID: selectedData.id,
           DefaultFrom: user?.email,
-          DefaultTo: this.buyerData?.email,
-          UserName: user?.name
+          DefaultTo: offerCustomer?.email,
+          DefaultToName: offerCustomer?.customerName,
+          DefaultFromName: user?.name
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -809,46 +852,62 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
 
+          this.isLoading = true;
+
           // seC
-          if (!!this.buyerData?.email && !!(this.buyerData.email.trim()) && res.to.email !== this.buyerData.email) {
-            this.buyerData.email = res.to.email;
-            const updateRes = await lastValueFrom(this.seC.Update(this.buyerData));
-            if (updateRes && updateRes.succeeded) {
-              this.simpleToastrService.show(
-                Constants.MSG_EMAIL_CUSTOMER_UPDATE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-            } else {
-              this.bbxToastrService.show(
-                Constants.MSG_EMAIL_CUSTOMER_UPDATE_FAILED,
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
-              );
-            }
+          if ((!!offerCustomer?.email && !!(offerCustomer.email.trim()) && res.to.email !== offerCustomer.email)
+            || (!!offerCustomer?.customerName && !!(offerCustomer.customerName.trim()) && res.to.name !== offerCustomer.customerName)) {
+            offerCustomer.email = res.to.email;
+            offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
+            
+            await lastValueFrom(this.seC.Update(offerCustomer))
+              .then(async updateRes => {
+                if (updateRes && updateRes.succeeded) {
+                  this.simpleToastrService.show(
+                    Constants.MSG_CUSTOMER_UPDATE_SUCCESFUL,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS_5_SEC
+                  );
+                  if (this.buyerData) {
+                    this.buyerData.email = offerCustomer.email;
+                    this.buyerData.customerName = offerCustomer.customerName;
+                  }
+                  await this.RefreshAsync(this.getInputParams);
+                  // if (selectedData.id !== undefined) {
+                  //   this.dbDataTable.SelectRowById(selectedData.id);
+                  // }
+                } else {
+                  this.bbxToastrService.show(
+                    Constants.MSG_CUSTOMER_UPDATE_FAILED,
+                    Constants.TITLE_ERROR,
+                    Constants.TOASTR_ERROR
+                  );
+                }
+              })
+              .catch(rejectReason => {
+                this.cs.HandleError(rejectReason);
+              })
+              .finally(() => {});
           }
 
-          this.isLoading = true;
-          this.infrastructureService.SendEmail(res).subscribe({
-            next: _ => {
+          await lastValueFrom(this.infrastructureService.SendEmail(res))
+            .then(_ => {
               this.simpleToastrService.show(
                 Constants.MSG_EMAIL_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
               );
-            },
-            error: (err) => {
-              this.cs.HandleError(err);
-              this.isLoading = false;
-            },
-            complete: () => {
-              this.isLoading = false;
-
+            })
+            .catch(rejectReason => {
+              this.cs.HandleError(rejectReason);
+            })
+            .finally(() => {
               this.kbS.SetCurrentNavigatable(this.filterFormNav);
               this.kbS.SelectFirstTile();
               this.kbS.setEditMode(KeyboardModes.EDIT);
-            },  
-          });
+            });
+
+          this.isLoading = false;
         }
       });
     }
@@ -988,6 +1047,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return offerRes;
   }
 
+  private async GetCustomer(id: number): Promise<Customer> {
+    const customerRes = lastValueFrom(this.seC.Get({ ID: id }));
+    return customerRes;
+  }
+
   async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
     let params = {
@@ -1010,7 +1074,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     );
   }
 
-  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+  @HostListener('window:keydown', ['$event']) async onFunctionKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
@@ -1030,7 +1094,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       // Send Email
       case this.KeySetting[Actions.Email].KeyCode:
         event.preventDefault();
-        this.SendEmail();
+        await this.SendEmail();
         return;
       // View Notice
       case this.KeySetting[Actions.Details].KeyCode:
