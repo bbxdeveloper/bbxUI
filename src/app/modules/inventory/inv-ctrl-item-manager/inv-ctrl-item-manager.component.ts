@@ -543,9 +543,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
-          console.log('[TableCodeFieldChanged]: ', changedData, ' | Product: ', product);
+          console.log('[TableCodeFieldChanged] res: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
             _product = product;
@@ -590,27 +591,28 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           this.isLoading = false;
 
           if (_product.id === undefined || _product.id === -1 || alreadyAdded) {
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             return;
           }
 
-          this.invCtrlItemService.GetAllRecords(
-            { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
-          .subscribe({
-            next: data => {
+          await lastValueFrom(this.invCtrlItemService.GetAllRecords(
+            { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel))
+          .then(data => {
               if (!!data && data.id !== 0) {
                 this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
                 this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
-              }
-            },
-            error: () => { },
-            complete: () => { }
-          });
+              }    
+            }
+          );
+          
           const stockRecord = await this.GetStockRecordForProduct(_product.id);
           if (stockRecord && stockRecord.id !== 0) {
             console.log("STOCKRECORD");
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.data[rowPos].data.realQty = stockRecord.realQty;
           }
+
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
