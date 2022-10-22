@@ -33,6 +33,9 @@ import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { InvCtrlItemForGet } from '../models/InvCtrlItem';
+import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { Product } from '../../product/models/Product';
 
 @Component({
   selector: 'app-inv-row-nav',
@@ -401,8 +404,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     return !isNaN(parseFloat(val2));
   }
 
-  ChooseDataForTableRow(rowIndex: number): void { }
-
   ChooseDataForForm(): void {}
 
   RefreshData(): void { }
@@ -416,6 +417,10 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       // PRINT
       case this.KeySetting[Actions.Print].KeyCode:
         this.Print();
+        break;
+      // SEARCH
+      case this.KeySetting[Actions.Search].KeyCode:
+        this.ChooseDataForTableRow();
         break;
     }
   }
@@ -499,7 +504,26 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       }));
   }
 
-  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+  ChooseDataForTableRow(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
+      context: {
+        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+      }
+    });
+    dialogRef.onClose.subscribe(async (res: Product) => {
+      console.log("ChooseDataForTableRow Selected item: ", res);
+      if (!!res) {
+        this.filterForm.controls['searchString'].setValue(res.productCode);
+      }
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    });
+  }
+
+  @HostListener('window:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
@@ -511,6 +535,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Search].KeyCode:
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
