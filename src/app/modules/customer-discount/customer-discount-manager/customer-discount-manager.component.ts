@@ -20,7 +20,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CustomerDialogTableSettings, ProductGroupDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustDiscount, CustDiscountFromCustDiscountForGet } from '../models/CustDiscount';
@@ -207,54 +207,64 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     this.isLoading = false;
   }
 
-  public RefreshAndJumpToTable(): void {
-    this.refresh();
+  public async SearchButtonClicked(): Promise<void> {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    if (this.buyerForm.invalid) {
+      this.bbxToastrService.show(
+        Constants.MSG_USER_MUST_BE_CHOSEN,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+    } else {
+      await this.refresh();
+    }
   }
 
-  refresh(): void {
-    this.seC.GetAllCountryCodes().subscribe({
-      next: (data) => {
+  public SetNavigationMode() {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+  }
+
+  async refresh(): Promise<void> {
+    await lastValueFrom(this.seC.GetAllCountryCodes())
+      .then((data) => {
         if (!!data) this.countryCodes = data;
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         this.cs.HandleError(err);
-      }
-    });
-    this.productGroupService.GetAll(this.ProductGroupGetAllParams).subscribe({
-      next: (data) => {
+      });
+    await lastValueFrom(this.productGroupService.GetAll(this.ProductGroupGetAllParams))
+      .then((data) => {
         if (!!data) this.productGroups = data.data ?? [];
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         this.cs.HandleError(err);
-      }
-    });
+      });
 
     if (this.buyerData?.id === undefined || this.buyerData?.id < 0) {
       return;
     }
+
     this.isLoading = true;
-    this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id !== undefined ? this.buyerData?.id : -1 }).subscribe({
-      next: res => {
-        // Products
-        this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
 
-        this.dbDataDataSrc.setData(this.dbData);
+    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id !== undefined ? this.buyerData?.id : -1 }))
+    .then(res => {
+      // Products
+      this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
 
-        this.table?.renderRows();
-        this.RefreshTable();
+      this.dbDataDataSrc.setData(this.dbData);
 
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-          this.kbS.Jump(AttachDirection.DOWN, false);
-        }
-      },
+      this.table?.renderRows();
+      this.RefreshTable();
+    })
+    .catch(err => {
+      this.cs.HandleError(err);
+    })
+    .finally(() => {
+      this.isLoading = false;
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+        this.kbS.Jump(AttachDirection.DOWN, false);
+      }
     });
   }
 
@@ -287,15 +297,15 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   Save(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_DATA, () => {
+    HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_DATA, async () => {
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+
       this.UpdateOutGoingData();
 
       console.log('Save: ', this.custDiscountData);
 
-      this.isLoading = true;
-
-      this.custDiscountService.Create(this.custDiscountData).subscribe({
-        next: d => {
+      await lastValueFrom(this.custDiscountService.Create(this.custDiscountData))
+      .then(d => {
           if (!!d.data) {
             console.log('Save response: ', d);
 
@@ -304,7 +314,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
             );
-            this.isLoading = false;
 
             this.dbDataTable.RemoveEditRow();
             this.kbS.SelectFirstTile();
@@ -312,17 +321,14 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
             this.Reset();
           } else {
             this.cs.HandleError(d.errors);
-            this.isLoading = false;
           }
-        },
-        error: err => {
+        })
+        .catch(err => {
           this.cs.HandleError(err);
-          this.isLoading = false;
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
+        })
+        .finally(() => {});
+      
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
   }
 
@@ -394,6 +400,18 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     }, 500);
 
     return;
+  }
+
+  MoveToSearchButton(event: any): void {
+    if (this.isEditModeOff) {
+      this.buyerFormNav!.HandleFormEnter(event, true, true, true);
+    } else {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      this.kbS.MoveDown();
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    }
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {

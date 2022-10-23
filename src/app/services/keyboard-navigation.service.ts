@@ -183,7 +183,7 @@ export class KeyboardNavigationService {
     const idString = '#' + id;
 
     if (environment.navigationSelectLog)
-      console.log('SelectElement: ', this.previousIdString, id);
+      console.log('SelectElement: ', this.previousIdString, id, $(idString));
 
     $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
       $(element).removeClass(SELECTED_ELEMENT_CLASS);
