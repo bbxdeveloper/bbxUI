@@ -464,6 +464,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
@@ -486,6 +487,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         },
         error: err => {
           this.RecalcNetAndVat();
+        },
+        complete: () => {
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);;
         }
       });
     }
@@ -779,6 +783,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     dialogRef.onClose.subscribe((res: SumData) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
           next: d => {
             if (!!d.data) {
@@ -797,6 +802,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
+
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -859,12 +866,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               this.cs.HandleError(d.errors);
               this.isLoading = false;
               this.isSaveInProgress = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
             this.isSaveInProgress = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           },
           complete: () => {
             this.isLoading = false;
@@ -889,6 +898,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
         if (!wasInNavigationMode) {
           this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -904,6 +914,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           }
         }
       }
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
   }
 

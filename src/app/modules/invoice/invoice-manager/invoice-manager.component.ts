@@ -459,6 +459,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
@@ -481,6 +482,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         },
         error: err => {
           this.RecalcNetAndVat();
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -785,12 +787,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe((res: SumData) => {
       console.log("Selected item: ", res);
-      this.status.pushProcessStatus(Constants.GeneralSavingStatuses[0]);
       if (!!res) {
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.isLoading = true;
         this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
           next: d => {
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
             //this.isSilentLoading = false;
             if (!!d.data) {
               console.log('Save response: ', d);
@@ -810,6 +811,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.kbS.SelectFirstTile();
 
               this.isSaveInProgress = true;
+
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -875,6 +878,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.cs.HandleError(d.errors);
               this.isLoading = false;
               this.isSaveInProgress = false;
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: err => {
@@ -910,6 +914,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
         if (!wasInNavigationMode) {
           this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -925,6 +930,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           }
         }
       }
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
   }
 

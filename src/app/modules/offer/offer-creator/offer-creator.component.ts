@@ -39,6 +39,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InputBlurredEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-offer-creator',
@@ -247,6 +248,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(res => {
       if (res) {
+        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+
         this.UpdateOutGoingData();
 
         console.log('Save: ', this.offerData);
@@ -273,6 +276,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               this.kbS.SelectFirstTile();
 
               // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -334,11 +338,13 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           },
           complete: () => {
             this.isLoading = false;
@@ -360,13 +366,15 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Product) => {
+    dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
         this.isLoading = true;
 
-        this.vatRateService.GetAll({} as GetVatRatesParamListModel).subscribe({
-          next: d => {
+        await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
+          .then(async d => {
             if (!!d.data) {
               console.log('Vatrates: ', d.data);
 
@@ -380,8 +388,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                 );
               }
 
-              this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }).subscribe({
-                next: data => {
+              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+                .then(data => {
                   this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
                   const _d = this.dbData[rowIndex].data;
                   this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
@@ -391,8 +399,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                     this.kbS.setEditMode(KeyboardModes.EDIT);
                     this.kbS.ClickCurrentElement();
                   }, 500);
-                },
-                error: err => {
+                })
+                .catch(err => {
                   this.cs.HandleError(d.errors);
 
                   this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
@@ -402,9 +410,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                     this.kbS.setEditMode(KeyboardModes.EDIT);
                     this.kbS.ClickCurrentElement();
                   }, 500);
-                },
-                complete: () => {}
-              });
+                })
+                .finally(() => {});
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
@@ -417,8 +424,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                 this.kbS.ClickCurrentElement();
               }, 500);
             }
-          },
-          error: err => {
+          })
+          .catch(err => {
             this.cs.HandleError(err);
             this.isLoading = false;
 
@@ -429,11 +436,12 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               this.kbS.setEditMode(KeyboardModes.EDIT);
               this.kbS.ClickCurrentElement();
             }, 500);
-          },
-          complete: () => {
+          })
+          .finally(() => {
             this.isLoading = false;
-          }
-        });
+          });
+
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
       }
     });
   }

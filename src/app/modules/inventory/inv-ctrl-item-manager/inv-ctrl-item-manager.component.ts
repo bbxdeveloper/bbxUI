@@ -494,9 +494,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       console.log("ChooseDataForTableRow Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
         if (!wasInNavigationMode) {
           await this.HandleProductSelectionFromDialog(res, rowIndex);
         } else {
