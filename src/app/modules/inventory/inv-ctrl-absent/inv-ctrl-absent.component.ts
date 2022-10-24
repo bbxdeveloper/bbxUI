@@ -462,7 +462,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         }
       });
       dialogRef.onClose.subscribe({
-        next: res => {
+        next: async res => {
           if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
             this.isLoading = true;
 
@@ -494,7 +494,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
                 );
               }
             });
-            this.printReport(id, res.value, title!);
+            await this.printReport(id, res.value, title!);
           } else {
             this.simpleToastrService.show(
               `Az leltári időszak nyomtatása nem történt meg.`,
@@ -508,15 +508,15 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     }
   }
 
-  printReport(id: any, copies: number, title: string): void {
+  async printReport(id: any, copies: number, title: string): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
+    await this.utS.execute(
       Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
       {
         "section": "Leltári időszak",
         "fileType": "pdf",
         "report_params": {},
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryCtrlItemService.GetAbsentReport({

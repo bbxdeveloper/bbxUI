@@ -38,6 +38,7 @@
             </nb-form-field>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="warehouse" label="Raktár*"
+                [needBlankOption]="false"
                 [data$]="wareHouseComboData$"></app-bbx-combo-box>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -56,7 +57,7 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Számláló*</label>
 
-                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="number" formControlName="currentNumber"
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="currentNumber"
                         [readonly]="isEditModeOff"
                             [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
@@ -66,8 +67,8 @@
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Számláló számjegyek száma*</label>
                         
-                        <input class="{{TileCssClass}}" nbInput type="number" formControlName="numbepartLength" min="2"
-                        max="10" [inputMask]="numberInputMaskInteger"
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="numbepartLength"
+                        [inputMask]="numberInputMaskInteger"
                         [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>

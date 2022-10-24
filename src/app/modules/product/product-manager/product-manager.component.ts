@@ -29,6 +29,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { VatRate } from '../../vat-rate/models/VatRate';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-product-manager',
@@ -295,48 +296,50 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
 
-      const createRequest = this.FormProductToCreateRequest(data.data);
+      this.RefreshComboValues().then(() => {
+        const createRequest = this.FormProductToCreateRequest(data.data);
 
-      console.log('ActionNew request: ', createRequest);
+        console.log('ActionNew request: ', createRequest);
 
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
-      this.seInv.Create(createRequest).subscribe({
-        next: (d) => {
-          if (d.succeeded && !!d.data) {
-            this.seInv.Get({ ID: d.data.id }).subscribe({
-              next: newData => {
-                if (!!newData) {
-                  d.data = this.ConvertCombosForGet(newData);
-                  console.log("New product: ", d.data);
-                  const newRow = { data: newData } as TreeGridNode<Product>;
-                  this.dbData.push(newRow);
-                  this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable(newRow.data.id);
-                  this.simpleToastrService.show(
-                    Constants.MSG_SAVE_SUCCESFUL,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                  this.isLoading = false;
-                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                }
-              },
-              error: (err) => { this.HandleError(err); },
-            });
-          } else {
-            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.bbxToastrService.show(
-              d.errors!.join('\n'),
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          }
-        },
-        error: (err) => { this.HandleError(err); },
+        this.seInv.Create(createRequest).subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              this.seInv.Get({ ID: d.data.id }).subscribe({
+                next: newData => {
+                  if (!!newData) {
+                    d.data = this.ConvertCombosForGet(newData);
+                    console.log("New product: ", d.data);
+                    const newRow = { data: newData } as TreeGridNode<Product>;
+                    this.dbData.push(newRow);
+                    this.dbDataTable.SetDataForForm(newRow, false, false);
+                    this.RefreshTable(newRow.data.id);
+                    this.simpleToastrService.show(
+                      Constants.MSG_SAVE_SUCCESFUL,
+                      Constants.TITLE_INFO,
+                      Constants.TOASTR_SUCCESS_5_SEC
+                    );
+                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                    this.isLoading = false;
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  }
+                },
+                error: (err) => { this.HandleError(err); },
+              });
+            } else {
+              console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
+              this.bbxToastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          },
+          error: (err) => { this.HandleError(err); },
+        });
       });
     }
   }
@@ -345,50 +348,52 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
 
-      const updateRequest = this.FormProductToUpdateRequest(data.data);
+      this.RefreshComboValues().then(() => {
+        const updateRequest = this.FormProductToUpdateRequest(data.data);
 
-      console.log('ActionPut request: ', updateRequest);
+        console.log('ActionPut request: ', updateRequest);
 
-      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
+        this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
 
-      data.data.id = parseInt(data.data.id + ''); // TODO
-      this.seInv.Update(updateRequest).subscribe({
-        next: (d) => {
-          if (d.succeeded && !!d.data) {
-            this.seInv.Get({ ID: d.data.id }).subscribe({
-              next: newData => {
-                if (!!newData) {
-                  d.data = this.ConvertCombosForGet(newData);
-                  const newRow = {
-                    data: newData,
-                  } as TreeGridNode<Product>
-                  const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-                  this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable();
-                  this.simpleToastrService.show(
-                    Constants.MSG_SAVE_SUCCESFUL,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                  this.isLoading = false;
-                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                }
-              },
-              error: (err) => { this.HandleError(err); },
-            });
-          } else {
-            this.bbxToastrService.show(
-              d.errors!.join('\n'),
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          }
-        },
-        error: (err) => { this.HandleError(err); },
+        data.data.id = parseInt(data.data.id + ''); // TODO
+        this.seInv.Update(updateRequest).subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              this.seInv.Get({ ID: d.data.id }).subscribe({
+                next: newData => {
+                  if (!!newData) {
+                    d.data = this.ConvertCombosForGet(newData);
+                    const newRow = {
+                      data: newData,
+                    } as TreeGridNode<Product>
+                    const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
+                    this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
+                    this.dbDataTable.SetDataForForm(newRow, false, false);
+                    this.RefreshTable(newRow.data.id);
+                    this.simpleToastrService.show(
+                      Constants.MSG_SAVE_SUCCESFUL,
+                      Constants.TITLE_INFO,
+                      Constants.TOASTR_SUCCESS_5_SEC
+                    );
+                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                    this.isLoading = false;
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  }
+                },
+                error: (err) => { this.HandleError(err); },
+              });
+            } else {
+              this.bbxToastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          },
+          error: (err) => { this.HandleError(err); },
+        });
       });
     }
   }
@@ -508,8 +513,9 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
-      next: (d) => {
+      next: async (d) => {
         if (d.succeeded && !!d.data) {
+          await this.RefreshComboValues();
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
@@ -556,55 +562,42 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     this.kbS.Detach();
   }
 
+  async RefreshComboValues(
+    getProductGroups: boolean = true, getUom: boolean = true, getOrigins: boolean = true, getVatRes: boolean = true
+  ): Promise<void> {
+    if (getProductGroups) {
+      const productGroupRes = await lastValueFrom(this.productGroupApi.GetAll({ PageSize: '1000' }));
+      if (productGroupRes.succeeded && !!productGroupRes.data) {
+        this.productGroups = productGroupRes.data;
+      } else {
+        this.cs.HandleError(productGroupRes.errors);
+      }
+    }
+    if (getUom) {
+      const uomRes = await lastValueFrom(this.seInv.GetAllUnitOfMeasures());
+      if (!!uomRes && uomRes.length > 0) {
+        this.uom = uomRes;
+      }
+    }
+    if (getOrigins) {
+      const originRes = await lastValueFrom(this.originApi.GetAll({ PageSize: '1000' }));
+      if (originRes.succeeded && !!originRes.data) {
+        this.origins = originRes.data;
+      } else {
+        this.cs.HandleError(originRes.errors);
+      }
+    }
+    if (getVatRes) {
+      const vatRes = await lastValueFrom(this.vatApi.GetAll({ PageSize: '1000' }));
+      if (vatRes.succeeded && !!vatRes.data) {
+        this.vats = vatRes.data;
+      } else {
+        this.cs.HandleError(vatRes.errors);
+      }
+    }
+  }
+
   private RefreshAll(params?: GetProductsParamListModel): void {
-    // ProductGroups
-    this.productGroupApi.GetAll().subscribe({
-      next: (data) => {
-        if (!!data.data) this.productGroups = data.data;
-      },
-      error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
-        this.isLoading = false;
-      },
-      complete: () => {
-        // UnitOfMeasure
-        this.seInv.GetAllUnitOfMeasures().subscribe({
-          next: (data) => {
-            if (!!data) this.uom = data;
-          },
-          error: (err) => {
-            { this.cs.HandleError(err); this.isLoading = false; };
-            this.isLoading = false;
-          },
-          complete: () => {
-            // Origin
-            this.originApi.GetAll().subscribe({
-              next: (data) => {
-                if (!!data.data) this.origins = data.data;
-              },
-              error: (err) => {
-                { this.cs.HandleError(err); this.isLoading = false; };
-                this.isLoading = false;
-              },
-              complete: () => {
-                // VatRates
-                this.vatApi.GetAll().subscribe({
-                  next: (data) => {
-                    if (!!data.data) this.vats = data.data;
-                  },
-                  error: (err) => {
-                    { this.cs.HandleError(err); this.isLoading = false; };
-                    this.isLoading = false;
-                  },
-                  complete: () => {
-                    this.Refresh(params);
-                  },
-                });
-              },
-            });
-          },
-        });
-      },
-    });
+    this.Refresh(params);
   }
 }

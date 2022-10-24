@@ -14,16 +14,16 @@
                     <table class="customer-search-row">
                         <tr>
                             <td>
-                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="filterFormNav"
-                                    [needBlankOption]="false"
-                                    formFieldName="invCtrlPeriod" label="Leltári időszak" [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
-                            </td>
-                            <td>
                                 <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                                     <label>Keresés</label>
                                     <input nbInput type="text" formControlName='searchString' class="{{TileCssClass}}"
                                         (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                                 </nb-form-field>
+                            </td>
+                            <td>
+                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="filterFormNav"
+                                    [needBlankOption]="false"
+                                    formFieldName="invCtrlPeriod" label="Leltári időszak" [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
                             </td>
                         </tr>
                     </table>

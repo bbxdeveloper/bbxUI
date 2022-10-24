@@ -26,13 +26,16 @@ import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, last, lastValueFrom, Subscription } from 'rxjs';
 import { InvRow } from '../models/InvRow';
 import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { InvCtrlItemForGet } from '../models/InvCtrlItem';
+import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { Product } from '../../product/models/Product';
 
 @Component({
   selector: 'app-inv-row-nav',
@@ -245,20 +248,17 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
+      next: async () => {
+        await this.Refresh(this.getInputParams);
       },
     });
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
-
-    this.refreshComboboxData(true);
-    // this.RefreshAll(this.getInputParams);
   }
 
-  public RefreshAndJumpToTable(): void {
-    this.Refresh(this.getInputParams, true);
+  public async RefreshAndJumpToTable(): Promise<void> {
+    await this.Refresh(this.getInputParams, true);
   }
 
   JumpToFirstCellAndNav(): void {
@@ -272,12 +272,12 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }, 300);
   }
 
-  private refreshComboboxData(setIsLoad = false): void {
+  private async refreshComboboxData(setIsLoad = false): Promise<void> {
     if (setIsLoad) {
       this.isLoading = true;
     }
-    this.inventoryService.GetAll().subscribe({
-      next: data => {
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+      .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
           data?.data?.filter(x => !x.closed).map(x => {
@@ -289,13 +289,15 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         if (this.invCtrlPeriods.length > 0) {
           this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
         }
-      },
-      complete: () => {
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {
         if (setIsLoad) {
           this.isLoading = false;
         }
-      }
-    });
+      });
   }
 
   private GetInvRowFromInvCtrlPeriod(x: InvCtrlItemForGet): InvRow {
@@ -309,12 +311,12 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     return res;
   }
 
-  override Refresh(params?: GetAllInvCtrlItemsParamListModel, jumpToFirstTableCell: boolean = false): void {
+  override async Refresh(params?: GetAllInvCtrlItemsParamListModel, jumpToFirstTableCell: boolean = false): Promise<void> {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.refreshComboboxData();
     this.isLoading = true;
-    this.inventoryCtrlItemService.GetAll(params).subscribe({
-      next: (d) => {
+    await lastValueFrom(this.inventoryCtrlItemService.GetAll(params))
+      .then(d => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
@@ -336,22 +338,22 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
             Constants.TOASTR_ERROR
           );
         }
-      },
-      error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
         this.isLoading = false;
-      },
-      complete: () => {
+      })
+      .finally(() => {
         this.isLoading = false;
         if (!this.isPageReady) {
           this.isPageReady = true;
         }
-      },
-    });
+      });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
+    await this.refreshComboboxData(true);
   }
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
@@ -401,8 +403,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     return !isNaN(parseFloat(val2));
   }
 
-  ChooseDataForTableRow(rowIndex: number): void { }
-
   ChooseDataForForm(): void {}
 
   RefreshData(): void { }
@@ -416,6 +416,10 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       // PRINT
       case this.KeySetting[Actions.Print].KeyCode:
         this.Print();
+        break;
+      // SEARCH
+      case this.KeySetting[Actions.Search].KeyCode:
+        this.ChooseDataForTableRow();
         break;
     }
   }
@@ -435,7 +439,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         }
       });
       dialogRef.onClose.subscribe({
-        next: res => {
+        next: async res => {
           if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
             this.isLoading = true;
 
@@ -467,7 +471,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
                 );
               }
             });
-            this.printReport(id, res.value, title!);
+            await this.printReport(id, res.value, title!);
           } else {
             this.simpleToastrService.show(
               `Az leltári időszak nyomtatása nem történt meg.`,
@@ -481,15 +485,15 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }
   }
 
-  printReport(id: any, copies: number, title: string): void {
+  async printReport(id: any, copies: number, title: string): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
+    await this.utS.execute(
       Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
       {
         "section": "Leltári időszak",
         "fileType": "pdf",
         "report_params": {},
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryService.GetReport({
@@ -499,7 +503,26 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       }));
   }
 
-  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+  ChooseDataForTableRow(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
+      context: {
+        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+      }
+    });
+    dialogRef.onClose.subscribe(async (res: Product) => {
+      console.log("ChooseDataForTableRow Selected item: ", res);
+      if (!!res) {
+        this.filterForm.controls['searchString'].setValue(res.productCode);
+      }
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    });
+  }
+
+  @HostListener('window:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
@@ -511,6 +534,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Search].KeyCode:
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:

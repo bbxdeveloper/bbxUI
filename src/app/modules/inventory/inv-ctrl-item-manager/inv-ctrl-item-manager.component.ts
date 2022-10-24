@@ -33,7 +33,7 @@ import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { InventoryService } from '../services/inventory.service';
@@ -45,6 +45,8 @@ import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import * as moment from 'moment';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
+import { StockRecord } from '../../stock/models/StockRecord';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -53,6 +55,8 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 })
 export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvCtrlItemLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  Subscription_Search?: Subscription;
 
   public KeySetting: Constants.KeySettingsDct = InvCtrlItemCreatorKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
@@ -76,6 +80,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
     }
     return undefined;
+  }
+
+  get getAllPeriodsParams(): GetAllInvCtrlPeriodsParamListModel {
+    return {
+      PageSize: 1000
+    } as GetAllInvCtrlPeriodsParamListModel;
   }
 
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", "unitPrice", "realQty", "difference"];
@@ -105,7 +115,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       colWidth: "80px", textAlign: "right"
     },
     {
-      label: 'Nettó Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
+      label: 'Átl. besz', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
@@ -258,36 +268,14 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   refresh(): void {
     this.refreshComboboxData();
-    this.seC.GetAll({ IsOwnData: false }).subscribe({
-      next: () => {
-        // Products
-        this.dbData = [];
-        this.dbDataDataSrc.setData(this.dbData);
+    
+    this.dbData = [];
+    this.dbDataDataSrc.setData(this.dbData);
 
-        this.seC.GetAll({ IsOwnData: true }).subscribe({
-          next: d => {
-            console.log('Exporter: ', d);
+    this.table?.renderRows();
+    this.RefreshTable();
 
-            this.table?.renderRows();
-            this.RefreshTable();
-
-            this.isLoading = false;
-          },
-          error: (err) => {
-            this.cs.HandleError(err); this.isLoading = false;
-          },
-          complete: () => {
-            this.isLoading = false;
-          },
-        });
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
+    this.isLoading = false;
   }
 
   ngOnInit(): void {
@@ -302,7 +290,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   private UpdateOutGoingData(): void {
-    this.offerData.items = this.dbData.filter((x, index: number) => index !== this.dbData.length - 1).map(x => {
+    this.offerData.items = this.dbDataTable.data.filter((x, index: number) => index !== this.dbDataTable.data.length - 1).map(x => {
       return {
         "warehouseID": this.SelectedWareHouseId,
         "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1].id),
@@ -402,6 +390,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         }
       }
     });
+
+    // TODO
+    if (this.dbDataTable.data.length > 1) {
+      this.dbDataTable.data = [this.dbDataTable.data[0]];
+      this.dbDataDataSrc.setData(this.dbDataTable.data);
+    }
   }
 
   InitFormDefaultValues(): void {
@@ -410,23 +404,29 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   OpenAlreadyInventoryDialog(product: string, dateWithUtc: string, nRealQty: number): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
-      context: {
-        title: 'Leltár információ',
-        message: `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
-      }
-    });
-    dialogRef.onClose.subscribe(() => { });
+    this.bbxToastrService.show(
+      `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
+      'Leltár információ',
+      Constants.TOASTR_ERROR
+    );
+    // const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
+    //   context: {
+    //     title: 'Leltár információ',
+    //     message: `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
+    //   }
+    // });
+    // dialogRef.onClose.subscribe(() => { });
   }
 
-  HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
-    this.isLoading = true;
-
+  async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
     if (res.id === undefined || res.id === -1) {
       return;
     }
-
-    if (this.dbData.findIndex(x => x.data?.productID === res.id) > -1) {
+    
+    this.isLoading = true;
+    if (this.dbDataTable.data.findIndex(x => x.data?.productID === res.id) > -1) {
+      this.dbDataTable.editedRow!.data.productCode = "";
+      this.kbS.ClickCurrentElement();
       this.bbxToastrService.show(
         Constants.MSG_PRODUCT_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -436,43 +436,42 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       return;
     }
 
+    let nRealQtyFromRecord = 0.0;
     this.isLoading = true;
-
-    this.invCtrlItemService.GetAllRecords(
-      { ProductID: res.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
-      .subscribe({
-        next: data => {
-          if (!!data && data.id !== 0) {
-            this.OpenAlreadyInventoryDialog((res.productCode + ' ' + res.description) ?? "", data.invCtrlDate, data.nRealQty);
-            this.dbDataTable.data[rowIndex].data.nRealQty = data.nRealQty;
-          }
-        },
-        error: () => { },
-        complete: () => {
-          this.isLoading = false;
+    await lastValueFrom(
+      this.invCtrlItemService.GetAllRecords(
+        { ProductID: res.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel
+    ))
+      .then(data => {
+        if (!!data && data.id !== 0) {
+          this.OpenAlreadyInventoryDialog((res.productCode + ' ' + res.description) ?? "", data.invCtrlDate, data.nRealQty);
+          nRealQtyFromRecord = data.nRealQty;
         }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {
+        this.isLoading = false;
       });
 
     this.isLoading = true;
+    const stockRecord = await this.GetStockRecordForProduct(res.id);
+    let price = res.latestSupplyPrice;
+    if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
+      price = stockRecord.avgCost;
+      this.dbDataTable.data[rowIndex].data.realQty = stockRecord.realQty;
+    }
 
-    this.stockService.Record({ ProductID: res.id, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
-      next: data => {
-        if (!!data && data.id !== 0) {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.data[rowIndex].data.realQty = data.realQty;
-        }
-      },
-      error: () => { },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
+    this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, nRealQtyFromRecord) });
 
-    this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0) });
+    console.log("after HandleProductSelectionFromDialog: ", this.dbDataTable.data[rowIndex]);
+
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.dbDataTable.MoveNextInTable();
     setTimeout(() => {
       this.kbS.setEditMode(KeyboardModes.EDIT);
+      this.isLoading = false;
       this.kbS.ClickCurrentElement();
     }, 500);
 
@@ -482,7 +481,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
-    console.log("[TableCodeFieldChanged] at rowIndex: ", this.dbDataTable.data[rowIndex])
+    console.log("[ChooseDataForTableRow] at rowIndex: ", this.dbDataTable.data[rowIndex])
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -493,11 +492,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Product) => {
-      console.log("Selected item: ", res);
+    dialogRef.onClose.subscribe(async (res: Product) => {
+      console.log("ChooseDataForTableRow Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
         if (!wasInNavigationMode) {
-          this.HandleProductSelectionFromDialog(res, rowIndex);
+          await this.HandleProductSelectionFromDialog(res, rowIndex);
         } else {
           const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
           if (index !== -1) {
@@ -505,6 +505,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           }
         }
       }
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
   }
 
@@ -530,6 +531,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     }
   }
 
+  private async GetStockRecordForProduct(productId: number): Promise<StockRecord> {
+    return lastValueFrom(this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel));
+  }
+
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
 
@@ -537,22 +542,33 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+        next: async product => {
+          console.log('[TableCodeFieldChanged] res: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
             _product = product;
 
-            if (this.dbData.findIndex(x => x.data?.productID === _product.id) > -1) {
+            if (this.dbDataTable.data.findIndex(x => x.data?.productID === _product.id) > -1) {
               alreadyAdded = true;
+              this.dbDataTable.editedRow!.data.productCode = "";
+              this.kbS.ClickCurrentElement();
               this.bbxToastrService.show(
                 Constants.MSG_PRODUCT_ALREADY_THERE,
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
             } else {
-              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product) });
+              const stockRecord = await this.GetStockRecordForProduct(product.id);
+
+              let price = product.latestSupplyPrice;
+              if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
+                price = stockRecord.avgCost;
+              }
+
+              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product, 0, 0, price) });
+              console.log("after TableCodeFieldChanged: ", this.dbDataTable.data);
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
               this.dbDataTable.MoveNextInTable();
               setTimeout(() => {
@@ -572,35 +588,32 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         error: () => {
           this.RecalcNetAndVat();
         },
-        complete: () => {
+        complete: async () => {
           this.isLoading = false;
 
           if (_product.id === undefined || _product.id === -1 || alreadyAdded) {
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             return;
           }
 
-          this.invCtrlItemService.GetAllRecords(
-            { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel)
-          .subscribe({
-            next: data => {
+          await lastValueFrom(this.invCtrlItemService.GetAllRecords(
+            { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel))
+          .then(data => {
               if (!!data && data.id !== 0) {
                 this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
                 this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
-              }
-            },
-            error: () => { },
-            complete: () => { }
-          });
-          this.stockService.Record({ ProductID: _product.id, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel).subscribe({
-            next: data => {
-              if (!!data && data.id !== 0) {
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.data[rowPos].data.realQty = data.realQty;
-              }
-            },
-            error: () => {},
-            complete: () => {}
-          });
+              }    
+            }
+          );
+
+          const stockRecord = await this.GetStockRecordForProduct(_product.id);
+          if (stockRecord && stockRecord.id !== 0) {
+            console.log("STOCKRECORD");
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.dbDataTable.data[rowPos].data.realQty = stockRecord.realQty;
+          }
+
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -637,9 +650,13 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
               product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
               tmp.vatRateCode = product.vatRateCode;
 
+              tmp.productID = product.id;
+
               this.dbData[index].data = tmp;
 
               this.dbDataDataSrc.setData(this.dbData);
+
+              console.log("after TableRowDataChanged: ", this.dbDataTable.data);
             }
 
             this.RecalcNetAndVat();
@@ -653,11 +670,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   private refreshComboboxData(): void {
-    this.invCtrlPeriodService.GetAll().subscribe({
+    this.invCtrlPeriodService.GetAll(this.getAllPeriodsParams).subscribe({
       next: data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
-          data?.data?.map(x => {
+          data?.data?.filter(x => !x.closed).map(x => {
             let res = x.warehouse + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
             this.invCtrlPeriodValues[res] = x;
             return res;

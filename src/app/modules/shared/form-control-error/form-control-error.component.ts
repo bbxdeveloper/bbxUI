@@ -30,21 +30,23 @@ export class FormControlErrorComponent {
   public GetErrorMessage(vm: ValidationMessage): string {
     switch(vm) {
       case ValidationMessage.ErrorRequired:
-        return this.label ? `A ${this.label} mező kitöltése kötelező!` : ValidationMessage.ErrorRequired;
+        return this.label ? `A ${this.label} kitöltése kötelező!` : ValidationMessage.ErrorRequired;
       case ValidationMessage.ErrorMin:
-        return this.label ? `A ${this.label} mező értéke kisebb a megengedett minimumnál (${this.min})!` : ValidationMessage.ErrorMin;
+        return this.label ? `A ${this.label} értéke kisebb a minimumnál (${this.min})!` : ValidationMessage.ErrorMin;
       case ValidationMessage.ErrorMax:
-        return this.label ? `A ${this.label} mező értéke nagyobb a megengedett maximumnál (${this.min})!` : ValidationMessage.ErrorMax;
+        return this.label ? `A ${this.label} értéke nagyobb a maximumnál (${this.min})!` : ValidationMessage.ErrorMax;
       case ValidationMessage.ErrorMinDate:
-        return this.label ? `A ${this.label} mezőben megadott dátum kisebb a megengedett minimumnál!` : ValidationMessage.ErrorMinDate;
+        return this.label ? `A ${this.label} értéke kisebb a minimumnál!` : ValidationMessage.ErrorMinDate;
       case ValidationMessage.ErrorMaxDate:
-        return this.label ? `A ${this.label} mezőben megadott dátum nagyobb a megengedett maximumnál!` : ValidationMessage.ErrorMaxDate;
+        return this.label ? `A ${this.label} értéke nagyobb a maximumnál!` : ValidationMessage.ErrorMaxDate;
       case ValidationMessage.ErrorMinMaxDate:
-        return this.label ? `A ${this.label} mezőben megadott dátum a megengedett intervallumon kívülre esik!` : ValidationMessage.ErrorMinMaxDate;
+        return this.label ? `A ${this.label} értékhatárokon kívülre esik!` : ValidationMessage.ErrorMinMaxDate;
       case ValidationMessage.ErrorTodaysDate:
-        return this.label ? `A ${this.label} mezőben csak mai, vagy annál korábbi dátum adható meg!` : ValidationMessage.ErrorTodaysDate;
+        return this.label ? `A ${this.label} legfeljebb mai dátum lehet!` : ValidationMessage.ErrorTodaysDate;
       case ValidationMessage.ErrorValidDate:
-        return this.label ? `A ${this.label} mezőben megadott dátum érvénytelen!` : ValidationMessage.ErrorValidDate;
+        return this.label ? `A ${this.label} értéke érvénytelen dátum!` : ValidationMessage.ErrorValidDate;
+      case ValidationMessage.ErrorWrongDate:
+        return this.label ? `A ${this.label} értéke helytelen!` : ValidationMessage.ErrorWrongDate;
     }
   }
 

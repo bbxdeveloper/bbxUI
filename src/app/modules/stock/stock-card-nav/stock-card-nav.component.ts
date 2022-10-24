@@ -484,6 +484,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       event.stopImmediatePropagation();
       event.stopPropagation();
       this.kbS.MoveRight();
+      this.kbS.SelectCurrentElement();
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }
   }

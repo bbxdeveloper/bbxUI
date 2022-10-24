@@ -113,8 +113,9 @@
 <nb-card [nbSpinner]="isLoading" *ngIf="!!dbDataTable">
     <nb-card-body>
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [heightMargin]="610" [trackRows]="trackRows" [isLoading]="isLoading"
-            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [heightMargin]="650" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)"
+            (inputBlurred)="inlineInputBlurred($event)">
         </app-inline-editable-table>
     </nb-card-body>
     <nb-card-footer class="invoice-table-statistics">

@@ -23,7 +23,9 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   @Input() message?: string;
   @Input() OfferID?: number;
   @Input() DefaultFrom?: string;
-  @Input() UserName?: string;
+  @Input() DefaultFromName?: string;
+  @Input() DefaultTo?: string;
+  @Input() DefaultToName?: string;
 
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -108,7 +110,9 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
 
     const dForm = new FormGroup({
       from: new FormControl('', [Validators.email]),
+      fromName: new FormControl('', []),
       to: new FormControl('', [Validators.required]),
+      toName: new FormControl('', []),
       subject: new FormControl('', [Validators.required]),
       body: new FormControl('', []),
     });
@@ -128,15 +132,25 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     this.dataForm.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
-    if (!!this.subject) {
+    if (!!this.subject && !!(this.subject.trim())) {
       this.dataForm.form.controls['subject'].setValue(this.subject);
     }
-    if (!!this.message) {
+    if (!!this.message && !!(this.message.trim())) {
       this.dataForm.form.controls['body'].setValue(this.message);
     }
-    if (!!this.DefaultFrom) {
+    if (!!this.DefaultFrom && !!(this.DefaultFrom.trim())) {
       this.dataForm.form.controls['from'].setValue(this.DefaultFrom);
     }
+    if (!!this.DefaultTo && !!(this.DefaultTo.trim())) {
+      this.dataForm.form.controls['to'].setValue(this.DefaultTo);
+    }
+    if (!!this.DefaultFromName && !!(this.DefaultFromName.trim())) {
+      this.dataForm.form.controls['fromName'].setValue(this.DefaultFromName);
+    }
+    if (!!this.DefaultToName && !!(this.DefaultToName.trim())) {
+      this.dataForm.form.controls['toName'].setValue(this.DefaultToName);
+    }
+    console.log("Controls: ", this.dataForm.form.controls, this.DefaultFrom, this.DefaultFromName, this.DefaultTo, this.DefaultToName);
   }
 
   ngOnDestroy(): void {
@@ -153,10 +167,11 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
 
       this.dialogRef.close({
         from: {
-          name: this.UserName,
+          name: this.dataForm.GetValue('fromName'),
           email: this.dataForm.GetValue('from')
         } as EmailAddress,
         to: {
+          name: this.dataForm.GetValue('toName'),
           email: this.dataForm.GetValue('to')
         } as EmailAddress,
         subject: this.dataForm.GetValue('subject'),

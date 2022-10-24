@@ -1,4 +1,5 @@
 import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import moment from 'moment';
 import { HelperFunctions } from '../util/HelperFunctions';
 
 export function forbiddenValueValidator(valueRe: RegExp): ValidatorFn {
@@ -9,10 +10,10 @@ export function forbiddenValueValidator(valueRe: RegExp): ValidatorFn {
 }
 
 export function todaysDate(control: AbstractControl) {
-    const wrong = new Date(control.value) > new Date();
     if (control.value === null || control.value === undefined || (control.value + '').length === 0 || (control.value + '').trim().length === 0) {
         return null;
     }
+    const wrong = moment(control.value).isAfter(undefined, "day");
     return wrong ? { todaysDate: { value: control.value } } : null;
 }
 

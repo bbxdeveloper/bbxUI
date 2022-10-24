@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, Subscription } from 'rxjs';
+import { Observable, of, startWith, map, Subscription, lastValueFrom } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -53,7 +53,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   buyerData!: Customer;
 
   buyersData: Customer[] = [];
-  paymentMethods: PaymentMethod[] = [];
 
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
@@ -72,12 +71,12 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   override allColumns = [
     'productCode',
     'lineDescription',
-    'Quantity',
+    'quantity',
     'unitOfMeasureX',
     'originalUnitPrice',
-    'Discount',
+    'discount',
     'showDiscount',
-    'UnitPrice',
+    'unitPrice',
     'UnitPriceVal',
     'vatRateCode',
     'UnitGrossVal',
@@ -94,7 +93,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "50%", textAlign: "left",
     },
     {
-      label: 'Menny.', objectKey: 'Quantity', colKey: 'Quantity',
+      label: 'Menny.', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -109,7 +108,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
-      label: 'Kedv.', objectKey: 'Discount', colKey: 'Discount',
+      label: 'Kedv.', objectKey: 'discount', colKey: 'discount',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "90px", textAlign: "right", fInputType: 'param-padded-formatted-integer',
       calc: x => '1.2',
@@ -122,7 +121,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "40px", textAlign: "center", fInputType: 'checkbox'
     },
     {
-      label: 'Nettó árlist.', objectKey: 'UnitPrice', colKey: 'UnitPrice',
+      label: 'Kedv.ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "170px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -255,7 +254,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   InitFormDefaultValues(): void {
     this.buyerForm.controls['offerIssueDate'].setValue(HelperFunctions.GetDateString());
-    this.buyerForm.controls['offerVaidityDate'].setValue(HelperFunctions.GetDateString(0, 1));
+    this.buyerForm.controls['offerVaidityDate'].setValue(HelperFunctions.GetDateString(5));
 
     this.buyerForm.controls['offerIssueDate'].valueChanges.subscribe({
       next: p => {
@@ -300,6 +299,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
@@ -342,6 +342,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         },
         error: err => {
           this.RecalcNetAndVat();
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+        complete: () => {
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -403,51 +407,16 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        this.seInv.GetPaymentMethods().subscribe({
-          next: d => {
-            this.paymentMethods = d;
-            console.log('[GetPaymentMethods]: ', d);
-            this.paymentMethodOptions$ = of(d.map(d => d.text));
-          },
-          error: (err) => {
-            this.cs.HandleError(err);
-          },
-          complete: () => { },
-        })
+        this.table?.renderRows();
+        this.RefreshTable();
 
-
-        this.seC.GetAllCountryCodes().subscribe({
-          next: (data) => {
-            if (!!data) this.countryCodes = data;
-          },
-          error: (err) => {
-            this.cs.HandleError(err);
-          }
-        });
-
-        this.seC.GetAll({ IsOwnData: true }).subscribe({
-          next: d => {
-            console.log('Exporter: ', d);
-
-            this.table?.renderRows();
-            this.RefreshTable();
-
-            this.isLoading = false;
-          },
-          error: (err) => {
-            this.cs.HandleError(err); this.isLoading = false;
-          },
-          complete: () => {
-            this.isLoading = false;
-          },
-        });
+        this.isLoading = false;
       },
       error: (err) => {
         this.cs.HandleError(err); this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
   }
@@ -489,9 +458,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }, 500);
   }
 
-  printReport(id: any, copies: number): void {
+  async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
+    await this.utS.execute(
       Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
       {
         "section": "Szamla",
@@ -501,7 +470,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
           "id": id,
           "offerNumber": null
         },
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct);
   }
@@ -565,13 +534,15 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   FillFormWithFirstAvailableCustomer(event: any): void {}
 
-  protected PrepareCustomer(data: Customer): Customer {
+  protected async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
+    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+
+    if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
     }
 
@@ -596,13 +567,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     this.isLoading = true;
 
     this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: this.PrepareCustomer(res.data)
+              data: await this.PrepareCustomer(res.data)
             },
             closeOnEsc: false
           });

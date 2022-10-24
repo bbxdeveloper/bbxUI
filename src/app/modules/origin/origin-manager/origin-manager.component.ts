@@ -74,7 +74,11 @@ export class OriginManagerComponent
   ];
 
   override get getInputParams(): GetOriginsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return {
+      PageNumber: this.dbDataTable.currentPage + '',
+      PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '',
+      OrderBy: "originCode"
+     };
   }
 
   constructor(
@@ -149,7 +153,7 @@ export class OriginManagerComponent
             const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
             this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,

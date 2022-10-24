@@ -147,7 +147,7 @@ export class ProductGroupManagerComponent
             } as TreeGridNode<ProductGroup>;
             const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
             this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,

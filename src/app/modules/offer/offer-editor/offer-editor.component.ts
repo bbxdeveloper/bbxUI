@@ -39,6 +39,9 @@ import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import { InputBlurredEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { lastValueFrom } from 'rxjs';
+import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 
 @Component({
   selector: 'app-offer-editor',
@@ -87,6 +90,10 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     this.InitialSetup();
   }
 
+  public inlineInputBlurred(inputBlurredEvent: InputBlurredEvent): void {
+    this.dbData[inputBlurredEvent.RowPos].data.ReCalc(inputBlurredEvent.ObjectKey === "unitPrice");
+  }
+
   override RecalcNetAndVat(): void {
     console.log("RecalcNetAndVat: ", this.dbData);
 
@@ -131,7 +138,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       newOffer: false,
       offerLines: [],
       offerGrossAmount: 0,
-      offerNetAmount: 0
+      offerNetAmount: 0,
+      sumNetAmount: 0,
+      sumBrtAmount: 0
     } as Offer;
 
     this.dbData = [];
@@ -253,17 +262,17 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       },
       complete: () => {
         this.isLoading = false;
+        this.AfterViewInitSetup();
       },
     });
   }
 
   ngOnInit(): void {
-    this.LoadAndSetDataForEdit();
-    
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
-    this.AfterViewInitSetup();
+    // this.AfterViewInitSetup();
+    this.LoadAndSetDataForEdit();
   }
   ngOnDestroy(): void {
     console.log("Detach");
@@ -284,8 +293,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           productCode: x.data.productCode,
           lineDescription: x.data.lineDescription,
           vatRateCode: x.data.vatRateCode,
-          unitPrice: x.data.UnitPriceForCalc,
-          unitVat: this.ToFloat(x.data.unitVat),
+          unitPrice: HelperFunctions.Round2(x.data.UnitPriceForCalc, 2),
           unitGross: this.ToFloat(x.data.unitGross),
           discount: x.data.DiscountForCalc,
           showDiscount: x.data.showDiscount,
@@ -326,6 +334,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       this.isLoading = false;
 
       if (selectedSaveOption !== undefined && selectedSaveOption >= 0) {
+        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
         if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITH_VERSIONING) {
           this.offerData.offerVersion += 1;
@@ -336,35 +345,143 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
         this.isLoading = true;
 
-        this.offerService.Update(this.offerData).subscribe({
-          next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
+        if (selectedSaveOption !== OfferUtil.EditSaveModes.SAVE_NEW_VERSION) {
+          this.offerService.Update(this.offerData).subscribe({
+            next: d => {
+              if (!!d.data) {
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                console.log('Save response: ', d);
 
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
 
-              this.ExitToNav();
-            } else {
-              this.cs.HandleError(d.errors);
+                this.ExitToNav();
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
+            },
+            error: err => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+              if (selectedSaveOption > 1) {
+                this.offerData.offerVersion -= 1;
+                this.offerData.newOffer = false;
+              }
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            },
+            complete: () => {
               this.isLoading = false;
             }
-          },
-          error: err => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-            if (selectedSaveOption > 1) {
-              this.offerData.offerVersion -= 1;
-              this.offerData.newOffer = false;
+          });
+        } else {
+          this.offerService.Update(this.offerData).subscribe({
+            next: d => {
+              if (!!d.data) {
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                console.log('Save response: ', d);
+
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+
+                this.isLoading = false;
+
+                this.dbDataTable.RemoveEditRow();
+                this.kbS.SelectFirstTile();
+
+                // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+                const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+                  context: {
+                    title: 'Ajánlat Nyomtatása',
+                    inputLabel: 'Példányszám',
+                    defaultValue: 1
+                  }
+                });
+                dialogRef.onClose.subscribe({
+                  next: async res => {
+
+                    this.Reset();
+
+                    if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+
+                      this.buyerForm.controls['offerNumberX'].reset();
+
+                      let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+                        next: cmdEnded => {
+                          console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+                          if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                            this.simpleToastrService.show(
+                              `Az árajánlat nyomtatása véget ért.`,
+                              Constants.TITLE_INFO,
+                              Constants.TOASTR_SUCCESS_5_SEC
+                            );
+                            commandEndedSubscription.unsubscribe();
+                          }
+
+                          this.isLoading = false;
+                        },
+                        error: cmdEnded => {
+                          console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+                          this.isLoading = false;
+
+                          commandEndedSubscription.unsubscribe();
+
+                          this.bbxToastrService.show(
+                            `Az árajánlat nyomtatása közben hiba történt.`,
+                            Constants.TITLE_ERROR,
+                            Constants.TOASTR_ERROR
+                          );
+                        }
+                      });
+                      
+                      this.isLoading = true;
+                      await this.printReport(d.data?.id, res.value);
+
+                      this.ExitToNav();
+                    } else {
+                      this.simpleToastrService.show(
+                        `Az árajánlat számla nyomtatása nem történt meg.`,
+                        Constants.TITLE_INFO,
+                        Constants.TOASTR_SUCCESS_5_SEC
+                      );
+                      this.isLoading = false;
+
+                      this.ExitToNav();
+                    }
+                  }
+                });
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
+            },
+            error: err => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+              if (selectedSaveOption > 1) {
+                this.offerData.offerVersion -= 1;
+                this.offerData.newOffer = false;
+              }
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            },
+            complete: () => {
+              this.isLoading = false;
             }
-          },
-          complete: () => {
-            this.isLoading = false;
-          }
-        });
+          });
+        }
+        
       }
     });
   }
@@ -381,13 +498,14 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Product) => {
+    dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
         this.isLoading = true;
 
-        this.vatRateService.GetAll({} as GetVatRatesParamListModel).subscribe({
-          next: d => {
+        await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
+          .then(async d => {
             if (!!d.data) {
               console.log('Vatrates: ', d.data);
 
@@ -401,8 +519,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 );
               }
 
-              this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }).subscribe({
-                next: data => {
+              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+                .then(data => {
                   this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
                   const _d = this.dbData[rowIndex].data;
                   this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
@@ -412,8 +530,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                     this.kbS.setEditMode(KeyboardModes.EDIT);
                     this.kbS.ClickCurrentElement();
                   }, 500);
-                },
-                error: err => {
+                })
+                .catch(err => {
                   this.cs.HandleError(d.errors);
 
                   this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
@@ -423,9 +541,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                     this.kbS.setEditMode(KeyboardModes.EDIT);
                     this.kbS.ClickCurrentElement();
                   }, 500);
-                },
-                complete: () => {}
-              });
+                })
+                .finally(() => {});
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
@@ -438,8 +555,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 this.kbS.ClickCurrentElement();
               }, 500);
             }
-          },
-          error: err => {
+          })
+          .catch(err => {
             this.cs.HandleError(err);
             this.isLoading = false;
 
@@ -450,11 +567,12 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
               this.kbS.setEditMode(KeyboardModes.EDIT);
               this.kbS.ClickCurrentElement();
             }, 500);
-          },
-          complete: () => {
+          })
+          .finally(() => {
             this.isLoading = false;
-          }
-        });
+          });
+
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
       }
     });
   }

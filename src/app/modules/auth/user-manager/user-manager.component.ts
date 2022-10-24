@@ -6,7 +6,7 @@ import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keybo
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { User } from '../models/User';
 import { UserService } from '../services/user.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { CreateUserRequest } from '../models/CreateUserRequest';
@@ -22,6 +22,7 @@ import { GetUsersParamListModel } from '../models/GetUsersParamListModel';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { StatusService } from 'src/app/services/status.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-user-manager',
@@ -31,6 +32,10 @@ import { StatusService } from 'src/app/services/status.service';
 export class UserManagerComponent extends BaseManagerComponent<User> implements OnInit
 {
   @ViewChild('table') table?: NbTable<any>;
+
+  get IsPasswordRequired(): boolean {
+    return this.dbDataTable?.flatDesignForm?.formMode !== undefined && this.dbDataTable?.flatDesignForm?.formMode === Constants.FormState.new;
+  }
 
   override allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
   override colDefs: ModelFieldDescriptor[] = [
@@ -42,8 +47,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '15%',
-      textAlign: 'center',
+      colWidth: '130px',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -54,8 +59,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '15%',
-      textAlign: 'center',
+      colWidth: '30%',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
     },
@@ -68,7 +73,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '15%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
     },
@@ -81,7 +86,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '25%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
     },
@@ -94,7 +99,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '30%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -121,7 +126,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       colWidth: '',
       textAlign: '',
       navMatrixCssClass: TileCssClass,
-      fLast: true
+      fLast: true,
+      fRequired: this.IsPasswordRequired
     },
   ];
   customMaskPatterns = {
@@ -167,24 +173,40 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           loginName: data.data.loginName,
           password: data.data.password,
           comment: data.data.comment,
+          active: data.data.active
         } as CreateUserRequest)
         .subscribe({
-          next: (d) => {
+          next: async (d) => {
             if (d.succeeded && !!d.data) {
-              const newRow = {
-                data: CreateUserResponseDataToUser(d.data),
-              } as TreeGridNode<User>;
-              this.dbDataTable.SetDataForForm(newRow, false, false);
-              this.dbData.push(newRow);
-              this.RefreshTable(newRow.data.id);
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              await lastValueFrom(this.seInv.Get({ ID: d.data.id }))
+                .then(res => {
+                  if (res) {
+                    const newRow = {
+                      data: res,
+                    } as TreeGridNode<User>;
+                    this.dbDataTable.SetDataForForm(newRow, false, false);
+                    this.dbData.push(newRow);
+                    this.RefreshTable(newRow.data.id);
+                    this.simpleToastrService.show(
+                      Constants.MSG_SAVE_SUCCESFUL,
+                      Constants.TITLE_INFO,
+                      Constants.TOASTR_SUCCESS_5_SEC
+                    );
+                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                    this.isLoading = false;
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  } else {
+                    this.bbxToastrService.show(
+                      Constants.MSG_USER_GET_FAILED + d.data?.name,
+                      Constants.TITLE_ERROR,
+                      Constants.TOASTR_ERROR
+                    );
+                  }
+                })
+                .catch(err => {
+                  this.HandleError(err);
+                })
+                .finally(() => {});
             } else {
               console.log(
                 d.errors!,
@@ -218,6 +240,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           loginName: data.data.loginName,
           password: data.data.password,
           comment: data.data.comment,
+          active: data.data.active
         } as UpdateUserRequest)
         .subscribe({
           next: (d) => {
@@ -225,9 +248,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               const newRow = {
                 data: UpdateUserResponseDataToUser(d.data),
               } as TreeGridNode<User>;
-              this.dbData[data.rowIndex] = newRow;
+              const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
+              this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
               this.dbDataTable.SetDataForForm(newRow, false, false);
-              this.RefreshTable();
+              this.RefreshTable(newRow.data.id);
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
@@ -293,6 +317,11 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     this.Refresh(this.getInputParams);
   }
 
+  validateRequiredPassword(control: AbstractControl): any {
+    const wrong = this.IsPasswordRequired && (control.value === undefined || control.value === null || (control.value + "").trim() === "");
+    return wrong ? { required: { value: control.value } } : null;
+  }
+
   private Setup(): void {
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -303,8 +332,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       loginName: new FormControl(undefined, [Validators.required]),
       email: new FormControl(undefined, [Validators.required]),
       comment: new FormControl(undefined, []),
-      active: new FormControl(false, [Validators.required]),
-      password: new FormControl(undefined, []),
+      active: new FormControl(true, [Validators.required]),
+      password: new FormControl(undefined, [this.validateRequiredPassword.bind(this)]),
     });
     this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,

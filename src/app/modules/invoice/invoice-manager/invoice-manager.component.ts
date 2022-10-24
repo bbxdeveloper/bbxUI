@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject, Subscription } from 'rxjs';
+import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -41,6 +41,8 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import moment from 'moment';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -110,7 +112,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number-integer'
+      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -173,9 +175,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
-  // CountryCode
-  countryCodes: CountryCode[] = [];
-
   public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
@@ -196,7 +195,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private custDiscountService: CustomerDiscountService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.InitialSetup();
@@ -277,12 +277,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         ]),
         invoiceIssueDate: new FormControl('', [
           Validators.required,
-          todaysDate,
+          this.validateInvoiceIssueDate.bind(this),
           validDate
         ]),
         paymentDate: new FormControl('', [
           Validators.required,
-          this.validatePaymentDateMinMax.bind(this),
+          this.validatePaymentDate.bind(this),
           validDate
         ]),
         invoiceOrdinal: new FormControl('', []), // in post response
@@ -373,18 +373,37 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (this.invoiceIssueDateValue === undefined) {
       return null;
     }
-    const wrong = new Date(control.value) > this.invoiceIssueDateValue;
-    return wrong ? { maxDate: { value: control.value } } : null;
+
+    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
+
+    const wrong = deliveryDate?.isAfter(issueDate, "day") || deliveryDate?.isAfter(undefined, "day")
+    return wrong ? { wrongDate: { value: control.value } } : null;
+  }
+
+  validateInvoiceIssueDate(control: AbstractControl): any {
+    if (this.invoiceDeliveryDateValue === undefined) {
+      return null;
+    }
+
+    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
+
+    const wrong = issueDate?.isBefore(deliveryDate, "day") || issueDate?.isAfter(undefined, "day");
+    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   // paymentDate
-  validatePaymentDateMinMax(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined || this.invoiceDeliveryDateValue === undefined) {
+  validatePaymentDate(control: AbstractControl): any {
+    if (this.invoiceIssueDateValue === undefined) {
       return null;
     }
-    const _date = new Date(control.value);
-    const wrong = _date < this.invoiceIssueDateValue || _date > this.invoiceDeliveryDateValue;
-    return wrong ? { minMaxDate: { value: control.value } } : null;
+
+    let paymentDate = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toString());
+
+    const wrong = paymentDate?.isBefore(issueDate, "day");
+    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   InitFormDefaultValues(): void {
@@ -440,12 +459,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
+        next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
+            this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -462,6 +482,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         },
         error: err => {
           this.RecalcNetAndVat();
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -560,15 +581,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       },
       complete: () => { },
     })
-
-    this.seC.GetAllCountryCodes().subscribe({
-      next: (data) => {
-        if (!!data) this.countryCodes = data;
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-      }
-    });
 
     this.seC.GetAll({ IsOwnData: false }).subscribe({
       next: d => {
@@ -708,9 +720,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
   }
 
-  printReport(id: any, copies: number): void {
+  async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
+    await this.utS.execute(
       Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
       {
         "section": "Szamla",
@@ -720,7 +732,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           "id": id,
           "invoiceNumber": null
         },
-        // "copies": copies,
+        "copies": copies,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct);
   }
@@ -775,12 +787,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe((res: SumData) => {
       console.log("Selected item: ", res);
-      this.status.pushProcessStatus(Constants.GeneralSavingStatuses[0]);
       if (!!res) {
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.isLoading = true;
         this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
           next: d => {
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
             //this.isSilentLoading = false;
             if (!!d.data) {
               console.log('Save response: ', d);
@@ -801,6 +812,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
               this.isSaveInProgress = true;
 
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
+
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
                   title: 'Számla Nyomtatása',
@@ -809,7 +822,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                 }
               });
               dialogRef.onClose.subscribe({
-                next: res => {
+                next: async res => {
                   console.log("OneTextInputDialogComponent: ", res);
                   if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
@@ -848,7 +861,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       }
                     });
                     this.isLoading = true;
-                    this.printReport(d.data?.id, res.value);
+                    await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
                       `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
@@ -865,6 +878,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.cs.HandleError(d.errors);
               this.isLoading = false;
               this.isSaveInProgress = false;
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: err => {
@@ -897,11 +911,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Product) => {
+    dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
         if (!wasInNavigationMode) {
-          this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+          this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
           this.dbDataTable.MoveNextInTable();
           setTimeout(() => {
@@ -915,6 +930,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           }
         }
       }
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
   }
 
@@ -935,6 +951,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       if (!!res) {
         this.buyerData = res;
         this.buyerFormNav.FillForm(res);
+        this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
@@ -945,7 +962,17 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   RefreshData(): void { }
 
-  ProductToInvoiceLine(p: Product): InvoiceLine {
+  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number> {
+    const discounts = await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }));
+    if (discounts) {
+      const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
+      return res !== undefined ? (res / 100.0) : 0.0;
+    } else {
+      return 0.0;
+    }
+  }
+
+  async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine();
 
     res.productCode = p.productCode!;
@@ -954,7 +981,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
-    res.unitPrice = p.unitPrice1!;
+    const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
+    const discountedPrice = p.unitPrice2! * discountForPrice;
+    res.unitPrice = this.Delivery ? (p.unitPrice2! - discountedPrice) : p.unitPrice2!;
     
     res.vatRateCode = p.vatRateCode;
 
@@ -991,6 +1020,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
+          this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
         } else {
           if (this.customerInputFilterString.length >= 8 &&
@@ -1000,6 +1030,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             this.searchByTaxtNumber = false;
           }
           this.buyerFormNav.FillForm({}, ['customerSearch']);
+          this.buyerForm.controls['zipCodeCity'].setValue(undefined);
         }
       },
       error: (err) => {
@@ -1012,14 +1043,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  private PrepareCustomer(data: Customer): Customer {
+  private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
-      data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
+    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+
+    if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
+      data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
     }
 
     return data;
@@ -1042,13 +1075,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.isLoading = true;
 
     this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: this.PrepareCustomer(res.data)
+              data: await this.PrepareCustomer(res.data)
             },
             closeOnEsc: false
           });

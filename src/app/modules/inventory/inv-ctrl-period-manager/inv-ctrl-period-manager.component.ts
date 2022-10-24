@@ -29,6 +29,7 @@ import { GetFooterCommandListFromKeySettings, InventoryPeriodsKeySettings } from
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodParamListModel';
 import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-inv-ctrl-period-manager',
@@ -175,8 +176,13 @@ export class InvCtrlPeriodManagerComponent
     return data;
   }
 
-  private InvCtrlPeriodToCreateRequest(p: InvCtrlPeriod): CreateInvCtrlPeriodRequest {
-    let warehouseID = HelperFunctions.ToInt(this.wareHouses.find(x => x.warehouseDescription === p.warehouseID)?.id ?? 0);
+  private async InvCtrlPeriodToCreateRequest(p: InvCtrlPeriod): Promise<CreateInvCtrlPeriodRequest> {
+    const _wareHouses = await this.GetWareHouses();
+    let warehouseID;
+    if (!!_wareHouses) {
+      this.wareHouses = _wareHouses;
+      warehouseID = HelperFunctions.ToInt(this.wareHouses.find(x => x.warehouseDescription === p.warehouseID)?.id ?? 0);
+    }
     const res = {
       id: HelperFunctions.ToInt(p.id),
       dateFrom: p.dateFrom,
@@ -189,8 +195,13 @@ export class InvCtrlPeriodManagerComponent
     return res;
   }
 
-  private InvCtrlPeriodToUpdateRequest(p: InvCtrlPeriod): UpdateInvCtrlPeriodRequest {
-    let warehouseID = HelperFunctions.ToInt(this.wareHouses.find(x => x.warehouseDescription === p.warehouseID)?.id ?? 0);
+  private async InvCtrlPeriodToUpdateRequest(p: InvCtrlPeriod): Promise<UpdateInvCtrlPeriodRequest> {
+    const _wareHouses = await this.GetWareHouses();
+    let warehouseID;
+    if (!!_wareHouses) {
+      this.wareHouses = _wareHouses;
+      warehouseID = HelperFunctions.ToInt(this.wareHouses.find(x => x.warehouseDescription === p.warehouseID)?.id ?? 0);
+    }
     p.warehouseID = warehouseID;
     p.id = HelperFunctions.ToInt(p.id);
     const res = {
@@ -260,45 +271,47 @@ export class InvCtrlPeriodManagerComponent
   override ProcessActionNew(data?: IUpdateRequest<InvCtrlPeriod>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data.data.id = HelperFunctions.ToInt(data.data.id + ''); // TODO
 
-      const createRequest = this.InvCtrlPeriodToCreateRequest(data.data);
-
-      this.sts.pushProcessStatus(
-        Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]
-      );
-      this.seInv.Create(createRequest).subscribe({
-        next: (d) => {
-          if (d.succeeded && !!d.data) {
-            const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
-            this.dbData.push(newRow);
-            this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable(newRow.data.id);
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          } else {
-            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.bbxToastrService.show(
-              d.errors!.join('\n'),
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          }
-        },
-        error: (err) => {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        },
-      });
+      this.InvCtrlPeriodToCreateRequest(data.data)
+        .then(createRequest => {
+          this.sts.pushProcessStatus(
+            Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]
+          );
+          this.seInv.Create(createRequest).subscribe({
+            next: (d) => {
+              if (d.succeeded && !!d.data) {
+                d.data.warehouse = this.GetWareHouseFieldById(d.data.warehouseID);
+                const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
+                this.dbData.push(newRow);
+                this.dbDataTable.SetDataForForm(newRow, false, false);
+                this.RefreshTable(newRow.data.id);
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              } else {
+                console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
+                this.bbxToastrService.show(
+                  d.errors!.join('\n'),
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                );
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
+            },
+            error: (err) => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            },
+          });
+        });
     }
   }
 
@@ -310,46 +323,48 @@ export class InvCtrlPeriodManagerComponent
       typeof data?.data.id
     );
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data.data.id = HelperFunctions.ToInt(data.data.id + ''); // TODO
 
-      const updateRequest = this.InvCtrlPeriodToUpdateRequest(data.data);
-
-      console.log(data.data.id);
-      this.sts.pushProcessStatus(
-        Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]
-      );
-      this.seInv.Update(updateRequest).subscribe({
-        next: (d) => {
-          if (d.succeeded && !!d.data) {
-            const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
-            const index = this.dbData.findIndex(x => x.data.id === data.data.id);
-            this.dbData[index] = newRow;
-            this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          } else {
-            this.bbxToastrService.show(
-              d.errors!.join('\n'),
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          }
-        },
-        error: (err) => {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        },
-      });
+      this.InvCtrlPeriodToUpdateRequest(data.data)
+        .then(updateRequest => {
+          console.log(data.data.id);
+          this.sts.pushProcessStatus(
+            Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]
+          );
+          this.seInv.Update(updateRequest).subscribe({
+            next: (d) => {
+              if (d.succeeded && !!d.data) {
+                d.data.warehouse = this.GetWareHouseFieldById(d.data.warehouseID);
+                const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
+                const index = this.dbData.findIndex(x => x.data.id === data.data.id);
+                this.dbData[index] = newRow;
+                this.dbDataTable.SetDataForForm(newRow, false, false);
+                this.RefreshTable();
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              } else {
+                this.bbxToastrService.show(
+                  d.errors!.join('\n'),
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                );
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
+            },
+            error: (err) => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            },
+          });
+        });
     }
   }
 
@@ -393,6 +408,23 @@ export class InvCtrlPeriodManagerComponent
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           },
         });
+    }
+  }
+
+  GetWareHouseFieldById(wareHouseId: number): string {
+    const w = this.wareHouses.find(x => x.id === wareHouseId);
+    const res = w?.warehouseCode + "-" + w?.warehouseDescription;
+    return res;
+  }
+
+  async GetWareHouses(): Promise<WareHouse[] | undefined> {
+    const wareHousesResponse = await lastValueFrom(this.wService.GetAll({ PageSize: '1000' }));
+
+    if (wareHousesResponse.succeeded && !!wareHousesResponse.data && wareHousesResponse.data?.length > 0) {
+      return wareHousesResponse.data;
+    } else {
+      this.cs.HandleError(wareHousesResponse.errors);
+      return Promise.reject();
     }
   }
 
@@ -443,26 +475,19 @@ export class InvCtrlPeriodManagerComponent
   }
 
   private RefreshAll(params?: GetAllInvCtrlPeriodsParamListModel): void {
-    this.wService.GetAll().subscribe({
-      next: (data) => {
-        if (!!data && !!data?.data) this.wareHouses = data?.data;
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.Refresh(params);
-      },
-    });
+    this.Refresh(params);
   }
 
   override Refresh(params?: GetAllInvCtrlPeriodsParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
     this.seInv.GetAll(params).subscribe({
-      next: (d) => {
+      next: async (d) => {
         if (d.succeeded && !!d.data) {
+          const wHouses = await this.GetWareHouses();
+          if (!!wHouses) {
+            this.wareHouses = wHouses;
+          }
           console.log('GetInvCtrlPeriods response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {

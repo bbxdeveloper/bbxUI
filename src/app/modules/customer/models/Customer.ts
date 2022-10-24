@@ -28,6 +28,8 @@ export interface Customer {
     "createTime"?: string;
     "updateTime"?: string;
     "deleted"?: boolean;
+    
+    "email"?: string;
 }
 
 export function BlankCustomer(): Customer {
@@ -51,5 +53,6 @@ export function BlankCustomer(): Customer {
         isOwnData: false,
         taxpayerId: '',
         countyCode: '',
+        email: '',
     } as Customer;
 }

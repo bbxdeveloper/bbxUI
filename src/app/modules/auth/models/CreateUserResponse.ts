@@ -9,12 +9,12 @@ export interface CreateUserResponse {
 
 export interface CreateUserResponseData {
     "id": number;
-    "usR_NAME": string;
-    "usR_EMAIL": string;
-    "usR_LOGIN": string;
-    "usR_COMMENT": string;
-    "usR_ACTIVE": boolean;
-    "usR_PASSWDHASH": string;
+    "name": string;
+    "email": string;
+    "loginName": string;
+    "comment": string;
+    "active": boolean;
+    "passwordHash": string;
     "deleted": boolean;
     "createTime": string;
     "uppdateTime": string;
@@ -23,11 +23,10 @@ export interface CreateUserResponseData {
 export function CreateUserResponseDataToUser(u: CreateUserResponseData): User {
     return {
         id: u.id,
-        name: u.usR_NAME,
-        loginName: u.usR_LOGIN,
-        active: u.usR_ACTIVE,
-        comment: u.usR_COMMENT,
-        email: u.usR_EMAIL,
-        password: u.usR_PASSWDHASH
+        name: u.name,
+        loginName: u.loginName,
+        active: u.active,
+        comment: u.comment,
+        email: u.email
     } as User;
 }

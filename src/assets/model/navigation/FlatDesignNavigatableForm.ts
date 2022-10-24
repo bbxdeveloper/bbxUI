@@ -136,6 +136,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         if (environment.flatDesignFormDebug) {
             console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
         }
+        console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
         this.DataRowIndex = rowPos;
         this.DataToEdit = row;
         this.FillFormWithObject(this.DataToEdit?.data);
@@ -192,9 +193,9 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                     case Constants.FormState.new:
                     case Constants.FormState.default:
                     default:
-                        this.grid.SetBlankInstanceForForm(false, false);
                         this.formMode = Constants.FormState.new;
                         this.grid.JumpToFirstFormField();
+                        this.grid.SetBlankInstanceForForm(false, false);
                         break;
                 }
                 break;

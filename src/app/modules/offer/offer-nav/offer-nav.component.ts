@@ -41,7 +41,7 @@ import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
@@ -89,6 +89,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     'offerIssueDate',
     'offerVaidityDate',
     'copies',
+    'sumNetAmount',
+    'sumBrtAmount',
     'notice',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -156,6 +158,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       navMatrixCssClass: TileCssClass,
     },
     {
+      label: 'Nettó össz', objectKey: 'sumNetAmount', colKey: 'sumNetAmount',
+      defaultValue: '', mask: "", fReadonly: true,
+      colWidth: "130px", textAlign: "right", type: 'formatted-number'
+    },
+    {
+      label: 'Bruttó össz', objectKey: 'sumBrtAmount', colKey: 'sumBrtAmount',
+      defaultValue: '', mask: "",
+      colWidth: "130px", textAlign: "right", type: 'formatted-number'
+    },
+    {
       label: 'Megjegyzés',
       objectKey: 'notice',
       colKey: 'notice',
@@ -169,6 +181,21 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       navMatrixCssClass: TileCssClass,
     },
   ];
+
+  /*
+{
+      label: 'Elad ár 2',
+      objectKey: 'unitPrice2',
+      colKey: 'unitPrice2',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: false,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+  */
 
   get CustomerId(): number | undefined {
     if (!!this.buyerData && this.buyerData.id > -1) {
@@ -472,14 +499,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   override Refresh(params?: GetOffersParamsModel, jumpToFirstTableCell: boolean = false): void {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.isLoading = true;
-    this.seC.GetAllCountryCodes().subscribe({
-      next: (data) => {
-        if (!!data) this.countryCodes = data;
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-      }
-    });
     this.offerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
@@ -515,6 +534,40 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         }
       },
     });
+  }
+
+  async RefreshAsync(params?: GetOffersParamsModel, jumpToFirstTableCell: boolean = false) {
+    console.log('Refreshing: ', params); // TODO: only for debug
+    this.isLoading = true;
+    await lastValueFrom(this.offerService.GetAll(params))
+      .then(getAllResult => {
+        if (getAllResult.succeeded && getAllResult.data) {
+          console.log('GetProducts response: ', getAllResult); // TODO: only for debug
+          if (!!getAllResult) {
+            const tempData = getAllResult.data.map((x) => {
+              return { data: x, uid: this.nextUid() };
+            });
+            this.dbData = tempData;
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(getAllResult);
+          }
+          this.RefreshTable(undefined, this.isPageReady);
+          if (this.isPageReady) {
+            this.JumpToFirstCellAndNav();
+          }
+        } else if (getAllResult.errors) {
+          this.bbxToastrService.show(
+            getAllResult.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {});
+    this.isLoading = false;
   }
 
   ngOnInit(): void {
@@ -568,13 +621,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return !isNaN(parseFloat(val2));
   }
 
-  private PrepareCustomer(data: Customer): Customer {
+  private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    if (data.countryCode !== undefined && this.countryCodes.length > 0) {
+    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+
+    if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
     }
 
@@ -588,13 +643,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.isLoading = true;
 
     this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
           const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
             context: {
-              data: this.PrepareCustomer(res.data)
+              data: await this.PrepareCustomer(res.data)
             },
             closeOnEsc: false
           });
@@ -764,50 +819,95 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
-  SendEmail(): void {
+  async SendEmail() {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y - 1].data.id;
+      const selectedData = this.dbData[this.kbS.p.y - 1].data;
+      const id = selectedData.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
       const user = this.tokenService.user;
 
+      let offerCustomer: Customer;
+      if (!this.buyerData) {
+        offerCustomer = await this.GetCustomer(selectedData.customerID);
+      } else {
+        offerCustomer = this.buyerData;
+      }
+
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
-          subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(this.dbData[this.kbS.p.y - 1].data.offerIssueDate)}`,
-          message: this.dbData[this.kbS.p.y - 1].data.notice,
-          OfferID: this.dbData[this.kbS.p.y - 1].data.id,
+          subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(selectedData.offerIssueDate)}`,
+          message: selectedData.notice,
+          OfferID: selectedData.id,
           DefaultFrom: user?.email,
-          UserName: user?.name
+          DefaultTo: offerCustomer?.email,
+          DefaultToName: offerCustomer?.customerName,
+          DefaultFromName: user?.name
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
       });
-      dialogRef.onClose.subscribe((res?: SendEmailRequest) => {
+      dialogRef.onClose.subscribe(async (res?: SendEmailRequest) => {
         console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
-          // this.silent = true;
+
           this.isLoading = true;
-          this.infrastructureService.SendEmail(res).subscribe({
-            next: _ => {
+
+          // seC
+          if ((!!offerCustomer?.email && !!(offerCustomer.email.trim()) && res.to.email !== offerCustomer.email)
+            || (!!offerCustomer?.customerName && !!(offerCustomer.customerName.trim()) && res.to.name !== offerCustomer.customerName)) {
+            offerCustomer.email = res.to.email;
+            offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
+            
+            await lastValueFrom(this.seC.Update(offerCustomer))
+              .then(async updateRes => {
+                if (updateRes && updateRes.succeeded) {
+                  this.simpleToastrService.show(
+                    Constants.MSG_CUSTOMER_UPDATE_SUCCESFUL,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS_5_SEC
+                  );
+                  if (this.buyerData) {
+                    this.buyerData.email = offerCustomer.email;
+                    this.buyerData.customerName = offerCustomer.customerName;
+                  }
+                  await this.RefreshAsync(this.getInputParams);
+                  // if (selectedData.id !== undefined) {
+                  //   this.dbDataTable.SelectRowById(selectedData.id);
+                  // }
+                } else {
+                  this.bbxToastrService.show(
+                    Constants.MSG_CUSTOMER_UPDATE_FAILED,
+                    Constants.TITLE_ERROR,
+                    Constants.TOASTR_ERROR
+                  );
+                }
+              })
+              .catch(rejectReason => {
+                this.cs.HandleError(rejectReason);
+              })
+              .finally(() => {});
+          }
+
+          await lastValueFrom(this.infrastructureService.SendEmail(res))
+            .then(_ => {
               this.simpleToastrService.show(
                 Constants.MSG_EMAIL_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
               );
-            },
-            error: (err) => {
-              this.cs.HandleError(err);
-              this.isLoading = false;
-            },
-            complete: () => {
-              this.isLoading = false;
-
+            })
+            .catch(rejectReason => {
+              this.cs.HandleError(rejectReason);
+            })
+            .finally(() => {
               this.kbS.SetCurrentNavigatable(this.filterFormNav);
               this.kbS.SelectFirstTile();
               this.kbS.setEditMode(KeyboardModes.EDIT);
-            },  
-          });
+            });
+
+          this.isLoading = false;
         }
       });
     }
@@ -879,6 +979,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   Print(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const rowIndex = this.kbS.p.y - 1; 
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -891,7 +992,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         }
       });
       dialogRef.onClose.subscribe({
-        next: res => {
+        next: async res => {
           if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
             this.isLoading = true;
 
@@ -921,7 +1022,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                 this.isLoading = false;
               }
             });
-            this.printReport(id, res.value);
+
+            await this.printReport(id, res.value);
+
+            const updatedOffer = await this.GetOffer(id);
+            if (updatedOffer) {
+              this.dbData[rowIndex].data.copies = updatedOffer.copies;
+            }
           } else {
             this.simpleToastrService.show(
               `Az árajánlat számla nyomtatása nem történt meg.`,
@@ -935,24 +1042,39 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
-  printReport(id: any, copies: number): void {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    this.utS.execute(
-      Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
-      {
-        "section": "Szamla",
-        "fileType": "pdf",
-        "report_params":
-        {
-          "id": id,
-          "offerNumber": null
-        },
-        // "copies": copies,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
+  private async GetOffer(id: number): Promise<Offer> {
+    const offerRes = lastValueFrom(this.offerService.Get({ ID: id, FullData: true }));
+    return offerRes;
   }
 
-  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+  private async GetCustomer(id: number): Promise<Customer> {
+    const customerRes = lastValueFrom(this.seC.Get({ ID: id }));
+    return customerRes;
+  }
+
+  async printReport(id: any, copies: number): Promise<void> {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
+    let params = {
+      "section": "Szamla",
+      "fileType": "pdf",
+      "report_params":
+      {
+        "id": id,
+        "offerNumber": null
+      },
+      "copies": copies,
+      "data_operation": Constants.DataOperation.PRINT_BLOB,
+      "blob_data": null
+    } as Constants.Dct;
+    await this.utS.execute(
+      Constants.CommandType.PRINT_OFFER,
+      Constants.FileExtensions.PDF,
+      params,
+      this.offerService.GetReport(params)
+    );
+  }
+
+  @HostListener('window:keydown', ['$event']) async onFunctionKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
@@ -972,7 +1094,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       // Send Email
       case this.KeySetting[Actions.Email].KeyCode:
         event.preventDefault();
-        this.SendEmail();
+        await this.SendEmail();
         return;
       // View Notice
       case this.KeySetting[Actions.Details].KeyCode:

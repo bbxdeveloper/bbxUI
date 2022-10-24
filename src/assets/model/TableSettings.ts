@@ -117,6 +117,7 @@ export module ProductDialogTableSettings {
         'description',
         'unitPrice1',
         'unitPrice2',
+        'latestSupplyPrice'
     ];
     export const ProductSelectorDialogColDefs: ModelFieldDescriptor[] = [
         {
@@ -127,7 +128,7 @@ export module ProductDialogTableSettings {
             type: 'string',
             mask: '',
             colWidth: '26ch',
-            textAlign: 'center',
+            textAlign: 'left',
             navMatrixCssClass: TileCssClass,
         },
         {
@@ -165,66 +166,8 @@ export module ProductDialogTableSettings {
             textAlign: 'right',
             navMatrixCssClass: TileCssClass,
         },
-    ];
-}
-
-export module InvoiceIncomeProductDialogTableSettings {
-    export const ProductSelectorDialogAllColumns: string[] = [
-        'productCode',
-        'description',
-        'unitPrice1',
-        'unitPrice2',
-        'latestSupplyPrice'
-    ];
-    export const ProductSelectorDialogColDefs: ModelFieldDescriptor[] = [
         {
-            label: 'Kód',
-            objectKey: 'productCode',
-            colKey: 'productCode',
-            defaultValue: '',
-            type: 'string',
-            mask: '',
-            colWidth: '26ch',
-            textAlign: 'right',
-            navMatrixCssClass: TileCssClass,
-        },
-        {
-            label: 'Megnevezés',
-            objectKey: 'description',
-            colKey: 'description',
-            defaultValue: '',
-            type: 'string',
-            mask: '',
-            colWidth: '70%',
-            textAlign: 'right',
-            navMatrixCssClass: TileCssClass,
-        },
-        {
-            label: 'Elad ár 1',
-            objectKey: 'unitPrice1',
-            colKey: 'unitPrice1',
-            defaultValue: '',
-            type: 'formatted-number',
-            fRequired: true,
-            mask: '',
-            colWidth: '130px',
-            textAlign: 'right',
-            navMatrixCssClass: TileCssClass,
-        },
-        {
-            label: 'Elad ár 2',
-            objectKey: 'unitPrice2',
-            colKey: 'unitPrice2',
-            defaultValue: '',
-            type: 'formatted-number',
-            fRequired: false,
-            mask: '',
-            colWidth: '130px',
-            textAlign: 'right',
-            navMatrixCssClass: TileCssClass,
-        },
-        {
-            label: 'Besz. Ár',
+            label: 'Beszerzési ár',
             objectKey: 'latestSupplyPrice',
             colKey: 'latestSupplyPrice',
             defaultValue: '',

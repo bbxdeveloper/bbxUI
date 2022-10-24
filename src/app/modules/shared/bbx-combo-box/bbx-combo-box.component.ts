@@ -22,6 +22,7 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
   @Input() needErrorMsg: boolean = true;
   @Input() labelAboveField: boolean = false;
   @Input() needBlankOption: boolean = true;
+  @Input() autoFillFirstAvailableValue: boolean = false;
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -66,6 +67,10 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
         this.filteredData$ = of(this.comboBoxData);
         this.currentFilteredData = this.comboBoxData;
         this.currentDataCount = this.comboBoxData.length;
+        if (this.autoFillFirstAvailableValue && this.comboBoxData.length > 0) {
+          this.currentForm?.form.controls[this.formFieldName].setValue(this.comboBoxData[0]);
+          this.autoFillFirstAvailableValue = false;
+        }
       }
     });
 

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
@@ -23,6 +23,7 @@ import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { PieController } from 'chart.js';
 import { CountryCode } from '../models/CountryCode';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { Actions } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-customer-manager',
@@ -212,7 +213,7 @@ export class CustomerManagerComponent
       PageNumber: this.dbDataTable.currentPage + '',
       PageSize: this.dbDataTable.pageSize,
       SearchString: this.searchString ?? '',
-      OrderBy: "id"
+      OrderBy: "customerName"
     };
   }
 
@@ -357,9 +358,10 @@ export class CustomerManagerComponent
         next: (d) => {
           if (d.succeeded && !!d.data) {
             const newRow = { data: d.data } as TreeGridNode<Customer>;
-            this.dbData[data.rowIndex] = newRow;
+            const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
+            this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
             this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable();
+            this.RefreshTable(newRow.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
@@ -450,6 +452,7 @@ export class CustomerManagerComponent
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
+      email: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -485,28 +488,13 @@ export class CustomerManagerComponent
 
     this.bbxSidebarService.expandEvent.subscribe({
       next: () => {
-        this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
-        // this.kbS.RemoveSelectedElementClasses();
         let tmp = this.SetAllColumns();
-        // if (!!this.dbDataTable) {
-        //   this.dbDataTable!.allColumns = tmp;
-        // }
-        // this.dbDataTable?.GenerateAndSetNavMatrices(false);
-        //this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
-        //this.cdref.markForCheck();
       }
     });
     this.bbxSidebarService.collapseEvent.subscribe({
       next: () => {
         this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
-        // this.kbS.RemoveSelectedElementClasses();
         let tmp = this.SetAllColumns();
-        // if (!!this.dbDataTable) {
-        //   this.dbDataTable!.allColumns = tmp;
-        // }
-        //this.dbDataTable?.GenerateAndSetNavMatrices(false);
-        //this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
-        //this.cdref.markForCheck();
       }
     });
   }

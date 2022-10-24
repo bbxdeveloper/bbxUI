@@ -17,6 +17,7 @@ export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
   @Input() data$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   @Input() isWide: boolean = true;
   @Input() needBlankOption: boolean = true;
+  @Input() autoFillFirstAvailableValue: boolean = false;
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -56,6 +57,10 @@ export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
         this.filteredData$ = of(this.comboBoxData);
         this.currentFilteredData = this.comboBoxData;
         this.currentDataCount = this.comboBoxData.length;
+        if (this.autoFillFirstAvailableValue && this.comboBoxData.length > 0) {
+          this.currentForm?.form.controls[this.formFieldName].setValue(this.comboBoxData[0]);
+          this.autoFillFirstAvailableValue = false;
+        }
       }
     });
 
