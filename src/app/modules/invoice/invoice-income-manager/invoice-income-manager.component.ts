@@ -935,6 +935,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       if (!!res) {
         this.buyerData = res;
         this.activeFormNav.FillForm(res);
+        this.activeForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
@@ -989,6 +990,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.activeFormNav.FillForm(res.data[0], ['customerSearch']);
+          this.activeForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
         } else {
           if (this.customerInputFilterString.length >= 8 &&
@@ -998,6 +1000,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             this.searchByTaxtNumber = false;
           }
           this.activeFormNav.FillForm({}, ['customerSearch']);
+          this.activeForm.controls['zipCodeCity'].setValue(undefined);
         }
       },
       error: (err) => {

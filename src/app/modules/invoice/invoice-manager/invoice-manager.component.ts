@@ -951,6 +951,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       if (!!res) {
         this.buyerData = res;
         this.buyerFormNav.FillForm(res);
+        this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
@@ -1019,6 +1020,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
+          this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
         } else {
           if (this.customerInputFilterString.length >= 8 &&
@@ -1028,6 +1030,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             this.searchByTaxtNumber = false;
           }
           this.buyerFormNav.FillForm({}, ['customerSearch']);
+          this.buyerForm.controls['zipCodeCity'].setValue(undefined);
         }
       },
       error: (err) => {
