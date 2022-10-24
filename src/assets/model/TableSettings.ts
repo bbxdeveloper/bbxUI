@@ -127,7 +127,7 @@ export module ProductDialogTableSettings {
             type: 'string',
             mask: '',
             colWidth: '26ch',
-            textAlign: 'center',
+            textAlign: 'left',
             navMatrixCssClass: TileCssClass,
         },
         {

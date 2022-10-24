@@ -48,7 +48,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'readonly',
       mask: '',
       colWidth: '15%',
-      textAlign: 'center',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -60,7 +60,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '15%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
     },
@@ -73,7 +73,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '15%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
     },
@@ -86,7 +86,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '25%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
     },
@@ -99,7 +99,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '30%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -173,6 +173,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           loginName: data.data.loginName,
           password: data.data.password,
           comment: data.data.comment,
+          active: data.data.active
         } as CreateUserRequest)
         .subscribe({
           next: async (d) => {
@@ -239,6 +240,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           loginName: data.data.loginName,
           password: data.data.password,
           comment: data.data.comment,
+          active: data.data.active
         } as UpdateUserRequest)
         .subscribe({
           next: (d) => {
