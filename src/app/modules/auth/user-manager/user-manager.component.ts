@@ -47,7 +47,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '15%',
+      colWidth: '130px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -59,7 +59,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '15%',
+      colWidth: '30%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
