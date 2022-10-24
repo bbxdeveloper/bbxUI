@@ -377,7 +377,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
     let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
 
-    const wrong = deliveryDate?.isAfter(issueDate) || deliveryDate?.isAfter()
+    const wrong = deliveryDate?.isAfter(issueDate, "day") || deliveryDate?.isAfter(undefined, "day")
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
@@ -389,7 +389,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
     let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
 
-    const wrong = issueDate?.isBefore(deliveryDate) || issueDate?.isAfter();
+    const wrong = issueDate?.isBefore(deliveryDate, "day") || issueDate?.isAfter(undefined, "day");
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
@@ -402,7 +402,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     let paymentDate = HelperFunctions.GetDateIfDateStringValid(control.value);
     let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toString());
 
-    const wrong = paymentDate?.isBefore(issueDate);
+    const wrong = paymentDate?.isBefore(issueDate, "day");
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 

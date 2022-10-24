@@ -13,7 +13,7 @@ export function todaysDate(control: AbstractControl) {
     if (control.value === null || control.value === undefined || (control.value + '').length === 0 || (control.value + '').trim().length === 0) {
         return null;
     }
-    const wrong = moment(control.value).isAfter();
+    const wrong = moment(control.value).isAfter(undefined, "day");
     return wrong ? { todaysDate: { value: control.value } } : null;
 }
 
