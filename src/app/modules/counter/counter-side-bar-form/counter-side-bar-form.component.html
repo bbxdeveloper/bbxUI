@@ -38,6 +38,7 @@
             </nb-form-field>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="warehouse" label="Raktár*"
+                [needBlankOption]="false"
                 [data$]="wareHouseComboData$"></app-bbx-combo-box>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
