@@ -117,6 +117,7 @@ export module ProductDialogTableSettings {
         'description',
         'unitPrice1',
         'unitPrice2',
+        'latestSupplyPrice'
     ];
     export const ProductSelectorDialogColDefs: ModelFieldDescriptor[] = [
         {
@@ -157,6 +158,18 @@ export module ProductDialogTableSettings {
             label: 'Elad ár 2',
             objectKey: 'unitPrice2',
             colKey: 'unitPrice2',
+            defaultValue: '',
+            type: 'formatted-number',
+            fRequired: false,
+            mask: '',
+            colWidth: '130px',
+            textAlign: 'right',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Beszerzési ár',
+            objectKey: 'latestSupplyPrice',
+            colKey: 'latestSupplyPrice',
             defaultValue: '',
             type: 'formatted-number',
             fRequired: false,
