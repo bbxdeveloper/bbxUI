@@ -41,6 +41,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InputBlurredEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { lastValueFrom } from 'rxjs';
+import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 
 @Component({
   selector: 'app-offer-editor',
@@ -344,38 +345,143 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
         this.isLoading = true;
 
-        this.offerService.Update(this.offerData).subscribe({
-          next: d => {
-            if (!!d.data) {
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              console.log('Save response: ', d);
+        if (selectedSaveOption !== OfferUtil.EditSaveModes.SAVE_NEW_VERSION) {
+          this.offerService.Update(this.offerData).subscribe({
+            next: d => {
+              if (!!d.data) {
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                console.log('Save response: ', d);
 
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
 
-              this.ExitToNav();
-            } else {
-              this.cs.HandleError(d.errors);
+                this.ExitToNav();
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
+            },
+            error: err => {
+              this.cs.HandleError(err);
               this.isLoading = false;
+              if (selectedSaveOption > 1) {
+                this.offerData.offerVersion -= 1;
+                this.offerData.newOffer = false;
+              }
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            },
+            complete: () => {
+              this.isLoading = false;
             }
-          },
-          error: err => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-            if (selectedSaveOption > 1) {
-              this.offerData.offerVersion -= 1;
-              this.offerData.newOffer = false;
+          });
+        } else {
+          this.offerService.Update(this.offerData).subscribe({
+            next: d => {
+              if (!!d.data) {
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                console.log('Save response: ', d);
+
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+
+                this.isLoading = false;
+
+                this.dbDataTable.RemoveEditRow();
+                this.kbS.SelectFirstTile();
+
+                // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+                const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+                  context: {
+                    title: 'Ajánlat Nyomtatása',
+                    inputLabel: 'Példányszám',
+                    defaultValue: 1
+                  }
+                });
+                dialogRef.onClose.subscribe({
+                  next: async res => {
+
+                    this.Reset();
+
+                    if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+
+                      this.buyerForm.controls['offerNumberX'].reset();
+
+                      let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+                        next: cmdEnded => {
+                          console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+                          if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                            this.simpleToastrService.show(
+                              `Az árajánlat nyomtatása véget ért.`,
+                              Constants.TITLE_INFO,
+                              Constants.TOASTR_SUCCESS_5_SEC
+                            );
+                            commandEndedSubscription.unsubscribe();
+                          }
+
+                          this.isLoading = false;
+                        },
+                        error: cmdEnded => {
+                          console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+                          this.isLoading = false;
+
+                          commandEndedSubscription.unsubscribe();
+
+                          this.bbxToastrService.show(
+                            `Az árajánlat nyomtatása közben hiba történt.`,
+                            Constants.TITLE_ERROR,
+                            Constants.TOASTR_ERROR
+                          );
+                        }
+                      });
+                      
+                      this.isLoading = true;
+                      await this.printReport(d.data?.id, res.value);
+
+                      this.ExitToNav();
+                    } else {
+                      this.simpleToastrService.show(
+                        `Az árajánlat számla nyomtatása nem történt meg.`,
+                        Constants.TITLE_INFO,
+                        Constants.TOASTR_SUCCESS_5_SEC
+                      );
+                      this.isLoading = false;
+
+                      this.ExitToNav();
+                    }
+                  }
+                });
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
+            },
+            error: err => {
+              this.cs.HandleError(err);
+              this.isLoading = false;
+              if (selectedSaveOption > 1) {
+                this.offerData.offerVersion -= 1;
+                this.offerData.newOffer = false;
+              }
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            },
+            complete: () => {
+              this.isLoading = false;
             }
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          },
-          complete: () => {
-            this.isLoading = false;
-          }
-        });
+          });
+        }
+        
       }
     });
   }
