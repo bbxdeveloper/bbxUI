@@ -59,6 +59,7 @@
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Sorszám</label>
                         <input nbInput type="text" formControlName='OfferNumber' class="{{TileCssClass}}"
+                            oninput="this.value = this.value.toUpperCase()"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                     </nb-form-field>
                 </div>
