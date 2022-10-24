@@ -891,8 +891,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
-        allColumns: InvoiceIncomeProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: InvoiceIncomeProductDialogTableSettings.ProductSelectorDialogColDefs
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
     dialogRef.onClose.subscribe((res: Product) => {
