@@ -74,7 +74,11 @@ export class OriginManagerComponent
   ];
 
   override get getInputParams(): GetOriginsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return {
+      PageNumber: this.dbDataTable.currentPage + '',
+      PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '',
+      OrderBy: "originCode"
+     };
   }
 
   constructor(
