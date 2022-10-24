@@ -26,7 +26,7 @@ import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, last, lastValueFrom, Subscription } from 'rxjs';
 import { InvRow } from '../models/InvRow';
 import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
@@ -248,20 +248,17 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
+      next: async () => {
+        await this.Refresh(this.getInputParams);
       },
     });
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
-
-    this.refreshComboboxData(true);
-    // this.RefreshAll(this.getInputParams);
   }
 
-  public RefreshAndJumpToTable(): void {
-    this.Refresh(this.getInputParams, true);
+  public async RefreshAndJumpToTable(): Promise<void> {
+    await this.Refresh(this.getInputParams, true);
   }
 
   JumpToFirstCellAndNav(): void {
@@ -275,12 +272,12 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }, 300);
   }
 
-  private refreshComboboxData(setIsLoad = false): void {
+  private async refreshComboboxData(setIsLoad = false): Promise<void> {
     if (setIsLoad) {
       this.isLoading = true;
     }
-    this.inventoryService.GetAll().subscribe({
-      next: data => {
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+      .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
           data?.data?.filter(x => !x.closed).map(x => {
@@ -292,13 +289,15 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         if (this.invCtrlPeriods.length > 0) {
           this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
         }
-      },
-      complete: () => {
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {
         if (setIsLoad) {
           this.isLoading = false;
         }
-      }
-    });
+      });
   }
 
   private GetInvRowFromInvCtrlPeriod(x: InvCtrlItemForGet): InvRow {
@@ -312,12 +311,12 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     return res;
   }
 
-  override Refresh(params?: GetAllInvCtrlItemsParamListModel, jumpToFirstTableCell: boolean = false): void {
+  override async Refresh(params?: GetAllInvCtrlItemsParamListModel, jumpToFirstTableCell: boolean = false): Promise<void> {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.refreshComboboxData();
     this.isLoading = true;
-    this.inventoryCtrlItemService.GetAll(params).subscribe({
-      next: (d) => {
+    await lastValueFrom(this.inventoryCtrlItemService.GetAll(params))
+      .then(d => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
@@ -339,22 +338,22 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
             Constants.TOASTR_ERROR
           );
         }
-      },
-      error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
         this.isLoading = false;
-      },
-      complete: () => {
+      })
+      .finally(() => {
         this.isLoading = false;
         if (!this.isPageReady) {
           this.isPageReady = true;
         }
-      },
-    });
+      });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
+    await this.refreshComboboxData(true);
   }
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
