@@ -3,5 +3,6 @@ export interface CreateUserRequest {
     email: string,
     loginName: string,
     password: string,
-    comment: string
+    comment: string,
+    active: boolean
 }
