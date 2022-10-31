@@ -31,6 +31,7 @@ import { HtmlStringSanitizerPipe } from './pipes/html-string-sanitizer.pipe';
 import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewer-dialog.component';
 import { InlineEditableTableComponent } from './inline-editable-table/inline-editable-table.component';
 import { OneButtonMessageDialogComponent } from './one-button-message-dialog/one-button-message-dialog.component';
+import { CreateNewProductDialogComponent } from './create-new-product-dialog/create-new-product-dialog.component';
 
 
 @NgModule({
@@ -60,6 +61,7 @@ import { OneButtonMessageDialogComponent } from './one-button-message-dialog/one
     IframeViewerDialogComponent,
     InlineEditableTableComponent,
     OneButtonMessageDialogComponent,
+    CreateNewProductDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -113,7 +115,8 @@ import { OneButtonMessageDialogComponent } from './one-button-message-dialog/one
     OneNumberInputDialogComponent,
     HtmlStringSanitizerPipe,
     InlineEditableTableComponent,
-    OneButtonMessageDialogComponent
+    OneButtonMessageDialogComponent,
+    CreateNewProductDialogComponent
   ],
   providers: [
     ConfirmationDialogComponent

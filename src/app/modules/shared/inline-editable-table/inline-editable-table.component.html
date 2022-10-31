@@ -30,6 +30,7 @@
                             (keydown.delete)="HandleGridDelete($event, row, rowPos, it.objectKey)"
                             (keydown.F8)="HandleGridDelete($event, row, rowPos, it.objectKey)"
                             (keydown.F2)="HandleKey($event, rowPos)"
+                            (keydown.F3)="HandleKey($event, rowPos)"
                             (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, true, $event, currentNavigatable)"
                             [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                             [style.text-align]="it.textAlign" id="{{'PRODUCT-' + colPos + '-' + rowPos}}"
