@@ -376,7 +376,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       return;
     }
 
-    if (this.dbDataTable.data.findIndex(x => x.data?.productGroupID === res.id) > -1) {
+    if ((this.dbDataTable.data[rowIndex].data.productGroupID === -1 && this.dbDataTable.data[rowIndex].data.productGroupCode === res.productGroupCode) ||
+      (this.dbDataTable.data[rowIndex].data.productGroupCode !== res.productGroupCode &&
+       this.dbDataTable.data.findIndex(x => x.data?.productGroupID === res.id) > -1)) {
       this.bbxToastrService.show(
         Constants.MSG_PRODUCT_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -505,13 +507,14 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
             if (!!productGroup && !!productGroup?.productGroupCode) {
               _product = productGroup;
   
-              if (this.dbDataTable.data.findIndex(x => x.data?.productGroupID === _product.id) > -1) {
-                alreadyAdded = true;
+              if ((row.data.productGroupID === -1 && row.data.productGroupCode === _product.productGroupCode) ||
+              (row.data.productGroupCode !== _product.productGroupCode && this.dbDataTable.data.findIndex(x => x.data?.productGroupID === _product.id) > -1)) {
                 this.bbxToastrService.show(
-                  Constants.MSG_PRODUCT_GROUP_ALREADY_THERE,
+                  Constants.MSG_PRODUCT_ALREADY_THERE,
                   Constants.TITLE_ERROR,
                   Constants.TOASTR_ERROR
                 );
+                return;
               } else {
   
                 changedData.productGroupCode = productGroup.productGroupCode;

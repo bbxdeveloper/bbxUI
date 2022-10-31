@@ -27,4 +27,8 @@ export class InvoiceLine implements IEditable {
         return this.productCode?.length === 0 || this.productDescription?.length === 0 ||
             this.quantity === undefined || this.unitPrice === undefined;
     }
+
+    public toString(): string {
+        return this.productCode;
+    }
 }

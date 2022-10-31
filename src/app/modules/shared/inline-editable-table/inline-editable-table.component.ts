@@ -110,7 +110,7 @@ export class InlineEditableTableComponent implements OnInit {
       return;
     }
     if (this.confirmRowDelete) {
-      HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_DELETE, () => {
+      HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, row.data), () => {
         this.dbDataTable?.HandleGridDelete(event, row, rowPos, col)
       });
     } else {

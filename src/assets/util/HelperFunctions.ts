@@ -289,4 +289,10 @@ export module HelperFunctions {
         } 
         return HelperFunctions.ToFloat(n.toPrecision(int.length + r));
     }
+
+    export function StringFormat(template: any, ...params: any[]): string {
+        return (template + "").replace(/{(\d+)}/g, function(match, index) {
+            return params.length > index ? params[index] + "" : "<< missing parameter >>";
+        });
+    }
 }
