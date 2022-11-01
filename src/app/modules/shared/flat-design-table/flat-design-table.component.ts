@@ -31,7 +31,6 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
-  @Input() checkIfDialogOpened: boolean = true;
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();

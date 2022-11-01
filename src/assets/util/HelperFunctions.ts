@@ -295,4 +295,10 @@ export module HelperFunctions {
             return params.length > index ? params[index] + "" : "<< missing parameter >>";
         });
     }
+
+    export function StopEvent(event: any): void {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+    }
 }

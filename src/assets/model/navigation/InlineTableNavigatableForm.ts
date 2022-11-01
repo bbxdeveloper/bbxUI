@@ -197,18 +197,6 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
-    HandleKey(event: any, controlKey: string): void {
-        switch (event.key) {
-            case this.KeySetting[Actions.Search].KeyCode: {
-                console.log("[HandleKey] Search F2");
-                event.preventDefault();
-                this.parentComponent.ChooseDataForForm();
-                break;
-            }
-            default: { }
-        }
-    }
-
     ClearNeighbours(): void {
         this.LeftNeighbour = undefined;
         this.RightNeighbour = undefined;

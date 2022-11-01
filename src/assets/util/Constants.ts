@@ -91,6 +91,10 @@ export module Constants {
         Fn, Default, Combo, Unset
     }
 
+    export enum SearchFieldTypes {
+        Form, Product, Other
+    }
+
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
     export const PrintReportStatuses: ProcessStatus[] = [
         { title: 'Riport Nyomtatás', value: 0, msg: '0/4 - Kérés feldolgozása', isSimple: false },

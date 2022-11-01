@@ -744,21 +744,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
-    HandleKey(event: any, rowIndex: number): void {
-        const wasInNavigationMode = !this.kbS.isEditModeActivated;
-        switch (event.key) {
-            case this.KeySetting[Actions.Search].KeyCode: {
-                event.preventDefault();
-                if (this.isEditModeOff) {
-                    this.kbs.ClickCurrentElement();
-                }
-                this.parentComponent.ChooseDataForTableRow(rowIndex, wasInNavigationMode);
-                break;
-            }
-            default: { }
-        }
-    }
-
     isEditingCell(rowIndex: number, col: string): boolean {
         return this.kbS.isEditModeActivated && !!this.editedRow && this.editedRowPos == rowIndex && this.editedProperty == col;
     }

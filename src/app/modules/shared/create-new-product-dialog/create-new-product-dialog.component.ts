@@ -2,7 +2,7 @@ import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, C
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { createMask } from '@ngneat/input-mask';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -49,8 +49,8 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
   }
 
   customPatterns: any = {
-    'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
-    'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },
+    A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') },
+    C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
   };
 
   numberInputMask = createMask({
@@ -124,7 +124,6 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     this.Setup();
 
     this.productForm = new FormGroup({
-      id: new FormControl(undefined, []),
       productCode: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
       productGroup: new FormControl(undefined, []),
@@ -249,7 +248,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     this.isLoading = true;
     this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
     this.pService.Create(createRequest).subscribe({
-      next: d => {
+      next: async d => {
         if (d.succeeded && !!d.data) {
           this.isLoading = false;
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -262,7 +261,17 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
             );
           }, 200);
 
-          this.close(d.data);
+          let product;
+          await lastValueFrom(this.productApi.Get({ ID: d.data.id }))
+            .then(res => {
+              product = res;
+            })
+            .catch(err => {
+              this.cs.HandleError(err);
+            })
+            .finally(() => {})
+
+          this.close(product);
         } else {
           console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
           this.bbxToastrService.show(
@@ -283,8 +292,10 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
   }
 
   private refreshComboboxData(): void {
+    let request = { PageSize: '1000' };
+
     // ProductGroups
-    this.productGroupApi.GetAll().subscribe({
+    this.productGroupApi.GetAll(request).subscribe({
       next: data => {
         console.log("ProductGroups: ", data);
         this._productGroups = data?.data ?? [];
@@ -304,7 +315,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     });
 
     // Origin
-    this.originApi.GetAll().subscribe({
+    this.originApi.GetAll(request).subscribe({
       next: data => {
         console.log("Origins: ", data);
         this._origins = data?.data ?? [];
@@ -314,7 +325,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     });
 
     // VatRate
-    this.vatApi.GetAll().subscribe({
+    this.vatApi.GetAll(request).subscribe({
       next: data => {
         console.log("Vats: ", data);
         this._vatRates = data?.data ?? [];

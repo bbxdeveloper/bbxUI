@@ -47,6 +47,7 @@ import * as moment from 'moment';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
+import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -409,13 +410,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       'Leltár információ',
       Constants.TOASTR_ERROR
     );
-    // const dialogRef = this.dialogService.open(OneButtonMessageDialogComponent, {
-    //   context: {
-    //     title: 'Leltár információ',
-    //     message: `A ${product} termék ${HelperFunctions.GetOnlyDateFromUtcDateString(dateWithUtc)} napon leltározva volt, leltári készlet: ${(new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nRealQty)).replace(",", ".")}.`,
-    //   }
-    // });
-    // dialogRef.onClose.subscribe(() => { });
   }
 
   async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
@@ -478,6 +472,21 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     return;
   }
 
+  async HandleProductChoose(res: Product, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {
+    if (!!res) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      if (!wasInNavigationMode) {
+        await this.HandleProductSelectionFromDialog(res, rowIndex);
+      } else {
+        const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
+        if (index !== -1) {
+          this.kbS.SelectElementByCoordinate(0, index);
+        }
+      }
+    }
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+  }
+
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
@@ -494,18 +503,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("ChooseDataForTableRow Selected item: ", res);
-      if (!!res) {
-        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-        if (!wasInNavigationMode) {
-          await this.HandleProductSelectionFromDialog(res, rowIndex);
-        } else {
-          const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
-          if (index !== -1) {
-            this.kbS.SelectElementByCoordinate(0, index);
-          }
-        }
-      }
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      await this.HandleProductChoose(res, wasInNavigationMode, rowIndex);
     });
   }
 
@@ -712,6 +710,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.Save();
   }
 
+  /////////////////////////////////////////////
+  ////////////// KEYBOARD EVENTS //////////////
+  /////////////////////////////////////////////
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -723,12 +725,46 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.CheckSaveConditionsAndSave();
       return;
     }
-    switch (event.key) {
-      // case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
-      //   event.preventDefault();
-      //   this.ToggleAllShowDiscount();
-      //   break;
-      // }
+    this.HandleKeyDown(event);
+  }
+
+  public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
+    if (isTableKeyDownEvent(event)) {
+      let _event = event.Event;
+      switch (_event.key) {
+        case this.KeySetting[Actions.CrudDelete].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
+            this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
+          });
+          break;
+        }
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
+          break;
+        }
+        case this.KeySetting[Actions.CrudNew].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.CreateProduct(event.RowPos, product => {
+            return this.HandleProductChoose(product, event.WasInNavigationMode, event.RowPos);
+          });
+          break;
+        }
+      }
     }
   }
+
 }

@@ -65,8 +65,8 @@
                             <td>
                                 <nb-form-field class="search-row-nb-form-field"
                                     (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
-                                    (keydown.F2)="buyerFormNav.HandleKey($event, 'customerSearch')"
-                                    (keydown.F3)="CreateCustomer($event)">
+                                    (keydown.F2)="HandleKeyDown($event, true)"
+                                    (keydown.F3)="HandleKeyDown($event, true)">
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         (click)="buyerFormNav.HandleFormFieldClick($event)"
                                         maxlength="80"
@@ -193,7 +193,7 @@
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
         [wide]="false" [heightMargin]="703" [confirmRowDelete]="true"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
-            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
         </app-inline-editable-table>
     </nb-card-body>
     <nb-card-footer class="invoice-table-statistics">

@@ -36,6 +36,7 @@ import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dia
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
+import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-customer-discount-manager',
@@ -808,6 +809,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     });
   }
 
+  /////////////////////////////////////////////
+  ////////////// KEYBOARD EVENTS //////////////
+  /////////////////////////////////////////////
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -819,31 +824,75 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       this.CheckSaveConditionsAndSave();
       return;
     }
-    switch (event.key) {
-      case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {
-        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          event.stopPropagation();
-          return;
+    this.HandleKeyDown(event);
+  }
+
+  public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
+    if (isTableKeyDownEvent(event)) {
+      let _event = event.Event;
+      switch (_event.key) {
+        case this.KeySetting[Actions.CrudDelete].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
+            this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
+          });
+          break;
         }
-        event.preventDefault();
-        this.SetGlobalDiscount();
-        break;
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
+          break;
+        }
       }
-      case this.KeySetting[Actions.CrudNew].KeyCode: {
-        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+    }
+    else {
+      switch ((event as KeyboardEvent).key) {
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
           event.preventDefault();
-          event.stopImmediatePropagation();
-          event.stopPropagation();
-          return;
+          this.ChooseDataForForm();
+          break;
         }
-        event.preventDefault();
-        HelperFunctions.confirm(this.dialogService, Constants.MSG_LOAD_REMAINING_TSC, () => {
-          this.LoadRemainingProductGroups();
-        });
-        break;
+        case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            return;
+          }
+          event.preventDefault();
+          this.SetGlobalDiscount();
+          break;
+        }
+        case this.KeySetting[Actions.CrudNew].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            return;
+          }
+          event.preventDefault();
+          HelperFunctions.confirm(this.dialogService, Constants.MSG_LOAD_REMAINING_TSC, () => {
+            this.LoadRemainingProductGroups();
+          });
+          break;
+        }
       }
     }
   }
+  
 }

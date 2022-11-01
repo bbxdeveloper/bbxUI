@@ -43,6 +43,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import moment from 'moment';
+import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -899,6 +900,28 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
+  async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
+    if (!!res) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      if (!wasInNavigationMode) {
+        this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 200);
+      } else {
+        const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
+        if (index !== -1) {
+          this.kbS.SelectElementByCoordinate(0, index);
+        }
+      }
+    }
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    return of().toPromise();
+  }
+
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
@@ -913,24 +936,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
-      if (!!res) {
-        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-        if (!wasInNavigationMode) {
-          this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.MoveNextInTable();
-          setTimeout(() => {
-            this.kbS.setEditMode(KeyboardModes.EDIT);
-            this.kbS.ClickCurrentElement();
-          }, 200);
-        } else {
-          const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
-          if (index !== -1) {
-            this.kbS.SelectElementByCoordinate(0, index);
-          }
-        }
-      }
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      await this.HandleProductChoose(res, wasInNavigationMode);
     });
   }
 
@@ -1107,6 +1113,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
+  /////////////////////////////////////////////
+  ////////////// KEYBOARD EVENTS //////////////
+  /////////////////////////////////////////////
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -1118,5 +1128,74 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.Save();
       return;
     }
+    this.HandleKeyDown(event);
   }
+
+  public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
+    if (isTableKeyDownEvent(event)) {
+      let _event = event.Event;
+      switch (_event.key) {
+        case this.KeySetting[Actions.CrudDelete].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
+            this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
+          });
+          break;
+        }
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
+          break;
+        }
+        case this.KeySetting[Actions.CrudNew].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.CreateProduct(event.RowPos, product => {
+            return this.HandleProductChoose(product, event.WasInNavigationMode);
+          });
+          break;
+        }
+      }
+    }
+    else {
+      switch ((event as KeyboardEvent).key) {
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.ChooseDataForForm();
+          break;
+        }
+        case this.KeySetting[Actions.CrudNew].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.CreateCustomer(event);
+          break;
+        }
+      }
+    }
+  }
+
 }

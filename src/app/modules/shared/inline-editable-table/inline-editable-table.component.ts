@@ -11,9 +11,14 @@ import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 
 export interface InputBlurredEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, ObjectKey: string, ColPos: number }
+
+export interface TableKeyDownEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, ObjectKey: string, ColPos: number, InputID?: string, FInputType?: string, WasInNavigationMode: boolean }
+export function isTableKeyDownEvent(event: TableKeyDownEvent | Event): event is TableKeyDownEvent {
+  return (event as TableKeyDownEvent).Row !== undefined;
+}
 
 @Component({
   selector: 'app-inline-editable-table',
@@ -31,12 +36,12 @@ export class InlineEditableTableComponent implements OnInit {
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
-  @Input() checkIfDialogOpened: boolean = true;
   @Input() confirmRowDelete: boolean = false;
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
   @Output() inputBlurred: EventEmitter<InputBlurredEvent> = new EventEmitter();
+  @Output() tableKeyDown: EventEmitter<TableKeyDownEvent> = new EventEmitter();
 
   @Input() parent: any = undefined;
 
@@ -85,28 +90,21 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   HandleGridEscape(event: Event, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
-    if (!this.ShouldContinueWithEvent(event)) {
+    if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
     this.dbDataTable?.HandleGridEscape(row, rowPos, col, colPos);
   }
 
   HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, upward: boolean): void {
-    if (!this.ShouldContinueWithEvent(event)) {
+    if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
     this.dbDataTable?.HandleGridMovement(event, row, rowPos, col, colPos, upward);
   }
 
-  HandleKey(event: any, rowIndex: number): void {
-    if (!this.ShouldContinueWithEvent(event)) {
-      return;
-    }
-    this.dbDataTable?.HandleKey(event, rowIndex);
-  }
-
   HandleGridDelete(event: Event, row: TreeGridNode<any>, rowPos: number, col: string): void {
-    if (!this.ShouldContinueWithEvent(event)) {
+    if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
     if (this.confirmRowDelete) {
@@ -119,36 +117,66 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!this.ShouldContinueWithEvent(event)) {
+    if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
     this.parent?.HandleGridCodeFieldEnter(event, row, rowPos, objectKey, colPos, inputId, fInputType);
   }
 
   HandleGridEnter(row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
-    if (!this.ShouldContinueWithEvent(event)) {
+    if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
     this.dbDataTable?.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable);
   }
 
-  private ShouldContinueWithEvent(event: any): boolean {
-    if ((this.checkIfDialogOpened && this.khs.IsDialogOpened) || this.khs.IsKeyboardBlocked) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      return false;
+  HandleGridKeydown(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
+                    inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+    if (!this.khs.ShouldContinueWithEvent(event)) {
+      return;
     }
-    if (!!event && this.bbxToastrService.IsToastrOpened) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
+    switch ((event as KeyboardEvent).key) {
+      case KeyBindings.up:
+      case KeyBindings.down:
+      case KeyBindings.left:
+      case KeyBindings.right:
+        this.HandleGridMovement(event, row, rowPos, objectKey, colPos, true);
+        return;
 
-      this.bbxToastrService.close();
+      case KeyBindings.exit:
+      case KeyBindings.exitIE:
+        this.HandleGridEscape(event, row, rowPos, objectKey, colPos);
+        return;
 
-      return false;
+      case KeyBindings.Enter:
+        if (colPos === 0) {
+          this.HandleGridCodeFieldEnter(event, row, rowPos, objectKey, colPos, 'PRODUCT-EDIT', fInputType);
+        } else {
+          this.HandleGridEnter(row, rowPos, objectKey, colPos, 'PRODUCT-EDIT', fInputType, this.isEditModeOn, true, this.currentNavigatable);
+        }
+        return;
+      
+      default:
+        break;
     }
-    return true;
+    if (IsKeyFunctionKey(event.key)) {
+      this.EmitKeydownEvent(
+        event, row, rowPos, objectKey, colPos, inputId, fInputType, !this.isEditModeOn
+      );
+    }
+  }
+
+  public EmitKeydownEvent(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId?: string, fInputType?: string, wasInNavigationMode: boolean = false): void {
+    this.tableKeyDown.emit({
+      Event: event,
+      Row: row,
+      RowPos: rowPos,
+      ObjectKey: objectKey,
+      ColPos: colPos,
+      InputID: inputId,
+      FInputType: fInputType,
+      WasInNavigationMode: wasInNavigationMode
+    } as TableKeyDownEvent);
   }
 
   public inlineInputBlurred(event: any, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
