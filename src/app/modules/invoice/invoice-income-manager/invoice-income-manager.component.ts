@@ -35,13 +35,13 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
-import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -101,7 +101,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "30%", textAlign: "left", fInputType: 'code-field'
+      colWidth: "30%", textAlign: "left", fInputType: 'code-field',
+      keyAction: Actions.Create,
+      keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
       label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
@@ -179,7 +181,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
-  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+  override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+
+  formKeyRows: any = {
+    "customerSearch": {
+      Action: Actions.Create,
+      Row: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner felvétele', KeyType: Constants.KeyTypes.Fn }
+    }
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -205,6 +214,39 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.SetModeBasedOnRoute(params);
     })
     this.isPageReady = true;
+  }
+
+  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
+    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
+      if (event.Focused) {
+        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      } else {
+        let k = this.KeySetting;
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      }
+    }
+  }
+
+  public override onFormSearchFocused(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = true;
+
+    if (formFieldName && this.formKeyRows[formFieldName]) {
+      let k = GetUpdatedKeySettings(this.KeySetting, this.formKeyRows[formFieldName].Row, this.formKeyRows[formFieldName].Action);
+      this.commands = GetFooterCommandListFromKeySettings(k);
+      this.fS.pushCommands(this.commands);
+    }
+  }
+  public override onFormSearchBlurred(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = false;
+
+    if (formFieldName && this.formKeyRows[formFieldName]) {
+      let k = this.KeySetting;
+      this.commands = GetFooterCommandListFromKeySettings(k);
+      this.fS.pushCommands(this.commands);
+    }
   }
 
   private SetModeBasedOnRoute(params: UrlSegment[]): void {
@@ -1105,7 +1147,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
-        case this.KeySetting[Actions.CrudDelete].KeyCode: {
+        case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
             return;
@@ -1125,7 +1167,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
           break;
         }
-        case this.KeySetting[Actions.CrudNew].KeyCode: {
+        case this.KeySetting[Actions.Create].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
             return;
@@ -1152,7 +1194,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           this.ChooseDataForForm();
           break;
         }
-        case this.KeySetting[Actions.CrudNew].KeyCode: {
+        case this.KeySetting[Actions.Create].KeyCode: {
           if (!isForm) {
             return;
           }

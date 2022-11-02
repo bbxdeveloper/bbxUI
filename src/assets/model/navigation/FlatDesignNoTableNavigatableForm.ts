@@ -216,7 +216,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         const val = event instanceof Event ? (event as KeyboardEvent).code : event;
         switch (val) {
             // NEW
-            case this.KeySetting[Actions.CrudNew].KeyCode:
+            case this.KeySetting[Actions.Create].KeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.new:
                     case Constants.FormState.default:
@@ -227,11 +227,11 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 }
                 break;
             // RESET
-            case this.KeySetting[Actions.CrudReset].KeyCode:
+            case this.KeySetting[Actions.Reset].KeyCode:
                 this.ActionReset();
                 break;
             // SAVE
-            case this.KeySetting[Actions.CrudSave].KeyCode:
+            case this.KeySetting[Actions.Save].KeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.new:
                         this.ActionNew();
@@ -242,8 +242,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 }
                 break;
             // DELETE
-            case this.KeySetting[Actions.CrudDelete].KeyCode:
-            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+            case this.KeySetting[Actions.Delete].KeyCode:
+            case this.KeySetting[Actions.Delete].AlternativeKeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         this.ActionDelete();
@@ -497,26 +497,26 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
 
     HandleKey(event: any): void {
         switch (event.key) {
-            case this.KeySetting[Actions.CrudNew].KeyCode: {
+            case this.KeySetting[Actions.Create].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionNew();
                 break;
             }
-            case this.KeySetting[Actions.CrudReset].KeyCode: {
+            case this.KeySetting[Actions.Reset].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionReset();
                 break;
             }
-            case this.KeySetting[Actions.CrudSave].KeyCode: {
+            case this.KeySetting[Actions.Save].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionPut();
                 break;
             }
-            case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
-            case this.KeySetting[Actions.CrudDelete].KeyCode: {
+            case this.KeySetting[Actions.Delete].AlternativeKeyCode:
+            case this.KeySetting[Actions.Delete].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionDelete();

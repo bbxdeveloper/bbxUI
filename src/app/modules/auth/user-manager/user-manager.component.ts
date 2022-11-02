@@ -277,7 +277,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
   override ProcessActionDelete(data?: IUpdateRequest<User>): void {
     if (!!data && data.data?.id !== undefined) {
-      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
+      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
       console.log('ActionDelete: ', data.rowIndex);
       this.seInv
         .Delete({

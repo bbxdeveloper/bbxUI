@@ -542,12 +542,12 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
-      case this.KeySetting[Actions.CrudNew].KeyCode:
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
-      case this.KeySetting[Actions.CrudReset].KeyCode:
-      case this.KeySetting[Actions.CrudSave].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
+      case this.KeySetting[Actions.Edit].KeyCode:
+      case this.KeySetting[Actions.Reset].KeyCode:
+      case this.KeySetting[Actions.Save].KeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();

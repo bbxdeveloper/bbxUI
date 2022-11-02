@@ -544,22 +544,22 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 this.Refresh();
                 break;
             }
-            case this.KeySetting[Actions.CrudNew].KeyCode: {
-                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudNew].FunctionLabel}, ${Actions[Actions.CrudNew]}`);
+            case this.KeySetting[Actions.Create].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Create].FunctionLabel}, ${Actions[Actions.Create]}`);
                 event.preventDefault();
                 this.HandleEditAndNew(true);
                 this.JumpToFirstFormField();
                 break;
             }
-            case this.KeySetting[Actions.CrudEdit].KeyCode: {
-                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudEdit].FunctionLabel}, ${Actions[Actions.CrudEdit]}`);
+            case this.KeySetting[Actions.Edit].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Edit].FunctionLabel}, ${Actions[Actions.Edit]}`);
                 event.preventDefault();
                 this.HandleEditAndNew(false);
                 this.JumpToFirstFormField();
                 break;
             }
-            case this.KeySetting[Actions.CrudDelete].KeyCode: {
-                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.CrudDelete].FunctionLabel}, ${Actions[Actions.CrudDelete]}`);
+            case this.KeySetting[Actions.Delete].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
                 if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default && this.sidebarService.sideBarOpened) {
                     event.preventDefault();
                     this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);

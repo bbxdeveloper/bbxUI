@@ -65,10 +65,10 @@ export class BaseSideBarFormComponent {
       return;
     }
     switch (event.key) {
-      case this.KeySetting[Actions.CrudNew].KeyCode:
-      case this.KeySetting[Actions.CrudReset].KeyCode:
-      case this.KeySetting[Actions.CrudSave].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
+      case this.KeySetting[Actions.Reset].KeyCode:
+      case this.KeySetting[Actions.Save].KeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();

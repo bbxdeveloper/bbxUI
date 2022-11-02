@@ -139,8 +139,8 @@ export module Constants {
         { title: 'Mentés', value: 0, msg: '1/1 - Rekord változásának mentése', isSimple: true }
     ];
 
-    export enum CRUDDeletePhases { DELETING }
-    export const CRUDDeleteStatuses: ProcessStatus[] = [
+    export enum DeletePhases { DELETING }
+    export const DeleteStatuses: ProcessStatus[] = [
         { title: 'Törlés', value: 0, msg: '1/1 - Rekord törlése', isSimple: true }
     ];
 

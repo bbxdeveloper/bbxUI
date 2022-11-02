@@ -401,6 +401,6 @@ export class BaseInlineManagerComponent<T extends IEditable> {
 
   public HandleKeyDown(event: Event | TableKeyDownEvent): void {}
 
-  public onFormSearchFocused(): void { this.customerSearchFocused = true; }
-  public onFormSearchBlurred(): void { this.customerSearchFocused = false; }
+  public onFormSearchFocused(event?: any, formFieldName?: string): void { this.customerSearchFocused = true; }
+  public onFormSearchBlurred(event?: any, formFieldName?: string): void { this.customerSearchFocused = false; }
 }

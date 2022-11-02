@@ -35,7 +35,8 @@
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
                                         [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                                         oninput="this.value = this.value.toUpperCase()"
-                                        (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         oninput="$event.target.setSelectionRange(0, 0)" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
         
@@ -47,7 +48,8 @@
                                 <ng-container *ngSwitchCase="'formatted-number'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
-                                        (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"
                                         placeholder="0.00000" class="input-table-cell" [style.text-align]="it.textAlign" />
         
@@ -62,7 +64,8 @@
 
                                 <ng-container *ngSwitchCase="'formatted-number-single'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
-                                        nbInput type="text" name="PRODUCT-EDIT" (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        nbInput type="text" name="PRODUCT-EDIT" (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMaskSingle" placeholder="0.0"
                                         class="input-table-cell" [style.text-align]="it.textAlign" />
                                 
@@ -78,7 +81,8 @@
                                 <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT" 
-                                        (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="it.inputMask"
                                         [placeholder]="it.placeHolder" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
@@ -94,7 +98,8 @@
                                 <ng-container *ngSwitchCase="'checkbox'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
-                                        (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
         
@@ -106,7 +111,8 @@
                                 <ng-container *ngSwitchCase="'formatted-number-2'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
-                                        (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"
                                         placeholder="0.00000" oninput="$event.target.setSelectionRange(0, 1)"
                                         class="input-table-cell" [style.text-align]="it.textAlign" />
@@ -121,7 +127,8 @@
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT"
-                                        (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [inputMask]="numberInputMaskInteger" placeholder="0" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
         
@@ -133,7 +140,8 @@
                                 <ng-container *ngSwitchDefault="">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
-                                        (blur)="inlineInputBlurred($event, row, rowPos, it.objectKey, colPos)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
                                         [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                                         class="input-table-cell" [style.text-align]="it.textAlign" />

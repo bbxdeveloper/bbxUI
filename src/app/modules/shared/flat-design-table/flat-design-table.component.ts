@@ -116,12 +116,12 @@ export class FlatDesignTableComponent implements OnInit {
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      case this.KeySetting[Actions.CrudNew].KeyCode: {
+      case this.KeySetting[Actions.Create].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.CrudNew].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudNew].FunctionLabel}`);
+        console.log(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -143,21 +143,21 @@ export class FlatDesignTableComponent implements OnInit {
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      case this.KeySetting[Actions.CrudEdit].KeyCode: {
+      case this.KeySetting[Actions.Edit].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.CrudEdit].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudEdit].FunctionLabel}`);
+        console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      case this.KeySetting[Actions.CrudDelete].KeyCode: {
+      case this.KeySetting[Actions.Delete].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.CrudDelete].KeyLabel} Pressed: ${this.KeySetting[Actions.CrudDelete].FunctionLabel}`);
+        console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }

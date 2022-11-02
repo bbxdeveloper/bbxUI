@@ -785,16 +785,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         this.ViewNotice();
         break;
       // NEW
-      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
         this.Create();
         break;
       // EDIT
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
+      case this.KeySetting[Actions.Edit].KeyCode:
         this.Edit();
         break;
       // DELETE
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
         if (!this.isDeleteDisabled) {
           this.Delete();
         }
@@ -1106,12 +1106,12 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
-      case this.KeySetting[Actions.CrudNew].KeyCode:
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
-      case this.KeySetting[Actions.CrudReset].KeyCode:
-      case this.KeySetting[Actions.CrudSave].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
+      case this.KeySetting[Actions.Edit].KeyCode:
+      case this.KeySetting[Actions.Reset].KeyCode:
+      case this.KeySetting[Actions.Save].KeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();

@@ -34,6 +34,8 @@ import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import { Actions, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -42,6 +44,8 @@ import { CustomerDiscountService } from '../../customer-discount/services/custom
 })
 export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLine> implements IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
 
   protected Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
   
@@ -67,6 +71,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
+  formKeyRows: any = {
+    "customerSearch": {
+      Action: Actions.Create,
+      Row: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner felvétele', KeyType: Constants.KeyTypes.Fn }
+    }
+  }
+
   override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "originalUnitPrice", "vatRateCode", "UnitGrossVal"];
   override allColumns = [
     'productCode',
@@ -85,7 +96,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "30%", textAlign: "left", fInputType: 'code-field'
+      colWidth: "30%", textAlign: "left", fInputType: 'code-field',
+      keyAction: Actions.Create,
+      keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
       label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
@@ -208,6 +221,41 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected custDiscountService: CustomerDiscountService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
+  }
+
+  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
+    this.dbData[event.RowPos].data.ReCalc(event.FieldDescriptor.objectKey === "unitPrice");
+
+    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
+      if (event.Focused) {
+        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      } else {
+        let k = this.KeySetting;
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      }
+    }
+  }
+
+  public override onFormSearchFocused(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = true;
+
+    if (formFieldName && this.formKeyRows[formFieldName]) {
+      let k = GetUpdatedKeySettings(this.KeySetting, this.formKeyRows[formFieldName].Row, this.formKeyRows[formFieldName].Action);
+      this.commands = GetFooterCommandListFromKeySettings(k);
+      this.fS.pushCommands(this.commands);
+    }
+  }
+  public override onFormSearchBlurred(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = false;
+
+    if (formFieldName && this.formKeyRows[formFieldName]) {
+      let k = this.KeySetting;
+      this.commands = GetFooterCommandListFromKeySettings(k);
+      this.fS.pushCommands(this.commands);
+    }
   }
 
   protected Reset(): void {

@@ -831,7 +831,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
-        case this.KeySetting[Actions.CrudDelete].KeyCode: {
+        case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
             return;
@@ -878,7 +878,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           this.SetGlobalDiscount();
           break;
         }
-        case this.KeySetting[Actions.CrudNew].KeyCode: {
+        case this.KeySetting[Actions.Create].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             event.preventDefault();
             event.stopImmediatePropagation();

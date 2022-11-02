@@ -173,7 +173,7 @@ export class ProductGroupManagerComponent
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
-      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
+      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,

@@ -403,7 +403,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     console.log('ActionDelete: ', id);
 
     if (id !== undefined) {
-      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
+      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,

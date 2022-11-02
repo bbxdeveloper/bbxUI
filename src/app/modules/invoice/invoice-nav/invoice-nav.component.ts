@@ -640,14 +640,14 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     console.log(`[HandleFunctionKey]: ${val}`);
     switch (val) {
       // NEW
-      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
         break;
       // EDIT
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
+      case this.KeySetting[Actions.Edit].KeyCode:
         break;
       // DELETE
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
         break;
     }
   }

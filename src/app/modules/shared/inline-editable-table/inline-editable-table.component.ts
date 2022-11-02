@@ -13,7 +13,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, DefaultKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 
-export interface InputBlurredEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, ObjectKey: string, ColPos: number }
+export interface InputFocusChangedEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, FieldDescriptor: ModelFieldDescriptor, ColPos: number, Focused: boolean }
 
 export interface TableKeyDownEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, ObjectKey: string, ColPos: number, InputID?: string, FInputType?: string, WasInNavigationMode: boolean }
 export function isTableKeyDownEvent(event: TableKeyDownEvent | Event): event is TableKeyDownEvent {
@@ -40,7 +40,7 @@ export class InlineEditableTableComponent implements OnInit {
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
-  @Output() inputBlurred: EventEmitter<InputBlurredEvent> = new EventEmitter();
+  @Output() inputFocusChanged: EventEmitter<InputFocusChangedEvent> = new EventEmitter();
   @Output() tableKeyDown: EventEmitter<TableKeyDownEvent> = new EventEmitter();
 
   @Input() parent: any = undefined;
@@ -101,19 +101,6 @@ export class InlineEditableTableComponent implements OnInit {
       return;
     }
     this.dbDataTable?.HandleGridMovement(event, row, rowPos, col, colPos, upward);
-  }
-
-  HandleGridDelete(event: Event, row: TreeGridNode<any>, rowPos: number, col: string): void {
-    if (!this.khs.ShouldContinueWithEvent(event)) {
-      return;
-    }
-    if (this.confirmRowDelete) {
-      HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, row.data), () => {
-        this.dbDataTable?.HandleGridDelete(event, row, rowPos, col)
-      });
-    } else {
-      this.dbDataTable?.HandleGridDelete(event, row, rowPos, col)
-    }
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
@@ -179,8 +166,8 @@ export class InlineEditableTableComponent implements OnInit {
     } as TableKeyDownEvent);
   }
 
-  public inlineInputBlurred(event: any, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
-    this.inputBlurred.emit({ Event: event, Row: row, RowPos: rowPos, ObjectKey: col, ColPos: colPos } as InputBlurredEvent);
+  public inlineInputFocusChange(event: any, row: TreeGridNode<any>, rowPos: number, col: ModelFieldDescriptor, colPos: number, focused: boolean): void {
+    this.inputFocusChanged.emit({ Event: event, Row: row, RowPos: rowPos, FieldDescriptor: col, ColPos: colPos, Focused: focused } as InputFocusChangedEvent);
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling

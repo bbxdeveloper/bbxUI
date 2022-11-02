@@ -28,7 +28,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { Offer } from '../models/Offer';
 import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, EqualRows, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -39,7 +39,7 @@ import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { InputBlurredEvent, isTableKeyDownEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent, isTableKeyDownEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { lastValueFrom } from 'rxjs';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 
@@ -53,8 +53,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
   originalCustomerId: number = 0;
 
-  public KeySetting: Constants.KeySettingsDct = OfferEditorKeySettings;
-  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+  override KeySetting: Constants.KeySettingsDct = OfferEditorKeySettings;
+  override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   offerData!: Offer;
 
@@ -88,10 +88,6 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService
     );
     this.InitialSetup();
-  }
-
-  public inlineInputBlurred(inputBlurredEvent: InputBlurredEvent): void {
-    this.dbData[inputBlurredEvent.RowPos].data.ReCalc(inputBlurredEvent.ObjectKey === "unitPrice");
   }
 
   override RecalcNetAndVat(): void {
@@ -666,7 +662,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
-        case this.KeySetting[Actions.CrudDelete].KeyCode: {
+        case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
             return;
@@ -686,7 +682,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
           break;
         }
-        case this.KeySetting[Actions.CrudNew].KeyCode: {
+        case this.KeySetting[Actions.Create].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
             return;
@@ -713,7 +709,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           this.ChooseDataForForm();
           break;
         }
-        case this.KeySetting[Actions.CrudNew].KeyCode: {
+        case this.KeySetting[Actions.Create].KeyCode: {
           if (!isForm) {
             return;
           }
