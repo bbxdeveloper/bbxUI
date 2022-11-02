@@ -1,4 +1,5 @@
 import { IEditable } from "src/assets/model/IEditable";
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class InvoiceLine implements IEditable {
     // table col order
@@ -15,7 +16,7 @@ export class InvoiceLine implements IEditable {
 
     unitPrice: number = 0.0; // editable
 
-    vatRate: string = '1'; // hidden
+    vatRate: number = 1; // hidden
     vatRateCode: string = ''; // below table
     
     lineNetAmount: number = 0.0; // price * quant
@@ -30,5 +31,33 @@ export class InvoiceLine implements IEditable {
 
     public toString(): string {
         return this.productCode;
+    }
+
+    public ReCalc(): void {
+        console.log("");
+        console.log("==========================");
+        console.log("[InvoiceLine ReCalc]");
+        console.log("BEFORE");
+        console.log("unitPrice: " + this.unitPrice);
+        console.log("lineNetAmount: " + this.lineNetAmount);
+        console.log("vatRate: " + this.vatRate);
+        console.log("lineVatAmount: " + this.lineVatAmount);
+        console.log("lineGrossAmount: " + this.lineGrossAmount);
+        console.log("==========================");
+
+        this.unitPrice = HelperFunctions.Round2(this.unitPrice, 2);
+
+        this.lineNetAmount = this.unitPrice * this.quantity;
+        this.lineVatAmount = this.lineNetAmount * this.vatRate;
+        this.lineGrossAmount = HelperFunctions.Round(this.lineVatAmount + this.lineNetAmount);
+
+        console.log("AFTER");
+        console.log("unitPrice: " + this.unitPrice);
+        console.log("lineNetAmount: " + this.lineNetAmount);
+        console.log("vatRate: " + this.vatRate);
+        console.log("lineVatAmount: " + this.lineVatAmount);
+        console.log("lineGrossAmount: " + this.lineGrossAmount);
+        console.log("==========================");
+        console.log("");
     }
 }

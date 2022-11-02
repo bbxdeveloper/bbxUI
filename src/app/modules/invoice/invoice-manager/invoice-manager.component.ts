@@ -217,6 +217,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
+    if (!event.Focused) {
+      this.dbData.forEach(x => x.data.ReCalc());
+      this.RecalcNetAndVat();
+    }
+
     if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
       if (event.Focused) {
         let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
@@ -524,6 +529,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           }
         },
         error: err => {
+          this.cs.HandleError(err);
+        },
+        complete: () => {
           this.RecalcNetAndVat();
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
@@ -544,13 +552,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               tmp.productDescription = product.description ?? '';
 
               product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.vatRate = (product.vatPercentage ?? 1) + '';
+              tmp.vatRate = product.vatPercentage ?? 1;
               product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
               tmp.vatRateCode = product.vatRateCode;
 
-              tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-              tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
-              tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
+              tmp.ReCalc();
 
               this.dbData[index].data = tmp;
 
@@ -567,22 +573,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         if (index !== undefined) {
           let tmp = this.dbData[index].data;
 
-          tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-          tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
-          tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
-
-          // console.log('--------------');
-          // console.log('Calculation:');
-          // console.log(tmp);
-          // console.log('this.ToFloat(tmp.price): ',this.ToFloat(tmp.price));
-          // console.log('this.ToFloat(tmp.quantity): ', this.ToFloat(tmp.quantity));
-          // console.log('this.ToFloat(tmp.vatRate): ', this.ToFloat(tmp.vatRate));
-          // console.log('tmp.lineGrossAmount: ', tmp.lineGrossAmount);
-          // console.log('tmp.lineNetAmount: ', tmp.lineNetAmount);
-          // console.log('tmp.lineVatAmount: ', tmp.lineVatAmount);
-          // console.log('this.ToFloat(tmp.lineNetAmount): ', this.ToFloat(tmp.lineNetAmount));
-          // console.log('this.ToFloat(tmp.lineVatAmount): ', this.ToFloat(tmp.lineVatAmount));
-          // console.log('--------------');
+          tmp.ReCalc();
 
           this.dbData[index].data = tmp;
 
@@ -1035,9 +1026,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     
     res.vatRateCode = p.vatRateCode;
 
-    res.lineVatAmount = p.vatPercentage ?? 10;
-    res.lineNetAmount = this.ToFloat(res.quantity) * this.ToFloat(res.unitPrice);
-    res.lineGrossAmount = res.lineVatAmount * res.lineNetAmount;
+    res.vatRate = p.vatPercentage ?? 1;
+
+    res.ReCalc();
 
     res.unitOfMeasure = p.unitOfMeasure;
     res.unitOfMeasureX = p.unitOfMeasureX;
