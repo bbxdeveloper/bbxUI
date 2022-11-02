@@ -851,6 +851,19 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
           break;
         }
+        case KeyBindings.Enter: {
+          if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+            if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+              _event.preventDefault();
+              _event.stopImmediatePropagation();
+              _event.stopPropagation();
+              return;
+            }
+            this.CheckSaveConditionsAndSave();
+            return;
+          }
+          break;
+        }
       }
     }
     else {

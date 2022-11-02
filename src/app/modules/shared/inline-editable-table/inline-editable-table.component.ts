@@ -13,9 +13,28 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, DefaultKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 
-export interface InputFocusChangedEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, FieldDescriptor: ModelFieldDescriptor, ColPos: number, Focused: boolean }
+export interface InputFocusChangedEvent {
+    Event: any,
+    Row: TreeGridNode<any>,
+    RowPos: number,
+    FieldDescriptor: ModelFieldDescriptor,
+    ColPos: number,
+    Focused: boolean,
+    CtrlKey: boolean,
+    Shift: boolean
+}
 
-export interface TableKeyDownEvent { Event: any, Row: TreeGridNode<any>, RowPos: number, ObjectKey: string, ColPos: number, InputID?: string, FInputType?: string, WasInNavigationMode: boolean }
+export interface TableKeyDownEvent {
+    Event: any,
+    Row: TreeGridNode<any>,
+    RowPos: number,
+    ObjectKey: string,
+    ColPos: number,
+    InputID?: string,
+    FInputType?: string,
+    WasInNavigationMode: boolean
+}
+
 export function isTableKeyDownEvent(event: TableKeyDownEvent | Event): event is TableKeyDownEvent {
   return (event as TableKeyDownEvent).Row !== undefined;
 }
@@ -122,6 +141,18 @@ export class InlineEditableTableComponent implements OnInit {
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
+    if (event.ctrlKey && event.key == KeyBindings.Enter && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+
+      this.EmitKeydownEvent(
+        event, row, rowPos, objectKey, colPos, inputId, fInputType,
+        !this.isEditModeOn, event.ctrlKey, event.shiftKey
+      );
+      
+      return;
+    }
     switch ((event as KeyboardEvent).key) {
       case KeyBindings.up:
       case KeyBindings.down:
@@ -148,12 +179,16 @@ export class InlineEditableTableComponent implements OnInit {
     }
     if (IsKeyFunctionKey(event.key)) {
       this.EmitKeydownEvent(
-        event, row, rowPos, objectKey, colPos, inputId, fInputType, !this.isEditModeOn
+        event, row, rowPos, objectKey, colPos, inputId, fInputType,
+        !this.isEditModeOn, event.ctrlKey, event.shiftKey
       );
     }
   }
 
-  public EmitKeydownEvent(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId?: string, fInputType?: string, wasInNavigationMode: boolean = false): void {
+  public EmitKeydownEvent(
+      event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string,
+      colPos: number, inputId?: string, fInputType?: string,
+      wasInNavigationMode: boolean = false, ctrl: boolean = false, shift: boolean = false): void {
     this.tableKeyDown.emit({
       Event: event,
       Row: row,
@@ -162,7 +197,9 @@ export class InlineEditableTableComponent implements OnInit {
       ColPos: colPos,
       InputID: inputId,
       FInputType: fInputType,
-      WasInNavigationMode: wasInNavigationMode
+      WasInNavigationMode: wasInNavigationMode,
+      CtrlKey: ctrl,
+      ShiftKey: shift
     } as TableKeyDownEvent);
   }
 
