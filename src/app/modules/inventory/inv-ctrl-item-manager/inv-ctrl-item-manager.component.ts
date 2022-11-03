@@ -418,7 +418,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     }
     
     this.isLoading = true;
-    if (this.dbDataTable.data.findIndex(x => x.data?.productID === res.id) > -1) {
+
+    let row = this.dbDataTable.data[rowIndex];
+    let count = this.dbDataTable.data.filter(x => x.data.productCode === res.productCode).length;
+    if (count > 1 || (count === 1 && res.productCode !== row.data.productCode)) {
       this.dbDataTable.editedRow!.data.productCode = "";
       this.kbS.ClickCurrentElement();
       this.bbxToastrService.show(
@@ -426,6 +429,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
+      this.isLoading = false;
+      return;
+    } else if (res.productCode === row.data.productCode) {
       this.isLoading = false;
       return;
     }
@@ -548,7 +554,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           if (!!product && !!product?.productCode) {
             _product = product;
 
-            if (this.dbDataTable.data.findIndex(x => x.data?.productID === _product.id) > -1) {
+            let row = this.dbDataTable.data[rowPos];
+            let count = this.dbDataTable.data.filter(x => x.data.productCode === _product.productCode).length;
+            if (count > 1 || (count === 1 && _product.productCode !== row.data.productCode)) {
               alreadyAdded = true;
               this.dbDataTable.editedRow!.data.productCode = "";
               this.kbS.ClickCurrentElement();
@@ -557,6 +565,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR
               );
+            } else if (_product.productCode === row.data.productCode) {
+              return;
             } else {
               const stockRecord = await this.GetStockRecordForProduct(product.id);
 
