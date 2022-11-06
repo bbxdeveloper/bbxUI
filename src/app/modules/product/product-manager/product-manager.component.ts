@@ -304,29 +304,11 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
         this.seInv.Create(createRequest).subscribe({
-          next: (d) => {
+          next: async d => {
             if (d.succeeded && !!d.data) {
-              this.seInv.Get({ ID: d.data.id }).subscribe({
-                next: newData => {
-                  if (!!newData) {
-                    d.data = this.ConvertCombosForGet(newData);
-                    console.log("New product: ", d.data);
-                    const newRow = { data: newData } as TreeGridNode<Product>;
-                    this.dbData.push(newRow);
-                    this.dbDataTable.SetDataForForm(newRow, false, false);
-                    this.RefreshTable(newRow.data.id);
-                    this.simpleToastrService.show(
-                      Constants.MSG_SAVE_SUCCESFUL,
-                      Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS_5_SEC
-                    );
-                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                    this.isLoading = false;
-                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                  }
-                },
-                error: (err) => { this.HandleError(err); },
-              });
+              await this.RefreshAsync(this.getInputParams);
+              this.dbDataTable.SelectRowById(d.data.id);
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
               console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
               this.bbxToastrService.show(
@@ -542,6 +524,40 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         this.isLoading = false;
       },
     });
+  }
+
+  async RefreshAsync(params?: GetProductsParamListModel): Promise<void> {
+    console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
+
+    await lastValueFrom(this.seInv.GetAll(params))
+      .then(async d => {
+        if (d.succeeded && !!d.data) {
+          await this.RefreshComboValues();
+          console.log('GetProducts response: ', d); // TODO: only for debug
+          if (!!d) {
+            const tempData = d.data.map((x) => {
+              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
+            });
+            this.dbData = tempData;
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(d);
+          }
+          this.RefreshTable();
+        } else {
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {
+        this.isLoading = false;
+      })
   }
 
   ngOnInit(): void {
