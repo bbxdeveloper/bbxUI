@@ -23,6 +23,7 @@ export module Constants {
     export const MSG_EMAIL_SUCCESFUL: string = 'Email sikeresen elküldve!'
     export const MSG_CUSTOMER_UPDATE_SUCCESFUL: string = 'Ügyfél sikeresen frissítve!'
     export const MSG_CUSTOMER_UPDATE_FAILED: string = 'Ügyfél frissítése sikertelen!'
+    export const MSG_CUSTOMER_MISSING_OFFER_NAV: string = 'Az email küldéshez egy árajánlat kiválasztása szükséges.';
 
     export const MSG_USER_GET_FAILED: string = 'Felhasználó lekérése sikertelen! Név: '
 
@@ -122,6 +123,11 @@ export module Constants {
         { title: 'Letöltés', value: 0, msg: '0/3 - Kérés feldolgozása', isSimple: false },
         { title: 'Letöltés', value: 50, msg: '1/3 - Generálás', isSimple: false },
         { title: 'Letöltés', value: 100, msg: '2/3 - Letöltés előkészítése', isSimple: false }
+    ];
+
+    export enum EmailPhases { SENDING }
+    export const EmailStatuses: ProcessStatus[] = [
+        { title: 'Levél küldése', value: 0, msg: '1/1 - Küldés', isSimple: true }
     ];
 
     export enum CRUDSavingPhases { SAVING }
