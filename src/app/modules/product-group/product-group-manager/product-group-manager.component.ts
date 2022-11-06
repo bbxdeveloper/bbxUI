@@ -75,7 +75,7 @@ export class ProductGroupManagerComponent
   ];
 
   override get getInputParams(): GetProductGroupsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize,SearchString: this.searchString ?? '', OrderBy: 'productGroupCode' };
   }
 
   constructor(
