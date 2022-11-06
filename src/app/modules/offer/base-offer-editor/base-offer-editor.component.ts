@@ -353,6 +353,16 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
+            if (row.data.productID === product.id) {
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+              return;
+            }
+
             this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }).subscribe({
               next: data => {
                 this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });

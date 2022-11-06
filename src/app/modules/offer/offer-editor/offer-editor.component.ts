@@ -485,7 +485,17 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   async HandleProductChoose(res: Product, rowIndex: number): Promise<void> {
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.isLoading = true;
+
+      if (this.dbDataTable.data[rowIndex].data.productID === res.id) {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 500);
+        return;
+      }
 
       await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
         .then(async d => {
@@ -528,7 +538,6 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
               .finally(() => { });
           } else {
             this.cs.HandleError(d.errors);
-            this.isLoading = false;
 
             this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, this.offerData.id) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -541,7 +550,6 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         })
         .catch(err => {
           this.cs.HandleError(err);
-          this.isLoading = false;
 
           this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, this.offerData.id) });
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -551,9 +559,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             this.kbS.ClickCurrentElement();
           }, 500);
         })
-        .finally(() => {
-          this.isLoading = false;
-        });
+        .finally(() => {});
 
       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     }

@@ -354,7 +354,16 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
-      this.isLoading = true;
+      if (this.dbDataTable.data[rowIndex].data.productID === res.id) {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 500);
+        return;
+      }
 
       await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
         .then(async d => {
@@ -397,7 +406,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               .finally(() => { });
           } else {
             this.cs.HandleError(d.errors);
-            this.isLoading = false;
 
             this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -410,7 +418,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         })
         .catch(err => {
           this.cs.HandleError(err);
-          this.isLoading = false;
 
           this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -420,9 +427,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             this.kbS.ClickCurrentElement();
           }, 500);
         })
-        .finally(() => {
-          this.isLoading = false;
-        });
+        .finally(() => {});
 
       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     }
