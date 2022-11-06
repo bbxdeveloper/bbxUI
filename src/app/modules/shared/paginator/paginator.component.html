@@ -3,7 +3,7 @@
     <nb-action class="paginator-btn-previous" (click)="paginator.previousPage()" icon="arrow-ios-back-outline"></nb-action>
     <nb-action class="paginator-label-pages" disabled="true">Oldal: {{paginator.currentPage}} / {{paginator.allPages}}</nb-action>
     <nb-action class="paginator-label-pages" disabled="true">Elemek: {{paginator.itemsOnCurrentPage}}</nb-action>
-    <nb-action class="paginator-label-pages" disabled="true">Összes elem: {{paginator.totalItems}}</nb-action>
+    <nb-action class="paginator-label-pages" disabled="true">Összes elem: {{paginator.totalItems}} (szűrve {{paginator.totalUnfilteredItems}} elemből)</nb-action>
     <nb-action class="paginator-label-pages" disabled="true">
         <span>Oldalméret: </span>
         <nb-select size="tiny" [(selected)]="paginator.pageSize" (selectedChange)="PageSizeSelected($event.value)">
