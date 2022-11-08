@@ -166,7 +166,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         vtsz: '',
         ean: '',
         vatRateCode: this.vats[0]?.vatRateDescription,
-        vatPercentage: 0
+        vatPercentage: 0,
+        noDiscount: false
       } as Product
     };
   }
@@ -257,7 +258,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       unitOfMeasure: unitOfMeasureValue,
       productFee: this.ToInt(p.productFee),
       productCode: p.productCode,
-      vatRateCode: vatRatecode
+      vatRateCode: vatRatecode,
+      noDiscount: p.noDiscount
     } as CreateProductRequest;
     return res;
   }
@@ -287,7 +289,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       unitOfMeasure: unitOfMeasureValue,
       productFee: this.ToInt(p.productFee),
       productCode: p.productCode,
-      vatRateCode: vatRatecode
+      vatRateCode: vatRatecode,
+      noDiscount: p.noDiscount
     } as UpdateProductRequest;
     return res;
   }
@@ -440,7 +443,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: new FormControl(false, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
-      vatRateCode: new FormControl(undefined, [])
+      vatRateCode: new FormControl(undefined, []),
+      noDiscount: new FormControl(false, [])
     });
 
     console.log("Manager ProductGroups: ", this.productGroups);

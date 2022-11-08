@@ -380,30 +380,32 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               );
             }
 
-            await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-              .then(data => {
-                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
-                const _d = this.dbData[rowIndex].data;
-                this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.MoveNextInTable();
-                setTimeout(() => {
-                  this.kbS.setEditMode(KeyboardModes.EDIT);
-                  this.kbS.ClickCurrentElement();
-                }, 500);
-              })
-              .catch(err => {
-                this.cs.HandleError(d.errors);
-
-                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.MoveNextInTable();
-                setTimeout(() => {
-                  this.kbS.setEditMode(KeyboardModes.EDIT);
-                  this.kbS.ClickCurrentElement();
-                }, 500);
-              })
-              .finally(() => { });
+            if (!res.noDiscount) {
+              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+                .then(data => {
+                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                  const _d = this.dbData[rowIndex].data;
+                  this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 500);
+                })
+                .catch(err => {
+                  this.cs.HandleError(d.errors);
+  
+                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 500);
+                })
+                .finally(() => { });
+            }
           } else {
             this.cs.HandleError(d.errors);
 

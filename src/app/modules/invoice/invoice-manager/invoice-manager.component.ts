@@ -1020,9 +1020,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
-    const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
-    const discountedPrice = p.unitPrice2! * discountForPrice;
-    res.unitPrice = this.Delivery ? (p.unitPrice2! - discountedPrice) : p.unitPrice2!;
+    if (!p.noDiscount) {
+      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
+      const discountedPrice = p.unitPrice2! * discountForPrice;
+      res.unitPrice = this.Delivery ? (p.unitPrice2! - discountedPrice) : p.unitPrice2!;
+    } else {
+      res.unitPrice = p.unitPrice2!;
+    }
     
     res.vatRateCode = p.vatRateCode;
 

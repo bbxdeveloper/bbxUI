@@ -349,7 +349,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
+        next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
@@ -363,31 +363,34 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               return;
             }
 
-            this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }).subscribe({
-              next: data => {
-                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
-                const _d = this.dbData[rowPos].data;
-                this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.MoveNextInTable();
-                setTimeout(() => {
-                  this.kbS.setEditMode(KeyboardModes.EDIT);
-                  this.kbS.ClickCurrentElement();
-                }, 200);
-              },
-              error: err => {
-                this.cs.HandleError(err);
+            if (!product.noDiscount) {
+              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+                .then(data => {
+                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
+                  const _d = this.dbData[rowPos].data;
+                  this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 200);
+                })
+                .catch(err => {
+                  this.cs.HandleError(err);
 
-                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.MoveNextInTable();
-                setTimeout(() => {
-                  this.kbS.setEditMode(KeyboardModes.EDIT);
-                  this.kbS.ClickCurrentElement();
-                }, 500);
-              },
-              complete: () => { }
-            });
+                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 500);
+                })
+                .finally(() => {
+                  
+                });
+            }
           } else {
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
