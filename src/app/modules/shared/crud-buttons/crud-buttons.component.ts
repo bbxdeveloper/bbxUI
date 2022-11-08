@@ -24,11 +24,11 @@ export class CrudButtonsComponent implements OnInit {
 
   @Input() KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  newButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudNew].KeyCode;
-  editButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudEdit].KeyCode;
-  saveButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudSave].KeyCode;
-  resetButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudReset].KeyCode;
-  deleteButtonKey: KeyBindings = DefaultKeySettings[Actions.CrudDelete].KeyCode;
+  newButtonKey: KeyBindings = DefaultKeySettings[Actions.Create].KeyCode;
+  editButtonKey: KeyBindings = DefaultKeySettings[Actions.Edit].KeyCode;
+  saveButtonKey: KeyBindings = DefaultKeySettings[Actions.Save].KeyCode;
+  resetButtonKey: KeyBindings = DefaultKeySettings[Actions.Reset].KeyCode;
+  deleteButtonKey: KeyBindings = DefaultKeySettings[Actions.Delete].KeyCode;
   printButtonKey: KeyBindings = DefaultKeySettings[Actions.Print].KeyCode;
   emailButtonKey: KeyBindings = DefaultKeySettings[Actions.Email].KeyCode;
   csvButtonKey: KeyBindings = DefaultKeySettings[Actions.CSV].KeyCode;

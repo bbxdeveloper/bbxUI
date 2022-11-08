@@ -35,7 +35,7 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -43,6 +43,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import moment from 'moment';
+import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -102,7 +103,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "30%", textAlign: "left", fInputType: 'code-field'
+      colWidth: "30%", textAlign: "left", fInputType: 'code-field',
+      keyAction: Actions.Create,
+      keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
       label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
@@ -176,7 +179,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
-  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+  override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+
+  formKeyRows: any = {
+    "customerSearch": {
+      Action: Actions.Create,
+      Row: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner felvétele', KeyType: Constants.KeyTypes.Fn }
+    }
+  }
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -204,6 +214,44 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.SetModeBasedOnRoute(params);
     })
     this.isPageReady = true;
+  }
+
+  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
+    if (!event.Focused) {
+      this.dbData.forEach(x => x.data.ReCalc());
+      this.RecalcNetAndVat();
+    }
+
+    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
+      if (event.Focused) {
+        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      } else {
+        let k = this.KeySetting;
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      }
+    }
+  }
+
+  public override onFormSearchFocused(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = true;
+
+    if (formFieldName && this.formKeyRows[formFieldName]) {
+      let k = GetUpdatedKeySettings(this.KeySetting, this.formKeyRows[formFieldName].Row, this.formKeyRows[formFieldName].Action);
+      this.commands = GetFooterCommandListFromKeySettings(k);
+      this.fS.pushCommands(this.commands);
+    }
+  }
+  public override onFormSearchBlurred(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = false;
+
+    if (formFieldName && this.formKeyRows[formFieldName]) {
+      let k = this.KeySetting;
+      this.commands = GetFooterCommandListFromKeySettings(k);
+      this.fS.pushCommands(this.commands);
+    }
   }
 
   private SetModeBasedOnRoute(params: UrlSegment[]): void {
@@ -481,6 +529,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           }
         },
         error: err => {
+          this.cs.HandleError(err);
+        },
+        complete: () => {
           this.RecalcNetAndVat();
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
@@ -501,13 +552,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               tmp.productDescription = product.description ?? '';
 
               product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.vatRate = (product.vatPercentage ?? 1) + '';
+              tmp.vatRate = product.vatPercentage ?? 1;
               product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
               tmp.vatRateCode = product.vatRateCode;
 
-              tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-              tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
-              tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
+              tmp.ReCalc();
 
               this.dbData[index].data = tmp;
 
@@ -524,22 +573,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         if (index !== undefined) {
           let tmp = this.dbData[index].data;
 
-          tmp.lineNetAmount = this.ToFloat(tmp.unitPrice) * this.ToFloat(tmp.quantity);
-          tmp.lineVatAmount = this.ToFloat(tmp.lineNetAmount) * this.ToFloat(tmp.vatRate);
-          tmp.lineGrossAmount = this.ToFloat(tmp.lineVatAmount) + this.ToFloat(tmp.lineNetAmount);
-
-          // console.log('--------------');
-          // console.log('Calculation:');
-          // console.log(tmp);
-          // console.log('this.ToFloat(tmp.price): ',this.ToFloat(tmp.price));
-          // console.log('this.ToFloat(tmp.quantity): ', this.ToFloat(tmp.quantity));
-          // console.log('this.ToFloat(tmp.vatRate): ', this.ToFloat(tmp.vatRate));
-          // console.log('tmp.lineGrossAmount: ', tmp.lineGrossAmount);
-          // console.log('tmp.lineNetAmount: ', tmp.lineNetAmount);
-          // console.log('tmp.lineVatAmount: ', tmp.lineVatAmount);
-          // console.log('this.ToFloat(tmp.lineNetAmount): ', this.ToFloat(tmp.lineNetAmount));
-          // console.log('this.ToFloat(tmp.lineVatAmount): ', this.ToFloat(tmp.lineVatAmount));
-          // console.log('--------------');
+          tmp.ReCalc();
 
           this.dbData[index].data = tmp;
 
@@ -899,6 +933,28 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
+  async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
+    if (!!res) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      if (!wasInNavigationMode) {
+        this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 200);
+      } else {
+        const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
+        if (index !== -1) {
+          this.kbS.SelectElementByCoordinate(0, index);
+        }
+      }
+    }
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    return of().toPromise();
+  }
+
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
@@ -913,24 +969,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
-      if (!!res) {
-        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-        if (!wasInNavigationMode) {
-          this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.MoveNextInTable();
-          setTimeout(() => {
-            this.kbS.setEditMode(KeyboardModes.EDIT);
-            this.kbS.ClickCurrentElement();
-          }, 200);
-        } else {
-          const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
-          if (index !== -1) {
-            this.kbS.SelectElementByCoordinate(0, index);
-          }
-        }
-      }
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      await this.HandleProductChoose(res, wasInNavigationMode);
     });
   }
 
@@ -987,9 +1026,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     
     res.vatRateCode = p.vatRateCode;
 
-    res.lineVatAmount = p.vatPercentage ?? 10;
-    res.lineNetAmount = this.ToFloat(res.quantity) * this.ToFloat(res.unitPrice);
-    res.lineGrossAmount = res.lineVatAmount * res.lineNetAmount;
+    res.vatRate = p.vatPercentage ?? 1;
+
+    res.ReCalc();
 
     res.unitOfMeasure = p.unitOfMeasure;
     res.unitOfMeasureX = p.unitOfMeasureX;
@@ -1107,6 +1146,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
+  /////////////////////////////////////////////
+  ////////////// KEYBOARD EVENTS //////////////
+  /////////////////////////////////////////////
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -1118,5 +1161,87 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.Save();
       return;
     }
+    this.HandleKeyDown(event);
   }
+
+  public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
+    if (isTableKeyDownEvent(event)) {
+      let _event = event.Event;
+      switch (_event.key) {
+        case this.KeySetting[Actions.Delete].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
+            this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
+          });
+          break;
+        }
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
+          break;
+        }
+        case this.KeySetting[Actions.Create].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.CreateProduct(event.RowPos, product => {
+            return this.HandleProductChoose(product, event.WasInNavigationMode);
+          });
+          break;
+        }
+        case KeyBindings.Enter: {
+          if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+            if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+              _event.preventDefault();
+              _event.stopImmediatePropagation();
+              _event.stopPropagation();
+              return;
+            }
+            this.Save();
+            return;
+          }
+          break;
+        }
+      }
+    }
+    else {
+      switch ((event as KeyboardEvent).key) {
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.ChooseDataForForm();
+          break;
+        }
+        case this.KeySetting[Actions.Create].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.CreateCustomer(event);
+          break;
+        }
+      }
+    }
+  }
+
 }

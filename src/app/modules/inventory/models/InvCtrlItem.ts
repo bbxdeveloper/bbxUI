@@ -121,4 +121,8 @@ export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
         this.unitPrice = HelperFunctions.Round(this.unitPrice);
         this.unitGross = HelperFunctions.Round(this.unitGross);
     }
+
+    public toString(): string {
+        return this.productCode;
+    }
 }

@@ -75,7 +75,7 @@ export class ProductGroupManagerComponent
   ];
 
   override get getInputParams(): GetProductGroupsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize,SearchString: this.searchString ?? '', OrderBy: 'productGroupCode' };
   }
 
   constructor(
@@ -173,7 +173,7 @@ export class ProductGroupManagerComponent
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
     if (id !== undefined) {
-      this.sts.pushProcessStatus(Constants.CRUDDeleteStatuses[Constants.CRUDDeletePhases.DELETING]);
+      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
       this.seInv
         .Delete({
           id: id,

@@ -26,7 +26,7 @@ import { InvoiceService } from '../../invoice/services/invoice.service';
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
-import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferCreatorKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, EqualRows, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, OfferCreatorKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
@@ -38,8 +38,8 @@ import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { InputBlurredEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { lastValueFrom } from 'rxjs';
+import { InputFocusChangedEvent, isTableKeyDownEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { lastValueFrom, of } from 'rxjs';
 
 @Component({
   selector: 'app-offer-creator',
@@ -49,8 +49,8 @@ import { lastValueFrom } from 'rxjs';
 export class OfferCreatorComponent extends BaseOfferEditorComponent implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') override table?: NbTable<any>;
 
-  public KeySetting: Constants.KeySettingsDct = OfferCreatorKeySettings;
-  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+  override KeySetting: Constants.KeySettingsDct = OfferCreatorKeySettings;
+  override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   offerData!: CreateOfferRequest;
 
@@ -82,10 +82,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService
     );
     this.InitialSetup();
-  }
-
-  public inlineInputBlurred(inputBlurredEvent: InputBlurredEvent): void {
-    this.dbData[inputBlurredEvent.RowPos].data.ReCalc(inputBlurredEvent.ObjectKey === "unitPrice");
   }
 
   override RecalcNetAndVat(): void {
@@ -354,6 +350,89 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
+  async HandleProductChoose(res: Product, rowIndex: number): Promise<void> {
+    if (!!res) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+      if (this.dbDataTable.data[rowIndex].data.productID === res.id) {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 500);
+        return;
+      }
+
+      await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
+        .then(async d => {
+          if (!!d.data) {
+            console.log('Vatrates: ', d.data);
+
+            let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
+
+            if (vatRateFromProduct === undefined) {
+              this.bbxToastrService.show(
+                `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+            }
+
+            await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+              .then(data => {
+                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                const _d = this.dbData[rowIndex].data;
+                this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.dbDataTable.MoveNextInTable();
+                setTimeout(() => {
+                  this.kbS.setEditMode(KeyboardModes.EDIT);
+                  this.kbS.ClickCurrentElement();
+                }, 500);
+              })
+              .catch(err => {
+                this.cs.HandleError(d.errors);
+
+                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.dbDataTable.MoveNextInTable();
+                setTimeout(() => {
+                  this.kbS.setEditMode(KeyboardModes.EDIT);
+                  this.kbS.ClickCurrentElement();
+                }, 500);
+              })
+              .finally(() => { });
+          } else {
+            this.cs.HandleError(d.errors);
+
+            this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.dbDataTable.MoveNextInTable();
+            setTimeout(() => {
+              this.kbS.setEditMode(KeyboardModes.EDIT);
+              this.kbS.ClickCurrentElement();
+            }, 500);
+          }
+        })
+        .catch(err => {
+          this.cs.HandleError(err);
+
+          this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          this.dbDataTable.MoveNextInTable();
+          setTimeout(() => {
+            this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.ClickCurrentElement();
+          }, 500);
+        })
+        .finally(() => {});
+
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    }
+  }
+
   override ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     console.log("Selecting InvoiceLine from avaiable data.");
 
@@ -368,81 +447,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
-      if (!!res) {
-        this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-
-        this.isLoading = true;
-
-        await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
-          .then(async d => {
-            if (!!d.data) {
-              console.log('Vatrates: ', d.data);
-
-              let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
-
-              if (vatRateFromProduct === undefined) {
-                this.bbxToastrService.show(
-                  `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
-                );
-              }
-
-              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-                .then(data => {
-                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
-                  const _d = this.dbData[rowIndex].data;
-                  this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
-                })
-                .catch(err => {
-                  this.cs.HandleError(d.errors);
-
-                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
-                })
-                .finally(() => {});
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isLoading = false;
-
-              this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-            }
-          })
-          .catch(err => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-
-            this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res) });
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 500);
-          })
-          .finally(() => {
-            this.isLoading = false;
-          });
-
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-      }
+      await this.HandleProductChoose(res, rowIndex);
     });
   }
 
@@ -489,51 +494,127 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
+  /////////////////////////////////////////////
+  ////////////// KEYBOARD EVENTS //////////////
+  /////////////////////////////////////////////
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
+        HelperFunctions.StopEvent(event);
         return;
       }
       this.CheckSaveConditionsAndSave();
       return;
     }
-    switch (event.key) {
-      case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
-        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          event.stopPropagation();
-          return;
+    this.HandleKeyDown(event);
+  }
+
+  public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
+    if (isTableKeyDownEvent(event)) {
+      let _event = event.Event;
+      switch (_event.key) {
+        case this.KeySetting[Actions.Delete].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
+            this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
+          });
+          break;
         }
-        event.preventDefault();
-        this.ToggleAllShowDiscount();
-        break;
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
+          break;
+        }
+        case this.KeySetting[Actions.Create].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event);
+            return;
+          }
+          _event.preventDefault();
+          this.CreateProduct(event.RowPos, product => {
+            return this.HandleProductChoose(product, event.RowPos);
+          });
+          break;
+        }
+        case KeyBindings.Enter: {
+          if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+            if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+              _event.preventDefault();
+              _event.stopImmediatePropagation();
+              _event.stopPropagation();
+              return;
+            }
+            this.CheckSaveConditionsAndSave();
+            return;
+          }
+          break;
+        }
       }
-      case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {
-        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+    }
+    else {
+      switch ((event as KeyboardEvent).key) {
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.selectedSearchFieldType !== Constants.SearchFieldTypes.Form || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
           event.preventDefault();
-          event.stopImmediatePropagation();
-          event.stopPropagation();
-          return;
+          this.ChooseDataForForm();
+          break;
         }
-        event.preventDefault();
-        this.SetGlobalDiscount();
-        break;
-      }
-      case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
-        if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        case this.KeySetting[Actions.Create].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
           event.preventDefault();
-          event.stopImmediatePropagation();
-          event.stopPropagation();
-          return;
+          this.CreateCustomer(event);
+          break;
         }
-        event.preventDefault();
-        this.ExitToNav();
-        break;
+        case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.ToggleAllShowDiscount();
+          break;
+        }
+        case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.SetGlobalDiscount();
+          break;
+        }
+        case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.ExitToNav();
+          break;
+        }
       }
     }
   }
+
 }

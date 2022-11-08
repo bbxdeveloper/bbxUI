@@ -1,3 +1,6 @@
+import { Constants } from "../util/Constants";
+import { Actions } from "../util/KeyBindings";
+
 export interface ModelFieldDescriptor {
     label: string;
 
@@ -26,4 +29,7 @@ export interface ModelFieldDescriptor {
     calc?: (x: any) => any;
     inputMask?: any;
     placeHolder?: string;
+
+    keyAction?: Actions,
+    keySettingsRow?: Constants.KeySettingRow
 }

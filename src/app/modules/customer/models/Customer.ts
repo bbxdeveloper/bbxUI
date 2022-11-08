@@ -30,6 +30,7 @@ export interface Customer {
     "deleted"?: boolean;
     
     "email"?: string;
+    "Email"?: string;
 }
 
 export function BlankCustomer(): Customer {

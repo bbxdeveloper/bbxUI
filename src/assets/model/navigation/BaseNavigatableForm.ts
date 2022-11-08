@@ -123,6 +123,10 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         return this.formMode == Constants.FormState.new;
     }
 
+    IsFormInDefaultState(): boolean {
+        return this.formMode == Constants.FormState.default;
+    }
+
     ActionLock(data?: IUpdateRequest<T>): void { }
     ActionNew(data?: IUpdateRequest<T>): void { }
     ActionReset(data?: IUpdateRequest<T>): void { }
@@ -310,13 +314,17 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         event.stopImmediatePropagation();
         event.stopPropagation();
 
-        switch (this.formMode) {
-            case Constants.FormState.new:
-                this.ActionNew({ needConfirmation: true } as IUpdateRequest<T>);
-                break;
-            case Constants.FormState.default:
-                this.ActionPut({ needConfirmation: true } as IUpdateRequest<T>);
-                break;
+        if (!this.kbS.isEditModeActivated) {
+            this.HandleFormEnter(event, jumpNext, toggleEditMode);
+        } else {
+            switch (this.formMode) {
+                case Constants.FormState.new:
+                    this.ActionNew({ needConfirmation: true } as IUpdateRequest<T>);
+                    break;
+                case Constants.FormState.default:
+                    this.ActionPut({ needConfirmation: true } as IUpdateRequest<T>);
+                    break;
+            }
         }
     }
 

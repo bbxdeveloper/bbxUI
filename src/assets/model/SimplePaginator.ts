@@ -7,6 +7,7 @@ export class SimplePaginator {
     pageSize: string = '50';
 
     totalItems: number = 0;
+    totalUnfilteredItems: number = 0;
     itemsOnCurrentPage = 0;
 
     get isFirstPage(): boolean { return this.currentPage === 1; }
@@ -28,7 +29,7 @@ export class SimplePaginator {
     }
 
     CalcPageCount(recordsFiltered: number, pageSize: number): number {
-        const tmp = Math.round(recordsFiltered / pageSize);
+        const tmp = Math.ceil(recordsFiltered / pageSize);
         return tmp === 0 ? 1 : tmp;
     }
 
@@ -36,6 +37,7 @@ export class SimplePaginator {
         this.currentPage = response.pageNumber;
         this.allPages = this.CalcPageCount(response.recordsFiltered, response.pageSize);
         this.totalItems = response.recordsFiltered;
+        this.totalUnfilteredItems = response.recordsTotal;
         this.itemsOnCurrentPage = response?.data?.length ?? 0;
         console.log(
             `[SetPaginatorData]: pageNumber: ${this.currentPage}, allPages: ${this.allPages}, recordsFiltered: ${response.recordsFiltered}, pageSize: ${response.pageSize}, totalItems: ${this.totalItems}, itemsOnCurrentPage: ${this.itemsOnCurrentPage}` 
@@ -65,7 +67,7 @@ export class SimplePaginator {
     }
 
     newPageSizeSelected(): void {
-        this.NewPageSelected.emit(this.currentPage);
+        this.firstPage();
     }
 
     refresh(): void {

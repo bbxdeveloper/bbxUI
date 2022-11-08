@@ -785,16 +785,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         this.ViewNotice();
         break;
       // NEW
-      case this.KeySetting[Actions.CrudNew].KeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
         this.Create();
         break;
       // EDIT
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
+      case this.KeySetting[Actions.Edit].KeyCode:
         this.Edit();
         break;
       // DELETE
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
         if (!this.isDeleteDisabled) {
           this.Delete();
         }
@@ -822,6 +822,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   async SendEmail() {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const selectedData = this.dbData[this.kbS.p.y - 1].data;
+      const selectedColumnIndex = this.kbS.p.x;
       const id = selectedData.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -835,14 +836,26 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         offerCustomer = this.buyerData;
       }
 
+      if (!offerCustomer) {
+        this.bbxToastrService.show(
+          Constants.MSG_CUSTOMER_MISSING_OFFER_NAV,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        );
+        return;
+      }
+
+      // TODO: remove after fixing Email - email error
+      const customerOriginalEmail = offerCustomer.email ?? offerCustomer.Email;
+
       const dialogRef = this.dialogService.open(SendEmailDialogComponent, {
         context: {
           subject: `RELAX árajánlat ${HelperFunctions.GetDateStringFromDate(selectedData.offerIssueDate)}`,
           message: selectedData.notice,
           OfferID: selectedData.id,
           DefaultFrom: user?.email,
-          DefaultTo: offerCustomer?.email,
-          DefaultToName: offerCustomer?.customerName,
+          DefaultTo: customerOriginalEmail,
+          DefaultToName: offerCustomer.customerName,
           DefaultFromName: user?.name
         },
         closeOnEsc: false,
@@ -851,12 +864,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       dialogRef.onClose.subscribe(async (res?: SendEmailRequest) => {
         console.log(`[SendEmail]: to send: ${res}`);
         if (!!res) {
+          if (offerCustomer && (res.to.email !== customerOriginalEmail || res.to.name !== offerCustomer.customerName)) {
+            this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
-          this.isLoading = true;
-
-          // seC
-          if ((!!offerCustomer?.email && !!(offerCustomer.email.trim()) && res.to.email !== offerCustomer.email)
-            || (!!offerCustomer?.customerName && !!(offerCustomer.customerName.trim()) && res.to.name !== offerCustomer.customerName)) {
             offerCustomer.email = res.to.email;
             offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
             
@@ -873,9 +883,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                     this.buyerData.customerName = offerCustomer.customerName;
                   }
                   await this.RefreshAsync(this.getInputParams);
-                  // if (selectedData.id !== undefined) {
-                  //   this.dbDataTable.SelectRowById(selectedData.id);
-                  // }
                 } else {
                   this.bbxToastrService.show(
                     Constants.MSG_CUSTOMER_UPDATE_FAILED,
@@ -888,7 +895,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                 this.cs.HandleError(rejectReason);
               })
               .finally(() => {});
+
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
+
+          this.sts.pushProcessStatus(Constants.EmailStatuses[Constants.EmailPhases.SENDING]);
 
           await lastValueFrom(this.infrastructureService.SendEmail(res))
             .then(_ => {
@@ -907,7 +918,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
               this.kbS.setEditMode(KeyboardModes.EDIT);
             });
 
-          this.isLoading = false;
+          if (selectedData.id !== undefined) {
+            this.dbDataTable.SelectRowById(selectedData.id);
+            this.kbS.SetPosition(selectedColumnIndex, this.kbS.p.y);
+            this.kbS.ClickCurrentElement();
+          }
+
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -1106,12 +1123,12 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
-      case this.KeySetting[Actions.CrudNew].KeyCode:
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
-      case this.KeySetting[Actions.CrudReset].KeyCode:
-      case this.KeySetting[Actions.CrudSave].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
+      case this.KeySetting[Actions.Edit].KeyCode:
+      case this.KeySetting[Actions.Reset].KeyCode:
+      case this.KeySetting[Actions.Save].KeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();

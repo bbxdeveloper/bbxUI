@@ -22,6 +22,9 @@ import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { Customer } from '../../customer/models/Customer';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
+import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-table.component';
+import { CreateNewProductDialogComponent } from '../create-new-product-dialog/create-new-product-dialog.component';
+import { Product } from '../../product/models/Product';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -31,6 +34,18 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-nu
 export class BaseInlineManagerComponent<T extends IEditable> {
   searchInputId?: string;
   searchString: string = '';
+
+  get selectedSearchFieldType(): Constants.SearchFieldTypes {
+    if (this.customerSearchFocused) {
+      return Constants.SearchFieldTypes.Form;
+    }
+    else if (this.productSearchFocused) {
+      return Constants.SearchFieldTypes.Product;
+    }
+    return Constants.SearchFieldTypes.Other;
+  }
+  customerSearchFocused: boolean = false;
+  productSearchFocused: boolean = false;
 
   dbDataTableId: string = '';
   dbDataTableEditId: string = '';
@@ -359,4 +374,33 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       }
     });
   }
+
+  CreateProduct(event: any, handler: (p: Product) => Promise<void>): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(CreateNewProductDialogComponent, {
+      context: {},
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: async (res: Product) => {
+        console.log("Created product: ", res);
+        if (!!res) {
+          await handler(res);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+      }
+    });
+  }
+
+  public onTableFunctionKeyDown(event: TableKeyDownEvent): void {
+    this.HandleKeyDown(event);
+  }
+
+  public HandleKeyDown(event: Event | TableKeyDownEvent): void {}
+
+  public onFormSearchFocused(event?: any, formFieldName?: string): void { this.customerSearchFocused = true; }
+  public onFormSearchBlurred(event?: any, formFieldName?: string): void { this.customerSearchFocused = false; }
 }

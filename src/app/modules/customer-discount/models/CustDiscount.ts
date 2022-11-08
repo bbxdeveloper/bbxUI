@@ -67,6 +67,10 @@ export class CustDiscount implements IEditable, CustDiscountForPostItem, CustDic
             productGroupID: HelperFunctions.ToInt(this.productGroupID)
         } as CustDiscountForPostItem;
     }
+
+    public toString(): string {
+        return this.productGroupCode;
+    }
 }
 
 export function CustDiscountFromCustDiscountForGet(item: CustDicountForGet): CustDiscount {

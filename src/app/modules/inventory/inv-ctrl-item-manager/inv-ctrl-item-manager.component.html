@@ -39,9 +39,10 @@
 <nb-card [nbSpinner]="showSpinnerOnTable" *ngIf="!!dbDataTable">
     <nb-card-body>
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
-            [dbDataDataSrc]="dbDataDataSrc" [heightMargin]="640" [dbDataTable]="dbDataTable"
+            [dbDataDataSrc]="dbDataDataSrc" [heightMargin]="640" [dbDataTable]="dbDataTable" [confirmRowDelete]="true"
             [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)"
+            (tableKeyDown)="onTableFunctionKeyDown($event)"
             [confirmRowDelete]="true">
         </app-inline-editable-table>
     </nb-card-body>

@@ -8,6 +8,7 @@ export module Constants {
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
+    export const MSG_CONFIRMATION_DELETE_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem törlésését?";
     export const MSG_CONFIRMATION_LOCK: string = "Biztosan végre szeretné hajtani a zárást?";
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
     export const MSG_CONFIRMATION_SAVE_DATA: string = "Adatok mentése?";
@@ -22,6 +23,7 @@ export module Constants {
     export const MSG_EMAIL_SUCCESFUL: string = 'Email sikeresen elküldve!'
     export const MSG_CUSTOMER_UPDATE_SUCCESFUL: string = 'Ügyfél sikeresen frissítve!'
     export const MSG_CUSTOMER_UPDATE_FAILED: string = 'Ügyfél frissítése sikertelen!'
+    export const MSG_CUSTOMER_MISSING_OFFER_NAV: string = 'Az email küldéshez egy árajánlat kiválasztása szükséges.';
 
     export const MSG_USER_GET_FAILED: string = 'Felhasználó lekérése sikertelen! Név: '
 
@@ -90,6 +92,10 @@ export module Constants {
         Fn, Default, Combo, Unset
     }
 
+    export enum SearchFieldTypes {
+        Form, Product, Other
+    }
+
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
     export const PrintReportStatuses: ProcessStatus[] = [
         { title: 'Riport Nyomtatás', value: 0, msg: '0/4 - Kérés feldolgozása', isSimple: false },
@@ -119,6 +125,11 @@ export module Constants {
         { title: 'Letöltés', value: 100, msg: '2/3 - Letöltés előkészítése', isSimple: false }
     ];
 
+    export enum EmailPhases { SENDING }
+    export const EmailStatuses: ProcessStatus[] = [
+        { title: 'Levél küldése', value: 0, msg: '1/1 - Küldés', isSimple: true }
+    ];
+
     export enum CRUDSavingPhases { SAVING }
     export const CRUDSavingStatuses: ProcessStatus[] = [
         { title: 'Mentés', value: 0, msg: '1/1 - Új rekord mentése', isSimple: true }
@@ -134,8 +145,8 @@ export module Constants {
         { title: 'Mentés', value: 0, msg: '1/1 - Rekord változásának mentése', isSimple: true }
     ];
 
-    export enum CRUDDeletePhases { DELETING }
-    export const CRUDDeleteStatuses: ProcessStatus[] = [
+    export enum DeletePhases { DELETING }
+    export const DeleteStatuses: ProcessStatus[] = [
         { title: 'Törlés', value: 0, msg: '1/1 - Rekord törlése', isSimple: true }
     ];
 

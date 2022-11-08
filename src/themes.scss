@@ -20,6 +20,9 @@ $nb-themes: nb-register-theme((
 
   spinner-basic-background-color: rgba(0, 0, 0, 0),
 
-  tree-grid-cell-padding: 0rem 0.5rem
+  tree-grid-cell-padding: 0rem 0.5rem,
+
+  select-min-width: 100px,
+  select-max-width: 100px,
 
 ), cosmic, cosmic);

@@ -161,6 +161,8 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   }
 
   close(answer: boolean) {
+    console.log("email dialog close");
+
     if (answer && this.dataForm.form.valid) {
       this.closedManually = true;
       this.kbS.RemoveWidgetNavigatable();

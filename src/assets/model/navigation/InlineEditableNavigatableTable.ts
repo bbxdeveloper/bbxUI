@@ -500,7 +500,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                     const _input = document.getElementById(inputId) as HTMLInputElement;
                     if (!!_input && _input.type === "text") {
                         window.setTimeout(function () {
-                            const txtVal = ((row.data as any)[col] + '');
+                            const txtVal = $(_input).val() + '';
                             console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
                             if (!!txtVal) {
                                 const l = txtVal.split('.')[0].length;
@@ -575,12 +575,12 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                     this.Edit(row, rowPos, col);
                     this.cdref!.detectChanges();
                     $('#' + inputId).trigger('focus');
-    
+
                     if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
                         const _input = document.getElementById(inputId) as HTMLInputElement;
                         if (!!_input && _input.type === "text") {
                             window.setTimeout(function () {
-                                const txtVal = ((row.data as any)[col] + '');
+                                const txtVal = $(_input).val() + '';
                                 console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
                                 if (!!txtVal) {
                                     const l = txtVal.split('.')[0].length;
@@ -662,7 +662,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 const _input = document.getElementById(inputId) as HTMLInputElement;
                 if (!!_input && _input.type === "text") {
                     window.setTimeout(function () {
-                        const txtVal = ((row.data as any)[col] + '');
+                        const txtVal = $(_input).val() + '';
                         console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
                         if (!!txtVal) {
                             const l = txtVal.split('.')[0].length;
@@ -741,21 +741,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
         if (reGenerateMatrix) {
             this.GenerateAndSetNavMatrices(false);
-        }
-    }
-
-    HandleKey(event: any, rowIndex: number): void {
-        const wasInNavigationMode = !this.kbS.isEditModeActivated;
-        switch (event.key) {
-            case this.KeySetting[Actions.Search].KeyCode: {
-                event.preventDefault();
-                if (this.isEditModeOff) {
-                    this.kbs.ClickCurrentElement();
-                }
-                this.parentComponent.ChooseDataForTableRow(rowIndex, wasInNavigationMode);
-                break;
-            }
-            default: { }
         }
     }
 

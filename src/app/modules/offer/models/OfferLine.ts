@@ -250,4 +250,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         return offerLine;
     }
+
+    public toString(): string {
+        return this.productCode;
+    }
 }

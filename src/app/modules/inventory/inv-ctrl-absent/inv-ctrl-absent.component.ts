@@ -26,7 +26,7 @@ import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
 import { InvRow } from '../models/InvRow';
 import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
@@ -211,6 +211,8 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     this.kbS.ResetToRoot();
 
     this.Setup();
+
+    this.isLoading = false;
   }
 
   ToInt(p: any): number {
@@ -267,19 +269,17 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
+      next: async () => {
+        await this.Refresh(this.getInputParams);
       },
     });
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
-
-    this.RefreshAll(this.getInputParams);
   }
 
-  public RefreshAndJumpToTable(): void {
-    this.Refresh(this.getInputParams, true);
+  public async RefreshAndJumpToTable(): Promise<void> {
+    await this.Refresh(this.getInputParams, true);
   }
 
   JumpToFirstCellAndNav(): void {
@@ -293,17 +293,13 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     }, 300);
   }
 
-  private refreshComboboxData(setIsLoad = false): void {
-    if (setIsLoad) {
-      this.isLoading = true;
-    }
-
-    this.inventoryService.GetAll().subscribe({
-      next: data => {
+  private async refreshComboboxData(setIsLoad = false): Promise<void> {
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+      .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
           data?.data?.filter(x => !x.closed).map(x => {
-            let res = 
+            let res =
               x.warehouse + ' ' +
               HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' +
               HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
@@ -314,13 +310,11 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         if (this.invCtrlPeriods.length > 0) {
           this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
         }
-      },
-      complete: () => {
-        if (setIsLoad) {
-          this.isLoading = false;
-        }
-      }
-    });
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {})
   }
 
   private GetInvCtrlAbsentFromResponse(x: InvCtrlAbsent): InvCtrlAbsent {
@@ -332,15 +326,14 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     return res;
   }
 
-  override Refresh(params?: GetAllInvCtrlAbsentParamsModel, jumpToFirstTableCell: boolean = false): void {
+  override async Refresh(params?: GetAllInvCtrlAbsentParamsModel, jumpToFirstTableCell: boolean = false): Promise<void> {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
     console.log('Refreshing: ', params); // TODO: only for debug
 
-    this.refreshComboboxData();
-
-    this.isLoading = true;
-    
-    this.stockService.GetAllAbsent(params).subscribe({
-      next: (d) => {
+    await this.refreshComboboxData();
+    await lastValueFrom(this.stockService.GetAllAbsent(params ?? this.getInputParams))
+      .then(d => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
@@ -362,22 +355,22 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
             Constants.TOASTR_ERROR
           );
         }
-      },
-      error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {
         if (!this.isPageReady) {
           this.isPageReady = true;
         }
-      },
-    });
+      })
+
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
+    await this.Refresh();
   }
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
@@ -404,11 +397,6 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   private AddSearchButtonToFormMatrix(): void {
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
-  }
-
-  private RefreshAll(params?: GetAllInvCtrlItemsParamListModel): void {
-    // this.Refresh(params);
-    this.refreshComboboxData(true);
   }
 
   MoveToSaveButtons(event: any): void {
@@ -542,12 +530,12 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
-      case this.KeySetting[Actions.CrudNew].KeyCode:
-      case this.KeySetting[Actions.CrudEdit].KeyCode:
-      case this.KeySetting[Actions.CrudReset].KeyCode:
-      case this.KeySetting[Actions.CrudSave].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].KeyCode:
-      case this.KeySetting[Actions.CrudDelete].AlternativeKeyCode:
+      case this.KeySetting[Actions.Create].KeyCode:
+      case this.KeySetting[Actions.Edit].KeyCode:
+      case this.KeySetting[Actions.Reset].KeyCode:
+      case this.KeySetting[Actions.Save].KeyCode:
+      case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
