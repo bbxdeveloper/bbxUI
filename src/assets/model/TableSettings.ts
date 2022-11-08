@@ -143,7 +143,7 @@ export module ProductDialogTableSettings {
             navMatrixCssClass: TileCssClass,
         },
         {
-            label: 'Elad ár 1',
+            label: 'Listaár',
             objectKey: 'unitPrice1',
             colKey: 'unitPrice1',
             defaultValue: '',
@@ -155,7 +155,7 @@ export module ProductDialogTableSettings {
             navMatrixCssClass: TileCssClass,
         },
         {
-            label: 'Elad ár 2',
+            label: 'Egységár',
             objectKey: 'unitPrice2',
             colKey: 'unitPrice2',
             defaultValue: '',
