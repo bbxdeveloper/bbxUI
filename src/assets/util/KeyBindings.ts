@@ -301,6 +301,7 @@ export let OfferCreatorKeySettings: Constants.KeySettingsDct = {
     ToggleAllDiscounts: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Kedvezmény mutatás összesre', KeyType: Constants.KeyTypes.Fn },
     SetGlobalDiscount: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Kedvezmény összesre', KeyType: Constants.KeyTypes.Fn },
     Delete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.delete, KeyLabel: KeyBindings.F8orDelete, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
+    ToggleForm: { KeyCode: KeyBindings.F9, KeyLabel: KeyBindings.F9, FunctionLabel: 'Á.T. összesre', KeyType: Constants.KeyTypes.Fn },
     EscapeEditor1: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Átlépés Navigációba', KeyType: Constants.KeyTypes.Fn },
     CloseAndSave: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Combo },
 
@@ -310,7 +311,6 @@ export let OfferCreatorKeySettings: Constants.KeySettingsDct = {
     Print: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Nyomtatás', KeyType: Constants.KeyTypes.Unset },
     CSV: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'CSV', KeyType: Constants.KeyTypes.Unset },
     Email: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Email', KeyType: Constants.KeyTypes.Unset },
-    ToggleForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Tétellap', KeyType: Constants.KeyTypes.Unset },
     Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Unset },
     Reset: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Visszaállítás', KeyType: Constants.KeyTypes.Unset },
     Save: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },
@@ -349,6 +349,7 @@ export let OfferEditorKeySettings: Constants.KeySettingsDct = {
     ToggleAllDiscounts: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Kedvezmény mutatás összesre', KeyType: Constants.KeyTypes.Fn },
     SetGlobalDiscount: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Kedvezmény összesre', KeyType: Constants.KeyTypes.Fn },
     Delete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.delete, KeyLabel: KeyBindings.F8orDelete, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
+    ToggleForm: { KeyCode: KeyBindings.F9, KeyLabel: KeyBindings.F9, FunctionLabel: 'Á.T. összesre', KeyType: Constants.KeyTypes.Fn },
     EscapeEditor1: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Visszalépés Navigációba', KeyType: Constants.KeyTypes.Fn },
     CloseAndSave: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Combo },
     
@@ -358,7 +359,6 @@ export let OfferEditorKeySettings: Constants.KeySettingsDct = {
     JumpToForm: { KeyCode: KeyBindings.Tab, KeyLabel: KeyBindings.Tab, FunctionLabel: 'Ugrás tétellapra', KeyType: Constants.KeyTypes.Unset },
     CSV: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'CSV', KeyType: Constants.KeyTypes.Unset },
     Email: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Email', KeyType: Constants.KeyTypes.Unset },
-    ToggleForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Tétellap', KeyType: Constants.KeyTypes.Unset },
     Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Unset },
     Reset: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Visszaállítás', KeyType: Constants.KeyTypes.Unset },
     Save: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },

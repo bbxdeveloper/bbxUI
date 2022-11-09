@@ -1,0 +1,20 @@
+<nb-card>
+    <nb-card-header>{{title}}</nb-card-header>
+    <nb-card-body class="form-col-1">
+        <form id="oneInputForm" [formGroup]="formNav.form" #formDirective="ngForm"
+            (keydown.escape)="formNav.HandleFormEscape()">
+            <nb-radio-group formControlName="chooser" class="bbx-radiogroup">
+                <nb-radio (keydown.enter)="formNav.HandleFormEnter($event, true, true, true)"
+                    [value]="optionValue1">{{optionLabel1}}</nb-radio>
+                <nb-radio (keydown.enter)="MoveToSaveButtons($event)"
+                    [value]="optionValue2">{{optionLabel2}}</nb-radio>
+            </nb-radio-group>
+        </form>
+    </nb-card-body>
+    <nb-card-footer>
+        <button class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton
+            (click)="close(true)" status="primary" tabindex="-1">Igen</button>
+        <button class="{{TileCssClass}}" id="date-interval-dialog-button-no" nbButton
+            (click)="close(false)" status="danger" tabindex="-1">Nem</button>
+    </nb-card-footer>
+</nb-card>

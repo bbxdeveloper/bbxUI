@@ -43,6 +43,8 @@ import { lastValueFrom, of } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
+import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 
 @Component({
   selector: 'app-offer-creator',
@@ -719,6 +721,15 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           }
           break;
         }
+        case this.KeySetting[Actions.ToggleForm].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          _event.preventDefault();
+          this.SwitchUnitPriceAll();
+          break;
+        }
       }
     }
     else {
@@ -772,6 +783,15 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           }
           event.preventDefault();
           this.ExitToNav();
+          break;
+        }
+        case this.KeySetting[Actions.ToggleForm].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.SwitchUnitPriceAll();
           break;
         }
       }

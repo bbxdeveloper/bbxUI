@@ -38,6 +38,8 @@ import { Actions, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySetti
 import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCode, CurrencyCodes } from '../../system/models/CurrencyCode';
 import { SystemService } from '../../system/services/system.service';
+import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
+import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -708,5 +710,29 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
           this.isLoading = false;
         }
       });
+  }
+
+  protected SwitchUnitPriceAll(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    const dialogRef = this.dialogService.open(RadioChoiceDialogComponent, {
+      context: {
+        title: 'Á.T. összes sorra',
+        defaultValue: 'E',
+        optionLabel1: 'Egységár',
+        optionValue1: 'E',
+        optionLabel2: 'Listaár',
+        optionValue2: 'L'
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (res: SimpleDialogResponse) => {
+        if (res.value !== undefined) {
+          this.dbData.forEach(x => {
+            x.data.UnitPriceSwitch = res.value == 'E';
+          })
+        }
+      }
+    });
   }
 }

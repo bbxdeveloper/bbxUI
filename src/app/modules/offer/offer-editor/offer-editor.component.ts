@@ -850,6 +850,15 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           }
           break;
         }
+        case this.KeySetting[Actions.ToggleForm].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          _event.preventDefault();
+          this.SwitchUnitPriceAll();
+          break;
+        }
       }
     }
     else {
@@ -909,6 +918,15 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           }
           event.preventDefault();
           this.ExitToNav();
+          break;
+        }
+        case this.KeySetting[Actions.ToggleForm].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.SwitchUnitPriceAll();
           break;
         }
       }
