@@ -108,6 +108,19 @@
                                     </div>
                                 </ng-container>
         
+                                <ng-container *ngSwitchCase="'bbx-checkbox'">
+                                    <app-bbx-char-checkbox [charChecked]="it.checkboxTrue!" [charUnChecked]="it.checkboxFalse!"
+                                        *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autoComplete="off" type="checkbox" name="PRODUCT-EDIT"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
+                                        [style.text-align]="it.textAlign"></app-bbx-char-checkbox>
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ row.data[it.objectKey] ? it.checkboxTrue! : it.checkboxFalse! }}
+                                    </div>
+                                </ng-container>
+        
                                 <ng-container *ngSwitchCase="'formatted-number-2'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"

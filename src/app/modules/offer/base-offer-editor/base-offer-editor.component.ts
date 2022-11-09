@@ -72,7 +72,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       this.currencyCodeValues[this.buyerForm.controls['currencyCode'].value ?? -1] : undefined;
   }
 
-  isHufCurrency: boolean = true;
+  showExchangeRateInput: boolean = true;
 
   customerInputFilterString: string = '';
 
@@ -95,6 +95,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   override allColumns = [
     'productCode',
     'lineDescription',
+    'UnitPriceSwitch',
     'quantity',
     'unitOfMeasureX',
     'originalUnitPrice',
@@ -117,6 +118,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
       defaultValue: '', type: 'string', mask: "", //fReadonly: true,
       colWidth: "50%", textAlign: "left",
+    },
+    {
+      label: 'Á.T.', objectKey: 'UnitPriceSwitch', colKey: 'UnitPriceSwitch',
+      defaultValue: '', type: 'bbx-checkbox', mask: "", checkboxFalse: "L", checkboxTrue: "E",
+      colWidth: "40px", textAlign: "center", fInputType: 'bbx-checkbox'
     },
     {
       label: 'Menny.', objectKey: 'quantity', colKey: 'quantity',

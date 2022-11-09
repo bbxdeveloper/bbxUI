@@ -574,6 +574,18 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                   }, 500);
                 })
                 .finally(() => { });
+            } else {
+              this.dbDataTable.FillCurrentlyEditedRow({
+                data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+              });
+              const _d = this.dbData[rowIndex].data;
+              this.dbData[rowIndex].data.discount = 0;
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
             }
           } else {
             this.cs.HandleError(d.errors);
@@ -738,6 +750,18 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 .finally(() => {
 
                 });
+            } else {
+              this.dbDataTable.FillCurrentlyEditedRow({
+                data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+              });
+              const _d = this.dbData[rowPos].data;
+              this.dbData[rowPos].data.discount = 0;
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 200);
             }
           } else {
             this.bbxToastrService.show(

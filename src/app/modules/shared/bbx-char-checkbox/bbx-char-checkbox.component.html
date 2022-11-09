@@ -1,0 +1,17 @@
+<label class="bbx-checkbox-container">
+  <input
+    class="checkbox-input"
+    type="checkbox"
+    [ngModel]="checked"
+    (ngModelChange)="onModelChange($event)"
+    (blur)="onBlur($event)"
+    (focus)="onFocus($event)"
+    [style.text-align]="textAlign"
+    [autocomplete]="autoComplete"
+  />
+  <div class="checkbox-border">
+    <div class="checkbox-filling" *ngIf="checked">{{charChecked}}</div>
+    <div class="checkbox-filling" *ngIf="!checked">{{charUnChecked}}</div>
+  </div>
+  <ng-content> </ng-content>
+</label>

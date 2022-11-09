@@ -43,6 +43,17 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "unitGross": number = 0; // unitPrice + unitVat
     "showDiscount": boolean = true;
     "quantity": number = 0;
+
+    "originalUnitPrice1": number = 0; // L = false
+    "originalUnitPrice2": number = 0; // E = true
+    "unitPriceSwitch": boolean = true;
+    get UnitPriceSwitch(): boolean {
+        return this.unitPriceSwitch;
+    }
+    set UnitPriceSwitch(value: boolean) {
+        this.ReCalc(false);
+        this.unitPriceSwitch = value;
+    }
     
     // Custom
     "vatRate": number = 1.0;
@@ -174,7 +185,23 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
-    public ReCalc(unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): void {
+    currencyCode: string = CurrencyCodes.HUF;
+    exchangeRate: number = 1;
+    public ReCalc(unitPriceWasUpdated: boolean, currencyCode?: string, exchangeRate?: number): void {
+        if (currencyCode === undefined) {
+            currencyCode = this.currencyCode;
+        } else {
+            this.currencyCode = currencyCode;
+        }
+        if (exchangeRate === undefined) {
+            exchangeRate = this.exchangeRate;
+        } else {
+            this.exchangeRate = exchangeRate;
+        }
+
+        this.originalUnitPrice = this.unitPriceSwitch ?
+            HelperFunctions.Round2(this.originalUnitPrice2 ?? 0, 2) : HelperFunctions.Round2(this.originalUnitPrice1 ?? 0, 2);
+
         let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
         let priceWithDiscount = this.originalUnitPrice;
         priceWithDiscount -= HelperFunctions.Round2(this.originalUnitPrice * discountForCalc, 2);
@@ -213,7 +240,10 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         offerLine.UnitVat = product.vatPercentage ?? 0;
 
-        offerLine.OriginalUnitPrice = HelperFunctions.Round2(product.unitPrice2 ?? 0, 2);
+        offerLine.originalUnitPrice1 = HelperFunctions.Round2(product.unitPrice1 ?? 0, 2);
+        offerLine.originalUnitPrice2 = HelperFunctions.Round2(product.unitPrice2 ?? 0, 2);
+        offerLine.OriginalUnitPrice = offerLine.unitPriceSwitch ?
+            HelperFunctions.Round2(product.unitPrice2 ?? 0, 2) : HelperFunctions.Round2(product.unitPrice1 ?? 0, 2);
 
         offerLine.unitOfMeasure = product.unitOfMeasure;
         offerLine.unitOfMeasureX = product.unitOfMeasureX;
@@ -240,6 +270,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.lineDescription = data.lineDescription;
         offerLine.vatRateCode = data.vatRateCode;
         offerLine.OriginalUnitPrice = data.unitPrice;
+        offerLine.originalUnitPrice1 = data.unitPrice;
+        offerLine.originalUnitPrice2 = data.unitPrice;
         offerLine.unitGross = data.unitGross;
         offerLine.Discount = data.discount;
         offerLine.showDiscount = data.showDiscount;

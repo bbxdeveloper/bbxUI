@@ -172,9 +172,25 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       this.buyerForm.controls['currencyCode'].valueChanges.subscribe({
         next: newValue => {
           console.log("Currency selected: ", this.SelectedCurrency);
-          this.isHufCurrency = this.SelectedCurrency?.value == CurrencyCodes.HUF;
+
+          if ((<any>Object).values(CurrencyCodes).includes(this.SelectedCurrency?.value)) {
+            this.showExchangeRateInput = this.SelectedCurrency?.value != CurrencyCodes.HUF;
+          } else {
+            this.showExchangeRateInput = false;
+          }
+          
           this.cdref.detectChanges();
           this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
+        }
+      });
+
+      this.buyerForm.controls['exchangeRate'].valueChanges.subscribe({
+        next: newValue => {
+          console.log("exchangeRate changed: ", newValue);
+
+          this.dbDataTable.data.forEach(x => x.data.ReCalc(false, this.SelectedCurrency?.value, HelperFunctions.ToFloat(newValue)));
+
+          this.cdref.detectChanges();
         }
       });
     } else {
@@ -449,6 +465,18 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                   }, 500);
                 })
                 .finally(() => { });
+            } else {
+              this.dbDataTable.FillCurrentlyEditedRow({
+                data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+              });
+              const _d = this.dbData[rowIndex].data;
+              this.dbData[rowIndex].data.discount = 0;
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
             }
           } else {
             this.cs.HandleError(d.errors);
@@ -593,6 +621,18 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                 .finally(() => {
 
                 });
+            } else {
+              this.dbDataTable.FillCurrentlyEditedRow({
+                data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+              });
+              const _d = this.dbData[rowPos].data;
+              this.dbData[rowPos].data.discount = 0;
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 200);
             }
           } else {
             this.bbxToastrService.show(

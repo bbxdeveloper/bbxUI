@@ -32,6 +32,7 @@ import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewe
 import { InlineEditableTableComponent } from './inline-editable-table/inline-editable-table.component';
 import { OneButtonMessageDialogComponent } from './one-button-message-dialog/one-button-message-dialog.component';
 import { CreateNewProductDialogComponent } from './create-new-product-dialog/create-new-product-dialog.component';
+import { BbxCharCheckboxComponent } from './bbx-char-checkbox/bbx-char-checkbox.component';
 
 
 @NgModule({
@@ -62,6 +63,7 @@ import { CreateNewProductDialogComponent } from './create-new-product-dialog/cre
     InlineEditableTableComponent,
     OneButtonMessageDialogComponent,
     CreateNewProductDialogComponent,
+    BbxCharCheckboxComponent,
   ],
   imports: [
     CommonModule,
@@ -116,7 +118,8 @@ import { CreateNewProductDialogComponent } from './create-new-product-dialog/cre
     HtmlStringSanitizerPipe,
     InlineEditableTableComponent,
     OneButtonMessageDialogComponent,
-    CreateNewProductDialogComponent
+    CreateNewProductDialogComponent,
+    BbxCharCheckboxComponent
   ],
   providers: [
     ConfirmationDialogComponent
