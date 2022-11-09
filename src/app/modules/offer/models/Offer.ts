@@ -30,5 +30,9 @@ export interface Offer {
     "offerGrossAmount": number,
 
     "sumBrtAmount": number,
-    "sumNetAmount": number
+    "sumNetAmount": number,
+
+    "currencyCode": string,
+    "currencyCodeX": string,
+    "exchangeRate": number,
 }

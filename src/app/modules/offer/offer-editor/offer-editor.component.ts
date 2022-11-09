@@ -42,6 +42,9 @@ import { CustomerDiscountService } from '../../customer-discount/services/custom
 import { InputFocusChangedEvent, isTableKeyDownEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { lastValueFrom } from 'rxjs';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
+import { SystemService } from '../../system/services/system.service';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
   selector: 'app-offer-editor',
@@ -80,14 +83,32 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     route: ActivatedRoute,
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    custDiscountService: CustomerDiscountService
+    custDiscountService: CustomerDiscountService,
+    systemService: SystemService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
-      sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService
+      sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService,
+      systemService
     );
     this.InitialSetup();
+  }
+
+  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
+    this.dbData[event.RowPos].data.ReCalc(event.FieldDescriptor.objectKey === "unitPrice", this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate ?? 1);
+
+    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
+      if (event.Focused) {
+        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      } else {
+        let k = this.KeySetting;
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.fS.pushCommands(this.commands);
+      }
+    }
   }
 
   override RecalcNetAndVat(): void {
@@ -102,6 +123,11 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
         .map(x => (this.ToFloat(x.data.unitGross) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity)))
         .reduce((sum, current) => sum + current, 0));
+
+    if (this.offerData.currencyCode != CurrencyCodes.HUF) {
+      this.offerData.offerNetAmount = HelperFunctions.Round2(this.offerData.offerNetAmount, 1);
+      this.offerData.offerGrossAmount = HelperFunctions.Round2(this.offerData.offerGrossAmount, 1);
+    }
   }
 
   override InitialSetup(): void {
@@ -136,7 +162,10 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       offerGrossAmount: 0,
       offerNetAmount: 0,
       sumNetAmount: 0,
-      sumBrtAmount: 0
+      sumBrtAmount: 0,
+      currencyCode: '',
+      currencyCodeX: '',
+      exchangeRate: 1
     } as Offer;
 
     this.dbData = [];
@@ -159,6 +188,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         ]),
         notice: new FormControl('', []),
         offerNumberX: new FormControl('', []),
+        currencyCode: new FormControl(undefined, []),
+        exchangeRate: new FormControl(1, []),
       });
     } else {
       this.buyerForm.reset(undefined);
@@ -216,6 +247,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           this.buyerForm.controls['offerVaidityDate'].setValue(res.offerVaidityDate);
           this.buyerForm.controls['notice'].setValue(res.notice);
           this.buyerForm.controls['offerNumberX'].setValue(res.offerNumberX);
+          this.buyerForm.controls['currencyCode'].setValue(res.currencyCodeX);
+          this.buyerForm.controls['exchangeRate'].setValue(res.exchangeRate);
 
           this.offerData = res;
 
@@ -515,7 +548,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             if (!res.noDiscount) {
               await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
                 .then(data => {
-                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                  this.dbDataTable.FillCurrentlyEditedRow({
+                    data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                  });
                   const _d = this.dbData[rowIndex].data;
                   this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
                   this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -528,7 +563,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 .catch(err => {
                   this.cs.HandleError(d.errors);
   
-                  this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0) });
+                  this.dbDataTable.FillCurrentlyEditedRow({
+                    data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                  });
                   this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                   this.dbDataTable.MoveNextInTable();
                   setTimeout(() => {
@@ -541,7 +578,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           } else {
             this.cs.HandleError(d.errors);
 
-            this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, this.offerData.id) });
+            this.dbDataTable.FillCurrentlyEditedRow({
+              data: OfferLine.FromProduct(res, this.offerData.id, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+            });
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -553,7 +592,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         .catch(err => {
           this.cs.HandleError(err);
 
-          this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(res, this.offerData.id) });
+          this.dbDataTable.FillCurrentlyEditedRow({
+            data: OfferLine.FromProduct(res, this.offerData.id, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+          });
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
           this.dbDataTable.MoveNextInTable();
           setTimeout(() => {
@@ -644,6 +685,77 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         complete: () => {
           this.isLoading = false;
         },
+      });
+    }
+  }
+
+  override TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: async product => {
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+
+          if (!!product && !!product?.productCode) {
+            if (row.data.productID === product.id) {
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+              return;
+            }
+
+            if (!product.noDiscount) {
+              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+                .then(data => {
+                  this.dbDataTable.FillCurrentlyEditedRow({
+                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                  });
+                  const _d = this.dbData[rowPos].data;
+                  this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 200);
+                })
+                .catch(err => {
+                  this.cs.HandleError(err);
+
+                  this.dbDataTable.FillCurrentlyEditedRow({
+                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                  });
+                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                  this.dbDataTable.MoveNextInTable();
+                  setTimeout(() => {
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                    this.kbS.ClickCurrentElement();
+                  }, 500);
+                })
+                .finally(() => {
+
+                });
+            }
+          } else {
+            this.bbxToastrService.show(
+              Constants.MSG_NO_PRODUCT_FOUND,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
+          }
+
+          this.RecalcNetAndVat();
+        },
+        error: err => {
+          this.RecalcNetAndVat();
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+        complete: () => {
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        }
       });
     }
   }

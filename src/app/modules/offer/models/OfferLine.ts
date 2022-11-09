@@ -4,6 +4,7 @@ import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { environment } from "src/environments/environment";
 import { InvoiceLine } from "../../invoice/models/InvoiceLine";
 import { Product } from "../../product/models/Product";
+import { CurrencyCodes } from "../../system/models/CurrencyCode";
 
 export interface OfferLineForPost {
     "lineNumber": number;
@@ -173,7 +174,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
-    public ReCalc(unitPriceWasUpdated: boolean = false): void {
+    public ReCalc(unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): void {
         let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
         let priceWithDiscount = this.originalUnitPrice;
         priceWithDiscount -= HelperFunctions.Round2(this.originalUnitPrice * discountForCalc, 2);
@@ -185,12 +186,21 @@ export class OfferLine implements IEditable, OfferLineFullData {
             this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 2);
         }
 
+        switch (currencyCode) {
+            case CurrencyCodes.EUR:
+            case CurrencyCodes.USD:
+                this.unitPrice = HelperFunctions.Round2(this.unitPrice / exchangeRate, 2);
+                break;
+            case CurrencyCodes.HUF:
+            default: 
+                break;
+        }
+
         this.unitVat = HelperFunctions.Round(HelperFunctions.ToFloat(this.unitPrice) * this.vatRate);
-        
-        this.unitGross = HelperFunctions.Round(this.UnitPriceForCalc + this.unitVat);
+        this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1);
     }
 
-    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0): OfferLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
         let offerLine = new OfferLine();
 
         offerLine.lineDescription = product.description ?? '';
@@ -217,7 +227,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         offerLine.Discount = 0.0;
 
-        offerLine.ReCalc();
+        offerLine.ReCalc(unitPriceWasUpdated, currencyCode, exchangeRate);
 
         return offerLine;
     }

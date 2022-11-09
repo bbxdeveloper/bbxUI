@@ -9,4 +9,7 @@ export interface CreateOfferRequest {
 
     "offerNetAmount": number,
     "offerGrossAmount": number,
+
+    "currencyCode": string,
+    "exchangeRate": number
 }

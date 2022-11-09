@@ -4,3 +4,9 @@ export interface CurrencyCode {
     icon?: any;
     data?: any;
 }
+
+export enum CurrencyCodes {
+    HUF = 'HUF',
+    EUR = 'EUR',
+    USD = 'USD'
+}
