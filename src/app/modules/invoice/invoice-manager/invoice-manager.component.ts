@@ -20,8 +20,8 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
-import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine } from '../models/InvoiceLine';
+import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
+import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
@@ -75,7 +75,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   _paymentMethods: string[] = [];
   paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  outGoingInvoiceData!: CreateOutgoingInvoiceRequest;
+  outGoingInvoiceData!: OutGoingInvoiceFullData;
 
   customerInputFilterString: string = '';
 
@@ -297,7 +297,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       notice: '',
       paymentDate: '',
       paymentMethod: ''
-    } as CreateOutgoingInvoiceRequest;
+    } as OutGoingInvoiceFullData;
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -718,7 +718,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): void {
+  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
     
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
@@ -752,6 +752,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceType = this.InvoiceType;
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+
+    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
   }
 
   async printReport(id: any, copies: number): Promise<void> {
@@ -806,7 +808,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
-    this.UpdateOutGoingData();
+    var request = this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
 
@@ -823,8 +825,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       console.log("Selected item: ", res);
       if (!!res) {
         this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.isLoading = true;
-        this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
+        this.seInv.CreateOutgoing(request).subscribe({
           next: d => {
             //this.isSilentLoading = false;
             if (!!d.data) {
@@ -839,7 +840,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
               );
-              this.isLoading = false;
 
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
@@ -874,7 +874,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                           commandEndedSubscription.unsubscribe();
                         }
 
-                        this.isLoading = false;
                         this.isSaveInProgress = false;
                       },
                       error: cmdEnded => {
@@ -888,13 +887,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
                           );
-                          this.isLoading = false;
                           this.isSaveInProgress = false;
 
                           commandEndedSubscription.unsubscribe();
                       }
                     });
-                    this.isLoading = true;
                     await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
@@ -902,7 +899,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
-                    this.isLoading = false;
                     this.isSaveInProgress = false;
                     this.Reset();
                   }
@@ -910,7 +906,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               });
             } else {
               this.cs.HandleError(d.errors);
-              this.isLoading = false;
               this.isSaveInProgress = false;
               this.status.pushProcessStatus(Constants.BlankProcessStatus);
             }
@@ -918,16 +913,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           error: err => {
             this.status.pushProcessStatus(Constants.BlankProcessStatus);
             this.cs.HandleError(err);
-            this.isLoading = false;
             this.isSaveInProgress = false;
           },
           complete: () => {
-            this.isLoading = false;
             this.isSaveInProgress = false;
           }
         });
       } else {
-        this.isLoading = false;
         this.isSaveInProgress = false;
       }
     });

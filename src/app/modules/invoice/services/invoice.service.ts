@@ -14,6 +14,7 @@ import { DeleteInvoiceRequest } from '../models/DeleteInvoiceRequest';
 import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { Constants } from 'src/assets/util/Constants';
+import { InvoiceLineForPost } from '../models/InvoiceLine';
 
 @Injectable({
   providedIn: 'root'
@@ -77,7 +78,7 @@ export class InvoiceService {
     return this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  CreateOutgoing(req: CreateOutgoingInvoiceRequest): Observable<CreateOutgoingInvoiceResponse> {
+  CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLineForPost>): Observable<CreateOutgoingInvoiceResponse> {
     return this.http.post<CreateOutgoingInvoiceResponse>(this.BaseUrl, req);
   }
 

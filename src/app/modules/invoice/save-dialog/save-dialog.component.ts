@@ -30,7 +30,7 @@ import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
-import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
+import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
@@ -52,7 +52,7 @@ interface VatRateRow { Id: string, Value: number };
   styleUrls: ['./save-dialog.component.scss']
 })
 export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
-  @Input() data!: CreateOutgoingInvoiceRequest;
+  @Input() data!: OutGoingInvoiceFullData;
 
   numberInputMask: any = createMask({
     alias: 'numeric',
