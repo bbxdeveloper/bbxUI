@@ -24,7 +24,7 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
     lineVatAmount: number = 0.0; // netamount * vat - hidden
 
     vatRate: number = 1; // hidden
-    
+
     unitOfMeasureX?: string;
 
     IsUnfinished(): boolean {
@@ -50,9 +50,9 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
 
         this.unitPrice = HelperFunctions.Round2(this.unitPrice, 2);
 
-        this.lineNetAmount = this.unitPrice * this.quantity;
-        this.lineVatAmount = this.lineNetAmount * this.vatRate;
-        this.lineGrossAmount = HelperFunctions.Round(this.lineVatAmount + this.lineNetAmount);
+        this.lineNetAmount = HelperFunctions.Round2(this.unitPrice * this.quantity, 1);
+        this.lineVatAmount = HelperFunctions.Round2(this.lineNetAmount * this.vatRate, 1);
+        this.lineGrossAmount = this.lineVatAmount + this.lineNetAmount;
 
         console.log("AFTER");
         console.log("unitPrice: " + this.unitPrice);

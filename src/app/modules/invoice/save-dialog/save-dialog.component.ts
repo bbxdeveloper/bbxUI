@@ -104,6 +104,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       res[value.vatRateCode].Value += HelperFunctions.ToFloat(value.lineVatAmount)
       return res;
     }, {});
+    this.data.invoiceLines.reduce(function (res: any, value) {
+      res[value.vatRateCode].Value = HelperFunctions.Round(value.lineVatAmount);
+      return res;
+    }, {});
     this.vatRateCodes = result;
   }
 
