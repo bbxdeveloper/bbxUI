@@ -391,9 +391,12 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   async refresh(): Promise<void> {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
     await this.refreshComboboxData();
-    this.seC.GetAll({ IsOwnData: false }).subscribe({
-      next: d => {
+    
+    await lastValueFrom(this.seC.GetAll({ IsOwnData: false }))
+      .then(d => {
         // Possible buyers
         this.buyersData = d.data!;
         this.buyerFormNav.Setup(this.buyersData);
@@ -412,16 +415,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
         this.table?.renderRows();
         this.RefreshTable();
-
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {});
+      
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   protected filterBuyers(value: string): string[] {
@@ -681,9 +681,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   private async refreshComboboxData(setIsLoad = false): Promise<void> {
-    if (setIsLoad) {
-      this.isLoading = true;
-    }
     await lastValueFrom(this.systemService.GetAllCurrencyCodes())
       .then(data => {
         console.log("[refreshComboboxData] GetAllCurrencyCodes: ", data);
@@ -705,11 +702,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       .catch(err => {
         this.cs.HandleError(err);
       })
-      .finally(() => {
-        if (setIsLoad) {
-          this.isLoading = false;
-        }
-      });
+      .finally(() => {});
   }
 
   protected SwitchUnitPriceAll(): void {

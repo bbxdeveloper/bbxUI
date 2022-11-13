@@ -92,6 +92,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService,
       systemService
     );
+    this.isLoading = false;
     this.InitialSetup();
   }
 
@@ -224,21 +225,16 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     );
 
     this.dbDataTable!.OuterJump = true;
-
-    // Refresh data
-    this.refresh();
   }
 
-  private LoadAndSetDataForEdit(): void {
+  private async LoadAndSetDataForEdit(): Promise<void> {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
     this.idFromPath = parseInt(this.route.snapshot.params['id'], 10);
     console.log("ID for edit: ", this.idFromPath);
 
-    this.isLoading = true;
-
-    this.offerService.Get({
-      ID: this.idFromPath, FullData: true
-    } as GetOfferParamsModel).subscribe({
-      next: res => {
+    await lastValueFrom(this.offerService.Get({ID: this.idFromPath, FullData: true} as GetOfferParamsModel))
+      .then(async res => {
         if (!!res) {
           this.buyerForm.controls['customerName'].setValue(res.customerName);
           this.buyerForm.controls['customerAddress'].setValue(res.customerPostalCode + ', ' + res.customerCity);
@@ -254,8 +250,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
           this.buyerData.id = this.offerData.customerID;
           this.originalCustomerId = this.offerData.customerID;
-          this.seC.Get({ ID: this.buyerData.id } as GetCustomerParamListModel).subscribe({
-            next: res => {
+
+          await lastValueFrom(this.seC.Get({ ID: this.buyerData.id } as GetCustomerParamListModel))
+            .then(res => {
               if (!!res) {
                 this.buyerData = res;
                 this.buyerForm.controls['customerName'].setValue(res.customerName);
@@ -268,40 +265,36 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                   Constants.TOASTR_ERROR
                 );
               }
-            },
-            error: (err) => {
+            })
+            .catch(err => {
               this.cs.HandleError(err, `Hiba a ${this.buyerData.id} azonosítóval rendelkező ügyfél betöltése közben:\n`);
-            },
-            complete: () => {
-              this.isLoading = false;
-            }
-          });
+            })
+            .finally(() => {});
 
-          this.dbData = this.offerData.offerLines!.map(x =>
-            { return { data: OfferLine.FromOfferLineFullData(x) } as TreeGridNode<OfferLine> }
+          this.dbData = this.offerData.offerLines!.map(x => { return { data: OfferLine.FromOfferLineFullData(x) } as TreeGridNode<OfferLine> }
           ).concat(this.dbData);
 
           this.table?.renderRows();
 
           this.RecalcNetAndVat();
         }
-      },
-      error: (err) => {
+      })
+      .catch(err => {
         this.cs.HandleError(err);
-      },
-      complete: () => {
-        this.isLoading = false;
+      })
+      .finally(() => {
         this.AfterViewInitSetup();
-      },
-    });
+      });
+
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
   }
-  ngAfterViewInit(): void {
-    // this.AfterViewInitSetup();
-    this.LoadAndSetDataForEdit();
+  async ngAfterViewInit(): Promise<void> {
+    await this.refresh();
+    await this.LoadAndSetDataForEdit();
   }
   ngOnDestroy(): void {
     console.log("Detach");
