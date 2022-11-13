@@ -264,13 +264,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  protected Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
-  }
-
   InitialSetup(): void {}
 
   changeSort(sortRequest: NbSortRequest): void {

@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -25,6 +25,8 @@ const NavMap: string[][] = [
 })
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
+
+  @Input() exchangeRate: number = 1;
 
   get srcString(): string {
     return (this.searchString ?? '').trim();
@@ -134,6 +136,16 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };
+            });
+            tempData.forEach(x => {
+              x.data.exhangedUnitPrice1 = x.data.unitPrice1;
+              x.data.exhangedUnitPrice2 = x.data.unitPrice2;
+              if (x.data.exhangedUnitPrice1) {
+                x.data.exhangedUnitPrice1 = x.data.exhangedUnitPrice1 / this.exchangeRate;
+              }
+              if (x.data.exhangedUnitPrice2) {
+                x.data.exhangedUnitPrice2 = x.data.exhangedUnitPrice2 / this.exchangeRate;
+              }
             });
             this.dbData = tempData;
             this.dbDataSource.setData(this.dbData);

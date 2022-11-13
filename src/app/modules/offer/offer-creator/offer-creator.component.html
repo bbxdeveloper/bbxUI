@@ -92,6 +92,7 @@
                                     <label>Árfolyam</label>
                                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="exchangeRate"
                                         [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
+                                        oninput="$event.target.setSelectionRange(0, 1)"
                                         (click)="buyerFormNav.HandleFormFieldClick($event)">
                                 </nb-form-field>
                             </td>

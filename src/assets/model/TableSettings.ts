@@ -115,9 +115,9 @@ export module ProductDialogTableSettings {
     export const ProductSelectorDialogAllColumns: string[] = [
         'productCode',
         'description',
-        'unitPrice1',
-        'unitPrice2',
-        'latestSupplyPrice'
+        'latestSupplyPrice',
+        'exhangedUnitPrice1',
+        'exhangedUnitPrice2'
     ];
     export const ProductSelectorDialogColDefs: ModelFieldDescriptor[] = [
         {
@@ -144,8 +144,8 @@ export module ProductDialogTableSettings {
         },
         {
             label: 'Listaár',
-            objectKey: 'unitPrice1',
-            colKey: 'unitPrice1',
+            objectKey: 'exhangedUnitPrice1',
+            colKey: 'exhangedUnitPrice1',
             defaultValue: '',
             type: 'formatted-number',
             fRequired: true,
@@ -156,8 +156,8 @@ export module ProductDialogTableSettings {
         },
         {
             label: 'Egységár',
-            objectKey: 'unitPrice2',
-            colKey: 'unitPrice2',
+            objectKey: 'exhangedUnitPrice2',
+            colKey: 'exhangedUnitPrice2',
             defaultValue: '',
             type: 'formatted-number',
             fRequired: false,

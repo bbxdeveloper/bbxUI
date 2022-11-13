@@ -967,7 +967,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {

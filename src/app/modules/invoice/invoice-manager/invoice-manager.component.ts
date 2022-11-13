@@ -970,7 +970,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
@@ -1008,13 +1009,31 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   RefreshData(): void { }
 
   private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number> {
-    const discounts = await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }));
-    if (discounts) {
-      const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-      return res !== undefined ? (res / 100.0) : 0.0;
-    } else {
-      return 0.0;
+    let discount = 0;
+
+    if (this.buyerData === undefined || this.buyerData.id === undefined) {
+      this.bbxToastrService.show(
+        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return discount;
     }
+
+    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+      .then(discounts => {
+        if (discounts) {
+          const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
+          discount = res !== undefined ? (res / 100.0) : 0.0;
+        } else {
+          discount = 0.0;
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {})
+    return discount;
   }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
@@ -1029,7 +1048,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       const discountedPrice = p.unitPrice2! * discountForPrice;
-      res.unitPrice = this.Delivery ? (p.unitPrice2! - discountedPrice) : p.unitPrice2!;
+      res.unitPrice = p.unitPrice2! - discountedPrice;
     } else {
       res.unitPrice = p.unitPrice2!;
     }

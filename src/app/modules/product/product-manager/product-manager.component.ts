@@ -230,10 +230,6 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     return data;
   }
 
-  ToInt(p: any): number {
-    return parseInt(p + '');
-  }
-
   private FormProductToCreateRequest(p: Product): CreateProductRequest {
     let originCode = HelperFunctions.ConvertChosenOriginToCode(p.origin, this.origins, '');
     let productGroupCode = HelperFunctions.ConvertChosenProductGroupToCode(p.productGroup, this.productGroups, '');
@@ -248,15 +244,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: this.ToInt(p.minStock),
-      latestSupplyPrice: this.ToInt(p.latestSupplyPrice),
-      ordUnit: this.ToInt(p.ordUnit),
+      minStock: HelperFunctions.ToFloat(p.minStock),
+      latestSupplyPrice: HelperFunctions.ToFloat(p.latestSupplyPrice),
+      ordUnit: HelperFunctions.ToFloat(p.ordUnit),
       originCode: originCode,
       productGroupCode: productGroupCode,
-      unitPrice1: this.ToInt(p.unitPrice1),
-      unitPrice2: this.ToInt(p.unitPrice2),
+      unitPrice1: HelperFunctions.ToFloat(p.unitPrice1),
+      unitPrice2: HelperFunctions.ToFloat(p.unitPrice2),
       unitOfMeasure: unitOfMeasureValue,
-      productFee: this.ToInt(p.productFee),
+      productFee: HelperFunctions.ToFloat(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode,
       noDiscount: p.noDiscount
@@ -279,15 +275,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: this.ToInt(p.minStock),
-      latestSupplyPrice: this.ToInt(p.latestSupplyPrice),
-      ordUnit: this.ToInt(p.ordUnit),
+      minStock: HelperFunctions.ToInt(p.minStock),
+      latestSupplyPrice: HelperFunctions.ToInt(p.latestSupplyPrice),
+      ordUnit: HelperFunctions.ToInt(p.ordUnit),
       originCode: originCode,
       productGroupCode: productGroupCode,
-      unitPrice1: this.ToInt(p.unitPrice1),
-      unitPrice2: this.ToInt(p.unitPrice2),
+      unitPrice1: HelperFunctions.ToInt(p.unitPrice1),
+      unitPrice2: HelperFunctions.ToInt(p.unitPrice2),
       unitOfMeasure: unitOfMeasureValue,
-      productFee: this.ToInt(p.productFee),
+      productFee: HelperFunctions.ToInt(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode,
       noDiscount: p.noDiscount

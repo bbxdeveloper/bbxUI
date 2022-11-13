@@ -339,6 +339,16 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     console.log('[UpdateSaveData] offerData: ', this.offerData, ', dbData: ', this.dbData);
   }
 
+  protected async Reset(): Promise<void> {
+    console.log(`Reset.`);
+    this.kbS.ResetToRoot();
+    this.currencyCodeComboData$.next([]);
+    this.InitialSetup();
+    this.AfterViewInitSetup();
+    await this.refresh();
+    await this.LoadAndSetDataForEdit();
+  }
+
   override Save(): void {
     this.UpdateSaveData();
 
@@ -431,7 +441,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 dialogRef.onClose.subscribe({
                   next: async res => {
 
-                    this.Reset();
+                    await this.Reset();
 
                     if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
 
@@ -622,7 +632,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        exchangeRate: this.offerData.exchangeRate
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {

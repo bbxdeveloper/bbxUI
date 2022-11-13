@@ -88,6 +88,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService,
       systemService
     );
+    this.isLoading = false;
     this.InitialSetup();
   }
 
@@ -177,12 +178,19 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
           if ((<any>Object).values(CurrencyCodes).includes(this.SelectedCurrency?.value)) {
             this.showExchangeRateInput = this.SelectedCurrency?.value != CurrencyCodes.HUF;
+
+            this.buyerForm.controls['exchangeRate'].setValue(1);
           } else {
             this.showExchangeRateInput = false;
+
+            this.offerData.exchangeRate = 1;
+            this.buyerForm.controls['exchangeRate'].setValue(1);
           }
           
           this.cdref.detectChanges();
-          this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
+          setTimeout(() => {
+            this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
+          }, 0);
         }
       });
 
@@ -252,7 +260,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     this.offerData.offerVaidityDate = this.buyerForm.controls['offerVaidityDate'].value;
 
     this.offerData.currencyCode = this.currencyCodeValues[this.buyerForm.controls['currencyCode'].value]?.value ?? null;
-    this.offerData.exchangeRate = HelperFunctions.ToFloat(this.buyerForm.controls['exchangeRate'].value);
+    this.offerData.exchangeRate = HelperFunctions.ToFloat(this.buyerForm.controls['exchangeRate'].value ?? 1);
 
     this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => {
       return {
@@ -296,6 +304,15 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
+  protected async Reset(): Promise<void> {
+    console.log(`Reset.`);
+    this.kbS.ResetToRoot();
+    this.currencyCodeComboData$.next([]);
+    this.InitialSetup();
+    this.AfterViewInitSetup();
+    await this.refresh();
+  }
+
   override Save(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -307,8 +324,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         this.UpdateOutGoingData();
 
         console.log('Save: ', this.offerData);
-
-        this.isLoading = true;
 
         this.offerService.Create(this.offerData).subscribe({
           next: d => {
@@ -342,7 +357,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               dialogRef.onClose.subscribe({
                 next: async res => {
 
-                  this.Reset();
+                  await this.Reset();
 
                   if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
 
@@ -518,11 +533,14 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+    this.offerData.exchangeRate = HelperFunctions.ToFloat(this.buyerForm.controls['exchangeRate'].value ?? 1);
+
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        exchangeRate: this.offerData.exchangeRate
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {

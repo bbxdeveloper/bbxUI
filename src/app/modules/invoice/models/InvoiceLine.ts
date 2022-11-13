@@ -48,7 +48,11 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
         console.log("lineGrossAmount: " + this.lineGrossAmount);
         console.log("==========================");
 
-        this.unitPrice = HelperFunctions.Round2(this.unitPrice, 2);
+        this.unitPrice = HelperFunctions.ToFloat(this.unitPrice);
+        this.quantity = HelperFunctions.ToFloat(this.quantity);
+        this.vatRate = HelperFunctions.ToFloat(this.vatRate);
+
+        this.unitPrice = HelperFunctions.Round2(HelperFunctions.ToFloat(this.unitPrice), 2);
 
         this.lineNetAmount = HelperFunctions.Round2(this.unitPrice * this.quantity, 1);
         this.lineVatAmount = HelperFunctions.Round2(this.lineNetAmount * this.vatRate, 1);
@@ -66,13 +70,13 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
 
     public GetPOSTData(): InvoiceLineForPost {
         let res = {
-            lineNetAmount: this.lineNetAmount,
+            lineNetAmount: HelperFunctions.ToFloat(this.lineNetAmount),
             lineNumber: this.lineNumber,
             quantity: this.quantity,
             productCode: this.productCode,
             productDescription: this.productDescription,
             unitOfMeasure: this.unitOfMeasure,
-            unitPrice: this.unitPrice,
+            unitPrice: HelperFunctions.ToFloat(this.unitPrice),
             vatRate: this.vatRate,
             vatRateCode: this.vatRateCode
         } as InvoiceLineForPost;

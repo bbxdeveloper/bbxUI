@@ -105,7 +105,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       return res;
     }, {});
     this.data.invoiceLines.reduce(function (res: any, value) {
-      res[value.vatRateCode].Value = HelperFunctions.Round(value.lineVatAmount);
+      var index = result.findIndex(x => x.Id === value.vatRateCode);
+      if (index !== -1) {
+        result[index].Value = HelperFunctions.Round(result[index].Value);
+      }
       return res;
     }, {});
     this.vatRateCodes = result;
