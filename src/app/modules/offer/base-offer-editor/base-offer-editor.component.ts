@@ -339,9 +339,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       return;
     }
     const d = this.dbData[rowPos]?.data;
-    if (!!d) {
-      d.Round();
-    }
   }
 
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {}

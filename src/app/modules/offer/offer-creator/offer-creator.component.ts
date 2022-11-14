@@ -202,7 +202,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         next: newValue => {
           console.log("exchangeRate changed: ", newValue);
 
-          this.dbDataTable.data.forEach(x => x.data.ReCalc(false, this.SelectedCurrency?.value, HelperFunctions.ToFloat(newValue)));
+          this.offerData.exchangeRate = HelperFunctions.ToFloat(newValue);
+          this.dbDataTable.data.forEach(x => x.data.ReCalc(false, this.SelectedCurrency?.value, this.offerData.exchangeRate));
 
           this.cdref.detectChanges();
         }
