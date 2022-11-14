@@ -93,14 +93,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "originalUnitPrice", "vatRateCode", "UnitGrossVal"];
+  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "exchangedOriginalUnitPrice", "vatRateCode", "UnitGrossVal"];
   override allColumns = [
     'productCode',
     'lineDescription',
     'UnitPriceSwitch',
     'quantity',
     'unitOfMeasureX',
-    'originalUnitPrice',
+    'exchangedOriginalUnitPrice',
     'discount',
     'showDiscount',
     'unitPrice',
@@ -137,7 +137,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "80px", textAlign: "right"
     },
     {
-      label: 'Nettó Ár', objectKey: 'originalUnitPrice', colKey: 'originalUnitPrice',
+      label: 'Nettó Ár', objectKey: 'exchangedOriginalUnitPrice', colKey: 'exchangedOriginalUnitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },

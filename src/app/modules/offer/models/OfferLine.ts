@@ -54,6 +54,13 @@ export class OfferLine implements IEditable, OfferLineFullData {
         this.ReCalc(false);
         this.unitPriceSwitch = value;
     }
+
+    get exchangedOriginalUnitPrice(): number {
+        return HelperFunctions.Round2(this.originalUnitPrice / this.exchangeRate, 2);
+    }
+    get exchangedUnitPrice(): number {
+        return HelperFunctions.Round2(this.unitPrice / this.exchangeRate, 2);   
+    }
     
     // Custom
     "vatRate": number = 1.0;
@@ -83,7 +90,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
     // UnitGrossVal
     get UnitGrossVal(): number {
-        return HelperFunctions.Round(HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToFloat(this.quantity === 0 ? 1 : this.quantity));
+        return HelperFunctions.Round(HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToFloat(this.quantity === 0 ? 1 : this.quantity) / this.exchangeRate);
     }
 
     // Discount get set
@@ -142,7 +149,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         this.unitGross = this.UnitPriceForCalc + this.unitVat;
     }
     get UnitVat() {
-        return this.unitVat;
+        return this.unitVat / this.exchangeRate;
     }
 
     public Round(): void {
@@ -185,6 +192,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
+    previousUnitPrice: number = 0;
+
     currencyCode: string = CurrencyCodes.HUF;
     exchangeRate: number = 1;
     public ReCalc(unitPriceWasUpdated: boolean, currencyCode?: string, exchangeRate?: number): void {
@@ -199,32 +208,42 @@ export class OfferLine implements IEditable, OfferLineFullData {
             this.exchangeRate = exchangeRate;
         }
 
+        switch (currencyCode) {
+            case CurrencyCodes.EUR:
+            case CurrencyCodes.USD:
+                break;
+            case CurrencyCodes.HUF:
+            default:
+                exchangeRate = 1;
+                break;
+        }
+
         this.originalUnitPrice = this.unitPriceSwitch ?
             HelperFunctions.Round2(this.originalUnitPrice2 ?? 0, 2) : HelperFunctions.Round2(this.originalUnitPrice1 ?? 0, 2);
 
         let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
+
+        let priceWithDiscountExchanged = this.exchangedOriginalUnitPrice;
+        priceWithDiscountExchanged -= HelperFunctions.Round2(this.exchangedOriginalUnitPrice * discountForCalc, 2);
+
         let priceWithDiscount = this.originalUnitPrice;
         priceWithDiscount -= HelperFunctions.Round2(this.originalUnitPrice * discountForCalc, 2);
 
-        if (unitPriceWasUpdated && HelperFunctions.Round(priceWithDiscount) !== this.unitPrice) {
-            this.unitPrice = HelperFunctions.Round2(this.unitPrice, 2);
+        console.log(`BEFORE [ReCalc] previousUnitPrice ${this.previousUnitPrice}, exchangeRate ${exchangeRate}, unitPriceWasUpdated = ${unitPriceWasUpdated}, priceWithDiscount ${priceWithDiscountExchanged}, HelperFunctions.Round(priceWithDiscount) ${HelperFunctions.Round(priceWithDiscountExchanged)}, unitPrice ${this.unitPrice}`);
+        
+        if (unitPriceWasUpdated && priceWithDiscountExchanged !== this.unitPrice) {
+            this.unitPrice = HelperFunctions.Round2(this.unitPrice / this.exchangeRate, 2);
             this.discount = 0.0;
         } else {
-            this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 2);
-        }
-
-        switch (currencyCode) {
-            case CurrencyCodes.EUR:
-            case CurrencyCodes.USD:
-                this.unitPrice = HelperFunctions.Round2(this.unitPrice / exchangeRate, 2);
-                break;
-            case CurrencyCodes.HUF:
-            default: 
-                break;
+            this.unitPrice = HelperFunctions.Round2(priceWithDiscountExchanged, 2);
         }
 
         this.unitVat = HelperFunctions.Round(HelperFunctions.ToFloat(this.unitPrice) * this.vatRate);
         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1);
+
+        this.previousUnitPrice = this.unitPrice;
+
+        console.log(`AFTER [ReCalc] previousUnitPrice ${this.previousUnitPrice}, exchangeRate ${exchangeRate}, unitPriceWasUpdated = ${unitPriceWasUpdated}, priceWithDiscount ${priceWithDiscountExchanged}, HelperFunctions.Round(priceWithDiscount) ${HelperFunctions.Round(priceWithDiscountExchanged)}, unitPrice ${this.unitPrice}`);
     }
 
     static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {

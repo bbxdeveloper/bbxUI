@@ -97,7 +97,11 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
-    this.dbData[event.RowPos].data.ReCalc(event.FieldDescriptor.objectKey === "unitPrice", this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate ?? 1);
+    this.dbData[event.RowPos].data.ReCalc(
+      event.FieldDescriptor.objectKey === "unitPrice",
+      this.SelectedCurrency?.value ?? CurrencyCodes.HUF,
+      this.offerData.exchangeRate ?? 1
+    );
 
     if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
       if (event.Focused) {
