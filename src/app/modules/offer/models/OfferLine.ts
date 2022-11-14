@@ -56,7 +56,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
     }
 
     get exchangedOriginalUnitPrice(): number {
-        return HelperFunctions.Round2(this.originalUnitPrice / this.exchangeRate, 2);
+        return HelperFunctions.Round2(this.originalUnitPrice / this.exchangeRate, 1);
     }
     
     // Custom
@@ -90,7 +90,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
     // UnitGrossVal
     get UnitGrossVal(): number {
-        return HelperFunctions.Round(HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToFloat(this.quantity === 0 ? 1 : this.quantity) / this.exchangeRate);
+        return HelperFunctions.Round(HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToFloat(this.quantity === 0 ? 1 : this.quantity));
     }
 
     // Discount get set
@@ -198,17 +198,18 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
         let priceWithDiscount = this.exchangedOriginalUnitPrice;
-        priceWithDiscount -= HelperFunctions.Round2(this.exchangedOriginalUnitPrice * discountForCalc, 2);
+        priceWithDiscount -= HelperFunctions.ToFloat(this.exchangedOriginalUnitPrice * discountForCalc);
+        priceWithDiscount = HelperFunctions.Round2(priceWithDiscount, 1);
         
+        console.log(`unitPriceWasUpdated ${unitPriceWasUpdated}, priceWithDiscount ${priceWithDiscount}, this.unitPrice ${this.unitPrice}`);
         if (unitPriceWasUpdated && priceWithDiscount !== this.unitPrice) {
-            this.unitPrice = HelperFunctions.Round2(this.unitPrice, 2);
+            this.unitPrice = HelperFunctions.Round2(this.unitPrice, 1);
             this.discount = 0.0;
         } else {
-            this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 2);
+            this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 1);
         }
 
-        this.unitVat = HelperFunctions.Round(HelperFunctions.ToFloat(this.unitPrice) * this.vatRate);
-        this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1);
+         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
     }
 
     static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
