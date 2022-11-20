@@ -231,6 +231,56 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     this.dbDataTable!.OuterJump = true;
   }
 
+  FromOfferLineFullData(data: OfferLineFullData, currencyCode: string, exchangeRate: number): OfferLine {
+    console.log("\n\n[FromOfferLineFullData] stard, ID: ", data.id);
+
+    let offerLine = new OfferLine();
+
+    offerLine.currencyCode = currencyCode;
+    offerLine.exchangeRate = HelperFunctions.ToFloat(exchangeRate);
+
+    offerLine.originalUnitPrice1 = HelperFunctions.ToFloat(data.unitPrice1);
+    offerLine.originalUnitPrice2 = HelperFunctions.ToFloat(data.unitPrice2);
+
+    offerLine.lineNumber = data.lineNumber;
+    offerLine.productCode = data.productCode;
+    offerLine.lineDescription = data.lineDescription;
+    offerLine.vatRateCode = data.vatRateCode;
+    offerLine.originalUnitPrice = offerLine.unitPriceSwitch ?
+      HelperFunctions.Round2(offerLine.originalUnitPrice2 ?? 0, 2) : HelperFunctions.Round2(offerLine.originalUnitPrice1 ?? 0, 2);
+    offerLine.unitGross = data.unitGross;
+    offerLine.showDiscount = data.showDiscount;
+    offerLine.unitOfMeasure = data.unitOfMeasure;
+
+    offerLine.quantity = HelperFunctions.ToFloat(data.quantity ?? 0);
+
+    offerLine.vatRate = 0;
+
+    offerLine.id = data.id;
+    offerLine.offerID = data.offerID;
+    offerLine.productID = data.productID;
+    offerLine.unitOfMeasureX = data.unitOfMeasureX;
+    offerLine.vatRateID = data.vatRateID;
+    offerLine.vatPercentage = data.vatPercentage;
+
+    offerLine.UnitPriceSwitch = data.unitPriceSwitch;
+
+    offerLine.discount = data.discount;
+
+    let discountForCalc = (HelperFunctions.ToFloat(offerLine.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(offerLine.DiscountForCalc / 100.0);
+    let priceWithDiscount = offerLine.exchangedOriginalUnitPrice;
+    priceWithDiscount -= HelperFunctions.ToFloat(offerLine.exchangedOriginalUnitPrice * discountForCalc);
+    offerLine.unitPrice = HelperFunctions.Round2(priceWithDiscount, 1);
+
+    console.log("[FromOfferLineFullData] offerLine: ", offerLine);
+
+    offerLine.ReCalc(true);
+
+    console.log("[FromOfferLineFullData] end, after ReCalc offerLine: ", offerLine, "\n\n");
+
+    return offerLine;
+  }
+
   private async LoadAndSetDataForEdit(): Promise<void> {
     this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
@@ -275,7 +325,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             })
             .finally(() => {});
 
-          this.dbData = this.offerData.offerLines!.map(x => { return { data: OfferLine.FromOfferLineFullData(x) } as TreeGridNode<OfferLine> }
+          this.dbData = this.offerData.offerLines!.map(x => { return { 
+            data: OfferLine.FromOfferLineFullData(x, this.offerData.currencyCode, this.offerData.exchangeRate) } as TreeGridNode<OfferLine> }
           ).concat(this.dbData);
 
           this.table?.renderRows();
@@ -330,7 +381,9 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           unitOfMeasureX: x.data.unitOfMeasureX,
           vatRateID: x.data.vatRateID,
           vatPercentage: x.data.vatPercentage,
-          quantity: HelperFunctions.ToFloat(x.data.quantity)
+          quantity: HelperFunctions.ToFloat(x.data.quantity),
+          originalUnitPrice: HelperFunctions.ToFloat(x.data.originalUnitPrice),
+          unitPriceSwitch: x.data.unitPriceSwitch
         } as OfferLineFullData
       }
     );
