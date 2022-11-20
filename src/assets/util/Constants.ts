@@ -43,6 +43,8 @@ export module Constants {
     export const MSG_LOGOUT_SUCCESFUL: string = 'Sikeres kijelentkezés!'
     export const MSG_LOGOUT_FAILED: string = 'Sikertelen kijelentkezés!'
 
+    export const MSG_LOGOUT_CONFIGM: string = 'Biztos ki szeretne jelentkezni?';
+
     export const MSG_WARNING_CUSTDISCOUNT_PREV: string = 'Figyelem: A tétellapon engedményes ár szerepel!';
 
     export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
@@ -156,6 +158,11 @@ export module Constants {
     export enum LoadDataPhases { LOADING }
     export const LoadDataStatuses: ProcessStatus[] = [
         { title: 'Betöltés', value: 0, msg: '1/1 - Adatok betöltése folyamatban...', isSimple: true }
+    ];
+
+    export enum LogoutSavingPhases { LOGGING_OUT }
+    export const LogoutSavingStatuses: ProcessStatus[] = [
+        { title: 'Kijelentkezés', value: 0, msg: '1/1 - Kijelentkezés...', isSimple: true }
     ];
 
     export const BlankProcessStatus: ProcessStatus = { value: -1 } as ProcessStatus;

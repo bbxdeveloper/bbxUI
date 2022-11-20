@@ -19,6 +19,7 @@ import { UtilityService } from 'src/app/services/utility.service';
 import { DateIntervalDialogComponent } from '../../shared/date-interval-dialog/date-interval-dialog.component';
 import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-header',
@@ -289,33 +290,29 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   logout(event: any): void {
     event?.preventDefault();
-    this.isLoading = true;
-    this.authService.logout().subscribe({
-      next: res => {
-        this.simpleToastrService.show(
-          Constants.MSG_LOGOUT_SUCCESFUL,
-          Constants.TITLE_INFO,
-          Constants.TOASTR_SUCCESS_5_SEC
-        );
-        this.tokenService.signOut();
-        this.router.navigate(['/home']);
-        setTimeout(() => {
-          this.GenerateAndSetNavMatrices();
-          this.kbS.SelectFirstTile();
-          this.isLoading = false;
-        }, 200);
-      },
-      error: err => {
-        this.bbxToastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-        this.isLoading = false;
-      },
-      complete: () => {
-        setTimeout(() => {
-          if (this.isLoading) {
-            this.isLoading = false;
-          }
-        }, 200);
-      }
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_LOGOUT_CONFIGM, () => {
+      this.sts.pushProcessStatus(Constants.LogoutSavingStatuses[Constants.LogoutSavingPhases.LOGGING_OUT]);
+      this.authService.logout().subscribe({
+        next: res => {
+          this.simpleToastrService.show(
+            Constants.MSG_LOGOUT_SUCCESFUL,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+          this.tokenService.signOut();
+          this.router.navigate(['/home']);
+          setTimeout(() => {
+            this.GenerateAndSetNavMatrices();
+            this.kbS.SelectFirstTile();
+          }, 200);
+        },
+        error: err => {
+          this.bbxToastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        },
+        complete: () => {
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        }
+      });
     });
   }
 }
