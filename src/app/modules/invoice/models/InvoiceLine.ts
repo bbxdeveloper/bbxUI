@@ -23,6 +23,8 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
     lineGrossAmount: number = 0.0; // netamount + vatamount
     lineVatAmount: number = 0.0; // netamount * vat - hidden
 
+    custDiscounted: boolean = false;
+
     vatRate: number = 1; // hidden
 
     unitOfMeasureX?: string;

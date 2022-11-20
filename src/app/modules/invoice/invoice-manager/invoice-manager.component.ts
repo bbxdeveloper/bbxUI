@@ -1002,14 +1002,22 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
+
+        if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+          this.simpleToastrService.show(
+            Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+        }
       }
     });
   }
 
   RefreshData(): void { }
 
-  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number> {
-    let discount = 0;
+  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
+    let discount: number | undefined = undefined;
 
     if (this.buyerData === undefined || this.buyerData.id === undefined) {
       this.bbxToastrService.show(
@@ -1024,9 +1032,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       .then(discounts => {
         if (discounts) {
           const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-          discount = res !== undefined ? (res / 100.0) : 0.0;
-        } else {
-          discount = 0.0;
+          discount = res !== undefined ? (res / 100.0) : undefined;
         }
       })
       .catch(err => {
@@ -1045,10 +1051,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
+    p.productGroup = !!p.productGroup ? p.productGroup : '-'
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
-      const discountedPrice = p.unitPrice2! * discountForPrice;
-      res.unitPrice = p.unitPrice2! - discountedPrice;
+      if (discountForPrice !== undefined) {
+        const discountedPrice = p.unitPrice2! * discountForPrice;
+        res.unitPrice = p.unitPrice2! - discountedPrice;
+        res.custDiscounted = true;
+      } else {
+        res.unitPrice = p.unitPrice2!;
+      }
     } else {
       res.unitPrice = p.unitPrice2!;
     }
@@ -1090,6 +1102,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
           this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
+
+          if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+            this.simpleToastrService.show(
+              Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+          }
         } else {
           if (this.customerInputFilterString.length >= 8 &&
           this.IsNumber(this.customerInputFilterString)) {
@@ -1157,6 +1177,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             next: (res: Customer) => {
               console.log("Selected item: ", res);
               this.SetDataForForm(res);
+
+              if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+                this.simpleToastrService.show(
+                  Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+              }
             },
             error: err => {
               this.cs.HandleError(err);

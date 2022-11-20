@@ -43,6 +43,8 @@ export module Constants {
     export const MSG_LOGOUT_SUCCESFUL: string = 'Sikeres kijelentkezés!'
     export const MSG_LOGOUT_FAILED: string = 'Sikertelen kijelentkezés!'
 
+    export const MSG_WARNING_CUSTDISCOUNT_PREV: string = 'Figyelem: A tétellapon engedményes ár szerepel!';
+
     export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
         { duration: 0, status: 'primary' };
     export const TOASTR_ERROR: Partial<NbToastrConfig> =
