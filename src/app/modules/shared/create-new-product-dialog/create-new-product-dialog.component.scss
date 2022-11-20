@@ -30,6 +30,11 @@
         border-top: 1px yellow solid;
         color: white;
         text-align: left;
+        display: grid;
+        grid-template-columns: 30% 20% 20% 30%;
+        grid-template-rows: 100%;
+        justify-items: center;
+        align-items: center;
         &,
         * {
             font-size: 1.1rem !important;
@@ -55,6 +60,9 @@
                     margin-right: 5px;
                 }
             }
+        }
+        button {
+            margin: 0px;
         }
     }
 
