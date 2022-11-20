@@ -4,6 +4,10 @@ input.right {
     text-align: right;
 }
 
+form {
+    overflow-y: hidden;
+}
+
 .modal-product-active {
     border: 4px yellow double;
 
