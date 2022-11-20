@@ -28,6 +28,7 @@ export module Constants {
     export const MSG_USER_GET_FAILED: string = 'Felhasználó lekérése sikertelen! Név: '
 
     export const MSG_USER_MUST_BE_CHOSEN: string = 'Nincs ügyfél kiválasztva!';
+    export const MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN: string = 'Partnerkedvezmény felhasználásához egy vevőt szükséges választani előbb!';
 
     export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'

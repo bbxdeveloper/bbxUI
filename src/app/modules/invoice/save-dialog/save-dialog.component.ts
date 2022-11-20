@@ -30,7 +30,7 @@ import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
-import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
+import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
@@ -52,7 +52,7 @@ interface VatRateRow { Id: string, Value: number };
   styleUrls: ['./save-dialog.component.scss']
 })
 export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
-  @Input() data!: CreateOutgoingInvoiceRequest;
+  @Input() data!: OutGoingInvoiceFullData;
 
   numberInputMask: any = createMask({
     alias: 'numeric',
@@ -102,6 +102,13 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
         result.push(res[value.vatRateCode]);
       }
       res[value.vatRateCode].Value += HelperFunctions.ToFloat(value.lineVatAmount)
+      return res;
+    }, {});
+    this.data.invoiceLines.reduce(function (res: any, value) {
+      var index = result.findIndex(x => x.Id === value.vatRateCode);
+      if (index !== -1) {
+        result[index].Value = HelperFunctions.Round(result[index].Value);
+      }
       return res;
     }, {});
     this.vatRateCodes = result;

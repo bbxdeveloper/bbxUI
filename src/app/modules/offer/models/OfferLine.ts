@@ -4,6 +4,7 @@ import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { environment } from "src/environments/environment";
 import { InvoiceLine } from "../../invoice/models/InvoiceLine";
 import { Product } from "../../product/models/Product";
+import { CurrencyCodes } from "../../system/models/CurrencyCode";
 
 export interface OfferLineForPost {
     "lineNumber": number;
@@ -42,6 +43,21 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "unitGross": number = 0; // unitPrice + unitVat
     "showDiscount": boolean = true;
     "quantity": number = 0;
+
+    "originalUnitPrice1": number = 0; // L = false
+    "originalUnitPrice2": number = 0; // E = true
+    "unitPriceSwitch": boolean = true;
+    get UnitPriceSwitch(): boolean {
+        return this.unitPriceSwitch;
+    }
+    set UnitPriceSwitch(value: boolean) {
+        this.ReCalc(false);
+        this.unitPriceSwitch = value;
+    }
+
+    get exchangedOriginalUnitPrice(): number {
+        return HelperFunctions.Round2(this.originalUnitPrice / this.exchangeRate, 1);
+    }
     
     // Custom
     "vatRate": number = 1.0;
@@ -55,6 +71,9 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "unitOfMeasureX": string = "";
     "vatRateID": number = -1;
     "vatPercentage": number = -1;
+
+    currencyCode: string = CurrencyCodes.HUF;
+    exchangeRate: number = 1;
 
     // Quantity
     get Quantity(): number {
@@ -130,14 +149,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         this.unitGross = this.UnitPriceForCalc + this.unitVat;
     }
     get UnitVat() {
-        return this.unitVat;
-    }
-
-    public Round(): void {
-        // this.unitVat = HelperFunctions.Round(this.unitVat);
-        // this.originalUnitPrice = HelperFunctions.Round(this.originalUnitPrice);
-        // this.unitPrice = HelperFunctions.Round(this.unitPrice);
-        // this.unitGross = HelperFunctions.Round(this.unitGross);
+        return this.unitVat / this.exchangeRate;
     }
 
     IsUnfinished(): boolean {
@@ -173,24 +185,34 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
-    public ReCalc(unitPriceWasUpdated: boolean = false): void {
-        let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
-        let priceWithDiscount = this.originalUnitPrice;
-        priceWithDiscount -= HelperFunctions.Round2(this.originalUnitPrice * discountForCalc, 2);
-
-        if (unitPriceWasUpdated && HelperFunctions.Round(priceWithDiscount) !== this.unitPrice) {
-            this.unitPrice = HelperFunctions.Round2(this.unitPrice, 2);
-            this.discount = 0.0;
-        } else {
-            this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 2);
+    public ReCalc(unitPriceWasUpdated: boolean, currencyCode?: string, exchangeRate?: number): void {
+        if (currencyCode !== undefined) {
+            this.currencyCode = this.currencyCode;
+        }
+        if (exchangeRate !== undefined) {
+            this.exchangeRate = HelperFunctions.ToFloat(exchangeRate);
         }
 
-        this.unitVat = HelperFunctions.Round(HelperFunctions.ToFloat(this.unitPrice) * this.vatRate);
+        this.originalUnitPrice = this.unitPriceSwitch ?
+            HelperFunctions.Round2(this.originalUnitPrice2 ?? 0, 2) : HelperFunctions.Round2(this.originalUnitPrice1 ?? 0, 2);
+
+        let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
+        let priceWithDiscount = this.exchangedOriginalUnitPrice;
+        priceWithDiscount -= HelperFunctions.ToFloat(this.exchangedOriginalUnitPrice * discountForCalc);
+        priceWithDiscount = HelperFunctions.Round2(priceWithDiscount, 1);
         
-        this.unitGross = HelperFunctions.Round(this.UnitPriceForCalc + this.unitVat);
+        console.log(`unitPriceWasUpdated ${unitPriceWasUpdated}, priceWithDiscount ${priceWithDiscount}, this.unitPrice ${this.unitPrice}`);
+        if (unitPriceWasUpdated && priceWithDiscount !== this.unitPrice) {
+            this.unitPrice = HelperFunctions.Round2(this.unitPrice, 1);
+            this.discount = 0.0;
+        } else {
+            this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 1);
+        }
+
+         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
     }
 
-    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0): OfferLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
         let offerLine = new OfferLine();
 
         offerLine.lineDescription = product.description ?? '';
@@ -203,7 +225,10 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         offerLine.UnitVat = product.vatPercentage ?? 0;
 
-        offerLine.OriginalUnitPrice = HelperFunctions.Round2(product.unitPrice2 ?? 0, 2);
+        offerLine.originalUnitPrice1 = HelperFunctions.Round2(product.unitPrice1 ?? 0, 2);
+        offerLine.originalUnitPrice2 = HelperFunctions.Round2(product.unitPrice2 ?? 0, 2);
+        offerLine.OriginalUnitPrice = offerLine.unitPriceSwitch ?
+            HelperFunctions.Round2(product.unitPrice2 ?? 0, 2) : HelperFunctions.Round2(product.unitPrice1 ?? 0, 2);
 
         offerLine.unitOfMeasure = product.unitOfMeasure;
         offerLine.unitOfMeasureX = product.unitOfMeasureX;
@@ -217,7 +242,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
 
         offerLine.Discount = 0.0;
 
-        offerLine.ReCalc();
+        offerLine.ReCalc(unitPriceWasUpdated, currencyCode, exchangeRate);
 
         return offerLine;
     }
@@ -230,6 +255,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.lineDescription = data.lineDescription;
         offerLine.vatRateCode = data.vatRateCode;
         offerLine.OriginalUnitPrice = data.unitPrice;
+        offerLine.originalUnitPrice1 = data.unitPrice;
+        offerLine.originalUnitPrice2 = data.unitPrice;
         offerLine.unitGross = data.unitGross;
         offerLine.Discount = data.discount;
         offerLine.showDiscount = data.showDiscount;

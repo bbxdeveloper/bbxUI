@@ -31,5 +31,8 @@ export interface ModelFieldDescriptor {
     placeHolder?: string;
 
     keyAction?: Actions,
-    keySettingsRow?: Constants.KeySettingRow
+    keySettingsRow?: Constants.KeySettingRow,
+
+    checkboxFalse?: string,
+    checkboxTrue?: string
 }

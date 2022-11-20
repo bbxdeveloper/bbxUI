@@ -18,4 +18,7 @@ export interface Product {
     "ean"?: string,
     "vatRateCode": string,
     "vatPercentage"?: number,
+    "noDiscount": boolean,
+    "exhangedUnitPrice1"?: number,
+    "exhangedUnitPrice2"?: number,
 }

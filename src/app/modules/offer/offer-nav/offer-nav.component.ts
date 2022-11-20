@@ -92,6 +92,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     'sumNetAmount',
     'sumBrtAmount',
     'notice',
+    'currencyCodeX'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -166,6 +167,19 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       label: 'Bruttó össz', objectKey: 'sumBrtAmount', colKey: 'sumBrtAmount',
       defaultValue: '', mask: "",
       colWidth: "130px", textAlign: "right", type: 'formatted-number'
+    },
+    {
+      label: 'P.N.',
+      objectKey: 'currencyCodeX',
+      colKey: 'currencyCodeX',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      fRequired: false,
+      mask: '',
+      colWidth: '60px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Megjegyzés',

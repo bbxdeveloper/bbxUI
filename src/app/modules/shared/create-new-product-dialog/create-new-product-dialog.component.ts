@@ -136,10 +136,11 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
       minStock: new FormControl(0, []),
       ordUnit: new FormControl(0, []),
       productFee: new FormControl(0, []),
-      active: new FormControl(false, []),
+      active: new FormControl(true, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
-      vatRateCode: new FormControl(undefined, [])
+      vatRateCode: new FormControl(undefined, []),
+      noDiscount: new FormControl(false, [])
     });
 
     this.refreshComboboxData();
@@ -237,7 +238,8 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
       unitOfMeasure: unitOfMeasureValue,
       productFee: HelperFunctions.ToInt(p.productFee),
       productCode: p.productCode,
-      vatRateCode: vatRatecode
+      vatRateCode: vatRatecode,
+      noDiscount: p.noDiscount
     } as CreateProductRequest;
     return res;
   }

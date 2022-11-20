@@ -1,0 +1,49 @@
+.bbx-checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+
+  .checkbox-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .checkbox-border {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 20px;
+    height: 20px;
+
+    border: none;
+
+    border-radius: 0px;
+
+      background: #0075ff;
+
+      :hover {
+        background: #005cc8;
+      }
+      :active {
+        background: #3793ff;
+      }
+
+    .checkbox-filling {
+      width: 10px;
+      height: 10px;
+
+      text-align: center;
+
+      margin-bottom: 7px;
+
+      border-radius: 1px;
+      background: transparent;
+    }
+  }
+}

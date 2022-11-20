@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, Subscription, lastValueFrom } from 'rxjs';
+import { Observable, of, startWith, map, Subscription, lastValueFrom, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -36,6 +36,10 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { Actions, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { CurrencyCode, CurrencyCodes } from '../../system/models/CurrencyCode';
+import { SystemService } from '../../system/services/system.service';
+import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
+import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -61,6 +65,17 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   filteredBuyerOptions$: Observable<string[]> = of([]);
   paymentMethodOptions$: Observable<string[]> = of([]);
 
+  currencyCodes: string[] = [];
+  currencyCodeValues: { [key: string]: CurrencyCode } = {};
+  currencyCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+  get SelectedCurrency(): CurrencyCode | undefined {
+    return this.buyerForm.controls['currencyCode'].value !== undefined ?
+      this.currencyCodeValues[this.buyerForm.controls['currencyCode'].value ?? -1] : undefined;
+  }
+
+  showExchangeRateInput: boolean = true;
+
   customerInputFilterString: string = '';
 
   _searchByTaxtNumber: boolean = false;
@@ -78,13 +93,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "originalUnitPrice", "vatRateCode", "UnitGrossVal"];
+  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "exchangedOriginalUnitPrice", "vatRateCode", "UnitGrossVal"];
   override allColumns = [
     'productCode',
     'lineDescription',
+    'UnitPriceSwitch',
     'quantity',
     'unitOfMeasureX',
-    'originalUnitPrice',
+    'exchangedOriginalUnitPrice',
     'discount',
     'showDiscount',
     'unitPrice',
@@ -106,6 +122,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "50%", textAlign: "left",
     },
     {
+      label: 'Á.T.', objectKey: 'UnitPriceSwitch', colKey: 'UnitPriceSwitch',
+      defaultValue: '', type: 'bbx-checkbox', mask: "", checkboxFalse: "L", checkboxTrue: "E",
+      colWidth: "40px", textAlign: "center", fInputType: 'bbx-checkbox'
+    },
+    {
       label: 'Menny.', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
@@ -116,7 +137,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       colWidth: "80px", textAlign: "right"
     },
     {
-      label: 'Nettó Ár', objectKey: 'originalUnitPrice', colKey: 'originalUnitPrice',
+      label: 'Nettó Ár', objectKey: 'exchangedOriginalUnitPrice', colKey: 'exchangedOriginalUnitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
@@ -218,25 +239,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected route: ActivatedRoute,
     protected sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    protected custDiscountService: CustomerDiscountService
+    protected custDiscountService: CustomerDiscountService,
+    protected systemService: SystemService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
-  }
-
-  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
-    this.dbData[event.RowPos].data.ReCalc(event.FieldDescriptor.objectKey === "unitPrice");
-
-    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
-      if (event.Focused) {
-        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      } else {
-        let k = this.KeySetting;
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      }
-    }
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -256,13 +262,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
     }
-  }
-
-  protected Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
   }
 
   InitialSetup(): void {}
@@ -340,74 +339,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       return;
     }
     const d = this.dbData[rowPos]?.data;
-    if (!!d) {
-      d.Round();
-    }
   }
 
-  protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-          if (!!product && !!product?.productCode) {
-            if (row.data.productID === product.id) {
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-              return;
-            }
-
-            this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }).subscribe({
-              next: data => {
-                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
-                const _d = this.dbData[rowPos].data;
-                this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.MoveNextInTable();
-                setTimeout(() => {
-                  this.kbS.setEditMode(KeyboardModes.EDIT);
-                  this.kbS.ClickCurrentElement();
-                }, 200);
-              },
-              error: err => {
-                this.cs.HandleError(err);
-
-                this.dbDataTable.FillCurrentlyEditedRow({ data: OfferLine.FromProduct(product) });
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.dbDataTable.MoveNextInTable();
-                setTimeout(() => {
-                  this.kbS.setEditMode(KeyboardModes.EDIT);
-                  this.kbS.ClickCurrentElement();
-                }, 500);
-              },
-              complete: () => { }
-            });
-          } else {
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-          }
-
-          this.RecalcNetAndVat();
-        },
-        error: err => {
-          this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        },
-        complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
-    }
-  }
+  protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {}
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
     if (index !== undefined) {
@@ -446,9 +380,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  refresh(): void {
-    this.seC.GetAll({ IsOwnData: false }).subscribe({
-      next: d => {
+  async refresh(): Promise<void> {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+    await this.refreshComboboxData();
+    
+    await lastValueFrom(this.seC.GetAll({ IsOwnData: false }))
+      .then(d => {
         // Possible buyers
         this.buyersData = d.data!;
         this.buyerFormNav.Setup(this.buyersData);
@@ -467,16 +405,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
         this.table?.renderRows();
         this.RefreshTable();
-
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {});
+      
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   protected filterBuyers(value: string): string[] {
@@ -733,5 +668,54 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
 
     this.Save();
+  }
+
+  private async refreshComboboxData(setIsLoad = false): Promise<void> {
+    await lastValueFrom(this.systemService.GetAllCurrencyCodes())
+      .then(data => {
+        console.log("[refreshComboboxData] GetAllCurrencyCodes: ", data);
+        
+        this.currencyCodes =
+          data?.map(x => {
+            let res = x.text;
+            this.currencyCodeValues[res] = x;
+            return x.text;
+          }) ?? [];
+
+        this.currencyCodes =
+          data?.map(x => x.text) ?? [];
+        this.currencyCodeComboData$.next(this.currencyCodes);
+        if (this.currencyCodes.length > 0) {
+          this.buyerForm.controls['currencyCode'].setValue(this.currencyCodes[0]);
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {});
+  }
+
+  protected SwitchUnitPriceAll(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    const dialogRef = this.dialogService.open(RadioChoiceDialogComponent, {
+      context: {
+        title: 'Á.T. összes sorra',
+        defaultValue: 'E',
+        optionLabel1: 'Egységár',
+        optionValue1: 'E',
+        optionLabel2: 'Listaár',
+        optionValue2: 'L'
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (res: SimpleDialogResponse) => {
+        if (res.value !== undefined) {
+          this.dbData.forEach(x => {
+            x.data.UnitPriceSwitch = res.value == 'E';
+          })
+        }
+      }
+    });
   }
 }

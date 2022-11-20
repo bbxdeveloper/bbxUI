@@ -301,4 +301,26 @@ export module HelperFunctions {
         event.stopImmediatePropagation();
         event.stopPropagation();
     }
+
+    export function CASHRound(p_num: number): number
+    {
+        var lastDigit = (p_num % 10);
+        var roundNum = 5;
+        if (lastDigit >= 8) {
+            roundNum = 10;
+        }
+        else if (lastDigit <= 2) {
+            roundNum = 10;
+        }
+        else {
+            roundNum = 5;
+        }
+
+        if (p_num > 0) {
+            return p_num - lastDigit + roundNum;
+        }
+        else {
+            return p_num + lastDigit - roundNum;
+        }
+    }
 }

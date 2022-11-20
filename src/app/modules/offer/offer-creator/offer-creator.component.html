@@ -83,6 +83,20 @@
                                 </nb-form-field>
                             </td>
                             <td>
+                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav"
+                                    [needBlankOption]="false" [autoFillFirstAvailableValue]="true"
+                                    formFieldName="currencyCode" label="Pénznem" [data$]="currencyCodeComboData$"></app-bbx-combo-box>
+                            </td>
+                            <td *ngIf="showExchangeRateInput">
+                                <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                                    <label>Árfolyam</label>
+                                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="exchangeRate"
+                                        [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
+                                        oninput="$event.target.setSelectionRange(0, 1)"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)">
+                                </nb-form-field>
+                            </td>
+                            <td>
                                 <nb-form-field>
                                     <label>Sorszám</label>
                                     <input nbInput type="text" formControlName='offerNumberX' placeholder="Sorszám" readonly>

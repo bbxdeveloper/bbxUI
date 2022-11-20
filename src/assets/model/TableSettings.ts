@@ -115,9 +115,9 @@ export module ProductDialogTableSettings {
     export const ProductSelectorDialogAllColumns: string[] = [
         'productCode',
         'description',
-        'unitPrice1',
-        'unitPrice2',
-        'latestSupplyPrice'
+        'latestSupplyPrice',
+        'exhangedUnitPrice1',
+        'exhangedUnitPrice2'
     ];
     export const ProductSelectorDialogColDefs: ModelFieldDescriptor[] = [
         {
@@ -143,9 +143,9 @@ export module ProductDialogTableSettings {
             navMatrixCssClass: TileCssClass,
         },
         {
-            label: 'Elad ár 1',
-            objectKey: 'unitPrice1',
-            colKey: 'unitPrice1',
+            label: 'Listaár',
+            objectKey: 'exhangedUnitPrice1',
+            colKey: 'exhangedUnitPrice1',
             defaultValue: '',
             type: 'formatted-number',
             fRequired: true,
@@ -155,9 +155,9 @@ export module ProductDialogTableSettings {
             navMatrixCssClass: TileCssClass,
         },
         {
-            label: 'Elad ár 2',
-            objectKey: 'unitPrice2',
-            colKey: 'unitPrice2',
+            label: 'Egységár',
+            objectKey: 'exhangedUnitPrice2',
+            colKey: 'exhangedUnitPrice2',
             defaultValue: '',
             type: 'formatted-number',
             fRequired: false,

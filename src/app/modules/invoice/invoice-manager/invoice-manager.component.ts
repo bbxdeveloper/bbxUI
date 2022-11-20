@@ -20,8 +20,8 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
-import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine } from '../models/InvoiceLine';
+import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
+import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
@@ -75,7 +75,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   _paymentMethods: string[] = [];
   paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  outGoingInvoiceData!: CreateOutgoingInvoiceRequest;
+  outGoingInvoiceData!: OutGoingInvoiceFullData;
 
   customerInputFilterString: string = '';
 
@@ -297,7 +297,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       notice: '',
       paymentDate: '',
       paymentMethod: ''
-    } as CreateOutgoingInvoiceRequest;
+    } as OutGoingInvoiceFullData;
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -479,13 +479,27 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => this.ToFloat(x.unitPrice) * this.ToFloat(x.quantity))
+        .map(x => HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity))
         .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
 
-    this.outGoingInvoiceData.lineGrossAmount =
+    this.outGoingInvoiceData.invoiceVatAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => (this.ToFloat(x.unitPrice) * this.ToFloat(x.quantity)) + this.ToFloat(x.lineVatAmount + ''))
+        .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
+
+    let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+      HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
+
+    // this.outGoingInvoiceData.lineGrossAmount =
+    //   this.outGoingInvoiceData.invoiceLines
+    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
+    //     .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
+    if (_paymentMethod === "CASH") {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CASHRound(this.outGoingInvoiceData.lineGrossAmount);
+    }
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
@@ -718,7 +732,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): void {
+  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
     
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
@@ -752,6 +766,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceType = this.InvoiceType;
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+
+    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
   }
 
   async printReport(id: any, copies: number): Promise<void> {
@@ -806,7 +822,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
-    this.UpdateOutGoingData();
+    var request = this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
 
@@ -823,8 +839,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       console.log("Selected item: ", res);
       if (!!res) {
         this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.isLoading = true;
-        this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
+        this.seInv.CreateOutgoing(request).subscribe({
           next: d => {
             //this.isSilentLoading = false;
             if (!!d.data) {
@@ -839,7 +854,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
               );
-              this.isLoading = false;
 
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
@@ -874,7 +888,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                           commandEndedSubscription.unsubscribe();
                         }
 
-                        this.isLoading = false;
                         this.isSaveInProgress = false;
                       },
                       error: cmdEnded => {
@@ -888,13 +901,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
                           );
-                          this.isLoading = false;
                           this.isSaveInProgress = false;
 
                           commandEndedSubscription.unsubscribe();
                       }
                     });
-                    this.isLoading = true;
                     await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
@@ -902,7 +913,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
-                    this.isLoading = false;
                     this.isSaveInProgress = false;
                     this.Reset();
                   }
@@ -910,7 +920,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               });
             } else {
               this.cs.HandleError(d.errors);
-              this.isLoading = false;
               this.isSaveInProgress = false;
               this.status.pushProcessStatus(Constants.BlankProcessStatus);
             }
@@ -918,16 +927,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           error: err => {
             this.status.pushProcessStatus(Constants.BlankProcessStatus);
             this.cs.HandleError(err);
-            this.isLoading = false;
             this.isSaveInProgress = false;
           },
           complete: () => {
-            this.isLoading = false;
             this.isSaveInProgress = false;
           }
         });
       } else {
-        this.isLoading = false;
         this.isSaveInProgress = false;
       }
     });
@@ -964,7 +970,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
@@ -1002,13 +1009,31 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   RefreshData(): void { }
 
   private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number> {
-    const discounts = await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }));
-    if (discounts) {
-      const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-      return res !== undefined ? (res / 100.0) : 0.0;
-    } else {
-      return 0.0;
+    let discount = 0;
+
+    if (this.buyerData === undefined || this.buyerData.id === undefined) {
+      this.bbxToastrService.show(
+        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return discount;
     }
+
+    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+      .then(discounts => {
+        if (discounts) {
+          const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
+          discount = res !== undefined ? (res / 100.0) : 0.0;
+        } else {
+          discount = 0.0;
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {})
+    return discount;
   }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
@@ -1020,9 +1045,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
-    const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
-    const discountedPrice = p.unitPrice2! * discountForPrice;
-    res.unitPrice = this.Delivery ? (p.unitPrice2! - discountedPrice) : p.unitPrice2!;
+    if (!p.noDiscount) {
+      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
+      const discountedPrice = p.unitPrice2! * discountForPrice;
+      res.unitPrice = p.unitPrice2! - discountedPrice;
+    } else {
+      res.unitPrice = p.unitPrice2!;
+    }
     
     res.vatRateCode = p.vatRateCode;
 

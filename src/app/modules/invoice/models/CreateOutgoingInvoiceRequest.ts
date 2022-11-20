@@ -1,6 +1,6 @@
-import { InvoiceLine } from "./InvoiceLine";
+import { InvoiceLine, InvoiceLineForPost } from "./InvoiceLine";
 
-export interface CreateOutgoingInvoiceRequest {
+export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
     "warehouseCode": string, // 001 - string
     
     "invoiceIssueDate": any, // date
@@ -14,15 +14,36 @@ export interface CreateOutgoingInvoiceRequest {
     
     "notice": string,
     
-    "invoiceNetAmount": number, // amount * price (sum invoicelines) - status row
-    "invoiceVatAmount": number, // netamount * vat (sum invoicelines)
-    "lineGrossAmount": number, // netamount + vatamount (sum invoicelines)
-    
-    "invoiceLines": InvoiceLine[],
+    "invoiceLines": T[],
     
     "currencyCode"?: string,
     "exchangeRate"?: number,
     
     "incoming"?: boolean,
     "invoiceType"?: string,
+}
+
+export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<InvoiceLine> {
+    "invoiceNetAmount": number, // amount * price (sum invoicelines) - status row
+    "invoiceVatAmount": number, // netamount * vat (sum invoicelines)
+    "lineGrossAmount": number, // netamount + vatamount (sum invoicelines)
+}
+
+export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
+    let res = {
+        customerID: f.customerID,
+        invoiceDeliveryDate: f.invoiceDeliveryDate,
+        invoiceIssueDate: f.invoiceIssueDate,
+        invoiceLines: f.invoiceLines.map(x => x.GetPOSTData()),
+        notice: f.notice,
+        paymentDate: f.paymentDate,
+        paymentMethod: f.paymentMethod,
+        warehouseCode: f.warehouseCode,
+        currencyCode: f.currencyCode,
+        customerInvoiceNumber: f.customerInvoiceNumber,
+        exchangeRate: f.exchangeRate,
+        incoming: f.incoming,
+        invoiceType: f.invoiceType
+    } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
+    return res;
 }

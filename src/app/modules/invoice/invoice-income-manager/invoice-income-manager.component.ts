@@ -20,8 +20,8 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
-import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine } from '../models/InvoiceLine';
+import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
+import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
@@ -73,7 +73,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   _paymentMethods: string[] = [];
   paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  outGoingInvoiceData!: CreateOutgoingInvoiceRequest;
+  outGoingInvoiceData!: OutGoingInvoiceFullData;
 
   customerInputFilterString: string = '';
 
@@ -297,7 +297,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       notice: '',
       paymentDate: '',
       paymentMethod: ''
-    } as CreateOutgoingInvoiceRequest;
+    } as OutGoingInvoiceFullData;
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -484,13 +484,27 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => this.ToFloat(x.unitPrice) * this.ToFloat(x.quantity))
+      .map(x => HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity))
         .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
 
-    this.outGoingInvoiceData.lineGrossAmount =
+    this.outGoingInvoiceData.invoiceVatAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => (this.ToFloat(x.unitPrice) * this.ToFloat(x.quantity)) + this.ToFloat(x.lineVatAmount + ''))
+        .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
+
+    let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+      HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
+
+    // this.outGoingInvoiceData.lineGrossAmount =
+    //   this.outGoingInvoiceData.invoiceLines
+    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
+    //     .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
+    if (_paymentMethod === "CASH") {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CASHRound(this.outGoingInvoiceData.lineGrossAmount);
+    }
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
@@ -723,7 +737,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): void {
+  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
     this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
 
@@ -758,6 +772,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.outGoingInvoiceData.invoiceType = this.InvoiceType;
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+
+    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
   }
 
   async printReport(id: any, copies: number): Promise<void> {
@@ -812,7 +828,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
-    this.UpdateOutGoingData();
+    let request = this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
 
@@ -829,7 +845,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       console.log("Selected item: ", res);
       if (!!res) {
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.seInv.CreateOutgoing(this.outGoingInvoiceData).subscribe({
+        this.seInv.CreateOutgoing(request).subscribe({
           next: d => {
             if (!!d.data) {
               console.log('Save response: ', d);
@@ -843,7 +859,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
               );
-              this.isLoading = false;
 
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
@@ -875,13 +890,11 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                           commandEndedSubscription.unsubscribe();
                         }
                         
-                        this.isLoading = false;
                         this.isSaveInProgress = false;
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
-                        this.isLoading = false;
                         this.isSaveInProgress = false;
 
                         commandEndedSubscription.unsubscribe();
@@ -893,7 +906,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                         );
                       }
                     });
-                    this.isLoading = true;
                     await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
@@ -901,7 +913,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
-                    this.isLoading = false;
                     this.isSaveInProgress = false;
                     this.Reset();
                   }
@@ -909,19 +920,16 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               });
             } else {
               this.cs.HandleError(d.errors);
-              this.isLoading = false;
               this.isSaveInProgress = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: err => {
             this.cs.HandleError(err);
-            this.isLoading = false;
             this.isSaveInProgress = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           },
           complete: () => {
-            this.isLoading = false;
           }
         });
       }
@@ -959,7 +967,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       context: {
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {

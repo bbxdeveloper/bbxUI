@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BaseNavigatableComponentComponent } from './base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
-import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule, NbCheckboxModule, NbContextMenuModule, NbMenuModule, NbPopoverModule, NbTagModule, NbTooltipModule, NbSelectModule, NbIconModule, NbAutocompleteModule } from '@nebular/theme';
+import { NbLayoutModule, NbButtonModule, NbCardModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbActionsModule, NbCheckboxModule, NbContextMenuModule, NbMenuModule, NbPopoverModule, NbTagModule, NbTooltipModule, NbSelectModule, NbIconModule, NbAutocompleteModule, NbRadioModule, NbToggleModule } from '@nebular/theme';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
 import { HeadLineComponent } from './head-line/head-line.component';
@@ -32,6 +32,8 @@ import { IframeViewerDialogComponent } from './iframe-viewer-dialog/iframe-viewe
 import { InlineEditableTableComponent } from './inline-editable-table/inline-editable-table.component';
 import { OneButtonMessageDialogComponent } from './one-button-message-dialog/one-button-message-dialog.component';
 import { CreateNewProductDialogComponent } from './create-new-product-dialog/create-new-product-dialog.component';
+import { BbxCharCheckboxComponent } from './bbx-char-checkbox/bbx-char-checkbox.component';
+import { RadioChoiceDialogComponent } from './radio-choice-dialog/radio-choice-dialog.component';
 
 
 @NgModule({
@@ -62,6 +64,8 @@ import { CreateNewProductDialogComponent } from './create-new-product-dialog/cre
     InlineEditableTableComponent,
     OneButtonMessageDialogComponent,
     CreateNewProductDialogComponent,
+    BbxCharCheckboxComponent,
+    RadioChoiceDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -90,7 +94,9 @@ import { CreateNewProductDialogComponent } from './create-new-product-dialog/cre
     InputMaskModule,
     NbSelectModule,
     NbIconModule,
-    NbAutocompleteModule
+    NbAutocompleteModule,
+    NbRadioModule,
+    NbToggleModule
   ],
   exports: [
     BaseNavigatableComponentComponent,
@@ -116,7 +122,9 @@ import { CreateNewProductDialogComponent } from './create-new-product-dialog/cre
     HtmlStringSanitizerPipe,
     InlineEditableTableComponent,
     OneButtonMessageDialogComponent,
-    CreateNewProductDialogComponent
+    CreateNewProductDialogComponent,
+    BbxCharCheckboxComponent,
+    RadioChoiceDialogComponent
   ],
   providers: [
     ConfirmationDialogComponent

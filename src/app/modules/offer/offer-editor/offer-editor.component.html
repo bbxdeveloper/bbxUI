@@ -81,6 +81,19 @@
                             </td>
                             <td>
                                 <nb-form-field>
+                                    <label>Pénznem</label>
+                                    <input nbInput type="text" formControlName='currencyCode' placeholder="Pénznem" readonly>
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
+                                    <label>Árfolyam</label>
+                                    <input nbInput type="text" formControlName="exchangeRate" readonly
+                                        [inputMask]="numberInputMask" placeholder="0.00">
+                                </nb-form-field>
+                            </td>
+                            <td>
+                                <nb-form-field>
                                     <label>Sorszám</label>
                                     <input nbInput type="text" formControlName='offerNumberX' placeholder="Sorszám" readonly>
                                 </nb-form-field>

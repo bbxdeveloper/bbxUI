@@ -79,7 +79,7 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Elad ár 1</label>
+                        <label class="multicol-label-col-1">Listaár</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="unitPrice1"
                             [readonly]="isEditModeOff"
@@ -90,7 +90,7 @@
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label class="multicol-label-col-2">Elad ár 2</label>
+                        <label class="multicol-label-col-2">Egységár</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
                         [readonly]="isEditModeOff"
@@ -106,7 +106,7 @@
                 [data$]="vatRateComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-50 checkbox-wrapper"
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-40 checkbox-wrapper"
                     (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <label class="label-checkbox">Készletes?</label>
 
@@ -115,13 +115,21 @@
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
 
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-50 checkbox-wrapper"
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
                     (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <label class="label-checkbox">Aktív?</label>
 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
                         [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
+                    (keydown.enter)="currentForm.HandleFormEnter($event)">
+                    <label class="label-checkbox">Eng.tilt?</label>
+                
+                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="noDiscount"
+                        [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </div>
 
