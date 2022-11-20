@@ -8,5 +8,6 @@ export interface CurrencyCode {
 export enum CurrencyCodes {
     HUF = 'HUF',
     EUR = 'EUR',
-    USD = 'USD'
+    USD = 'USD',
+    FONT = 'Font'
 }

@@ -180,16 +180,9 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         next: newValue => {
           console.log("Currency selected: ", this.SelectedCurrency);
 
-          if ((<any>Object).values(CurrencyCodes).includes(this.SelectedCurrency?.value)) {
-            this.showExchangeRateInput = this.SelectedCurrency?.value != CurrencyCodes.HUF;
-
-            this.buyerForm.controls['exchangeRate'].setValue(1);
-          } else {
-            this.showExchangeRateInput = false;
-
-            this.offerData.exchangeRate = 1;
-            this.buyerForm.controls['exchangeRate'].setValue(1);
-          }
+          this.showExchangeRateInput = this.SelectedCurrency?.value != CurrencyCodes.HUF;
+          this.offerData.exchangeRate = 1;
+          this.buyerForm.controls['exchangeRate'].setValue(1);
           
           this.cdref.detectChanges();
           setTimeout(() => {
