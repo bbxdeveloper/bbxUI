@@ -106,7 +106,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     'unitPrice',
     'UnitPriceVal',
     'vatRateCode',
-    'UnitGrossVal',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -169,11 +168,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "70px", textAlign: "right", //fInputType: 'formatted-number'
     },
-    {
-      label: 'Bruttó ért.', objectKey: 'UnitGrossVal', colKey: 'UnitGrossVal',
-      defaultValue: '', type: 'number', mask: "", fReadonly: true,
-      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
-    }
+    // {
+    //   label: 'Bruttó ért.', objectKey: 'UnitGrossVal', colKey: 'UnitGrossVal',
+    //   defaultValue: '', type: 'number', mask: "", fReadonly: true,
+    //   colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
+    // }
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },

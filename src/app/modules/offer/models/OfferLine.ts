@@ -107,10 +107,6 @@ export class OfferLine implements IEditable, OfferLineFullData {
         this.unitPrice = HelperFunctions.ToFloat(priceWithDiscount);
         this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
     }
-    get Discount() {
-        // console.log(`[GETTER Discount]: ${this.discount}`);
-        return this.discount;
-    }
     get DiscountForCalc() {
         // console.log(`[GETTER Discount]: ${this.discount}`);
         return HelperFunctions.ToFloat((this.discount + '').replace(' ', ''));
@@ -209,7 +205,9 @@ export class OfferLine implements IEditable, OfferLineFullData {
             this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 1);
         }
 
-         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
+        this.unitVat = this.unitPrice * this.vatRate;
+
+        this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
     }
 
     static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
