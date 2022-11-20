@@ -42,6 +42,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -296,7 +297,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       invoiceIssueDate: '',
       notice: '',
       paymentDate: '',
-      paymentMethod: ''
+      paymentMethod: '',
+      exchangeRate: 1,
+      currencyCode: CurrencyCodes.HUF
     } as OutGoingInvoiceFullData;
 
     this.dbData = [];
@@ -400,6 +403,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     // Refresh data
     this.refresh();
+
+    this.outInvForm.controls["paymentMethod"].valueChanges.subscribe({
+      next: v => {
+        this.RecalcNetAndVat();
+      }
+    });
   }
 
   changeSort(sortRequest: NbSortRequest): void {
@@ -484,15 +493,13 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity))
+      .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
         .reduce((sum, current) => sum + current, 0);
-    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
 
     this.outGoingInvoiceData.invoiceVatAmount =
       this.outGoingInvoiceData.invoiceLines
         .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
-    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
 
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
@@ -502,9 +509,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
     //     .reduce((sum, current) => sum + current, 0);
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
-    if (_paymentMethod === "CASH") {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CASHRound(this.outGoingInvoiceData.lineGrossAmount);
+    if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
     }
+
+    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
+    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {

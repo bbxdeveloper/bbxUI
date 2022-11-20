@@ -302,8 +302,25 @@ export module HelperFunctions {
         event.stopPropagation();
     }
 
+    export function CashRound(val: number): number {
+        val = ToFloat(val);        
+        if (val === 0) {
+            return 0;
+        }
+        return Math.round(val / 5) * 5;
+    }
+
     export function CASHRound(p_num: number): number
     {
+        if (p_num === 0) {
+            return 0;
+        }
+
+        const negative = p_num < 0;
+        p_num = negative ? (p_num * -1.0) : p_num;
+
+        p_num = Round(p_num);
+
         var lastDigit = (p_num % 10);
         var roundNum = 5;
         if (lastDigit >= 8) {
@@ -316,11 +333,14 @@ export module HelperFunctions {
             roundNum = 5;
         }
 
+        let res = 0;
         if (p_num > 0) {
-            return p_num - lastDigit + roundNum;
+            res = p_num - lastDigit + roundNum;
         }
         else {
-            return p_num + lastDigit - roundNum;
+            res = p_num + lastDigit - roundNum;
         }
+
+        return negative ? (res * -1.0) : res;
     }
 }
