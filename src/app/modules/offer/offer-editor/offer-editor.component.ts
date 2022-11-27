@@ -45,6 +45,7 @@ import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { CurrencyAndExchangeService } from 'src/app/services/currency-and-exchange.service';
 
 @Component({
   selector: 'app-offer-editor',
@@ -84,13 +85,14 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     custDiscountService: CustomerDiscountService,
-    systemService: SystemService
+    systemService: SystemService,
+    currencyService: CurrencyAndExchangeService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService,
-      systemService
+      systemService, currencyService
     );
     this.isLoading = false;
     this.InitialSetup();

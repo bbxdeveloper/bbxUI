@@ -40,6 +40,7 @@ import { CurrencyCode, CurrencyCodes } from '../../system/models/CurrencyCode';
 import { SystemService } from '../../system/services/system.service';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
+import { CurrencyAndExchangeService, ExchangeRate } from 'src/app/services/currency-and-exchange.service';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -50,6 +51,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   @ViewChild('table') table?: NbTable<any>;
 
   KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
+
+  protected exchangeRates: Constants.Dct = {};
 
   protected Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
   
@@ -239,7 +242,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     protected custDiscountService: CustomerDiscountService,
-    protected systemService: SystemService
+    protected systemService: SystemService,
+    protected currencyService: CurrencyAndExchangeService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
   }
@@ -381,6 +385,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   async refresh(): Promise<void> {
     this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+    console.log('[refresh] exchangeRates: ', this.exchangeRates);
 
     await this.refreshComboboxData();
     

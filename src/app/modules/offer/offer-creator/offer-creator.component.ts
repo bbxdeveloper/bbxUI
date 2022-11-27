@@ -45,6 +45,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
+import { CurrencyAndExchangeService } from 'src/app/services/currency-and-exchange.service';
 
 @Component({
   selector: 'app-offer-creator',
@@ -80,13 +81,14 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     custDiscountService: CustomerDiscountService,
-    systemService: SystemService
+    systemService: SystemService,
+    currencyService: CurrencyAndExchangeService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService,
-      systemService
+      systemService, currencyService
     );
     this.isLoading = false;
     this.InitialSetup();
@@ -178,11 +180,18 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
       this.buyerForm.controls['currencyCode'].valueChanges.subscribe({
         next: newValue => {
-          console.log("Currency selected: ", this.SelectedCurrency);
+          this.exchangeRates = this.currencyService.GetExchangeRatesSync()?.rates;
+
+          console.log("Currency selected: ", this.SelectedCurrency, ', exchangeRates: ', this.exchangeRates);
 
           this.showExchangeRateInput = this.SelectedCurrency?.value != CurrencyCodes.HUF;
-          this.offerData.exchangeRate = 1;
-          this.buyerForm.controls['exchangeRate'].setValue(1);
+
+          console.log("New exchangerate: ", this.SelectedCurrency?.value, ', ', 1 / this.exchangeRates[this.SelectedCurrency?.value ?? CurrencyCodes.HUF]);
+
+          var newExchangeRate = HelperFunctions.ToFloat(1 / this.exchangeRates[this.SelectedCurrency?.value ?? CurrencyCodes.HUF] ?? 1.0);
+
+          this.offerData.exchangeRate = newExchangeRate;
+          this.buyerForm.controls['exchangeRate'].setValue(newExchangeRate);
           
           this.cdref.detectChanges();
           setTimeout(() => {
