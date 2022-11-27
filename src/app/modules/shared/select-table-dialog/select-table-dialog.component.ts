@@ -27,10 +27,10 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
 
   closedManually: boolean = false;
 
-  dbData: TreeGridNode<T>[];
-  dbDataSource: NbTreeGridDataSource<TreeGridNode<T>>;
+  dbData!: TreeGridNode<T>[];
+  dbDataSource!: NbTreeGridDataSource<TreeGridNode<T>>;
   dbDataTable!: SimpleNavigatableTable<T>;
-  selectedRow: T;
+  selectedRow!: T;
 
   isLoading: boolean = true;
 
@@ -48,7 +48,10 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
     protected dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
   ) {
     super();
+    this.Setup();
+  }
 
+  Setup(): void {
     this.dbData = []; // this.allData;
     this.dbDataSource = this.dataSourceBuilder.create(this.dbData);
     this.selectedRow = {} as T;

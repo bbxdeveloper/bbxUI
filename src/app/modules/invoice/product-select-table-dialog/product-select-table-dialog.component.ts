@@ -1,9 +1,12 @@
 import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { NavigatableForm } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -25,6 +28,12 @@ const NavMap: string[][] = [
 })
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
+  currentChooserValue: any = 1;
+
+  inputForm!: FormGroup;
+  formNav!: NavigatableForm;
+
+  TileCssClass = TileCssClass;
 
   @Input() exchangeRate: number = 1;
 
@@ -33,11 +42,24 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   get getInputParams(): GetProductsParamListModel {
-    return { SearchString: this.srcString, PageSize: '10', PageNumber: '1', OrderBy: 'ProductCode' };
+    return {
+      SearchString: this.srcString,
+      PageSize: '10',
+      PageNumber: '1',
+      OrderBy: 'ProductCode',
+      FilterByName: this.currentChooserValue == 1,
+      FilterByCode: this.currentChooserValue != 1,
+    };
   }
 
   get getInputParamsForAll(): GetProductsParamListModel {
-    return { SearchString: this.srcString, PageSize: '999999', OrderBy: 'ProductCode' };
+    return {
+      SearchString: this.srcString,
+      PageSize: '999999',
+      OrderBy: 'ProductCode',
+      FilterByName: this.currentChooserValue == 1,
+      FilterByCode: this.currentChooserValue != 1,
+    };
   }
 
   isLoaded: boolean = false;
@@ -51,7 +73,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     dialogRef: NbDialogRef<SelectTableDialogComponent<Product>>,
     kbS: KeyboardNavigationService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
-    private productService: ProductService
+    private productService: ProductService,
+    private cdrf: ChangeDetectorRef,
   ) {
     super(dialogRef, kbS, dataSourceBuilder);
 
@@ -64,11 +87,49 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.dbDataTable.OuterJump = true;
   }
 
+  override Setup(): void {
+    this.dbData = []; // this.allData;
+    this.dbDataSource = this.dataSourceBuilder.create(this.dbData);
+    this.selectedRow = {} as Product;
+
+    this.IsDialog = true;
+    this.InnerJumpOnEnter = true;    
+    this.OuterJump = true;
+
+    this.Matrix = [["active-prod-search", "btn-table-show-all", "btn-table-show-less"]];
+
+    this.inputForm = new FormGroup({
+      chooser: new FormControl(this.currentChooserValue, []),
+      searchString: new FormControl("", []),
+    });
+
+    this.inputForm.controls['chooser'].valueChanges.subscribe({
+      next: newValue => {
+        const change = this.currentChooserValue !== newValue;
+        this.currentChooserValue = newValue;
+        if (change) {
+          this.Refresh(this.getInputParams);
+        }
+      }
+    });
+
+    this.formNav = new NavigatableForm(
+      this.inputForm, this.kbS, this.cdrf, [], 'productSearchDialogForm', AttachDirection.UP, {} as IInlineManager
+    );
+  }
+
   override ngOnInit(): void {
     this.Refresh(this.getInputParams);
   }
   ngAfterContentInit(): void {
-    this.kbS.SetWidgetNavigatable(this);
+    // $('*[type=radio]').addClass(TileCssClass);
+    // $('*[type=radio]').on('click', (event) => {
+    //   this.formNav.HandleFormFieldClick(event);
+    // });
+    this.formNav.GenerateAndSetNavMatrices(true);
+
+    this.kbS.SetWidgetNavigatable(this.formNav);
+    
     this.kbS.SelectFirstTile();
   }
   ngAfterViewChecked(): void {

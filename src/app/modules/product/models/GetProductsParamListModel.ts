@@ -5,4 +5,6 @@ export interface GetProductsParamListModel {
     Fields?: string;
     PageSize?: string;
     PageNumber?: string;
+    FilterByCode?: boolean;
+    FilterByName?: boolean;
 }

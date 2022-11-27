@@ -3,15 +3,26 @@
         <span>Gyorskeresés</span>
     </nb-card-header>
     <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
-
-        <label class="search-label" for="search">Keresés:</label>
-        <input nbInput id="active-prod-search" class="search-input"
-            (keyup)="refreshFilter($event)" autocomplete="off">
-
-        <button nbButton class="btn-util" id="show-all" (click)="showAll()">Összes mutatása</button>
-        <button nbButton class="btn-util" id="show-less" (click)="showLess()">Kevesebb mutatása</button>
-
-        <span class="loading-label" *ngIf="isLoading">Betöltés...</span>
+        <form id="productSearchDialogForm" [formGroup]="formNav.form" #formDirective="ngForm" class="form-with-rows"
+            (keydown.escape)="formNav.HandleFormEscape()">
+            <div class="form-row">
+                <nb-radio-group formControlName="chooser" class="bbx-radiogroup">
+                    <nb-radio (keydown.enter)="formNav.HandleFormEnter($event, true, true, true)" checked="true"
+                        [value]="1">Névre</nb-radio>
+                    <nb-radio (keydown.enter)="formNav.HandleFormEnter($event, true, true, true)"
+                        [value]="2">Kódra</nb-radio>
+                </nb-radio-group>
+            </div>
+            <div class="form-row">
+                <label>Keresés</label> <!-- class="search-label" for="search"--> <!--class="search-input" (click)="formNav.HandleFormFieldClick($event)"-->
+                <input id="active-prod-search" nbInput type="text" formControlName='searchString'
+                    oninput="this.value = this.value.toUpperCase()"
+                    (keyup)="refreshFilter($event)" [readonly]="isEditModeOff">
+                <button nbButton class="btn-util" id="show-all" (click)="showAll()">Összes mutatása</button>
+                <button nbButton class="btn-util" id="show-less" (click)="showLess()">Kevesebb mutatása</button>
+                <span class="loading-label" *ngIf="isLoading">Betöltés...</span>
+            </div>
+        </form>
 
         <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
