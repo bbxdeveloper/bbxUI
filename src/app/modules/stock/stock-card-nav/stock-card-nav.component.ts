@@ -38,6 +38,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Subscription } from 'rxjs';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -273,7 +274,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     private router: Router,
     private infrastructureService: InfrastructureService,
     private utS: UtilityService,
-    private wareHouseApi: WareHouseService
+    private wareHouseApi: WareHouseService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -526,10 +528,13 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
   Delete(): void { }
 
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
+      return;
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
       event.preventDefault();
@@ -537,23 +542,47 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       event.stopPropagation();
       return;
     }
+
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    
     switch (event.key) {
       case this.KeySetting[Actions.Create].KeyCode:
       case this.KeySetting[Actions.Edit].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
       case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.JumpToForm].KeyCode:
-      // case this.KeySetting[Actions.CSV].KeyCode:
-      // case this.KeySetting[Actions.Email].KeyCode:
-      // case this.KeySetting[Actions.Details].KeyCode:
-      // case this.KeySetting[Actions.Reset].KeyCode:
-      // case this.KeySetting[Actions.Save].KeyCode:
-      // case this.KeySetting[Actions.Print].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();
         this.HandleFunctionKey(event);
         break;
+    }
+    
+    switch (event.key) {
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      default: { }
     }
   }
 
