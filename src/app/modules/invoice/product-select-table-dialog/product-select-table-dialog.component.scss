@@ -24,8 +24,8 @@ form.form-with-rows {
         align-items: center;
         align-content: center;
 
-        #active-prod-search {
-            margin-right: 10px;
+        input[type="text"] {
+            margin-right: 25px !important;
         }
 
         label {

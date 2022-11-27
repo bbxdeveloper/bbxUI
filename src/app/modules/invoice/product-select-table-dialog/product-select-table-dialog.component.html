@@ -17,10 +17,11 @@
                 <label>Keresés</label> <!-- class="search-label" for="search"--> <!--class="search-input" -->
                 <input id="active-prod-search" nbInput type="text" formControlName='searchString'
                     oninput="this.value = this.value.toUpperCase()" (click)="formNav.HandleFormFieldClick($event)"
-                    class="{{TileCssClass}}" [readonly]="isEditModeOff"
+                    class="{{TileCssClass}}" [readonly]="isEditModeOff" (keydown.enter)="MoveToSaveButtons($event)"
                     (keyup)="refreshFilter($event)">
-                <button nbButton class="btn-util" id="show-all" (click)="showAll()">Összes mutatása</button>
-                <button nbButton class="btn-util" id="show-less" (click)="showLess()">Kevesebb mutatása</button>
+                <button nbButton class="btn-util" class="{{TileCssClass}}" id="show-all" (click)="showAll()">Összes mutatása</button>
+                <button nbButton class="btn-util" class="{{TileCssClass}}" id="show-less" (click)="showLess()">Kevesebb mutatása</button>
+                <button nbButton class="btn-util" class="{{TileCssClass}}" id="show-less" (click)="exit()">Bezárás</button>
                 <span class="loading-label" *ngIf="isLoading">Betöltés...</span>
             </div>
         </form>

@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -29,7 +29,7 @@ const NavMap: string[][] = [
   styleUrls: ['./product-select-table-dialog.component.scss']
 })
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
-  implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
+  implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
   currentChooserValue: any = 1;
 
   inputForm!: FormGroup;
@@ -81,6 +81,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   ) {
     super(dialogRef, kbS, dataSourceBuilder);
 
+    this.shouldCloseOnEscape = false;
+
     this.Matrix = NavMap;
 
     this.dbDataTable = new SimpleNavigatableTable<Product>(
@@ -98,8 +100,6 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.IsDialog = true;
     this.InnerJumpOnEnter = true;    
     this.OuterJump = true;
-
-    this.Matrix = [["active-prod-search", "btn-table-show-all", "btn-table-show-less"]];
 
     this.inputForm = new FormGroup({
       chooser: new FormControl(this.currentChooserValue, []),
@@ -124,17 +124,24 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   override ngOnInit(): void {
     this.Refresh(this.getInputParams);
   }
-  ngAfterContentInit(): void {
+  ngAfterViewInit(): void {
     $('*[type=radio]').addClass(TileCssClass);
     $('*[type=radio]').on('click', (event) => {
       this.formNav.HandleFormFieldClick(event);
     });
-    
+
     this.formNav.GenerateAndSetNavMatrices(true);
+    this.formNav.OuterJump = true;
+    this.dbDataTable.OuterJump = true;
+    this.formNav.DownNeighbour = this.dbDataTable;
+    console.log('fpőelfpewkfpewkfep: ', this.formNav);
 
     this.kbS.SetWidgetNavigatable(this.formNav);
 
     this.kbS.SelectFirstTile();
+    this.kbS.setEditMode(KeyboardModes.EDIT);
+  }
+  ngAfterContentInit(): void {
   }
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
@@ -160,6 +167,22 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     } else {
       this.searchString = event.target.value;
       this.Search(this.searchString);
+    }
+  }
+
+  exit(): void {
+    this.close(undefined);
+  }
+
+  MoveToSaveButtons(event: any): void {
+    if (this.isEditModeOff) {
+      this.formNav!.HandleFormEnter(event);
+    } else {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      this.kbS.MoveDown(true);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }
   }
 

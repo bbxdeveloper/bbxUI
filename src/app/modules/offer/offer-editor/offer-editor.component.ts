@@ -693,7 +693,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
         exchangeRate: this.offerData.exchangeRate,
         currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF
-      }
+      },
+      closeOnEsc: false
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);

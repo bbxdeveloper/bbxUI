@@ -645,7 +645,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         searchString: this.productInputFilterString,
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
-      }
+      },
+      closeOnEsc: false
     });
     dialogRef.onClose.subscribe((res: Product) => {
       console.log("Selected item: ", res);

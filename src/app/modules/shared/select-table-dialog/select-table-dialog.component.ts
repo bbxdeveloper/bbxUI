@@ -21,6 +21,8 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
 
+  shouldCloseOnEscape = true;
+
   protected Subscription_Search?: Subscription;
 
   responseMessage: string = '';
@@ -130,9 +132,11 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
     }
     switch (event.key) {
       case KeyBindings.exit: {
-        event.preventDefault();
-        // Closing dialog
-        this.close(undefined);
+        if (this.shouldCloseOnEscape) {
+          event.preventDefault();
+          // Closing dialog
+          this.close(undefined);
+        }
         break;
       }
       default: { }
