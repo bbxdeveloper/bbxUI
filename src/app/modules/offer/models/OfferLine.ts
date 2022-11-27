@@ -17,6 +17,8 @@ export interface OfferLineForPost {
     "unitOfMeasure": string;
     "showDiscount": boolean;
     "quantity": number;
+    "originalUnitPrice": number;
+    "unitPriceSwitch": boolean;
 }
 
 export interface OfferLineFullData extends OfferLineForPost {
@@ -27,6 +29,10 @@ export interface OfferLineFullData extends OfferLineForPost {
     "vatRateID": number;
     "vatPercentage": number;
     "quantity": number;
+    "originalUnitPrice": number;
+    "unitPriceSwitch": boolean;
+    "unitPrice1": number;
+    "unitPrice2": number;
 }
 
 export class OfferLine implements IEditable, OfferLineFullData {
@@ -44,6 +50,9 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "showDiscount": boolean = true;
     "quantity": number = 0;
 
+    "unitPrice1": number = 0;
+    "unitPrice2": number = 0;
+
     "originalUnitPrice1": number = 0; // L = false
     "originalUnitPrice2": number = 0; // E = true
     "unitPriceSwitch": boolean = true;
@@ -51,7 +60,8 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return this.unitPriceSwitch;
     }
     set UnitPriceSwitch(value: boolean) {
-        this.ReCalc(false);
+        console.log("switch: ", value, ", label: ", value ? "E" : "L");
+        this.ReCalc(true);
         this.unitPriceSwitch = value;
     }
 
@@ -106,10 +116,6 @@ export class OfferLine implements IEditable, OfferLineFullData {
         priceWithDiscount -= this.originalUnitPrice * d;
         this.unitPrice = HelperFunctions.ToFloat(priceWithDiscount);
         this.UnitVat = HelperFunctions.ToFloat(this.unitPrice) * this.vatRate;
-    }
-    get Discount() {
-        // console.log(`[GETTER Discount]: ${this.discount}`);
-        return this.discount;
     }
     get DiscountForCalc() {
         // console.log(`[GETTER Discount]: ${this.discount}`);
@@ -209,7 +215,9 @@ export class OfferLine implements IEditable, OfferLineFullData {
             this.unitPrice = HelperFunctions.Round2(priceWithDiscount, 1);
         }
 
-         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
+        this.unitVat = this.unitPrice * this.vatRate;
+
+        this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
     }
 
     static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
@@ -247,18 +255,26 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
-    static FromOfferLineFullData(data: OfferLineFullData): OfferLine {
+    static FromOfferLineFullData(data: OfferLineFullData, currencyCode: string, exchangeRate: number): OfferLine {
+        console.log("\n\n[FromOfferLineFullData] stard, ID: ", data.id);
+        
         let offerLine = new OfferLine();
+
+        console.log("[FromOfferLineFullData] data: ", data, ", blank offerline: ", offerLine);
+
+        offerLine.currencyCode = currencyCode;
+        offerLine.exchangeRate = HelperFunctions.ToFloat(exchangeRate);
+
+        offerLine.originalUnitPrice1 = HelperFunctions.ToFloat(data.unitPrice1);
+        offerLine.originalUnitPrice2 = HelperFunctions.ToFloat(data.unitPrice2);
 
         offerLine.lineNumber = data.lineNumber;
         offerLine.productCode = data.productCode;
         offerLine.lineDescription = data.lineDescription;
         offerLine.vatRateCode = data.vatRateCode;
-        offerLine.OriginalUnitPrice = data.unitPrice;
-        offerLine.originalUnitPrice1 = data.unitPrice;
-        offerLine.originalUnitPrice2 = data.unitPrice;
+        offerLine.originalUnitPrice = offerLine.unitPriceSwitch ?
+            HelperFunctions.Round2(offerLine.originalUnitPrice2 ?? 0, 2) : HelperFunctions.Round2(offerLine.originalUnitPrice1 ?? 0, 2);
         offerLine.unitGross = data.unitGross;
-        offerLine.Discount = data.discount;
         offerLine.showDiscount = data.showDiscount;
         offerLine.unitOfMeasure = data.unitOfMeasure;
 
@@ -273,7 +289,17 @@ export class OfferLine implements IEditable, OfferLineFullData {
         offerLine.vatRateID = data.vatRateID;
         offerLine.vatPercentage = data.vatPercentage;
 
-        console.log("[FromOfferLineFullData]: ", offerLine);
+        offerLine.UnitPriceSwitch = data.unitPriceSwitch;
+
+        offerLine.discount = data.discount;
+
+        offerLine.unitPrice = HelperFunctions.ToFloat(data.unitPrice);
+
+        console.log("[FromOfferLineFullData] offerLine: ", offerLine);
+
+        offerLine.ReCalc(true);
+
+        console.log("[FromOfferLineFullData] end, after ReCalc offerLine: ", offerLine, "\n\n");
 
         return offerLine;
     }

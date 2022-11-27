@@ -44,6 +44,7 @@ import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import moment from 'moment';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -296,7 +297,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       invoiceIssueDate: '',
       notice: '',
       paymentDate: '',
-      paymentMethod: ''
+      paymentMethod: '',
+      exchangeRate: 1,
+      currencyCode: CurrencyCodes.HUF
     } as OutGoingInvoiceFullData;
 
     this.dbData = [];
@@ -397,6 +400,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     // Refresh data
     this.refresh();
+
+    this.outInvForm.controls["paymentMethod"].valueChanges.subscribe({
+      next: v => {
+        this.RecalcNetAndVat();
+      }
+    });
   }
 
   changeSort(sortRequest: NbSortRequest): void {
@@ -479,15 +488,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity))
+        .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
         .reduce((sum, current) => sum + current, 0);
-    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
 
     this.outGoingInvoiceData.invoiceVatAmount =
       this.outGoingInvoiceData.invoiceLines
         .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
-    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
 
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
@@ -497,9 +504,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
     //     .reduce((sum, current) => sum + current, 0);
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
-    if (_paymentMethod === "CASH") {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CASHRound(this.outGoingInvoiceData.lineGrossAmount);
+
+    if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
     }
+
+    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
+    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
@@ -1002,14 +1013,22 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
+
+        if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+          this.simpleToastrService.show(
+            Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+        }
       }
     });
   }
 
   RefreshData(): void { }
 
-  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number> {
-    let discount = 0;
+  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
+    let discount: number | undefined = undefined;
 
     if (this.buyerData === undefined || this.buyerData.id === undefined) {
       this.bbxToastrService.show(
@@ -1024,9 +1043,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       .then(discounts => {
         if (discounts) {
           const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-          discount = res !== undefined ? (res / 100.0) : 0.0;
-        } else {
-          discount = 0.0;
+          discount = res !== undefined ? (res / 100.0) : undefined;
         }
       })
       .catch(err => {
@@ -1045,10 +1062,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
+    p.productGroup = !!p.productGroup ? p.productGroup : '-'
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
-      const discountedPrice = p.unitPrice2! * discountForPrice;
-      res.unitPrice = p.unitPrice2! - discountedPrice;
+      if (discountForPrice !== undefined) {
+        const discountedPrice = p.unitPrice2! * discountForPrice;
+        res.unitPrice = p.unitPrice2! - discountedPrice;
+        res.custDiscounted = true;
+      } else {
+        res.unitPrice = p.unitPrice2!;
+      }
     } else {
       res.unitPrice = p.unitPrice2!;
     }
@@ -1090,6 +1113,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
           this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
+
+          if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+            this.simpleToastrService.show(
+              Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+          }
         } else {
           if (this.customerInputFilterString.length >= 8 &&
           this.IsNumber(this.customerInputFilterString)) {
@@ -1157,6 +1188,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             next: (res: Customer) => {
               console.log("Selected item: ", res);
               this.SetDataForForm(res);
+
+              if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+                this.simpleToastrService.show(
+                  Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+              }
             },
             error: err => {
               this.cs.HandleError(err);

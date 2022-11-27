@@ -84,7 +84,7 @@
                             </td>
                             <td>
                                 <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav"
-                                    [needBlankOption]="false" [autoFillFirstAvailableValue]="true"
+                                    [needBlankOption]="false" [autoFillFirstAvailableValue]="true" [simpleMode]="true"
                                     formFieldName="currencyCode" label="Pénznem" [data$]="currencyCodeComboData$"></app-bbx-combo-box>
                             </td>
                             <td *ngIf="showExchangeRateInput">
@@ -141,7 +141,7 @@
         <table class="table-statistics-net-vat-gross">
             <tr>
                 <td>Összes nettó: {{offerData.offerNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-                <td>Összes bruttó: {{offerData.offerGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                <!-- <td>Összes bruttó: {{offerData.offerGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td> -->
             </tr>
         </table>
     </nb-card-footer>

@@ -11,24 +11,17 @@
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Összes bruttó:</label>
-                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="lineGrossAmount">
-                </div>
-            </nb-form-field>
-            
-            <!-- <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Áfa:</label>
-                    <input nbInput type="text" formControlName="invoiceVatAmount">
-                </div>
-            </nb-form-field> -->
-
             <nb-form-field *ngFor="let item of vatRateCodes; let rowPos = index">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Összes {{item.Id}} áfa:</label>
                     <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="{{'vatRateFormControl-' + rowPos}}">
+                </div>
+            </nb-form-field>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Összes bruttó:</label>
+                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="lineGrossAmount">
                 </div>
             </nb-form-field>
 

@@ -20,4 +20,5 @@ export const environment = {
   utilityLogs: false,
   getterSetterLogs: false,
   managerComponentLogs: true,
+  invoiceSaveDialogLogs: false,
 };
