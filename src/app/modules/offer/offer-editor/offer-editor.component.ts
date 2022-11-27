@@ -691,7 +691,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: this.offerData.exchangeRate
+        exchangeRate: this.offerData.exchangeRate,
+        currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {

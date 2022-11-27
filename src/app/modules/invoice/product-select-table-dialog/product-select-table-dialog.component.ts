@@ -11,11 +11,13 @@ import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -36,6 +38,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   TileCssClass = TileCssClass;
 
   @Input() exchangeRate: number = 1;
+  @Input() currency: string = CurrencyCodes.HUF;
 
   get srcString(): string {
     return (this.searchString ?? '').trim();
@@ -122,14 +125,15 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.Refresh(this.getInputParams);
   }
   ngAfterContentInit(): void {
-    // $('*[type=radio]').addClass(TileCssClass);
-    // $('*[type=radio]').on('click', (event) => {
-    //   this.formNav.HandleFormFieldClick(event);
-    // });
+    $('*[type=radio]').addClass(TileCssClass);
+    $('*[type=radio]').on('click', (event) => {
+      this.formNav.HandleFormFieldClick(event);
+    });
+    
     this.formNav.GenerateAndSetNavMatrices(true);
 
     this.kbS.SetWidgetNavigatable(this.formNav);
-    
+
     this.kbS.SelectFirstTile();
   }
   ngAfterViewChecked(): void {
@@ -203,9 +207,17 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
               x.data.exhangedUnitPrice2 = x.data.unitPrice2;
               if (x.data.exhangedUnitPrice1) {
                 x.data.exhangedUnitPrice1 = x.data.exhangedUnitPrice1 / this.exchangeRate;
+
+                if (this.currency !== CurrencyCodes.HUF) {
+                  x.data.exhangedUnitPrice1 = HelperFunctions.Round2(x.data.exhangedUnitPrice1, 2);
+                }
               }
               if (x.data.exhangedUnitPrice2) {
                 x.data.exhangedUnitPrice2 = x.data.exhangedUnitPrice2 / this.exchangeRate;
+
+                if (this.currency !== CurrencyCodes.HUF) {
+                  x.data.exhangedUnitPrice2 = HelperFunctions.Round2(x.data.exhangedUnitPrice2, 2);
+                }
               }
             });
             this.dbData = tempData;

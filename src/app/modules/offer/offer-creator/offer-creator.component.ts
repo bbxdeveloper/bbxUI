@@ -183,21 +183,23 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
           let newExchangeRate = 1;
 
-          let issueDate =
-            this.buyerForm && this.buyerForm.controls['offerIssueDate'] && this.buyerForm.controls['offerIssueDate']?.value ?
-              this.buyerForm.controls['offerIssueDate'].value : HelperFunctions.GetDateString(0, 0, 0);
-
-          await lastValueFrom(this.systemService.GetExchangeRate({
-            Currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF,
-            ExchengeRateDate: issueDate
-          }))
-            .then(rate => {
-              newExchangeRate = rate;
-            })
-            .catch(err => {
-              this.cs.HandleError(err);
-            })
-            .finally(() => {});
+          if (this.SelectedCurrency?.value != CurrencyCodes.HUF) {
+            let issueDate =
+              this.buyerForm && this.buyerForm.controls['offerIssueDate'] && this.buyerForm.controls['offerIssueDate']?.value ?
+                this.buyerForm.controls['offerIssueDate'].value : HelperFunctions.GetDateString(0, 0, 0);
+  
+            await lastValueFrom(this.systemService.GetExchangeRate({
+              Currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF,
+              ExchengeRateDate: issueDate
+            }))
+              .then(rate => {
+                newExchangeRate = rate;
+              })
+              .catch(err => {
+                this.cs.HandleError(err);
+              })
+              .finally(() => {});
+          }
 
           console.log("Currency selected: ", this.SelectedCurrency, ', exchangeRates: ', newExchangeRate);
 
@@ -212,7 +214,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           setTimeout(() => {
             this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
           }, 0);
-          
+
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
@@ -566,7 +568,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: this.offerData.exchangeRate
+        exchangeRate: this.offerData.exchangeRate,
+        currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
