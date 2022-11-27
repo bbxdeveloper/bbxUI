@@ -85,14 +85,13 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     custDiscountService: CustomerDiscountService,
-    systemService: SystemService,
-    currencyService: CurrencyAndExchangeService
+    systemService: SystemService
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
       sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService,
-      systemService, currencyService
+      systemService
     );
     this.isLoading = false;
     this.InitialSetup();

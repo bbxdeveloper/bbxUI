@@ -52,8 +52,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
 
-  protected exchangeRates: Constants.Dct = {};
-
   protected Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
   
   TileCssClass = TileCssClass;
@@ -242,8 +240,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     protected custDiscountService: CustomerDiscountService,
-    protected systemService: SystemService,
-    protected currencyService: CurrencyAndExchangeService
+    protected systemService: SystemService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
   }
@@ -385,8 +382,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   async refresh(): Promise<void> {
     this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-
-    console.log('[refresh] exchangeRates: ', this.exchangeRates);
 
     await this.refreshComboboxData();
     
