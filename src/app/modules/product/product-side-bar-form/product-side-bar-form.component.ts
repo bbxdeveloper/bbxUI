@@ -67,7 +67,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
   private refreshComboboxData(): void {
     // ProductGroups
-    this.productGroupApi.GetAll().subscribe({
+    this.productGroupApi.GetAll({ PageSize: '99999' }).subscribe({
       next: data => {
         console.log("ProductGroups: ", data);
         this._productGroups = data?.data ?? [];
@@ -86,7 +86,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     });
 
     // Origin
-    this.originApi.GetAll().subscribe({
+    this.originApi.GetAll({ PageSize: '99999' }).subscribe({
       next: data => {
         console.log("Origins: ", data);
         this.origins = data?.data?.map(x => x.originDescription) ?? [];
@@ -95,7 +95,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     });
 
     // VatRate
-    this.vatApi.GetAll().subscribe({
+    this.vatApi.GetAll({ PageSize: '99999' }).subscribe({
       next: data => {
         console.log("Vats: ", data);
         this.vatRates = data?.data?.map(x => x.vatRateDescription) ?? [];
