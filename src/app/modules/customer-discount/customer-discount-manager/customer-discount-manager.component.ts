@@ -479,7 +479,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
       context: {
-        searchString: this.customerInputFilterString,
         allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
         colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
@@ -487,42 +486,44 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     dialogRef.onClose.subscribe(async (res: Customer) => {
       console.log("Selected item: ", res);
       if (!!res) {
-        await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: res.id !== undefined ? res.id : -1 }))
-          .then(res => {
-            // Products
-            this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
+        HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_COPY_CUST_DISCOUNTS, async () => {
+          await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: res.id !== undefined ? res.id : -1 }))
+            .then(res => {
+              // Products
+              this.dbData = res.filter(x => !!x.productGroupCode.trim()).map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
 
-            this.dbData.sort((a, b) => {
-              var n1 = a.data.ProductGroupCode;
-              var n2 = b.data.ProductGroupCode;
-              if (n1 > n2) {
-                return 1;
+              this.dbData.sort((a, b) => {
+                var n1 = a.data.ProductGroupCode;
+                var n2 = b.data.ProductGroupCode;
+                if (n1 > n2) {
+                  return 1;
+                }
+                if (n1 < n2) {
+                  return -1;
+                }
+                return 0;
+              });
+
+              this.dbDataDataSrc.setData(this.dbData);
+
+              this.table?.renderRows();
+              this.RefreshTable();
+            })
+            .catch(err => {
+              this.cs.HandleError(err);
+            })
+            .finally(() => {
+              this.isLoading = false;
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+              this.kbS.SelectFirstTile();
+              //this.kbS.setEditMode(KeyboardModes.EDIT);
+              if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+                this.kbS.Jump(AttachDirection.DOWN, false);
               }
-              if (n1 < n2) {
-                return -1;
-              }
-              return 0;
+              this.kbS.SelectFirstTile();
             });
-
-            this.dbDataDataSrc.setData(this.dbData);
-
-            this.table?.renderRows();
-            this.RefreshTable();
-          })
-          .catch(err => {
-            this.cs.HandleError(err);
-          })
-          .finally(() => {
-            this.isLoading = false;
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-            this.kbS.SelectFirstTile();
-            //this.kbS.setEditMode(KeyboardModes.EDIT);
-            if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-              this.kbS.Jump(AttachDirection.DOWN, false);
-            }
-            this.kbS.SelectFirstTile();
-          });
+        });
       }
     });
   }
@@ -834,7 +835,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     this.productGroupService.GetAll(this.ProductGroupGetAllParams).subscribe({
       next: (data) => {
         if (!!data) {
-          this.productGroups = data.data ?? [];
+          this.productGroups = (data.data ?? []).filter(x => !!x.productGroupCode.trim());
 
           this.productGroups.forEach(pg => {
             console.log("ProductGroup: ", pg);
