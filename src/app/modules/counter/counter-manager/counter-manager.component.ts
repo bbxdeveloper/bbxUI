@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
@@ -25,6 +25,8 @@ import { environment } from 'src/environments/environment';
 import { StatusService } from 'src/app/services/status.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { lastValueFrom } from 'rxjs';
+import { Actions } from 'src/assets/util/KeyBindings';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-counter-manager',
@@ -158,7 +160,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     private sidebarFormService: SideBarFormService,
     private wareHouseApi: WareHouseService,
     cs: CommonService,
-    sts: StatusService
+    sts: StatusService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
@@ -500,5 +503,78 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
 
   private RefreshAll(params?: GetCountersParamListModel): void {
     this.Refresh(params);
+  }
+
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    switch (event.key) {
+      case this.KeySetting[Actions.JumpToForm].KeyCode: {
+        // TODO: 'active-prod-search' into global variable
+        if ((event as any).target.id !== 'active-prod-search') {
+          return;
+        }
+
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
+        this.dbDataTable?.HandleSearchFieldTab();
+        break;
+      }
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Create].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Edit].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Delete].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      default: { }
+    }
   }
 }

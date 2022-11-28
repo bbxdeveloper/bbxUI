@@ -1,1 +1,44 @@
 @import 'quick-search-modal-deafult';
+
+.btn-util {
+    height: auto !important;
+}
+
+form.form-with-rows {
+    display: flex;
+    align-items: flex-start;
+    grid-column-gap: 10px;
+    column-gap: 10px;
+    row-gap: 10px;
+    flex-direction: column;
+
+    margin-bottom: 25px;
+    margin-left: 25px;
+
+    align-content: center;
+    align-items: flex-start;
+
+    .form-row {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        align-content: center;
+
+        input[type="text"] {
+            margin-right: 25px !important;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+    }
+}
+
+.bbx-radiogroup {
+    display: flex;
+    flex-direction: row;
+}
+
+.modal-product-active {
+    max-height: 510px !important;
+}

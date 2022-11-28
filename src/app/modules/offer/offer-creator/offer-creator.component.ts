@@ -45,6 +45,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
+import { CurrencyAndExchangeService } from 'src/app/services/currency-and-exchange.service';
 
 @Component({
   selector: 'app-offer-creator',
@@ -177,17 +178,44 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       });
 
       this.buyerForm.controls['currencyCode'].valueChanges.subscribe({
-        next: newValue => {
-          console.log("Currency selected: ", this.SelectedCurrency);
+        next: async newValue => {
+          this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+          let newExchangeRate = 1;
+
+          if (this.SelectedCurrency?.value != CurrencyCodes.HUF) {
+            let issueDate =
+              this.buyerForm && this.buyerForm.controls['offerIssueDate'] && this.buyerForm.controls['offerIssueDate']?.value ?
+                this.buyerForm.controls['offerIssueDate'].value : HelperFunctions.GetDateString(0, 0, 0);
+  
+            await lastValueFrom(this.systemService.GetExchangeRate({
+              Currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF,
+              ExchengeRateDate: issueDate
+            }))
+              .then(rate => {
+                newExchangeRate = rate;
+              })
+              .catch(err => {
+                this.cs.HandleError(err);
+              })
+              .finally(() => {});
+          }
+
+          console.log("Currency selected: ", this.SelectedCurrency, ', exchangeRates: ', newExchangeRate);
 
           this.showExchangeRateInput = this.SelectedCurrency?.value != CurrencyCodes.HUF;
-          this.offerData.exchangeRate = 1;
-          this.buyerForm.controls['exchangeRate'].setValue(1);
+
+          console.log("New exchangerate: ", this.SelectedCurrency?.value, ', ', newExchangeRate);
+
+          this.offerData.exchangeRate = newExchangeRate;
+          this.buyerForm.controls['exchangeRate'].setValue(newExchangeRate);
           
           this.cdref.detectChanges();
           setTimeout(() => {
             this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
           }, 0);
+
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
 
@@ -540,8 +568,10 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: this.offerData.exchangeRate
-      }
+        exchangeRate: this.offerData.exchangeRate,
+        currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF
+      },
+      closeOnEsc: false
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);

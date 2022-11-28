@@ -36,6 +36,7 @@ import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { InvCtrlAbsent } from '../../stock/models/InvCtrlAbsent';
 import { StockService } from '../../stock/services/stock.service';
 import { GetAllInvCtrlAbsentParamsModel } from '../../stock/models/GetAllInvCtrlAbsentParamsModel';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-inv-ctrl-absent',
@@ -201,6 +202,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     cs: CommonService,
     sts: StatusService,
     private utS: UtilityService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -515,10 +517,13 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     );
   }
 
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
+      return;
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
       event.preventDefault();
@@ -526,7 +531,21 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       event.stopPropagation();
       return;
     }
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     switch (event.key) {
+      case this.KeySetting[Actions.Search].KeyCode:
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:

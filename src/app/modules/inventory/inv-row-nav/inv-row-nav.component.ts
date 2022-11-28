@@ -511,7 +511,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
-      }
+      },
+      closeOnEsc: false
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("ChooseDataForTableRow Selected item: ", res);

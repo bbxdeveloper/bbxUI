@@ -37,6 +37,7 @@ import { CustomerSelectTableDialogComponent } from '../../invoice/customer-selec
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { GetCustDiscountByCustomerParamsModel } from '../models/GetCustDiscountByCustomerParamsModel';
 
 @Component({
   selector: 'app-customer-discount-manager',
@@ -470,6 +471,61 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       }
     });
   }
+
+  CopyDiscounts(): void {
+    console.log("Selecting Customer from avaiable data.");
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    });
+    dialogRef.onClose.subscribe(async (res: Customer) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: res.id !== undefined ? res.id : -1 }))
+          .then(res => {
+            // Products
+            this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
+
+            this.dbData.sort((a, b) => {
+              var n1 = a.data.ProductGroupCode;
+              var n2 = b.data.ProductGroupCode;
+              if (n1 > n2) {
+                return 1;
+              }
+              if (n1 < n2) {
+                return -1;
+              }
+              return 0;
+            });
+
+            this.dbDataDataSrc.setData(this.dbData);
+
+            this.table?.renderRows();
+            this.RefreshTable();
+          })
+          .catch(err => {
+            this.cs.HandleError(err);
+          })
+          .finally(() => {
+            this.isLoading = false;
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+            this.kbS.SelectFirstTile();
+            //this.kbS.setEditMode(KeyboardModes.EDIT);
+            if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+              this.kbS.Jump(AttachDirection.DOWN, false);
+            }
+            this.kbS.SelectFirstTile();
+          });
+      }
+    });
+  }
   
   RefreshData(): void { }
   RecalcNetAndVat(): void { }
@@ -795,6 +851,18 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
             }
           });
 
+          this.dbData.sort((a, b) => {
+            var n1 = a.data.ProductGroupCode;
+            var n2 = b.data.ProductGroupCode;
+            if (n1 > n2) {
+              return 1;
+            }
+            if (n1 < n2) {
+              return -1;
+            }
+            return 0;
+          });
+
           this.dbDataDataSrc.setData(this.dbData);
           this.table?.renderRows();
           this.RefreshTable();
@@ -878,6 +946,17 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           }
           event.preventDefault();
           this.ChooseDataForForm();
+          break;
+        }
+        case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            return;
+          }
+          event.preventDefault();
+          this.CopyDiscounts();
           break;
         }
         case this.KeySetting[Actions.SetGlobalDiscount].KeyCode: {

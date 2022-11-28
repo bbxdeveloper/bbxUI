@@ -43,6 +43,7 @@ import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-offer-nav',
@@ -312,7 +313,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private router: Router,
     private infrastructureService: InfrastructureService,
     private utS: UtilityService,
-    private tokenService: TokenStorageService
+    private tokenService: TokenStorageService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -1105,12 +1107,21 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     );
   }
 
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) async onFunctionKeyDown(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
-      this.filterFormNav?.HandleFormShiftEnter(event)
+      this.filterFormNav?.HandleFormShiftEnter(event);
+      return;
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    if (this.khs.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
@@ -1132,6 +1143,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         event.preventDefault();
         this.ViewNotice();
         return;
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        return;
+      }
     }
     switch (event.key) {
       case this.KeySetting[Actions.CSV].KeyCode:

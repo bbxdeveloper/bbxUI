@@ -21,16 +21,18 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
 
+  shouldCloseOnEscape = true;
+
   protected Subscription_Search?: Subscription;
 
   responseMessage: string = '';
 
   closedManually: boolean = false;
 
-  dbData: TreeGridNode<T>[];
-  dbDataSource: NbTreeGridDataSource<TreeGridNode<T>>;
+  dbData!: TreeGridNode<T>[];
+  dbDataSource!: NbTreeGridDataSource<TreeGridNode<T>>;
   dbDataTable!: SimpleNavigatableTable<T>;
-  selectedRow: T;
+  selectedRow!: T;
 
   isLoading: boolean = true;
 
@@ -48,7 +50,10 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
     protected dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
   ) {
     super();
+    this.Setup();
+  }
 
+  Setup(): void {
     this.dbData = []; // this.allData;
     this.dbDataSource = this.dataSourceBuilder.create(this.dbData);
     this.selectedRow = {} as T;
@@ -127,9 +132,11 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
     }
     switch (event.key) {
       case KeyBindings.exit: {
-        event.preventDefault();
-        // Closing dialog
-        this.close(undefined);
+        if (this.shouldCloseOnEscape) {
+          event.preventDefault();
+          // Closing dialog
+          this.close(undefined);
+        }
         break;
       }
       default: { }

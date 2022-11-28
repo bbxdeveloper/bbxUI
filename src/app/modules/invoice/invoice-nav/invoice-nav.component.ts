@@ -29,6 +29,7 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -358,7 +359,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     private invoiceService: InvoiceService,
     private wareHouseApi: WareHouseService,
     cs: CommonService,
-    sts: StatusService
+    sts: StatusService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -658,10 +660,13 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   Delete(): void { }
 
-  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
+      return;
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
       event.preventDefault();
@@ -669,13 +674,32 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       event.stopPropagation();
       return;
     }
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     switch (event.key) {
-      case this.KeySetting[Actions.JumpToForm].KeyCode:
-        event.preventDefault();
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
-        this.HandleFunctionKey(event);
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
         break;
+      }
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      default: { }
     }
   }
 

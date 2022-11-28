@@ -1,18 +1,23 @@
-import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { NavigatableForm } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -24,20 +29,40 @@ const NavMap: string[][] = [
   styleUrls: ['./product-select-table-dialog.component.scss']
 })
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
-  implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
+  implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
+  currentChooserValue: any = 1;
+
+  inputForm!: FormGroup;
+  formNav!: NavigatableForm;
+
+  TileCssClass = TileCssClass;
 
   @Input() exchangeRate: number = 1;
+  @Input() currency: string = CurrencyCodes.HUF;
 
   get srcString(): string {
     return (this.searchString ?? '').trim();
   }
 
   get getInputParams(): GetProductsParamListModel {
-    return { SearchString: this.srcString, PageSize: '10', PageNumber: '1', OrderBy: 'ProductCode' };
+    return {
+      SearchString: this.srcString,
+      PageSize: '10',
+      PageNumber: '1',
+      OrderBy: 'ProductCode',
+      FilterByName: this.currentChooserValue == 1,
+      FilterByCode: this.currentChooserValue != 1,
+    };
   }
 
   get getInputParamsForAll(): GetProductsParamListModel {
-    return { SearchString: this.srcString, PageSize: '999999', OrderBy: 'ProductCode' };
+    return {
+      SearchString: this.srcString,
+      PageSize: '999999',
+      OrderBy: 'ProductCode',
+      FilterByName: this.currentChooserValue == 1,
+      FilterByCode: this.currentChooserValue != 1,
+    };
   }
 
   isLoaded: boolean = false;
@@ -51,9 +76,12 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     dialogRef: NbDialogRef<SelectTableDialogComponent<Product>>,
     kbS: KeyboardNavigationService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
-    private productService: ProductService
+    private productService: ProductService,
+    private cdrf: ChangeDetectorRef,
   ) {
     super(dialogRef, kbS, dataSourceBuilder);
+
+    this.shouldCloseOnEscape = false;
 
     this.Matrix = NavMap;
 
@@ -64,12 +92,56 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.dbDataTable.OuterJump = true;
   }
 
+  override Setup(): void {
+    this.dbData = []; // this.allData;
+    this.dbDataSource = this.dataSourceBuilder.create(this.dbData);
+    this.selectedRow = {} as Product;
+
+    this.IsDialog = true;
+    this.InnerJumpOnEnter = true;    
+    this.OuterJump = true;
+
+    this.inputForm = new FormGroup({
+      chooser: new FormControl(this.currentChooserValue, []),
+      searchString: new FormControl("", []),
+    });
+
+    this.inputForm.controls['chooser'].valueChanges.subscribe({
+      next: newValue => {
+        const change = this.currentChooserValue !== newValue;
+        this.currentChooserValue = newValue;
+        if (change) {
+          this.Refresh(this.getInputParams);
+        }
+      }
+    });
+
+    this.formNav = new NavigatableForm(
+      this.inputForm, this.kbS, this.cdrf, [], 'productSearchDialogForm', AttachDirection.UP, {} as IInlineManager
+    );
+  }
+
   override ngOnInit(): void {
     this.Refresh(this.getInputParams);
   }
-  ngAfterContentInit(): void {
-    this.kbS.SetWidgetNavigatable(this);
+  ngAfterViewInit(): void {
+    $('*[type=radio]').addClass(TileCssClass);
+    $('*[type=radio]').on('click', (event) => {
+      this.formNav.HandleFormFieldClick(event);
+    });
+
+    this.formNav.GenerateAndSetNavMatrices(true);
+    this.formNav.OuterJump = true;
+    this.dbDataTable.OuterJump = true;
+    this.formNav.DownNeighbour = this.dbDataTable;
+    console.log('fpőelfpewkfpewkfep: ', this.formNav);
+
+    this.kbS.SetWidgetNavigatable(this.formNav);
+
     this.kbS.SelectFirstTile();
+    this.kbS.setEditMode(KeyboardModes.EDIT);
+  }
+  ngAfterContentInit(): void {
   }
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
@@ -95,6 +167,22 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     } else {
       this.searchString = event.target.value;
       this.Search(this.searchString);
+    }
+  }
+
+  exit(): void {
+    this.close(undefined);
+  }
+
+  MoveToSaveButtons(event: any): void {
+    if (this.isEditModeOff) {
+      this.formNav!.HandleFormEnter(event);
+    } else {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      this.kbS.MoveDown(true);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }
   }
 
@@ -142,9 +230,17 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
               x.data.exhangedUnitPrice2 = x.data.unitPrice2;
               if (x.data.exhangedUnitPrice1) {
                 x.data.exhangedUnitPrice1 = x.data.exhangedUnitPrice1 / this.exchangeRate;
+
+                if (this.currency !== CurrencyCodes.HUF) {
+                  x.data.exhangedUnitPrice1 = HelperFunctions.Round2(x.data.exhangedUnitPrice1, 2);
+                }
               }
               if (x.data.exhangedUnitPrice2) {
                 x.data.exhangedUnitPrice2 = x.data.exhangedUnitPrice2 / this.exchangeRate;
+
+                if (this.currency !== CurrencyCodes.HUF) {
+                  x.data.exhangedUnitPrice2 = HelperFunctions.Round2(x.data.exhangedUnitPrice2, 2);
+                }
               }
             });
             this.dbData = tempData;

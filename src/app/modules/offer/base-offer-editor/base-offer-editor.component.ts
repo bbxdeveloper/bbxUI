@@ -40,6 +40,7 @@ import { CurrencyCode, CurrencyCodes } from '../../system/models/CurrencyCode';
 import { SystemService } from '../../system/services/system.service';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
+import { CurrencyAndExchangeService, ExchangeRate } from 'src/app/services/currency-and-exchange.service';
 
 @Component({
   selector: 'app-base-offer-editor',

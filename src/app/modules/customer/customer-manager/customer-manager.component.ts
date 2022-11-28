@@ -24,6 +24,7 @@ import { PieController } from 'chart.js';
 import { CountryCode } from '../models/CountryCode';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-customer-manager',
@@ -234,7 +235,8 @@ export class CustomerManagerComponent
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
-    sts: StatusService
+    sts: StatusService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.SetAllColumns();
@@ -566,5 +568,78 @@ export class CustomerManagerComponent
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
+  }
+
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    switch (event.key) {
+      case this.KeySetting[Actions.JumpToForm].KeyCode: {
+        // TODO: 'active-prod-search' into global variable
+        if ((event as any).target.id !== 'active-prod-search') {
+          return;
+        }
+
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
+        this.dbDataTable?.HandleSearchFieldTab();
+        break;
+      }
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Create].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Edit].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Delete].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      default: { }
+    }
   }
 }

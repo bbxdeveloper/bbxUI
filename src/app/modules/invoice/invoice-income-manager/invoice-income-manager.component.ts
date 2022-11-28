@@ -979,7 +979,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
         exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
-      }
+      },
+      closeOnEsc: false
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);

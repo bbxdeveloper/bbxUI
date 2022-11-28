@@ -30,6 +30,7 @@ import { WareHouse } from '../../warehouse/models/WareHouse';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { notWhiteSpaceOrNull } from 'src/assets/model/Validators';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-stock-nav',
@@ -209,7 +210,8 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     private router: Router,
     private infrastructureService: InfrastructureService,
     private utS: UtilityService,
-    private wareHouseApi: WareHouseService
+    private wareHouseApi: WareHouseService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -442,10 +444,15 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
 
   Delete(): void {}
 
-  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+
+
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
+      return;
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
       event.preventDefault();
@@ -453,6 +460,14 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
       event.stopPropagation();
       return;
     }
+
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+
     switch (event.key) {
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
@@ -470,6 +485,19 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
         event.stopPropagation();
         this.HandleFunctionKey(event);
         break;
+    }
+
+    switch (event.key) {
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      default: { }
     }
   }
 }

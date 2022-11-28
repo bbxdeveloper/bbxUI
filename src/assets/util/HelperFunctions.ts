@@ -280,6 +280,10 @@ export module HelperFunctions {
     }
 
     export function Round2(n: number, r: number): number {
+        return HelperFunctions.ToFloat(HelperFunctions.ToFloat(n).toFixed(r));
+    }
+
+    export function Round2Old(n: number, r: number): number {
         let int = Math.floor(n).toString()
         if (typeof n !== 'number' || typeof r !== 'number') {
             return n;

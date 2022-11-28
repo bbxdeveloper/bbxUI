@@ -45,6 +45,7 @@ import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { CurrencyAndExchangeService } from 'src/app/services/currency-and-exchange.service';
 
 @Component({
   selector: 'app-offer-editor',
@@ -690,8 +691,10 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: this.offerData.exchangeRate
-      }
+        exchangeRate: this.offerData.exchangeRate,
+        currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF
+      },
+      closeOnEsc: false
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("Selected item: ", res);
