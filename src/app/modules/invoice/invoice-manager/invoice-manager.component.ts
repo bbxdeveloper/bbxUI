@@ -641,7 +641,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       complete: () => { },
     })
 
-    this.seC.GetAll({ IsOwnData: false }).subscribe({
+    this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
@@ -659,7 +659,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        this.seC.GetAll({ IsOwnData: true }).subscribe({
+        this.seC.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
             // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
@@ -1104,7 +1104,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.isLoading = true;
     
     this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
+      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {

@@ -593,7 +593,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
     this.isLoading = true;
     this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString
+      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {

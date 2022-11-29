@@ -385,7 +385,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
     await this.refreshComboboxData();
     
-    await lastValueFrom(this.seC.GetAll({ IsOwnData: false }))
+    await lastValueFrom(this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }))
       .then(d => {
         // Possible buyers
         this.buyersData = d.data!;
