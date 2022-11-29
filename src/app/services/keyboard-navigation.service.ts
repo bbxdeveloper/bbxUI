@@ -307,8 +307,14 @@ export class KeyboardNavigationService {
       return;
     }
 
-    this.p.x = 0;
-    this.p.y = 0;
+    if (this.CurrentNavigatable.AlwaysFirstX !== undefined && this.CurrentNavigatable.AlwaysFirstY !== undefined) {
+      this.p.x = this.CurrentNavigatable.AlwaysFirstX;
+      this.p.y = this.CurrentNavigatable.AlwaysFirstY;
+    } else {
+      this.p.x = 0;
+      this.p.y = 0;
+    }
+
     this.SelectCurrentElement();
   }
 

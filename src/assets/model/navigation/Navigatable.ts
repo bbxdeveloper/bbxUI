@@ -18,6 +18,9 @@ export interface INavigatable {
     HasSubMapping: boolean;
     SubMapping?: { [id: string]: INavigatable; };
 
+    AlwaysFirstX?: number;
+    AlwaysFirstY?: number;
+
     IsDialog: boolean;
 
     IsSubMapping: boolean;

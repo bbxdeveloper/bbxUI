@@ -505,8 +505,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
-      },
-      closeOnEsc: false
+      }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
       console.log("ChooseDataForTableRow Selected item: ", res);

@@ -20,6 +20,7 @@ import { SelectTableDialogComponent } from '../../shared/select-table-dialog/sel
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 const NavMap: string[][] = [
+  ['radio-1', 'radio-2'],
   ['active-prod-search', 'show-all', 'show-less']
 ];
 
@@ -36,6 +37,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   formNav!: NavigatableForm;
 
   TileCssClass = TileCssClass;
+
+  AlwaysFirstX = 0;
+  AlwaysFirstY = 1;
 
   @Input() exchangeRate: number = 1;
   @Input() currency: string = CurrencyCodes.HUF;
@@ -81,10 +85,6 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   ) {
     super(dialogRef, kbS, dataSourceBuilder);
 
-    this.shouldCloseOnEscape = false;
-
-    this.Matrix = NavMap;
-
     this.dbDataTable = new SimpleNavigatableTable<Product>(
       this.dataSourceBuilder, this.kbS, this.cdref, this.dbData, '', AttachDirection.DOWN, this
     );
@@ -100,6 +100,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.IsDialog = true;
     this.InnerJumpOnEnter = true;    
     this.OuterJump = true;
+
+    this.Matrix = NavMap;
 
     this.inputForm = new FormGroup({
       chooser: new FormControl(this.currentChooserValue, []),
@@ -125,23 +127,15 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.Refresh(this.getInputParams);
   }
   ngAfterViewInit(): void {
-    $('*[type=radio]').addClass(TileCssClass);
-    $('*[type=radio]').on('click', (event) => {
-      this.formNav.HandleFormFieldClick(event);
-    });
-
-    this.formNav.GenerateAndSetNavMatrices(true);
-    this.formNav.OuterJump = true;
-    this.dbDataTable.OuterJump = true;
-    this.formNav.DownNeighbour = this.dbDataTable;
-    console.log('fpőelfpewkfpewkfep: ', this.formNav);
-
-    this.kbS.SetWidgetNavigatable(this.formNav);
-
-    this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
   }
   ngAfterContentInit(): void {
+    $('*[type=radio]').addClass(TileCssClass);
+
+    $('*[type=radio]')[0].id = 'radio-1';
+    $('*[type=radio]')[1].id = 'radio-2';
+
+    this.kbS.SetWidgetNavigatable(this);
+    this.kbS.SelectFirstTile();
   }
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
@@ -172,18 +166,6 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
   exit(): void {
     this.close(undefined);
-  }
-
-  MoveToSaveButtons(event: any): void {
-    if (this.isEditModeOff) {
-      this.formNav!.HandleFormEnter(event);
-    } else {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      this.kbS.MoveDown(true);
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    }
   }
 
   override showAll(): void {
