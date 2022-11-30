@@ -21,6 +21,7 @@ import { GetProductGroupParamListModel } from '../models/GetProductGroupParamLis
 import { StatusService } from 'src/app/services/status.service';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 
 @Component({
   selector: 'app-product-group-manager',
@@ -109,19 +110,16 @@ export class ProductGroupManagerComponent
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.Create(data.data).subscribe({
-        next: (d) => {
+        next: async (d) => {
           if (d.succeeded && !!d.data) {
-            const newRow = { data: d.data } as TreeGridNode<ProductGroup>;
-            this.dbData.push(newRow);
-            this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable(newRow.data.id);
+            await this.RefreshAsync(this.getInputParams);
+            this.dbDataTable.SelectRowById(d.data.id);
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
             );
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.bbxToastrService.show(
@@ -282,6 +280,38 @@ export class ProductGroupManagerComponent
         this.RefreshTable();
       },
     });
+  }
+
+  async RefreshAsync(params?: GetProductGroupsParamListModel): Promise<void> {
+    console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
+
+    await lastValueFrom(this.seInv.GetAll(params))
+      .then(d => {
+        if (d.succeeded && !!d.data) {
+          console.log('GetProductGroups response: ', d); // TODO: only for debug
+          if (!!d) {
+            this.dbData = d.data.map((x) => {
+              return { data: x, uid: this.nextUid() };
+            });
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(d);
+          }
+          this.RefreshTable();
+        } else {
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
   }
 
   ngOnInit(): void {
