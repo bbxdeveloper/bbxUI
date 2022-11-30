@@ -23,6 +23,10 @@ export interface MoveRes {
   jumped: boolean;
 }
 
+export enum JumpPosPriority {
+  first, same, last
+}
+
 export const SELECTED_ELEMENT_CLASS = 'current-keyboard-nav-selected';
 export const PARENT_OF_SELECTED_ELEMENT_CLASS = 'parent-of-current-keyboard-nav-selected';
 
@@ -583,6 +587,22 @@ export class KeyboardNavigationService {
     } else {
       this.p.x--;
 
+      if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
+        switch (this.CurrentNavigatable.JumpPositionPriority) {
+          case JumpPosPriority.first: {
+            this.p.x = 0;
+            break;
+          }
+          case JumpPosPriority.last: {
+            this.p.x = this.AroundHere[this.p.y].length - 1;
+            break;
+          }
+          case JumpPosPriority.same: {
+            break;
+          }
+        }
+      }
+
       if (select) {
         this.SelectCurrentElement();
       }
@@ -661,6 +681,22 @@ export class KeyboardNavigationService {
       // Not at right bound
     } else {
       this.p.x++;
+
+      if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
+        switch (this.CurrentNavigatable.JumpPositionPriority) {
+          case JumpPosPriority.first: {
+            this.p.x = 0;
+            break;
+          }
+          case JumpPosPriority.last: {
+            this.p.x = this.AroundHere[this.p.y].length - 1;
+            break;
+          }
+          case JumpPosPriority.same: {
+            break;
+          }
+        }
+      }
 
       if (select) {
         this.SelectCurrentElement();
@@ -741,7 +777,24 @@ export class KeyboardNavigationService {
 
       this.p.y--;
 
-      if (this.AroundHere[this.p.y].length < tmpLength) {
+      if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
+        switch (this.CurrentNavigatable.JumpPositionPriority) {
+          case JumpPosPriority.first: {
+            this.p.x = 0;
+            break;
+          }
+          case JumpPosPriority.last: {
+            this.p.x = this.AroundHere[this.p.y].length - 1;
+            break;
+          }
+          case JumpPosPriority.same: {
+            if (this.AroundHere[this.p.y].length < tmpLength) {
+              this.p.x = 0;
+            }
+            break;
+          }
+        }
+      } else if (this.AroundHere[this.p.y].length < tmpLength) {
         this.p.x = 0;
       }
 
@@ -821,6 +874,22 @@ export class KeyboardNavigationService {
       // Not at lower bound
     } else {
       this.p.y++;
+
+      if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
+        switch (this.CurrentNavigatable.JumpPositionPriority) {
+          case JumpPosPriority.first: {
+            this.p.x = 0;
+            break;
+          }
+          case JumpPosPriority.last: {
+            this.p.x = this.AroundHere[this.p.y].length - 1;
+            break;
+          }
+          case JumpPosPriority.same: {
+            break;
+          }
+        }
+      }
 
       if (select) {
         this.SelectCurrentElement();

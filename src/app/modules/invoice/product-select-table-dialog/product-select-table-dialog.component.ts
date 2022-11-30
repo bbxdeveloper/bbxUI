@@ -3,10 +3,10 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { JumpPosPriority, KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
-import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
+import { AttachDirection, JumpDestination, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -40,6 +40,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
   AlwaysFirstX = 0;
   AlwaysFirstY = 1;
+  JumpPositionPriority = JumpPosPriority.first;
+  DestWhenJumpedOnto = JumpDestination.LOWER_LEFT;
 
   @Input() exchangeRate: number = 1;
   @Input() currency: string = CurrencyCodes.HUF;
@@ -90,6 +92,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     );
     this.dbDataTable.InnerJumpOnEnter = true;
     this.dbDataTable.OuterJump = true;
+    this.dbDataTable.JumpPositionPriority = JumpPosPriority.first;
+    this.dbDataTable.DestWhenJumpedOnto = JumpDestination.LOWER_LEFT;
   }
 
   override Setup(): void {

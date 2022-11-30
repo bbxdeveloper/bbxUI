@@ -2,7 +2,7 @@ import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup, FormControl } from "@angular/forms";
 import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/theme";
 import { FooterService } from "src/app/services/footer.service";
-import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
+import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, JumpPosPriority } from "src/app/services/keyboard-navigation.service";
 import { Constants } from "src/assets/util/Constants";
 import { DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
@@ -11,7 +11,7 @@ import { IEditable } from "../IEditable";
 import { IInlineManager } from "../IInlineManager";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
-import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, JumpDestination } from "./Navigatable";
 import { SelectedCell } from "./SelectedCell";
 
 export class SimpleNavigatableTable<T = any> implements INavigatable {
@@ -39,6 +39,9 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
 
     kbS: KeyboardNavigationService;
     cdref: ChangeDetectorRef;
+    
+    DestWhenJumpedOnto?: JumpDestination;
+    JumpPositionPriority?: JumpPosPriority;
 
     _data: any[];
 
