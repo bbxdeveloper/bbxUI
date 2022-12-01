@@ -112,7 +112,13 @@ export class ProductGroupManagerComponent
       this.seInv.Create(data.data).subscribe({
         next: async (d) => {
           if (d.succeeded && !!d.data) {
-            await this.RefreshAsync(this.getInputParams);
+            await this.RefreshAsync({
+              PageNumber: this.dbDataTable.currentPage + '',
+              PageSize: this.dbDataTable.pageSize,
+              SearchString: this.searchString ?? '',
+              OrderBy: 'productGroupCode',
+              ID: d.data.id
+            });
             this.dbDataTable.SelectRowById(d.data.id);
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
