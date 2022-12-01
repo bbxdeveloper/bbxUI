@@ -9,6 +9,7 @@ import { BlankComboBoxValue } from "../model/navigation/Nav";
 import * as moment from 'moment';
 import { NbDialogService } from "@nebular/theme";
 import { ConfirmationDialogComponent } from "src/app/modules/shared/confirmation-dialog/confirmation-dialog.component";
+import { start } from "repl";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -346,5 +347,9 @@ export module HelperFunctions {
         }
 
         return negative ? (res * -1.0) : res;
+    }
+
+    export function isEmptyOrSpaces(str: any): boolean {
+        return str === null || str === undefined || (str + '').match(/^ *$/) !== null;
     }
 }

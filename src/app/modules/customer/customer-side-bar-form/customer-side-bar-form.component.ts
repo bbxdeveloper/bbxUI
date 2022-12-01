@@ -1,10 +1,16 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, Observable, of } from 'rxjs';
+import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { StatusService } from 'src/app/services/status.service';
+import { Constants } from 'src/assets/util/Constants';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
+import { ZipInfo } from '../../system/models/ZipInfo';
+import { SystemService } from '../../system/services/system.service';
 import { CustomerService } from '../services/customer.service';
 
 const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
@@ -43,9 +49,36 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService, private cService: CustomerService,
-    private cdref: ChangeDetectorRef) {
+    private cdref: ChangeDetectorRef, private systemService: SystemService,
+    private cs: CommonService,
+    private sts: StatusService,) {
     super(kbS);
     this.refreshComboboxData();
+  }
+
+  postalCodeInputFocusOut(event: any): void {
+    const newValue = this.currentForm?.form.controls['postalCode'].value;
+    if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['city'].value)) {
+      this.SetCityByZipInfo(newValue);
+    }
+  }
+
+  SetCityByZipInfo(zip: any) {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.systemService.CityByZip(zip).subscribe({
+      next: res => {
+        if (res && this.currentForm) {
+          this.currentForm.form.controls['city'].setValue(res.zipCity);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      },
+      complete: () => {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      }
+    });
   }
 
   ngOnInit(): void {

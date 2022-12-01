@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { CurrencyCode } from '../models/CurrencyCode';
 import { GetExchangeRateParamsModel } from '../models/GetExchangeRateParamsModel';
+import { ZipInfo } from '../models/ZipInfo';
 
 @Injectable({
   providedIn: 'root'
@@ -36,5 +37,9 @@ export class SystemService {
     }
 
     return this.http.get<number>(this.BaseUrl + '/exchangerate' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  CityByZip(zip: number | string): Observable<ZipInfo> {
+    return this.http.get<ZipInfo>(this.BaseUrl + '/citybyzip?ZipCode=' + zip);
   }
 }
