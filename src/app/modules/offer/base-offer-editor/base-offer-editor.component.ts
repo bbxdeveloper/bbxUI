@@ -123,8 +123,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     },
     {
       label: 'Á.T.', objectKey: 'UnitPriceSwitch', colKey: 'UnitPriceSwitch',
-      defaultValue: '', type: 'bbx-checkbox', mask: "", checkboxFalse: "L", checkboxTrue: "E",
-      colWidth: "40px", textAlign: "center", fInputType: 'bbx-checkbox'
+      defaultValue: '', type: 'unitprice-checkbox', mask: "", checkboxFalse: "L", checkboxTrue: "E",
+      colWidth: "40px", textAlign: "center", fInputType: 'unitprice-checkbox'
     },
     {
       label: 'Menny.', objectKey: 'quantity', colKey: 'quantity',
