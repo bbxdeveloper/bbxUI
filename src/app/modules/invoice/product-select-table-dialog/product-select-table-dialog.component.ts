@@ -92,8 +92,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     );
     this.dbDataTable.InnerJumpOnEnter = true;
     this.dbDataTable.OuterJump = true;
-    this.dbDataTable.JumpPositionPriority = JumpPosPriority.first;
-    this.dbDataTable.DestWhenJumpedOnto = JumpDestination.LOWER_LEFT;
+    // this.dbDataTable.JumpPositionPriority = JumpPosPriority.first;
+    // this.dbDataTable.DestWhenJumpedOnto = JumpDestination.LOWER_LEFT;
   }
 
   override Setup(): void {

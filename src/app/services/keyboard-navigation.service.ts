@@ -587,22 +587,6 @@ export class KeyboardNavigationService {
     } else {
       this.p.x--;
 
-      if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
-        switch (this.CurrentNavigatable.JumpPositionPriority) {
-          case JumpPosPriority.first: {
-            this.p.x = 0;
-            break;
-          }
-          case JumpPosPriority.last: {
-            this.p.x = this.AroundHere[this.p.y].length - 1;
-            break;
-          }
-          case JumpPosPriority.same: {
-            break;
-          }
-        }
-      }
-
       if (select) {
         this.SelectCurrentElement();
       }
@@ -681,22 +665,6 @@ export class KeyboardNavigationService {
       // Not at right bound
     } else {
       this.p.x++;
-
-      if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
-        switch (this.CurrentNavigatable.JumpPositionPriority) {
-          case JumpPosPriority.first: {
-            this.p.x = 0;
-            break;
-          }
-          case JumpPosPriority.last: {
-            this.p.x = this.AroundHere[this.p.y].length - 1;
-            break;
-          }
-          case JumpPosPriority.same: {
-            break;
-          }
-        }
-      }
 
       if (select) {
         this.SelectCurrentElement();
