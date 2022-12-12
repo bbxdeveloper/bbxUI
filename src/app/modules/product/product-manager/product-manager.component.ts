@@ -311,6 +311,11 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
               await this.RefreshAsync(this.getInputParams);
               this.dbDataTable.SelectRowById(d.data.id);
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.simpleToastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
             } else {
               console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
               this.bbxToastrService.show(

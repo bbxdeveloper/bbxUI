@@ -123,8 +123,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     },
     {
       label: 'Á.T.', objectKey: 'UnitPriceSwitch', colKey: 'UnitPriceSwitch',
-      defaultValue: '', type: 'bbx-checkbox', mask: "", checkboxFalse: "L", checkboxTrue: "E",
-      colWidth: "40px", textAlign: "center", fInputType: 'bbx-checkbox'
+      defaultValue: '', type: 'unitprice-checkbox', mask: "", checkboxFalse: "L", checkboxTrue: "E",
+      colWidth: "40px", textAlign: "center", fInputType: 'unitprice-checkbox'
     },
     {
       label: 'Menny.', objectKey: 'quantity', colKey: 'quantity',
@@ -385,7 +385,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
     await this.refreshComboboxData();
     
-    await lastValueFrom(this.seC.GetAll({ IsOwnData: false }))
+    await lastValueFrom(this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }))
       .then(d => {
         // Possible buyers
         this.buyersData = d.data!;

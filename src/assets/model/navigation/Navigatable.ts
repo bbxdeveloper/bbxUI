@@ -1,4 +1,4 @@
-import { PreferredSelectionMethod } from "src/app/services/keyboard-navigation.service";
+import { JumpPosPriority, PreferredSelectionMethod } from "src/app/services/keyboard-navigation.service";
 
 export const TileCssClass: string = 'navmatrix-tile';
 export const TileCssColClass: string = 'navmatrix-tile-col';
@@ -18,6 +18,9 @@ export interface INavigatable {
     HasSubMapping: boolean;
     SubMapping?: { [id: string]: INavigatable; };
 
+    AlwaysFirstX?: number;
+    AlwaysFirstY?: number;
+
     IsDialog: boolean;
 
     IsSubMapping: boolean;
@@ -31,8 +34,10 @@ export interface INavigatable {
     UpNeighbour?: INavigatable;
 
     DestWhenJumpedOnto?: JumpDestination;
-
+    
     TileSelectionMethod: PreferredSelectionMethod;
+    
+    JumpPositionPriority?: JumpPosPriority;
 
     ClearNeighbours(): void;
     GenerateAndSetNavMatrices(attach: boolean, setAsCurrentNavigatable?: boolean, idToSelectAfterGenerate?: any): void;

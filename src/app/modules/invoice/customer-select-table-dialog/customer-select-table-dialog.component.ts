@@ -1,5 +1,6 @@
 import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { lastValueFrom } from 'rxjs';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -8,11 +9,14 @@ import { SelectedCell } from 'src/assets/model/navigation/SelectedCell';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { ZipInfo } from '../../system/models/ZipInfo';
+import { SystemService } from '../../system/services/system.service';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -45,7 +49,8 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     dialogRef: NbDialogRef<SelectTableDialogComponent<Customer>>,
     kbS: KeyboardNavigationService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Customer>>,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private systemService: SystemService
   ) {
     super(dialogRef, kbS, dataSourceBuilder);
 
@@ -117,6 +122,21 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     }, 200);
   }
 
+  async GetZipInfo(zip: any): Promise<ZipInfo | undefined> {
+    let info = undefined;
+    await lastValueFrom(this.systemService.CityByZip(zip))
+      .then(res => {
+        info = res;
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => {
+
+      });
+    return info;
+  }
+
   override Refresh(params?: GetCustomersParamListModel): void {
     if (!!this.Subscription_Search && !this.Subscription_Search.closed) {
       this.Subscription_Search.unsubscribe();
@@ -126,10 +146,19 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     this.isLoading = true;
     
     this.Subscription_Search = this.customerService.GetAll(params).subscribe({
-      next: (d) => {
+      next: async (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
+            for (let i = 0; i < d.data.length; i++) {
+              let x = d.data[i];
+              if (HelperFunctions.isEmptyOrSpaces(x.city)) {
+                let info = await this.GetZipInfo(x.postalCode);
+                if (info) {
+                  d.data![i].city = info.zipCity;
+                }
+              }
+            }
             const tempData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };
             });

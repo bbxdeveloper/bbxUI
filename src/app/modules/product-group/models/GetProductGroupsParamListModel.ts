@@ -3,4 +3,5 @@ export interface GetProductGroupsParamListModel {
     OrderBy?: string;
     PageSize?: string;
     PageNumber?: string;
+    ID?: number;
 }

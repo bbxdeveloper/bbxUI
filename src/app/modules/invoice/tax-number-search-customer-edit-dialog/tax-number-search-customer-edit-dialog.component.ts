@@ -22,6 +22,8 @@ import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/Fl
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CreateCustomerRequest } from '../../customer/models/CreateCustomerRequest';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { SystemService } from '../../system/services/system.service';
 
 const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
 const defaultPattern: string = '00000000-00000000-00000000';
@@ -113,6 +115,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     private cs: CommonService,
     private bbxToastrService: BbxToastrService,
     private simpleToastrService: NbToastrService,
+    private systemService: SystemService
   ) {
     super();
     this.Setup();
@@ -348,5 +351,30 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
       this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
     }
+  }
+
+  postalCodeInputFocusOut(event: any): void {
+    const newValue = this.currentForm?.form.controls['postalCode'].value;
+    if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['city'].value)) {
+      this.SetCityByZipInfo(newValue);
+    }
+  }
+
+  SetCityByZipInfo(zip: any) {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.systemService.CityByZip(zip).subscribe({
+      next: res => {
+        if (res && this.currentForm) {
+          this.currentForm.form.controls['city'].setValue(res.zipCity);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      },
+      complete: () => {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      }
+    });
   }
 }

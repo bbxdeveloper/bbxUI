@@ -91,6 +91,7 @@ export class RadioChoiceDialogComponent extends BaseNavigatableComponentComponen
     
     setTimeout(() => {
       this.kbS.ClickCurrentElement();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
     }, 100);
   }
 

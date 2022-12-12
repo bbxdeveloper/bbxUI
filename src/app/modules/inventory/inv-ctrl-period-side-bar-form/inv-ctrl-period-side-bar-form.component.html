@@ -16,7 +16,7 @@
             </nb-form-field>
             
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="warehouseID" label="Raktár*"
-                [data$]="wareHouseComboData$" [needBlankOption]="false"></app-bbx-combo-box>
+                [data$]="wareHouseComboData$" [simpleMode]="true" [needBlankOption]="false"></app-bbx-combo-box>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">

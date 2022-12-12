@@ -72,7 +72,7 @@
                         <label class="multicol-label-col-1">Irsz.</label>
     
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="postalCode"
-                            [readonly]="isEditModeOff"
+                            [readonly]="isEditModeOff" (focusout)="postalCodeInputFocusOut($event)"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>

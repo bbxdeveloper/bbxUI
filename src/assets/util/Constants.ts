@@ -13,6 +13,7 @@ export module Constants {
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
     export const MSG_CONFIRMATION_SAVE_DATA: string = "Adatok mentése?";
     export const MSG_CONFIRMATION_DELETE_OFFER: string = "Biztosan törölni szeretné az ajánlatot?";
+    export const MSG_CONFIRMATION_COPY_CUST_DISCOUNTS: string = "Biztosan felül szeretné írni a kedvezményeket a választott partnerével?";
     export const MSG_INVALID_FILTER_FORM: string = "Hiányos vagy hibásan kitöltött mezők vannak a szűrőben!";
     export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
 
