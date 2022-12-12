@@ -122,18 +122,31 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     }, 200);
   }
 
-  async GetZipInfo(zip: any): Promise<ZipInfo | undefined> {
+  async GetZipInfo(zipOrCity: any, byZip: boolean = true): Promise<ZipInfo | undefined> {
     let info = undefined;
-    await lastValueFrom(this.systemService.CityByZip(zip))
-      .then(res => {
-        info = res;
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => {
+    if (byZip) {
+      await lastValueFrom(this.systemService.CityByZip(zipOrCity))
+        .then(res => {
+          info = res;
+        })
+        .catch(err => {
+          this.cs.HandleError(err);
+        })
+        .finally(() => {
 
-      });
+        });
+    } else {
+      await lastValueFrom(this.systemService.ZipByCity(zipOrCity))
+        .then(res => {
+          info = res;
+        })
+        .catch(err => {
+          this.cs.HandleError(err);
+        })
+        .finally(() => {
+
+        });
+    }
     return info;
   }
 
@@ -152,10 +165,15 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
           if (!!d) {
             for (let i = 0; i < d.data.length; i++) {
               let x = d.data[i];
-              if (HelperFunctions.isEmptyOrSpaces(x.city)) {
+              if (HelperFunctions.isEmptyOrSpaces(x.city) && !HelperFunctions.isEmptyOrSpaces(x.postalCode)) {
                 let info = await this.GetZipInfo(x.postalCode);
                 if (info) {
                   d.data![i].city = info.zipCity;
+                }
+              } else if (HelperFunctions.isEmptyOrSpaces(x.postalCode) && !HelperFunctions.isEmptyOrSpaces(x.city)) {
+                let info = await this.GetZipInfo(x.city, false);
+                if (info) {
+                  d.data![i].postalCode = info.zipCode;
                 }
               }
             }

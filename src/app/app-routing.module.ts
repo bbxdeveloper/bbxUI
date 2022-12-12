@@ -14,6 +14,7 @@ import { InvRowNavComponent } from './modules/inventory/inv-row-nav/inv-row-nav.
 import { InvoiceIncomeManagerComponent } from './modules/invoice/invoice-income-manager/invoice-income-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
 import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
+import { LocationManagerComponent } from './modules/location/location-manager/location-manager.component';
 import { OfferCreatorComponent } from './modules/offer/offer-creator/offer-creator.component';
 import { OfferEditorComponent } from './modules/offer/offer-editor/offer-editor.component';
 import { OfferNavComponent } from './modules/offer/offer-nav/offer-nav.component';
@@ -65,6 +66,10 @@ const routes: Routes = [
       {
         path: "counter",
         component: CounterManagerComponent,
+      },
+      {
+        path: "location",
+        component: LocationManagerComponent,
       },
     ]
   },

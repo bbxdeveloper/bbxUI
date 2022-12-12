@@ -42,4 +42,8 @@ export class SystemService {
   CityByZip(zip: number | string): Observable<ZipInfo> {
     return this.http.get<ZipInfo>(this.BaseUrl + '/citybyzip?ZipCode=' + zip);
   }
+
+  ZipByCity(city: string): Observable<ZipInfo> {
+    return this.http.get<ZipInfo>(this.BaseUrl + '/zipbycity?ZipCity=' + city);
+  }
 }

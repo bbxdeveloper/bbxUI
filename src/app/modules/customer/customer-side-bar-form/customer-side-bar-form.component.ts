@@ -63,22 +63,46 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     }
   }
 
-  SetCityByZipInfo(zip: any) {
+  cityInputFocusOut(event: any): void {
+    const newValue = this.currentForm?.form.controls['city'].value;
+    if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['postalCode'].value)) {
+      this.SetCityByZipInfo(newValue, false);
+    }
+  }
+
+  SetCityByZipInfo(zipOrCity: any, byZip: boolean = true) {
     this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-    this.systemService.CityByZip(zip).subscribe({
-      next: res => {
-        if (res && this.currentForm) {
-          this.currentForm.form.controls['city'].setValue(res.zipCity);
+    if (byZip) {
+      this.systemService.CityByZip(zipOrCity).subscribe({
+        next: res => {
+          if (res && this.currentForm) {
+            this.currentForm.form.controls['city'].setValue(res.zipCity);
+          }
+        },
+        error: err => {
+          this.cs.HandleError(err);
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+        complete: () => {
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
-      },
-      error: err => {
-        this.cs.HandleError(err);
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-      },
-      complete: () => {
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-      }
-    });
+      });
+    } else {
+      this.systemService.ZipByCity(zipOrCity).subscribe({
+        next: res => {
+          if (res && this.currentForm) {
+            this.currentForm.form.controls['postalCode'].setValue(res.zipCode);
+          }
+        },
+        error: err => {
+          this.cs.HandleError(err);
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+        complete: () => {
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        }
+      });
+    }    
   }
 
   ngOnInit(): void {

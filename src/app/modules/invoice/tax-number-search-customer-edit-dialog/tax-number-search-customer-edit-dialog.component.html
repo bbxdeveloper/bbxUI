@@ -80,7 +80,8 @@
                         <label>Város*</label>
         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="city" [readonly]="isEditModeOff"
-                            (click)="currentForm.HandleFormFieldClick($event)" required>
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            (focusout)="cityInputFocusOut($event)" required>
                     </div>
                 </nb-form-field>
             </div>
