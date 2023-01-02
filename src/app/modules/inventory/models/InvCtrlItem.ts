@@ -23,9 +23,7 @@ export interface InvCtrlItemForGet {
     "productCode": string;
     "product": string;
     "invCtrlDate": string;
-    "oCalcQty": number;
     "oRealQty": number;
-    "nCalcQty": number;
     "nRealQty": number;
     "avgCost": number;
     "userID": number;
