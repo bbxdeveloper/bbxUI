@@ -1093,9 +1093,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       "report_params":
       {
         "id": id,
-        "offerNumber": null
+        "copies": copies
       },
-      "copies": copies,
+      "copies": 1,
       "data_operation": Constants.DataOperation.PRINT_BLOB,
       "blob_data": null
     } as Constants.Dct;

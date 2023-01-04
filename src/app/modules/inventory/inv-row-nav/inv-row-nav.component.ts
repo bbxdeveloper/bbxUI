@@ -431,56 +431,45 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-      const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-        context: {
-          title: 'Leltári időszak Nyomtatása',
-          inputLabel: 'Példányszám',
-          defaultValue: 1
-        }
-      });
-      dialogRef.onClose.subscribe({
-        next: async res => {
-          if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
-            this.isLoading = true;
+      HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_PRINT, async () => {
+        this.isLoading = true;
 
-            let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-              next: cmdEnded => {
-                console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+        let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+          next: cmdEnded => {
+            console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
-                if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                  this.simpleToastrService.show(
-                    `Az leltári időszak nyomtatása véget ért.`,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  this.isLoading = false;
-                  commandEndedSubscription.unsubscribe();
-                } else {
-                  this.isLoading = false;
-                }
-              },
-              error: cmdEnded => {
-                console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-                
-                this.isLoading = false;
-                commandEndedSubscription.unsubscribe();
-                this.bbxToastrService.show(
-                  `Az leltári időszak nyomtatása közben hiba történt.`,
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
-                );
-              }
-            });
-            await this.printReport(id, res.value, title!);
-          } else {
-            this.simpleToastrService.show(
-              `Az leltári időszak nyomtatása nem történt meg.`,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+              this.simpleToastrService.show(
+                `Az leltári időszak nyomtatása véget ért.`,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
+              this.isLoading = false;
+              commandEndedSubscription.unsubscribe();
+            } else {
+              this.isLoading = false;
+            }
+          },
+          error: cmdEnded => {
+            console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
             this.isLoading = false;
+            commandEndedSubscription.unsubscribe();
+            this.bbxToastrService.show(
+              `Az leltári időszak nyomtatása közben hiba történt.`,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
           }
-        }
+        });
+        await this.printReport(id, 1, title!);
+      }, async () => {
+        this.simpleToastrService.show(
+          `Az leltári időszak nyomtatása nem történt meg.`,
+          Constants.TITLE_INFO,
+          Constants.TOASTR_SUCCESS_5_SEC
+        );
+        this.isLoading = false;
       });
     }
   }
@@ -493,7 +482,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         "section": "Leltári időszak",
         "fileType": "pdf",
         "report_params": {},
-        "copies": copies,
+        "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
       this.inventoryService.GetReport({

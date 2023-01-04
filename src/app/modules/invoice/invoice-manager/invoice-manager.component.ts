@@ -794,9 +794,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         "report_params":
         {
           "id": id,
-          "invoiceNumber": null
+          "copies": copies
         },
-        "copies": copies,
+        "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct);
   }
