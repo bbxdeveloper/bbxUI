@@ -1093,7 +1093,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       "report_params":
       {
         "id": id,
-        "copies": copies
+        "copies": HelperFunctions.ToInt(copies)
       },
       "copies": 1,
       "data_operation": Constants.DataOperation.PRINT_BLOB,

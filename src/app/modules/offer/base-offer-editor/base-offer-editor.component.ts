@@ -461,7 +461,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         "report_params":
         {
           "id": id,
-          "copies": copies
+          "copies": HelperFunctions.ToInt(copies)
         },
         "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
