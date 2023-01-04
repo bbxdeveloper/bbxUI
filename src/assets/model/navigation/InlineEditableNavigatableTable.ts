@@ -36,6 +36,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
 
+    RestoreMementoObjectStateOnEscape = true;
+    MementoObjectField?: string = undefined;
+
     IsSubMapping: boolean = false;
 
     inlineForm: FormGroup;
@@ -189,11 +192,16 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         // }
     }
 
-    FillCurrentlyEditedRow(newRowData: TreeGridNode<T>): void {
+    GetEditedRow(): TreeGridNode<T> | undefined {
+        return this.editedRow;
+    }
+
+    FillCurrentlyEditedRow(newRowData: TreeGridNode<T>): TreeGridNode<T> | undefined {
         if (!!newRowData && !!this.editedRow) {
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             
             this.data[this.editedRowPos!] = newRowData;
+            var currentRow = this.data[this.editedRowPos!];
             
             this.SetCreatorRow();
             this.ResetEdit();
@@ -204,7 +212,11 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                 this.parentComponent.TableRowDataChanged(newRowData.data, this.editedRowPos);
             }, 100);
+
+            return currentRow;
         }
+
+        return undefined;
     }
 
     ResetEdit(): void {
@@ -223,7 +235,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.editedRowPos = rowPos;
     }
 
-    HandleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number): void {
+    HandleGridEscape(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, restoreMementoObjectState: boolean = false): void {
+        if (row && (this.RestoreMementoObjectStateOnEscape || restoreMementoObjectState)) {
+            (row.data as any).Restore(this.MementoObjectField);
+        }
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.ResetEdit();
         this.cdref!.detectChanges();
@@ -265,10 +280,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             this.Matrix.push(row);
         }
         
-        if (environment.debug) {
+        if (environment.inlineEditableTableMatrixGenerationLog) {
+            console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
-
-        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
 
         if (attach) {
             this.kbS.Attach(this, this.attachDirection);
@@ -280,13 +294,17 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
             this.RemoveEditRow(false);
 
-            // console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+            if (environment.inlineEditableTableMatrixGenerationLog) {
+                console.log('selectPreviousPoseAfterGenerate: ', this.Matrix, tempX, tempY, this.kbs.IsCurrentNavigatable(this));
+            }
 
             this.cdref.detectChanges();
 
             this.kbs.SelectElementByCoordinate(tempX, tempY);
 
-            // console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+            if (environment.inlineEditableTableMatrixGenerationLog) {
+                console.log(this.kbs.Here, this.Matrix[2].includes(this.kbs.Here));
+            }
 
             this.SetCreatorRow();
         }
@@ -296,7 +314,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
-        if (environment.debug) {
+        if (environment.inlineEditableTableMatrixGenerationLog) {
             console.log('[GenerateAndSetNavMatrices]', this.tableId, tiles, '.' + TileCssClass, '#' + this.tableId);
         }
 
@@ -310,9 +328,11 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         for (let i = 0; i < tiles.length; i++) {
             const next = tiles[i];
 
-            this.LogMatrixGenerationCycle(
-                TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
-            );
+            if (environment.inlineEditableTableMatrixGenerationLog) {
+                this.LogMatrixGenerationCycle(
+                    TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
+                );
+            }
 
             // Usually all table cells are in a tr (parentElement here)
             if (!!next?.parentElement) {
@@ -332,7 +352,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             this.Matrix[currentMatrixIndex].push(next.id);
         }
 
-        if (environment.debug) {
+        if (environment.inlineEditableTableMatrixGenerationLog) {
             console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
 

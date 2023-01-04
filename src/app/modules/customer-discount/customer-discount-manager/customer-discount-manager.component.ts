@@ -253,6 +253,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       // Products
       this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
 
+      this.dbData.forEach(x => {
+        x.data.Save('productGroupCode');
+      });
+
       this.dbDataDataSrc.setData(this.dbData);
 
       this.table?.renderRows();
@@ -394,7 +398,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     changedData.productGroupCode = res.productGroupCode;
     changedData.productGroup = res.productGroupDescription;
     changedData.productGroupID = res.id;
-    this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
+
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
+    currentRow?.data.Save('productGroupCode');
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.dbDataTable.MoveNextInTable();
@@ -504,6 +510,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
                 return 0;
               });
 
+              this.dbData.forEach(x => {
+                x.data.Save('productGroupCode');
+              });
+
               this.dbDataDataSrc.setData(this.dbData);
 
               this.table?.renderRows();
@@ -567,6 +577,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   
               if ((row.data.productGroupID === -1 && row.data.productGroupCode === _product.productGroupCode) ||
               (row.data.productGroupCode !== _product.productGroupCode && this.dbDataTable.data.findIndex(x => x.data?.productGroupID === _product.id) > -1)) {
+                this.dbDataTable.data[rowPos].data.Restore('productGroupCode');
                 this.bbxToastrService.show(
                   Constants.MSG_PRODUCT_ALREADY_THERE,
                   Constants.TITLE_ERROR,
@@ -578,7 +589,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
                 changedData.productGroupCode = productGroup.productGroupCode;
                 changedData.productGroup = productGroup.productGroupDescription;
                 changedData.productGroupID = productGroup.id;
-                this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
+
+                let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
+                currentRow?.data.Save('productGroupCode');
                 
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                 this.dbDataTable.MoveNextInTable();
@@ -595,8 +608,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
           );
+          this.dbDataTable.data[rowPos].data.Restore('productGroupCode');
         },
         error: () => {
+          this.dbDataTable.data[rowPos].data.Restore('productGroupCode');
           this.RecalcNetAndVat();
         },
         complete: () => {
@@ -862,6 +877,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               return -1;
             }
             return 0;
+          });
+
+          this.dbData.forEach(x => {
+            x.data.Save('productGroupCode');
           });
 
           this.dbDataDataSrc.setData(this.dbData);

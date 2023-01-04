@@ -538,7 +538,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
+            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
+            currentRow?.data.Save('productCode');
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -546,6 +547,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
+            this.dbDataTable.data[rowPos].data.Restore('productCode');
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
@@ -554,6 +556,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           }
         },
         error: err => {
+          this.dbDataTable.data[rowPos].data.Restore('productCode');
           this.cs.HandleError(err);
         },
         complete: () => {
@@ -954,7 +957,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
-        this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
+        currentRow?.data.Save('productCode');
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();
         setTimeout(() => {

@@ -1,4 +1,5 @@
 import { IEditable } from "src/assets/model/IEditable";
+import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { Product } from "../../product/models/Product";
 
@@ -29,7 +30,9 @@ export interface InvCtrlItemForGet {
     "userID": number;
 }
 
-export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
+export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrlItemForPost {
+    public override DeafultFieldList: string[] = ['productCode'];
+
     // OfferLineForPost
     "lineNumber": number = 0;
     "productCode": string;
@@ -53,12 +56,6 @@ export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
     "unitOfMeasureX": string = "";
     "vatRateID": number = -1;
     "vatPercentage": number = -1;
-
-
-
-
-
-
     "warehouseID": number = 0;
     "invCtlPeriodID": number = 0;
     "productID": number = 0;
@@ -66,6 +63,11 @@ export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
     "realQty": number = 0;
     "nRealQty": number = 0;
     "userID": number = 0;
+
+    constructor() {
+        super();
+        this.SaveDefault();
+    }
 
     get NRealQty(): number {
         return this.realQty ?? 0;
@@ -120,7 +122,7 @@ export class InvCtrlItemLine implements IEditable, InvCtrlItemForPost {
         this.unitGross = HelperFunctions.Round(this.unitGross);
     }
 
-    public toString(): string {
+    public override toString(): string {
         return this.productCode;
     }
 }

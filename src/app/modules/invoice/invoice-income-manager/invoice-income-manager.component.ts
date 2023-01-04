@@ -541,8 +541,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         next: product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-          if (!!product) {
-            this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
+          if (product && product.productCode !== undefined) {
+            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
+            currentRow?.data.Save('productCode');
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -555,9 +556,11 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.dbDataTable.data[rowPos].data.Restore('productCode');
           }
         },
         error: err => {
+          this.dbDataTable.data[rowPos].data.Restore('productCode');
           this.cs.HandleError(err);
         },
         complete: () => {
@@ -950,7 +953,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
-        this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+        currentRow?.data.Save('productCode');
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();
         setTimeout(() => {

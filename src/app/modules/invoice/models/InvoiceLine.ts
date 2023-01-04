@@ -1,8 +1,35 @@
 import { IEditable } from "src/assets/model/IEditable";
+import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
-export class InvoiceLineForPost {
+export interface InvoiceLineForPost {
     // table col order
+    lineNumber: number; // hidden
+    productCode: string; // editable
+    productDescription: string;
+    quantity: number; // editable
+    unitOfMeasure: string;
+    unitPrice: number; // editable
+    vatRateCode: string; // below table
+    lineNetAmount: number; // price * quant
+}
+
+export function GetBlankInvoiceLineForPost(): InvoiceLineForPost {
+    return {
+        lineNumber: 0,
+        productCode: '',
+        productDescription: "",
+        quantity: 0.0,
+        unitOfMeasure: "",
+        unitPrice: 0.0,
+        vatRateCode: '',
+        lineNetAmount: 0.0
+    } as InvoiceLineForPost;
+}
+
+export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IEditable {
+    public override DeafultFieldList: string[] = ['productCode'];
+
     lineNumber: number = 0; // hidden
 
     productCode: string = ''; // editable
@@ -17,9 +44,7 @@ export class InvoiceLineForPost {
     vatRateCode: string = ''; // below table
 
     lineNetAmount: number = 0.0; // price * quant
-}
 
-export class InvoiceLine extends InvoiceLineForPost implements IEditable {
     lineGrossAmount: number = 0.0; // netamount + vatamount
     lineVatAmount: number = 0.0; // netamount * vat - hidden
 
@@ -28,6 +53,11 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
     vatRate: number = 1; // hidden
 
     unitOfMeasureX?: string;
+
+    constructor() {
+        super();
+        this.SaveDefault();
+    }
 
     IsUnfinished(): boolean {
         return this.productCode?.length === 0 || this.productDescription?.length === 0 ||
@@ -39,16 +69,16 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
     }
 
     public ReCalc(): void {
-        console.log("");
-        console.log("==========================");
-        console.log("[InvoiceLine ReCalc]");
-        console.log("BEFORE");
-        console.log("unitPrice: " + this.unitPrice);
-        console.log("lineNetAmount: " + this.lineNetAmount);
-        console.log("vatRate: " + this.vatRate);
-        console.log("lineVatAmount: " + this.lineVatAmount);
-        console.log("lineGrossAmount: " + this.lineGrossAmount);
-        console.log("==========================");
+        // console.log("");
+        // console.log("==========================");
+        // console.log("[InvoiceLine ReCalc]");
+        // console.log("BEFORE");
+        // console.log("unitPrice: " + this.unitPrice);
+        // console.log("lineNetAmount: " + this.lineNetAmount);
+        // console.log("vatRate: " + this.vatRate);
+        // console.log("lineVatAmount: " + this.lineVatAmount);
+        // console.log("lineGrossAmount: " + this.lineGrossAmount);
+        // console.log("==========================");
 
         this.unitPrice = HelperFunctions.ToFloat(this.unitPrice);
         this.quantity = HelperFunctions.ToFloat(this.quantity);
@@ -60,14 +90,14 @@ export class InvoiceLine extends InvoiceLineForPost implements IEditable {
         this.lineVatAmount = HelperFunctions.Round2(this.lineNetAmount * this.vatRate, 1);
         this.lineGrossAmount = this.lineVatAmount + this.lineNetAmount;
 
-        console.log("AFTER");
-        console.log("unitPrice: " + this.unitPrice);
-        console.log("lineNetAmount: " + this.lineNetAmount);
-        console.log("vatRate: " + this.vatRate);
-        console.log("lineVatAmount: " + this.lineVatAmount);
-        console.log("lineGrossAmount: " + this.lineGrossAmount);
-        console.log("==========================");
-        console.log("");
+        // console.log("AFTER");
+        // console.log("unitPrice: " + this.unitPrice);
+        // console.log("lineNetAmount: " + this.lineNetAmount);
+        // console.log("vatRate: " + this.vatRate);
+        // console.log("lineVatAmount: " + this.lineVatAmount);
+        // console.log("lineGrossAmount: " + this.lineGrossAmount);
+        // console.log("==========================");
+        // console.log("");
     }
 
     public GetPOSTData(): InvoiceLineForPost {
