@@ -60,6 +60,10 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
   offerData!: CreateOfferRequest;
 
+  get IsBrutto(): boolean {
+    return this.buyerForm?.controls['isBrutto']?.value ?? false;
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -150,7 +154,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       offerGrossAmount: 0,
       offerNetAmount: 0,
       currencyCode: '',
-      exchangeRate: 1
+      exchangeRate: 1,
+      isBrutto: false
     } as CreateOfferRequest;
 
     this.dbData = [];
@@ -175,6 +180,18 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         notice: new FormControl('', []),
         currencyCode: new FormControl(undefined, []),
         exchangeRate: new FormControl(1, []),
+        isBrutto: new FormControl(false, [])
+      });
+
+      this.buyerForm.controls['isBrutto'].valueChanges.subscribe({
+        next: newValue => {
+          this.offerData.isBrutto = newValue;
+          if (newValue) {
+            this.ShowColumn('UnitGrossVal');
+          } else {
+            this.HideColumn('UnitGrossVal');
+          }
+        }
       });
 
       this.buyerForm.controls['currencyCode'].valueChanges.subscribe({

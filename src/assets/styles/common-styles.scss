@@ -1,0 +1,9 @@
+// Width
+
+$widthManipulatorMax: 100;
+
+@for $i from 0 through $widthManipulatorMax {
+    .width-of-#{$i} {
+        width: calc(0% + #{$i}%) !important;
+    }
+}

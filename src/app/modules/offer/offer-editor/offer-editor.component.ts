@@ -64,6 +64,10 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
   idFromPath?: number;
 
+  get IsBrutto(): boolean {
+    return this.buyerForm?.controls['isBrutto']?.value ?? false;
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -171,7 +175,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       sumBrtAmount: 0,
       currencyCode: '',
       currencyCodeX: '',
-      exchangeRate: 1
+      exchangeRate: 1,
+      isBrutto: false
     } as Offer;
 
     this.dbData = [];
@@ -196,6 +201,18 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         offerNumberX: new FormControl('', []),
         currencyCode: new FormControl(undefined, []),
         exchangeRate: new FormControl(1, []),
+        isBrutto: new FormControl(false, [])
+      });
+
+      this.buyerForm.controls['isBrutto'].valueChanges.subscribe({
+        next: newValue => {
+          this.offerData.isBrutto = newValue;
+          if (newValue) {
+            this.ShowColumn('UnitGrossVal');
+          } else {
+            this.HideColumn('UnitGrossVal');
+          }
+        }
       });
     } else {
       this.buyerForm.reset(undefined);
@@ -300,6 +317,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           this.buyerForm.controls['offerNumberX'].setValue(res.offerNumberX);
           this.buyerForm.controls['currencyCode'].setValue(res.currencyCodeX);
           this.buyerForm.controls['exchangeRate'].setValue(res.exchangeRate);
+          this.buyerForm.controls['exchangeRate'].setValue(res.exchangeRate);
+          this.buyerForm.controls['isBrutto'].setValue(res.isBrutto);
 
           this.offerData = res;
 

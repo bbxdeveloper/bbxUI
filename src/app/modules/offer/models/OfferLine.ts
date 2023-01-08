@@ -50,7 +50,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     "vatRateCode": string;
     "unitVat": number = 0; // unitPrice * vatRate // hidden
     "unitGross": number = 0; // unitPrice + unitVat
-    "showDiscount": boolean = true;
+    "showDiscount": boolean = false;
     "quantity": number = 0;
 
     "unitPrice1": number = 0;
