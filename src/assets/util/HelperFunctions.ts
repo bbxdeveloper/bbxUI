@@ -353,7 +353,7 @@ export module HelperFunctions {
         return str === null || str === undefined || (str + '').match(/^ *$/) !== null;
     }
 
-    export function SelectIntPart(inputId: string): void {
+    export function SelectBeginningById(inputId: string, defaultSelectionEnd: number = 1): void {
         const _input = document.getElementById(inputId) as HTMLInputElement;
         if (!!_input && _input.type === "text") {
             window.setTimeout(function () {
@@ -363,7 +363,22 @@ export module HelperFunctions {
                     const l = txtVal.split('.')[0].length;
                     _input.setSelectionRange(0, l);
                 } else {
-                    _input.setSelectionRange(0, 1);
+                    _input.setSelectionRange(0, defaultSelectionEnd);
+                }
+            }, 0);
+        }
+    }
+
+    export function SelectBeginningByClass(className: string, defaultSelectionEnd: number = 0): void {
+        const _input = document.getElementsByClassName(className)[0] as HTMLInputElement;
+        if(!!_input && _input.type === "text") {
+            window.setTimeout(function () {
+                const txtVal = $('.' + className)[0].innerText;
+                if (!!txtVal) {
+                    const l = txtVal.split('.')[0].length;
+                    _input.setSelectionRange(0, l);
+                } else {
+                    _input.setSelectionRange(0, defaultSelectionEnd);
                 }
             }, 0);
         }

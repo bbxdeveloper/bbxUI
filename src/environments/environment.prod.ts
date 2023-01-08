@@ -21,4 +21,6 @@ export const environment = {
   getterSetterLogs: false,
   managerComponentLogs: true,
   invoiceSaveDialogLogs: false,
+  inlineEditableTableMatrixGenerationLog: false,
+  inlineEditableTableNavigatableFormLog: false,
 };

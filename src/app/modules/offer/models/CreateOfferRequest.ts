@@ -11,5 +11,7 @@ export interface CreateOfferRequest {
     "offerGrossAmount": number,
 
     "currencyCode": string,
-    "exchangeRate": number
+    "exchangeRate": number,
+
+    "isBrutto": boolean
 }

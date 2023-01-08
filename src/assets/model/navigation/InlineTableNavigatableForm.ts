@@ -231,7 +231,7 @@ export class InlineTableNavigatableForm implements INavigatable {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
 
-        if (environment.debug) {
+        if (environment.inlineEditableTableNavigatableFormLog) {
             console.log('[GenerateAndSetNavMatrices]', this.formId, tiles, '.' + TileCssClass, '#' + this.formId);
         }
 
@@ -246,9 +246,11 @@ export class InlineTableNavigatableForm implements INavigatable {
         for (let i = 0; i < tiles.length; i++) {
             const next = tiles[i];
 
-            this.LogMatrixGenerationCycle(
-                TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
-            );
+            if (environment.inlineEditableTableNavigatableFormLog) {
+                this.LogMatrixGenerationCycle(
+                    TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
+                );
+            }
 
             // Usually all form elements are in a nb-form-field
             // So we must examine the parent of that element to be sure two form element
@@ -270,9 +272,9 @@ export class InlineTableNavigatableForm implements INavigatable {
             previous = next.id;
         }
 
-        if (environment.debug) {
+        if (environment.inlineEditableTableNavigatableFormLog) {
+            console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
-        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
 
         if (stayAtSamePoseAfterGenerate) {
             this.kbS.SelectElementByCoordinate(this.kbS.p.x, this.kbS.p.y);

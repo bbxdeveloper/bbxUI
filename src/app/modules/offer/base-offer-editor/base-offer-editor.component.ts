@@ -106,7 +106,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     'showDiscount',
     'unitPrice',
     'UnitPriceVal',
-    'vatRateCode',
+    'vatRateCode'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -169,11 +169,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "70px", textAlign: "right", //fInputType: 'formatted-number'
     },
-    // {
-    //   label: 'Bruttó ért.', objectKey: 'UnitGrossVal', colKey: 'UnitGrossVal',
-    //   defaultValue: '', type: 'number', mask: "", fReadonly: true,
-    //   colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
-    // }
+    {
+      label: 'Bruttó ért.', objectKey: 'UnitGrossVal', colKey: 'UnitGrossVal',
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number'
+    }
   ]
   customMaskPatterns = {
     A: { pattern: new RegExp('[a-zA-Z0-9]') },
@@ -243,6 +243,24 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected systemService: SystemService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
+  }
+
+  protected HideColumn(col: string): void {
+    const index = this.allColumns.findIndex(x => x == col);
+    if (index >= 0) {
+      this.allColumns.splice(index, 1);
+    }
+  }
+
+  protected ShowColumn(col: string, position?: number): void {
+    if (this.allColumns.includes(col)) {
+      return;
+    }
+    if (position !== undefined) {
+      this.allColumns.splice(position!, 0, col);
+    } else {
+      this.allColumns.push(col);
+    }
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -461,9 +479,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         "report_params":
         {
           "id": id,
-          "offerNumber": null
+          "copies": HelperFunctions.ToInt(copies)
         },
-        "copies": copies,
+        "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct);
   }

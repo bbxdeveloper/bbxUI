@@ -83,6 +83,14 @@
                                 </nb-form-field>
                             </td>
                             <td>
+                                <div class="checkbox-field" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
+                                    <label class="label-checkbox">Bruttó árak</label>
+                                
+                                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isBrutto"
+                                        [readonly]="isEditModeOff" (click)="buyerFormNav.HandleFormFieldClick($event)">
+                                </div>
+                            </td>
+                            <td>
                                 <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav"
                                     [needBlankOption]="false" [autoFillFirstAvailableValue]="true" [simpleMode]="true"
                                     formFieldName="currencyCode" label="Pénznem" [data$]="currencyCodeComboData$"></app-bbx-combo-box>
@@ -141,7 +149,7 @@
         <table class="table-statistics-net-vat-gross">
             <tr>
                 <td>Összes nettó: {{offerData.offerNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-                <!-- <td>Összes bruttó: {{offerData.offerGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td> -->
+                <td *ngIf="IsBrutto">Összes bruttó: {{offerData.offerGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
             </tr>
         </table>
     </nb-card-footer>

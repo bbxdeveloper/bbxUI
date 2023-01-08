@@ -16,15 +16,9 @@ export class StockCard {
     "stockCardDate": string;
     "scType": string;
     "scTypeX": string;
-    "oCalcQty": number;
     "oRealQty": number;
-    "oOutQty": number;
-    "xCalcQty": number;
     "xRealQty": number;
-    "xOutQty": number;
-    "nCalcQty": number;
     "nRealQty": number;
-    "nOutQty": number;
     "oAvgCost": number;
     "nAvgCost": number;
     "xRel": string;

@@ -3,7 +3,7 @@
         <span>Szeretné menteni a számlát?</span>
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
-        <form *ngIf="!!sumForm" [formGroup]="sumForm" #formDirective="ngForm">
+        <form *ngIf="!!sumForm" [formGroup]="sumForm" #formDirective="ngForm" id="invoiceSaveForm">
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Összes nettó:</label>
@@ -11,10 +11,20 @@
                 </div>
             </nb-form-field>
 
+            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Kedvezmény:</label>
+                    <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
+                        required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
+                        (click)="formNav.HandleFormFieldClick($event)">
+                </div>
+            </nb-form-field>
+
             <nb-form-field *ngFor="let item of vatRateCodes; let rowPos = index">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Összes {{item.Id}} áfa:</label>
-                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="{{'vatRateFormControl-' + rowPos}}">
+                    <input (focusout)="RefreshCalc()"
+                     [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="{{'vatRateFormControl-' + rowPos}}">
                 </div>
             </nb-form-field>
 

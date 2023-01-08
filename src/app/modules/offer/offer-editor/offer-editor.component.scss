@@ -1,9 +1,36 @@
+@import 'common-styles';
+
 $td-height: 30px;
 
 nb-card {
     background: none;
     border: none;
     margin: 0px;
+}
+
+.checkbox-field {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: flex-start;
+    align-items: flex-start;
+
+    margin-right: 5px;
+
+    label {
+        text-align: left;
+        margin-bottom: 20px;
+        min-width: auto;
+    }
+
+    input[type=checkbox], [type=radio] {
+        box-sizing: border-box;
+        padding: 0;
+
+        margin-left: 15px;
+        width: 19.5px;
+        height: 19.5px;
+    }
 }
 
 .card-table-wrapper {

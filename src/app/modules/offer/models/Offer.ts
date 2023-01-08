@@ -35,4 +35,6 @@ export interface Offer {
     "currencyCode": string,
     "currencyCodeX": string,
     "exchangeRate": number,
+
+    "isBrutto": boolean
 }

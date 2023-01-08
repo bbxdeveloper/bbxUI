@@ -463,7 +463,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.dbDataTable.data[rowIndex].data.realQty = stockRecord.realQty;
     }
 
-    this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, nRealQtyFromRecord) });
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, nRealQtyFromRecord) });
+    currentRow?.data.Save('productCode');
 
     console.log("after HandleProductSelectionFromDialog: ", this.dbDataTable.data[rowIndex]);
 
@@ -575,7 +576,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                 price = stockRecord.avgCost;
               }
 
-              this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product, 0, 0, price) });
+              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product, 0, 0, price) });
+              currentRow?.data.Save('productCode');
+
               console.log("after TableCodeFieldChanged: ", this.dbDataTable.data);
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
               this.dbDataTable.MoveNextInTable();
@@ -584,16 +587,17 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
                 this.kbS.ClickCurrentElement();
               }, 200);
             }
-
           } else {
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
+            this.dbDataTable.data[rowPos].data.Restore('productCode');
           }
         },
         error: () => {
+          this.dbDataTable.data[rowPos].data.Restore('productCode');
           this.RecalcNetAndVat();
         },
         complete: async () => {
@@ -734,6 +738,21 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       }
       this.CheckSaveConditionsAndSave();
       return;
+    }
+    console.log("pfkepfkepfkep ", this.kbS.IsCurrentNavigatable(this.dbDataTable), !!this.dbDataTable.GetEditedRow());
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable) && !!this.dbDataTable.GetEditedRow()) {
+      switch (event.key) {
+        case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
+          debugger;
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.dbDataTable.GetEditedRow()?.data.Restore('productCode');
+          return;
+        }
+      }
     }
     this.HandleKeyDown(event);
   }

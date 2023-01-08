@@ -1,5 +1,6 @@
 import { TouchBarScrubber } from "electron";
 import { IEditable } from "src/assets/model/IEditable";
+import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { environment } from "src/environments/environment";
 import { InvoiceLine } from "../../invoice/models/InvoiceLine";
@@ -35,7 +36,9 @@ export interface OfferLineFullData extends OfferLineForPost {
     "unitPrice2": number;
 }
 
-export class OfferLine implements IEditable, OfferLineFullData {
+export class OfferLine extends MementoObject implements IEditable, OfferLineFullData {
+    public override DeafultFieldList: string[] = ['productCode'];
+
     // OfferLineForPost
     "lineNumber": number = 0;
     "productCode": string;
@@ -47,7 +50,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
     "vatRateCode": string;
     "unitVat": number = 0; // unitPrice * vatRate // hidden
     "unitGross": number = 0; // unitPrice + unitVat
-    "showDiscount": boolean = true;
+    "showDiscount": boolean = false;
     "quantity": number = 0;
 
     "unitPrice1": number = 0;
@@ -156,6 +159,11 @@ export class OfferLine implements IEditable, OfferLineFullData {
     }
     get UnitVat() {
         return this.unitVat / this.exchangeRate;
+    }
+
+    constructor() {
+        super();
+        this.SaveDefault();
     }
 
     IsUnfinished(): boolean {
@@ -304,7 +312,7 @@ export class OfferLine implements IEditable, OfferLineFullData {
         return offerLine;
     }
 
-    public toString(): string {
+    public override toString(): string {
         return this.productCode;
     }
 }

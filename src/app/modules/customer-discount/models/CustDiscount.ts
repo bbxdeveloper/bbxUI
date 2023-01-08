@@ -1,4 +1,5 @@
 import { IEditable } from "src/assets/model/IEditable";
+import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export interface CustDiscountForPost {
@@ -20,7 +21,9 @@ export interface CustDicountForGet {
     "discount": number
 }
 
-export class CustDiscount implements IEditable, CustDiscountForPostItem, CustDicountForGet {
+export class CustDiscount extends MementoObject implements IEditable, CustDiscountForPostItem, CustDicountForGet {
+    public override DeafultFieldList: string[] = ['productGroupCode'];
+
     "customerID": number = -1;
     "productGroupID": number = -1;
     "productGroupCode": string;
@@ -53,6 +56,11 @@ export class CustDiscount implements IEditable, CustDiscountForPostItem, CustDic
         this.productGroupCode = val;
     }
 
+    constructor() {
+        super();
+        this.SaveDefault();
+    }
+
     Round() {
         this.discount = HelperFunctions.Round(this.discount);
     }
@@ -68,7 +76,7 @@ export class CustDiscount implements IEditable, CustDiscountForPostItem, CustDic
         } as CustDiscountForPostItem;
     }
 
-    public toString(): string {
+    public override toString(): string {
         return this.productGroupCode;
     }
 }
