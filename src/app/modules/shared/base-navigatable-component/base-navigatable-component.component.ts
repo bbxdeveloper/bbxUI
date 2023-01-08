@@ -49,21 +49,6 @@ export class BaseNavigatableComponentComponent implements OnInit, INavigatable {
     this.DownNeighbour = undefined;
     this.UpNeighbour = undefined;
   }
-
-  protected SelectFirstChar(className: string): void {
-    const _input = document.getElementsByClassName(className)[0] as HTMLInputElement;
-    if (!!_input && _input.type === "text") {
-      window.setTimeout(function () {
-        const txtVal = $('.' + className)[0].innerText;
-        if (!!txtVal) {
-          const l = txtVal.split('.')[0].length;
-          _input.setSelectionRange(0, l);
-        } else {
-          _input.setSelectionRange(0, 1);
-        }
-      }, 0);
-    }
-  }
   
   Attach(): void {}
   Detach(): void {}

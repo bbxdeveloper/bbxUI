@@ -50,9 +50,6 @@ export class MementoObject<T = any> {
      * @param val value to save - not given: saves value from actual field
      */
     public Save(key?: string, val?: T): void {
-        console.log("[MementoObject] Save: ", key, val, this.FieldMemory, this.t);
-        console.trace();
-
         if (key) {
             if (val !== undefined) {
                 this.FieldMemory[key] = val;
@@ -71,9 +68,6 @@ export class MementoObject<T = any> {
      * @param key field name in object: not given: restores every field
      */
     public Restore(key?: string): void {
-        console.log("[MementoObject] Restore: ", key, this.FieldMemory, this.t);
-        console.trace();
-
         if (key ){
             this.t[key] = this.FieldMemory[key];
         } else {

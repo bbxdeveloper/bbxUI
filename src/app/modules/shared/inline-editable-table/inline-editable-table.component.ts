@@ -108,6 +108,13 @@ export class InlineEditableTableComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  SelectFirstChar(classStr: string): void {
+    setTimeout(() => {
+      console.trace("asd");
+      HelperFunctions.SelectBeginningByClass(classStr);
+    }, 100);
+  }
+
   HandleGridEscape(event: Event, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
@@ -203,7 +210,10 @@ export class InlineEditableTableComponent implements OnInit {
     } as TableKeyDownEvent);
   }
 
-  public inlineInputFocusChange(event: any, row: TreeGridNode<any>, rowPos: number, col: ModelFieldDescriptor, colPos: number, focused: boolean): void {
+  public inlineInputFocusChange(event: any, row: TreeGridNode<any>, rowPos: number, col: ModelFieldDescriptor, colPos: number, focused: boolean, selectFirst: boolean = false): void {
+    if (selectFirst) {
+      this.SelectFirstChar('select-first-char');
+    }
     this.inputFocusChanged.emit({ Event: event, Row: row, RowPos: rowPos, FieldDescriptor: col, ColPos: colPos, Focused: focused } as InputFocusChangedEvent);
   }
 

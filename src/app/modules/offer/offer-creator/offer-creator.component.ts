@@ -735,7 +735,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   }
 
   selectIntPart(event: any): void {
-    HelperFunctions.SelectIntPart(event.target.id);
+    HelperFunctions.SelectBeginningById(event.target.id);
   }
 
   /////////////////////////////////////////////

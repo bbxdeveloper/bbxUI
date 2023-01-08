@@ -75,12 +75,12 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Tcs.kód', objectKey: 'ProductGroupCode', colKey: 'ProductGroupCode',
-      defaultValue: '', type: 'string', mask: Constants.CustDiscountCodeMask, fReadonly: false,
+      defaultValue: '', type: 'text', mask: Constants.CustDiscountCodeMask, fReadonly: false,
       colWidth: "200px", textAlign: "left", fInputType: "code-field"
     },
     {
       label: 'Megnevezés', objectKey: 'ProductGroup', colKey: 'ProductGroup',
-      defaultValue: '', type: 'string', mask: "", fReadonly: true,
+      defaultValue: '', type: 'text', mask: "", fReadonly: true,
       colWidth: "80%", textAlign: "left"
     },
     {

@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 
@@ -23,7 +23,7 @@ interface VatRateRow { Id: string, Value: number };
   templateUrl: './save-dialog.component.html',
   styleUrls: ['./save-dialog.component.scss']
 })
-export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
+export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
   @Input() data!: OutGoingInvoiceFullData;
 
   discountInputPlaceHolder: string = "0.00";
@@ -169,20 +169,15 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.formNav.OuterJump = true;
     // And back to the form.
     this.OuterJump = true;
-
+  }
+  ngAfterViewInit(): void {
     this.kBs.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
     this.kBs.SelectFirstTile();
     this.kBs.setEditMode(KeyboardModes.EDIT);
     setTimeout(() => {
-      this.SelectFirstChar('discount-input');
+      HelperFunctions.SelectBeginningByClass('discount-input', 1);
     }, 100);
-
-    // this.sumForm.controls['invoiceDiscountPercent'].valueChanges.subscribe({
-    //   next: newValue => {
-    //     this.recalc(newValue);
-    //   }
-    // });
   }
   ngOnDestroy(): void {
     if (!this.closedManually) {

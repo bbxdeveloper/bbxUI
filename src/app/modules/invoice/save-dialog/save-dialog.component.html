@@ -14,7 +14,7 @@
             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Kedvezmény:</label>
-                    <input class="{{TileCssClass}}" nbInput class="discount-input" type="text" formControlName='invoiceDiscountPercent'
+                    <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
                         required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
                         (click)="formNav.HandleFormFieldClick($event)">
                 </div>
