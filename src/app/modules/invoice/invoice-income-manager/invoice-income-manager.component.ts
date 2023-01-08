@@ -43,6 +43,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -207,7 +208,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     private utS: UtilityService,
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private custDiscountService: CustomerDiscountService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
     this.InitialSetup();
@@ -299,7 +301,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       paymentDate: '',
       paymentMethod: '',
       exchangeRate: 1,
-      currencyCode: CurrencyCodes.HUF
+      currencyCode: CurrencyCodes.HUF,
+      invoiceDiscountPercent: 0
     } as OutGoingInvoiceFullData;
 
     this.dbData = [];
@@ -538,11 +541,11 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: product => {
+        next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (product && product.productCode !== undefined) {
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(product) });
+            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
             currentRow?.data.Save('productCode');
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
@@ -953,7 +956,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
-        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: this.ProductToInvoiceLine(res) });
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
         currentRow?.data.Save('productCode');
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();
@@ -1019,7 +1022,33 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   RefreshData(): void { }
 
-  ProductToInvoiceLine(p: Product): InvoiceLine {
+  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
+    let discount: number | undefined = undefined;
+
+    if (this.buyerData === undefined || this.buyerData.id === undefined) {
+      this.bbxToastrService.show(
+        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return discount;
+    }
+
+    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+      .then(discounts => {
+        if (discounts) {
+          const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
+          discount = res !== undefined ? (res / 100.0) : undefined;
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => { })
+    return discount;
+  }
+
+  async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine();
 
     res.productCode = p.productCode!;
@@ -1028,7 +1057,22 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     res.quantity = 0;
 
-    res.unitPrice = this.Delivery ? p.latestSupplyPrice! : p.unitPrice2!;
+    p.productGroup = !!p.productGroup ? p.productGroup : '-'
+    res.noDiscount = p.noDiscount;
+    if (!p.noDiscount) {
+      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
+      if (discountForPrice !== undefined) {
+        const discountedPrice = p.unitPrice2! * discountForPrice;
+        res.unitPrice = p.unitPrice2! - discountedPrice;
+        res.custDiscounted = true;
+      } else {
+        res.unitPrice = p.unitPrice2!;
+      }
+    } else {
+      res.unitPrice = p.unitPrice2!;
+    }
+
+    // res.unitPrice = this.Delivery ? p.latestSupplyPrice! : p.unitPrice2!;
 
     res.vatRateCode = p.vatRateCode;
 

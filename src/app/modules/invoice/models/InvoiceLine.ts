@@ -2,6 +2,10 @@ import { IEditable } from "src/assets/model/IEditable";
 import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
+/**
+ * Invoivceline model for sending data to the backend
+ * Used within: @see CreateOutgoingInvoiceRequest<InvoiceLineForPost>
+ */
 export interface InvoiceLineForPost {
     // table col order
     lineNumber: number; // hidden
@@ -27,6 +31,29 @@ export function GetBlankInvoiceLineForPost(): InvoiceLineForPost {
     } as InvoiceLineForPost;
 }
 
+/**
+ * Price data for invocielines.
+ */
+export class InvoiceLinePriceData {
+    quantity: number = 0.0; // editable
+
+    unitPrice: number = 0.0; // editable
+
+    vatRateCode: string = ''; // below table
+
+    lineNetAmount: number = 0.0; // price * quant
+
+    lineGrossAmount: number = 0.0; // netamount + vatamount
+    lineVatAmount: number = 0.0; // netamount * vat - hidden
+
+    vatRate: number = 1; // hidden
+
+    discount: number = 0;
+}
+
+/**
+ * Invoiceline class for handling grids, calculations, conversions...
+ */
 export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IEditable {
     public override DeafultFieldList: string[] = ['productCode'];
 
@@ -49,10 +76,17 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     lineVatAmount: number = 0.0; // netamount * vat - hidden
 
     custDiscounted: boolean = false;
+    noDiscount: boolean = false;
+    discount: number = 0;
 
     vatRate: number = 1; // hidden
 
     unitOfMeasureX?: string;
+
+    /**
+     * Discounts are only used in the save dialog, so we keep this data separately.
+     */
+    discountedData?: InvoiceLinePriceData;
 
     constructor() {
         super();
@@ -68,6 +102,36 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
         return this.productCode;
     }
 
+    /**
+     * Calculates - and returns - the price data of invoieline without modifying the target object.
+     * Ignores @see this.discount if @see this.noDiscount is true.
+     * @returns InvoiceLinePriceData
+     */
+    public GetDiscountedCalcResult(): InvoiceLinePriceData {
+        let result = new InvoiceLinePriceData();
+
+        result.discount = this.noDiscount ? 0 : HelperFunctions.ToFloat(this.discount);
+
+        result.unitPrice = HelperFunctions.ToFloat(this.unitPrice - this.unitPrice * result.discount);
+
+        result.quantity = HelperFunctions.ToFloat(this.quantity);
+        result.vatRate = HelperFunctions.ToFloat(this.vatRate);
+
+        result.unitPrice = HelperFunctions.Round2(HelperFunctions.ToFloat(result.unitPrice), 2);
+
+        result.lineNetAmount = HelperFunctions.Round2(result.unitPrice * result.quantity, 1);
+        result.lineVatAmount = HelperFunctions.Round2(result.lineNetAmount * result.vatRate, 1);
+        result.lineGrossAmount = result.lineVatAmount + result.lineNetAmount;
+
+        this.discountedData = result;
+
+        return result;
+    }
+
+    /**
+     * Calcs price related values based mainly on @see this.unitPrice, @see this.quantity, @see this.vatRate
+     * Ignores: @see this.discount
+     */
     public ReCalc(): void {
         // console.log("");
         // console.log("==========================");
@@ -100,6 +164,10 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
         // console.log("");
     }
 
+    /**
+     * Converts into the backend model
+     * @returns 
+     */
     public GetPOSTData(): InvoiceLineForPost {
         let res = {
             lineNetAmount: HelperFunctions.ToFloat(this.lineNetAmount),

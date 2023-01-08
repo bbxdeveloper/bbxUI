@@ -75,28 +75,13 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     this.OuterJump = true;
   }
 
-  private SelectFirstChar(): void {
-    const _input = document.getElementsByClassName('one-number-input-dialog-input')[0] as HTMLInputElement;
-    if (!!_input && _input.type === "text") {
-      window.setTimeout(function () {
-        const txtVal = $('.one-number-input-dialog-input')[0].innerText;
-        if (!!txtVal) {
-          const l = txtVal.split('.')[0].length;
-          _input.setSelectionRange(0, l);
-        } else {
-          _input.setSelectionRange(0, 1);
-        }
-      }, 0);
-    }
-  }
-
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
     setTimeout(() => {
-      this.SelectFirstChar();
+      this.SelectFirstChar('one-number-input-dialog-input');
     }, 100);
   }
 

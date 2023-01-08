@@ -299,7 +299,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       paymentDate: '',
       paymentMethod: '',
       exchangeRate: 1,
-      currencyCode: CurrencyCodes.HUF
+      currencyCode: CurrencyCodes.HUF,
+      invoiceDiscountPercent: 0
     } as OutGoingInvoiceFullData;
 
     this.dbData = [];
@@ -1066,7 +1067,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     res.quantity = 0;
     
-    p.productGroup = !!p.productGroup ? p.productGroup : '-'
+    p.productGroup = !!p.productGroup ? p.productGroup : '-';
+    res.noDiscount = p.noDiscount;
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {

@@ -1,3 +1,4 @@
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { InvoiceLine, InvoiceLineForPost } from "./InvoiceLine";
 
 export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
@@ -21,12 +22,15 @@ export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
     
     "incoming"?: boolean,
     "invoiceType"?: string,
+
+    "invoiceDiscountPercent": number;
 }
 
 export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<InvoiceLine> {
     "invoiceNetAmount": number, // amount * price (sum invoicelines) - status row
     "invoiceVatAmount": number, // netamount * vat (sum invoicelines)
     "lineGrossAmount": number, // netamount + vatamount (sum invoicelines)
+    "invoiceDiscountPercent": number;
 }
 
 export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
@@ -43,7 +47,8 @@ export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): Cr
         customerInvoiceNumber: f.customerInvoiceNumber,
         exchangeRate: f.exchangeRate,
         incoming: f.incoming,
-        invoiceType: f.invoiceType
+        invoiceType: f.invoiceType,
+        invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent)
     } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
     return res;
 }
