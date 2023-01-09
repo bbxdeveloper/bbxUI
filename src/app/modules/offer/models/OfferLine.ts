@@ -225,6 +225,8 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
         this.unitVat = this.unitPrice * this.vatRate;
 
+        console.log("unitvat: ", this.unitVat, this.UnitPriceForCalc + this.unitVat);
+
         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
     }
 
@@ -288,7 +290,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
         offerLine.quantity = HelperFunctions.ToFloat(data.quantity ?? 0);
 
-        offerLine.vatRate = 0;
+        offerLine.vatRate = data.vatPercentage;
         
         offerLine.id = data.id;
         offerLine.offerID = data.offerID;
