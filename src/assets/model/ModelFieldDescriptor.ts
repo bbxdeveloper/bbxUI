@@ -34,5 +34,10 @@ export interface ModelFieldDescriptor {
     keySettingsRow?: Constants.KeySettingRow,
 
     checkboxFalse?: string,
-    checkboxTrue?: string
+    checkboxTrue?: string,
+
+    /**
+     * Autoselect on focus the first position after the last entered char.
+     */
+    cursorAfterLastChar?: boolean
 }

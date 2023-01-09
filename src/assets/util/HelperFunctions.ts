@@ -369,14 +369,19 @@ export module HelperFunctions {
         }
     }
 
-    export function SelectBeginningByClass(className: string, defaultSelectionEnd: number = 0): void {
+    export function SelectBeginningByClass(className: string, defaultSelectionEnd: number = 0, cursorAfterLastChar: boolean = false, value?: string): void {
         const _input = document.getElementsByClassName(className)[0] as HTMLInputElement;
         if(!!_input && _input.type === "text") {
             window.setTimeout(function () {
-                const txtVal = $('.' + className)[0].innerText;
+                const txtVal = value ?? $('.' + className)[0].innerText;
                 if (!!txtVal) {
-                    const l = txtVal.split('.')[0].length;
-                    _input.setSelectionRange(0, l);
+                    if (cursorAfterLastChar) {
+                        const count = txtVal.length;
+                        _input.setSelectionRange(count, count);
+                    } else {
+                        const l = txtVal.split('.')[0].length;
+                        _input.setSelectionRange(0, l);
+                    }
                 } else {
                     _input.setSelectionRange(0, defaultSelectionEnd);
                 }
