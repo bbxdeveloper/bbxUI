@@ -104,7 +104,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     // this.sumForm.controls['invoiceDiscountPercent'].setValue(this.data.invoiceDiscountPercent);
 
     // discountedInvoiceNetAmount
-    const discountedInvoiceNetAmount = this.data.invoiceNetAmount - this.data.invoiceNetAmount * this.data.invoiceDiscountPercent;
+    const invoiceDiscountValue = this.data.invoiceNetAmount * this.data.invoiceDiscountPercent;
+    const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
+    this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
     this.sumForm.controls['discountedInvoiceNetAmount'].setValue(discountedInvoiceNetAmount);
 
     // calc rate summary + prepare discountedData for lines
@@ -150,6 +152,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.sumForm.addControl('lineGrossAmount', new FormControl(this.data.lineGrossAmount, [Validators.required]));
     this.sumForm.addControl('invoiceLinesCount', new FormControl(this.data.invoiceLines.length, [Validators.required]));
     this.sumForm.addControl('invoiceDiscountPercent', new FormControl(this.data.invoiceDiscountPercent, [Validators.required]));
+    this.sumForm.addControl('invoiceDiscountValue', new FormControl(0, [Validators.required]));
 
     this.formNav = new NavigatableForm(
       this.sumForm, this.kBs, this.cdrf, [], 'invoiceSaveForm', AttachDirection.UP, {} as IInlineManager
