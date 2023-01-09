@@ -802,7 +802,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         "report_params":
         {
           "id": id,
-          "copies": copies
+          "copies": HelperFunctions.ToInt(copies)
         },
         "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
