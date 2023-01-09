@@ -844,7 +844,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
-    let request = this.UpdateOutGoingData();
+    this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
 
@@ -857,9 +857,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         data: this.outGoingInvoiceData
       }
     });
-    dialogRef.onClose.subscribe((res: SumData) => {
+    dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
+        const request = this.UpdateOutGoingData();
+
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
           next: d => {

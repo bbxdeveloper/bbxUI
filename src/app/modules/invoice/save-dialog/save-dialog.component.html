@@ -16,7 +16,14 @@
                     <label>Kedvezmény:</label>
                     <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
                         required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
-                        (click)="formNav.HandleFormFieldClick($event)">
+                        (click)="formNav.HandleFormFieldClick($event)" (focusout)="RefreshCalc()">
+                </div>
+            </nb-form-field>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Kedvezménnyel csökkentett nettó:</label>
+                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="discountedInvoiceNetAmount">
                 </div>
             </nb-form-field>
 
