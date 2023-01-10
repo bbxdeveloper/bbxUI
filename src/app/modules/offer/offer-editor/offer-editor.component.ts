@@ -131,7 +131,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
     this.offerData.offerGrossAmount =
       HelperFunctions.ToInt(this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => (this.ToFloat(x.data.unitGross) * HelperFunctions.ToFloat(x.data.quantity === 0 ? 1 : x.data.quantity)))
+        .map(x => x.data.UnitGrossVal)
         .reduce((sum, current) => sum + current, 0));
 
     if (this.offerData.currencyCode != CurrencyCodes.HUF) {
