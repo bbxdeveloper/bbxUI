@@ -36,7 +36,7 @@
                                         [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                                         oninput="this.value = this.value.toUpperCase()"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
-                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
                                         class="input-table-cell select-first-char"
                                         [style.text-align]="it.textAlign" />
         

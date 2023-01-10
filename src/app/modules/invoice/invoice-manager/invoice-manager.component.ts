@@ -795,7 +795,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         "report_params":
         {
           "id": id,
-          "copies": copies
+          "copies": HelperFunctions.ToInt(copies)
         },
         "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
@@ -837,7 +837,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
-    var request = this.UpdateOutGoingData();
+    this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
 
@@ -850,9 +850,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         data: this.outGoingInvoiceData
       }
     });
-    dialogRef.onClose.subscribe((res: SumData) => {
+    dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
+        const request = this.UpdateOutGoingData();
+
         this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
           next: d => {

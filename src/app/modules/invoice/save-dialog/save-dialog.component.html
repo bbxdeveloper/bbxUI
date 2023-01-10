@@ -1,6 +1,6 @@
 <nb-card class="modal-product-active">
     <nb-card-header class="modal-product-active-header">
-        <span>Szeretné menteni a számlát?</span>
+        <span>Bizonylat mentése</span>
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!sumForm" [formGroup]="sumForm" #formDirective="ngForm" id="invoiceSaveForm">
@@ -11,12 +11,30 @@
                 </div>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="MoveToSaveButtons($event)">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label>Kedvezmény %:</label>
+                        <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
+                            required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
+                            (click)="formNav.HandleFormFieldClick($event)" (focusout)="RefreshCalc()">
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label>Kedvezmény értéke:</label>
+                        <input nbInput type="text" formControlName='invoiceDiscountValue'
+                            required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
+                            (focusout)="RefreshCalc()" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Kedvezmény:</label>
-                    <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
-                        required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
-                        (click)="formNav.HandleFormFieldClick($event)">
+                    <label>Kedvezménnyel csökkentett nettó:</label>
+                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="discountedInvoiceNetAmount">
                 </div>
             </nb-form-field>
 

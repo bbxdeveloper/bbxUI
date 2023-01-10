@@ -81,7 +81,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   private prepareVatRateCodes(): void {
     var result: VatRateRow[] = [];
     this.data.invoiceLines.forEach(x => {
-      x.discount = this.data.invoiceDiscountPercent / 100.0;
+      x.discount = this.data.invoiceDiscountPercent;
       const priceData = x.GetDiscountedCalcResult();
       if (!!x.vatRateCode){
         const resultIndex = result.findIndex(y => y.Id === x.vatRateCode);
@@ -98,45 +98,41 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.vatRateCodes = result;
   }
 
-  CalcInvoiceStats(): void {
-    this.data.invoiceNetAmount =
-      this.data.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.discountedData!.lineNetAmount))
-        .reduce((sum, current) => sum + current, 0);
-
-    this.data.invoiceVatAmount =
-      this.data.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.discountedData!.lineVatAmount))
-        .reduce((sum, current) => sum + current, 0);
-
-    // this.outGoingInvoiceData.lineGrossAmount =
-    //   this.outGoingInvoiceData.invoiceLines
-    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
-    //     .reduce((sum, current) => sum + current, 0);
-    this.data.lineGrossAmount = this.data.invoiceNetAmount + this.data.invoiceVatAmount;
-
-    if (this.data.paymentMethod === "CASH" && this.data.currencyCode === CurrencyCodes.HUF) {
-      this.data.lineGrossAmount = HelperFunctions.CashRound(this.data.lineGrossAmount);
-    }
-
-    this.data.invoiceNetAmount = HelperFunctions.Round2(this.data.invoiceNetAmount, 1);
-    this.data.invoiceVatAmount = HelperFunctions.Round(this.data.invoiceVatAmount);
-  }
-
   private recalc(actualDiscount: number): void {
     // update discount
-    this.data.invoiceDiscountPercent = HelperFunctions.Round2(actualDiscount, 1);
-    this.sumForm.controls['invoiceDiscountPercent'].setValue(this.data.invoiceDiscountPercent);
+    this.data.invoiceDiscountPercent = HelperFunctions.Round2(actualDiscount / 100, 1);
+    // this.sumForm.controls['invoiceDiscountPercent'].setValue(this.data.invoiceDiscountPercent);
 
-    // calc rate summary
+    // calc rate summary + prepare discountedData for lines
     this.prepareVatRateCodes();
 
-    // refresh invoice stats
-    this.CalcInvoiceStats();
+    // discountedInvoiceNetAmount
+    let discountedInvoiceNetAmount =
+      this.data.invoiceLines
+        .map(x => HelperFunctions.ToFloat(x.discountedData!.lineNetAmount))
+        .reduce((sum, current) => sum + current, 0);
+    discountedInvoiceNetAmount = HelperFunctions.Round2(discountedInvoiceNetAmount, 1);
+    
+    const invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
+    
+    console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", this.data.invoiceDiscountPercent, ", discount value: ", invoiceDiscountValue);
 
-    // net
-    this.data.invoiceNetAmount -= this.data.invoiceNetAmount * this.data.invoiceDiscountPercent;
-    this.sumForm.controls['invoiceNetAmount'].setValue(this.data.invoiceNetAmount);
+    // const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
+    this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
+    this.sumForm.controls['discountedInvoiceNetAmount'].setValue(discountedInvoiceNetAmount);
+
+    // discounted vat amount
+    // refresh invoice stats
+    const discountedVatAmount =
+      this.data.invoiceLines
+        .map(x => HelperFunctions.ToFloat(x.discountedData!.lineVatAmount))
+        .reduce((sum, current) => sum + current, 0);
+
+    let discountedGross = discountedInvoiceNetAmount + discountedVatAmount;
+
+    if (this.data.paymentMethod === "CASH" && this.data.currencyCode === CurrencyCodes.HUF) {
+      discountedGross = HelperFunctions.CashRound(discountedGross);
+    }
 
     // rates
     this.vatRateCodes.forEach((row: VatRateRow, index: number) => {
@@ -144,7 +140,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     });
 
     // gross, linecount
-    this.sumForm.controls['lineGrossAmount'].setValue(this.data.lineGrossAmount);
+    this.sumForm.controls['lineGrossAmount'].setValue(discountedGross);
     this.sumForm.controls['invoiceLinesCount'].setValue(this.data.invoiceLines.length);
   }
 
@@ -152,6 +148,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.prepareVatRateCodes();
 
     this.sumForm.addControl('invoiceNetAmount', new FormControl(this.data.invoiceNetAmount, [Validators.required]));
+    this.sumForm.addControl('discountedInvoiceNetAmount', new FormControl(this.data.invoiceNetAmount, [Validators.required]));
 
     this.vatRateCodes.forEach((row: VatRateRow, index: number) => {
       this.sumForm.addControl('vatRateFormControl-' + (index + ''), new FormControl(row.Value, [Validators.required]));
@@ -160,6 +157,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.sumForm.addControl('lineGrossAmount', new FormControl(this.data.lineGrossAmount, [Validators.required]));
     this.sumForm.addControl('invoiceLinesCount', new FormControl(this.data.invoiceLines.length, [Validators.required]));
     this.sumForm.addControl('invoiceDiscountPercent', new FormControl(this.data.invoiceDiscountPercent, [Validators.required]));
+    this.sumForm.addControl('invoiceDiscountValue', new FormControl(0, [Validators.required]));
 
     this.formNav = new NavigatableForm(
       this.sumForm, this.kBs, this.cdrf, [], 'invoiceSaveForm', AttachDirection.UP, {} as IInlineManager
@@ -194,6 +192,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   close(answer: boolean) {
     this.closedManually = true;
     this.kBs.RemoveWidgetNavigatable();
-    this.dialogRef.close(answer);
+    this.dialogRef.close(answer ? this.data : undefined);
   }
 }

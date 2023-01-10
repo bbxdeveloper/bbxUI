@@ -76,7 +76,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     {
       label: 'Tcs.kód', objectKey: 'ProductGroupCode', colKey: 'ProductGroupCode',
       defaultValue: '', type: 'text', mask: Constants.CustDiscountCodeMask, fReadonly: false,
-      colWidth: "200px", textAlign: "left", fInputType: "code-field"
+      colWidth: "200px", textAlign: "left", fInputType: "code-field", cursorAfterLastChar: true
     },
     {
       label: 'Megnevezés', objectKey: 'ProductGroup', colKey: 'ProductGroup',

@@ -802,7 +802,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         "report_params":
         {
           "id": id,
-          "copies": copies
+          "copies": HelperFunctions.ToInt(copies)
         },
         "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
@@ -844,7 +844,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
-    let request = this.UpdateOutGoingData();
+    this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
 
@@ -857,9 +857,13 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         data: this.outGoingInvoiceData
       }
     });
-    dialogRef.onClose.subscribe((res: SumData) => {
+    dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
       if (!!res) {
+        this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
+        const request = this.UpdateOutGoingData();
+        let ordinal = '';
+
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
           next: d => {
@@ -868,6 +872,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
               if (!!d.data) {
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+                ordinal = d.data.invoiceNumber ?? '';
               }
 
               this.simpleToastrService.show(
@@ -890,7 +895,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               });
               dialogRef.onClose.subscribe({
                 next: async res => {
-                  if (res.answer) {
+                  if (res.answer && res.value > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
@@ -899,7 +904,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                           this.Reset();
 
                           this.simpleToastrService.show(
-                            `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása véget ért.`,
+                            `A ${ordinal} számla nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
                             Constants.TOASTR_SUCCESS_5_SEC
                           );
@@ -916,7 +921,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                         commandEndedSubscription.unsubscribe();
 
                         this.bbxToastrService.show(
-                          `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása közben hiba történt.`,
+                          `A ${ordinal} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
                         );
@@ -925,7 +930,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                     await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
-                      `A ${this.outInvForm.controls['invoiceOrdinal'].value} számla nyomtatása nem történt meg.`,
+                      `A ${ordinal} számla nyomtatása nem történt meg.`,
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
