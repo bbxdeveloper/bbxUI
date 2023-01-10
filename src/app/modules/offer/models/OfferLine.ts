@@ -228,6 +228,10 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         console.log("unitvat: ", this.unitVat, this.UnitPriceForCalc + this.unitVat);
 
         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
+
+        console.log("unitGross: ", this.unitGross);
+
+        console.log('');
     }
 
     static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
