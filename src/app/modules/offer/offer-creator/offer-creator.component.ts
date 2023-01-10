@@ -248,6 +248,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       });
     } else {
       this.buyerForm.reset(undefined);
+      this.buyerForm.controls['isBrutto'].setValue(false);
     }
 
     this.buyerFormNav = new InlineTableNavigatableForm(
