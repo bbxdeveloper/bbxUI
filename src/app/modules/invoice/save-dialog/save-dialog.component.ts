@@ -26,6 +26,7 @@ interface VatRateRow { Id: string, Value: number };
 export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
   @Input() data!: OutGoingInvoiceFullData;
 
+  discountPercentInputPlaceHolder: string = "0";
   discountInputPlaceHolder: string = "0.00";
 
   formNav!: NavigatableForm;
@@ -37,6 +38,17 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     digitsOptional: false,
     prefix: '',
     placeholder: '0.0',
+  });
+
+  discountInputMask: any = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 0,
+    digitsOptional: false,
+    prefix: '',
+    min: -999,
+    max: 999,
+    placeholder: '0',
   });
 
   TileCssClass = TileCssClass;
@@ -78,10 +90,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
   }
 
-  private prepareVatRateCodes(): void {
+  private prepareVatRateCodes(discount: number = 0): void {
     var result: VatRateRow[] = [];
     this.data.invoiceLines.forEach(x => {
-      x.discount = this.data.invoiceDiscountPercent;
+      x.discount = discount;
       const priceData = x.GetDiscountedCalcResult();
       if (!!x.vatRateCode){
         const resultIndex = result.findIndex(y => y.Id === x.vatRateCode);
@@ -100,11 +112,12 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   private recalc(actualDiscount: number): void {
     // update discount
-    this.data.invoiceDiscountPercent = HelperFunctions.Round2(actualDiscount / 100, 1);
+    this.data.invoiceDiscountPercent = actualDiscount;
+    const invoiceDiscountMultiplier = HelperFunctions.Round2(actualDiscount / 100, 1);
     // this.sumForm.controls['invoiceDiscountPercent'].setValue(this.data.invoiceDiscountPercent);
 
     // calc rate summary + prepare discountedData for lines
-    this.prepareVatRateCodes();
+    this.prepareVatRateCodes(invoiceDiscountMultiplier);
 
     // discountedInvoiceNetAmount
     let discountedInvoiceNetAmount =
@@ -115,7 +128,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     
     const invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
     
-    console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", this.data.invoiceDiscountPercent, ", discount value: ", invoiceDiscountValue);
+    console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", invoiceDiscountMultiplier, ", discount value: ", invoiceDiscountValue);
 
     // const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
     this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);

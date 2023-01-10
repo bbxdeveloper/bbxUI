@@ -103,7 +103,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
     // UnitGrossVal
     get UnitGrossVal(): number {
-        return HelperFunctions.Round(HelperFunctions.ToFloat(this.unitGross) * HelperFunctions.ToFloat(this.quantity === 0 ? 1 : this.quantity));
+        return HelperFunctions.Round(this.UnitPriceVal * (1 + this.vatPercentage));
     }
 
     // Discount get set
@@ -199,7 +199,15 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         return offerLine;
     }
 
+    private log(message?: any, ...optionalParams: any[]) {
+        console.log(message, optionalParams);
+    }
+
     public ReCalc(unitPriceWasUpdated: boolean, currencyCode?: string, exchangeRate?: number): void {
+        console.log("....................................................");
+        console.log("....................................................");
+        console.log("ReCalc");
+
         if (currencyCode !== undefined) {
             this.currencyCode = this.currencyCode;
         }
@@ -207,15 +215,26 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
             this.exchangeRate = HelperFunctions.ToFloat(exchangeRate);
         }
 
+        console.log("currencyCode: ", this.currencyCode);
+        console.log("exchangeRate: ", this.exchangeRate);
+
         this.originalUnitPrice = this.unitPriceSwitch ?
             HelperFunctions.Round2(this.originalUnitPrice2 ?? 0, 2) : HelperFunctions.Round2(this.originalUnitPrice1 ?? 0, 2);
 
+        console.log("originalUnitPrice: ", this.originalUnitPrice);
+
         let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
+
+        console.log("discountForCalc: ", discountForCalc);
+
         let priceWithDiscount = this.exchangedOriginalUnitPrice;
         priceWithDiscount -= HelperFunctions.ToFloat(this.exchangedOriginalUnitPrice * discountForCalc);
         priceWithDiscount = HelperFunctions.Round2(priceWithDiscount, 1);
+
+        console.log("priceWithDiscount: ", priceWithDiscount);
         
         console.log(`unitPriceWasUpdated ${unitPriceWasUpdated}, priceWithDiscount ${priceWithDiscount}, this.unitPrice ${this.unitPrice}`);
+
         if (unitPriceWasUpdated && priceWithDiscount !== this.unitPrice) {
             this.unitPrice = HelperFunctions.Round2(this.unitPrice, 1);
             this.discount = 0.0;
@@ -225,13 +244,23 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
         this.unitVat = this.unitPrice * this.vatRate;
 
-        console.log("unitvat: ", this.unitVat, this.UnitPriceForCalc + this.unitVat);
+        console.log("unitVat: ", this.unitVat);
+        console.log("unitPrice: ", this.unitPrice);
+        console.log("vatRate: ", this.vatRate);
 
         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
 
+        // console.log("unitGross no rounding: ", this.UnitPriceForCalc + this.unitVat);
+        // console.log("unitGross rounding 2: ", HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 2));
+        // console.log("unitGross rounding 1: ", HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1));
+        // console.log("unitGross rounding 1: ", HelperFunctions.ToFloat(HelperFunctions.ToFloat(this.UnitPriceForCalc + this.unitVat).toFixed(1)));
+        // console.log("unitGross rounding 1: ", (this.UnitPriceForCalc + this.unitVat).toFixed(1));
+        // console.log("unitGross * quantity: ", this.unitGross * this.quantity);
         console.log("unitGross: ", this.unitGross);
+        console.log("UnitGrossVal: ", this.UnitGrossVal);
 
-        console.log('');
+        console.log("....................................................");
+        console.log("....................................................");
     }
 
     static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
