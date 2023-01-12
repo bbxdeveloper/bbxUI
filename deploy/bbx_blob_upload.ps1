@@ -1,7 +1,7 @@
 param (
-    [string]$sourcePath = "c:\mine\Developments\BBX\bbx-ui-win32-x64_0.1.92_CUSTOMER2.zip",
-    [string]$destinationPath = "c:\mine\Developments\BBX\bbxUI\2",
-    [string]$uiPath = "dist\bbx-ui\2"
+    [string]$sourcePath = "c:\mine\Developments\BBX\bbx-ui-win32-x64_0.1.96_CUSOMER.zip.zip",
+    [string]$destinationPath = "c:\mine\Developments\BBX\bbxUI\",
+    [string]$uiPath = "dist\bbx-ui\"
 )
 
 ###############################################################
@@ -39,12 +39,13 @@ param (
 
 Write-Output "STARTING... - 1"
 
-$StorageContext = New-AzStorageContext -StorageAccountName 'bbx' -StorageAccountKey 'W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw=='
+$StorageContext = New-AzStorageContext -StorageAccountName 'bbxtestcustomerfe' -StorageAccountKey 'S4vQyGVrOwKlaj6eF954Wl4yj2L1Jccd9SfmSOMVsIDyv3hME/65FKUlouut7Pr+CwC/YDYZNU/wDWOwebPNtw=='
 Write-Output "New-AzStorageContext... - 2"
 
-$Container = Get-AzStorageContainer -Context $StorageContext -Name "test"
+$Container = Get-AzStorageContainer -Context $StorageContext -Name "$web"
 Write-Output "Get-AzStorageContext... - 3"
 
+# ez maradhat kikommentezve
 #$blobs = Get-AzStorageBlob -Container "test" -Context $StorageContext
 #Write-Output "Get-AzStorageBlob... - 4"
 
@@ -54,17 +55,21 @@ Write-Output "Delete files from Unzip folder... - 5"
 Expand-Archive -Path $sourcePath -DestinationPath $destinationPath
 Write-Output "Unzip... - 6"
 
-Get-AzStorageBlob -Container 'test' -Blob * -Context $StorageContext | Remove-AzStorageBlob
+Get-AzStorageBlob -Container '$web' -Blob * -Context $StorageContext | Remove-AzStorageBlob
 Write-Output "Remove-AzStorageBlob contents... - 7"
 
 $localFolder = $destinationPath + $uiPath
 Write-Output "Get LocalFolder... - 8"
 
+$containername = "$" + "web"
+Write-Output "--" $containername "--"
+
+
 $files = Get-ChildItem $localFolder -File -Recurse
   foreach($file in $files)
   {
 	$targetPath = ($file.fullname.Substring($localFolder.Length)).Replace("\", "/")
-	Set-AzStorageBlobContent -Container "test" -File $file.FullName -Blob $targetPath -Context $StorageContext -Force
+	Set-AzStorageBlobContent -Container $containername -File $file.FullName -Blob $targetPath -Context $StorageContext -Force -Properties @{"ContentType" = [System.Web.MimeMapping]::GetMimeMapping($file)}
 	Write-Output $file-Name
   }
   
