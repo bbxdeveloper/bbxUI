@@ -13,12 +13,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { StockNavComponent } from './stock-nav/stock-nav.component';
 import { StockCardNavComponent } from './stock-card-nav/stock-card-nav.component';
 import { StockCardSideBarFormComponent } from './stock-card-side-bar-form/stock-card-side-bar-form.component';
+import { StockSideBarFormComponent } from './stock-side-bar-form/stock-side-bar-form.component';
 
 @NgModule({
   declarations: [
     StockNavComponent,
     StockCardNavComponent,
-    StockCardSideBarFormComponent
+    StockCardSideBarFormComponent,
+    StockSideBarFormComponent
   ],
   imports: [
     CommonModule,

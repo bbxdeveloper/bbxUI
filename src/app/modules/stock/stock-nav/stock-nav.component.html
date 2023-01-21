@@ -1,58 +1,61 @@
-<app-head-line msg="Készlet"></app-head-line>
+<as-split direction="horizontal">
+    <as-split-area [size]="50">
+        <app-head-line msg="Készlet"></app-head-line>
+        
+        <div class="filter-div">
+            <nb-card class="filter-card">
+                <nb-card-body class="filter-card-body">
+                    <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
+                        (keydown.escape)="filterFormNav.HandleFormEscape()">
+                        <div class="form-row">
+        
+                            <table class="customer-search-row">
+                                <tr>
+                                    <td>
+                                        <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
+                                            formFieldName="WarehouseID" class="nav-configuration" label="Raktár"
+                                            [data$]="wareHouseData$" [needBlankOption]="false"
+                                            [autoFillFirstAvailableValue]="true">
+                                        </app-bbx-two-row-combo-box>
+                                    </td>
+                                    <td>
+                                        <nb-form-field class="search-row-nb-form-field"
+                                            (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                                            <label>Termék</label>
+                                            <input formControlName="SearchString" nbInput type="text" class="{{TileCssClass}}"
+                                                (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff"
+                                                maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
+                                        </nb-form-field>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </form>
+                </nb-card-body>
+                <nb-card-footer class="offer-footer">
+                    <div class="form-row">
+                        <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshButtonClicked()"
+                            [disabled]="filterForm?.invalid ?? true" status="primary" tabindex="-1">Keresés</button>
+                    </div>
+                </nb-card-footer>
+            </nb-card>
+        </div>
+        
+        <nb-card>
+            <nb-card-body>
+                <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="600" [wide]="true" [allColumns]="allColumns"
+                    [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
+                    [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+                    (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+                </app-flat-design-table>
+            </nb-card-body>
+            <nb-card-footer></nb-card-footer>
+        </nb-card>
+        
+        <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+    </as-split-area>
+    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+        <app-stock-side-bar-form class="bbx-sidebar"></app-stock-side-bar-form>
+    </as-split-area>
+</as-split>
 
-<!-- <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="this" [newButton]="true"
-    [editButton]="IsTableActive" [resetButton]="false" [saveButton]="false" [deleteButton]="true" [printButton]="true"
-    [emailButton]="true" [csvButton]="true" [KeySetting]="KeySetting" wrapperClass="bbx-fd-sidebar-functions-left">
-</app-crud-buttons> -->
-
-<div class="filter-div">
-    <nb-card class="filter-card">
-        <nb-card-body class="filter-card-body">
-            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
-                (keydown.escape)="filterFormNav.HandleFormEscape()">
-                <div class="form-row">
-
-                    <table class="customer-search-row">
-                        <tr>
-                            <td>
-                                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav" formFieldName="WarehouseID"
-                                    class="nav-configuration" label="Raktár" [data$]="wareHouseData$" [needBlankOption]="false"
-                                    [autoFillFirstAvailableValue]="true">
-                                </app-bbx-two-row-combo-box>
-                            </td>
-                            <td>
-                                <nb-form-field class="search-row-nb-form-field"
-                                    (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                                    <label>Termék</label>
-                                    <input formControlName="SearchString" nbInput type="text" class="{{TileCssClass}}"
-                                        (click)="filterFormNav.HandleFormFieldClick($event)"
-                                        [readonly]="isEditModeOff" maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
-                                </nb-form-field>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </form>
-        </nb-card-body>
-        <nb-card-footer class="offer-footer">
-            <div class="form-row">
-                <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="Refresh(getInputParams)"
-                    [disabled]="filterForm?.invalid ?? true"
-                    status="primary" tabindex="-1">Keresés</button>
-            </div>
-        </nb-card-footer>
-    </nb-card>
-</div>
-
-<nb-card>
-    <nb-card-body>
-        <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="600" [wide]="true" [allColumns]="allColumns"
-            [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
-            [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
-            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
-        </app-flat-design-table>
-    </nb-card-body>
-    <nb-card-footer></nb-card-footer>
-</nb-card>
-
-<app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
