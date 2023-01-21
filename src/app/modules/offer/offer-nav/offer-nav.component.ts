@@ -885,6 +885,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
             offerCustomer.email = res.to.email;
             offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
+            offerCustomer.taxpayerNumber = offerCustomer.taxpayerNumber?.substring(0, 13);
             
             await lastValueFrom(this.seC.Update(offerCustomer))
               .then(async updateRes => {
