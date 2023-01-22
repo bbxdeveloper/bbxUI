@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef, NbToastrService } from '@nebular/theme';
+import { NbDialogRef, NbDialogService, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -9,6 +9,14 @@ import { EmailAddress, SendEmailRequest } from '../models/Email';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { Constants } from 'src/assets/util/Constants';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
+import { OfferPrintParams } from '../../offer/offer-nav/offer-nav.component';
+import { OfferService } from '../../offer/services/offer.service';
+import { StatusService } from 'src/app/services/status.service';
+import { lastValueFrom } from 'rxjs';
+import { Offer } from '../../offer/models/Offer';
+import { UtilityService } from 'src/app/services/utility.service';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -26,6 +34,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   @Input() DefaultFromName?: string;
   @Input() DefaultTo?: string;
   @Input() DefaultToName?: string;
+  @Input() PrintParams?: OfferPrintParams;
 
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -86,7 +95,11 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     protected dialogRef: NbDialogRef<SendEmailDialogComponent>,
     private kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
+    private dialogService: NbDialogService,
     private simpleToastrService: NbToastrService,
+    private offerService: OfferService,
+    private sts: StatusService,
+    private utS: UtilityService
   ) {
     super();
     this.Setup();
@@ -106,7 +119,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
 
   private Setup(): void {
     this.IsDialog = true;
-    this.Matrix = [["email-button-send", "email-button-cancel"]];
+    this.Matrix = [["email-button-send", "emaik-button-print-preview", "email-button-cancel"]];
 
     const dForm = new FormGroup({
       from: new FormControl('', [Validators.email]),
@@ -191,8 +204,125 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     else {
       this.closedManually = true;
       this.kbS.RemoveWidgetNavigatable();
-
       this.dialogRef.close(undefined);
     }
   }
+
+  async printPreview(): Promise<void> {
+    if (this.PrintParams) {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+      let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+        next: cmdEnded => {
+          console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+          if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+            this.simpleToastrService.show(
+              `Az árajánlat riport elkészítve.`,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+            commandEndedSubscription.unsubscribe();
+          }
+        },
+        error: cmdEnded => {
+          console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+          commandEndedSubscription.unsubscribe();
+          this.bbxToastrService.show(
+            `Az árajánlat riport készítése közben hiba történt.`,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      });
+
+      await this.printReport(this.PrintParams!.id, 1);
+
+      // const updatedOffer = await this.GetOffer(this.PrintParams!.id);
+      // if (updatedOffer) {
+      //   this.PrintParams!.dbData[this.PrintParams!.rowIndex].data.copies = updatedOffer.copies;
+      // }
+
+      // const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+      //   context: {
+      //     title: 'Ajánlat Nyomtatása',
+      //     inputLabel: 'Példányszám',
+      //     defaultValue: 1
+      //   }
+      // });
+      // dialogRef.onClose.subscribe({
+      //   next: async res => {
+      //     if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+      //       let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+      //         next: cmdEnded => {
+      //           console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+      //           if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+      //             this.simpleToastrService.show(
+      //               `Az árajánlat nyomtatása véget ért.`,
+      //               Constants.TITLE_INFO,
+      //               Constants.TOASTR_SUCCESS_5_SEC
+      //             );
+      //             commandEndedSubscription.unsubscribe();
+      //           }
+      //         },
+      //         error: cmdEnded => {
+      //           console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+      //           commandEndedSubscription.unsubscribe();
+      //           this.bbxToastrService.show(
+      //             `Az árajánlat nyomtatása közben hiba történt.`,
+      //             Constants.TITLE_ERROR,
+      //             Constants.TOASTR_ERROR
+      //           );
+      //         }
+      //       });
+
+      //       await this.printReport(this.PrintParams!.id, res.value);
+
+      //       const updatedOffer = await this.GetOffer(this.PrintParams!.id);
+      //       if (updatedOffer) {
+      //         this.PrintParams!.dbData[this.PrintParams!.rowIndex].data.copies = updatedOffer.copies;
+      //       }
+      //     } else {
+      //       this.simpleToastrService.show(
+      //         `Az árajánlat számla nyomtatása nem történt meg.`,
+      //         Constants.TITLE_INFO,
+      //         Constants.TOASTR_SUCCESS_5_SEC
+      //       );
+      //     }
+      //   }
+      // });
+    }
+  }
+
+  async printReport(id: any, copies: number): Promise<void> {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
+    let params = {
+      "section": "Szamla",
+      "fileType": "pdf",
+      "report_params":
+      {
+        "id": id,
+        "copies": HelperFunctions.ToInt(copies)
+      },
+      "copies": 1,
+      "data_operation": Constants.DataOperation.PRINT_BLOB,
+      "blob_data": null,
+      "ignore_electron": true
+    } as Constants.Dct;
+    await this.utS.execute(
+      Constants.CommandType.PRINT_OFFER,
+      Constants.FileExtensions.PDF,
+      params,
+      this.offerService.GetReport(params)
+    );
+  }
+
+  private async GetOffer(id: number): Promise<Offer> {
+    const offerRes = lastValueFrom(this.offerService.Get({ ID: id, FullData: true }));
+    return offerRes;
+  }
+
 }

@@ -107,10 +107,11 @@ export class UtilityService {
 
   private async print(fileType: Constants.FileExtensions, res: Observable<any>, params: Constants.Dct = {}): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.GENERATING]);
+    const checkElectron = params['ignore_electron'] === undefined || (params['ignore_electron'] !== undefined && !params['ignore_electron']);
     console.log(`Print: ${fileType}`);
     switch (fileType) {
       case Constants.FileExtensions.PDF:
-        if (environment.electron) {
+        if (checkElectron && environment.electron) {
           await this.sendPdfToElectron(res);
         } else {
           await this.printPdfFromResponse(res);

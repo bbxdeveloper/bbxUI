@@ -55,6 +55,8 @@
     <nb-card-footer>
         <button class="{{TileCssClass}}" id="email-button-send" nbButton (click)="close(true)" status="primary"
             tabindex="-1">Küldés</button>
+        <button class="{{TileCssClass}}" id="emaik-button-print-preview" nbButton (click)="printPreview()" status="primary"
+            tabindex="-1">Nyomtatvány előnézet</button>
         <button class="{{TileCssClass}}" id="email-button-cancel" nbButton (click)="close(false)" status="danger"
             tabindex="-1">Mégsem</button>
     </nb-card-footer>

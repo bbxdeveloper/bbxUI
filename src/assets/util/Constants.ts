@@ -105,10 +105,10 @@ export module Constants {
 
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
     export const PrintReportStatuses: ProcessStatus[] = [
-        { title: 'Riport Nyomtatás', value: 0, msg: '0/4 - Kérés feldolgozása', isSimple: false },
-        { title: 'Riport Nyomtatás', value: 33, msg: '1/4 - Generálás', isSimple: false },
-        { title: 'Riport Nyomtatás', value: 65, msg: '2/4 - Riport Feldolgozása', isSimple: false },
-        { title: 'Riport Nyomtatás', value: 100, msg: '3/4 - Küldés Nyomtatásra', isSimple: false }
+        { title: 'Riport', value: 0, msg: '0/4 - Kérés feldolgozása', isSimple: false },
+        { title: 'Riport', value: 33, msg: '1/4 - Generálás', isSimple: false },
+        { title: 'Riport', value: 65, msg: '2/4 - Riport Feldolgozása', isSimple: false },
+        { title: 'Riport', value: 100, msg: '3/4 - Küldés Nyomtatásra', isSimple: false }
     ];
 
     export enum DownloadReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP }
