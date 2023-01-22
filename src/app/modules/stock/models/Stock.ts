@@ -10,6 +10,8 @@ export class Stock {
     "avgCost": number;
     "latestIn"?: string;
     "latestOut"?: string;
+    "locationID"?: number;
+    "location"?: string;
 }
 
 export class ExtendedStockData implements Stock, Product {
@@ -23,6 +25,8 @@ export class ExtendedStockData implements Stock, Product {
     "avgCost": number;
     "latestIn"?: string;
     "latestOut"?: string;
+    "locationID"?: number;
+    "location"?: string;
     // Product
     "id": number = -1;
     "description"?: string;

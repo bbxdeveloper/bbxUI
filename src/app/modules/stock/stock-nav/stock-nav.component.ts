@@ -261,7 +261,12 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
       vatRateCode: new FormControl(undefined, []),
-      noDiscount: new FormControl(false, [])
+      noDiscount: new FormControl(false, []),
+      warehouse: new FormControl(undefined, []),
+      realQty: new FormControl(0, []),
+      avgCost: new FormControl(0, []),
+      latestIn: new FormControl(0, []),
+      latestOut: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(

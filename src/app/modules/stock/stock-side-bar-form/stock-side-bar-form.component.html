@@ -160,6 +160,49 @@
                 </nb-form-field>
             </div>
 
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Raktár</label>
+                    <input nbInput type="text" formControlName="warehouse"
+                        readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Készlet</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="realQty" readonly
+                        [inputMask]="numberInputMask" readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Átl. beszerzési ár</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="avgCost" readonly
+                        [inputMask]="numberInputMask" readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Utolsó bevételezés</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestIn" readonly
+                        [inputMask]="numberInputMask" readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Utolsó kiadás</label>
+            
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestOut" readonly
+                     readonly>
+                </div>
+            </nb-form-field>
         </form>
     </nb-card-body>
 </nb-card>
