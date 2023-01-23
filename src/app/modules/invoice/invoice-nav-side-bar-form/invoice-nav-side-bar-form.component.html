@@ -40,19 +40,19 @@
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Teljesítés</label>
-                    <input nbInput type="text" formControlName="invoiceDeliveryDate" readonly>
+                    <input nbInput type="datetime" mask="0000-00-00" formControlName="invoiceDeliveryDate" readonly>
                 </div>
             </nb-form-field>
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Kelt.</label>
-                    <input nbInput type="text" formControlName="invoiceIssueDate" readonly>
+                    <input nbInput type="datetime" mask="0000-00-00" formControlName="invoiceIssueDate" readonly>
                 </div>
             </nb-form-field>
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Fiz.hat.</label>
-                    <input nbInput type="text" formControlName="paymentDate" readonly>
+                    <input nbInput type="datetime" mask="0000-00-00" formControlName="paymentDate" readonly>
                 </div>
             </nb-form-field>
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
