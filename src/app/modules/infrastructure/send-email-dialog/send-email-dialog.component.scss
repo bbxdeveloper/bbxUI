@@ -19,5 +19,15 @@ form.form-with-rows {
         display: flex;
         justify-content: flex-start;
         column-gap: 25px;
+
+        .form-field-max-width {
+            max-width: 1080px !important;
+            min-width: 1080px !important;
+
+            input {
+                max-width: 1080px !important;
+                min-width: 1080px !important;
+            }
+        }
     }
 }

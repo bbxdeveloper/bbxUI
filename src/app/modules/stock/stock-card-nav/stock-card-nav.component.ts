@@ -20,7 +20,7 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, StockCardNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { GetStockCardsParamsModel } from '../models/GetStockCardsParamsModel';
@@ -47,6 +47,9 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 })
 export class StockCardNavComponent extends BaseManagerComponent<StockCard> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+  productCodeFromPath?: string;
+  wareHouseIdFromPath?: number;
+  navigatedFromStock = false;
 
   protected Subscription_FillFormWithFirstAvailableProduct?: Subscription;
 
@@ -70,7 +73,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   wh: WareHouse[] = [];
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  productFilter?: Product;
+  productFilter?: Product = { id: -1 } as Product;
 
   override allColumns = [
     'scTypeX',
@@ -240,6 +243,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     private sidebarFormService: SideBarFormService,
     private stockCardService: StockCardService,
     private seC: ProductService,
+    private route: ActivatedRoute,
     cs: CommonService,
     sts: StatusService,
     private router: Router,
@@ -265,10 +269,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     // this.filterForm.controls['WarehouseID'].setValue(undefined);
   }
 
-  ToInt(p: any): number {
-    return parseInt(p + '');
-  }
-
   private Setup(): void {
     this.dbData = [];
 
@@ -276,10 +276,17 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.dbDataTableForm = new FormGroup({});
 
+    this.productCodeFromPath = this.route.snapshot.queryParams['productCode'];
+    const wareHouseIdFromPathString = this.route.snapshot.queryParams['wareHouseId'];
+    if (!!wareHouseIdFromPathString) {
+      this.wareHouseIdFromPath = parseInt(wareHouseIdFromPathString, 10);
+    }
+    this.navigatedFromStock = !!this.productCodeFromPath && !!this.wareHouseIdFromPath;
+
     this.filterForm = new FormGroup({
-      WarehouseID: new FormControl(undefined, [Validators.required]),
+      WarehouseID: new FormControl(this.productCodeFromPath ?? undefined, [Validators.required]),
       ProductSearch: new FormControl(undefined, []),
-      productCode: new FormControl(undefined, []),
+      productCode: new FormControl(this.wareHouseIdFromPath ?? undefined, []),
       productDescription: new FormControl(undefined, []),
       StockCardDateFrom: new FormControl(undefined, []),
       StockCardDateTo: new FormControl(undefined, []),
@@ -350,6 +357,10 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     // this.RefreshAll(this.getInputParams);
     this.isLoading = false;
+
+    if (this.navigatedFromStock) {
+      this.FillFormWithFirstAvailableProduct({target: {value: this.productCodeFromPath}}, true);
+    }
   }
 
   private refreshComboboxData(): void {
@@ -404,6 +415,12 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
           if (this.kbS.Here === this.SearchButtonId) {
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
           }
+          if (this.dbDataTable.data.length > 0) {
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.kbS.SetCurrentNavigatable(this.dbDataTable);
+            this.kbS.SelectElementByCoordinate(0,0);
+            this.kbS.ClickCurrentElement();
+          }
         }, 150);
       },
     });
@@ -454,11 +471,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       this.kbS.SelectCurrentElement();
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }
-  }
-
-  IsNumber(val: string): boolean {
-    let val2 = val.replace(' ', '');
-    return !isNaN(parseFloat(val2));
   }
 
   RefreshData(): void { }
@@ -561,7 +573,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.filterForm.controls['productDescription'].setValue(data.description);
   }
 
-  FillFormWithFirstAvailableProduct(event: any): void {
+  FillFormWithFirstAvailableProduct(event: any, refreashAfter: boolean = false): void {
     if (!!this.Subscription_FillFormWithFirstAvailableProduct && !this.Subscription_FillFormWithFirstAvailableProduct.closed) {
       this.Subscription_FillFormWithFirstAvailableProduct.unsubscribe();
     }
@@ -594,6 +606,9 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       },
       complete: () => {
         this.isLoading = false;
+        if (refreashAfter) {
+          this.Refresh(this.getInputParams);
+        }
       },
     });
   }

@@ -24,21 +24,27 @@ import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { UtilityService } from 'src/app/services/utility.service';
 import { GetStocksParamsModel } from '../models/GetStocksParamsModel';
-import { Stock } from '../models/Stock';
+import { ExtendedStockData, Stock } from '../models/Stock';
 import { StockService } from '../services/stock.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { notWhiteSpaceOrNull } from 'src/assets/model/Validators';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
+import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
+import { ProductService } from '../../product/services/product.service';
+import { Product } from '../../product/models/Product';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-stock-nav',
   templateUrl: './stock-nav.component.html',
   styleUrls: ['./stock-nav.component.scss']
 })
-export class StockNavComponent extends BaseNoFormManagerComponent<Stock> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
+export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+  ngOnInitDone = false;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -160,7 +166,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
-  public KeySetting: Constants.KeySettingsDct = StockNavKeySettings;
+  public override KeySetting: Constants.KeySettingsDct = StockNavKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get IsTableActive(): boolean {
@@ -170,7 +176,7 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Stock>>,
+    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<ExtendedStockData>>,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
@@ -185,18 +191,10 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     private infrastructureService: InfrastructureService,
     private utS: UtilityService,
     private wareHouseApi: WareHouseService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    private productService: ProductService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
-
-    this.refreshComboboxData();
-
-    this.searchInputId = 'active-prod-search';
-    this.dbDataTableId = 'stocks-table';
-    this.dbDataTableEditId = 'stocks-cell-edit-input';
-
-    this.kbS.ResetToRoot();
-
     this.Setup();
   }
 
@@ -211,11 +209,15 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     this.filterForm.controls['WarehouseID'].setValue(undefined);
   }
 
-  ToInt(p: any): number {
-    return parseInt(p + '');
-  }
-
   private Setup(): void {
+    this.refreshComboboxData();
+
+    this.searchInputId = 'active-prod-search';
+    this.dbDataTableId = 'stocks-table';
+    this.dbDataTableEditId = 'stocks-cell-edit-input';
+
+    this.kbS.ResetToRoot();
+
     this.dbData = [];
 
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -235,13 +237,39 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
       this.cdref, [], this.filterFormId,
       AttachDirection.DOWN,
       this.colDefs,
-      this.sidebarService,
+      this.bbxSidebarService,
       this.fS,
       this.dbDataTable,
       this
     );
 
-    this.dbDataTable = new FlatDesignNoFormNavigatableTable(
+    this.dbDataTableForm = new FormGroup({
+      id: new FormControl(undefined, []),
+      productCode: new FormControl(undefined, [Validators.required]),
+      description: new FormControl(undefined, [Validators.required]),
+      productGroup: new FormControl(undefined, []),
+      origin: new FormControl(undefined, []),
+      unitOfMeasure: new FormControl(undefined, [Validators.required]),
+      unitPrice1: new FormControl(undefined, []),
+      unitPrice2: new FormControl(undefined, []),
+      latestSupplyPrice: new FormControl(undefined, []),
+      isStock: new FormControl(true, []),
+      minStock: new FormControl(undefined, []),
+      ordUnit: new FormControl(undefined, []),
+      productFee: new FormControl(undefined, []),
+      active: new FormControl(false, []),
+      vtsz: new FormControl(undefined, [Validators.required]),
+      ean: new FormControl(undefined, []),
+      vatRateCode: new FormControl(undefined, []),
+      noDiscount: new FormControl(false, []),
+      warehouse: new FormControl(undefined, []),
+      realQty: new FormControl(0, []),
+      avgCost: new FormControl(0, []),
+      latestIn: new FormControl(0, []),
+      latestOut: new FormControl(undefined, []),
+    });
+
+    this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
       'Stock',
       this.dataSourceBuilder,
@@ -252,20 +280,21 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
       this.dbDataTableId,
       AttachDirection.DOWN,
       'sideBarForm',
-      AttachDirection.UP,
-      this.sidebarService,
+      AttachDirection.RIGHT,
+      this.bbxSidebarService,
       this.sidebarFormService,
       this,
       () => {
-        return {} as Stock;
+        return {} as ExtendedStockData;
       }
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
+      next: async () => {
+        await this.RefreshAsync(this.getInputParams);
       },
     });
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
@@ -274,18 +303,33 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     this.isLoading = false;
   }
 
-  private refreshComboboxData(): void {
+  private async refreshComboboxData(): Promise<void> {
     // WareHouse
     this.isLoading = true;
-    this.wareHouseApi.GetAll().subscribe({
-      next: data => {
+    await lastValueFrom(this.wareHouseApi.GetAll())
+      .then(data => {
         this.wh = data?.data ?? [];
         this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
-      },
-      complete: () => {
+      })
+      .catch(err => {
         this.isLoading = false;
-      }
-    });
+      });
+  }
+
+  protected async GetProductData(productId: number): Promise<Product> {
+    let p = {} as Product;
+
+    await lastValueFrom(this.productService.Get({ ID: productId }))
+      .then(res => {
+        if (res) {
+          p = res;
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      });
+
+    return p;
   }
 
   override Refresh(params?: GetStocksParamsModel): void {
@@ -300,16 +344,22 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     }
     this.isLoading = true;
     this.stockService.GetAll(params).subscribe({
-      next: (d) => {
+      next: async (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetStocks: response: ', d); // TODO: only for debug
           if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
+            let tempData = [];
+            for(let i = 0; i < d.data.length; i++) {
+              const x = d.data[i];
+              const _data = new ExtendedStockData(x);
+              _data.FillProductFields(await this.GetProductData(_data.productID))
+              console.dir(_data);
+              tempData.push({ data: _data, uid: this.nextUid() });
+            }
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
+            console.trace(this.dbData);
           }
           this.RefreshTable();
         } else {
@@ -335,26 +385,89 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     });
   }
 
+  async RefreshButtonClicked(): Promise<void> {
+    await this.RefreshAsync(this.getInputParams);
+  }
+
+  async RefreshAsync(params?: GetStocksParamsModel): Promise<void> {
+    await this.refreshComboboxData();
+
+    console.log('Refreshing: ', params); // TODO: only for debug
+    if (this.filterForm.invalid) {
+      this.bbxToastrService.show(
+        Constants.MSG_INVALID_FILTER_FORM,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+    
+    this.isLoading = true;
+
+    await lastValueFrom(this.stockService.GetAll(params))
+      .then(async d => {
+        if (d.succeeded && !!d.data) {
+          console.log('GetStocks: response: ', d); // TODO: only for debug
+          if (!!d) {
+            let tempData = [];
+            for (let i = 0; i < d.data.length; i++) {
+              const x = d.data[i];
+              const _data = new ExtendedStockData(x);
+              _data.FillProductFields(await this.GetProductData(_data.productID))
+              console.dir(_data);
+              tempData.push({ data: _data, uid: this.nextUid() });
+            }
+            this.dbData = tempData;
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(d);
+            console.trace(this.dbData);
+          }
+          this.RefreshTable();
+        } else {
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+      })
+      .finally(() => {
+        this.isLoading = false;
+        setTimeout(() => {
+          if (this.kbS.Here === this.SearchButtonId) {
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          }
+        }, 150);
+      });
+  }
+
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
+    this.ngOnInitDone = true;
   }
   ngAfterViewInit(): void {
-    console.log("[ngAfterViewInit]");
+    if (this.ngOnInitDone) {
+      console.log("[ngAfterViewInit]");
 
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
-    this.AddSearchButtonToFormMatrix();
-    console.log(this.filterFormNav.Matrix);
+      this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+      this.AddSearchButtonToFormMatrix();
+      console.log(this.filterFormNav.Matrix);
 
-    this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.DisableFooter = true;
+      this.dbDataTable.GenerateAndSetNavMatrices(true);
+      this.dbDataTable.ReadonlyFormByDefault = true;
 
-    setTimeout(() => {
-      this.kbS.SetCurrentNavigatable(this.filterFormNav);
-      this.kbS.SelectFirstTile();
-      this.kbS.setEditMode(KeyboardModes.EDIT);
-    }, 200);
+      setTimeout(() => {
+        this.kbS.SetCurrentNavigatable(this.filterFormNav);
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+      }, 200);
+    }
   }
   ngOnDestroy(): void {
     console.log('Detach');
@@ -363,10 +476,6 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
 
   private AddSearchButtonToFormMatrix(): void {
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
-  }
-
-  private RefreshAll(params?: GetStocksParamsModel): void {
-    this.Refresh(params);
   }
 
   MoveToSaveButtons(event: any): void {
@@ -381,11 +490,6 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     }
   }
 
-  IsNumber(val: string): boolean {
-    let val2 = val.replace(' ', '');
-    return !isNaN(parseFloat(val2));
-  }
-
   RefreshData(): void { }
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
   RecalcNetAndVat(): void { }
@@ -394,21 +498,16 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     const val = event instanceof Event ? (event as KeyboardEvent).code : event;
     console.log(`[HandleFunctionKey]: ${val}`);
     switch (val) {
-      // NEW
-      case this.KeySetting[Actions.Create].KeyCode:
-        this.Create();
+      case this.KeySetting[Actions.Details].KeyCode:
+        this.GoToStockCard();
         break;
-      // EDIT
-      case this.KeySetting[Actions.Edit].KeyCode:
-        this.Edit();
-        break;
-      // DELETE
-      case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
-        if (!this.isDeleteDisabled) {
-          this.Delete();
-        }
-        break;
+    }
+  }
+
+  GoToStockCard(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const productCode = this.dbData[this.kbS.p.y - 1].data.productCode;
+      this.router.navigate(['stock-card/nav'], { queryParams: { productCode: productCode, wareHouseId: this.getInputParams.WarehouseID } });
     }
   }
 
@@ -417,8 +516,6 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
   Edit(): void {}
 
   Delete(): void {}
-
-
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
@@ -453,7 +550,8 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
       case this.KeySetting[Actions.Delete].KeyCode:
       case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
-      case this.KeySetting[Actions.ToggleForm].KeyCode:
+      case this.KeySetting[Actions.JumpToForm].KeyCode:
+      case this.KeySetting[Actions.Details].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();
@@ -462,6 +560,15 @@ export class StockNavComponent extends BaseNoFormManagerComponent<Stock> impleme
     }
 
     switch (event.key) {
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

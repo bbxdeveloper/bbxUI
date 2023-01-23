@@ -45,6 +45,13 @@ import { lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
+export interface OfferPrintParams {
+  rowIndex: number,
+  id: number,
+  dbData: any,
+  dbDataTable: any,
+}
+
 @Component({
   selector: 'app-offer-nav',
   templateUrl: './offer-nav.component.html',
@@ -872,7 +879,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           DefaultFrom: user?.email,
           DefaultTo: customerOriginalEmail,
           DefaultToName: offerCustomer.customerName,
-          DefaultFromName: user?.name
+          DefaultFromName: user?.name,
+          PrintParams: this.GeneratePrintParams()
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -885,6 +893,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
             offerCustomer.email = res.to.email;
             offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
+            offerCustomer.taxpayerNumber = offerCustomer.taxpayerNumber?.substring(0, 13);
             
             await lastValueFrom(this.seC.Update(offerCustomer))
               .then(async updateRes => {
@@ -1008,6 +1017,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         }
       });
     }
+  }
+
+  protected GeneratePrintParams(): OfferPrintParams {
+    return {
+      rowIndex: this.kbS.p.y - 1,
+      id: this.dbData[this.kbS.p.y - 1].data.id,
+      dbData: this.dbData,
+      dbDataTable: this.dbDataTable,
+    } as OfferPrintParams;
   }
 
   Print(): void {
