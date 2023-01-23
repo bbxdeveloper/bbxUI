@@ -1,6 +1,6 @@
 <ng-container *ngIf="simpleMode">
     <nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
-        (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, defaultDataCount, comboBoxData, '')">
+        (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, defaultDataCount, comboBoxData, '', false, lastFormField)">
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
             <label>{{label}}</label>
 
@@ -19,9 +19,10 @@
         </nb-option>
     </nb-autocomplete>
 </ng-container>
+
 <ng-container *ngIf="!simpleMode">
     <nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
-        (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, currentDataCount, currentFilteredData, currentTypedData)">
+        (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, currentDataCount, currentFilteredData, currentTypedData, false, lastFormField)">
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
             <label>{{label}}</label>
 

@@ -36,6 +36,12 @@ import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesi
 import { ProductService } from '../../product/services/product.service';
 import { Product } from '../../product/models/Product';
 import { lastValueFrom } from 'rxjs';
+import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
+import { UpdateLocationRequest } from '../../location/models/UpdateLocationRequest';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { UpdateStockLocationRequest } from '../models/UpdateStockLocationRequest';
+import { LocationService } from '../../location/services/location.service';
+import { Location } from '../../location/models/Location';
 
 @Component({
   selector: 'app-stock-nav',
@@ -57,6 +63,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   TileCssColClass = TileCssColClass;
 
   isDeleteDisabled: boolean = false;
+
+  locations: Location[] = [];
 
   // WareHouse
   wh: WareHouse[] = [];
@@ -192,10 +200,72 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     private utS: UtilityService,
     private wareHouseApi: WareHouseService,
     private khs: KeyboardHelperService,
-    private productService: ProductService
+    private productService: ProductService,
+    private locationService: LocationService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.Setup();
+  }
+
+  override ProcessActionPut(data?: IUpdateRequest<ExtendedStockData>): void {
+    console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
+
+    let locationId = null;
+    if (!HelperFunctions.isEmptyOrSpaces(data?.data.location)) {
+      const location = this.locations.find(x => x.locationDescription === data?.data.location);
+      if (location) {
+        locationId = HelperFunctions.ToInt(location.id);
+      }
+    }
+
+    if (!!data && !!data.data) {
+      const updateRequest = {
+        id: HelperFunctions.ToInt(data.data.id),
+        locationID: locationId
+      } as UpdateStockLocationRequest;
+
+      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
+
+      data.data.id = parseInt(data.data.id + '');
+      this.stockService.UpdateLocation(updateRequest).subscribe({
+        next: (d) => {
+          if (d.succeeded && !!d.data) {
+            this.stockService.Get({ ID: d.data.id }).subscribe({
+              next: newData => {
+                if (!!newData) {
+                  newData.location = HelperFunctions.isEmptyOrSpaces(newData.location) ? undefined : newData.location?.split('-')[1];
+                  const newRow = {
+                    data: newData,
+                  } as TreeGridNode<ExtendedStockData>
+                  const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
+                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
+                  this.dbDataTable.SetDataForForm(newRow, false, false);
+                  this.RefreshTable(newRow.data.id);
+                  this.simpleToastrService.show(
+                    Constants.MSG_SAVE_SUCCESFUL,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS_5_SEC
+                  );
+                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                  this.isLoading = false;
+                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                }
+              },
+              error: (err) => { this.HandleError(err); },
+            });
+          } else {
+            this.bbxToastrService.show(
+              d.errors!.join('\n'),
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          }
+        },
+        error: (err) => { this.HandleError(err); },
+      });
+    }
   }
 
   ChooseDataForTableRow(rowIndex: number): void {
@@ -245,6 +315,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
+      productID: new FormControl(undefined, []),
       productCode: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
       productGroup: new FormControl(undefined, []),
@@ -267,6 +338,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       avgCost: new FormControl(0, []),
       latestIn: new FormControl(0, []),
       latestOut: new FormControl(undefined, []),
+      location: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -312,6 +384,16 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
         this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
       })
       .catch(err => {
+        this.cs.HandleError(err);
+      });
+
+    // Location
+    await lastValueFrom(this.locationService.GetAll())
+      .then(data => {
+        this.locations = data?.data ?? [];
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
         this.isLoading = false;
       });
   }
@@ -352,14 +434,15 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
             for(let i = 0; i < d.data.length; i++) {
               const x = d.data[i];
               const _data = new ExtendedStockData(x);
-              _data.FillProductFields(await this.GetProductData(_data.productID))
-              console.dir(_data);
+              _data.FillProductFields(await this.GetProductData(_data.productID));
+              _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
+              // console.dir(_data);
               tempData.push({ data: _data, uid: this.nextUid() });
             }
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
-            console.trace(this.dbData);
+            // console.trace(this.dbData);
           }
           this.RefreshTable();
         } else {
@@ -414,13 +497,14 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
               const x = d.data[i];
               const _data = new ExtendedStockData(x);
               _data.FillProductFields(await this.GetProductData(_data.productID))
-              console.dir(_data);
+              // console.dir(_data);
+              _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
               tempData.push({ data: _data, uid: this.nextUid() });
             }
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
-            console.trace(this.dbData);
+            // console.trace(this.dbData);
           }
           this.RefreshTable();
         } else {
@@ -460,7 +544,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       console.log(this.filterFormNav.Matrix);
 
       this.dbDataTable.GenerateAndSetNavMatrices(true);
-      this.dbDataTable.ReadonlyFormByDefault = true;
 
       setTimeout(() => {
         this.kbS.SetCurrentNavigatable(this.filterFormNav);

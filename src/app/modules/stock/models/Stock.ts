@@ -1,6 +1,7 @@
 import { Product } from "../../product/models/Product";
 
 export class Stock {
+    "id": number;
     "warehouseID": number;
     "warehouse": string;
     "productID": number;
@@ -16,6 +17,7 @@ export class Stock {
 
 export class ExtendedStockData implements Stock, Product {
     // Stock
+    "id": number = -1;
     "warehouseID": number;
     "warehouse": string;
     "productID": number;
@@ -28,7 +30,6 @@ export class ExtendedStockData implements Stock, Product {
     "locationID"?: number;
     "location"?: string;
     // Product
-    "id": number = -1;
     "description"?: string;
     "productGroup"?: any = '';
     "origin"?: string;
@@ -60,7 +61,9 @@ export class ExtendedStockData implements Stock, Product {
     public FillProductFields(p: Product): void {
         const product = p as any;
         Object.keys(product).forEach((key: string) => {
-            (this as any)[key] = product[key];
+            if (key !== "id") {
+                (this as any)[key] = product[key];
+            }
         });
     }
 }

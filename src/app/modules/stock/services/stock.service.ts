@@ -11,6 +11,8 @@ import { Stock } from '../models/Stock';
 import { StockRecord } from '../models/StockRecord';
 import { GetAllInvCtrlAbsentParamsModel } from '../models/GetAllInvCtrlAbsentParamsModel';
 import { GetAllInvCtrlAbsentResponse } from '../models/GetAllInvCtrlAbsentResponse';
+import { UpdateStockLocationRequest } from '../models/UpdateStockLocationRequest';
+import { UpdateStockLocationResponse } from '../models/UpdateStockLocationResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -103,5 +105,9 @@ export class StockService {
     }
 
     return this.http.get<GetAllInvCtrlAbsentResponse>(this.StockBaseUrl + "/queryinvctrlabsent" + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  UpdateLocation(request: UpdateStockLocationRequest): Observable<UpdateStockLocationResponse> {
+    return this.http.put<UpdateStockLocationResponse>(this.StockBaseUrl + "/updatelocation", request);
   }
 }

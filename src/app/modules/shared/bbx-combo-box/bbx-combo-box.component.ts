@@ -23,8 +23,9 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
   @Input() labelAboveField: boolean = false;
   @Input() needBlankOption: boolean = true;
   @Input() autoFillFirstAvailableValue: boolean = false;
+  @Input() lastFormField: boolean = false;
 
-  blankOptionText: string = BlankComboBoxValue;
+  @Input() blankOptionText: string = BlankComboBoxValue;
 
   comboBoxData: string[] = [];
   currentDataCount: number = 0;
