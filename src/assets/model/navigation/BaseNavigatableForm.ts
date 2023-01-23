@@ -277,7 +277,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         }
     }
 
-    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false): void {
+    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false): void {
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
 
         if (preventEvent) {
@@ -303,8 +303,12 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
             if (!this.kbS.isEditModeActivated) {
                 this.kbS.toggleEdit();
             } else {
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.JumpToNextInput(event);
+                if (lastFormField) {
+                    this.HandleFormLastEnter(event);
+                } else {
+                    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                    this.JumpToNextInput(event);
+                }
             }
         }
     }

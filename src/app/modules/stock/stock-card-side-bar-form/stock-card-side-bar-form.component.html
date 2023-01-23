@@ -31,7 +31,7 @@
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Dátum</label>
-                    <input nbInput type="text" formControlName="stockCardDate"
+                    <input nbInput type="datetime" formControlName="stockCardDate" mask="0000-00-00"
                         readonly>
                 </div>
             </nb-form-field>

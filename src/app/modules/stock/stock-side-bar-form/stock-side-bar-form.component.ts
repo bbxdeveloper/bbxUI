@@ -1,19 +1,12 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { BehaviorSubject } from 'rxjs';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { BlankComboBoxValue } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { environment } from 'src/environments/environment';
-import { Origin } from '../../origin/models/Origin';
-import { OriginService } from '../../origin/services/origin.service';
-import { ProductGroup } from '../../product-group/models/ProductGroup';
-import { ProductGroupService } from '../../product-group/services/product-group.service';
-import { ProductService } from '../../product/services/product.service';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
-import { VatRateService } from '../../vat-rate/services/vat-rate.service';
+import { Location } from '../../location/models/Location';
+import { LocationService } from '../../location/services/location.service';
 
 @Component({
   selector: 'app-stock-side-bar-form',
@@ -27,26 +20,13 @@ export class StockSideBarFormComponent extends BaseSideBarFormComponent implemen
 
   customPatterns = Constants.ProductCodePatterns;
 
-  // ProductGroup
-  _productGroups: ProductGroup[] = [];
-  productGroups: string[] = [];
-  productGroupComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  // Location
+  _locations: Location[] = [];
+  locations: string[] = [];
+  locationsComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  // UnitOfMeasure
-  uom: string[] = [];
-  uomComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-
-  // Origin
-  origins: string[] = [];
-  originsComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-
-  // Origin
-  vatRates: string[] = [];
-  vatRateComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
-    private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
-    private vatApi: VatRateService,
+  constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
+    private locationService: LocationService,
     private cdref: ChangeDetectorRef) {
     super(kbS);
     this.refreshComboboxData();
@@ -67,39 +47,12 @@ export class StockSideBarFormComponent extends BaseSideBarFormComponent implemen
 
   private refreshComboboxData(): void {
     // ProductGroups
-    this.productGroupApi.GetAll({ PageSize: '99999' }).subscribe({
+    this.locationService.GetAll({ PageSize: '99999' }).subscribe({
       next: data => {
-        console.log("ProductGroups: ", data);
-        this._productGroups = data?.data ?? [];
-        this.productGroups = this._productGroups.map(x => x.productGroupDescription) ?? [];
-        this.productGroupComboData$.next(this.productGroups);
-      }
-    });
-
-    // UnitOfMeasure
-    this.productApi.GetAllUnitOfMeasures().subscribe({
-      next: data => {
-        console.log("UnitOfMeasures: ", data);
-        this.uom = data?.map(x => x.text) ?? [];
-        this.uomComboData$.next(this.uom);
-      }
-    });
-
-    // Origin
-    this.originApi.GetAll({ PageSize: '99999' }).subscribe({
-      next: data => {
-        console.log("Origins: ", data);
-        this.origins = data?.data?.map(x => x.originDescription) ?? [];
-        this.originsComboData$.next(this.origins);
-      }
-    });
-
-    // VatRate
-    this.vatApi.GetAll({ PageSize: '99999' }).subscribe({
-      next: data => {
-        console.log("Vats: ", data);
-        this.vatRates = data?.data?.map(x => x.vatRateDescription) ?? [];
-        this.vatRateComboData$.next(this.vatRates);
+        console.log("Locations: ", data);
+        this._locations = data?.data ?? [];
+        this.locations = this._locations.map(x => x.locationDescription) ?? [];
+        this.locationsComboData$.next(this.locations);
       }
     });
   }
@@ -117,21 +70,7 @@ export class StockSideBarFormComponent extends BaseSideBarFormComponent implemen
     }
 
     this.currentForm = form[1];
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
-    this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
-      next: newValue => {
-        let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
-        if (!!newValue && newValue.length >= 3 &&
-          (currentProductGroup === undefined || currentProductGroup.length === 0)) {
-          let defaultProductGroup = this._productGroups
-            .find(x => x.productGroupCode === newValue.substring(0, 3))?.productGroupDescription ?? BlankComboBoxValue;
-          if (defaultProductGroup.length > 0) {
-            this.currentForm?.form.controls['productGroup'].setValue(defaultProductGroup);
-          }
-        }
-      }
-    });
+    console.log("[SetNewForm] ", this.currentForm);
 
     this.cdref.detectChanges();
   }
