@@ -15,7 +15,7 @@ import { GetProductsParamListModel } from '../../product/models/GetProductsParam
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 
 const NavMap: string[][] = [
-  ['active-prod-search', 'show-all', 'show-less']
+  ['active-prod-search', 'show-all'] // , 'show-less'
 ];
 
 @Component({

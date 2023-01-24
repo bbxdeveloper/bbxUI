@@ -39,6 +39,9 @@ export function isTableKeyDownEvent(event: TableKeyDownEvent | Event): event is 
   return (event as TableKeyDownEvent).Row !== undefined;
 }
 
+export const EditedCellId = 'PRODUCT-EDIT';
+export const SelectFirstCharClass = 'select-first-char';
+
 @Component({
   selector: 'app-inline-editable-table',
   templateUrl: './inline-editable-table.component.html',
