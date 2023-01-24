@@ -248,6 +248,7 @@ export let InvRowNavKeySettings: Constants.KeySettingsDct = {
 
 export let StockNavKeySettings: Constants.KeySettingsDct = {
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Fn },
+    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Szerkesztés', KeyType: Constants.KeyTypes.Fn },
     ToggleForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Tétellap', KeyType: Constants.KeyTypes.Fn },
     Details: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Készletkarton', KeyType: Constants.KeyTypes.Fn },
     
@@ -255,7 +256,6 @@ export let StockNavKeySettings: Constants.KeySettingsDct = {
     Search: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Unset },
     Delete: { KeyCode: KeyBindings.F8, AlternativeKeyCode: KeyBindings.delete, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Unset },
     Create: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Új felvitel', KeyType: Constants.KeyTypes.Unset },
-    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Szerkesztés', KeyType: Constants.KeyTypes.Unset },
     Print: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Nyomtatás', KeyType: Constants.KeyTypes.Unset },
     CSV: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'CSV', KeyType: Constants.KeyTypes.Unset },
     Email: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Email', KeyType: Constants.KeyTypes.Unset },

@@ -77,6 +77,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     'avgCost',
     'latestIn',
     'latestOut',
+    'location'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -99,7 +100,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '80%',
+      colWidth: '60%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -151,6 +152,18 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       textAlign: "left",
       navMatrixCssClass: TileCssClass,
     },
+    {
+      label: 'Elhelyezés',
+      objectKey: 'location',
+      colKey: 'location',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '20%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    }
   ];
 
   override get getInputParams(): GetStocksParamsModel {
@@ -627,7 +640,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
       case this.KeySetting[Actions.Create].KeyCode:
-      case this.KeySetting[Actions.Edit].KeyCode:
       case this.KeySetting[Actions.Reset].KeyCode:
       case this.KeySetting[Actions.Save].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
@@ -643,6 +655,15 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     }
 
     switch (event.key) {
+      case this.KeySetting[Actions.Edit].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
