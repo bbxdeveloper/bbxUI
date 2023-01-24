@@ -507,13 +507,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
-    // this.outGoingInvoiceData.lineGrossAmount =
-    //   this.outGoingInvoiceData.invoiceLines
-    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
-    //     .reduce((sum, current) => sum + current, 0);
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
+
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
+    } else {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
     }
 
     this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
