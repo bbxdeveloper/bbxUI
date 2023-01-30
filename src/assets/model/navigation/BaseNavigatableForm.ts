@@ -287,6 +287,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         }
 
         const ad = (event.target as any).getAttribute("aria-activedescendant");
+
         if (this.kbS.isEditModeActivated &&
             ad === null &&
             possibleItems !== undefined && typedValue !== undefined &&

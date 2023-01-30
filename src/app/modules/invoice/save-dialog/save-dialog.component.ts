@@ -145,6 +145,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
     if (this.data.paymentMethod === "CASH" && this.data.currencyCode === CurrencyCodes.HUF) {
       discountedGross = HelperFunctions.CashRound(discountedGross);
+    } else {
+      discountedGross = HelperFunctions.Round(discountedGross);
     }
 
     // rates
@@ -180,6 +182,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.formNav.OuterJump = true;
     // And back to the form.
     this.OuterJump = true;
+
+    this.RefreshCalc();
   }
   ngAfterViewInit(): void {
     this.kBs.SetWidgetNavigatable(this);

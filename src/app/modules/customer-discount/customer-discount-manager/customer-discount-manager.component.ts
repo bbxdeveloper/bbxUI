@@ -36,7 +36,7 @@ import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dia
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
-import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, EditedCellId, SelectFirstCharClass } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { GetCustDiscountByCustomerParamsModel } from '../models/GetCustDiscountByCustomerParamsModel';
 
 @Component({
@@ -575,9 +575,16 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
             if (!!productGroup && !!productGroup?.productGroupCode) {
               _product = productGroup;
   
-              if ((row.data.productGroupID === -1 && row.data.productGroupCode === _product.productGroupCode) ||
-              (row.data.productGroupCode !== _product.productGroupCode && this.dbDataTable.data.findIndex(x => x.data?.productGroupID === _product.id) > -1)) {
+              var alreadyAdded = false;
+              this.dbDataTable.data.map((x, itemIndex) => {
+                if (x.data?.productGroupID === _product.id && itemIndex !== index) {
+                  alreadyAdded = true;
+                }
+              });
+              if (alreadyAdded) {
                 this.dbDataTable.data[rowPos].data.Restore('productGroupCode');
+                HelperFunctions.SelectBeginningByClass(SelectFirstCharClass, 0, true, this.dbDataTable.data[rowPos].data.productGroupCode);
+                // debugger;
                 this.bbxToastrService.show(
                   Constants.MSG_PRODUCT_ALREADY_THERE,
                   Constants.TITLE_ERROR,

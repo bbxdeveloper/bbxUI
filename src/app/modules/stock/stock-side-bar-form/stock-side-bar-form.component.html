@@ -1,54 +1,53 @@
 <nb-card>
     <nb-card-body class="bbx-fd-ncb">
         <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm" [KeySetting]="KeySetting"
-        [newButton]="false" [editButton]="false" [deleteButton]="false" [saveButton]="true" [resetButton]="false">
+        [newButton]="false" [editButton]="true" [deleteButton]="false" [saveButton]="true" [resetButton]="false">
         </app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
             (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape()"
             (click)="currentForm.HandleFormClick()">
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Készlet Azonosító</label>
-                    <input nbInput type="number" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)" readonly>
-                </div>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Készlet Azonosító</label>
+                        <input nbInput type="number" formControlName="id" (click)="currentForm.HandleFormFieldClick($event)" readonly>
+                    </div>
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Termék Azonosító</label>
+                        <input nbInput type="number" formControlName="productID" (click)="currentForm.HandleFormFieldClick($event)"
+                            readonly>
+                    </div>
+                </nb-form-field>
+            </div>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Termék Azonosító</label>
-                    <input nbInput type="number" formControlName="productID" (click)="currentForm.HandleFormFieldClick($event)"
-                        readonly>
-                </div>
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Kód</label>
-
-                    <input nbInput type="text" formControlName="productCode" #codeInput
-                        [dropSpecialCharacters]="false" oninput="this.value = this.value.toUpperCase()"
-                        (focus)="moveCursor(codeInput)"
-                        mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
-                        [patterns]="customPatterns"
-                        readonly required>
-                </div>
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Megnevezés</label>
-                    <input nbInput type="text" formControlName="description"
-                        readonly>
-                </div>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Kód</label>                
+                        <input nbInput type="text" formControlName="productCode" #codeInput [dropSpecialCharacters]="false"
+                            oninput="this.value = this.value.toUpperCase()" (focus)="moveCursor(codeInput)"
+                            mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
+                            [patterns]="customPatterns" readonly required>
+                    </div>
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Megnevezés</label>
+                        <input nbInput type="text" formControlName="description" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Környezetvédelmi termékdíj</label>
-
                         <input nbInput type="text"
                             formControlName="productFee" [inputMask]="numberInputMask" placeholder="0.00"
                             readonly>
@@ -58,33 +57,32 @@
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Utolsó beszár</label>
-
                         <input nbInput type="text" formControlName="latestSupplyPrice"
                             [inputMask]="numberInputMask" placeholder="0.00" readonly>
                     </div>
                 </nb-form-field>
             </div>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Származási hely</label>
-                    <input nbInput type="text" formControlName="origin"
-                        readonly>
-                </div>
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Me.e.</label>
-                    <input nbInput type="text" formControlName="unitOfMeasure" readonly>
-                </div>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Származási hely</label>
+                        <input nbInput type="text" formControlName="origin" readonly>
+                    </div>
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Me.e.</label>
+                        <input nbInput type="text" formControlName="unitOfMeasure" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Listaár</label>
-
                         <input nbInput type="text" formControlName="unitPrice1" [inputMask]="numberInputMask"
                             placeholder="0.00" readonly>
                     </div>
@@ -93,44 +91,26 @@
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Egységár</label>
-
                         <input nbInput type="text" formControlName="unitPrice2"
                             [inputMask]="numberInputMask" placeholder="0.00" readonly>
                     </div>
                 </nb-form-field>
             </div>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Áfakód</label>
-                    <input nbInput type="text" formControlName="vatRateCode" readonly>
-                </div>
-            </nb-form-field>
-
             <div class="bbx-fd-form-field-wrapper-div-row">
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-40 checkbox-wrapper"
-                    (keydown.enter)="currentForm.HandleFormEnter($event)">
-                    <label class="label-checkbox">Készletes?</label>
-
-                    <input class="bbx-fd-checkbox" type="checkbox"
-                        formControlName="isStock" readonly>
-                </div>
-
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
-                    (keydown.enter)="currentForm.HandleFormEnter($event)">
-                    <label class="label-checkbox">Aktív?</label>
-
-                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="active"
-                        readonly>
-                </div>
-
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
-                    (keydown.enter)="currentForm.HandleFormEnter($event)">
-                    <label class="label-checkbox">Eng.tilt?</label>
-
-                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="noDiscount"
-                        readonly>
-                </div>
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Áfakód</label>
+                        <input nbInput type="text" formControlName="vatRateCode" readonly>
+                    </div>
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Raktár</label>
+                        <input nbInput type="text" formControlName="warehouse" readonly>
+                    </div>
+                </nb-form-field>
             </div>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
@@ -171,51 +151,63 @@
                 </nb-form-field>
             </div>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Raktár</label>
-                    <input nbInput type="text" formControlName="warehouse"
-                        readonly>
-                </div>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Készlet</label>                
+                        <input nbInput type="text" formControlName="realQty" readonly [inputMask]="numberInputMask" readonly>
+                    </div>
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Átl. beszerzési ár</label>                
+                        <input nbInput type="text" formControlName="avgCost" readonly [inputMask]="numberInputMask" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Készlet</label>
-            
-                    <input nbInput type="text" formControlName="realQty" readonly
-                        [inputMask]="numberInputMask" readonly>
-                </div>
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Átl. beszerzési ár</label>
-            
-                    <input nbInput type="text" formControlName="avgCost" readonly
-                        [inputMask]="numberInputMask" readonly>
-                </div>
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Utolsó bevételezés</label>
-            
-                    <input nbInput type="datetime" formControlName="latestIn" readonly mask="0000-00-00">
-                </div>
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Utolsó kiadás</label>
-            
-                    <input nbInput type="datetime" formControlName="latestOut" readonly mask="0000-00-00">
-                </div>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Utolsó bevételezés</label>                
+                        <input nbInput type="datetime" formControlName="latestIn" readonly mask="0000-00-00">
+                    </div>
+                </nb-form-field>
+                
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div">
+                        <label class="multicol-label-col-2">Utolsó kiadás</label>                
+                        <input nbInput type="datetime" formControlName="latestOut" readonly mask="0000-00-00">
+                    </div>
+                </nb-form-field>
+            </div>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="location" label="Elhelyezés"
-                [data$]="locationsComboData$"></app-bbx-combo-box>
-                <!-- TODO: [lastFormField]="true" fix, implement? -->
+                [data$]="locationsComboData$" [lastFormField]="true" ></app-bbx-combo-box>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-40 checkbox-wrapper"
+                    (keydown.enter)="currentForm.HandleFormEnter($event)">
+                    <label class="label-checkbox">Készletes?</label>
+            
+                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="isStock" readonly>
+                </div>
+            
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
+                    (keydown.enter)="currentForm.HandleFormEnter($event)">
+                    <label class="label-checkbox">Aktív?</label>
+            
+                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="active" readonly>
+                </div>
+            
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
+                    (keydown.enter)="currentForm.HandleFormEnter($event)">
+                    <label class="label-checkbox">Eng.tilt?</label>
+            
+                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="noDiscount" readonly>
+                </div>
+            </div>
         </form>
     </nb-card-body>
 </nb-card>
