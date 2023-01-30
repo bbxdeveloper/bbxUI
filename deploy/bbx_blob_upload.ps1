@@ -1,5 +1,5 @@
 param (
-    [string]$sourcePath = "c:\mine\Developments\BBX\bbx-ui-win32-x64_0.1.96_CUSOMER.zip.zip",
+    [string]$sourcePath = "c:\mine\Developments\BBX\bbx-ui-win32-x64_0.1.96_CUSOMER.zip",
     [string]$destinationPath = "c:\mine\Developments\BBX\bbxUI\",
     [string]$uiPath = "dist\bbx-ui\"
 )
@@ -36,30 +36,39 @@ param (
 # .\bbx_blob_upload.ps1 -sourcePath "c:\mine\Developments\BBX\bbx-ui-win32-x64_0.1.92_CUSTOMER.zip" -destinationPath "c:\mine\Developments\BBX\bbxUI\" -uiPath "dist\bbx-ui\"
 ###############################################################
 
-
 Write-Output "STARTING... - 1"
 
-$StorageContext = New-AzStorageContext -StorageAccountName 'bbxtestcustomerfe' -StorageAccountKey 'S4vQyGVrOwKlaj6eF954Wl4yj2L1Jccd9SfmSOMVsIDyv3hME/65FKUlouut7Pr+CwC/YDYZNU/wDWOwebPNtw=='
-Write-Output "New-AzStorageContext... - 2"
+Write-Output "-- sourcePath:" $sourcePath
+Write-Output "-- destinationPath:" $destinationPath
+Write-Output "-- uiPath:" $uiPath
 
-$Container = Get-AzStorageContainer -Context $StorageContext -Name "$web"
+
+Write-Output "New-AzStorageContext... - 2"
+$StorageContext = New-AzStorageContext -StorageAccountName 'bbxtestcustomerfe' -StorageAccountKey 'S4vQyGVrOwKlaj6eF954Wl4yj2L1Jccd9SfmSOMVsIDyv3hME/65FKUlouut7Pr+CwC/YDYZNU/wDWOwebPNtw=='
+
+
 Write-Output "Get-AzStorageContext... - 3"
+$Container = Get-AzStorageContainer -Context $StorageContext -Name "$web"
+
 
 # ez maradhat kikommentezve
 #$blobs = Get-AzStorageBlob -Container "test" -Context $StorageContext
 #Write-Output "Get-AzStorageBlob... - 4"
 
-Get-ChildItem -Path $destinationPath -Recurse | Remove-Item -force -recurse
 Write-Output "Delete files from Unzip folder... - 5"
+Get-ChildItem -Path $destinationPath -Recurse | Remove-Item -force -recurse
 
-Expand-Archive -Path $sourcePath -DestinationPath $destinationPath
+
 Write-Output "Unzip... - 6"
+Expand-Archive -Path $sourcePath -DestinationPath $destinationPath
 
-Get-AzStorageBlob -Container '$web' -Blob * -Context $StorageContext | Remove-AzStorageBlob
+
 Write-Output "Remove-AzStorageBlob contents... - 7"
+Get-AzStorageBlob -Container '$web' -Blob * -Context $StorageContext | Remove-AzStorageBlob
 
-$localFolder = $destinationPath + $uiPath
 Write-Output "Get LocalFolder... - 8"
+$localFolder = $destinationPath + $uiPath
+Write-Output $localFolder
 
 $containername = "$" + "web"
 Write-Output "--" $containername "--"
