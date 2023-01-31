@@ -10,7 +10,7 @@
                         <tr>
                             <td>
                                 <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="buyerFormNav" formFieldName="invCtrlPeriod" label="Leltári időszak"
-                                    [needBlankOption]="false" [simpleMode]="true" [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
+                                    [needBlankOption]="false" [simpleMode]="true" [data$]="invCtrlPeriodComboData$" class="block-width-of-500px"></app-bbx-combo-box>
                             </td>
                             <td>
                                 <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">

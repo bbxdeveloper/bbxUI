@@ -1,9 +1,22 @@
 // Width
 
 $widthManipulatorMax: 100;
+$pixelWidthManipulatorMax: 1000;
 
 @for $i from 0 through $widthManipulatorMax {
     .width-of-#{$i} {
         width: calc(0% + #{$i}%) !important;
+    }
+}
+
+@for $i from 0 through $pixelWidthManipulatorMax {
+    .width-of-#{$i}px {
+        width: #{$i}px !important;
+    }
+}
+@for $i from 0 through $pixelWidthManipulatorMax {
+    .block-width-of-#{$i}px {
+        display: block !important;
+        width: #{$i}px !important;
     }
 }
