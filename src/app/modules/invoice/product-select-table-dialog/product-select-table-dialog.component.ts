@@ -21,7 +21,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 const NavMap: string[][] = [
   ['radio-1', 'radio-2'],
-  ['active-prod-search', 'show-all', 'show-less']
+  ['active-prod-search', 'show-all'] // , 'show-less'
 ];
 
 @Component({
@@ -55,7 +55,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       SearchString: this.srcString,
       PageSize: '10',
       PageNumber: '1',
-      OrderBy: 'ProductCode',
+      OrderBy: this.currentChooserValue == 1 ? 'Description' : 'ProductCode',
       FilterByName: this.currentChooserValue == 1,
       FilterByCode: this.currentChooserValue != 1,
     };
@@ -65,7 +65,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     return {
       SearchString: this.srcString,
       PageSize: '999999',
-      OrderBy: 'ProductCode',
+      OrderBy: this.currentChooserValue == 1 ? 'Description' : 'ProductCode',
       FilterByName: this.currentChooserValue == 1,
       FilterByCode: this.currentChooserValue != 1,
     };
@@ -128,6 +128,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override ngOnInit(): void {
+    if (!HelperFunctions.isEmptyOrSpaces(this.searchString)) {
+      this.inputForm.controls['chooser'].setValue(2);
+    }
     this.Refresh(this.getInputParams);
   }
   ngAfterViewInit(): void {
