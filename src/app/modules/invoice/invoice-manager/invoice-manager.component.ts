@@ -1161,7 +1161,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   override SetDataForForm(data: any): void {
     if (!!data) {
-      this.buyerData = data as Customer;
+      this.buyerData = { ...data as Customer };
+      data.zipCodeCity = data.postalCode + ' ' + data.city;
       this.buyerFormNav.FillForm(data);
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);

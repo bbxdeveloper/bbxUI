@@ -373,8 +373,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
       context: {
         createCustomer: true
-      },
-      closeOnEsc: false
+      }
     });
     dialogRef.onClose.subscribe({
       next: (res: Customer) => {
