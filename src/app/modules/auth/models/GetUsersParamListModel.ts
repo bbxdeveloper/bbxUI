@@ -5,4 +5,5 @@ export interface GetUsersParamListModel {
     Fields?: string;
     PageSize?: string;
     PageNumber?: string;
+    ID?: number;
 }

@@ -3,4 +3,5 @@ export interface GetWareHousesParamListModel {
     OrderBy?: string;
     PageSize?: string;
     PageNumber?: string;
+    ID?: number;
 }

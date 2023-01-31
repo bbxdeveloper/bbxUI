@@ -7,4 +7,5 @@ export interface GetProductsParamListModel {
     PageNumber?: string;
     FilterByCode?: boolean;
     FilterByName?: boolean;
+    ID?: number;
 }

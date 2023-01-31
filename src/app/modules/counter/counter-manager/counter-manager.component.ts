@@ -143,8 +143,11 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   // CounterGroup
   wareHouses: WareHouse[] = [];
 
+  idParam?: number;
   override get getInputParams(): GetCountersParamListModel {
-    return { OrderBy: "counterCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    const params = { ID: this.idParam, OrderBy: "counterCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    this.idParam = undefined;
+    return params;
   }
 
   constructor(
@@ -246,25 +249,20 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
         this.seInv.Create(createRequest).subscribe({
-          next: (d) => {
+          next: async d => {
             if (d.succeeded && !!d.data) {
               this.seInv.Get({ ID: d.data.id }).subscribe({
-                next: newData => {
+                next: async newData => {
                   if (!!newData) {
-                    d.data = this.ConvertCombosForGet(newData);
-                    console.log("New counter: ", d.data);
-                    const newRow = { data: newData } as TreeGridNode<Counter>;
-                    this.dbData.push(newRow);
-                    this.dbDataTable.SetDataForForm(newRow, false, false);
-                    this.RefreshTable(newRow.data.id);
+                    this.idParam = d.data.id;
+                    await this.RefreshAsync(this.getInputParams);
+                    this.dbDataTable.SelectRowById(d.data.id);
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                     this.simpleToastrService.show(
                       Constants.MSG_SAVE_SUCCESFUL,
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
-                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                    this.isLoading = false;
-                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                   }
                 },
                 error: (err) => { this.HandleError(err); },
@@ -481,6 +479,39 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
         this.isLoading = false;
       },
     });
+  }
+
+  async RefreshAsync(params?: GetCountersParamListModel): Promise<void> {
+    console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
+    await lastValueFrom(this.seInv.GetAll(params))
+      .then(d => {
+        if (d.succeeded && !!d.data) {
+          console.log('GetCounters response: ', d); // TODO: only for debug
+          if (!!d) {
+            const tempData = d.data.map((x) => {
+              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
+            });
+            this.dbData = tempData;
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(d);
+          }
+          this.RefreshTable();
+        } else {
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        { this.cs.HandleError(err); this.isLoading = false; };
+        this.isLoading = false;
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
   }
 
   ngOnInit(): void {

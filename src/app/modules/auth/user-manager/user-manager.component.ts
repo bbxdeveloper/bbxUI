@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
@@ -23,6 +23,8 @@ import { BaseManagerComponent } from '../../shared/base-manager/base-manager.com
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { StatusService } from 'src/app/services/status.service';
 import { lastValueFrom } from 'rxjs';
+import { Actions } from 'src/assets/util/KeyBindings';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -135,8 +137,11 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     C: { pattern: new RegExp('[a-zA-Z0-9]') },
   };
 
+  idParam?: number;
   override get getInputParams(): GetUsersParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    const params = { ID: this.idParam, PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    this.idParam = undefined;
+    return params;
   }
 
   constructor(
@@ -151,7 +156,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
-    sts: StatusService
+    sts: StatusService,
+    private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
@@ -179,22 +185,19 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           next: async (d) => {
             if (d.succeeded && !!d.data) {
               await lastValueFrom(this.seInv.Get({ ID: d.data.id }))
-                .then(res => {
+                .then(async res => {
                   if (res) {
-                    const newRow = {
-                      data: res,
-                    } as TreeGridNode<User>;
-                    this.dbDataTable.SetDataForForm(newRow, false, false);
-                    this.dbData.push(newRow);
-                    this.RefreshTable(newRow.data.id);
-                    this.simpleToastrService.show(
-                      Constants.MSG_SAVE_SUCCESFUL,
-                      Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS_5_SEC
-                    );
-                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                    this.isLoading = false;
-                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                    this.idParam = res.id;
+                    await this.RefreshAsync(this.getInputParams);
+                    setTimeout(() => {
+                      this.dbDataTable.SelectRowById(res.id);
+                      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                      this.simpleToastrService.show(
+                        Constants.MSG_SAVE_SUCCESFUL,
+                        Constants.TITLE_INFO,
+                        Constants.TOASTR_SUCCESS_5_SEC
+                      );
+                    }, 200);
                   } else {
                     this.bbxToastrService.show(
                       Constants.MSG_USER_GET_FAILED + d.data?.name,
@@ -408,6 +411,48 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     });
   }
 
+  async RefreshAsync(params?: GetUsersParamListModel): Promise<void> {
+    console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
+    await lastValueFrom(this.seInv.GetAll(params))
+      .then(d => {
+        if (d.succeeded && !!d.data) {
+          console.log('GetUsers response: ', d); // TODO: only for debug
+          if (!!d) {
+            this.dbData = d.data.map((x) => {
+              return {
+                data: new User(
+                  x.id,
+                  x.name,
+                  x.loginName,
+                  x.email,
+                  x.comment,
+                  x.active
+                ),
+                uid: this.nextUid(),
+              };
+            });
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(d);
+          }
+          this.RefreshTable();
+        } else {
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err); this.isLoading = false; this.RefreshTable();
+      })
+      .finally(() => {
+        this.isLoading = false;
+        this.RefreshTable();
+      });
+  }
+
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
   }
@@ -424,5 +469,78 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
+  }
+
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
+    if (this.khs.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+    switch (event.key) {
+      case this.KeySetting[Actions.JumpToForm].KeyCode: {
+        // TODO: 'active-prod-search' into global variable
+        if ((event as any).target.id !== 'active-prod-search') {
+          return;
+        }
+
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
+        this.dbDataTable?.HandleSearchFieldTab();
+        break;
+      }
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Create].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Edit].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Delete].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      default: { }
+    }
   }
 }

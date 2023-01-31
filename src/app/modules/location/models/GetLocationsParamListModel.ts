@@ -4,4 +4,5 @@ export interface GetLocationsParamListModel {
     Fields?: string;
     PageSize?: string;
     PageNumber?: string;
+    ID?: number;
 }

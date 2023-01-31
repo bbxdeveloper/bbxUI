@@ -3,4 +3,5 @@ export interface GetAllInvCtrlPeriodsParamListModel {
     OrderBy?: string;
     PageSize?: number;
     PageNumber?: number;
+    ID?: number;
 }

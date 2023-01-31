@@ -143,8 +143,11 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   // VatRate
   vats: VatRate[] = [];
 
+  idParam?: number;
   override get getInputParams(): GetProductsParamListModel {
-    return { OrderBy: "ProductCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
+    const params = { OrderBy: "ProductCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '', ID: this.idParam };
+    this.idParam = undefined;
+    return params;
   }
 
   get blankProductRow(): () => Product {
@@ -308,6 +311,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         this.seInv.Create(createRequest).subscribe({
           next: async d => {
             if (d.succeeded && !!d.data) {
+              this.idParam = d.data.id;
               await this.RefreshAsync(this.getInputParams);
               this.dbDataTable.SelectRowById(d.data.id);
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -364,9 +368,6 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
-                    this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-                    this.isLoading = false;
-                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                   }
                 },
                 error: (err) => { this.HandleError(err); },
