@@ -45,6 +45,7 @@ import { CustomerDiscountService } from '../../customer-discount/services/custom
 import moment from 'moment';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { InvoiceTypes } from '../models/InvoiceTypes';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -53,11 +54,6 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  private InvoiceType: string = "";
-  private Incoming: boolean = false;
-  Delivery: boolean = false;
-  DeliveryPaymentMethod: string = 'OTHER';
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -259,16 +255,11 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     console.log("ActivatedRoute: ", params[0].path);
     const path = params[0].path;
     if (path === 'invoice') {
-      this.InvoiceType = 'INV';
-      this.Incoming = false;
-      this.Delivery = false;
+      this.InvoiceType = InvoiceTypes.INV;
     } else if (path === 'outgoing-delivery-note-income') {
-      this.InvoiceType = 'DNO';
-      this.Incoming = false;
-      this.Delivery = true;
+      this.InvoiceType = InvoiceTypes.DNO;
     }
     console.log("InvoiceType: ", this.InvoiceType);
-    console.log("Incoming: ", this.Incoming);
   }
 
   private Reset(): void {

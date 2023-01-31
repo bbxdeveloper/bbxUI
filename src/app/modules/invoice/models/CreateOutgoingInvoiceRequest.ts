@@ -1,5 +1,6 @@
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { InvoiceLine, InvoiceLineForPost } from "./InvoiceLine";
+import { InvoiceTypes } from "./InvoiceTypes";
 
 export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
     "warehouseCode": string, // 001 - string
@@ -24,6 +25,9 @@ export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
     "invoiceType"?: string,
 
     "invoiceDiscountPercent": number;
+
+    "workNumber"?: string;
+    "priceReview"?: boolean;
 }
 
 export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -34,21 +38,43 @@ export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<In
 }
 
 export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
-    let res = {
-        customerID: f.customerID,
-        invoiceDeliveryDate: f.invoiceDeliveryDate,
-        invoiceIssueDate: f.invoiceIssueDate,
-        invoiceLines: f.invoiceLines.map(x => x.GetPOSTData()),
-        notice: f.notice,
-        paymentDate: f.paymentDate,
-        paymentMethod: f.paymentMethod,
-        warehouseCode: f.warehouseCode,
-        currencyCode: f.currencyCode,
-        customerInvoiceNumber: f.customerInvoiceNumber,
-        exchangeRate: f.exchangeRate,
-        incoming: f.incoming,
-        invoiceType: f.invoiceType,
-        invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent)
-    } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
-    return res;
+    if (f.invoiceType === InvoiceTypes.DNO) {
+        let res = {
+            customerID: f.customerID,
+            invoiceDeliveryDate: f.invoiceDeliveryDate,
+            invoiceIssueDate: f.invoiceIssueDate,
+            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData()),
+            notice: f.notice,
+            paymentDate: f.paymentDate,
+            paymentMethod: f.paymentMethod,
+            warehouseCode: f.warehouseCode,
+            currencyCode: f.currencyCode,
+            customerInvoiceNumber: f.customerInvoiceNumber,
+            exchangeRate: f.exchangeRate,
+            incoming: f.incoming,
+            invoiceType: f.invoiceType,
+            invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent),
+            workNumber: f.workNumber,
+            priceReview: f.priceReview
+        } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
+        return res;
+    } else {
+        let res = {
+            customerID: f.customerID,
+            invoiceDeliveryDate: f.invoiceDeliveryDate,
+            invoiceIssueDate: f.invoiceIssueDate,
+            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData()),
+            notice: f.notice,
+            paymentDate: f.paymentDate,
+            paymentMethod: f.paymentMethod,
+            warehouseCode: f.warehouseCode,
+            currencyCode: f.currencyCode,
+            customerInvoiceNumber: f.customerInvoiceNumber,
+            exchangeRate: f.exchangeRate,
+            incoming: f.incoming,
+            invoiceType: f.invoiceType,
+            invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent),
+        } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
+        return res;
+    }
 }

@@ -12,7 +12,7 @@
             </nb-form-field>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="MoveToSaveButtons($event)">
+                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="formNav.HandleFormEnter($event)">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Kedvezmény %:</label>
                         <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
@@ -59,6 +59,26 @@
                     <input nbInput type="text" formControlName="invoiceLinesCount">
                 </div>
             </nb-form-field>
+
+            <div class="bbx-fd-form-field-wrapper-div-row" *ngIf="this.OutGoingDelivery">
+                <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" class="bbx-fd-form-field-75">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Munkaszám</label>
+            
+                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="workNumber"
+                            [readonly]="isEditModeOff"
+                            (click)="formNav.HandleFormFieldClick($event)">
+                    </div>
+                </nb-form-field>
+            
+                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
+                    (keydown.enter)="MoveToSaveButtons($event)">
+                    <label class="multicol-label-col-2">Ár felülvizsg.?</label>
+                
+                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="priceReview"
+                        [readonly]="isEditModeOff" (click)="formNav.HandleFormFieldClick($event)">
+                </div>
+            </div>
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">

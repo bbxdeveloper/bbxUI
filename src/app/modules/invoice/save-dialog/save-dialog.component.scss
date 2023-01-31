@@ -1,3 +1,4 @@
+@import 'side-bar-form-default';
 @import 'side-bar-form-dialog';
 
 input.right {
@@ -6,6 +7,7 @@ input.right {
 
 form {
     overflow-y: hidden;
+    height: auto !important;
 }
 
 .modal-product-active {
