@@ -4,4 +4,5 @@ export interface GetOriginsParamListModel {
     Fields?: string;
     PageSize?: string;
     PageNumber?: string;
+    ID?: number;
 }

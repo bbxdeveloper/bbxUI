@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { createMask } from '@ngneat/input-mask';
@@ -121,6 +121,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     private vatApi: VatRateService
   ) {
     super();
+
     this.Setup();
 
     this.productForm = new FormGroup({

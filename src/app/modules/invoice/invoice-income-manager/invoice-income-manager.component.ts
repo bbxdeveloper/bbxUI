@@ -44,6 +44,7 @@ import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import { InvoiceTypes } from '../models/InvoiceTypes';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -53,10 +54,6 @@ import { CustomerDiscountService } from '../../customer-discount/services/custom
 export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
-  private InvoiceType: string = "";
-  private Incoming: boolean = false;
-  Delivery: boolean = false;
-  DeliveryPaymentMethod: string = 'OTHER';
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -261,13 +258,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     console.log("ActivatedRoute: ", params[0].path);
     const path = params[0].path;
     if (path === 'invoice-income') {
-      this.InvoiceType = 'INC';
-      this.Incoming = true;
-      this.Delivery = false;
+      this.InvoiceType = InvoiceTypes.INC;
     } else if (path === 'incoming-delivery-note-income') {
-      this.InvoiceType = 'DNI';
-      this.Incoming = true;
-      this.Delivery = true;
+      this.InvoiceType = InvoiceTypes.DNI;
     }
     console.log("InvoiceType: ", this.InvoiceType);
     console.log("Incoming: ", this.Incoming);
@@ -1151,7 +1144,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   override SetDataForForm(data: any): void {
     if (!!data) {
-      this.buyerData = data as Customer;
+      this.buyerData = { ...data as Customer };
+      data.zipCodeCity = data.postalCode + ' ' + data.city;
       this.activeFormNav.FillForm(data);
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);

@@ -5,4 +5,5 @@ export interface GetCountersParamListModel {
     Fields?: string;
     PageSize?: string;
     PageNumber?: string;
+    ID?: number;
 }

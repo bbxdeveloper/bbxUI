@@ -6,4 +6,5 @@ export interface GetCustomersParamListModel {
     Fields?: string;
     PageSize?: string;
     PageNumber?: string;
+    ID?: number;
 }

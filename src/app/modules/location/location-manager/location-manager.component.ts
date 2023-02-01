@@ -20,6 +20,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-location-manager',
@@ -74,12 +75,16 @@ export class LocationManagerComponent
     },
   ];
 
+  idParam?: number;
   override get getInputParams(): GetLocationsParamListModel {
-    return {
+    const params = {
       PageNumber: this.dbDataTable.currentPage + '',
       PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '',
-      OrderBy: "locationCode"
+      OrderBy: "locationCode",
+      ID: this.idParam
     };
+    this.idParam = undefined;
+    return params;
   }
 
   constructor(
@@ -111,20 +116,19 @@ export class LocationManagerComponent
       this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       data.data.id = parseInt(data.data.id + ''); // TODO
       this.seInv.Create(data.data).subscribe({
-        next: (d) => {
+        next: async (d) => {
           if (d.succeeded && !!d.data) {
-            const newRow = { data: d.data } as TreeGridNode<Location>;
-            this.dbData.push(newRow);
-            this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable(newRow.data.id);
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.idParam = d.data.id;
+            await this.RefreshAsync(this.getInputParams);
+            setTimeout(() => {
+              this.dbDataTable.SelectRowById(d.data!.id);
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.simpleToastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
+            }, 200);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.bbxToastrService.show(
@@ -288,6 +292,38 @@ export class LocationManagerComponent
         this.RefreshTable();
       },
     });
+  }
+
+  async RefreshAsync(params?: GetLocationsParamListModel): Promise<void> {
+    console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
+    await lastValueFrom(this.seInv.GetAll(params))
+      .then(d => {
+        if (d.succeeded && !!d.data) {
+          console.log('GetLocations response: ', d); // TODO: only for debug
+          if (!!d) {
+            this.dbData = d.data.map((x) => {
+              return { data: x, uid: this.nextUid() };
+            });
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(d);
+          }
+          this.RefreshTable();
+        } else {
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err); this.isLoading = false; this.RefreshTable();
+      })
+      .finally(() => {
+        this.isLoading = false;
+        this.RefreshTable();
+      });
   }
 
   ngOnInit(): void {

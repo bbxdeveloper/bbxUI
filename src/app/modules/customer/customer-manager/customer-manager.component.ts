@@ -22,7 +22,7 @@ import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { PieController } from 'chart.js';
 import { CountryCode } from '../models/CountryCode';
-import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, ReplaySubject } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
@@ -209,13 +209,17 @@ export class CustomerManagerComponent
     },
   ];
 
+  idParam?: number;
   override get getInputParams(): GetCustomersParamListModel {
-    return {
+    const params = {
       PageNumber: this.dbDataTable.currentPage + '',
       PageSize: this.dbDataTable.pageSize,
       SearchString: this.searchString ?? '',
-      OrderBy: "customerName"
+      OrderBy: "customerName",
+      ID: this.idParam
     };
+    this.idParam = undefined;
+    return params;
   }
 
   // CountryCode
@@ -306,20 +310,17 @@ export class CustomerManagerComponent
         Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]
       );
       this.seInv.Create(createRequest).subscribe({
-        next: (d) => {
+        next: async (d) => {
           if (d.succeeded && !!d.data) {
-            const newRow = { data: d.data } as TreeGridNode<Customer>;
-            this.dbData.push(newRow);
-            this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable(newRow.data.id);
+            this.idParam = d.data.id;
+            await this.RefreshAsync(this.getInputParams);
+            this.dbDataTable.SelectRowById(d.data.id);
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
             );
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.bbxToastrService.show(
@@ -550,6 +551,37 @@ export class CustomerManagerComponent
         this.isLoading = false;
       },
     });
+  }
+
+  async RefreshAsync(params?: GetCustomersParamListModel): Promise<void> {
+    console.log('Refreshing'); // TODO: only for debug
+    this.isLoading = true;
+    await lastValueFrom(this.seInv.GetAll(params))
+      .then(d => {
+        if (d.succeeded && !!d.data) {
+          console.log('GetCustomers response: ', d); // TODO: only for debug
+          if (!!d) {
+            this.dbData = d.data.map((x) => {
+              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
+            });
+            this.dbDataDataSrc.setData(this.dbData);
+            this.dbDataTable.SetPaginatorData(d);
+          }
+          this.RefreshTable();
+        } else {
+          this.bbxToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+      })
+      .catch(err => {
+        this.HandleError(err);
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
   }
 
   ngOnInit(): void {

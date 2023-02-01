@@ -11,6 +11,7 @@ import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { InvoiceTypes } from '../models/InvoiceTypes';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -23,8 +24,23 @@ interface VatRateRow { Id: string, Value: number };
   templateUrl: './save-dialog.component.html',
   styleUrls: ['./save-dialog.component.scss']
 })
+/**
+ * Save and summary dialog for invoices and deliveries
+ */
 export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
   @Input() data!: OutGoingInvoiceFullData;
+
+  @Input() InvoiceType: string = "";
+  @Input() Incoming: boolean = false;
+  @Input() Delivery: boolean = false;
+
+  get OutGoingDelivery(): boolean {
+    return this.data && this.data?.invoiceType == InvoiceTypes.DNO;
+  }
+
+  get isEditModeOff() {
+    return this.kBs.currentKeyboardMode !== KeyboardModes.EDIT;
+  }
 
   discountPercentInputPlaceHolder: string = "0";
   discountInputPlaceHolder: string = "0.00";
@@ -38,6 +54,15 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     digitsOptional: false,
     prefix: '',
     placeholder: '0.0',
+  });
+
+  numberInputMaskInt: any = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 0,
+    digitsOptional: true,
+    prefix: '',
+    placeholder: '0',
   });
 
   discountInputMask: any = createMask({
@@ -162,6 +187,11 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   ngAfterContentInit(): void {
     this.prepareVatRateCodes();
 
+    if (this.OutGoingDelivery) {
+      this.sumForm.addControl('workNumber', new FormControl(undefined, []));
+      this.sumForm.addControl('priceReview', new FormControl(undefined, []));
+    }
+
     this.sumForm.addControl('invoiceNetAmount', new FormControl(this.data.invoiceNetAmount, [Validators.required]));
     this.sumForm.addControl('discountedInvoiceNetAmount', new FormControl(this.data.invoiceNetAmount, [Validators.required]));
 
@@ -207,6 +237,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   close(answer: boolean) {
+    if (this.OutGoingDelivery) {
+      this.data.workNumber = this.sumForm.controls['workNumber'].value;
+      this.data.priceReview = this.sumForm.controls['priceReview'].value;
+    }
     this.closedManually = true;
     this.kBs.RemoveWidgetNavigatable();
     this.dialogRef.close(answer ? this.data : undefined);
