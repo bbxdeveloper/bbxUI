@@ -65,11 +65,17 @@ export class StockSideBarFormComponent extends BaseSideBarFormComponent implemen
   }
 
   private SetNewForm(form?: FormSubject): void {
-    if ((!!form && form[0] !== 'Stock') || !!!form) {
+    if ((!!form && form[0] !== 'Stock') || !!!form || form[1] === undefined) {
       return;
     }
 
-    this.currentForm = form[1];
+    this.readonlyMode = form[1].readonly ?? false;
+
+    if (form[1].form === undefined) {
+      return;
+    }
+
+    this.currentForm = form[1].form;
     console.log("[SetNewForm] ", this.currentForm);
 
     this.cdref.detectChanges();

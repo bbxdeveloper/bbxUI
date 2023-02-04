@@ -76,7 +76,7 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">V.Valós</label>
             
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="xRealQty" [readonly]="isEditModeOff"
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="xRealQty" [readonly]="isReadonly"
                             [inputMask]="numberInputMask" placeholder="0.00000"
                             readonly>
                     </div>
@@ -86,7 +86,7 @@
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">E.Valós</label>
             
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="oRealQty" [readonly]="isEditModeOff"
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="oRealQty" [readonly]="isReadonly"
                             [inputMask]="numberInputMask" placeholder="0.00000"
                             readonly>
                     </div>
@@ -97,7 +97,7 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Új Valós</label>
             
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="nRealQty" [readonly]="isEditModeOff"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="nRealQty" [readonly]="isReadonly"
                         [inputMask]="numberInputMask" placeholder="0.00000" readonly>
                 </div>
             </nb-form-field>
@@ -108,7 +108,7 @@
                         <label class="multicol-label-col-1">Eredeti ELÁBÉ</label>
             
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="oAvgCost"
-                            [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00000"
+                            [readonly]="isReadonly" [inputMask]="numberInputMask" placeholder="0.00000"
                             readonly>
                     </div>
                 </nb-form-field>
@@ -117,7 +117,7 @@
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Új ELÁBÉ</label>
             
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="nAvgCost" [readonly]="isEditModeOff"
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="nAvgCost" [readonly]="isReadonly"
                             [inputMask]="numberInputMask" placeholder="0.00000"
                             readonly>
                     </div>

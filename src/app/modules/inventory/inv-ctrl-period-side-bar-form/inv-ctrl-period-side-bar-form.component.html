@@ -23,7 +23,7 @@
                     <label>Kezdő dátum</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="dateFrom"
-                    [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)"
+                    [readonly]="isReadonly" (click)="currentForm.HandleFormFieldClick($event)"
                     mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                 </div>
                 <app-form-control-error [form]="currentForm" label="kezdő dátum" controlName="dateFrom">
@@ -34,7 +34,7 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Végdátum</label>
             
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="dateTo" [readonly]="isEditModeOff"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="dateTo" [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)" mask="0000-00-00" [dropSpecialCharacters]="false"
                         [showMaskTyped]="true" [validation]="true">
                 </div>

@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 'src/assets/util/KeyBindings';
@@ -12,6 +13,7 @@ import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 's
 })
 export class BaseSideBarFormComponent {
   currentForm?: FlatDesignNavigatableForm;
+  readonlyMode: boolean = false;
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -36,8 +38,8 @@ export class BaseSideBarFormComponent {
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  get isReadonly() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT || this.readonlyMode;
   }
 
   public readonly KeySetting: Constants.KeySettingsDct = DefaultKeySettings;

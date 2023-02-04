@@ -1,4 +1,17 @@
-<ng-container *ngIf="simpleMode">
+<ng-container *ngIf="isReadonly">
+    <nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
+        (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, defaultDataCount, comboBoxData, '', false, lastFormField)">
+        <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
+            <label>{{label}}</label>
+
+            <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text"
+                (click)="currentForm?.HandleFormFieldClick($event)"
+                readonly autocomplete="off" />
+        </div>
+    </nb-form-field>
+</ng-container>
+
+<ng-container *ngIf="simpleMode && !isReadonly">
     <nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
         (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, defaultDataCount, comboBoxData, '', false, lastFormField)">
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
@@ -20,7 +33,7 @@
     </nb-autocomplete>
 </ng-container>
 
-<ng-container *ngIf="!simpleMode">
+<ng-container *ngIf="!simpleMode && !isReadonly">
     <nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
         (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, currentDataCount, currentFilteredData, currentTypedData, false, lastFormField)">
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">

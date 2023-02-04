@@ -136,6 +136,24 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     this.kbS.SetRoot(this);
   }
 
+  /**
+   * Checkboxok esetében readonly mellett is át tudom őket kattintani, így ilyen esetekre itt blokkolok minden readonly elemre szóló kattintást.
+   * @param event 
+   */
+  @HostListener('window:click', ['$event']) onClick(event: MouseEvent) {
+    console.trace(event);
+    if (event.target && (event as any).target.readOnly) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Billentyűsnavigálás tekintetében az event érzékelés felsőbb rétege. Iniciálisan itt történik meg a
+   * 4 irányba történő navigálásra vonatkozó parancs meghívása, eventek továbbfolyásának tiltása.
+   * @param event 
+   * @returns 
+   */
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     if (this.bbxToastrService.IsToastrOpened) {
       event.preventDefault();

@@ -29,11 +29,17 @@ export class WareHouseSideBarFormComponent extends BaseSideBarFormComponent impl
   }
 
   private SetNewForm(form?: FormSubject): void {
-    if ((!!form && form[0] !== 'WareHouse') || !!!form) {
+    if ((!!form && form[0] !== 'WareHouse') || !!!form || form[1] === undefined) {
       return;
     }
 
-    this.currentForm = form[1];
+    this.readonlyMode = form[1].readonly ?? false;
+
+    if (form[1].form === undefined) {
+      return;
+    }
+
+    this.currentForm = form[1].form;
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
   }
 }

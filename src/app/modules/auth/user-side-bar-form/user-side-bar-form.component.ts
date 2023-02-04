@@ -28,11 +28,17 @@ export class UserSideBarFormComponent extends BaseSideBarFormComponent implement
   }
 
   private SetNewForm(form?: FormSubject): void {
-    if ((!!form && form[0] !== 'User') || !!!form) {
+    if ((!!form && form[0] !== 'User') || !!!form || form[1] === undefined) {
+      return;
+    }
+    
+    this.readonlyMode = form[1].readonly ?? false;
+
+    if (form[1].form === undefined) {
       return;
     }
 
-    this.currentForm = form[1];
+    this.currentForm = form[1].form;
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
   }
 }

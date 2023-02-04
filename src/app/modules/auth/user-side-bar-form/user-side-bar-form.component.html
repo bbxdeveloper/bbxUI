@@ -15,7 +15,7 @@
 
                                 <input class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey"
                                     (click)="currentForm.HandleFormFieldClick($event)"
-                                    [readonly]="isEditModeOff" 
+                                    [readonly]="isReadonly" 
                                     [required]="it.fRequired ?? false">
                             </ng-container>
                         </div>
@@ -59,7 +59,7 @@
                                 <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
 
                                 <input class="{{TileCssClass}}" nbInput type="password" [formControlName]="it.objectKey"
-                                    [readonly]="isEditModeOff" 
+                                    [readonly]="isReadonly" 
                                     (click)="currentForm.HandleFormFieldClick($event)"
                                     [required]="it.fRequired ?? false">
                             </ng-container>
@@ -73,7 +73,7 @@
                         <label class="label-checkbox">{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
     
                         <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"
-                            [readonly]="isEditModeOff"
+                            [readonly]="isReadonly"
                             [formControlName]="it.objectKey" (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                     <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>

@@ -124,11 +124,17 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
   private SetNewForm(form?: FormSubject): void {
     console.log(form);
-    if ((!!form && form[0] !== 'Customer') || !!!form) {
+    if ((!!form && form[0] !== 'Customer') || !!!form || form[1] === undefined) {
+      return;
+    }
+    
+    this.readonlyMode = form[1].readonly ?? false;
+
+    if (form[1].form === undefined) {
       return;
     }
 
-    this.currentForm = form[1];
+    this.currentForm = form[1].form;
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
 
     this.cdref.detectChanges();

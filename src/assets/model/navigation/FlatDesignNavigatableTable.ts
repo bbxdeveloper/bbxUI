@@ -97,9 +97,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
     public ReadonlyPredicator: (x: T) => boolean = (x: T) => { return false; }
-    public ReadonlyFormByDefault: boolean = false;
+    public ReadonlySideForm: boolean = false;
     public get ReadonlyForm(): boolean {
-        return this.ReadonlyFormByDefault || this.ReadonlyPredicator(this.flatDesignForm.DataToEdit?.data);
+        return this.ReadonlySideForm || this.ReadonlyPredicator(this.flatDesignForm.DataToEdit?.data);
     }
 
     constructor(
@@ -280,7 +280,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.prevSelectedColPos = -1;
 
         this.flatDesignForm.SetDataForEdit(creatorRow, -1, '');
-        this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
+        this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
         
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
@@ -305,7 +305,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         // this.prevSelectedColPos = 0;
 
         this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!, this.prevSelectedCol!);
-        this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
+        this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
 
         // this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         // this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
@@ -374,7 +374,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.prevSelectedColPos = colPos;
 
         this.flatDesignForm.SetDataForEdit(row, rowPos, col);
-        this.sidebarFormService.SetCurrentForm([this.tag, this.flatDesignForm]);
+        this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
 
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
@@ -485,27 +485,28 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
+    /**
+     * Open sidebarform for readonly
+     * @param setFormForNew 
+     * @returns 
+     */
     private HandleToggleSideBarForm(setFormForNew: boolean = false): void {
         if (this.ReadonlyForm &&
             (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
             return;
         }
-        if (setFormForNew) {
-            this.SetBlankInstanceForForm(!this.sidebarService.sideBarOpened);
+        if (!this.sidebarService.sideBarOpened) {
+            this.flatDesignForm.PushFooterCommandList();
         } else {
-            if (!this.sidebarService.sideBarOpened) {
-                this.flatDesignForm.PushFooterCommandList();
-            } else {
-                this.PushFooterCommandList();
-            }
-            // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
-            if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
-                this.SetBlankInstanceForForm(true);
-            } else if (!this.sidebarService.sideBarOpened) {
-                this.sidebarService.expand();
-            } else {
-                this.sidebarService.collapse();
-            }
+            this.PushFooterCommandList();
+        }
+        // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
+        if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
+            this.SetBlankInstanceForForm(true);
+        } else if (!this.sidebarService.sideBarOpened) {
+            this.sidebarService.expand();
+        } else {
+            this.sidebarService.collapse();
         }
     }
 
@@ -535,6 +536,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
                 event.preventDefault();
+                this.ReadonlySideForm = true;
+                setTimeout(() => {
+                    this.sidebarFormService.SetCurrentForm([this.tag, { readonly: this.ReadonlyForm }]);
+                }, 500);
                 this.HandleToggleSideBarForm();
                 break;
             }
@@ -547,6 +552,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             case this.KeySetting[Actions.Create].KeyCode: {
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Create].FunctionLabel}, ${Actions[Actions.Create]}`);
                 event.preventDefault();
+                this.ReadonlySideForm = false;
+                this.sidebarFormService.SetCurrentForm([this.tag, { readonly: this.ReadonlyForm }]);
                 this.HandleEditAndNew(true);
                 this.JumpToFirstFormField();
                 break;
@@ -554,6 +561,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             case this.KeySetting[Actions.Edit].KeyCode: {
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Edit].FunctionLabel}, ${Actions[Actions.Edit]}`);
                 event.preventDefault();
+                this.ReadonlySideForm = false;
+                this.sidebarFormService.SetCurrentForm([this.tag, { readonly: this.ReadonlyForm }]);
                 this.HandleEditAndNew(false);
                 this.JumpToFirstFormField();
                 break;
