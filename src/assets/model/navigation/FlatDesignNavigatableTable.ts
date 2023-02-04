@@ -526,7 +526,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
                 this.SetBlankInstanceForForm(true);
             } else if (!this.sidebarService.sideBarOpened) {
-                this.sidebarService.expand();
+                this.SetDataForForm(this.editedRow!, true);
             }
         }
     }
