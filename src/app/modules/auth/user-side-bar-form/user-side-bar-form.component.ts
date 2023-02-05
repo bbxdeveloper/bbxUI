@@ -40,5 +40,9 @@ export class UserSideBarFormComponent extends BaseSideBarFormComponent implement
 
     this.currentForm = form[1].form;
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+
+    setTimeout(() => {
+      this.currentForm?.GenerateAndSetNavMatrices(false, false);
+    }, 200);
   }
 }
