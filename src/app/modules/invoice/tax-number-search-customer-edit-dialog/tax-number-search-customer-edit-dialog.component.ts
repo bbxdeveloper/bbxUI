@@ -24,9 +24,8 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CreateCustomerRequest } from '../../customer/models/CreateCustomerRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SystemService } from '../../system/services/system.service';
-
-const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
-const defaultPattern: string = '00000000-00000000-00000000';
+import { CustomerMisc } from '../../customer/models/CustomerMisc';
+import { CountryCode } from '../../customer/models/CountryCode';
 
 @Component({
   selector: 'app-tax-number-search-customer-edit-dialog',
@@ -49,10 +48,14 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     }
   }
 
-  customPatterns: any = {
-    'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
-    'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },
-  };
+  customPatterns: any = CustomerMisc.CustomerNgxMaskPatterns;
+  taxNumberMask: any = CustomerMisc.TaxNumberNgxMask;
+
+  get isHuCountryCodeSet(): boolean {
+    const countryCode = this.currentForm?.form.controls['countryCode']?.value ?? '';
+    const countryDesc = this._countryCodes?.find(x => x.value === 'HU')?.text;
+    return HelperFunctions.isEmptyOrSpaces(countryCode) || (!!countryDesc && countryCode === countryDesc);
+  }
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -90,6 +93,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
   // Origin
   countryCodes: string[] = [];
+  _countryCodes: CountryCode[] = [];
   countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -210,7 +214,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
           if (currentTypeBankAccountNumber.length > 1) {
             return;
           }
-          const nextMask = isIbanStarted ? ibanPattern : defaultPattern;
+          const nextMask = isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
           this.bankAccountMask.next(nextMask);
         }
       });
@@ -250,6 +254,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       isOwnData: p.isOwnData,
       postalCode: p.postalCode,
       privatePerson: p.privatePerson,
+      taxpayerNumber: p.taxpayerNumber,
       thirdStateTaxId: p.thirdStateTaxId,
     } as CreateCustomerRequest;
 
@@ -302,6 +307,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     this.cService.GetAllCountryCodes().subscribe({
       next: data => {
         this.countryCodes = data?.map(x => x.text) ?? [];
+        this._countryCodes = data ?? [];
         this.countryCodeComboData$.next(this.countryCodes);
       }
     });
@@ -314,7 +320,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   GetBankAccountMask(): string {
     const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm;
     const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-    return isIbanStarted ? ibanPattern : defaultPattern;
+    return isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
   }
 
   checkBankAccountKeydownValue(event: any): void {
@@ -323,7 +329,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
       console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
 
-      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? ibanPattern : defaultPattern;
+      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
       console.log("Check: ", currentTypeBankAccountNumber.length, nextMask.length, nextMask);
       if (currentTypeBankAccountNumber.length > nextMask.length) {
         event.stopImmediatePropagation();
@@ -337,7 +343,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
     } else {
       const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key) ?? '';
 
@@ -349,11 +355,14 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
     }
   }
 
   postalCodeInputFocusOut(event: any): void {
+    if (!this.isHuCountryCodeSet) {
+      return;
+    }
     const newValue = this.currentForm?.form.controls['postalCode'].value;
     if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['city'].value)) {
       this.SetCityByZipInfo(newValue);
@@ -361,6 +370,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   cityInputFocusOut(event: any): void {
+    if (!this.isHuCountryCodeSet) {
+      return;
+    }
     const newValue = this.currentForm?.form.controls['city'].value;
     if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['postalCode'].value)) {
       this.SetCityByZipInfo(newValue, false);

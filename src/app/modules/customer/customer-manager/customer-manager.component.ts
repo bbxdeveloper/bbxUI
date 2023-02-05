@@ -287,6 +287,7 @@ export class CustomerManagerComponent
       postalCode: p.postalCode,
       privatePerson: p.privatePerson,
       thirdStateTaxId: p.thirdStateTaxId,
+      taxpayerNumber: p.taxpayerNumber
     } as CreateCustomerRequest;
     return res;
   }

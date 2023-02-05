@@ -41,7 +41,8 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Belföldi Adószám</label>
         
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber" mask="0000000-0-00"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber"
+                    [patterns]="customPatterns" [mask]="taxNumberMask" oninput="this.value = this.value.toUpperCase()"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
@@ -61,7 +62,7 @@
                 </app-form-control-error>
             </nb-form-field>
         
-            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
+            <app-bbx-combo-box [isReadonly]="isEditModeOff" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
                 label="Országkód" [data$]="countryCodeComboData$"></app-bbx-combo-box>
         
             <div class="bbx-fd-form-field-wrapper-div-row">

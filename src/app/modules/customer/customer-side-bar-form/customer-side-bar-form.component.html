@@ -43,9 +43,9 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Belföldi Adószám</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber"
-                        mask="0000000-0-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        [readonly]="isReadonly"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber" [patterns]="customPatterns"
+                        [mask]="taxNumberMask" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                        [readonly]="isReadonly" oninput="this.value = this.value.toUpperCase()"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="belföldi adószám" controlName="taxpayerNumber"></app-form-control-error>
@@ -63,8 +63,14 @@
                 <app-form-control-error [form]="currentForm" label="külföldi adószám" controlName="thirdStateTaxId"></app-form-control-error>
             </nb-form-field>
 
-            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode" label="Országkód"
-                [data$]="countryCodeComboData$" [isReadonly]="isReadonly"></app-bbx-combo-box>
+            <!-- <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" *ngIf="readonlyMode">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Országkód</label>            
+                    <input nbInput type="text" formControlName="countryCode">
+                </div>
+            </nb-form-field> -->
+            <app-bbx-combo-box [isReadonly]="isReadonly" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode" label="Országkód"
+                [data$]="countryCodeComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="currentForm.HandleFormEnter($event)">

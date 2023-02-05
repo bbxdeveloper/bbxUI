@@ -141,7 +141,6 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
    * @param event 
    */
   @HostListener('window:click', ['$event']) onClick(event: MouseEvent) {
-    console.trace(event);
     if (event.target && (event as any).target.readOnly) {
       event.stopPropagation();
       event.preventDefault();

@@ -1,20 +1,18 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject, lastValueFrom, Observable, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
-import { ZipInfo } from '../../system/models/ZipInfo';
 import { SystemService } from '../../system/services/system.service';
+import { CountryCode } from '../models/CountryCode';
+import { CustomerMisc } from '../models/CustomerMisc';
 import { CustomerService } from '../services/customer.service';
-
-const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
-const defaultPattern: string = '00000000-00000000-00000000';
 
 @Component({
   selector: 'app-customer-side-bar-form',
@@ -26,26 +24,29 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     return KeyBindings;
   }
 
-  customPatterns: any = {
-    'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
-    'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },
-  };
+  customPatterns: any = CustomerMisc.CustomerNgxMaskPatterns;
+  taxNumberMask: any = CustomerMisc.TaxNumberNgxMask;
 
   // Origin
   countryCodes: string[] = [];
+  _countryCodes: CountryCode[] = [];
   countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   get privatePersonDefaultValue(): Boolean {
     return false;
-    // return (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
-    //   (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
   }
 
   get formValueFormCustomerBankAccNm(): string {
     const tmp = this.currentForm!.GetValue('customerBankAccountNumber') as string;
     return tmp !== undefined ? tmp : '';
+  }
+
+  get isHuCountryCodeSet(): boolean {
+    const countryCode = this.currentForm?.form.controls['countryCode']?.value ?? '';
+    const countryDesc = this._countryCodes?.find(x => x.value === 'HU')?.text;
+    return HelperFunctions.isEmptyOrSpaces(countryCode) || (!!countryDesc && countryCode === countryDesc);
   }
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService, private cService: CustomerService,
@@ -57,6 +58,9 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   postalCodeInputFocusOut(event: any): void {
+    if (!this.isHuCountryCodeSet) {
+      return;
+    }
     const newValue = this.currentForm?.form.controls['postalCode'].value;
     if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['city'].value)) {
       this.SetCityByZipInfo(newValue);
@@ -64,6 +68,9 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   cityInputFocusOut(event: any): void {
+    if (!this.isHuCountryCodeSet) {
+      return;
+    }
     const newValue = this.currentForm?.form.controls['city'].value;
     if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['postalCode'].value)) {
       this.SetCityByZipInfo(newValue, false);
@@ -116,6 +123,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     // CountryCodes
     this.cService.GetAllCountryCodes().subscribe({
       next: data => {
+        this._countryCodes = data;
         this.countryCodes = data?.map(x => x.text) ?? [];
         this.countryCodeComboData$.next(this.countryCodes);
       }
@@ -149,7 +157,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
           if (currentTypeBankAccountNumber.length > 1) {
             return;
           }
-          const nextMask = isIbanStarted ? ibanPattern : defaultPattern;
+          const nextMask = isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
           this.bankAccountMask.next(nextMask);
         }
       });
@@ -163,7 +171,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   GetBankAccountMask(): string {
     const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm;
     const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-    return isIbanStarted ? ibanPattern : defaultPattern;
+    return isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
   }
 
   checkBankAccountKeydownValue(event: any): void {
@@ -172,14 +180,12 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
       console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
 
-      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? ibanPattern : defaultPattern;
+      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
       console.log("Check: ", currentTypeBankAccountNumber.length, nextMask.length, nextMask);
       if (currentTypeBankAccountNumber.length > nextMask.length) {
-        //event.target.value = currentTypeBankAccountNumber.substring(0, nextMask.length - 1);
         event.stopImmediatePropagation();
         event.preventDefault();
         event.stopPropagation();
-        // this.currentForm!.form.controls['privatePerson'].setValue(currentTypeBankAccountNumber.substring(0, nextMask.length));
       }
 
       if (currentTypeBankAccountNumber.length > 1) {
@@ -188,8 +194,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
       const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
-    //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
+      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
     } else {
       const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key);
 
@@ -201,8 +206,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
       const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
-    //this.currentForm!.form.controls['customerBankAccountNumber'].setValue(currentTypeBankAccountNumber);
+      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
     }
   }
 }
