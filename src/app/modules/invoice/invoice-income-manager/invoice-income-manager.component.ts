@@ -945,6 +945,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           complete: () => {
           }
         });
+      } else {
+        // Szerkesztés esetleges folytatása miatt
+        this.kbS.ClickCurrentElement();
       }
     });
   }

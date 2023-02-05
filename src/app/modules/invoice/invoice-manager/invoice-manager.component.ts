@@ -946,6 +946,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         });
       } else {
         this.isSaveInProgress = false;
+        // Szerkesztés esetleges folytatása miatt
+        this.kbS.ClickCurrentElement();
       }
     });
   }
