@@ -63,12 +63,6 @@
                 <app-form-control-error [form]="currentForm" label="külföldi adószám" controlName="thirdStateTaxId"></app-form-control-error>
             </nb-form-field>
 
-            <!-- <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" *ngIf="readonlyMode">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Országkód</label>            
-                    <input nbInput type="text" formControlName="countryCode">
-                </div>
-            </nb-form-field> -->
             <app-bbx-combo-box [isReadonly]="isReadonly" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode" label="Országkód"
                 [data$]="countryCodeComboData$"></app-bbx-combo-box>
 
