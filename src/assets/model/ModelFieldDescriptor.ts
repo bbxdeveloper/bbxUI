@@ -1,6 +1,9 @@
 import { Constants } from "../util/Constants";
 import { Actions } from "../util/KeyBindings";
 
+/**
+ * Táblázat oszlopleírója
+ */
 export interface ModelFieldDescriptor {
     label: string;
 
@@ -16,11 +19,17 @@ export interface ModelFieldDescriptor {
     colWidth?: string;
     textAlign?: string;
 
+    /**
+     * Navigációs osztály
+     */
     navMatrixCssClass?: string;
 
     fRequired?: boolean;
     fInputType?: string;
 
+    /**
+     * Utolsó oszlop
+     */
     fLast?: boolean;
 
     fReadonly?: boolean;
@@ -33,7 +42,13 @@ export interface ModelFieldDescriptor {
     keyAction?: Actions,
     keySettingsRow?: Constants.KeySettingRow,
 
+    /**
+     * Nem bejelölt ch karaktere
+     */
     checkboxFalse?: string,
+    /**
+     * Bejelölt ch karaktere
+     */
     checkboxTrue?: string,
 
     /**

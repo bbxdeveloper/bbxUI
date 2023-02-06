@@ -6,6 +6,9 @@ import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssCol
 import { Constants } from 'src/assets/util/Constants';
 import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 'src/assets/util/KeyBindings';
 
+/**
+ * Alaposztály oldalmenüs formokhoz
+ */
 @Component({
   selector: 'app-base-side-bar-form',
   templateUrl: './base-side-bar-form.component.html',
@@ -49,10 +52,7 @@ export class BaseSideBarFormComponent {
 
   public readonly KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(protected kbS: KeyboardNavigationService, protected cdref: ChangeDetectorRef) {
-    // const _form = this.currentForm;
-    // $("input").on("click", function (event) { _form?.HandleFormFieldClick(event); });
-  }
+  constructor(protected kbS: KeyboardNavigationService, protected cdref: ChangeDetectorRef) {}
 
   @HostListener('document:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {

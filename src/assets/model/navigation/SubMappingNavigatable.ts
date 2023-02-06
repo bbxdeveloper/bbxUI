@@ -1,6 +1,9 @@
 import { PreferredSelectionMethod } from "src/app/services/keyboard-navigation.service";
 import { INavigatable } from "./Navigatable";
 
+/**
+ * Almenük és más, a fő navigációs mátrix alá rendelt elemek
+ */
 export class SubMappingNavigatable implements INavigatable {
     Matrix: string[][] = [];
     LastX?: number | undefined = undefined;
