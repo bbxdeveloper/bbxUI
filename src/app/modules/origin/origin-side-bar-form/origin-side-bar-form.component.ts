@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { NbSidebarService } from "@nebular/theme";
 import { KeyboardNavigationService } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService, FormSubject } from "src/app/services/side-bar-form.service";
@@ -13,12 +13,15 @@ import { BaseSideBarFormComponent } from "../../shared/base-side-bar-form/base-s
   styleUrls: ['./origin-side-bar-form.component.scss']
 })
 export class OriginSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'Origin';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService) {
-    super(kbS);
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
   }
 
   ngOnInit(): void {
@@ -26,20 +29,5 @@ export class OriginSideBarFormComponent extends BaseSideBarFormComponent impleme
   }
   ngAfterViewInit(): void {
     this.currentForm?.AfterViewInitSetup();
-  }
-
-  private SetNewForm(form?: FormSubject): void {
-    if ((!!form && form[0] !== 'Origin') || !!!form || form[1] === undefined) {
-      return;
-    }
-    
-    this.readonlyMode = form[1].readonly ?? false;
-
-    if (form[1].form === undefined) {
-      return;
-    }
-
-    this.currentForm = form[1].form;
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
   }
 }

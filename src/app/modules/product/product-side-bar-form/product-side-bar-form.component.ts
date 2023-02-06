@@ -1,13 +1,11 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { BehaviorSubject } from 'rxjs';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { BlankComboBoxValue } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { environment } from 'src/environments/environment';
-import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
 import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
@@ -21,6 +19,8 @@ import { ProductService } from '../services/product.service';
   styleUrls: ['./product-side-bar-form.component.scss']
 })
 export class ProductSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'Product';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -47,8 +47,8 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
     private vatApi: VatRateService,
-    private cdref: ChangeDetectorRef) {
-    super(kbS);
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
     this.refreshComboboxData();
   }
 
@@ -111,20 +111,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     }, 50);
   }
 
-  private SetNewForm(form?: FormSubject): void {
-    if ((!!form && form[0] !== 'Product') || !!!form || form[1] === undefined) {
-      return;
-    }
-
-    this.readonlyMode = form[1].readonly ?? false;
-
-    if (form[1].form === undefined) {
-      return;
-    }
-
-    this.currentForm = form[1].form;
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
+  override SetupForms(): void {
     this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
       next: newValue => {
         let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
@@ -138,7 +125,5 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
         }
       }
     });
-
-    this.cdref.detectChanges();
   }
 }

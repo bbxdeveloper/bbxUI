@@ -1,7 +1,7 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 'src/assets/util/KeyBindings';
@@ -14,6 +14,11 @@ import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 's
 export class BaseSideBarFormComponent {
   currentForm?: FlatDesignNavigatableForm;
   readonlyMode: boolean = false;
+
+  /**
+   * Egyedi azonosító, kapcsolódó modellt jelöli, pl. "Product"
+   */
+  tag: string = 'BaseClass';
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -44,7 +49,7 @@ export class BaseSideBarFormComponent {
 
   public readonly KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(protected kbS: KeyboardNavigationService) {
+  constructor(protected kbS: KeyboardNavigationService, protected cdref: ChangeDetectorRef) {
     // const _form = this.currentForm;
     // $("input").on("click", function (event) { _form?.HandleFormFieldClick(event); });
   }
@@ -79,4 +84,29 @@ export class BaseSideBarFormComponent {
         break;
     }
   }
+
+  protected SetNewForm(form?: FormSubject): void {
+    console.log("Form: ", form);
+
+    if ((!!form && form[0] !== this.tag) || !!!form || form[1] === undefined) {
+      return;
+    }
+
+    this.readonlyMode = form[1].readonly ?? false;
+
+    if (form[1].form === undefined) {
+      return;
+    }
+
+    this.currentForm = form[1].form;
+    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+
+    this.cdref.detectChanges();
+
+    this.SetupForms();
+
+    this.cdref.detectChanges();
+  }
+
+  protected SetupForms(): void {}
 }

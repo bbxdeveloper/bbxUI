@@ -20,6 +20,8 @@ import { CustomerService } from '../services/customer.service';
   styleUrls: ['./customer-side-bar-form.component.scss']
 })
 export class CustomerSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'Customer';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -50,10 +52,11 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService, private cService: CustomerService,
-    private cdref: ChangeDetectorRef, private systemService: SystemService,
+    private systemService: SystemService,
     private cs: CommonService,
-    private sts: StatusService,) {
-    super(kbS);
+    private sts: StatusService,
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
     this.refreshComboboxData();
   }
 
@@ -130,23 +133,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     });
   }
 
-  private SetNewForm(form?: FormSubject): void {
-    console.log(form);
-    if ((!!form && form[0] !== 'Customer') || !!!form || form[1] === undefined) {
-      return;
-    }
-    
-    this.readonlyMode = form[1].readonly ?? false;
-
-    if (form[1].form === undefined) {
-      return;
-    }
-
-    this.currentForm = form[1].form;
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
-    this.cdref.detectChanges();
-    
+  protected override SetupForms(): void {
     if (!!this.currentForm) {
       this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
 
