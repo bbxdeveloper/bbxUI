@@ -272,15 +272,20 @@ export class CustomerManagerComponent
   }
 
   private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
-    let countryCode = !!p.countryCode?.includes('-')
-      ? p.countryCode.split('-')[0]
-      : '';
+    let country = this.countryCodes.find(x => x.text === p.countryCode);
+    if (country) {
+      p.countryCode = country.value;
+    }
+
+    if (p.customerBankAccountNumber) {
+      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    }
 
     const res = {
       additionalAddressDetail: p.additionalAddressDetail,
       city: p.city,
       comment: p.comment,
-      countryCode: countryCode,
+      countryCode: p.countryCode,
       customerBankAccountNumber: p.customerBankAccountNumber,
       customerName: p.customerName,
       isOwnData: p.isOwnData,
@@ -293,10 +298,14 @@ export class CustomerManagerComponent
   }
 
   private CustomerToUpdateRequest(p: Customer): UpdateCustomerRequest {
-    let countryCode = !!p.countryCode?.includes('-')
-      ? p.countryCode.split('-')[0]
-      : '';
-    p.countryCode = countryCode;
+    if (p.customerBankAccountNumber) {
+      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    }
+
+    let country = this.countryCodes.find(x => x.text === p.countryCode);
+    if (country) {
+      p.countryCode = country.value;
+    }
     return p;
   }
 

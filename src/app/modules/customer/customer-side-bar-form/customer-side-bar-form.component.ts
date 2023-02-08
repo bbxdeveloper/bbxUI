@@ -28,6 +28,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
   customPatterns: any = CustomerMisc.CustomerNgxMaskPatterns;
   taxNumberMask: any = CustomerMisc.TaxNumberNgxMask;
+  thirdStateTaxIdMask: any = CustomerMisc.ThirdStateTaxIdMask;
 
   // Origin
   countryCodes: string[] = [];

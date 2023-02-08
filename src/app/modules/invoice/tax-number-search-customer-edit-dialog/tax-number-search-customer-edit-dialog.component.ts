@@ -50,6 +50,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
   customPatterns: any = CustomerMisc.CustomerNgxMaskPatterns;
   taxNumberMask: any = CustomerMisc.TaxNumberNgxMask;
+  thirdStateTaxIdMask: any = CustomerMisc.ThirdStateTaxIdMask;
 
   get isHuCountryCodeSet(): boolean {
     const countryCode = this.currentForm?.form.controls['countryCode']?.value ?? '';
@@ -85,7 +86,6 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   closedManually: boolean = false;
-  isLoading: boolean = true;
 
   currentForm?: FlatDesignNoTableNavigatableForm;
   sumForm: FormGroup;
@@ -242,13 +242,20 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
     console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest begin:", p);
 
-    let countryCode = !!p.countryCode?.includes('-') ? p.countryCode.split('-')[0] : '';
+    let country = this._countryCodes.find(x => x.text === p.countryCode);
+    if (country) {
+      p.countryCode = country.value;
+    }
+
+    if (p.customerBankAccountNumber) {
+      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    }
 
     const res = {
       additionalAddressDetail: p.additionalAddressDetail,
       city: p.city,
       comment: p.comment,
-      countryCode: countryCode,
+      countryCode: p.countryCode,
       customerBankAccountNumber: p.customerBankAccountNumber,
       customerName: p.customerName,
       isOwnData: p.isOwnData,
@@ -264,25 +271,31 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   Save(): void {
-    const createRequest = this.CustomerToCreateRequest(this.currentForm!.FillObjectWithForm() as Customer);
+    const createRequest = this.CustomerToCreateRequest(this.currentForm!.FillObjectWithForm());
 
-    this.isLoading = true;
     this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
     this.cService.Create(createRequest).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.cService.Get({ ID: d.data.id }).subscribe({
+            next: getData => {
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-          setTimeout(() => {
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-          }, 200);
+              setTimeout(() => {
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+              }, 200);
 
-          this.close(d.data);
+              this.close(getData);
+            },
+            error: err => {
+              this.cs.HandleError(err);
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          });
         } else {
           console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
           this.bbxToastrService.show(
@@ -290,13 +303,11 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
           );
-          this.isLoading = false;
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       },
       error: err => {
         this.cs.HandleError(err);
-        this.isLoading = false;
         this.sts.pushProcessStatus(Constants.BlankProcessStatus);
       }
     });

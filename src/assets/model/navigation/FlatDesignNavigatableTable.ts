@@ -142,6 +142,15 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.tag = tag;
 
         this.getBlankInstance = getBlankInstance;
+        
+        this.kbs.NavigatableChanged.subscribe({
+            next: (newNav: string) => {
+                if (newNav !== this.flatDesignForm.constructor.name) {
+                    this.ReadonlySideForm = true;
+                    this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
+                }
+            }
+        });
     }
 
     Lock(data?: IUpdateRequest): void {

@@ -56,7 +56,7 @@
                     <label>Külföldi Adószám</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="thirdStateTaxId"
-                    mask="X{1000}" [patterns]="customPatterns"
+                        [mask]="thirdStateTaxIdMask" [patterns]="customPatterns" [showMaskTyped]="true"
                         [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
