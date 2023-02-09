@@ -32,7 +32,7 @@ import { StockCardService } from '../services/stock-card.service';
 import { Product } from '../../product/models/Product';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { ProductService } from '../../product/services/product.service';
-import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Subscription } from 'rxjs';
@@ -323,7 +323,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       oAvgCost: new FormControl(undefined, []),
       nAvgCost: new FormControl(undefined, []),
     });
-    
+
     this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
       'StockCard',
@@ -526,7 +526,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       event.stopPropagation();
       return;
     }
-    
+
     switch (event.key) {
       case this.KeySetting[Actions.Create].KeyCode:
       case this.KeySetting[Actions.Edit].KeyCode:
@@ -539,7 +539,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         this.HandleFunctionKey(event);
         break;
     }
-    
+
     switch (event.key) {
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
         event.stopImmediatePropagation();

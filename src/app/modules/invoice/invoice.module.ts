@@ -8,28 +8,28 @@ import { InputMaskModule } from '@ngneat/input-mask';
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
-import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 import { SaveDialogComponent } from './save-dialog/save-dialog.component';
 import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
 import { TaxNumberSearchCustomerEditDialogComponent } from './tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
-import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-box-invoice.component';
+import { BbxComboBoxInvoiceComponent } from '../shared/bbx-combo-box-invoice/bbx-combo-box-invoice.component';
 import { InvoiceIncomeManagerComponent } from './invoice-income-manager/invoice-income-manager.component';
 import { InvoiceNavSideBarFormComponent } from './invoice-nav-side-bar-form/invoice-nav-side-bar-form.component';
+import { SummaryInvoiceComponent } from './summary-invoice/summary-invoice.component';
 
 
 
 @NgModule({
   declarations: [
     InvoiceManagerComponent,
-    ProductSelectTableDialogComponent,
     CustomerSelectTableDialogComponent,
     SaveDialogComponent,
     InvoiceNavComponent,
     TaxNumberSearchCustomerEditDialogComponent,
-    BbxComboBoxInvoiceComponent,
     InvoiceIncomeManagerComponent,
-    InvoiceNavSideBarFormComponent
+    InvoiceNavSideBarFormComponent,
+    SummaryInvoiceComponent,
   ],
   imports: [
     CommonModule,
@@ -67,8 +67,8 @@ import { InvoiceNavSideBarFormComponent } from './invoice-nav-side-bar-form/invo
     InvoiceNavComponent,
     TaxNumberSearchCustomerEditDialogComponent,
     CustomerSelectTableDialogComponent,
-    BbxComboBoxInvoiceComponent,
-    InvoiceIncomeManagerComponent
+    InvoiceIncomeManagerComponent,
+    SummaryInvoiceComponent,
   ]
 })
 export class InvoiceModule { }

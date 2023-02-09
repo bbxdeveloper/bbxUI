@@ -21,7 +21,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
-import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
@@ -204,7 +204,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             let issueDate =
               this.buyerForm && this.buyerForm.controls['offerIssueDate'] && this.buyerForm.controls['offerIssueDate']?.value ?
                 this.buyerForm.controls['offerIssueDate'].value : HelperFunctions.GetDateString(0, 0, 0);
-  
+
             await lastValueFrom(this.systemService.GetExchangeRate({
               Currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF,
               ExchengeRateDate: issueDate
@@ -226,7 +226,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
           this.offerData.exchangeRate = newExchangeRate;
           this.buyerForm.controls['exchangeRate'].setValue(newExchangeRate);
-          
+
           this.cdref.detectChanges();
           setTimeout(() => {
             this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
@@ -421,7 +421,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                           );
                           commandEndedSubscription.unsubscribe();
                         }
-                        
+
                         this.isLoading = false;
                       },
                       error: cmdEnded => {
@@ -516,7 +516,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                   }, 500);
                 })
                 .catch(err => {
-                  this.cs.HandleError(d.errors);  
+                  this.cs.HandleError(d.errors);
                   let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                     data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
                   });

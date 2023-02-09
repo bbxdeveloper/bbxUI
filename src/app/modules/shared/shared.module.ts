@@ -34,6 +34,8 @@ import { OneButtonMessageDialogComponent } from './one-button-message-dialog/one
 import { CreateNewProductDialogComponent } from './create-new-product-dialog/create-new-product-dialog.component';
 import { BbxCharCheckboxComponent } from './bbx-char-checkbox/bbx-char-checkbox.component';
 import { RadioChoiceDialogComponent } from './radio-choice-dialog/radio-choice-dialog.component';
+import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-box-invoice.component';
+import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
 
 
 @NgModule({
@@ -66,6 +68,8 @@ import { RadioChoiceDialogComponent } from './radio-choice-dialog/radio-choice-d
     CreateNewProductDialogComponent,
     BbxCharCheckboxComponent,
     RadioChoiceDialogComponent,
+    BbxComboBoxInvoiceComponent,
+    ProductSelectTableDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -124,7 +128,9 @@ import { RadioChoiceDialogComponent } from './radio-choice-dialog/radio-choice-d
     OneButtonMessageDialogComponent,
     CreateNewProductDialogComponent,
     BbxCharCheckboxComponent,
-    RadioChoiceDialogComponent
+    RadioChoiceDialogComponent,
+    BbxComboBoxInvoiceComponent,
+    ProductSelectTableDialogComponent,
   ],
   providers: [
     ConfirmationDialogComponent

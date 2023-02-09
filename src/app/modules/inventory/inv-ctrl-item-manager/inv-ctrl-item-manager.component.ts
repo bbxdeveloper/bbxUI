@@ -19,7 +19,7 @@ import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
-import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
@@ -269,7 +269,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   refresh(): void {
     this.refreshComboboxData();
-    
+
     this.dbData = [];
     this.dbDataDataSrc.setData(this.dbData);
 
@@ -416,7 +416,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (res.id === undefined || res.id === -1) {
       return;
     }
-    
+
     this.isLoading = true;
 
     let row = this.dbDataTable.data[rowIndex];
@@ -519,7 +519,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   RecalcNetAndVat(): void {}
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    
+
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
@@ -614,7 +614,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
               if (!!data && data.id !== 0) {
                 this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
                 this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
-              }    
+              }
             }
           );
 

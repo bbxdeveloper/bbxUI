@@ -41,19 +41,19 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import moment from 'moment';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 
 @Component({
-  selector: 'app-invoice-income-manager',
-  templateUrl: './invoice-income-manager.component.html',
-  styleUrls: ['./invoice-income-manager.component.scss']
+  selector: 'app-summary-invoice',
+  templateUrl: './summary-invoice.component.html',
+  styleUrls: ['./summary-invoice.component.scss']
 })
-export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
+export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -83,7 +83,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   set searchByTaxtNumber(value: boolean) {
     this._searchByTaxtNumber = value;
     this.cdref.detectChanges();
-    this.activeFormNav.GenerateAndSetNavMatrices(false, true);
+    this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
@@ -135,30 +135,26 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
   ]
-  customMaskPatterns = {
-    A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') }
-  };
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
-  passiveForm!: FormGroup;
+  exporterForm!: FormGroup;
 
   outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
   outInvFormNav!: InlineTableNavigatableForm;
   outInvFormNav$: BehaviorSubject<InlineTableNavigatableForm[]> = new BehaviorSubject<InlineTableNavigatableForm[]>([]);
 
-  activeForm!: FormGroup;
-  activeFormId: string = "buyer-form";
-  activeFormNav!: InlineTableNavigatableForm;
+  buyerForm!: FormGroup;
+  buyerFormId: string = "buyer-form";
+  buyerFormNav!: InlineTableNavigatableForm;
 
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
 
-  get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  get editDisabled() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT && !this.isLoading && !this.isSaveInProgress;
   }
 
   get invoiceIssueDateValue(): Date | undefined {
@@ -203,12 +199,13 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     sts: StatusService,
     private productService: ProductService,
     private utS: UtilityService,
-    sidebarService: BbxSidebarService,
+    private status: StatusService,
+    sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
     private custDiscountService: CustomerDiscountService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.SetModeBasedOnRoute(params);
@@ -257,13 +254,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   private SetModeBasedOnRoute(params: UrlSegment[]): void {
     console.log("ActivatedRoute: ", params[0].path);
     const path = params[0].path;
-    if (path === 'invoice-income') {
-      this.InvoiceType = InvoiceTypes.INC;
-    } else if (path === 'incoming-delivery-note-income') {
-      this.InvoiceType = InvoiceTypes.DNI;
+    if (path === 'invoice') {
+      this.InvoiceType = InvoiceTypes.INV;
+    } else if (path === 'outgoing-delivery-note-income') {
+      this.InvoiceType = InvoiceTypes.DNO;
     }
     console.log("InvoiceType: ", this.InvoiceType);
-    console.log("Incoming: ", this.Incoming);
   }
 
   private Reset(): void {
@@ -301,8 +297,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
-    if (this.passiveForm === undefined) {
-      this.passiveForm = new FormGroup({
+    if (this.exporterForm === undefined) {
+      this.exporterForm = new FormGroup({
         customerName: new FormControl('', []),
         zipCodeCity: new FormControl('', []),
         additionalAddressDetail: new FormControl('', []),
@@ -311,15 +307,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         comment: new FormControl('', []),
       });
     } else {
-      this.passiveForm.reset(undefined);
+      this.exporterForm.reset(undefined);
     }
 
     if (this.outInvForm === undefined) {
       this.outInvForm = new FormGroup({
         paymentMethod: new FormControl('', [Validators.required]),
-        customerInvoiceNumber: new FormControl('', [
-          Validators.required
-        ]),
         invoiceDeliveryDate: new FormControl('', [
           Validators.required,
           this.validateInvoiceDeliveryDate.bind(this),
@@ -342,8 +335,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.outInvForm.reset(undefined);
     }
 
-    if (this.activeForm === undefined) {
-      this.activeForm = new FormGroup({
+    if (this.buyerForm === undefined) {
+      this.buyerForm = new FormGroup({
         customerSearch: new FormControl('', []),
         customerName: new FormControl('', [Validators.required]),
         zipCodeCity: new FormControl('', []),
@@ -353,15 +346,15 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         comment: new FormControl('', []),
       });
     } else {
-      this.activeForm.reset(undefined);
+      this.buyerForm.reset(undefined);
     }
 
-    this.activeFormNav = new InlineTableNavigatableForm(
-      this.activeForm,
+    this.buyerFormNav = new InlineTableNavigatableForm(
+      this.buyerForm,
       this.kbS,
       this.cdref,
       this.buyersData,
-      this.activeFormId,
+      this.buyerFormId,
       AttachDirection.DOWN,
       this
     );
@@ -376,7 +369,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this
     );
 
-    this.activeFormNav!.OuterJump = true;
+    this.buyerFormNav!.OuterJump = true;
     this.outInvFormNav!.OuterJump = true;
 
     console.log('new InvoiceLine(): ', new InvoiceLine());
@@ -463,11 +456,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
-    this.outInvForm.controls['invoiceIssueDate'].setValue(dateStr);
-    this.outInvForm.controls['invoiceDeliveryDate'].setValue(dateStr);
-    this.outInvForm.controls['paymentDate'].setValue(dateStr);
+    this.outInvForm.controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0,0,0));
+    this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
 
     this.outInvForm.controls['invoiceIssueDate'].valueChanges.subscribe({
       next: p => {
@@ -489,7 +480,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
+        .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
         .reduce((sum, current) => sum + current, 0);
 
     this.outGoingInvoiceData.invoiceVatAmount =
@@ -500,6 +491,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
+    // this.outGoingInvoiceData.lineGrossAmount =
+    //   this.outGoingInvoiceData.invoiceLines
+    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
+    //     .reduce((sum, current) => sum + current, 0);
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
@@ -517,8 +512,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.bbxToastrService.close();
       event.stopPropagation();
     }
-    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
-    if (this.isEditModeOff) {
+    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
+    if (this.editDisabled) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
       setTimeout(() => {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -536,7 +531,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-          if (product && product.productCode !== undefined) {
+          if (!!product && !!product?.productCode) {
             let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
             currentRow?.data.Save('productCode');
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -546,12 +541,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
+            this.dbDataTable.data[rowPos].data.Restore('productCode');
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
-            this.dbDataTable.data[rowPos].data.Restore('productCode');
           }
         },
         error: err => {
@@ -641,17 +636,17 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         this.cs.HandleError(err);
       },
       complete: () => { },
-    });
+    })
 
     this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
-        this.activeFormNav.Setup(this.buyersData);
+        this.buyerFormNav.Setup(this.buyersData);
         console.log('Buyers: ', d);
 
         // Set filters
-        this.filteredBuyerOptions$ = this.activeForm.controls['customerName'].valueChanges
+        this.filteredBuyerOptions$ = this.buyerForm.controls['customerName'].valueChanges
           .pipe(
             startWith(''),
             map((filterString: any) => this.filterBuyers(filterString)),
@@ -666,13 +661,13 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
             console.log('Exporter: ', d);
-            this.passiveForm = new FormGroup({
+            this.exporterForm = new FormGroup({
               customerName: new FormControl(this.senderData.customerName ?? '', []),
               zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
               additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
               customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
-              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber, []),
-                comment: new FormControl(this.senderData.comment ?? '', []),
+              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
+              comment: new FormControl(this.senderData.comment ?? '', []),
             });
 
             this.table?.renderRows();
@@ -700,7 +695,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   private filterBuyers(value: string): string[] {
-    if (this.isEditModeOff) {
+    if (this.editDisabled) {
       return [];
     }
     const filterValue = value.toLowerCase();
@@ -714,11 +709,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.AfterViewInitSetup();
   }
   private AfterViewInitSetup(): void {
-    this.InitFormDefaultValues();
-
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.activeFormNav.GenerateAndSetNavMatrices(true);
+    this.buyerFormNav.GenerateAndSetNavMatrices(true);
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
     this.dbDataTable?.Setup(
@@ -732,8 +725,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
 
+    this.InitFormDefaultValues();
+
     setTimeout(() => {
-      this.kbS.SetCurrentNavigatable(this.activeFormNav);
+      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.EDIT);
 
@@ -747,7 +742,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-    this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
 
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
@@ -802,13 +796,13 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   Save(): void {
-    this.activeForm.markAllAsTouched();
+    this.buyerForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
-    if (this.activeForm.invalid) {
+    if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
-        `Nincs megadva szállító.`,
+        `Nincs megadva vevő.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
@@ -854,17 +848,16 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       if (!!res) {
         this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
         const request = this.UpdateOutGoingData();
-        let ordinal = '';
 
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
           next: d => {
+            //this.isSilentLoading = false;
             if (!!d.data) {
               console.log('Save response: ', d);
 
               if (!!d.data) {
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                ordinal = d.data.invoiceNumber ?? '';
               }
 
               this.simpleToastrService.show(
@@ -876,7 +869,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               this.dbDataTable.RemoveEditRow();
               this.kbS.SelectFirstTile();
 
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.isSaveInProgress = true;
+
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
               const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
                 context: {
@@ -887,7 +882,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               });
               dialogRef.onClose.subscribe({
                 next: async res => {
-                  if (res.answer && res.value > 0) {
+                  console.log("OneTextInputDialogComponent: ", res);
+                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
@@ -896,7 +892,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                           this.Reset();
 
                           this.simpleToastrService.show(
-                            `A ${ordinal} számla nyomtatása véget ért.`,
+                            `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
                             Constants.TITLE_INFO,
                             Constants.TOASTR_SUCCESS_5_SEC
                           );
@@ -908,21 +904,23 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
+                        this.isLoading = false;
                         this.isSaveInProgress = false;
 
-                        commandEndedSubscription.unsubscribe();
-
                         this.bbxToastrService.show(
-                          `A ${ordinal} számla nyomtatása közben hiba történt.`,
+                          `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
                           Constants.TOASTR_ERROR
-                        );
+                          );
+                          this.isSaveInProgress = false;
+
+                          commandEndedSubscription.unsubscribe();
                       }
                     });
                     await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
-                      `A ${ordinal} számla nyomtatása nem történt meg.`,
+                      `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );
@@ -934,18 +932,20 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             } else {
               this.cs.HandleError(d.errors);
               this.isSaveInProgress = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: err => {
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
             this.cs.HandleError(err);
             this.isSaveInProgress = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           },
           complete: () => {
+            this.isSaveInProgress = false;
           }
         });
       } else {
+        this.isSaveInProgress = false;
         // Szerkesztés esetleges folytatása miatt
         this.kbS.ClickCurrentElement();
       }
@@ -1010,12 +1010,20 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.activeFormNav.FillForm(res);
-        this.activeForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+        this.buyerFormNav.FillForm(res);
+        this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
+
+        if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+          this.simpleToastrService.show(
+            Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+        }
       }
     });
   }
@@ -1044,7 +1052,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       .catch(err => {
         this.cs.HandleError(err);
       })
-      .finally(() => { })
+      .finally(() => {})
     return discount;
   }
 
@@ -1057,7 +1065,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     res.quantity = 0;
 
-    p.productGroup = !!p.productGroup ? p.productGroup : '-'
+    p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
@@ -1071,8 +1079,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     } else {
       res.unitPrice = p.unitPrice2!;
     }
-
-    // res.unitPrice = this.Delivery ? p.latestSupplyPrice! : p.unitPrice2!;
 
     res.vatRateCode = p.vatRateCode;
 
@@ -1097,8 +1103,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
       this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
     }
+
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
+
     this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
@@ -1106,18 +1114,26 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          this.activeFormNav.FillForm(res.data[0], ['customerSearch']);
-          this.activeForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+          this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
+          this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
+
+          if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+            this.simpleToastrService.show(
+              Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+          }
         } else {
           if (this.customerInputFilterString.length >= 8 &&
-            this.IsNumber(this.customerInputFilterString)) {
+          this.IsNumber(this.customerInputFilterString)) {
             this.searchByTaxtNumber = true;
           } else {
             this.searchByTaxtNumber = false;
           }
-          this.activeFormNav.FillForm({}, ['customerSearch']);
-          this.activeForm.controls['zipCodeCity'].setValue(undefined);
+          this.buyerFormNav.FillForm({}, ['customerSearch']);
+          this.buyerForm.controls['zipCodeCity'].setValue(undefined);
         }
       },
       error: (err) => {
@@ -1151,9 +1167,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       data.zipCodeCity = data.postalCode + ' ' + data.city;
 
       if (this.buyerData.countryCode !== 'HU') {
-        this.activeFormNav.FillForm(data, [], [{ from: 'thirdStateTaxId', to: 'taxpayerNumber' }]);
+        this.buyerFormNav.FillForm(data, [], [{ from: 'thirdStateTaxId', to: 'taxpayerNumber' }]);
       } else {
-        this.activeFormNav.FillForm(data);
+        this.buyerFormNav.FillForm(data);
       }
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);
@@ -1182,13 +1198,21 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             next: (res: Customer) => {
               console.log("Selected item: ", res);
               this.SetDataForForm(res);
+
+              if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+                this.simpleToastrService.show(
+                  Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+              }
             },
             error: err => {
               this.cs.HandleError(err);
             }
           });
         } else {
-          this.simpleToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         }
       },
       error: (err) => {
@@ -1299,3 +1323,4 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
 }
+

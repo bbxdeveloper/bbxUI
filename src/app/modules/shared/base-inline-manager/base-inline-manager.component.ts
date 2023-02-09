@@ -115,7 +115,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   numberInputMask = NgNeatInputMasks.numberInputMask;
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
-  
+
   editorConfig: AngularEditorConfig = {
     editable: true,
     spellcheck: true,
