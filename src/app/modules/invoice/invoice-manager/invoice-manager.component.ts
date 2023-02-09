@@ -946,6 +946,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         });
       } else {
         this.isSaveInProgress = false;
+        // Szerkesztés esetleges folytatása miatt
+        this.kbS.ClickCurrentElement();
       }
     });
   }
@@ -1163,7 +1165,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (!!data) {
       this.buyerData = { ...data as Customer };
       data.zipCodeCity = data.postalCode + ' ' + data.city;
-      this.buyerFormNav.FillForm(data);
+      
+      if (this.buyerData.countryCode !== 'HU') {
+        this.buyerFormNav.FillForm(data, [], [{ from: 'thirdStateTaxId', to: 'taxpayerNumber' }]);
+      } else {
+        this.buyerFormNav.FillForm(data);
+      }
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);
       this.kbS.SelectFirstTile();

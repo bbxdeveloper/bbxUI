@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { BehaviorSubject } from 'rxjs';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { Constants } from 'src/assets/util/Constants';
 import { InventoryPeriodsKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
@@ -14,6 +14,8 @@ import { WareHouseService } from '../../warehouse/services/ware-house.service';
   styleUrls: ['./inv-ctrl-period-side-bar-form.component.scss']
 })
 export class InvCtrlPeriodSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'InvCtrlPeriod';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -23,8 +25,8 @@ export class InvCtrlPeriodSideBarFormComponent extends BaseSideBarFormComponent 
   wareHouseComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService, private wService: WareHouseService,
-    private cdref: ChangeDetectorRef) {
-    super(kbS);
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
     this.refreshComboboxData();
   }
 
@@ -45,21 +47,5 @@ export class InvCtrlPeriodSideBarFormComponent extends BaseSideBarFormComponent 
         this.wareHouseComboData$.next(this.wareHouses);
       }
     });
-  }
-
-  private SetNewForm(form?: FormSubject): void {
-    console.log(form);
-    if ((!!form && form[0] !== 'InvCtrlPeriod') || !!!form) {
-      return;
-    }
-
-    this.currentForm = form[1];
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
-    this.cdref.detectChanges();
-
-    if (!!this.currentForm) {
-      // this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
-    }
   }
 }

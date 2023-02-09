@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -24,9 +24,8 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CreateCustomerRequest } from '../../customer/models/CreateCustomerRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SystemService } from '../../system/services/system.service';
-
-const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
-const defaultPattern: string = '00000000-00000000-00000000';
+import { CustomerMisc } from '../../customer/models/CustomerMisc';
+import { CountryCode } from '../../customer/models/CountryCode';
 
 @Component({
   selector: 'app-tax-number-search-customer-edit-dialog',
@@ -49,10 +48,15 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     }
   }
 
-  customPatterns: any = {
-    'X': { pattern: new RegExp('\[A-Z0-9\]'), symbol: 'X' },
-    'Y': { pattern: new RegExp('\[A-Z\]'), symbol: 'Y' },
-  };
+  customPatterns: any = CustomerMisc.CustomerNgxMaskPatterns;
+  taxNumberMask: any = CustomerMisc.TaxNumberNgxMask;
+  thirdStateTaxIdMask: any = CustomerMisc.ThirdStateTaxIdMask;
+
+  get isHuCountryCodeSet(): boolean {
+    const countryCode = this.currentForm?.form.controls['countryCode']?.value ?? '';
+    const countryDesc = this._countryCodes?.find(x => x.value === 'HU')?.text;
+    return HelperFunctions.isEmptyOrSpaces(countryCode) || (!!countryDesc && countryCode === countryDesc);
+  }
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -82,7 +86,6 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   closedManually: boolean = false;
-  isLoading: boolean = true;
 
   currentForm?: FlatDesignNoTableNavigatableForm;
   sumForm: FormGroup;
@@ -90,6 +93,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
   // Origin
   countryCodes: string[] = [];
+  _countryCodes: CountryCode[] = [];
   countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
@@ -210,7 +214,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
           if (currentTypeBankAccountNumber.length > 1) {
             return;
           }
-          const nextMask = isIbanStarted ? ibanPattern : defaultPattern;
+          const nextMask = isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
           this.bankAccountMask.next(nextMask);
         }
       });
@@ -238,18 +242,26 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
     console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest begin:", p);
 
-    let countryCode = !!p.countryCode?.includes('-') ? p.countryCode.split('-')[0] : '';
+    let country = this._countryCodes.find(x => x.text === p.countryCode);
+    if (country) {
+      p.countryCode = country.value;
+    }
+
+    if (p.customerBankAccountNumber) {
+      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    }
 
     const res = {
       additionalAddressDetail: p.additionalAddressDetail,
       city: p.city,
       comment: p.comment,
-      countryCode: countryCode,
+      countryCode: p.countryCode,
       customerBankAccountNumber: p.customerBankAccountNumber,
       customerName: p.customerName,
       isOwnData: p.isOwnData,
       postalCode: p.postalCode,
       privatePerson: p.privatePerson,
+      taxpayerNumber: p.taxpayerNumber,
       thirdStateTaxId: p.thirdStateTaxId,
     } as CreateCustomerRequest;
 
@@ -259,25 +271,31 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   Save(): void {
-    const createRequest = this.CustomerToCreateRequest(this.currentForm!.FillObjectWithForm() as Customer);
+    const createRequest = this.CustomerToCreateRequest(this.currentForm!.FillObjectWithForm());
 
-    this.isLoading = true;
     this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
     this.cService.Create(createRequest).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.cService.Get({ ID: d.data.id }).subscribe({
+            next: getData => {
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-          setTimeout(() => {
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-          }, 200);
+              setTimeout(() => {
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+              }, 200);
 
-          this.close(d.data);
+              this.close(getData);
+            },
+            error: err => {
+              this.cs.HandleError(err);
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          });
         } else {
           console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
           this.bbxToastrService.show(
@@ -285,13 +303,11 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
           );
-          this.isLoading = false;
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       },
       error: err => {
         this.cs.HandleError(err);
-        this.isLoading = false;
         this.sts.pushProcessStatus(Constants.BlankProcessStatus);
       }
     });
@@ -302,6 +318,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     this.cService.GetAllCountryCodes().subscribe({
       next: data => {
         this.countryCodes = data?.map(x => x.text) ?? [];
+        this._countryCodes = data ?? [];
         this.countryCodeComboData$.next(this.countryCodes);
       }
     });
@@ -314,7 +331,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   GetBankAccountMask(): string {
     const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm;
     const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-    return isIbanStarted ? ibanPattern : defaultPattern;
+    return isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
   }
 
   checkBankAccountKeydownValue(event: any): void {
@@ -323,7 +340,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
       console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
 
-      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? ibanPattern : defaultPattern;
+      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
       console.log("Check: ", currentTypeBankAccountNumber.length, nextMask.length, nextMask);
       if (currentTypeBankAccountNumber.length > nextMask.length) {
         event.stopImmediatePropagation();
@@ -337,7 +354,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
     } else {
       const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key) ?? '';
 
@@ -349,11 +366,14 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
 
       console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? ibanPattern : defaultPattern);
+      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
     }
   }
 
   postalCodeInputFocusOut(event: any): void {
+    if (!this.isHuCountryCodeSet) {
+      return;
+    }
     const newValue = this.currentForm?.form.controls['postalCode'].value;
     if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['city'].value)) {
       this.SetCityByZipInfo(newValue);
@@ -361,6 +381,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   cityInputFocusOut(event: any): void {
+    if (!this.isHuCountryCodeSet) {
+      return;
+    }
     const newValue = this.currentForm?.form.controls['city'].value;
     if (!HelperFunctions.isEmptyOrSpaces(newValue) && this.currentForm && HelperFunctions.isEmptyOrSpaces(this.currentForm.form.controls['postalCode'].value)) {
       this.SetCityByZipInfo(newValue, false);
@@ -399,6 +422,19 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
+    }
+  }
+
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this.currentForm?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
     }
   }
 }

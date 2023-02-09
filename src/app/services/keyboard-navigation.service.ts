@@ -55,6 +55,7 @@ export class KeyboardNavigationService {
   }
 
   ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  NavigatableChanged: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   isEditModeLocked: boolean = false;
 
@@ -277,7 +278,7 @@ export class KeyboardNavigationService {
     this.p.x = x;
     this.p.y = y;
     if (!!n && this.CurrentNavigatable !== n) {
-      this.CurrentNavigatable = n;
+      this.SetCurrentNavigatable(n);
     }
     this.SelectCurrentElement();
   }
@@ -465,7 +466,7 @@ export class KeyboardNavigationService {
     switch (direction) {
       case AttachDirection.DOWN:
         if (!!this.CurrentNavigatable.DownNeighbour) {
-          this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
+          this.SetCurrentNavigatable(this.CurrentNavigatable.DownNeighbour);
 
           this.p.y = 0;
           this.p.x = 0;
@@ -476,7 +477,7 @@ export class KeyboardNavigationService {
         break;
       case AttachDirection.LEFT:
         if (!!this.CurrentNavigatable.LeftNeighbour) {
-          this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
+          this.SetCurrentNavigatable(this.CurrentNavigatable.LeftNeighbour);
 
           this.p.y = 0;
           this.p.x = 0;
@@ -487,7 +488,7 @@ export class KeyboardNavigationService {
         break;
       case AttachDirection.RIGHT:
         if (!!this.CurrentNavigatable.RightNeighbour) {
-          this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
+          this.SetCurrentNavigatable(this.CurrentNavigatable.RightNeighbour);
 
           this.p.y = 0;
           this.p.x = 0;
@@ -499,7 +500,7 @@ export class KeyboardNavigationService {
       default:
       case AttachDirection.UP:
         if (!!this.CurrentNavigatable.UpNeighbour) {
-          this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
+          this.SetCurrentNavigatable(this.CurrentNavigatable.UpNeighbour);
 
           this.p.y = 0;
           this.p.x = 0;
@@ -549,7 +550,7 @@ export class KeyboardNavigationService {
           return res;
         }
 
-        this.CurrentNavigatable = this.CurrentNavigatable.LeftNeighbour;
+        this.SetCurrentNavigatable(this.CurrentNavigatable.LeftNeighbour);
 
         if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
           switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
@@ -628,7 +629,7 @@ export class KeyboardNavigationService {
           return res;
         }
 
-        this.CurrentNavigatable = this.CurrentNavigatable.RightNeighbour;
+        this.SetCurrentNavigatable(this.CurrentNavigatable.RightNeighbour);
 
         if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
           switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
@@ -705,7 +706,7 @@ export class KeyboardNavigationService {
           return res;
         }
 
-        this.CurrentNavigatable = this.CurrentNavigatable.UpNeighbour;
+        this.SetCurrentNavigatable(this.CurrentNavigatable.UpNeighbour);
 
         if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
           switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
@@ -805,7 +806,7 @@ export class KeyboardNavigationService {
           return res;
         }
 
-        this.CurrentNavigatable = this.CurrentNavigatable.DownNeighbour;
+        this.SetCurrentNavigatable(this.CurrentNavigatable.DownNeighbour);
 
         if (this.CurrentNavigatable.DestWhenJumpedOnto !== undefined) {
           switch (this.CurrentNavigatable.DestWhenJumpedOnto) {
@@ -875,11 +876,12 @@ export class KeyboardNavigationService {
 
   public SetRoot(n: INavigatable): void {
     this.Root = n;
-    this.CurrentNavigatable = n;
+    this.SetCurrentNavigatable(n);
   }
 
   public SetCurrentNavigatable(n: INavigatable): void {
     this.CurrentNavigatable = n;
+    this.NavigatableChanged.next(this.CurrentNavigatable.constructor.name);
   }
 
   public Attach(n: INavigatable, direction: AttachDirection, setAsCurrentNavigatable: boolean = true): void {
@@ -912,13 +914,13 @@ export class KeyboardNavigationService {
       // } catch (error) {
       //   console.error(error);
       // }
-      this.CurrentNavigatable = n;
+      this.SetCurrentNavigatable(n);
       this.SelectFirstTile();
     }
   }
 
   public ResetToRoot(): void {
-    this.CurrentNavigatable = this.Root;
+    this.SetCurrentNavigatable(this.Root);
   }
 
   /**
@@ -937,24 +939,24 @@ export class KeyboardNavigationService {
     if (!!this.CurrentNavigatable.UpNeighbour) {
       let temp = this.CurrentNavigatable.UpNeighbour;
       this.CurrentNavigatable.ClearNeighbours();
-      this.CurrentNavigatable = temp;
+      this.SetCurrentNavigatable(temp);
     }
     else if (!!this.CurrentNavigatable.LeftNeighbour) {
       let temp = this.CurrentNavigatable.LeftNeighbour;
       this.CurrentNavigatable.ClearNeighbours();
-      this.CurrentNavigatable = temp;
+      this.SetCurrentNavigatable(temp);
     }
     else if (!!this.CurrentNavigatable.RightNeighbour) {
       let temp = this.CurrentNavigatable.RightNeighbour;
       this.CurrentNavigatable.ClearNeighbours();
-      this.CurrentNavigatable = temp;
+      this.SetCurrentNavigatable(temp);
     }
     else if (!!this.CurrentNavigatable.DownNeighbour) {
       let temp = this.CurrentNavigatable.DownNeighbour;
       this.CurrentNavigatable.ClearNeighbours();
-      this.CurrentNavigatable = temp;
+      this.SetCurrentNavigatable(temp);
     } else {
-      this.CurrentNavigatable = this.Root;
+      this.SetCurrentNavigatable(this.Root);
     }
 
     if (newX !== undefined && newY !== undefined) {
@@ -971,7 +973,7 @@ export class KeyboardNavigationService {
     this.NavigatableStack.push(this.CurrentNavigatable);
     this.WidgetStack.push(n);
 
-    this.CurrentNavigatable = n;
+    this.SetCurrentNavigatable(n);
 
     this.p.x = 0;
     this.p.y = 0;
@@ -983,7 +985,7 @@ export class KeyboardNavigationService {
   }
 
   public RemoveWidgetNavigatable(): void {
-    this.CurrentNavigatable = this.NavigatableStack.pop() ?? this.Root;
+    this.SetCurrentNavigatable(this.NavigatableStack.pop() ?? this.Root);
     this.WidgetStack.pop();
 
     this.p.x = this.CurrentNavigatable.LastX!;

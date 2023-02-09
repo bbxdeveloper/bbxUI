@@ -20,7 +20,7 @@
                     <label>Név*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>
@@ -33,7 +33,7 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber"
                         [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="bankszámla" controlName="customerBankAccountNumber"></app-form-control-error>
@@ -43,9 +43,9 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Belföldi Adószám</label>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber"
-                        mask="0000000-0-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                        [readonly]="isEditModeOff"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber" [patterns]="customPatterns"
+                        [mask]="taxNumberMask" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                        [readonly]="isReadonly" oninput="this.value = this.value.toUpperCase()"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="belföldi adószám" controlName="taxpayerNumber"></app-form-control-error>
@@ -56,14 +56,14 @@
                     <label>Külföldi Adószám</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="thirdStateTaxId"
-                    mask="X{1000}" [patterns]="customPatterns"
-                        [readonly]="isEditModeOff"
+                        [mask]="thirdStateTaxIdMask" [patterns]="customPatterns" [showMaskTyped]="true"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="külföldi adószám" controlName="thirdStateTaxId"></app-form-control-error>
             </nb-form-field>
 
-            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode" label="Országkód"
+            <app-bbx-combo-box [isReadonly]="isReadonly" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode" label="Országkód"
                 [data$]="countryCodeComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
@@ -72,7 +72,7 @@
                         <label class="multicol-label-col-1">Irsz.</label>
     
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="postalCode"
-                            [readonly]="isEditModeOff" (focusout)="postalCodeInputFocusOut($event)"
+                            [readonly]="isReadonly" (focusout)="postalCodeInputFocusOut($event)"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -82,7 +82,7 @@
                         <label class="multicol-label-col-2">Város*</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="city"
-                        [readonly]="isEditModeOff" (focusout)="cityInputFocusOut($event)"
+                        [readonly]="isReadonly" (focusout)="cityInputFocusOut($event)"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                     </div>
                 </nb-form-field>
@@ -95,7 +95,7 @@
                     <label>Cím*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="additionalAddressDetail"></app-form-control-error>
@@ -106,7 +106,7 @@
                     <label class="label-checkbox">Magánszemély</label>
                 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="privatePerson"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </div>
@@ -117,7 +117,7 @@
                     <label>Megjegyzés</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="megjegyzés" controlName="comment"></app-form-control-error>
@@ -129,7 +129,7 @@
                     <label class="label-checkbox">Saját adat</label>
             
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isOwnData"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </div>
@@ -139,7 +139,7 @@
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Email</label>
             
-                    <input class="{{TileCssClass}}" nbInput type="email" formControlName="email" [readonly]="isEditModeOff"
+                    <input class="{{TileCssClass}}" nbInput type="email" formControlName="email" [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </nb-form-field>

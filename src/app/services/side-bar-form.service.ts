@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/Nav';
 
-export type FormSubject = [string, FlatDesignNavigatableForm | undefined] | undefined;
+export interface FormSubjectData {
+  form?: FlatDesignNavigatableForm,
+  readonly?: boolean
+}
+export type FormSubject = [string, FormSubjectData | undefined] | undefined;
 
 @Injectable({
   providedIn: 'root'

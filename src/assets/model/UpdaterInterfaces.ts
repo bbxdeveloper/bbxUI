@@ -1,3 +1,6 @@
+/**
+ * Interfész CRUD kezelt elemhez
+ */
 export interface IUpdatable<T = any> {
     Lock(data?: IUpdateRequest<T>): void;
     New(data?: IUpdateRequest<T>): void;
@@ -7,6 +10,9 @@ export interface IUpdatable<T = any> {
     Refresh(data?: IUpdateRequest<T>): void;
 }
 
+/**
+ * Interfész CRUD kezelőnek
+ */
 export interface IUpdater<T = any> {
     ActionLock(data?: IUpdateRequest<T>): void;
     ActionNew(data?: IUpdateRequest<T>): void;
@@ -16,6 +22,9 @@ export interface IUpdater<T = any> {
     ActionRefresh(data?: IUpdateRequest<T>): void;
 }
 
+/**
+ * Interfész CRUD kéréshez
+ */
 export interface IUpdateRequest<T = any> {
     data: T;
     rowIndex: number;

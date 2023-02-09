@@ -618,7 +618,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.ReadonlyFormByDefault = true;
+    this.dbDataTable.ReadonlySideForm = true;
 
     this.filterFormNav.DownNeighbour = this.dbDataTable;
 

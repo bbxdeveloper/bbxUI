@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { BehaviorSubject } from 'rxjs';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerService } from '../../customer/services/customer.service';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
@@ -13,6 +13,8 @@ import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-s
   styleUrls: ['./stock-card-side-bar-form.component.scss']
 })
 export class StockCardSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'StockCard';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -30,8 +32,8 @@ export class StockCardSideBarFormComponent extends BaseSideBarFormComponent impl
     private sb: NbSidebarService,
     kbS: KeyboardNavigationService,
     private cService: CustomerService,
-    private cdref: ChangeDetectorRef) {
-    super(kbS);
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
     this.refreshComboboxData();
   }
 
@@ -50,17 +52,5 @@ export class StockCardSideBarFormComponent extends BaseSideBarFormComponent impl
         this.countryCodeComboData$.next(this.countryCodes);
       }
     });
-  }
-
-  private SetNewForm(form?: FormSubject): void {
-    console.log(form);
-    if ((!!form && form[0] !== 'StockCard') || !!!form) {
-      return;
-    }
-
-    this.currentForm = form[1];
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
-    this.cdref.detectChanges();
   }
 }

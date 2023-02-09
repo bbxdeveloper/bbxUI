@@ -14,6 +14,8 @@ import { LocationService } from '../../location/services/location.service';
   styleUrls: ['./stock-side-bar-form.component.scss']
 })
 export class StockSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'Stock';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -27,8 +29,8 @@ export class StockSideBarFormComponent extends BaseSideBarFormComponent implemen
 
   constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
     private locationService: LocationService,
-    private cdref: ChangeDetectorRef) {
-    super(kbS);
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
     this.refreshComboboxData();
   }
 
@@ -62,16 +64,5 @@ export class StockSideBarFormComponent extends BaseSideBarFormComponent implemen
       console.log("SetCursorPose: ", event.target.value);
       event.target.setSelectionRange(0, 0);
     }, 50);
-  }
-
-  private SetNewForm(form?: FormSubject): void {
-    if ((!!form && form[0] !== 'Stock') || !!!form) {
-      return;
-    }
-
-    this.currentForm = form[1];
-    console.log("[SetNewForm] ", this.currentForm);
-
-    this.cdref.detectChanges();
   }
 }

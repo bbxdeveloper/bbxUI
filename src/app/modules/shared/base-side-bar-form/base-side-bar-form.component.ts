@@ -1,10 +1,14 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { createMask } from '@ngneat/input-mask';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 'src/assets/util/KeyBindings';
 
+/**
+ * Alaposztály oldalmenüs formokhoz
+ */
 @Component({
   selector: 'app-base-side-bar-form',
   templateUrl: './base-side-bar-form.component.html',
@@ -12,6 +16,12 @@ import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 's
 })
 export class BaseSideBarFormComponent {
   currentForm?: FlatDesignNavigatableForm;
+  readonlyMode: boolean = false;
+
+  /**
+   * Egyedi azonosító, kapcsolódó modellt jelöli, pl. "Product"
+   */
+  tag: string = 'BaseClass';
 
   blankOptionText: string = BlankComboBoxValue;
 
@@ -36,16 +46,13 @@ export class BaseSideBarFormComponent {
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+  get isReadonly() {
+    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT || this.readonlyMode;
   }
 
   public readonly KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(protected kbS: KeyboardNavigationService) {
-    // const _form = this.currentForm;
-    // $("input").on("click", function (event) { _form?.HandleFormFieldClick(event); });
-  }
+  constructor(protected kbS: KeyboardNavigationService, protected cdref: ChangeDetectorRef) {}
 
   @HostListener('document:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
@@ -77,4 +84,29 @@ export class BaseSideBarFormComponent {
         break;
     }
   }
+
+  protected SetNewForm(form?: FormSubject): void {
+    console.log("Form: ", form);
+
+    if ((!!form && form[0] !== this.tag) || !!!form || form[1] === undefined) {
+      return;
+    }
+
+    this.readonlyMode = form[1].readonly ?? false;
+
+    if (form[1].form === undefined) {
+      return;
+    }
+
+    this.currentForm = form[1].form;
+    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
+
+    this.cdref.detectChanges();
+
+    this.SetupForms();
+
+    this.cdref.detectChanges();
+  }
+
+  protected SetupForms(): void {}
 }

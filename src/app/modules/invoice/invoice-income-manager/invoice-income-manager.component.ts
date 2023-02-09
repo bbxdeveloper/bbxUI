@@ -945,6 +945,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           complete: () => {
           }
         });
+      } else {
+        // Szerkesztés esetleges folytatása miatt
+        this.kbS.ClickCurrentElement();
       }
     });
   }
@@ -1146,7 +1149,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!!data) {
       this.buyerData = { ...data as Customer };
       data.zipCodeCity = data.postalCode + ' ' + data.city;
-      this.activeFormNav.FillForm(data);
+
+      if (this.buyerData.countryCode !== 'HU') {
+        this.activeFormNav.FillForm(data, [], [{ from: 'thirdStateTaxId', to: 'taxpayerNumber' }]);
+      } else {
+        this.activeFormNav.FillForm(data);
+      }
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);
       this.kbS.SelectFirstTile();

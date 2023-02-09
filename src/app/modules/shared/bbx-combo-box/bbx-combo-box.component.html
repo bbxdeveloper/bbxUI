@@ -4,8 +4,8 @@
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
             <label>{{label}}</label>
 
-            <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text"
-                (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="autoComboBoxComplete"
+            <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text" [readOnly]="isReadonly"
+                (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
                 readonly autocomplete="off" />
         </div>
         <app-form-control-error *ngIf="needErrorMsg" [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">
@@ -18,6 +18,9 @@
             {{ option }}
         </nb-option>
     </nb-autocomplete>
+    <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxCompleteEmpty [activeFirst]="false"
+        (selectedChange)="currentForm?.HandleAutoCompleteSelect($event, formFieldName)">
+    </nb-autocomplete>
 </ng-container>
 
 <ng-container *ngIf="!simpleMode">
@@ -26,8 +29,8 @@
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
             <label>{{label}}</label>
 
-            <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text"
-                (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="autoComboBoxComplete"
+            <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text" [readOnly]="isReadonly"
+                (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
                 [readonly]="isEditModeOff" autocomplete="off" />
         </div>
         <app-form-control-error *ngIf="needErrorMsg" [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">
@@ -39,5 +42,8 @@
         <nb-option *ngFor="let option of filteredData$ | async; let i = index" [value]="option">
             {{ option }}
         </nb-option>
+    </nb-autocomplete>
+    <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxCompleteEmpty [activeFirst]="false"
+        (selectedChange)="currentForm?.HandleAutoCompleteSelect($event, formFieldName)">
     </nb-autocomplete>
 </ng-container>

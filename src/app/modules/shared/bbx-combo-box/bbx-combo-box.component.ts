@@ -27,6 +27,8 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
 
   @Input() blankOptionText: string = BlankComboBoxValue;
 
+  @Input() isReadonly: boolean = false;
+
   comboBoxData: string[] = [];
   currentDataCount: number = 0;
   get defaultDataCount(): number { return this.comboBoxData.length; }

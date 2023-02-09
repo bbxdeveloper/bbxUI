@@ -14,6 +14,8 @@ import { WareHouseService } from '../../warehouse/services/ware-house.service';
   styleUrls: ['./counter-side-bar-form.component.scss']
 })
 export class CounterSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'Counter';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -28,8 +30,9 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
   wareHouseComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
-    private wareHouseApi: WareHouseService, private cdref: ChangeDetectorRef) {
-    super(kbS);
+    private wareHouseApi: WareHouseService,
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
     this.refreshComboboxData();
   }
 
@@ -48,17 +51,5 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
         this.wareHouseComboData$.next(this.wareHouses);
       }
     });
-  }
-
-  private SetNewForm(form?: FormSubject): void {
-    console.log(form);
-    if ((!!form && form[0] !== 'Counter') || !!!form) {
-      return;
-    }
-
-    this.currentForm = form[1];
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
-    this.cdref.detectChanges();
   }
 }

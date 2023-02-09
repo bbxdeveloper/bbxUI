@@ -13,6 +13,8 @@ import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-s
   styleUrls: ['./invoice-nav-side-bar-form.component.scss']
 })
 export class InvoiceNavSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'InvoiceNav';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -30,8 +32,8 @@ export class InvoiceNavSideBarFormComponent extends BaseSideBarFormComponent imp
     private sb: NbSidebarService,
     kbS: KeyboardNavigationService,
     private cService: CustomerService,
-    private cdref: ChangeDetectorRef) {
-    super(kbS);
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
     this.refreshComboboxData();
   }
 
@@ -50,17 +52,5 @@ export class InvoiceNavSideBarFormComponent extends BaseSideBarFormComponent imp
         this.countryCodeComboData$.next(this.countryCodes);
       }
     });
-  }
-
-  private SetNewForm(form?: FormSubject): void {
-    console.log(form);
-    if ((!!form && form[0] !== 'InvoiceNav') || !!!form) {
-      return;
-    }
-
-    this.currentForm = form[1];
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
-
-    this.cdref.detectChanges();
   }
 }

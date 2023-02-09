@@ -1,9 +1,7 @@
-import { AfterViewInit, Component, OnInit } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { NbSidebarService } from "@nebular/theme";
 import { KeyboardNavigationService } from "src/app/services/keyboard-navigation.service";
-import { SideBarFormService, FormSubject } from "src/app/services/side-bar-form.service";
-import { FlatDesignNavigatableForm } from "src/assets/model/navigation/FlatDesignNavigatableForm";
-import { TileCssClass } from "src/assets/model/navigation/Navigatable";
+import { SideBarFormService } from "src/app/services/side-bar-form.service";
 import { KeyBindings } from "src/assets/util/KeyBindings";
 import { BaseSideBarFormComponent } from "../../shared/base-side-bar-form/base-side-bar-form.component";
 
@@ -13,12 +11,15 @@ import { BaseSideBarFormComponent } from "../../shared/base-side-bar-form/base-s
   styleUrls: ['./location-side-bar-form.component.scss']
 })
 export class LocationSideBarFormComponent extends BaseSideBarFormComponent implements OnInit, AfterViewInit {
+  override tag = 'Location';
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService) {
-    super(kbS);
+  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
+    cdref: ChangeDetectorRef) {
+    super(kbS, cdref);
   }
 
   ngOnInit(): void {
@@ -26,14 +27,5 @@ export class LocationSideBarFormComponent extends BaseSideBarFormComponent imple
   }
   ngAfterViewInit(): void {
     this.currentForm?.AfterViewInitSetup();
-  }
-
-  private SetNewForm(form?: FormSubject): void {
-    if ((!!form && form[0] !== 'Location') || !!!form) {
-      return;
-    }
-
-    this.currentForm = form[1];
-    console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
   }
 }

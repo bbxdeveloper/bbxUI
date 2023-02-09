@@ -24,7 +24,7 @@
                         oninput="this.value = this.value.toUpperCase()"
                         (focus)="moveCursor(codeInput)"
                         mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         [patterns]="customPatterns" (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" label="kód" controlName="productCode"></app-form-control-error>
@@ -35,14 +35,14 @@
                     <label>Megnevezés*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="description"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="megnevezés" controlName="description"></app-form-control-error>
             </nb-form-field>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="productGroup" label="Csoport"
-                [data$]="productGroupComboData$"></app-bbx-combo-box>
+                [data$]="productGroupComboData$" [isReadonly]="isReadonly"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
@@ -51,7 +51,7 @@
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="productFee"
                             [inputMask]="numberInputMask" placeholder="0.00"
-                            [readonly]="isEditModeOff"
+                            [readonly]="isReadonly"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -62,7 +62,7 @@
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
                         [inputMask]="numberInputMask" placeholder="0.00"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -71,10 +71,10 @@
             <app-form-control-error [form]="currentForm" label="utolsó beszár" controlName="latestSupplyPrice"></app-form-control-error>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="origin" label="Származási hely"
-                [data$]="originsComboData$"></app-bbx-combo-box>
+                [data$]="originsComboData$" [isReadonly]="isReadonly"></app-bbx-combo-box>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitOfMeasure" label="Me.e.*"
-                [data$]="uomComboData$"></app-bbx-combo-box>
+                [data$]="uomComboData$" [isReadonly]="isReadonly"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
@@ -82,7 +82,7 @@
                         <label class="multicol-label-col-1">Listaár</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="unitPrice1"
-                            [readonly]="isEditModeOff"
+                            [readonly]="isReadonly"
                             [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
@@ -93,7 +93,7 @@
                         <label class="multicol-label-col-2">Egységár</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         [inputMask]="numberInputMask" placeholder="0.00"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
@@ -103,7 +103,7 @@
             <app-form-control-error [form]="currentForm" label="elad ár 2" controlName="unitPrice2"></app-form-control-error>
             
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="vatRateCode" label="Áfakód"
-                [data$]="vatRateComboData$"></app-bbx-combo-box>
+                [data$]="vatRateComboData$" [isReadonly]="isReadonly"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-40 checkbox-wrapper"
@@ -111,7 +111,7 @@
                     <label class="label-checkbox">Készletes?</label>
 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}} {{TileCssColClass}}" type="checkbox" formControlName="isStock"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
 
@@ -120,7 +120,7 @@
                     <label class="label-checkbox">Aktív?</label>
 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
 
@@ -129,7 +129,7 @@
                     <label class="label-checkbox">Eng.tilt?</label>
                 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="noDiscount"
-                        [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)">
+                        [readonly]="isReadonly" (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </div>
 
@@ -139,7 +139,7 @@
                         <label class="multicol-label-col-1">Minimum készlet</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="minStock"
-                            [readonly]="isEditModeOff"
+                            [readonly]="isReadonly"
                             [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
@@ -150,7 +150,7 @@
                         <label class="multicol-label-col-2">Rendelési egység</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         [inputMask]="numberInputMask" placeholder="0.00"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
@@ -165,7 +165,7 @@
                         <label class="multicol-label-col-1">vtsz*</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="vtsz" mask="9*"
-                            [readonly]="isEditModeOff"
+                            [readonly]="isReadonly"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -175,7 +175,7 @@
                         <label class="multicol-label-col-2">ean</label>
                         
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ean" mask="9{1000}"
-                        [readonly]="isEditModeOff"
+                        [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
