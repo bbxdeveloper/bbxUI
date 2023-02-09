@@ -15,6 +15,8 @@ import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { Constants } from 'src/assets/util/Constants';
 import { InvoiceLineForPost } from '../models/InvoiceLine';
+import { PendingDeliveriInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Injectable({
   providedIn: 'root'
@@ -36,45 +38,14 @@ export class InvoiceService {
   }
 
   GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
-
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetInvoicesParamListModel] != undefined && params[key as keyof GetInvoicesParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetInvoicesParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetInvoicesParamListModel];
-          }
-          index++;
-        }
-      });
-    }
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
     return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
   Get(params?: GetInvoiceParamListModel): Observable<Invoice> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetInvoiceParamListModel] != undefined && params[key as keyof GetInvoiceParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetInvoiceParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetInvoiceParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
     return this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
@@ -112,5 +83,11 @@ export class InvoiceService {
       JSON.stringify(params['report_params']),
       { responseType: 'blob', headers: options }
     );
+  }
+
+  GetPendingDeliveriInvoices(params?: GetInvoiceParamListModel): Observable<PendingDeliveriInvoiceSummary[]> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+
+    return this.http.get<PendingDeliveriInvoiceSummary[]>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 }

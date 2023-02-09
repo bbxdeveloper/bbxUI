@@ -207,7 +207,7 @@ export module HelperFunctions {
         return moment(val)
             .format(formatString);
     }
-    
+
     export function IsDateStringValid(
         val: string | undefined,
         formatString: string = DATE_FORMATSTRING,
@@ -291,7 +291,7 @@ export module HelperFunctions {
         }
         if (int[0] == '-' || int[0] == '+') {
             int = int.slice(1, int.length)
-        } 
+        }
         return HelperFunctions.ToFloat(n.toPrecision(int.length + r));
     }
 
@@ -308,7 +308,7 @@ export module HelperFunctions {
     }
 
     export function CashRound(val: number): number {
-        val = ToFloat(val);        
+        val = ToFloat(val);
         if (val === 0) {
             return 0;
         }
@@ -387,5 +387,27 @@ export module HelperFunctions {
                 }
             }, 0);
         }
+    }
+
+    export function ParseObjectAsQueryString<T>(params: T): string {
+        if (!params) {
+            return '';
+        }
+
+        var queryParams = '';
+        var index = 0;
+
+        Object.keys(params).forEach((key: string) => {
+            if (params[key as keyof T] != undefined && params[key as keyof T] != null) {
+                if (index == 0) {
+                    queryParams += key + '=' + params[key as keyof T];
+                } else {
+                    queryParams += '&' + key + '=' + params[key as keyof T];
+                }
+                index++;
+            }
+        });
+
+        return queryParams;
     }
 }
