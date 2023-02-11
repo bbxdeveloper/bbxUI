@@ -180,3 +180,60 @@ export module ProductDialogTableSettings {
         },
     ];
 }
+
+export module PendingDeliveryInvoiceSummaryDialogTableSettings {
+    export const AllColumns: string[] = [
+        'customerID',
+        'customer',
+        'fullAddress',
+        'sumNetAmount'
+    ];
+    export const ColDefs: ModelFieldDescriptor[] = [
+        {
+            label: 'Partner ID',
+            objectKey: 'customerID',
+            colKey: 'customerID',
+            defaultValue: '',
+            type: 'string',
+            mask: '',
+            colWidth: '120px',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Partner',
+            objectKey: 'customer',
+            colKey: 'customer',
+            defaultValue: '',
+            type: 'string',
+            mask: '',
+            colWidth: '50%',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Cím',
+            objectKey: 'fullAddress',
+            colKey: 'fullAddress',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            mask: '',
+            colWidth: '50%',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Nettó',
+            objectKey: 'sumNetAmount',
+            colKey: 'sumNetAmount',
+            defaultValue: '',
+            type: 'formatted-number',
+            fRequired: false,
+            mask: '',
+            colWidth: '130px',
+            textAlign: 'right',
+            navMatrixCssClass: TileCssClass,
+        },
+    ];
+}

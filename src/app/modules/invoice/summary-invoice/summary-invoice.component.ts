@@ -36,7 +36,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -705,8 +705,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
-
-    this.dialogService.open(CustomersHasPendingInvoiceComponent)
   }
 
   ngAfterViewInit(): void {
@@ -734,9 +732,16 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     setTimeout(() => {
       this.kbS.SetCurrentNavigatable(this.buyerFormNav);
       this.kbS.SelectFirstTile();
-      this.kbS.setEditMode(KeyboardModes.EDIT);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
       this.cdref.detectChanges();
+      this.dialogService.open(CustomersHasPendingInvoiceComponent, {
+        context: {
+          searchString: this.customerInputFilterString,
+          allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
+          colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs
+        }
+      });
     }, 500);
   }
   ngOnDestroy(): void {

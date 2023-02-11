@@ -16,6 +16,7 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 })
 export class CustomersHasPendingInvoiceComponent extends SelectTableDialogComponent<PendingDeliveryInvoiceSummary> implements OnInit {
 
+  public isLoaded = false
   public override isLoading = false
 
   constructor(
@@ -33,10 +34,32 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     this.Matrix = navMap
 
     this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryInvoiceSummary>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
+
+    this.dbDataTable.InnerJumpOnEnter = true;
+    this.dbDataTable.OuterJump = true;
   }
 
   public override ngOnInit(): void {
     this.Refresh()
+  }
+
+  ngAfterContentInit(): void {
+    this.kbS.SetWidgetNavigatable(this);
+    this.kbS.SelectFirstTile();
+  }
+
+  ngAfterViewChecked(): void {
+    if (!this.isLoaded) {
+      $('#active-prod-search').val(this.searchString);
+      this.isLoaded = true;
+    }
+    this.kbS.SelectCurrentElement();
+  }
+
+  ngOnDestroy(): void {
+    if (!this.closedManually) {
+      this.kbS.RemoveWidgetNavigatable();
+    }
   }
 
   public override Refresh(): void {
@@ -75,6 +98,8 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
       [],
       'TABLE-CELL'
     )
-
+    setTimeout(() => {
+      this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined, false);
+    }, 200);
   }
 }
