@@ -8,29 +8,22 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 
 @Component({
-  selector: 'app-customers-has-pending-invoice',
-  templateUrl: './customers-has-pending-invoice.component.html',
-  styleUrls: ['./customers-has-pending-invoice.component.scss']
+  selector: 'app-pending-delivery-notes-select-dialog',
+  templateUrl: './pending-delivery-notes-select-dialog.component.html',
+  styleUrls: ['./pending-delivery-notes-select-dialog.component.scss']
 })
-export class CustomersHasPendingInvoiceComponent extends SelectTableDialogComponent<PendingDeliveryInvoiceSummary> implements OnInit {
+export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialogComponent<PendingDeliveryNote> implements OnInit {
 
   public isLoaded = false
   public override isLoading = false
 
-  // get getInputParams(): GetPendingDeliveryInvoiceSummariesRequest {
-  //   return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '10', PageNumber: '1', OrderBy: 'customerName' };
-  // }
-
-  // get getInputParamsForAll(): GetPendingDeliveryInvoiceSummariesRequest {
-  //   return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999', OrderBy: 'customerName' };
-  // }
-
   constructor(
     private readonly kns: KeyboardNavigationService,
-    dialogRef: NbDialogRef<CustomersHasPendingInvoiceComponent>,
-    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryInvoiceSummary>>,
+    dialogRef: NbDialogRef<PendingDeliveryNotesSelectDialogComponent>,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryNote>>,
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
@@ -39,7 +32,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 
-    this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryInvoiceSummary>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
+    this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryNote>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
   }
 
   public override ngOnInit(): void {
@@ -74,7 +67,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     }
 
     try {
-      const data = await this.invoiceService.GetPendingDeliveriInvoices(request)
+      const data = await this.invoiceService.GetPendingDeliveryNotes(request)
 
       if (!data) {
         console.error('missing data')

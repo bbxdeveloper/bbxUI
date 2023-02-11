@@ -18,6 +18,7 @@ import { InvoiceLineForPost } from '../models/InvoiceLine';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
+import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 
 @Injectable({
   providedIn: 'root'
@@ -89,6 +90,13 @@ export class InvoiceService {
   public async GetPendingDeliveriInvoices(params?: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryInvoiceSummary[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
     const request = this.http.get<PendingDeliveryInvoiceSummary[]>(this.BaseUrl + '/pendigdeliverynotessummary?' + queryParams)
+
+    return await lastValueFrom(request)
+  }
+
+  public async GetPendingDeliveryNotes(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNote[]> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
 
     return await lastValueFrom(request)
   }

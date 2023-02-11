@@ -36,7 +36,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -48,6 +48,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
+import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -1008,12 +1009,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
+    const dialogRef = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
-        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
-        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
+        allColumns: PendingDeliveryNotesTableSettings.AllColumns,
+        colDefs: PendingDeliveryNotesTableSettings.ColDefs,
+        // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
