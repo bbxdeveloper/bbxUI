@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { lastValueFrom, Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
@@ -86,9 +86,10 @@ export class InvoiceService {
     );
   }
 
-  GetPendingDeliveriInvoices(params?: GetPendingDeliveryInvoiceSummariesRequest): Observable<PendingDeliveryInvoiceSummary[]> {
+  public async GetPendingDeliveriInvoices(params?: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryInvoiceSummary[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const request = this.http.get<PendingDeliveryInvoiceSummary[]>(this.BaseUrl + '/pendigdeliverynotessummary?' + queryParams)
 
-    return this.http.get<PendingDeliveryInvoiceSummary[]>(this.BaseUrl + '/pendigdeliverynotessummary?' + queryParams);
+    return await lastValueFrom(request)
   }
 }

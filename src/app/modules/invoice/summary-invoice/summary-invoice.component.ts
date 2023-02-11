@@ -47,6 +47,7 @@ import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
+import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -735,15 +736,33 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
       this.cdref.detectChanges();
-      this.dialogService.open(CustomersHasPendingInvoiceComponent, {
+      const dialog = this.dialogService.open(CustomersHasPendingInvoiceComponent, {
         context: {
           searchString: this.customerInputFilterString,
           allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
           colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs
-        }
+        },
       });
+
+      dialog.onClose.subscribe({ next: this.OnStartupDialogClose.bind(this) })
     }, 500);
   }
+
+  private async OnStartupDialogClose(x: PendingDeliveryInvoiceSummary) {
+    if (!x) {
+      return;
+    }
+
+    try {
+      const customer = await lastValueFrom(this.seC.Get({ ID: x.customerID }))
+
+      this.SetDataForForm(customer)
+    }
+    catch(error) {
+      console.error(error)
+    }
+  }
+
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();

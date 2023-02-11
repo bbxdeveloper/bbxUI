@@ -8,6 +8,7 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
 
 @Component({
   selector: 'app-customers-has-pending-invoice',
@@ -19,8 +20,16 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
   public isLoaded = false
   public override isLoading = false
 
+  // get getInputParams(): GetPendingDeliveryInvoiceSummariesRequest {
+  //   return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '10', PageNumber: '1', OrderBy: 'customerName' };
+  // }
+
+  // get getInputParamsForAll(): GetPendingDeliveryInvoiceSummariesRequest {
+  //   return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999', OrderBy: 'customerName' };
+  // }
+
   constructor(
-    kns: KeyboardNavigationService,
+    private readonly kns: KeyboardNavigationService,
     dialogRef: NbDialogRef<CustomersHasPendingInvoiceComponent>,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryInvoiceSummary>>,
     private readonly invoiceService: InvoiceService,
@@ -28,15 +37,10 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     private readonly cdref: ChangeDetectorRef,
   ) {
     super(dialogRef, kns, dataSourceBuilder)
-    const navMap: string[][] = [
-      ['active-prod-search', 'show-all', 'show-less']
-    ];
+    const navMap: string[][] = [[]];
     this.Matrix = navMap
 
     this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryInvoiceSummary>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
-
-    this.dbDataTable.InnerJumpOnEnter = true;
-    this.dbDataTable.OuterJump = true;
   }
 
   public override ngOnInit(): void {
@@ -62,31 +66,31 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     }
   }
 
-  public override Refresh(): void {
+  public override async Refresh(): Promise<void> {
     this.isLoading = true
     const request = {
       currencyCode: 'HUF',
       warehouseCode: '001',
       incoming: false
     }
-    this.invoiceService.GetPendingDeliveriInvoices(request)
-      .subscribe({
-        next: data => {
-          if (!data) {
-            console.error('missing data')
-          }
 
-          this.dbData = data.map(x => ({ data: x, uid: this.nextUid() }))
-          this.dbDataSource.setData(this.dbData)
+    try {
+      const data = await this.invoiceService.GetPendingDeliveriInvoices(request)
 
-          this.refreshTable()
-        },
-        error: (err: any) => {
-          this.cs.HandleError(err)
-          this.isLoading = false
-        },
-        complete: () => this.isLoading = false
-      })
+      if (!data) {
+        console.error('missing data')
+      }
+
+      this.dbData = data.map(x => ({ data: x, uid: this.nextUid() }))
+      this.dbDataSource.setData(this.dbData)
+
+      this.refreshTable()
+      this.isLoading = false
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+      this.isLoading = false
+    }
   }
 
   private refreshTable() {
@@ -100,6 +104,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     )
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined, false);
+      this.kns.SetCurrentNavigatable(this.dbDataTable)
     }, 200);
   }
 }
