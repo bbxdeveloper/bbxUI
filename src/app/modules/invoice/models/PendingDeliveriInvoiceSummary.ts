@@ -1,4 +1,4 @@
-export interface PendingDeliveriInvoiceSummary {
+export interface PendingDeliveryInvoiceSummary {
     warehouseID: number,
     customerID: number,
     customer: string,

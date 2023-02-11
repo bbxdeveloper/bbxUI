@@ -15,8 +15,9 @@ import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { Constants } from 'src/assets/util/Constants';
 import { InvoiceLineForPost } from '../models/InvoiceLine';
-import { PendingDeliveriInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
+import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
 
 @Injectable({
   providedIn: 'root'
@@ -85,9 +86,9 @@ export class InvoiceService {
     );
   }
 
-  GetPendingDeliveriInvoices(params?: GetInvoiceParamListModel): Observable<PendingDeliveriInvoiceSummary[]> {
+  GetPendingDeliveriInvoices(params?: GetPendingDeliveryInvoiceSummariesRequest): Observable<PendingDeliveryInvoiceSummary[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<PendingDeliveriInvoiceSummary[]>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<PendingDeliveryInvoiceSummary[]>(this.BaseUrl + '/pendigdeliverynotessummary?' + queryParams);
   }
 }

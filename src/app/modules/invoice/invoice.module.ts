@@ -17,6 +17,7 @@ import { BbxComboBoxInvoiceComponent } from '../shared/bbx-combo-box-invoice/bbx
 import { InvoiceIncomeManagerComponent } from './invoice-income-manager/invoice-income-manager.component';
 import { InvoiceNavSideBarFormComponent } from './invoice-nav-side-bar-form/invoice-nav-side-bar-form.component';
 import { SummaryInvoiceComponent } from './summary-invoice/summary-invoice.component';
+import { CustomersHasPendingInvoiceComponent } from './customers-has-pending-invoice/customers-has-pending-invoice.component';
 
 
 
@@ -30,6 +31,7 @@ import { SummaryInvoiceComponent } from './summary-invoice/summary-invoice.compo
     InvoiceIncomeManagerComponent,
     InvoiceNavSideBarFormComponent,
     SummaryInvoiceComponent,
+    CustomersHasPendingInvoiceComponent,
   ],
   imports: [
     CommonModule,

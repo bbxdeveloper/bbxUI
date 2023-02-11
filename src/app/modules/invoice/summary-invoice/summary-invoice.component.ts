@@ -46,6 +46,7 @@ import moment from 'moment';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
+import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -704,7 +705,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
+
+    this.dialogService.open(CustomersHasPendingInvoiceComponent)
   }
+
   ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
