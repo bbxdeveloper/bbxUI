@@ -16,7 +16,7 @@ import { BaseNavigatableComponentComponent } from '../base-navigatable-component
   styleUrls: ['./select-table-dialog.component.scss']
 })
 export class SelectTableDialogComponent<T> extends BaseNavigatableComponentComponent {
-  // @Input() allData: TreeGridNode<T>[] = []; 
+  // @Input() allData: TreeGridNode<T>[] = [];
   @Input() searchString: string = '';
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];

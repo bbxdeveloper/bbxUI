@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary'
@@ -9,6 +9,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-pending-delivery-notes-select-dialog',
@@ -17,6 +18,7 @@ import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 })
 export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialogComponent<PendingDeliveryNote> implements OnInit {
   @Input() public customerID!: number
+  @Output() public selectedNotes = new EventEmitter<PendingDeliveryNote[]>()
 
   public isLoaded = false
   public override isLoading = false
@@ -96,5 +98,14 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
       this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined, false);
       this.kns.SetCurrentNavigatable(this.dbDataTable)
     }, 200);
+  }
+
+  @HostListener('keydown.f7', ['$event'])
+  public sendNotesToParent(event: KeyboardEvent) {
+    event.preventDefault()
+
+    this.selectedNotes.emit(this.dbData.map(x => x.data))
+
+    this.close()
   }
 }

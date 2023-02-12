@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
@@ -12,7 +12,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { todaysDate, validDate } from 'src/assets/model/Validators';
+import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
@@ -23,32 +23,29 @@ import { CustomerSelectTableDialogComponent } from '../customer-select-table-dia
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
-import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
-import { SumData } from '../models/SumData';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
-import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import moment from 'moment';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
+import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -745,11 +742,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         },
       });
 
-      dialog.onClose.subscribe({ next: this.OnStartupDialogClose.bind(this) })
+      dialog.onClose.subscribe({ next: this.customerSelected.bind(this) })
     }, 500);
   }
 
-  private async OnStartupDialogClose(x: PendingDeliveryInvoiceSummary) {
+  private async customerSelected(x: PendingDeliveryInvoiceSummary) {
     if (!x) {
       return;
     }
@@ -760,7 +757,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.SetDataForForm(customer)
     }
     catch(error) {
-      console.error(error)
+      this.cs.HandleError(error)
     }
   }
 
@@ -1009,17 +1006,20 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+    const event = new EventEmitter<PendingDeliveryNote[]>()
+
+    event.subscribe((notes: PendingDeliveryNote[]) => {
+      debugger
+    })
+
     const dialogRef = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
-        customerID: this.buyerData.id
+        customerID: this.buyerData.id,
+        selectedNotes: event
       }
-    });
-    dialogRef.onClose.subscribe(async (res: Product) => {
-      console.log("Selected item: ", res);
-      await this.HandleProductChoose(res, wasInNavigationMode);
     });
   }
 
