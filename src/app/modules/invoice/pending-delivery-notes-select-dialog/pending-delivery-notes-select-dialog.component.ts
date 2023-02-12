@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary'
@@ -16,6 +16,7 @@ import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
   styleUrls: ['./pending-delivery-notes-select-dialog.component.scss']
 })
 export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialogComponent<PendingDeliveryNote> implements OnInit {
+  @Input() public customerID!: number
 
   public isLoaded = false
   public override isLoading = false
@@ -63,15 +64,12 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     const request = {
       currencyCode: 'HUF',
       warehouseCode: '001',
-      incoming: false
+      incoming: false,
+      customerID: this.customerID
     }
 
     try {
       const data = await this.invoiceService.GetPendingDeliveryNotes(request)
-
-      if (!data) {
-        console.error('missing data')
-      }
 
       this.dbData = data.map(x => ({ data: x, uid: this.nextUid() }))
       this.dbDataSource.setData(this.dbData)

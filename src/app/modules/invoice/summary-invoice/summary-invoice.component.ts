@@ -1014,6 +1014,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
+        customerID: this.buyerData.id
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {

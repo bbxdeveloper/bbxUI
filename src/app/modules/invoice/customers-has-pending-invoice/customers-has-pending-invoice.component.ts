@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary'
@@ -15,6 +15,7 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
   styleUrls: ['./customers-has-pending-invoice.component.scss']
 })
 export class CustomersHasPendingInvoiceComponent extends SelectTableDialogComponent<PendingDeliveryInvoiceSummary> implements OnInit {
+  @Input() public customerID!: number
 
   public isLoaded = false
   public override isLoading = false
