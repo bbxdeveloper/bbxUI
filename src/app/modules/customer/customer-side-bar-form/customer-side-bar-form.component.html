@@ -26,7 +26,7 @@
                 <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>
             </nb-form-field>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+            <!-- <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Bankszámla</label>
 
@@ -37,7 +37,11 @@
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="bankszámla" controlName="customerBankAccountNumber"></app-form-control-error>
-            </nb-form-field>
+            </nb-form-field> -->
+
+            <app-customer-bank-account-number-input *ngIf="currentForm"
+                [currentForm]="currentForm" formFieldName="customerBankAccountNumber" label="Bankszámla" [readonlyMode]="isReadonly">
+            </app-customer-bank-account-number-input>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">

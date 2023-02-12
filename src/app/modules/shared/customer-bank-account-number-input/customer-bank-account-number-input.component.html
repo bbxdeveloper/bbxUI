@@ -1,0 +1,12 @@
+<nb-form-field (keydown.enter)="currentForm?.HandleFormEnter($event)">
+    <div class="bbx-fd-form-field-inner-div">
+        <label>{{label}}</label>
+
+        <input class="{{TileCssClass}}" nbInput type="text" [formControlName]="formFieldName"
+            [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
+            [dropSpecialCharacters]="false" [showMaskTyped]="true" [readonly]="isReadonly"
+            (click)="currentForm?.HandleFormFieldClick($event)">
+    </div>
+    <app-form-control-error [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">
+    </app-form-control-error>
+</nb-form-field>
