@@ -557,6 +557,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 this.SetBlankInstanceForForm(true);
             } else if (!this.sidebarService.sideBarOpened) {
                 this.SetDataForForm(this.editedRow!, true);
+            } else {
+                this.SetDataForForm(this.editedRow!, false);
             }
         }
     }
