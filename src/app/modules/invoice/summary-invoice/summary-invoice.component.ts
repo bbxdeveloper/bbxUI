@@ -1014,14 +1014,18 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         const relDeliveryDate = new Date(note.relDeliveryDate)
 
         if (relDeliveryDate < invoiceDeliveryDate) {
-          note.relDeliveryDate = note.invoiceDeliveryDate
+          this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
         }
       })
 
-      // todo: hozzáadni a tételt a gridhez
+      this.dbData = notes
+        .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
+        .map(x => ({ data: x, uid: this.nextUid() }))
+
+      this.RefreshTable()
     })
 
-    const dialog = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
+    this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
@@ -1031,6 +1035,22 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       }
     });
 
+  }
+
+  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
+    const line = new InvoiceLine()
+    line.productCode = value.productCode
+    line.productDescription = value.lineDescription
+    line.quantity = value.quantity
+    line.unitOfMeasure = value.unitOfMeasure
+    line.unitPrice = value.unitPrice
+    line.vatRateCode = value.vatRateCode
+    line.lineNetAmount = value.lineNetAmount
+    line.vatRate = value.vatPercentage
+    line.unitOfMeasureX = value.unitOfMeasureX
+    line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
+
+    return line
   }
 
   ChooseDataForForm(): void {

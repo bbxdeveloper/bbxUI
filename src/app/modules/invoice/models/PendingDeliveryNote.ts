@@ -4,7 +4,7 @@ export interface PendingDeliveryNote {
     productCode: string,
     lineDescription: string,
     quantity: number,
-    unitOfMeasureX: number,
+    unitOfMeasureX: string,
     unitPrice: number,
     lineNetAmount: number,
 

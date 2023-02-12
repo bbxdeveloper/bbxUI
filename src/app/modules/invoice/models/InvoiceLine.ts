@@ -83,6 +83,8 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     unitOfMeasureX?: string;
 
+    relDeliveryNoteInvoiceLineID: number = 0
+
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.
      */
@@ -166,7 +168,7 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     /**
      * Converts into the backend model
-     * @returns 
+     * @returns
      */
     public GetPOSTData(): InvoiceLineForPost {
         let res = {
