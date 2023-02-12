@@ -113,6 +113,10 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   public sendNoteToParent(event: KeyboardEvent) {
     event.preventDefault()
 
+    debugger
+
     this.selectedNotes.emit([ this.selectedRow ])
+
+    this.close()
   }
 }

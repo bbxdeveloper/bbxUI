@@ -101,7 +101,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "30%", textAlign: "left", fInputType: 'code-field',
-      keyAction: Actions.Create,
+      keyAction: Actions.Create, fReadonly: true,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -1017,6 +1017,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
         }
       })
+
+      debugger
 
       this.dbData = notes
         .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
