@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header">
         <span>Partnerek</span>
     </nb-card-header>
-    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
+    <nb-card-body class="modal-product-active-body">
 
         <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>

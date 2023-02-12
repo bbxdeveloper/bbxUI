@@ -95,6 +95,14 @@ export class KeyboardNavigationService {
 
   private _locked = false;
 
+  get TypeOfSelectedElement(): string {
+    if (this.Here === undefined) {
+      return '';
+    }
+
+    return ($('#' + this.Here).get(0)?.tagName ?? '').toLowerCase();
+  }
+
   constructor() { }
 
   public clear(): void {

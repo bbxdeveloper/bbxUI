@@ -1018,8 +1018,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         }
       })
 
-      debugger
-
       this.dbData = notes
         .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
         .map(x => ({ data: x, uid: this.nextUid() }))
@@ -1051,6 +1049,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.vatRate = value.vatPercentage
     line.unitOfMeasureX = value.unitOfMeasureX
     line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
+    line.invoiceNumber = value.invoiceNumber
 
     return line
   }

@@ -10,6 +10,7 @@ import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNaviga
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-pending-delivery-notes-select-dialog',
@@ -100,22 +101,25 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     }, 200);
   }
 
-  @HostListener('keydown.f7', ['$event'])
-  public sendNotesToParent(event: KeyboardEvent) {
-    event.preventDefault()
+  /**
+   * Enter esetén ez hívódik meg, a "@HostListener('keydown.enter', ['$event'])"
+   * nem működne.
+   * @param event 
+   * @param row 
+   */
+  override selectRow(event: any, row: TreeGridNode<PendingDeliveryNote>): void {
+    HelperFunctions.StopEvent(event);
 
-    this.selectedNotes.emit(this.dbData.map(x => x.data))
+    this.selectedNotes.emit([row.data])
 
-    this.close()
+    this.close();
   }
 
-  @HostListener('keydown.enter', ['$event'])
-  public sendNoteToParent(event: KeyboardEvent) {
-    event.preventDefault()
+  @HostListener('keydown.f7', ['$event'])
+  public sendNotesToParent(event: KeyboardEvent) {
+    HelperFunctions.StopEvent(event);
 
-    debugger
-
-    this.selectedNotes.emit([ this.selectedRow ])
+    this.selectedNotes.emit(this.dbData.map(x => x.data))
 
     this.close()
   }

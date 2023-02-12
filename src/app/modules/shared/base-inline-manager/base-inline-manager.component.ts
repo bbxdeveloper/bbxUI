@@ -174,6 +174,27 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     this.sideBarService.collapse();
   }
 
+  SelectedRowProperty(objectKey: string): any {
+    // Nem a táblázaton állunk
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return '-';
+    }
+
+    // nem táblázathoz tartozó elemen állunk
+    const t = this.kbS.TypeOfSelectedElement;
+    if (t !== 'tr' && t !== 'td') {
+      return '-';
+    }
+
+    // jelenlegi pozíciónk kilóg a tábla tartományából || legutolsó, azaz üres, szerkesztési soron állunk
+    if (this.dbDataTable?.data?.length <= this.kbS.p.y || (this.dbDataTable?.data?.length - 1 === this.kbS.p.y)) {
+      return '-';
+    }
+
+    const data = this.dbDataTable?.data[this.kbS.p.y]?.data;
+    return (data as any)[objectKey];
+  }
+
   HandleError(err: any): void {
     this.cs.HandleError(err);
     this.isLoading = false;
