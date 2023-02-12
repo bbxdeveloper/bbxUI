@@ -1009,18 +1009,28 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     const event = new EventEmitter<PendingDeliveryNote[]>()
 
     event.subscribe((notes: PendingDeliveryNote[]) => {
-      debugger
+      notes.forEach(note => {
+        const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
+        const relDeliveryDate = new Date(note.relDeliveryDate)
+
+        if (relDeliveryDate < invoiceDeliveryDate) {
+          note.relDeliveryDate = note.invoiceDeliveryDate
+        }
+      })
+
+      // todo: hozzáadni a tételt a gridhez
     })
 
-    const dialogRef = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
+    const dialog = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
         customerID: this.buyerData.id,
-        selectedNotes: event
+        selectedNotes: event,
       }
     });
+
   }
 
   ChooseDataForForm(): void {

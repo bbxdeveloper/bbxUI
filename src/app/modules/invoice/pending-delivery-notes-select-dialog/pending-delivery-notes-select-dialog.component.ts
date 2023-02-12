@@ -108,4 +108,11 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
 
     this.close()
   }
+
+  @HostListener('keydown.enter', ['$event'])
+  public sendNoteToParent(event: KeyboardEvent) {
+    event.preventDefault()
+
+    this.selectedNotes.emit([ this.selectedRow ])
+  }
 }
