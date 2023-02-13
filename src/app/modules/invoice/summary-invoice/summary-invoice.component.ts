@@ -1030,6 +1030,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
+        checkedNotes: this.dbData.map(x => {
+          const data = {
+            invoiceNumber: x.data.invoiceNumber,
+            quantity: x.data.quantity
+          } as PendingDeliveryNote
+          return data
+        }),
         customerID: this.buyerData.id,
         selectedNotes: event,
       }

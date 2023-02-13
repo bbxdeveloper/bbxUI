@@ -19,6 +19,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 })
 export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialogComponent<PendingDeliveryNote> implements OnInit {
   @Input() public customerID!: number
+  @Input() public checkedNotes!: PendingDeliveryNote[]
   @Output() public selectedNotes = new EventEmitter<PendingDeliveryNote[]>()
 
   public isLoaded = false
@@ -72,7 +73,19 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     }
 
     try {
-      const data = await this.invoiceService.GetPendingDeliveryNotes(request)
+      let data = await this.invoiceService.GetPendingDeliveryNotes(request)
+
+      data = data
+        .map(datum => {
+          const checkedNote = this.checkedNotes.find(note => note.invoiceNumber === datum.invoiceNumber)
+
+          if (checkedNote) {
+            datum.quantity -= checkedNote.quantity
+          }
+
+          return datum
+        })
+        .filter(datum => datum.quantity > 0)
 
       this.dbData = data.map(x => ({ data: x, uid: this.nextUid() }))
       this.dbDataSource.setData(this.dbData)
@@ -104,8 +117,8 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   /**
    * Enter esetén ez hívódik meg, a "@HostListener('keydown.enter', ['$event'])"
    * nem működne.
-   * @param event 
-   * @param row 
+   * @param event
+   * @param row
    */
   override selectRow(event: any, row: TreeGridNode<PendingDeliveryNote>): void {
     HelperFunctions.StopEvent(event);
