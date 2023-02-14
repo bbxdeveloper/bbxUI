@@ -1,4 +1,4 @@
-<nb-form-field (keydown.enter)="currentForm?.HandleFormEnter($event)">
+<nb-form-field (keydown.enter)="currentForm?.HandleFormEnter($event)" [formGroup]="currentForm!.form">
     <div class="bbx-fd-form-field-inner-div">
         <label>{{label}}</label>
 

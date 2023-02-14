@@ -96,16 +96,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   _countryCodes: CountryCode[] = [];
   countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-
   get privatePersonDefaultValue(): Boolean {
     return !this.createCustomer && (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
       (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
-  }
-
-  get formValueFormCustomerBankAccNm(): string {
-    const tmp = this.currentForm!.GetValue('customerBankAccountNumber') as string;
-    return tmp !== undefined ? tmp : '';
   }
 
   constructor(
@@ -206,18 +199,6 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
     if (!!this.currentForm) {
       this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
-
-      this.currentForm.form.controls['customerBankAccountNumber'].valueChanges.subscribe({
-        next: val => {
-          const currentTypeBankAccountNumber = val;
-          const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-          if (currentTypeBankAccountNumber.length > 1) {
-            return;
-          }
-          const nextMask = isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
-          this.bankAccountMask.next(nextMask);
-        }
-      });
     }
   }
 
@@ -322,52 +303,6 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
         this.countryCodeComboData$.next(this.countryCodes);
       }
     });
-  }
-
-  private checkIfIbanStarted(typedVal: string): boolean {
-    return typedVal.length > 0 && (typedVal.charAt(0) <= '0' || typedVal.charAt(0) >= '9');
-  }
-
-  GetBankAccountMask(): string {
-    const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm;
-    const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-    return isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
-  }
-
-  checkBankAccountKeydownValue(event: any): void {
-    if (event.key.length === 1) {
-      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key) ?? '';
-
-      console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
-
-      const nextMask = this.checkIfIbanStarted(currentTypeBankAccountNumber) ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern;
-      console.log("Check: ", currentTypeBankAccountNumber.length, nextMask.length, nextMask);
-      if (currentTypeBankAccountNumber.length > nextMask.length) {
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
-      if (currentTypeBankAccountNumber.length > 1) {
-        return;
-      }
-      const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-
-      console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
-    } else {
-      const currentTypeBankAccountNumber = this.formValueFormCustomerBankAccNm.concat(event.key) ?? '';
-
-      console.log('[checkBankAccountKeydownValue] ', this.currentForm!.GetValue('customerBankAccountNumber'), event.key, currentTypeBankAccountNumber, currentTypeBankAccountNumber.length);
-
-      if (currentTypeBankAccountNumber.length > 1) {
-        return;
-      }
-      const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber);
-
-      console.log(isIbanStarted, currentTypeBankAccountNumber.length > 0, currentTypeBankAccountNumber.charAt(0) <= '0', currentTypeBankAccountNumber.charAt(0) >= '9');
-      this.bankAccountMask.next(isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern);
-    }
   }
 
   postalCodeInputFocusOut(event: any): void {
