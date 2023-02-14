@@ -59,33 +59,40 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     lineNumber: number = 0; // hidden
 
-    productCode: string = ''; // editable
+    // productCode: string = 'valami'; // editable
+    private valami: string = ''
+    public get productCode(): string {
+        return this.valami
+    }
+    public set productCode(value: string) {
+        this.valami = value
+    }
     productDescription: string = "";
 
     quantity: number = 0.0; // editable
 
-    
+
     unitOfMeasure: string = "";
-    
+
     unitPrice: number = 0.0; // editable
-    
+
     vatRateCode: string = ''; // below table
 
     lineNetAmount: number = 0.0; // price * quant
 
     lineGrossAmount: number = 0.0; // netamount + vatamount
     lineVatAmount: number = 0.0; // netamount * vat - hidden
-    
+
     custDiscounted: boolean = false;
     noDiscount: boolean = false;
     discount: number = 0;
 
     vatRate: number = 1; // hidden
-    
+
     unitOfMeasureX?: string;
-    
+
     relDeliveryNoteInvoiceLineID: number = 0
-    
+
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.
      */

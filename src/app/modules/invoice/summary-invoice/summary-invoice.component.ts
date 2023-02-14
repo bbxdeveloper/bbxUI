@@ -1016,13 +1016,41 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         if (relDeliveryDate < invoiceDeliveryDate) {
           this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
         }
+
+        const checkedNote = this.dbData.find(x => x.data.invoiceNumber === note.invoiceNumber)
+        if (checkedNote) {
+          note.quantity += checkedNote.data.quantity
+        }
       })
+
+      const existingNotes = this.dbData.filter(x => !!x.data.invoiceNumber)
+        .filter(x => notes.filter(note => x.data.invoiceNumber !== note.invoiceNumber))
+        .map(x => x.data)
 
       this.dbData = notes
         .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
+        .concat(existingNotes)
         .map(x => ({ data: x, uid: this.nextUid() }))
 
+      this.dbData.sort((a, b) => {
+        if (a.data.invoiceNumber! > b.data.invoiceNumber!)
+          return 1
+
+        if (a.data.invoiceNumber! < b.data.invoiceNumber!)
+          return -1
+
+        return 0
+      })
+
       this.RefreshTable()
+    })
+
+    const checkedNotes = this.dbData.map(x => {
+      const data = {
+        productCode: x.data.productCode,
+        quantity: x.data.quantity
+      } as PendingDeliveryNote
+      return data
     })
 
     this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
@@ -1030,13 +1058,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
-        checkedNotes: this.dbData.map(x => {
-          const data = {
-            invoiceNumber: x.data.invoiceNumber,
-            quantity: x.data.quantity
-          } as PendingDeliveryNote
-          return data
-        }),
+        checkedNotes: checkedNotes,
         customerID: this.buyerData.id,
         selectedNotes: event,
       }

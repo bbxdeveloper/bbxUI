@@ -75,19 +75,19 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     try {
       let data = await this.invoiceService.GetPendingDeliveryNotes(request)
 
-      data = data
-        .map(datum => {
-          const checkedNote = this.checkedNotes.find(note => note.invoiceNumber === datum.invoiceNumber)
+      data.forEach(datum => {
+        const checkedNote = this.checkedNotes.find(note => note.productCode === datum.productCode)
 
-          if (checkedNote) {
-            datum.quantity -= checkedNote.quantity
-          }
+        if (checkedNote) {
+          datum.quantity -= checkedNote.quantity
+        }
 
-          return datum
-        })
-        .filter(datum => datum.quantity > 0)
+        return datum
+      })
 
-      this.dbData = data.map(x => ({ data: x, uid: this.nextUid() }))
+      this.dbData = data.filter(datum => datum.quantity > 0)
+        .map(x => ({ data: x, uid: this.nextUid() }))
+
       this.dbDataSource.setData(this.dbData)
 
       this.refreshTable()
