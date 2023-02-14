@@ -1043,6 +1043,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.unitOfMeasureX = value.unitOfMeasureX
     line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
     line.invoiceNumber = value.invoiceNumber
+    line.workNumber = value.workNumber
 
     return line
   }
@@ -1080,6 +1081,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       return 0
     })
+
+    let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
+      .map(x => x.data.workNumber)
+
+    workNumbers = [...new Set(workNumbers)]
+    const notice = this.outInvForm.get('notice')
+    notice?.setValue('M.SZ.: ' + workNumbers.join(', '))
 
     this.RefreshTable()
   }
