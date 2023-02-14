@@ -1008,42 +1008,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     const event = new EventEmitter<PendingDeliveryNote[]>()
 
-    event.subscribe((notes: PendingDeliveryNote[]) => {
-      notes.forEach(note => {
-        const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
-        const relDeliveryDate = new Date(note.relDeliveryDate)
-
-        if (relDeliveryDate < invoiceDeliveryDate) {
-          this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
-        }
-
-        const checkedNote = this.dbData.find(x => x.data.invoiceNumber === note.invoiceNumber)
-        if (checkedNote) {
-          note.quantity += checkedNote.data.quantity
-        }
-      })
-
-      const existingNotes = this.dbData.filter(x => !!x.data.invoiceNumber)
-        .filter(x => notes.filter(note => x.data.invoiceNumber !== note.invoiceNumber))
-        .map(x => x.data)
-
-      this.dbData = notes
-        .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
-        .concat(existingNotes)
-        .map(x => ({ data: x, uid: this.nextUid() }))
-
-      this.dbData.sort((a, b) => {
-        if (a.data.invoiceNumber! > b.data.invoiceNumber!)
-          return 1
-
-        if (a.data.invoiceNumber! < b.data.invoiceNumber!)
-          return -1
-
-        return 0
-      })
-
-      this.RefreshTable()
-    })
+    event.subscribe(this.fillTableWithPendingNotes.bind(this))
 
     const checkedNotes = this.dbData.map(x => {
       const data = {
@@ -1063,7 +1028,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         selectedNotes: event,
       }
     });
-
   }
 
   private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
@@ -1079,8 +1043,53 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.unitOfMeasureX = value.unitOfMeasureX
     line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
     line.invoiceNumber = value.invoiceNumber
+    line.workNumber = value.workNumber
 
     return line
+  }
+
+  private fillTableWithPendingNotes(notes: PendingDeliveryNote[]): void {
+    notes.forEach(note => {
+      const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
+      const relDeliveryDate = new Date(note.relDeliveryDate)
+
+      if (relDeliveryDate < invoiceDeliveryDate) {
+        this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
+      }
+
+      const checkedNote = this.dbData.find(x => x.data.invoiceNumber === note.invoiceNumber)
+      if (checkedNote) {
+        note.quantity += checkedNote.data.quantity
+      }
+    })
+
+    const existingNotes = this.dbData.filter(x => !!x.data.invoiceNumber)
+      .filter(x => notes.filter(note => x.data.invoiceNumber !== note.invoiceNumber))
+      .map(x => x.data)
+
+    this.dbData = notes
+      .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
+      .concat(existingNotes)
+      .map(x => ({ data: x, uid: this.nextUid() }))
+
+    this.dbData.sort((a, b) => {
+      if (a.data.invoiceNumber! > b.data.invoiceNumber!)
+        return 1
+
+      if (a.data.invoiceNumber! < b.data.invoiceNumber!)
+        return -1
+
+      return 0
+    })
+
+    let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
+      .map(x => x.data.workNumber)
+
+    workNumbers = [...new Set(workNumbers)]
+    const notice = this.outInvForm.get('notice')
+    notice?.setValue('M.SZ.: ' + workNumbers.join(', '))
+
+    this.RefreshTable()
   }
 
   ChooseDataForForm(): void {

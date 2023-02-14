@@ -93,6 +93,8 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     relDeliveryNoteInvoiceLineID: number = 0
 
+    workNumber: string = ''
+
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.
      */
