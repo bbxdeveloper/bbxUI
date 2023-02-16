@@ -27,9 +27,62 @@
                         (dblclick)="selectRow($event, row)"
                         [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
-                        <div>
+                        <!-- <div>
                             {{ row.data[it.objectKey] }}
-                        </div>
+                        </div> -->
+                        <ng-container>
+                            <ng-container *ngSwitchCase="'code-field'">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'formatted-number'">
+                                <div>
+                                    {{
+                                    it.calc !== undefined ?
+                                    it.calc(row.data) :
+                                    row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' |
+                                    replace:',':'.'
+                                    }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) :
+                                    '8.2'):'fr' |
+                                    removeWhitespaces | replace:',':'.' }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'checkbox'">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '✓' : '✗' }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'formatted-number-2'">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] |
+                                    number:'1.1-5' }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'formatted-number-integer'">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchDefault="">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+
+
+                        </ng-container>
                     </td>
                 </ng-container>
             </ng-container>

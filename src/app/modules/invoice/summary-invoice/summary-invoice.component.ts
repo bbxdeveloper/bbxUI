@@ -1047,6 +1047,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.invoiceNumber = value.invoiceNumber
     line.workNumber = value.workNumber
 
+    line.Save('productCode')
+
     return line
   }
 

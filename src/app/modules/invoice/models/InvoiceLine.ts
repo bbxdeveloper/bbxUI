@@ -59,14 +59,7 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     lineNumber: number = 0; // hidden
 
-    // productCode: string = 'valami'; // editable
-    private valami: string = ''
-    public get productCode(): string {
-        return this.valami
-    }
-    public set productCode(value: string) {
-        this.valami = value
-    }
+    productCode: string = ''; // editable
     productDescription: string = "";
 
     quantity: number = 0.0; // editable
