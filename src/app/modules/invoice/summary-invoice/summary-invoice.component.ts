@@ -141,6 +141,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   exporterForm!: FormGroup;
 
+  workNumbers!: string[]
+
   outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
   outInvFormNav!: InlineTableNavigatableForm;
@@ -1082,14 +1084,31 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       return 0
     })
 
+    this.generateWorkNumbers()
+
+    this.RefreshTable()
+  }
+
+  private generateWorkNumbers(): void {
+    const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
+
+    const noticeControl = this.outInvForm.get('notice')
+    const existingNotice = noticeControl?.value as string ?? ''
+
+    const existingWorkNumbers = !!this.workNumbers ? workNumbersAsString() : ''
+    const otherNotes = existingNotice
+      .substring(existingWorkNumbers.length)
+      .trim()
+
     let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
       .map(x => x.data.workNumber)
 
-    workNumbers = [...new Set(workNumbers)]
-    const notice = this.outInvForm.get('notice')
-    notice?.setValue('M.SZ.: ' + workNumbers.join(', '))
+    this.workNumbers = [...new Set(workNumbers)]
 
-    this.RefreshTable()
+    if (this.workNumbers.length !== 0) {
+      const notice = workNumbersAsString() + ' ' + otherNotes
+      noticeControl?.setValue(notice.trim())
+    }
   }
 
   ChooseDataForForm(): void {
