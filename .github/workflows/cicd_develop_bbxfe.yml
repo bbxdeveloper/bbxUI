@@ -24,5 +24,5 @@ jobs:
       #  run: npm run test:headless
 
       - name: Build
-        run: npm run build-prod
-        #ng build --prod --base-href
+        #run: npm run build-prod
+        run: ng build --prod --base-href
