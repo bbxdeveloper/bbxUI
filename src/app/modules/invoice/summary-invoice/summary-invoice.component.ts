@@ -141,7 +141,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   exporterForm!: FormGroup;
 
-  workNumbers!: string[]
+  workNumbers: string[] = []
 
   outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
@@ -1105,10 +1105,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.workNumbers = [...new Set(workNumbers)]
 
-    if (this.workNumbers.length !== 0) {
-      const notice = workNumbersAsString() + ' ' + otherNotes
-      noticeControl?.setValue(notice.trim())
-    }
+    const notice = this.workNumbers.length > 0
+      ? workNumbersAsString() + ' ' + otherNotes
+      : otherNotes
+
+    noticeControl?.setValue(notice.trim())
   }
 
   ChooseDataForForm(): void {
@@ -1371,6 +1372,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           _event.preventDefault();
           HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
+
+            this.generateWorkNumbers()
           });
           break;
         }
