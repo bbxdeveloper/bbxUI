@@ -565,7 +565,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                       this.ExitToNav();
                     } else {
                       this.simpleToastrService.show(
-                        `Az árajánlat számla nyomtatása nem történt meg.`,
+                        `Az ajánlat nyomtatása nem történt meg.`,
                         Constants.TITLE_INFO,
                         Constants.TOASTR_SUCCESS_5_SEC
                       );

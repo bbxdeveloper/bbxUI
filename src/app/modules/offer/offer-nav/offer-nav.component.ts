@@ -1082,7 +1082,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             }
           } else {
             this.simpleToastrService.show(
-              `Az árajánlat számla nyomtatása nem történt meg.`,
+              `Az ajánlat nyomtatása nem történt meg.`,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
             );

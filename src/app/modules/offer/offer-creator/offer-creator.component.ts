@@ -442,7 +442,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                     await this.printReport(d.data?.id, res.value);
                   } else {
                     this.simpleToastrService.show(
-                      `Az árajánlat számla nyomtatása nem történt meg.`,
+                      `Az ajánlat nyomtatása nem történt meg`,
                       Constants.TITLE_INFO,
                       Constants.TOASTR_SUCCESS_5_SEC
                     );

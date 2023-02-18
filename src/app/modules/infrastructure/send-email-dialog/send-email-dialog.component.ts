@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy } from '@angular/core';
 import { NbDialogRef, NbDialogService, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
@@ -17,6 +17,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { lastValueFrom } from 'rxjs';
 import { Offer } from '../../offer/models/Offer';
 import { UtilityService } from 'src/app/services/utility.service';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -24,7 +25,7 @@ import { UtilityService } from 'src/app/services/utility.service';
   styleUrls: ['./send-email-dialog.component.scss']
 })
 export class SendEmailDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
-  title: string = "Bejelentkezés";
+  @Input() title: string = "Ajánlat küldése email-ben";
   closedManually = false;
   
   @Input() subject?: string;
@@ -238,62 +239,6 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
       });
 
       await this.printReport(this.PrintParams!.id, 1);
-
-      // const updatedOffer = await this.GetOffer(this.PrintParams!.id);
-      // if (updatedOffer) {
-      //   this.PrintParams!.dbData[this.PrintParams!.rowIndex].data.copies = updatedOffer.copies;
-      // }
-
-      // const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-      //   context: {
-      //     title: 'Ajánlat Nyomtatása',
-      //     inputLabel: 'Példányszám',
-      //     defaultValue: 1
-      //   }
-      // });
-      // dialogRef.onClose.subscribe({
-      //   next: async res => {
-      //     if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
-      //       let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-      //         next: cmdEnded => {
-      //           console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-      //           if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-      //             this.simpleToastrService.show(
-      //               `Az árajánlat nyomtatása véget ért.`,
-      //               Constants.TITLE_INFO,
-      //               Constants.TOASTR_SUCCESS_5_SEC
-      //             );
-      //             commandEndedSubscription.unsubscribe();
-      //           }
-      //         },
-      //         error: cmdEnded => {
-      //           console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-      //           commandEndedSubscription.unsubscribe();
-      //           this.bbxToastrService.show(
-      //             `Az árajánlat nyomtatása közben hiba történt.`,
-      //             Constants.TITLE_ERROR,
-      //             Constants.TOASTR_ERROR
-      //           );
-      //         }
-      //       });
-
-      //       await this.printReport(this.PrintParams!.id, res.value);
-
-      //       const updatedOffer = await this.GetOffer(this.PrintParams!.id);
-      //       if (updatedOffer) {
-      //         this.PrintParams!.dbData[this.PrintParams!.rowIndex].data.copies = updatedOffer.copies;
-      //       }
-      //     } else {
-      //       this.simpleToastrService.show(
-      //         `Az árajánlat számla nyomtatása nem történt meg.`,
-      //         Constants.TITLE_INFO,
-      //         Constants.TOASTR_SUCCESS_5_SEC
-      //       );
-      //     }
-      //   }
-      // });
     }
   }
 
@@ -325,4 +270,23 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     return offerRes;
   }
 
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      if (this.isEditModeOff) {
+        this.close(false)
+      } else {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      }
+    }
+    if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this.dataForm?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+  }
 }
