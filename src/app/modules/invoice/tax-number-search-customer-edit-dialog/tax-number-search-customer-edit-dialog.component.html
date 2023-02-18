@@ -4,8 +4,7 @@
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!currentForm" [id]="sumFormId" [formGroup]="currentForm.form" #formDirective="ngForm"
-            (keydown.escape)="currentForm.HandleFormEscape()" (focusout)="currentForm.HandleFormFocusOut()"
-            (click)="currentForm.HandleFormClick()">
+            (focusout)="currentForm.HandleFormFocusOut()" (click)="currentForm.HandleFormClick()">
         
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">

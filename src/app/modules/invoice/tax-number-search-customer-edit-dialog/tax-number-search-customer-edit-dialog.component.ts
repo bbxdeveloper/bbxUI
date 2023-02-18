@@ -19,7 +19,7 @@ import { createMask } from '@ngneat/input-mask';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CreateCustomerRequest } from '../../customer/models/CreateCustomerRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
@@ -361,6 +361,13 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      if (this.isEditModeOff) {
+        this.close(undefined)
+      } else {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      }
+    }
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.currentForm?.HandleFormShiftEnter(event)

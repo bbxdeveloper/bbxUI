@@ -27,8 +27,6 @@ import { VatRate } from '../../vat-rate/models/VatRate';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
 
-const ibanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000';
-const defaultPattern: string = '00000000-00000000-00000000';
 
 @Component({
   selector: 'app-create-new-product-dialog',
@@ -342,5 +340,25 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     setTimeout(function () {
       codeInput.setSelectionRange(0, 0);
     }, 100);
+  }
+
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      if (this.isEditModeOff) {
+        this.close(undefined)
+      } else {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      }
+    }
+    if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this._form?.HandleFormShiftEnter(event)
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
   }
 }
