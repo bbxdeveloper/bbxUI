@@ -20,14 +20,6 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
   public isLoaded = false
   public override isLoading = false
 
-  // get getInputParams(): GetPendingDeliveryInvoiceSummariesRequest {
-  //   return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '10', PageNumber: '1', OrderBy: 'customerName' };
-  // }
-
-  // get getInputParamsForAll(): GetPendingDeliveryInvoiceSummariesRequest {
-  //   return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999', OrderBy: 'customerName' };
-  // }
-
   constructor(
     private readonly kns: KeyboardNavigationService,
     dialogRef: NbDialogRef<CustomersHasPendingInvoiceComponent>,

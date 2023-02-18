@@ -186,7 +186,7 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
         'customerID',
         'customer',
         'fullAddress',
-        'sumNetAmount'
+        'sumNetAmountDiscounted'
     ];
     export const ColDefs: ModelFieldDescriptor[] = [
         {
@@ -225,8 +225,8 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
         },
         {
             label: 'Nettó',
-            objectKey: 'sumNetAmount',
-            colKey: 'sumNetAmount',
+            objectKey: 'sumNetAmountDiscounted',
+            colKey: 'sumNetAmountDiscounted',
             defaultValue: '',
             type: 'formatted-number',
             fRequired: false,
