@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/FlatDesignNavigatableForm';
@@ -16,6 +17,7 @@ export class CustomerBankAccountNumberInputComponent implements OnInit, AfterVie
   @Input() formFieldName: string = ''
   @Input() label: string = ''
   @Input() readonlyMode: boolean = false
+  @Input() onFormUpdate: BehaviorSubject<FormGroup | undefined> = new BehaviorSubject<FormGroup | undefined>(undefined);
 
   get isReadonly() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT || this.readonlyMode
@@ -37,6 +39,17 @@ export class CustomerBankAccountNumberInputComponent implements OnInit, AfterVie
   }
 
   ngAfterViewInit(): void {
+    this.onFormUpdate.subscribe({
+      next: f => {
+        if (f) {
+          const val = f.controls[this.formFieldName].value;
+          const currentTypeBankAccountNumber = val !== undefined && val !== null ? val : ""
+          const isIbanStarted = this.checkIfIbanStarted(currentTypeBankAccountNumber)
+          const nextMask = isIbanStarted ? CustomerMisc.IbanPattern : CustomerMisc.DefaultPattern
+          this.bankAccountMask.next(nextMask)
+        }
+      }
+    });
     this.currentForm?.form.controls[this.formFieldName].valueChanges.subscribe({
       next: val => {
         const currentTypeBankAccountNumber = val !== undefined && val !== null ? val : ""
@@ -51,7 +64,7 @@ export class CustomerBankAccountNumberInputComponent implements OnInit, AfterVie
     var val = (typedVal ?? '').replace(/\s/g, '')
     // Azért [a-zA-Z]{1,3} [a-zA-Z]{1,2} helyett és [0-9]{0,23} a [0-9]{0,22}, mivel itt még nem jutott el a maszk ellenőrzéséig a begépelt érték
     // itt viszont számítani kell még rá.
-    return /^[a-zA-Z]{1,3}[0-9]{0,23}$/.test(val)
+    return CustomerMisc.IbanRegex.test(val)
   }
 
   checkBankAccountKeydownValue(event: any): void {
@@ -62,7 +75,7 @@ export class CustomerBankAccountNumberInputComponent implements OnInit, AfterVie
     var typed = this.formValueFormCustomerBankAccNm.concat(event.key)
 
     let currentMask = this.bankAccountMask.getValue();
-    if (typed.replace(/\s/g, '').length > currentMask.replace(/\s/g, '').length) {
+    if (currentMask && typed.replace(/\s/g, '').length > currentMask.replace(/\s/g, '').length) {
       event.stopImmediatePropagation()
       event.preventDefault()
       event.stopPropagation()
