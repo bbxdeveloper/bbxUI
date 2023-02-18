@@ -873,110 +873,112 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
-      if (!!res) {
-        this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
-        const request = this.UpdateOutGoingData();
-
-        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.seInv.CreateOutgoing(request).subscribe({
-          next: d => {
-            //this.isSilentLoading = false;
-            if (!!d.data) {
-              console.log('Save response: ', d);
-
-              if (!!d.data) {
-                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-              }
-
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-              this.isSaveInProgress = true;
-
-              this.status.pushProcessStatus(Constants.BlankProcessStatus);
-
-              const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-                context: {
-                  title: 'Számla Nyomtatása',
-                  inputLabel: 'Példányszám',
-                  defaultValue: 1
-                }
-              });
-              dialogRef.onClose.subscribe({
-                next: async res => {
-                  console.log("OneTextInputDialogComponent: ", res);
-                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
-                    let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                      next: cmdEnded => {
-                        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.Reset();
-
-                          this.simpleToastrService.show(
-                            `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                            Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS_5_SEC
-                          );
-                          commandEndedSubscription.unsubscribe();
-                        }
-
-                        this.isSaveInProgress = false;
-                      },
-                      error: cmdEnded => {
-                        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                        this.isLoading = false;
-                        this.isSaveInProgress = false;
-
-                        this.bbxToastrService.show(
-                          `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                          Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR
-                          );
-                          this.isSaveInProgress = false;
-
-                          commandEndedSubscription.unsubscribe();
-                      }
-                    });
-                    await this.printReport(d.data?.id, res.value);
-                  } else {
-                    this.simpleToastrService.show(
-                      `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                      Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS_5_SEC
-                    );
-                    this.isSaveInProgress = false;
-                    this.Reset();
-                  }
-                }
-              });
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isSaveInProgress = false;
-              this.status.pushProcessStatus(Constants.BlankProcessStatus);
-            }
-          },
-          error: err => {
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
-            this.cs.HandleError(err);
-            this.isSaveInProgress = false;
-          },
-          complete: () => {
-            this.isSaveInProgress = false;
-          }
-        });
-      } else {
+      if (!res) {
         this.isSaveInProgress = false;
         // Szerkesztés esetleges folytatása miatt
         this.kbS.ClickCurrentElement();
+
+        return
       }
+
+      this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
+      const request = this.UpdateOutGoingData();
+
+      this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.seInv.CreateOutgoing(request).subscribe({
+        next: d => {
+          //this.isSilentLoading = false;
+          if (!!d.data) {
+            console.log('Save response: ', d);
+
+            if (!!d.data) {
+              this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+            }
+
+            this.simpleToastrService.show(
+              Constants.MSG_SAVE_SUCCESFUL,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+
+            this.dbDataTable.RemoveEditRow();
+            this.kbS.SelectFirstTile();
+
+            this.isSaveInProgress = true;
+
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
+
+            const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+              context: {
+                title: 'Számla Nyomtatása',
+                inputLabel: 'Példányszám',
+                defaultValue: 1
+              }
+            });
+            dialogRef.onClose.subscribe({
+              next: async res => {
+                console.log("OneTextInputDialogComponent: ", res);
+                if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+                  let commandEndedSubscription = this.utS.CommandEnded.subscribe({
+                    next: cmdEnded => {
+                      console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+                      if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                        this.Reset();
+
+                        this.simpleToastrService.show(
+                          `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+                          Constants.TITLE_INFO,
+                          Constants.TOASTR_SUCCESS_5_SEC
+                        );
+                        commandEndedSubscription.unsubscribe();
+                      }
+
+                      this.isSaveInProgress = false;
+                    },
+                    error: cmdEnded => {
+                      console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+                      this.isLoading = false;
+                      this.isSaveInProgress = false;
+
+                      this.bbxToastrService.show(
+                        `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+                        Constants.TITLE_ERROR,
+                        Constants.TOASTR_ERROR
+                        );
+                        this.isSaveInProgress = false;
+
+                        commandEndedSubscription.unsubscribe();
+                    }
+                  });
+                  await this.printReport(d.data?.id, res.value);
+                } else {
+                  this.simpleToastrService.show(
+                    `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS_5_SEC
+                  );
+                  this.isSaveInProgress = false;
+                  this.Reset();
+                }
+              }
+            });
+          } else {
+            this.cs.HandleError(d.errors);
+            this.isSaveInProgress = false;
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
+          }
+        },
+        error: err => {
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
+          this.cs.HandleError(err);
+          this.isSaveInProgress = false;
+        },
+        complete: () => {
+          this.isSaveInProgress = false;
+        }
+      });
     });
   }
 
@@ -1092,6 +1094,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.generateWorkNumbers()
 
     this.RefreshTable()
+
+    this.UpdateOutGoingData()
   }
 
   private generateWorkNumbers(): void {
