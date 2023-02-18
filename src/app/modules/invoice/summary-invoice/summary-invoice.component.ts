@@ -1070,8 +1070,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       }
     })
 
-    const existingNotes = this.dbData.filter(x => !!x.data.productCode)
-      .filter(x => notes.filter(note => x.data.productCode !== note.productCode))
+    const existingNotes = this.dbData
+      .filter(x => !!x.data.productCode)
       .map(x => x.data)
 
     this.dbData = notes
