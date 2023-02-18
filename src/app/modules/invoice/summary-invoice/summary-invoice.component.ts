@@ -1061,14 +1061,17 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
       }
 
-      const checkedNote = this.dbData.find(x => x.data.invoiceNumber === note.invoiceNumber)
+      const checkedNote = this.dbData.find(x => x.data.productCode === note.productCode)
       if (checkedNote) {
         note.quantity += checkedNote.data.quantity
+
+        const index = this.dbData.indexOf(checkedNote)
+        this.dbData.splice(index, 1)
       }
     })
 
-    const existingNotes = this.dbData.filter(x => !!x.data.invoiceNumber)
-      .filter(x => notes.filter(note => x.data.invoiceNumber !== note.invoiceNumber))
+    const existingNotes = this.dbData.filter(x => !!x.data.productCode)
+      .filter(x => notes.filter(note => x.data.productCode !== note.productCode))
       .map(x => x.data)
 
     this.dbData = notes
