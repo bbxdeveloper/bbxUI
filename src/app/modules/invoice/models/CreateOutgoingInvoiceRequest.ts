@@ -38,7 +38,7 @@ export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<In
     "invoiceDiscountPercent": number;
 }
 
-export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
+export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData, needVatRate = true): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     if (f.invoiceType === InvoiceTypes.DNO) {
         let res = {
             customerID: f.customerID,
@@ -64,7 +64,7 @@ export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): Cr
             customerID: f.customerID,
             invoiceDeliveryDate: f.invoiceDeliveryDate,
             invoiceIssueDate: f.invoiceIssueDate,
-            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData()),
+            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData(needVatRate)),
             notice: f.notice,
             paymentDate: f.paymentDate,
             paymentMethod: f.paymentMethod,

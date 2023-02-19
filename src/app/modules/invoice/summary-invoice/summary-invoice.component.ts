@@ -498,7 +498,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-    
+
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
@@ -806,7 +806,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
-    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
+    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
 
   async printReport(id: any, copies: number): Promise<void> {
