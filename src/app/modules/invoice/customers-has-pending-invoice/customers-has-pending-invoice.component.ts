@@ -49,7 +49,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
       $('#active-prod-search').val(this.searchString);
       this.isLoaded = true;
 
-      this.kns.ClickCurrentElement()
+      setTimeout(() => this.kbS.ClickCurrentElement(), 1000)
     }
     this.kbS.SelectCurrentElement();
   }
