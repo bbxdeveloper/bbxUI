@@ -95,8 +95,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     'quantity',
     'unitOfMeasureX',
     'unitPrice',
-    'lineNetAmount',
-    'lineGrossAmount',
+    'rowNetValueRounded',
+    'rowGrossValueRounded',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -127,12 +127,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Nettó', objectKey: 'lineNetAmount', colKey: 'lineNetAmount',
+      label: 'Nettó', objectKey: 'rowNetValueRounded', colKey: 'rowNetValueRounded',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Bruttó', objectKey: 'lineGrossAmount', colKey: 'lineGrossAmount',
+      label: 'Bruttó', objectKey: 'rowGrossValueRounded', colKey: 'rowGrossValueRounded',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -488,18 +488,23 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.unitPriceQuantity - x.rowDiscountValue))
+      .map(x => HelperFunctions.ToFloat(x.rowNetValueRounded))
         .reduce((sum, current) => sum + current, 0);
 
     this.outGoingInvoiceData.invoiceVatAmount =
       this.outGoingInvoiceData.invoiceLines
         .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
-
+        
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
-      HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-    
-    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
+    HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
+        
+    // Csak gyűjtőszámlánál
+    this.outGoingInvoiceData.lineGrossAmount =
+      this.outGoingInvoiceData.invoiceLines
+      .map(x => HelperFunctions.ToFloat(x.rowGrossValueRounded))
+        .reduce((sum, current) => sum + current, 0);
+    //this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
