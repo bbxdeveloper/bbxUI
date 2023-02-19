@@ -46,6 +46,7 @@ import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-in
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { InvoiceCategory } from '../models/InvoiceCategory';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -256,10 +257,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   private SetModeBasedOnRoute(params: UrlSegment[]): void {
     console.log("ActivatedRoute: ", params[0].path);
     const path = params[0].path;
-    if (path === 'invoice') {
+    if (path === 'summary-invoice') {
       this.InvoiceType = InvoiceTypes.INV;
-    } else if (path === 'outgoing-delivery-note-income') {
-      this.InvoiceType = InvoiceTypes.DNO;
+      this.InvoiceCategory = InvoiceCategory.AGGREGATE
+    } else {
+      this.InvoiceType = InvoiceTypes.INV;
     }
     console.log("InvoiceType: ", this.InvoiceType);
   }
@@ -800,6 +802,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.incoming = this.Incoming;
     this.outGoingInvoiceData.invoiceType = this.InvoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
@@ -1048,6 +1051,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
     line.invoiceNumber = value.invoiceNumber
     line.workNumber = value.workNumber
+    line.unitPriceDiscounted = value.unitPriceDiscounted
 
     line.Save('productCode')
 

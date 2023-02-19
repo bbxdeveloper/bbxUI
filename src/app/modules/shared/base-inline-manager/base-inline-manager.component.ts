@@ -26,6 +26,7 @@ import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-tabl
 import { CreateNewProductDialogComponent } from '../create-new-product-dialog/create-new-product-dialog.component';
 import { Product } from '../../product/models/Product';
 import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
+import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -36,6 +37,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   // Invoice related
 
   protected InvoiceType: string = InvoiceTypes.NOT_DEFINED;
+  protected InvoiceCategory: string = InvoiceCategory.NOT_DEFINED
   DeliveryPaymentMethod: string = 'OTHER';
   get Delivery(): boolean {
     return this.InvoiceType == InvoiceTypes.DNI || this.InvoiceType == InvoiceTypes.DNO;

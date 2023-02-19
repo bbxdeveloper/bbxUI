@@ -4,25 +4,26 @@ import { InvoiceTypes } from "./InvoiceTypes";
 
 export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
     "warehouseCode": string, // 001 - string
-    
+
     "invoiceIssueDate": any, // date
     "invoiceDeliveryDate": any, // date
     "paymentDate": any, // date
-    
+
     "customerID": number,
     "customerInvoiceNumber"?: string,
-    
+
     "paymentMethod": string,
-    
+
     "notice": string,
-    
+
     "invoiceLines": T[],
-    
+
     "currencyCode"?: string,
     "exchangeRate"?: number,
-    
+
     "incoming"?: boolean,
     "invoiceType"?: string,
+    "invoiceCategory"?: string,
 
     "invoiceDiscountPercent": number;
 
@@ -73,6 +74,7 @@ export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): Cr
             exchangeRate: f.exchangeRate,
             incoming: f.incoming,
             invoiceType: f.invoiceType,
+            invoiceCategory: f.invoiceCategory,
             invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent),
         } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
         return res;

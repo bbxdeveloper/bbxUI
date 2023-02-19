@@ -6,6 +6,7 @@ export interface PendingDeliveryNote {
     quantity: number,
     unitOfMeasureX: string,
     unitPrice: number,
+    unitPriceDiscounted: number,
     lineNetAmount: number,
 
     invoiceLineID: number,

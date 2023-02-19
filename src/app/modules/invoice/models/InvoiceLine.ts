@@ -95,6 +95,12 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     invoiceNumber?: string;
 
+    unitPriceDiscounted: number = 0
+
+    public get discountValue(): number {
+        return this.unitPriceDiscounted * this.quantity
+    }
+
     constructor() {
         super();
         this.SaveDefault();

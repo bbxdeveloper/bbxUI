@@ -12,6 +12,8 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
+import { Invoice } from '../models/Invoice';
+import { InvoiceCategory } from '../models/InvoiceCategory';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -40,6 +42,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   get isEditModeOff() {
     return this.kBs.currentKeyboardMode !== KeyboardModes.EDIT;
+  }
+
+  public get isAggregate(): boolean {
+    return this.data?.invoiceCategory === InvoiceCategory.AGGREGATE
   }
 
   discountPercentInputPlaceHolder: string = "0";
@@ -145,14 +151,20 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.prepareVatRateCodes(invoiceDiscountMultiplier);
 
     // discountedInvoiceNetAmount
-    let discountedInvoiceNetAmount =
-      this.data.invoiceLines
+    let discountedInvoiceNetAmount = 0
+    if (!this.isAggregate) {
+      discountedInvoiceNetAmount = this.data.invoiceLines
         .map(x => HelperFunctions.ToFloat(x.discountedData!.lineNetAmount))
         .reduce((sum, current) => sum + current, 0);
+    }
+    else {
+      discountedInvoiceNetAmount = this.data.invoiceLines.reduce((sum, current) => sum += current.discountValue, 0)
+    }
+
     discountedInvoiceNetAmount = HelperFunctions.Round2(discountedInvoiceNetAmount, 1);
-    
+
     const invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
-    
+
     console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", invoiceDiscountMultiplier, ", discount value: ", invoiceDiscountValue);
 
     // const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
