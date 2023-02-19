@@ -14,8 +14,9 @@ export interface InvoiceLineForPost {
     quantity: number; // editable
     unitOfMeasure: string;
     unitPrice: number; // editable
-    vatRateCode: string; // below table
+    vatRateCode?: string; // below table
     lineNetAmount: number; // price * quant
+    relDeliveryNoteInvoiceLineID?: number
 }
 
 export function GetBlankInvoiceLineForPost(): InvoiceLineForPost {
@@ -191,7 +192,8 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
             unitOfMeasure: this.unitOfMeasure,
             unitPrice: HelperFunctions.ToFloat(this.unitPrice),
             vatRate: this.vatRate,
-            vatRateCode: this.vatRateCode
+            vatRateCode: this.vatRateCode ?? undefined,
+            relDeliveryNoteInvoiceLineID: this.relDeliveryNoteInvoiceLineID
         } as InvoiceLineForPost;
 
         return res;
