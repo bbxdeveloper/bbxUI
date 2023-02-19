@@ -173,12 +173,23 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
     // discounted vat amount
     // refresh invoice stats
-    const discountedVatAmount =
-      this.data.invoiceLines
+
+    let discountedVatAmount
+    let discountedGross
+    if (this.isAggregate) {
+      discountedVatAmount = this.data.invoiceLines
+        .map(x => HelperFunctions.ToFloat(x.rowGrossValueRounded))
+        .reduce((sum, current) => sum + current, 0)
+
+      discountedGross = discountedVatAmount
+    }
+    else {
+      discountedVatAmount = this.data.invoiceLines
         .map(x => HelperFunctions.ToFloat(x.discountedData!.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
 
-    let discountedGross = discountedInvoiceNetAmount + discountedVatAmount;
+      discountedGross = discountedInvoiceNetAmount + discountedVatAmount;
+    }
 
     if (this.data.paymentMethod === "CASH" && this.data.currencyCode === CurrencyCodes.HUF) {
       discountedGross = HelperFunctions.CashRound(discountedGross);
