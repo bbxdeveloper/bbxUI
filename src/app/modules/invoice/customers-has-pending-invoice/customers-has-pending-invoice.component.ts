@@ -48,9 +48,10 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     if (!this.isLoaded) {
       $('#active-prod-search').val(this.searchString);
       this.isLoaded = true;
+
+      this.kns.ClickCurrentElement()
     }
     this.kbS.SelectCurrentElement();
-    this.kns.ClickCurrentElement()
   }
 
   ngOnDestroy(): void {

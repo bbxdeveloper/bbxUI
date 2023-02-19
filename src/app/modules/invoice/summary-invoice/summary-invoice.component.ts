@@ -1026,12 +1026,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
-        // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
         checkedNotes: checkedNotes,
         customerID: this.buyerData.id,
         selectedNotes: event,
       }
     });
+
   }
 
   private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
@@ -1055,6 +1055,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private fillTableWithPendingNotes(notes: PendingDeliveryNote[]): void {
+    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+
     notes.forEach(note => {
       const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
       const relDeliveryDate = new Date(note.relDeliveryDate)

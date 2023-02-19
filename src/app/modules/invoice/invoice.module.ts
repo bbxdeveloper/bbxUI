@@ -19,6 +19,7 @@ import { InvoiceNavSideBarFormComponent } from './invoice-nav-side-bar-form/invo
 import { SummaryInvoiceComponent } from './summary-invoice/summary-invoice.component';
 import { CustomersHasPendingInvoiceComponent } from './customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryNotesSelectDialogComponent } from './pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
+import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from './pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
 
 
 
@@ -34,6 +35,7 @@ import { PendingDeliveryNotesSelectDialogComponent } from './pending-delivery-no
     SummaryInvoiceComponent,
     CustomersHasPendingInvoiceComponent,
     PendingDeliveryNotesSelectDialogComponent,
+    PendingDeliveryNotesByInvoiceNumberDialogComponent,
   ],
   imports: [
     CommonModule,

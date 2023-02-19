@@ -1,16 +1,16 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
-import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary'
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from '../pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
+import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/model/TableSettings';
 
 @Component({
   selector: 'app-pending-delivery-notes-select-dialog',
@@ -32,6 +32,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
+    private readonly dialogService: NbDialogService
   ) {
     super(dialogRef, kns, dataSourceBuilder)
     const navMap: string[][] = [[]];
@@ -135,5 +136,32 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     this.selectedNotes.emit(this.dbData.map(x => x.data))
 
     this.close()
+  }
+
+  @HostListener('keydown.f6', ['$event'])
+  public notesByInvoiceNumber(event: KeyboardEvent) {
+    HelperFunctions.StopEvent(event)
+
+    this.close()
+
+    const invoices = this.dbData.map(x => x.data).filter(
+      (thing, i, arr) => arr.findIndex(t => t.invoiceNumber === thing.invoiceNumber) === i
+    );
+
+    const dialog = this.dialogService.open(PendingDeliveryNotesByInvoiceNumberDialogComponent, {
+      context: {
+        allColumns: PendingDeliveryNotesByInvoiceNumberTableSettings.AllColumns,
+        colDefs: PendingDeliveryNotesByInvoiceNumberTableSettings.ColDefs,
+        invoices: invoices
+      }
+    })
+
+    dialog.onClose.subscribe((selected: PendingDeliveryNote) => {
+      const notes = this.dbData
+        .filter(x => x.data.invoiceNumber === selected.invoiceNumber)
+        .map(x => x.data)
+
+      this.selectedNotes.emit(notes)
+    })
   }
 }

@@ -346,3 +346,47 @@ export module PendingDeliveryNotesTableSettings {
         },
     ];
 }
+
+export module PendingDeliveryNotesByInvoiceNumberTableSettings {
+    export const AllColumns: string[] = [
+        'invoiceNumber',
+        'relDeliveryDate',
+        'workNumber',
+    ];
+    export const ColDefs: ModelFieldDescriptor[] = [
+        {
+            label: 'Szállító',
+            objectKey: 'invoiceNumber',
+            colKey: 'invoiceNumber',
+            defaultValue: '',
+            type: 'string',
+            mask: '',
+            colWidth: '33%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Teljesítés',
+            objectKey: 'relDeliveryDate',
+            colKey: 'relDeliveryDate',
+            defaultValue: '',
+            type: 'onlyDate',
+            mask: '',
+            colWidth: '33%',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Munkaszám',
+            objectKey: 'workNumber',
+            colKey: 'workNumber',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            mask: '',
+            colWidth: '33%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+    ];
+}
