@@ -497,6 +497,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         .reduce((sum, current) => sum + current, 0);
         
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+
     HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
         
     // Csak gyűjtőszámlánál
@@ -504,7 +505,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.outGoingInvoiceData.invoiceLines
       .map(x => HelperFunctions.ToFloat(x.rowGrossValueRounded))
         .reduce((sum, current) => sum + current, 0);
-    //this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
@@ -811,7 +811,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
-    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
+    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
 
   async printReport(id: any, copies: number): Promise<void> {
