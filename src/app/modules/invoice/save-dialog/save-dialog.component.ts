@@ -241,11 +241,22 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   ngAfterViewInit(): void {
     this.kBs.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
-    this.kBs.SelectFirstTile();
-    this.kBs.setEditMode(KeyboardModes.EDIT);
-    setTimeout(() => {
-      HelperFunctions.SelectBeginningByClass('discount-input', 1);
-    }, 100);
+    if (this.data.invoiceCategory === InvoiceCategory.AGGREGATE) {
+      this.formNav.OuterJump = false
+      this.OuterJump = false
+
+      this.kBs.SetCurrentNavigatable(this);
+
+      this.kBs.SelectFirstTile();
+      this.kBs.setEditMode(KeyboardModes.NAVIGATION);
+    } else {
+      this.kBs.SelectFirstTile();
+      this.kBs.setEditMode(KeyboardModes.EDIT);
+      
+      setTimeout(() => {
+        HelperFunctions.SelectBeginningByClass('discount-input', 1);
+      }, 100);
+    }
   }
   ngOnDestroy(): void {
     if (!this.closedManually) {
