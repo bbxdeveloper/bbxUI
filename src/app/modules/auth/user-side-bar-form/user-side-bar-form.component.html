@@ -53,7 +53,7 @@
                 </ng-container>
 
                 <ng-container *ngSwitchCase="'password'">
-                    <nb-form-field *ngIf="!isReadonly" (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
+                    <nb-form-field *ngIf="!readonlyMode" (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                         <div class="bbx-fd-form-field-inner-div">
                             <ng-container [ngSwitch]="it.fInputType">
                                 <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
