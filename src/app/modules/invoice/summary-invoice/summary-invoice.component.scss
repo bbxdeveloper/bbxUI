@@ -283,19 +283,6 @@ input, label, th, td {
     font-size: 1.1rem;
 }
 
-.invoice-table-statistics {
-    padding: 0px;
-    padding-right: 75px;
-
-    width: 100%;
-    text-align: right;
-
-    span.line-amount {
-        font-size: 1rem;
-        margin-left: 25px;
-    }
-}
-
 .customer-search-row {
     margin-top: 25px;
     display: block;
@@ -339,16 +326,23 @@ input, label, th, td {
   margin-bottom: 5px;
 }
 
-table.table-statistics-net-vat-gross {
-    right: 100px !important;
-    position: fixed;
+.invoice-table-statistics {
+    padding: 0px;
 
-    column-gap: 25px;
-    padding: 5px;
-    border-spacing: 15px 0px;
+    width: 100%;
+    text-align: right;
 
-    td {
-        min-width: 300px;
-        text-align: left;
+    span.line-amount {
+        font-size: 1rem;
+        margin-left: 25px;
     }
+}
+
+div.table-statistics-net-vat-gross {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    justify-content: space-evenly;
 }

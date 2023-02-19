@@ -47,6 +47,7 @@ import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceS
 import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { InvoiceCategory } from '../models/InvoiceCategory';
+import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -206,7 +207,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
-    private custDiscountService: CustomerDiscountService
+    private custDiscountService: CustomerDiscountService,
+    public invoiceStatisticsService: InvoiceStatisticsService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.InitialSetup();
@@ -480,11 +482,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   RecalcNetAndVat(): void {
+    this.invoiceStatisticsService.InvoiceLines = this.dbData;
+
     this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
 
     this.outGoingInvoiceData.invoiceNetAmount =
       this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
+        .map(x => HelperFunctions.ToFloat(x.unitPriceQuantity - x.rowDiscountValue))
         .reduce((sum, current) => sum + current, 0);
 
     this.outGoingInvoiceData.invoiceVatAmount =
@@ -494,11 +498,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-
-    // this.outGoingInvoiceData.lineGrossAmount =
-    //   this.outGoingInvoiceData.invoiceLines
-    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
-    //     .reduce((sum, current) => sum + current, 0);
+    
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {

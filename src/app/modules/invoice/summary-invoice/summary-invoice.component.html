@@ -200,13 +200,13 @@
         </app-inline-editable-table>
     </nb-card-body>
     <nb-card-footer class="invoice-table-statistics">
-        <table class="table-statistics-net-vat-gross">
-            <tr>
-                <td>Szállítólevél száma: {{SelectedRowProperty('invoiceNumber')}}</td>
-                <td>Munkaszám: {{SelectedRowProperty('workNumber')}}</td>
-                <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-                <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-            </tr>
-        </table>
+        <div class="table-statistics-net-vat-gross">
+            <div>Szállítólevél száma: {{SelectedRowProperty('invoiceNumber')}}</div>
+            <div>Munkaszám: {{SelectedRowProperty('workNumber')}}</div>
+            <div>Tételek nettó: {{this.invoiceStatisticsService.InvoiceLineNetSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+            <div>Kedv. értéke: {{this.invoiceStatisticsService.InvoiceLineDiscountValueSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+            <div>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</div>
+            <div>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</div>
+        </div>
     </nb-card-footer>
 </nb-card>
