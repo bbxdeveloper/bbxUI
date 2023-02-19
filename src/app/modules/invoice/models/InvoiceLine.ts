@@ -218,7 +218,7 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
             productDescription: this.productDescription,
             unitOfMeasure: this.unitOfMeasure,
             unitPrice: HelperFunctions.ToFloat(this.unitPrice),
-            vatRateCode: this.vatRateCode ?? '27%',
+            vatRateCode: this.vatRateCode,
             relDeliveryNoteInvoiceLineID: this.relDeliveryNoteInvoiceLineID
         } as InvoiceLineForPost;
 
