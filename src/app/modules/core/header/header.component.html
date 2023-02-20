@@ -166,11 +166,11 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1,header-invo-sub-2"
+        data-sub="header-invo-sub-1,header-invo-sub-2,header-invo-sub-3"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1,header-invo-sub-2"
+        data-sub="header-invo-sub-1,header-invo-sub-2,header-invo-sub-3"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <ng-template #sub_invo let-data>
@@ -185,6 +185,12 @@
                 <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress"
                     (click)="goTo('invoice/outgoing-delivery-note-income')">
                     Szállítólevél
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-invo-sub-3" [disabled]="InProgress"
+                    (click)="goTo('invoice/summary-invoice')">
+                    Kimenő gyűjtőszámla
                 </button>
             </nb-card-body>
         </nb-card>
@@ -214,7 +220,7 @@
     </ng-template>
 
     <nb-action id="header-orde" class="cl-header-menu" tabIndex="6" disabled>Megrendelés</nb-action>
-    
+
     <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
         data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
         [disabled]="InProgress">Információ

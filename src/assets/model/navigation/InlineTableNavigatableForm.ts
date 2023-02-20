@@ -160,6 +160,49 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
+    HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
+        console.log('[HandleFormShiftEnter]: ', event, jumpPrevious, toggleEditMode, preventEventInAnyCase);
+
+        if (preventEventInAnyCase) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+        }
+        if (toggleEditMode) {
+            this.kbS.toggleEdit();
+        }
+
+        // No edit mode means previous mode was edit so we just finalized the form and ready to jump to the next.
+        if (!this.kbS.isEditModeActivated && jumpPrevious) {
+            this.JumpToPreviousInput(event);
+        }
+    }
+
+    private MovePrevious(): MoveRes {
+        let moveRes = this.kbS.MoveRight(true, false, false);
+        if (!moveRes.moved) {
+            moveRes = this.kbS.MoveUp(true, false, true);
+        }
+        return moveRes;
+    }
+
+    private JumpToPreviousInput(event?: Event): void {
+        const moveRes = this.MovePrevious();
+        // We can't know if we should click the first element if we moved to another navigation-matrix.
+        if (!moveRes.jumped) {
+            this.kbS.ClickCurrentElement(true);
+            if (!this.kbS.isEditModeActivated) {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+            }
+        } else {
+            // For example in case if we just moved onto a confirmation button in the next nav-matrix,
+            // we don't want to automatically press it until the user directly presses enter after selecting it.
+            if (!!event) {
+                event.stopImmediatePropagation();
+            }
+        }
+    }
+
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string): void {
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
 

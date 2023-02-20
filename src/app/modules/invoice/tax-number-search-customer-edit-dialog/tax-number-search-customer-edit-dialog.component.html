@@ -4,8 +4,7 @@
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!currentForm" [id]="sumFormId" [formGroup]="currentForm.form" #formDirective="ngForm"
-            (keydown.escape)="currentForm.HandleFormEscape()" (focusout)="currentForm.HandleFormFocusOut()"
-            (click)="currentForm.HandleFormClick()">
+            (focusout)="currentForm.HandleFormFocusOut()" (click)="currentForm.HandleFormClick()">
         
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -17,18 +16,10 @@
                 <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>
             </nb-form-field>
         
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Bankszámla</label>
-        
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerBankAccountNumber"
-                        [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
-                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [readonly]="isEditModeOff"
-                        (click)="currentForm.HandleFormFieldClick($event)">
-                </div>
-                <app-form-control-error [form]="currentForm" label="bankszámla" controlName="customerBankAccountNumber">
-                </app-form-control-error>
-            </nb-form-field>
+
+            <app-customer-bank-account-number-input *ngIf="currentForm"
+                [currentForm]="currentForm" formFieldName="customerBankAccountNumber" label="Bankszámla" [readonlyMode]="isEditModeOff">
+            </app-customer-bank-account-number-input>
         
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -56,7 +47,7 @@
             </nb-form-field>
         
             <app-bbx-combo-box [isReadonly]="isEditModeOff" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
-                label="Országkód" [data$]="countryCodeComboData$"></app-bbx-combo-box>
+                label="Országkód*" [data$]="countryCodeComboData$"></app-bbx-combo-box>
         
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="currentForm.HandleFormEnter($event)">

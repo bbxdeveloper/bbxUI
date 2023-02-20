@@ -368,21 +368,17 @@ export class CustomerManagerComponent
         Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]
       );
       this.seInv.Update(updateRequest).subscribe({
-        next: (d) => {
+        next: async (d) => {
           if (d.succeeded && !!d.data) {
-            const newRow = { data: d.data } as TreeGridNode<Customer>;
-            const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-            this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-            this.dbDataTable.SetDataForForm(newRow, false, false);
-            this.RefreshTable(newRow.data.id);
+            this.idParam = d.data.id;
+            await this.RefreshAsync(this.getInputParams);
+            this.dbDataTable.SelectRowById(d.data.id);
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
             );
-            this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
             this.bbxToastrService.show(
               d.errors!.join('\n'),

@@ -34,7 +34,7 @@ import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
-import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
 
 @Component({
@@ -59,7 +59,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   customerInputFilterString: string = '';
 
   isDeleteDisabled: boolean = false;
-  
+
   buyerData!: Customer;
   buyersData: Customer[] = [];
 
@@ -131,7 +131,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   invCtrlPeriods: string[] = [];
   invCtrlPeriodValues: { [key: string]: InvCtrlPeriod } = {};
   invCtrlPeriodComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-  
+
   get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
     return this.filterForm.controls['invCtrlPeriod'].value !== undefined ?
       this.invCtrlPeriodValues[this.filterForm.controls['invCtrlPeriod'].value ?? -1] : undefined;

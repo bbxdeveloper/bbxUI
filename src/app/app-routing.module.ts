@@ -14,6 +14,7 @@ import { InvRowNavComponent } from './modules/inventory/inv-row-nav/inv-row-nav.
 import { InvoiceIncomeManagerComponent } from './modules/invoice/invoice-income-manager/invoice-income-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
 import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
+import { SummaryInvoiceComponent } from './modules/invoice/summary-invoice/summary-invoice.component';
 import { LocationManagerComponent } from './modules/location/location-manager/location-manager.component';
 import { OfferCreatorComponent } from './modules/offer/offer-creator/offer-creator.component';
 import { OfferEditorComponent } from './modules/offer/offer-editor/offer-editor.component';
@@ -85,6 +86,10 @@ const routes: Routes = [
       {
         path: "outgoing-delivery-note-income",
         component: InvoiceManagerComponent,
+      },
+      {
+        path: "summary-invoice",
+        component: SummaryInvoiceComponent,
       }
     ]
   },

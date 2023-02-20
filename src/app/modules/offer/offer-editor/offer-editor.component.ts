@@ -20,7 +20,7 @@ import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
-import { ProductSelectTableDialogComponent } from '../../invoice/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { OfferLine, OfferLineFullData } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
@@ -346,7 +346,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             })
             .finally(() => {});
 
-          this.dbData = this.offerData.offerLines!.map(x => { return { 
+          this.dbData = this.offerData.offerLines!.map(x => { return {
             data: OfferLine.FromOfferLineFullData(x, this.offerData.currencyCode, this.offerData.exchangeRate) } as TreeGridNode<OfferLine> }
           ).concat(this.dbData);
 
@@ -389,7 +389,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     this.offerData.offerIssueDate = this.buyerForm.controls['offerIssueDate'].value;
     this.offerData.offerVaidityDate = this.buyerForm.controls['offerVaidityDate'].value;
 
-    this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => 
+    this.offerData.offerLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x =>
       {
         return {
           productCode: x.data.productCode,
@@ -558,14 +558,14 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                           );
                         }
                       });
-                      
+
                       this.isLoading = true;
                       await this.printReport(d.data?.id, res.value);
 
                       this.ExitToNav();
                     } else {
                       this.simpleToastrService.show(
-                        `Az árajánlat számla nyomtatása nem történt meg.`,
+                        `Az ajánlat nyomtatása nem történt meg.`,
                         Constants.TITLE_INFO,
                         Constants.TOASTR_SUCCESS_5_SEC
                       );
@@ -595,7 +595,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             }
           });
         }
-        
+
       }
     });
   }
@@ -648,7 +648,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 })
                 .catch(err => {
                   this.cs.HandleError(d.errors);
-  
+
                   let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                     data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
                   });
@@ -1036,5 +1036,5 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       }
     }
   }
-  
+
 }

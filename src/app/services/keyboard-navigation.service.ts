@@ -95,6 +95,14 @@ export class KeyboardNavigationService {
 
   private _locked = false;
 
+  get TypeOfSelectedElement(): string {
+    if (this.Here === undefined) {
+      return '';
+    }
+
+    return ($('#' + this.Here).get(0)?.tagName ?? '').toLowerCase();
+  }
+
   constructor() { }
 
   public clear(): void {
@@ -988,8 +996,8 @@ export class KeyboardNavigationService {
     this.SetCurrentNavigatable(this.NavigatableStack.pop() ?? this.Root);
     this.WidgetStack.pop();
 
-    this.p.x = this.CurrentNavigatable.LastX!;
-    this.p.y = this.CurrentNavigatable.LastY!;
+    this.p.x = this.CurrentNavigatable.LastX! ?? 0.0;
+    this.p.y = this.CurrentNavigatable.LastY! ?? 0.0;
 
     if (this.CurrentNavigatable.IsSubMapping) {
       // Trigger opening the submenu

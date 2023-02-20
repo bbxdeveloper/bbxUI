@@ -31,6 +31,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { authInterceptorProviders } from 'src/assets/util/auth.interceptor';
 import { CustomerDiscountModule } from './modules/customer-discount/customer-discount.module';
 import { LocationModule } from './modules/location/location.module';
+import { SummaryInvoiceComponent } from './modules/invoice/summary-invoice/summary-invoice.component';
 
 registerLocaleData(localeFr, 'fr');
 
@@ -41,7 +42,7 @@ const maskConfig: Partial<IConfig> = {
 @NgModule({
   declarations: [
     AppComponent,
-    Error404Component
+    Error404Component,
   ],
   imports: [
     // Default

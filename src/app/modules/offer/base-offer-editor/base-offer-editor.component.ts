@@ -53,7 +53,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
 
   protected Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
-  
+
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
@@ -402,7 +402,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
     await this.refreshComboboxData();
-    
+
     await lastValueFrom(this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }))
       .then(d => {
         // Possible buyers
@@ -428,7 +428,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         this.cs.HandleError(err);
       })
       .finally(() => {});
-      
+
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
@@ -692,7 +692,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     await lastValueFrom(this.systemService.GetAllCurrencyCodes())
       .then(data => {
         console.log("[refreshComboboxData] GetAllCurrencyCodes: ", data);
-        
+
         this.currencyCodes =
           data?.map(x => {
             let res = x.text;

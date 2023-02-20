@@ -16,7 +16,7 @@ import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 const NavMap: string[][] = [
@@ -102,7 +102,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.selectedRow = {} as Product;
 
     this.IsDialog = true;
-    this.InnerJumpOnEnter = true;    
+    this.InnerJumpOnEnter = true;
     this.OuterJump = true;
 
     this.Matrix = NavMap;

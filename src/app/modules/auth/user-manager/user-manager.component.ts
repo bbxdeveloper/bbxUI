@@ -25,6 +25,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { lastValueFrom } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-user-manager',
@@ -165,6 +166,79 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  override ActionNew(data?: IUpdateRequest<User>): void {
+    console.log("ActionNew: ", data);
+
+    if (data?.needConfirmation) {
+      const lastX = this.kbS.p.x;
+      const lastY = this.kbS.p.y;
+      this.kbS.p.x = 0;
+      this.kbS.p.y = 0;
+      this.kbS.SetCurrentNavigatable(this.dbDataTable);
+
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+                this.ProcessActionNew(data);
+              }
+            });
+          } else {
+            this.kbS.SetCurrentNavigatable(this.dbDataTable.flatDesignForm);
+            this.kbS.p.x = lastX;
+            this.kbS.p.y = lastY;
+            this.ProcessActionNew(data);
+          }
+        }
+      });
+    } else {
+      this.ProcessActionNew(data);
+    }
+  }
+  override ActionPut(data?: IUpdateRequest<User>): void {
+    console.log("ActionPut: ", data);
+
+    if (data?.needConfirmation) {
+      const lastX = this.kbS.p.x;
+      const lastY = this.kbS.p.y;
+      this.kbS.p.x = 0;
+      this.kbS.p.y = 0;
+      this.kbS.SetCurrentNavigatable(this.dbDataTable);
+
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+                this.ProcessActionPut(data);
+              }
+            });
+          } else {
+            this.kbS.SetCurrentNavigatable(this.dbDataTable.flatDesignForm);
+            this.kbS.p.x = lastX;
+            this.kbS.p.y = lastY;
+            this.ProcessActionPut(data);
+          }
+        }
+      });
+    } else {
+      this.ProcessActionPut(data);
+    }
   }
 
   override ProcessActionNew(data?: IUpdateRequest<User>): void {

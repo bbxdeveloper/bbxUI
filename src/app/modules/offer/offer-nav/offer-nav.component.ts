@@ -232,7 +232,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     let issueTo = this.filterForm.controls['OfferIssueDateTo'].value ?? "";
     let vaidityFrom = this.filterForm.controls['OfferVaidityDateForm'].value ?? "";
     let vaidityTo = this.filterForm.controls['OfferVaidityDateTo'].value ?? "";
-    
+
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
@@ -240,7 +240,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       OfferNumber: this.filterForm.controls['OfferNumber'].value,
 
       CustomerID: this.CustomerId,
-      
+
       OfferIssueDateFrom: issueFrom.length > 0 ? issueFrom : undefined,
       OfferIssueDateTo: issueTo.length > 0 ? issueTo : undefined,
 
@@ -360,7 +360,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     let v = new Date(control.value);
     let wrong = v < this.invoiceOfferIssueDateFrom;
-    
+
     return wrong ? { minDate: { value: control.value } } : null;
   }
 
@@ -371,7 +371,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     let v = new Date(control.value);
     let wrong = v > this.invoiceOfferVaidityDateTo;
-    
+
     return wrong ? { maxDate: { value: control.value } } : null;
   }
   validateOfferValidityDateTo(control: AbstractControl): any {
@@ -761,7 +761,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   ChooseDataForTableRow(rowIndex: number): void {}
-  
+
   ChooseDataForForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
@@ -786,7 +786,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       }
     });
   }
-  
+
   RefreshData(): void {}
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {}
   RecalcNetAndVat(): void { }
@@ -894,7 +894,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             offerCustomer.email = res.to.email;
             offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
             offerCustomer.taxpayerNumber = offerCustomer.taxpayerNumber?.substring(0, 13);
-            
+
             await lastValueFrom(this.seC.Update(offerCustomer))
               .then(async updateRes => {
                 if (updateRes && updateRes.succeeded) {
@@ -987,7 +987,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-      
+
       const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_DELETE_OFFER } });
       confirmDialogRef.onClose.subscribe(res => {
         if (res) {
@@ -1030,7 +1030,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   Print(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const rowIndex = this.kbS.p.y - 1; 
+      const rowIndex = this.kbS.p.y - 1;
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -1082,7 +1082,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             }
           } else {
             this.simpleToastrService.show(
-              `Az árajánlat számla nyomtatása nem történt meg.`,
+              `Az ajánlat nyomtatása nem történt meg.`,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
             );

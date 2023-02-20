@@ -4,25 +4,26 @@ import { InvoiceTypes } from "./InvoiceTypes";
 
 export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
     "warehouseCode": string, // 001 - string
-    
+
     "invoiceIssueDate": any, // date
     "invoiceDeliveryDate": any, // date
     "paymentDate": any, // date
-    
+
     "customerID": number,
     "customerInvoiceNumber"?: string,
-    
+
     "paymentMethod": string,
-    
+
     "notice": string,
-    
+
     "invoiceLines": T[],
-    
+
     "currencyCode"?: string,
     "exchangeRate"?: number,
-    
+
     "incoming"?: boolean,
     "invoiceType"?: string,
+    "invoiceCategory"?: string,
 
     "invoiceDiscountPercent": number;
 
@@ -37,7 +38,7 @@ export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<In
     "invoiceDiscountPercent": number;
 }
 
-export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
+export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData, needVatRate = true): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     if (f.invoiceType === InvoiceTypes.DNO) {
         let res = {
             customerID: f.customerID,
@@ -63,7 +64,7 @@ export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): Cr
             customerID: f.customerID,
             invoiceDeliveryDate: f.invoiceDeliveryDate,
             invoiceIssueDate: f.invoiceIssueDate,
-            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData()),
+            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData(needVatRate)),
             notice: f.notice,
             paymentDate: f.paymentDate,
             paymentMethod: f.paymentMethod,
@@ -73,6 +74,7 @@ export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData): Cr
             exchangeRate: f.exchangeRate,
             incoming: f.incoming,
             invoiceType: f.invoiceType,
+            invoiceCategory: f.invoiceCategory,
             invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent),
         } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
         return res;

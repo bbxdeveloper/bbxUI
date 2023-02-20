@@ -66,6 +66,15 @@ export class BaseManagerComponent<T> {
     protected sts: StatusService) {
       this.bbxSidebarService.collapse();
   }
+
+  SelectedRowProperty(objectKey: string): any {
+    // Nem a táblázaton állunk || jelenlegi pozíciónk kilóg a tábla tartományából
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.dbDataTable?.data?.length <= this.kbS.p.y) {
+      return '-';
+    }
+    const data = this.dbDataTable?.data[this.kbS.p.y]?.data;
+    return (data as any)[objectKey];
+  }
   
   HandleError(err: any): void {
     this.cs.HandleError(err);

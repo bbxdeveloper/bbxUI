@@ -23,7 +23,7 @@ import { CustomerSelectTableDialogComponent } from '../customer-select-table-dia
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
-import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { SumData } from '../models/SumData';
@@ -724,7 +724,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     );
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
-    
+
     this.InitFormDefaultValues();
 
     setTimeout(() => {
@@ -742,29 +742,29 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-    
+
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
-    
+
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
-    
+
     this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-    
+
     this.outGoingInvoiceData.warehouseCode = '1';
-    
+
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;
-    
+
     this.RecalcNetAndVat();
-    
+
     for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length; i++) {
       this.outGoingInvoiceData.invoiceLines[i].unitPrice = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].unitPrice);
       this.outGoingInvoiceData.invoiceLines[i].quantity = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
-    
+
     this.outGoingInvoiceData.currencyCode = 'HUF';
     this.outGoingInvoiceData.exchangeRate = 1;
 
@@ -798,7 +798,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   Save(): void {
     this.buyerForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
-    
+
     let valid = true;
     if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
@@ -837,7 +837,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.isSaveInProgress = true;
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    
+
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData
@@ -859,7 +859,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               if (!!d.data) {
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
               }
-              
+
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
@@ -903,10 +903,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                       },
                       error: cmdEnded => {
                         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-                        
+
                         this.isLoading = false;
                         this.isSaveInProgress = false;
-                        
+
                         this.bbxToastrService.show(
                           `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                           Constants.TITLE_ERROR,
@@ -1064,7 +1064,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     res.productDescription = p.description ?? '';
 
     res.quantity = 0;
-    
+
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
     if (!p.noDiscount) {
@@ -1079,7 +1079,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     } else {
       res.unitPrice = p.unitPrice2!;
     }
-    
+
     res.vatRateCode = p.vatRateCode;
 
     res.vatRate = p.vatPercentage ?? 1;
@@ -1106,7 +1106,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
-    
+
     this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
@@ -1165,7 +1165,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (!!data) {
       this.buyerData = { ...data as Customer };
       data.zipCodeCity = data.postalCode + ' ' + data.city;
-      
+
       if (this.buyerData.countryCode !== 'HU') {
         this.buyerFormNav.FillForm(data, [], [{ from: 'thirdStateTaxId', to: 'taxpayerNumber' }]);
       } else {

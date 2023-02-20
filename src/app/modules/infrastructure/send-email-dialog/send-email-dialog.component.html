@@ -1,18 +1,17 @@
 <nb-card>
     <nb-card-header>{{title}}</nb-card-header>
     <nb-card-body class="form-col-1">
-        <form id="dataForm" [formGroup]="dataForm.form" #formDirective="ngForm" class="form-with-rows"
-            (keydown.escape)="dataForm.HandleFormEscape()">
+        <form id="dataForm" [formGroup]="dataForm.form" #formDirective="ngForm" class="form-with-rows">
             <div class="form-row">
                 <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
                     <label>Feladó</label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='from' required="true"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='from' required="true" [readonly]="isEditModeOff"
                         (click)="dataForm.HandleFormFieldClick($event)">
                 </nb-form-field>
                 
                 <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
                     <label>Neve</label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='fromName' required="true"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='fromName' required="true" [readonly]="isEditModeOff"
                         (click)="dataForm.HandleFormFieldClick($event)">
                 </nb-form-field>
             </div>
@@ -20,13 +19,13 @@
             <div class="form-row">
                 <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
                     <label>Címzett</label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='to' required="true"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='to' required="true" [readonly]="isEditModeOff"
                         (click)="dataForm.HandleFormFieldClick($event)">
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)">
                     <label>Neve</label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='toName' required="true"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='toName' required="true" [readonly]="isEditModeOff"
                         (click)="dataForm.HandleFormFieldClick($event)">
                 </nb-form-field>
             </div>
@@ -34,7 +33,7 @@
             <div class="form-row">
                 <nb-form-field (keydown.enter)="dataForm.HandleFormEnter($event)" class="form-field-max-width">
                     <label>Tárgy</label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='subject' required="true"
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName='subject' required="true" [readonly]="isEditModeOff"
                         (click)="dataForm.HandleFormFieldClick($event)">
                 </nb-form-field>
             </div>

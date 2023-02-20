@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { lastValueFrom, Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
@@ -15,6 +15,10 @@ import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { Constants } from 'src/assets/util/Constants';
 import { InvoiceLineForPost } from '../models/InvoiceLine';
+import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
+import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 
 @Injectable({
   providedIn: 'root'
@@ -36,45 +40,14 @@ export class InvoiceService {
   }
 
   GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
-
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetInvoicesParamListModel] != undefined && params[key as keyof GetInvoicesParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetInvoicesParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetInvoicesParamListModel];
-          }
-          index++;
-        }
-      });
-    }
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
     return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
   Get(params?: GetInvoiceParamListModel): Observable<Invoice> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetInvoiceParamListModel] != undefined && params[key as keyof GetInvoiceParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetInvoiceParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetInvoiceParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
     return this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
@@ -112,5 +85,19 @@ export class InvoiceService {
       JSON.stringify(params['report_params']),
       { responseType: 'blob', headers: options }
     );
+  }
+
+  public async GetPendingDeliveriInvoices(params?: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryInvoiceSummary[]> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const request = this.http.get<PendingDeliveryInvoiceSummary[]>(this.BaseUrl + '/pendigdeliverynotessummary?' + queryParams)
+
+    return await lastValueFrom(request)
+  }
+
+  public async GetPendingDeliveryNotes(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNote[]> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
+
+    return await lastValueFrom(request)
   }
 }

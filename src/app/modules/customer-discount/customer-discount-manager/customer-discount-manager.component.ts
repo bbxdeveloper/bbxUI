@@ -294,7 +294,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       const _dbData = this.dbData.slice(0, this.dbData.length - 1);
       this.custDiscountData.items = _dbData.map(x => x.data.ToCustDiscountForPostItem());
     }
-    
+
     this.custDiscountData.customerID = this.buyerData.id;
 
     console.log("[UpdateOutGoingData]: ", this.custDiscountData, this.dbData);
@@ -333,7 +333,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           this.cs.HandleError(err);
         })
         .finally(() => {});
-      
+
       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
   }
@@ -537,7 +537,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       }
     });
   }
-  
+
   RefreshData(): void { }
   RecalcNetAndVat(): void { }
 
@@ -566,15 +566,15 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     if (!!changedData && !!changedData.productGroupCode && changedData.productGroupCode.length > 0) {
       let _product: ProductGroup = { id: -1 } as ProductGroup;
       this.productGroupService.GetAll({ SearchString: changedData.productGroupCode }).subscribe({
-        next: productGroups => 
+        next: productGroups =>
         {
           if (!!productGroups && !!productGroups.data && productGroups.data.length > 0) {
             const productGroup = productGroups.data[0];
             console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', productGroup);
-  
+
             if (!!productGroup && !!productGroup?.productGroupCode) {
               _product = productGroup;
-  
+
               var alreadyAdded = false;
               this.dbDataTable.data.map((x, itemIndex) => {
                 if (x.data?.productGroupID === _product.id && itemIndex !== index) {
@@ -592,14 +592,14 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
                 );
                 return;
               } else {
-  
+
                 changedData.productGroupCode = productGroup.productGroupCode;
                 changedData.productGroup = productGroup.productGroupDescription;
                 changedData.productGroupID = productGroup.id;
 
                 let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
                 currentRow?.data.Save('productGroupCode');
-                
+
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                 this.dbDataTable.MoveNextInTable();
                 setTimeout(() => {
@@ -869,7 +869,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               newItem.productGroup = pg.productGroupDescription;
               newItem.productGroupID = pg.id;
               newItem.customerID = this.buyerData?.id ?? -1;
-  
+
               this.dbData.splice(0, 0, { data: newItem });
             }
           });
@@ -1013,5 +1013,5 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       }
     }
   }
-  
+
 }

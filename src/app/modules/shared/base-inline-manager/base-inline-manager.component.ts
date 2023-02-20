@@ -26,6 +26,7 @@ import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-tabl
 import { CreateNewProductDialogComponent } from '../create-new-product-dialog/create-new-product-dialog.component';
 import { Product } from '../../product/models/Product';
 import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
+import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -36,6 +37,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   // Invoice related
 
   protected InvoiceType: string = InvoiceTypes.NOT_DEFINED;
+  protected InvoiceCategory: string = InvoiceCategory.NOT_DEFINED
   DeliveryPaymentMethod: string = 'OTHER';
   get Delivery(): boolean {
     return this.InvoiceType == InvoiceTypes.DNI || this.InvoiceType == InvoiceTypes.DNO;
@@ -115,7 +117,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   numberInputMask = NgNeatInputMasks.numberInputMask;
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
-  
+
   editorConfig: AngularEditorConfig = {
     editable: true,
     spellcheck: true,
@@ -172,6 +174,27 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     protected khs: KeyboardHelperService
   ) {
     this.sideBarService.collapse();
+  }
+
+  SelectedRowProperty(objectKey: string): any {
+    // Nem a táblázaton állunk
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return '-';
+    }
+
+    // nem táblázathoz tartozó elemen állunk
+    const t = this.kbS.TypeOfSelectedElement;
+    if (t !== 'tr' && t !== 'td') {
+      return '-';
+    }
+
+    // jelenlegi pozíciónk kilóg a tábla tartományából || legutolsó, azaz üres, szerkesztési soron állunk
+    if (this.dbDataTable?.data?.length <= this.kbS.p.y || (this.dbDataTable?.data?.length - 1 === this.kbS.p.y)) {
+      return '-';
+    }
+
+    const data = this.dbDataTable?.data[this.kbS.p.y]?.data;
+    return (data as any)[objectKey];
   }
 
   HandleError(err: any): void {
@@ -373,7 +396,8 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
       context: {
         createCustomer: true
-      }
+      },
+      closeOnEsc: false
     });
     dialogRef.onClose.subscribe({
       next: (res: Customer) => {

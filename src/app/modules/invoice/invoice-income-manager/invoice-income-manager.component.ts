@@ -23,7 +23,7 @@ import { CustomerSelectTableDialogComponent } from '../customer-select-table-dia
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
-import { ProductSelectTableDialogComponent } from '../product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { SumData } from '../models/SumData';
@@ -902,7 +902,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                           );
                           commandEndedSubscription.unsubscribe();
                         }
-                        
+
                         this.isSaveInProgress = false;
                       },
                       error: cmdEnded => {
@@ -1077,7 +1077,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     res.vatRateCode = p.vatRateCode;
 
     res.vatRate = p.vatPercentage ?? 1;
-    
+
     res.ReCalc();
 
     res.unitOfMeasure = p.unitOfMeasure;
@@ -1217,7 +1217,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     }
     this.HandleKeyDown(event);
   }
-  
+
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;

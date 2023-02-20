@@ -15,7 +15,9 @@ export interface InvoiceLineForPost {
     unitOfMeasure: string;
     unitPrice: number; // editable
     vatRateCode: string; // below table
+    vatRate?: number;
     lineNetAmount: number; // price * quant
+    relDeliveryNoteInvoiceLineID?: number
 }
 
 export function GetBlankInvoiceLineForPost(): InvoiceLineForPost {
@@ -64,6 +66,7 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     quantity: number = 0.0; // editable
 
+
     unitOfMeasure: string = "";
 
     unitPrice: number = 0.0; // editable
@@ -83,10 +86,48 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     unitOfMeasureX?: string;
 
+    relDeliveryNoteInvoiceLineID: number = 0
+
+    workNumber: string = ''
+
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.
      */
     discountedData?: InvoiceLinePriceData;
+
+    invoiceNumber?: string;
+
+    unitPriceDiscounted: number = 0
+
+    //#region Gyűjtő számla
+    public get discountValue(): number {
+        return this.unitPriceDiscounted * this.quantity
+    }
+
+    public get unitPriceQuantity(): number {
+        return this.unitPrice * this.quantity;
+    }
+
+    public get rowDiscountValue(): number {
+        return this.unitPriceQuantity - this.discountValue;
+    }
+
+    public get rowNetValue(): number {
+        return this.unitPriceQuantity - this.rowDiscountValue;
+    }
+
+    public get rowGrossValue(): number {
+        return this.rowNetValue * (1.0 + this.vatRate);
+    }
+
+    public get rowNetValueRounded(): number {
+        return HelperFunctions.Round2(this.rowNetValue, 1);
+    }
+
+    public get rowGrossValueRounded(): number {
+        return HelperFunctions.Round2(this.rowGrossValue, 0);
+    }
+    //#endregion Gyűjtő számla
 
     constructor() {
         super();
@@ -166,9 +207,9 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     /**
      * Converts into the backend model
-     * @returns 
+     * @returns
      */
-    public GetPOSTData(): InvoiceLineForPost {
+    public GetPOSTData(needVatRate = true): InvoiceLineForPost {
         let res = {
             lineNetAmount: HelperFunctions.ToFloat(this.lineNetAmount),
             lineNumber: this.lineNumber,
@@ -177,9 +218,16 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
             productDescription: this.productDescription,
             unitOfMeasure: this.unitOfMeasure,
             unitPrice: HelperFunctions.ToFloat(this.unitPrice),
-            vatRate: this.vatRate,
-            vatRateCode: this.vatRateCode
+            vatRateCode: this.vatRateCode,
+            relDeliveryNoteInvoiceLineID: this.relDeliveryNoteInvoiceLineID
         } as InvoiceLineForPost;
+
+        if (needVatRate) {
+            res.vatRate = this.vatRate
+        }
+        else {
+            res.vatRate = undefined
+        }
 
         return res;
     }

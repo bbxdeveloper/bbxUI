@@ -1,0 +1,61 @@
+@import 'side-bar-form-default';
+
+.bbx-fd-form-field-wrapper-div-row {
+    display: flex;
+
+    column-gap: 0px;
+
+    justify-content: flex-start;
+
+    .bbx-fd-form-field-inner-div-2 {
+        display: flex;
+
+        flex-direction: row;
+        flex-wrap: nowrap;
+
+        align-content: center;
+        justify-content: space-between;
+        align-items: baseline;
+
+        column-gap: 20px;
+
+        input {
+            @extend .input-type-1;
+        }
+
+        input[type="checkbox"] {
+            @extend .input-type-1-checkbox;
+        }
+    }
+
+    .bbx-fd-form-field-inner-div-first {
+        label {
+            @extend .label-type-1;
+        }
+    }
+}
+
+.bbx-fd-form-field-inner-div {
+    display: flex;
+
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    align-content: center;
+    justify-content: space-between;
+    align-items: baseline;
+
+    column-gap: 20px;
+
+    input {
+        @extend .input-type-1;
+    }
+
+    input[type="checkbox"] {
+        @extend .input-type-1-checkbox;
+    }
+
+    label {
+        @extend .label-type-1;
+    }
+}
