@@ -26,6 +26,7 @@
                         (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                         (dblclick)="selectRow($event, row)"
                         [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
+                        [style.text-align]="it.textAlign"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
                         <!-- <div>
                             {{ row.data[it.objectKey] }}

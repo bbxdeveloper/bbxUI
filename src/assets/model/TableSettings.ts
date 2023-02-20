@@ -197,7 +197,7 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
             type: 'string',
             mask: '',
             colWidth: '120px',
-            textAlign: 'center',
+            textAlign: 'left',
             navMatrixCssClass: TileCssClass,
         },
         {
@@ -241,7 +241,7 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
 export module PendingDeliveryNotesTableSettings {
     export const AllColumns: string[] = [
         'invoiceNumber',
-        'RelDeliveryDate',
+        'relDeliveryDate',
         'productCode',
         'lineDescription',
         'quantity',
@@ -263,8 +263,8 @@ export module PendingDeliveryNotesTableSettings {
         },
         {
             label: 'Teljesítés',
-            objectKey: 'RelDeliveryDate',
-            colKey: 'RelDeliveryDate',
+            objectKey: 'relDeliveryDate',
+            colKey: 'relDeliveryDate',
             defaultValue: '',
             type: 'onlyDate',
             mask: '',
@@ -321,7 +321,7 @@ export module PendingDeliveryNotesTableSettings {
             navMatrixCssClass: TileCssClass,
         },
         {
-            label: 'Száll.',
+            label: 'Száll. Ár.',
             objectKey: 'unitPrice',
             colKey: 'unitPrice',
             defaultValue: '',
