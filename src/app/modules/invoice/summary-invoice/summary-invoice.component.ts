@@ -1039,7 +1039,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         selectedNotes: event,
       }
     });
-
   }
 
   private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
@@ -1093,10 +1092,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       .map(x => ({ data: x, uid: this.nextUid() }))
 
     this.dbData.sort((a, b) => {
-      if (a.data.invoiceNumber! > b.data.invoiceNumber!)
+      const aProperty = a.data.invoiceNumber + a.data.productCode
+      const bProperty = b.data.invoiceNumber + b.data.productCode
+
+      if (aProperty > bProperty)
         return 1
 
-      if (a.data.invoiceNumber! < b.data.invoiceNumber!)
+      if (aProperty < bProperty)
         return -1
 
       return 0
