@@ -1,3 +1,5 @@
+@import 'invoice-common';
+
 $td-height: 30px;
 
 label.single_label {
@@ -98,20 +100,6 @@ nb-card-header {
             @media (max-height: 1000px) {
                 nb-card-body {
                     padding: 0.1rem 0.8rem !important;
-                }
-            }
-            form {
-                min-width: fit-content;
-                margin: auto;
-
-                nb-form-field {
-                    min-width: fit-content !important;
-                    margin: 0;
-
-                    input {
-                        min-width: 38vw;
-                        overflow-x: hidden;
-                    }
                 }
             }
         }

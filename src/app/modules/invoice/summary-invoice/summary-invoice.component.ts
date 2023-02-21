@@ -310,6 +310,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         additionalAddressDetail: new FormControl('', []),
         customerBankAccountNumber: new FormControl('', []),
         taxpayerNumber: new FormControl('', []),
+        thirdStateTaxId: new FormControl('', []),
         comment: new FormControl('', []),
       });
     } else {
@@ -349,6 +350,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         additionalAddressDetail: new FormControl('', []),
         customerBankAccountNumber: new FormControl('', []),
         taxpayerNumber: new FormControl('', []),
+        thirdStateTaxId: new FormControl('', []),
         comment: new FormControl('', []),
       });
     } else {
@@ -1306,11 +1308,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.buyerData = { ...data as Customer };
       data.zipCodeCity = data.postalCode + ' ' + data.city;
 
-      if (this.buyerData.countryCode !== 'HU') {
-        this.buyerFormNav.FillForm(data, [], [{ from: 'thirdStateTaxId', to: 'taxpayerNumber' }]);
-      } else {
-        this.buyerFormNav.FillForm(data);
-      }
+      this.buyerFormNav.FillForm(data);
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);
       this.kbS.SelectFirstTile();

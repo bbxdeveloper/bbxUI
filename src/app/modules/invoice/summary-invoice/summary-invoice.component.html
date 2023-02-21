@@ -21,30 +21,36 @@
                 Szállító
             </nb-card-header>
             <nb-card-body class="form-col-1">
-                <form [formGroup]="exporterForm" (keydown.enter)="$event.preventDefault()" #formDirective="ngForm">
-                    <nb-form-field>
+                <form class="invoice-customer-form" [formGroup]="exporterForm" (keydown.enter)="$event.preventDefault()" #formDirective="ngForm">
+                    <nb-form-field class="area-row-1">
                         <input nbInput type="text" formControlName='customerName' required="true" readonly id="l00">
                     </nb-form-field>
 
-                    <nb-form-field>
+                    <nb-form-field class="area-row-2">
                         <input nbInput type="text" formControlName='zipCodeCity' required="true" readonly id="l01">
                     </nb-form-field>
 
-                    <nb-form-field>
+                    <nb-form-field class="area-row-3">
                         <input nbInput type="text" formControlName='additionalAddressDetail' required="true" readonly
                             id="l02">
                     </nb-form-field>
 
-                    <nb-form-field>
+                    <nb-form-field class="area-row-4">
                         <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" readonly
                             id="l03">
                     </nb-form-field>
 
-                    <nb-form-field>
+                    <nb-form-field class="area-row-5">
                         <input nbInput type="text" formControlName='taxpayerNumber' required="true" readonly id="l04">
                     </nb-form-field>
+                    <nb-form-field class="area-row-6">
+                        <div>
+                            <label>EUR adósz.:</label>
+                            <input nbInput type="text" formControlName='thirdStateTaxId' required="true" readonly id="l04">
+                        </div>
+                    </nb-form-field>
 
-                    <nb-form-field>
+                    <nb-form-field class="area-row-7">
                         <input nbInput type="text" formControlName='comment' required="false" readonly id="l05">
                     </nb-form-field>
                 </form>
@@ -57,10 +63,10 @@
     <div class="card-col-1">
         <nb-card>
             <nb-card-body class="form-col-2">
-                <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
+                <form class="invoice-customer-form-search" [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
                     [id]="buyerFormId">
 
-                    <table class="customer-search-row">
+                    <table class="customer-search-row area-row-0">
                         <tr>
                             <td>
                                 <nb-form-field class="search-row-nb-form-field"
@@ -89,32 +95,38 @@
                         </tr>
                     </table>
 
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field class="area-row-1" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
                         <input nbInput type="text" formControlName='customerName' required="true" placeholder="Név"
                             readonly id="r01">
                     </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field class="area-row-2" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
                         <input nbInput type="text" formControlName='zipCodeCity'
                             placeholder="Irányítószám és Város" readonly id="r01">
                     </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field class="area-row-3" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
                         <input nbInput type="text" formControlName='additionalAddressDetail'
                             placeholder="Utca, házszám" readonly id="r02">
                     </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field class="area-row-4" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
                         <input nbInput type="text" formControlName='customerBankAccountNumber'
                             placeholder="Számlaszám" readonly id="r03">
                     </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field class="area-row-5" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
                         <input nbInput type="text" formControlName='taxpayerNumber'
                             placeholder="Adószám" readonly id="r04">
                     </nb-form-field>
+                    <nb-form-field class="area-row-6" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                        <div>
+                            <label>EUR adósz.:</label>
+                            <input nbInput type="text" formControlName='thirdStateTaxId' placeholder="Adószám" readonly id="r04">
+                        </div>
+                    </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
+                    <nb-form-field class="area-row-7" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
                         <input nbInput type="text" formControlName='comment' placeholder="Megjegyzés"
                             readonly id="r05">
                     </nb-form-field>
