@@ -162,8 +162,8 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
 
     dialog.onClose.subscribe((selected: PendingDeliveryNote) => {
       const notes = this.dbData
-        .filter(x => x.data.invoiceNumber === selected.invoiceNumber)
-        .map(x => x.data)
+        .filter(x => x.data.invoiceNumber === selected.invoiceNumber)
+        .map(x => x.data)
 
       this.selectedNotes.emit(notes)
     })
