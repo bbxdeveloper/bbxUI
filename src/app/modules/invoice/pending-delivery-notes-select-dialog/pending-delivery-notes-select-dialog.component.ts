@@ -77,7 +77,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
       let data = await this.invoiceService.GetPendingDeliveryNotes(request)
 
       data.forEach(datum => {
-        const checkedNote = this.checkedNotes.find(note => note.productCode === datum.productCode)
+        const checkedNote = this.checkedNotes.find(note => note.relDeliveryNoteInvoiceLineID === datum.relDeliveryNoteInvoiceLineID)
 
         if (checkedNote) {
           datum.quantity -= checkedNote.quantity

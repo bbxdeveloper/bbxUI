@@ -495,11 +495,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.outGoingInvoiceData.invoiceLines
         .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
-        
+
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
 
     HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-        
+
     // Csak gyűjtőszámlánál
     this.outGoingInvoiceData.lineGrossAmount =
       this.outGoingInvoiceData.invoiceLines
@@ -1024,7 +1024,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     const checkedNotes = this.dbData.map(x => {
       const data = {
-        productCode: x.data.productCode,
+        relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
         quantity: x.data.quantity
       } as PendingDeliveryNote
       return data
@@ -1074,7 +1074,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
       }
 
-      const checkedNote = this.dbData.find(x => x.data.productCode === note.productCode)
+      const checkedNote = this.dbData.find(x => x.data.relDeliveryNoteInvoiceLineID === note.relDeliveryNoteInvoiceLineID)
       if (checkedNote) {
         note.quantity += checkedNote.data.quantity
 
@@ -1084,7 +1084,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     })
 
     const existingNotes = this.dbData
-      .filter(x => !!x.data.productCode)
+      .filter(x => !!x.data.relDeliveryNoteInvoiceLineID)
       .map(x => x.data)
 
     this.dbData = notes
