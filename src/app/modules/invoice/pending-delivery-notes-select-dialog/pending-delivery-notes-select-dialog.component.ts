@@ -129,6 +129,10 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     this.close();
   }
 
+  public GetDateString(val: string): string {
+    return HelperFunctions.GetDateStringFromDate(val)
+  }
+
   @HostListener('keydown.f7', ['$event'])
   public sendNotesToParent(event: KeyboardEvent) {
     HelperFunctions.StopEvent(event);
