@@ -3,6 +3,7 @@ name: Build and deploy bbxFE to DEV environment
 env:
   STORAGE_NAME: bbx   # set this to your storage's name
   AZURE_STORAGE_KEY: W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==
+  CONNECTION_STRING: DefaultEndpointsProtocol=https;AccountName=bbx;AccountKey=W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==;EndpointSuffix=core.windows.net
   
 on:
   workflow_dispatch:
@@ -42,4 +43,4 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-             az storage blob upload-batch --account-name env.STORAGE_NAME --account-key env.AZURE_STORAGE_KEY -d '$web' -s .
+             az storage blob upload-batch --connection-string env.CONNECTION_STRING -d '$web' -s .
