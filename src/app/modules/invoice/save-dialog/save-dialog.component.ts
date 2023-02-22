@@ -14,6 +14,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { Invoice } from '../models/Invoice';
 import { InvoiceCategory } from '../models/InvoiceCategory';
+import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -96,7 +97,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   constructor(
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SaveDialogComponent>,
-    private kBs: KeyboardNavigationService
+    private kBs: KeyboardNavigationService,
+    private invoiceStats: InvoiceStatisticsService
   ) {
     super();
     this.Setup();
@@ -158,17 +160,24 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
         .reduce((sum, current) => sum + current, 0);
     }
     else {
-      discountedInvoiceNetAmount = this.data.invoiceLines.reduce((sum, current) => sum += current.discountValue, 0)
+      discountedInvoiceNetAmount = this.invoiceStats.SummaryInvoiceDiscountedNetAmountSum;
     }
 
     discountedInvoiceNetAmount = HelperFunctions.Round2(discountedInvoiceNetAmount, 1);
 
-    const invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
+    if (!this.isAggregate){
+      const invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
+  
+      console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", invoiceDiscountMultiplier, ", discount value: ", invoiceDiscountValue);
+  
+      // const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
+      this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
+    } else{
+      this.sumForm.controls['invoiceDiscountValue'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum);
+      
+      this.sumForm.controls['invoiceNetAmount'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineNetSum);
+    }
 
-    console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", invoiceDiscountMultiplier, ", discount value: ", invoiceDiscountValue);
-
-    // const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
-    this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
     this.sumForm.controls['discountedInvoiceNetAmount'].setValue(discountedInvoiceNetAmount);
 
     // discounted vat amount

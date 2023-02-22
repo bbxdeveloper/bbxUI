@@ -215,8 +215,8 @@
         <div class="table-statistics-net-vat-gross">
             <div>Szállítólevél száma: {{SelectedRowProperty('invoiceNumber')}}</div>
             <div>Munkaszám: {{SelectedRowProperty('workNumber')}}</div>
-            <div>Tételek nettó: {{this.invoiceStatisticsService.InvoiceLineNetSum | number:'1.2':'fr' | replace:',':'.'}}</div>
-            <div>Kedv. értéke: {{this.invoiceStatisticsService.InvoiceLineDiscountValueSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+            <div>Tételek nettó: {{this.invoiceStatisticsService.SummaryInvoiceInvoiceLineNetSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+            <div>Kedv. értéke: {{this.invoiceStatisticsService.SummaryInvoiceInvoiceLineDiscountValueSum | number:'1.2':'fr' | replace:',':'.'}}</div>
             <div>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</div>
             <div>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</div>
         </div>

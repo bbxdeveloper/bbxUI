@@ -41,7 +41,7 @@ export class InvoiceStatisticsService {
   /**
    * Tételek nettó
    */
-  get InvoiceLineNetSum(): number {
+  get SummaryInvoiceInvoiceLineNetSum(): number {
     return this.InvoiceLines
       .map(x => HelperFunctions.ToFloat(x.data.unitPriceQuantity))
       .reduce((sum, current) => sum + current, 0);
@@ -50,10 +50,17 @@ export class InvoiceStatisticsService {
   /**
    * Kedv. értéke
    */
-  get InvoiceLineDiscountValueSum(): number {
+  get SummaryInvoiceInvoiceLineDiscountValueSum(): number {
     return this.InvoiceLines
       .map(x => HelperFunctions.ToFloat(x.data.rowDiscountValue))
       .reduce((sum, current) => sum + current, 0);
+  }
+
+  /**
+  * Kedvezményes. nettó
+  */
+  get SummaryInvoiceDiscountedNetAmountSum(): number {
+    return this.SummaryInvoiceInvoiceLineNetSum - this.SummaryInvoiceInvoiceLineDiscountValueSum;
   }
 
   constructor() { }

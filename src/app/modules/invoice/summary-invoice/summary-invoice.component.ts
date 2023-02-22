@@ -88,7 +88,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
-  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
+  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
+   "unitOfMeasureX", 'rowNetValueRounded','rowGrossValueRounded'];
   override allColumns = [
     'productCode',
     'productDescription',
@@ -1032,13 +1033,18 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       return data
     })
 
-    this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
+    var d = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         checkedNotes: checkedNotes,
         customerID: this.buyerData.id,
         selectedNotes: event,
+      }
+    });
+    d.onClose.subscribe({
+      next: res => {
+        this.JumpToCell('quantity');
       }
     });
   }
