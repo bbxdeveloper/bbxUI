@@ -30,7 +30,13 @@ jobs:
       - name: Azure checkout
         uses: actions/checkout@v3
         
-      - name: azure login
+      - name: Azure login
         uses: azure/login@v1
         with:
            creds: ${{ secrets.BBXFE_DEV_PUBLISH_PROFILE }}
+           
+      - name: Upload to Azure Blob storage
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+             az storage blob upload-batch --account-name bbx --auth-mode key -d '$web' -s .
