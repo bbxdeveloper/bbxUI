@@ -3,7 +3,7 @@ name: Build and deploy bbxFE to DEV environment
 env:
   STORAGE_NAME: bbx   # set this to your storage's name
   AZURE_STORAGE_KEY: W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==
-  CONNECTION_STRING: DefaultEndpointsProtocol=https;AccountName=bbx;AccountKey=W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==;EndpointSuffix=core.windows.net
+  CONNECTION_STRING: DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=bbx;AccountKey=W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==;BlobEndpoint=https://bbx.blob.core.windows.net/;FileEndpoint=https://bbx.file.core.windows.net/;QueueEndpoint=https://bbx.queue.core.windows.net/;TableEndpoint=https://bbx.table.core.windows.net/
   
 on:
   workflow_dispatch:
