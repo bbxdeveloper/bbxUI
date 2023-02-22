@@ -1,6 +1,8 @@
 name: Build and deploy bbxFE to DEV environment
 
-
+env:
+  STORAGE_NAME: bbx   # set this to your storage's name
+  
 on:
   workflow_dispatch:
 
@@ -39,4 +41,4 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-             az storage blob upload-batch --account-name bbx --auth-mode key -d '$web' -s .
+             az storage blob upload-batch --account-name env.STORAGE_NAME --auth-mode key -d '$web' -s .
