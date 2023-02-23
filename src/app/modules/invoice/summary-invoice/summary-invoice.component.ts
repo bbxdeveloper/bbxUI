@@ -89,7 +89,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
-   "unitOfMeasureX", 'rowNetValueRounded','rowGrossValueRounded'];
+    "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
   override allColumns = [
     'productCode',
     'productDescription',
