@@ -101,24 +101,24 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     unitPriceDiscounted: number = 0
 
     //#region Gyűjtő számla
-    public get discountValue(): number {
+    public get rowDiscountedNetPrice(): number {
         return this.unitPriceDiscounted * this.quantity
     }
 
-    public get unitPriceQuantity(): number {
+    public get rowNetPrice(): number {
         return this.unitPrice * this.quantity;
     }
 
     public get rowDiscountValue(): number {
-        return this.unitPriceQuantity - this.discountValue;
+        return this.rowNetPrice - this.rowDiscountedNetPrice;
     }
 
     public get rowNetValue(): number {
-        return this.unitPriceQuantity - this.rowDiscountValue;
+        return this.rowNetPrice - this.rowDiscountValue;
     }
 
-    public get rowGrossValue(): number {
-        return Price.gross(this.unitPriceQuantity, this.vatRate)
+    public get rowGrossPrice(): number {
+        return Price.gross(this.rowNetPrice, this.vatRate)
         // return this.rowNetValue * (1.0 + this.vatRate);
     }
 
@@ -131,7 +131,7 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     }
 
     public get rowGrossValueRounded(): number {
-        return HelperFunctions.Round2(this.rowGrossValue, 0);
+        return HelperFunctions.Round2(this.rowGrossPrice, 0);
     }
     //#endregion Gyűjtő számla
 

@@ -43,7 +43,7 @@ export class InvoiceStatisticsService {
    */
   get SummaryInvoiceInvoiceLineNetSum(): number {
     return this.InvoiceLines
-      .map(x => HelperFunctions.ToFloat(x.data.unitPriceQuantity))
+      .map(x => HelperFunctions.ToFloat(x.data.rowNetPrice))
       .reduce((sum, current) => sum + current, 0);
   }
 
