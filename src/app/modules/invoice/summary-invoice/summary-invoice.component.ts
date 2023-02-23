@@ -97,7 +97,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     'unitOfMeasureX',
     'unitPrice',
     'rowNetPrice',
-    'rowGrossValueRounded',
+    'rowGrossPriceRounded',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -133,7 +133,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Bruttó', objectKey: 'rowGrossValueRounded', colKey: 'rowGrossValueRounded',
+      label: 'Bruttó', objectKey: 'rowGrossPriceRounded', colKey: 'rowGrossPriceRounded',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -490,7 +490,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
 
     this.outGoingInvoiceData.invoiceNetAmount = this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.rowNetValueRounded))
+      .map(x => HelperFunctions.ToFloat(x.rowNetPriceRounded))
       .reduce((sum, current) => sum + current, 0);
 
     this.outGoingInvoiceData.invoiceVatAmount = this.outGoingInvoiceData.invoiceLines
@@ -503,7 +503,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     // Csak gyűjtőszámlánál
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.rowDiscountedGrossValue))
+      .map(x => HelperFunctions.ToFloat(x.rowDiscountedGrossPrice))
       .reduce((sum, current) => sum + current, 0);
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {

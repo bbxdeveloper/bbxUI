@@ -188,7 +188,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     let discountedGross
     if (this.isAggregate) {
       discountedVatAmount = this.data.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.rowDiscountedGrossValue))
+        .map(x => HelperFunctions.ToFloat(x.rowDiscountedGrossPrice))
         .reduce((sum, current) => sum + current, 0)
 
       discountedGross = discountedVatAmount
@@ -206,6 +206,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     } else {
       discountedGross = HelperFunctions.Round(discountedGross);
     }
+    debugger
 
     // rates
     if (!this.isAggregate) {

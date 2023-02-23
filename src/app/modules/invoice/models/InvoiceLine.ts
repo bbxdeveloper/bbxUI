@@ -113,24 +113,19 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
         return this.rowNetPrice - this.rowDiscountedNetPrice;
     }
 
-    public get rowNetValue(): number {
-        return this.rowNetPrice - this.rowDiscountValue;
-    }
-
     public get rowGrossPrice(): number {
         return Price.gross(this.rowNetPrice, this.vatRate)
-        // return this.rowNetValue * (1.0 + this.vatRate);
     }
 
-    public get rowDiscountedGrossValue(): number {
-        return Price.gross(this.rowNetValue, this.vatRate)
+    public get rowDiscountedGrossPrice(): number {
+        return Price.gross(this.rowDiscountedNetPrice, this.vatRate)
     }
 
-    public get rowNetValueRounded(): number {
-        return HelperFunctions.Round2(this.rowNetValue, 1);
+    public get rowNetPriceRounded(): number {
+        return HelperFunctions.Round2(this.rowDiscountedNetPrice, 1);
     }
 
-    public get rowGrossValueRounded(): number {
+    public get rowGrossPriceRounded(): number {
         return HelperFunctions.Round2(this.rowGrossPrice, 0);
     }
     //#endregion Gyűjtő számla
