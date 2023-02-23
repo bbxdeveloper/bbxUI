@@ -96,7 +96,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     'quantity',
     'unitOfMeasureX',
     'unitPrice',
-    'rowNetValueRounded',
+    'unitPriceQuantity',
     'rowGrossValueRounded',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -112,7 +112,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "70%", textAlign: "left",
     },
-    {
+   {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
@@ -128,7 +128,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Nettó', objectKey: 'rowNetValueRounded', colKey: 'rowNetValueRounded',
+      label: 'Nettó', objectKey: 'unitPriceQuantity', colKey: 'unitPriceQuantity',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
