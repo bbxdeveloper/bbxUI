@@ -6,13 +6,17 @@ export class Price {
         return quantity * singlePrice
     }
 
-    public static gross(netPrice: number, vatRate: number): number {
+    public static vatRate(price: number, vatRate: number): number {
         if (vatRate < 0)
             throw new Error('vatRate can not be smaller than 0')
 
         if (vatRate > 1)
             throw new Error('vatRate can not be bigger than 1')
 
-        return netPrice * (1 + vatRate)
+        return price * vatRate
+    }
+
+    public static gross(netPrice: number, vatRate: number): number {
+        return netPrice + Price.vatRate(netPrice, vatRate)
     }
 }

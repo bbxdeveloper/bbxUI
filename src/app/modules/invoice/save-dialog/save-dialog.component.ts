@@ -15,6 +15,7 @@ import { InvoiceTypes } from '../models/InvoiceTypes';
 import { Invoice } from '../models/Invoice';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
+import { Price } from 'src/assets/util/Price';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -207,9 +208,16 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     }
 
     // rates
-    this.vatRateCodes.forEach((row: VatRateRow, index: number) => {
-      this.sumForm.controls['vatRateFormControl-' + (index + '')].setValue(row.Value);
-    });
+    if (!this.isAggregate) {
+      this.vatRateCodes.forEach((row: VatRateRow, index: number) => {
+        this.sumForm.controls['vatRateFormControl-' + (index + '')].setValue(row.Value);
+      });
+    }
+    else {
+      const summedVatPrice = this.data.invoiceLines.reduce((sum, current) => sum + Price.vatRate(current.discountValue, current.vatRate), 0)
+
+      this.sumForm.controls['vatRateFormControl-0'].setValue(summedVatPrice)
+    }
 
     // gross, linecount
     this.sumForm.controls['lineGrossAmount'].setValue(discountedGross);
