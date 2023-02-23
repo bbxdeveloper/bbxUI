@@ -145,6 +145,16 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.parentComponent = parentComponent;
     }
 
+    public TestFill(amount: number = 50, timeout: number = 3000): void {
+        setTimeout(() => {
+            for (let i = 0; i < amount; i++) {
+                this.data.push(this.GenerateCreatorRow);
+            }
+            this.dataSource.setData(this.data);
+            this.GenerateAndSetNavMatrices(false);
+        }, timeout);
+    }
+
     public ClearNeighbours(): void {
         this.LeftNeighbour = undefined;
         this.RightNeighbour = undefined;
