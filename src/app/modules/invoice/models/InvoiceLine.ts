@@ -122,6 +122,10 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
         // return this.rowNetValue * (1.0 + this.vatRate);
     }
 
+    public get rowDiscountedGrossValue(): number {
+        return Price.gross(this.rowNetValue, this.vatRate)
+    }
+
     public get rowNetValueRounded(): number {
         return HelperFunctions.Round2(this.rowNetValue, 1);
     }

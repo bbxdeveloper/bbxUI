@@ -167,14 +167,14 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
     if (!this.isAggregate){
       const invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
-  
+
       console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", invoiceDiscountMultiplier, ", discount value: ", invoiceDiscountValue);
-  
+
       // const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
       this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
     } else{
       this.sumForm.controls['invoiceDiscountValue'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum);
-      
+
       this.sumForm.controls['invoiceNetAmount'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineNetSum);
     }
 
@@ -187,7 +187,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     let discountedGross
     if (this.isAggregate) {
       discountedVatAmount = this.data.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.rowGrossValueRounded))
+        .map(x => HelperFunctions.ToFloat(x.rowDiscountedGrossValue))
         .reduce((sum, current) => sum + current, 0)
 
       discountedGross = discountedVatAmount
@@ -261,7 +261,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     } else {
       this.kBs.SelectFirstTile();
       this.kBs.setEditMode(KeyboardModes.EDIT);
-      
+
       setTimeout(() => {
         HelperFunctions.SelectBeginningByClass('discount-input', 1);
       }, 100);
