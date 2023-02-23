@@ -126,7 +126,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
 
     this.selectedNotes.emit([row.data])
 
-    this.close();
+    this.close({} as PendingDeliveryNote);
   }
 
   public GetDateString(val: string): string {

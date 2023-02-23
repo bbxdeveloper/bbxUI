@@ -190,6 +190,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
+  private originalCustomerID: number = -1
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -763,6 +765,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     try {
       const customer = await lastValueFrom(this.seC.Get({ ID: x.customerID }))
 
+      this.originalCustomerID = customer.id
+
       this.SetDataForForm(customer)
     }
     catch(error) {
@@ -1035,13 +1039,15 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         checkedNotes: checkedNotes,
-        customerID: this.buyerData.id,
+        customerID: this.originalCustomerID,
         selectedNotes: event,
       }
     });
     d.onClose.subscribe({
       next: res => {
-        this.JumpToCell('quantity');
+        if (res) {
+          this.JumpToCell('quantity');
+        }
       }
     });
   }

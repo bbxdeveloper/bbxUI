@@ -206,7 +206,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     } else {
       discountedGross = HelperFunctions.Round(discountedGross);
     }
-    debugger
 
     // rates
     if (!this.isAggregate) {
