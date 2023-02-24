@@ -88,15 +88,16 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
-  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
+  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
+    "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
   override allColumns = [
     'productCode',
     'productDescription',
     'quantity',
     'unitOfMeasureX',
     'unitPrice',
-    'rowNetValueRounded',
-    'rowGrossValueRounded',
+    'rowNetPrice',
+    'rowGrossPriceRounded',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -111,7 +112,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "70%", textAlign: "left",
     },
-    {
+   {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
@@ -127,12 +128,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Nettó', objectKey: 'rowNetValueRounded', colKey: 'rowNetValueRounded',
+      label: 'Nettó', objectKey: 'rowNetPrice', colKey: 'rowNetPrice',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Bruttó', objectKey: 'rowGrossValueRounded', colKey: 'rowGrossValueRounded',
+      label: 'Bruttó', objectKey: 'rowGrossPriceRounded', colKey: 'rowGrossPriceRounded',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -188,6 +189,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       Row: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner felvétele', KeyType: Constants.KeyTypes.Fn }
     }
   }
+
+  private originalCustomerID: number = -1
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -310,6 +313,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         additionalAddressDetail: new FormControl('', []),
         customerBankAccountNumber: new FormControl('', []),
         taxpayerNumber: new FormControl('', []),
+        thirdStateTaxId: new FormControl('', []),
         comment: new FormControl('', []),
       });
     } else {
@@ -349,6 +353,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         additionalAddressDetail: new FormControl('', []),
         customerBankAccountNumber: new FormControl('', []),
         taxpayerNumber: new FormControl('', []),
+        thirdStateTaxId: new FormControl('', []),
         comment: new FormControl('', []),
       });
     } else {
@@ -486,25 +491,22 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
 
-    this.outGoingInvoiceData.invoiceNetAmount =
-      this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.rowNetValueRounded))
-        .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.invoiceNetAmount = this.outGoingInvoiceData.invoiceLines
+      .map(x => HelperFunctions.ToFloat(x.rowNetPriceRounded))
+      .reduce((sum, current) => sum + current, 0);
 
-    this.outGoingInvoiceData.invoiceVatAmount =
-      this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
-        .reduce((sum, current) => sum + current, 0);
-        
+    this.outGoingInvoiceData.invoiceVatAmount = this.outGoingInvoiceData.invoiceLines
+      .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
+      .reduce((sum, current) => sum + current, 0);
+
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
 
     HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-        
+
     // Csak gyűjtőszámlánál
-    this.outGoingInvoiceData.lineGrossAmount =
-      this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.rowGrossValueRounded))
-        .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceLines
+      .map(x => HelperFunctions.ToFloat(x.rowDiscountedGrossPrice))
+      .reduce((sum, current) => sum + current, 0);
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
@@ -762,6 +764,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     try {
       const customer = await lastValueFrom(this.seC.Get({ ID: x.customerID }))
+
+      this.originalCustomerID = customer.id
 
       this.SetDataForForm(customer)
     }
@@ -1024,22 +1028,28 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     const checkedNotes = this.dbData.map(x => {
       const data = {
-        productCode: x.data.productCode,
+        relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
         quantity: x.data.quantity
       } as PendingDeliveryNote
       return data
     })
 
-    this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
+    var d = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         checkedNotes: checkedNotes,
-        customerID: this.buyerData.id,
+        customerID: this.originalCustomerID,
         selectedNotes: event,
       }
     });
-
+    d.onClose.subscribe({
+      next: res => {
+        if (res) {
+          this.JumpToCell('quantity');
+        }
+      }
+    });
   }
 
   private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
@@ -1074,7 +1084,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
       }
 
-      const checkedNote = this.dbData.find(x => x.data.productCode === note.productCode)
+      const checkedNote = this.dbData.find(x => x.data.relDeliveryNoteInvoiceLineID === note.relDeliveryNoteInvoiceLineID)
       if (checkedNote) {
         note.quantity += checkedNote.data.quantity
 
@@ -1084,7 +1094,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     })
 
     const existingNotes = this.dbData
-      .filter(x => !!x.data.productCode)
+      .filter(x => !!x.data.relDeliveryNoteInvoiceLineID)
       .map(x => x.data)
 
     this.dbData = notes
@@ -1093,10 +1103,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       .map(x => ({ data: x, uid: this.nextUid() }))
 
     this.dbData.sort((a, b) => {
-      if (a.data.invoiceNumber! > b.data.invoiceNumber!)
+      const aProperty = a.data.invoiceNumber + a.data.productCode
+      const bProperty = b.data.invoiceNumber + b.data.productCode
+
+      if (aProperty > bProperty)
         return 1
 
-      if (a.data.invoiceNumber! < b.data.invoiceNumber!)
+      if (aProperty < bProperty)
         return -1
 
       return 0
@@ -1304,11 +1317,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.buyerData = { ...data as Customer };
       data.zipCodeCity = data.postalCode + ' ' + data.city;
 
-      if (this.buyerData.countryCode !== 'HU') {
-        this.buyerFormNav.FillForm(data, [], [{ from: 'thirdStateTaxId', to: 'taxpayerNumber' }]);
-      } else {
-        this.buyerFormNav.FillForm(data);
-      }
+      this.buyerFormNav.FillForm(data);
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);
       this.kbS.SelectFirstTile();

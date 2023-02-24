@@ -26,6 +26,7 @@
                         (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                         (dblclick)="selectRow($event, row)"
                         [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
+                        [style.text-align]="it.textAlign"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
                         <!-- <div>
                             {{ row.data[it.objectKey] }}
@@ -76,6 +77,12 @@
                                 </div>
                             </ng-container>
 
+                            <ng-container *ngSwitchCase="'onlyDate'">
+                                <div>
+                                    {{ GetDateString(row.data) }}
+                                </div>
+                            </ng-container>
+
                             <ng-container *ngSwitchDefault="">
                                 <div>
                                     {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
@@ -88,6 +95,19 @@
             </ng-container>
         </table>
 
-        <div class="msg">{{responseMessage}}</div>
+        <div class="flex justify-center pending-notes-function-row">
+            <nb-actions size="medium" >
+                <nb-action>
+                    <span class="fkey-key">F6</span>
+                    <span class="fkey-value">Szállító szerint</span>
+                </nb-action>
+                <nb-action>
+                    <span class="fkey-key">F7</span>
+                    <span class="fkey-value">Összes</span>
+                </nb-action>
+            </nb-actions>
+        </div>
+
+        <!-- <div class="msg">{{responseMessage}}</div> -->
     </nb-card-body>
 </nb-card>

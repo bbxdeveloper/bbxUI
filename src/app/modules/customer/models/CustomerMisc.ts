@@ -7,7 +7,7 @@ export module CustomerMisc {
     }
     export const ThirdStateTaxIdMask: string = 'TTTUUUUUUU'
     export const TaxNumberNgxMask: string = 'UUUUUUUU-U-UU'
-    export const IbanPattern: string = 'SS00 0000 0000 0000 0000 0000'
+    export const IbanPattern: string = 'SS00 0000 0000 0000 0000 0000 0000'
     export const DefaultPattern: string = '00000000-00000000-00000000'
-    export const IbanRegex: RegExp = /^[a-zA-Z]{1,3}[0-9]{0,23}$/
+    export const IbanRegex: RegExp = /^[a-zA-Z]{1,3}[0-9]{0,27}$/
 }

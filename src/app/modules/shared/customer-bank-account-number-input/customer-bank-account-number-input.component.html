@@ -5,6 +5,7 @@
         <input class="{{TileCssClass}}" nbInput type="text" [formControlName]="formFieldName"
             [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
             [dropSpecialCharacters]="false" [showMaskTyped]="true" [readonly]="isReadonly"
+            oninput="this.value = this.value.toUpperCase()"
             (click)="currentForm?.HandleFormFieldClick($event)">
     </div>
     <app-form-control-error [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">

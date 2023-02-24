@@ -77,7 +77,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
       let data = await this.invoiceService.GetPendingDeliveryNotes(request)
 
       data.forEach(datum => {
-        const checkedNote = this.checkedNotes.find(note => note.productCode === datum.productCode)
+        const checkedNote = this.checkedNotes.find(note => note.relDeliveryNoteInvoiceLineID === datum.relDeliveryNoteInvoiceLineID)
 
         if (checkedNote) {
           datum.quantity -= checkedNote.quantity
@@ -126,7 +126,11 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
 
     this.selectedNotes.emit([row.data])
 
-    this.close();
+    this.close({} as PendingDeliveryNote);
+  }
+
+  public GetDateString(val: string): string {
+    return HelperFunctions.GetDateStringFromDate(val)
   }
 
   @HostListener('keydown.f7', ['$event'])
@@ -158,8 +162,8 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
 
     dialog.onClose.subscribe((selected: PendingDeliveryNote) => {
       const notes = this.dbData
-        .filter(x => x.data.invoiceNumber === selected.invoiceNumber)
-        .map(x => x.data)
+        .filter(x => x.data.invoiceNumber === selected.invoiceNumber)
+        .map(x => x.data)
 
       this.selectedNotes.emit(notes)
     })

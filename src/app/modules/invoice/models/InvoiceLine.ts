@@ -1,6 +1,7 @@
 import { IEditable } from "src/assets/model/IEditable";
 import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
+import { Price } from "src/assets/util/Price";
 
 /**
  * Invoivceline model for sending data to the backend
@@ -100,32 +101,32 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     unitPriceDiscounted: number = 0
 
     //#region Gyűjtő számla
-    public get discountValue(): number {
+    public get rowDiscountedNetPrice(): number {
         return this.unitPriceDiscounted * this.quantity
     }
 
-    public get unitPriceQuantity(): number {
+    public get rowNetPrice(): number {
         return this.unitPrice * this.quantity;
     }
 
     public get rowDiscountValue(): number {
-        return this.unitPriceQuantity - this.discountValue;
+        return this.rowNetPrice - this.rowDiscountedNetPrice;
     }
 
-    public get rowNetValue(): number {
-        return this.unitPriceQuantity - this.rowDiscountValue;
+    public get rowGrossPrice(): number {
+        return Price.gross(this.rowNetPrice, this.vatRate)
     }
 
-    public get rowGrossValue(): number {
-        return this.rowNetValue * (1.0 + this.vatRate);
+    public get rowDiscountedGrossPrice(): number {
+        return Price.gross(this.rowDiscountedNetPrice, this.vatRate)
     }
 
-    public get rowNetValueRounded(): number {
-        return HelperFunctions.Round2(this.rowNetValue, 1);
+    public get rowNetPriceRounded(): number {
+        return HelperFunctions.Round2(this.rowDiscountedNetPrice, 1);
     }
 
-    public get rowGrossValueRounded(): number {
-        return HelperFunctions.Round2(this.rowGrossValue, 0);
+    public get rowGrossPriceRounded(): number {
+        return HelperFunctions.Round2(this.rowGrossPrice, 0);
     }
     //#endregion Gyűjtő számla
 

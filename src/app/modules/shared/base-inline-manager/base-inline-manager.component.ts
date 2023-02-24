@@ -176,6 +176,25 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     this.sideBarService.collapse();
   }
 
+  JumpToCell(key: string, edit: boolean = true){
+    var colIndex = this.colDefs.findIndex(x => x.objectKey === key);
+    if (colIndex === -1) {
+      return;
+    }
+
+    this.colsToIgnore.forEach(y => {
+      var ignoredIndex = this.colDefs.findIndex(x => x.objectKey === y);
+      if (ignoredIndex !== -1 && ignoredIndex < colIndex) {
+        colIndex--;
+      }
+    });
+
+    this.kbS.SelectElementByCoordinate(colIndex, this.kbS.p.y);
+    if (edit) {
+      this.kbS.ClickCurrentElement();
+    }
+  }
+
   SelectedRowProperty(objectKey: string): any {
     // Nem a táblázaton állunk
     if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
