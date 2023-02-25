@@ -42,7 +42,7 @@ jobs:
       - name: Upload to Azure Blob storage
         uses: bacongobbler/azure-blob-storage-upload@main
         with:
-          source_dir: dist/bbxUI
+          source_dir: /home/runner/work/bbxUI/bbxUI/dist/bbxUI
           container_name: $web
           connection_string: ${{ secrets.BBXFE_DEV_CONNECTIONSTRING }}
           #extra_args: '--pattern *.tar.gz'
