@@ -34,13 +34,17 @@ jobs:
       - name: Azure checkout
         uses: actions/checkout@v3
         
-      - name: Azure login
-        uses: azure/login@v1
-        with:
-           creds: ${{ secrets.BBXFE_DEV_PUBLISH_PROFILE }}
+      #- name: Azure login
+      #  uses: azure/login@v1
+      #  with:
+      #     creds: ${{ secrets.BBXFE_DEV_PUBLISH_PROFILE }}
            
       - name: Upload to Azure Blob storage
-        uses: azure/CLI@v1
+        uses: bacongobbler/azure-blob-storage-upload@main
         with:
-          inlineScript: |
-             az storage blob upload-batch --connection-string env.CONNECTION_STRING -d '$web' -s .
+          source_dir: _dist
+          container_name: $web
+          connection_string: ${{ secrets.BBXFE_DEV_CONNECTIONSTRING }}
+          #extra_args: '--pattern *.tar.gz'
+          # WARNING: this will overwrite existing blobs in your blob storage
+          overwrite: 'true'
