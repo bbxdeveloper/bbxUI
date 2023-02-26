@@ -1,13 +1,12 @@
 name: Build and deploy bbxFE to DEV environment
 
 env:
-  STORAGE_NAME: bbx     # set this to your storage's name
-  PROJECT_NAME: bbx-ui  # set the project name of the Angular solution
+  STORAGE_NAME: bbx   # set this to your storage's name
+  AZURE_STORAGE_KEY: W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==
+  CONNECTION_STRING: DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=bbx;AccountKey=W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==;
+  PROJECT_NAME: bbx-ui
   
 on:
-  push:
-    branches:
-    - develop
   workflow_dispatch:
 
 jobs:
@@ -47,25 +46,22 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Login to Azure
-        uses: azure/login@v1
+        uses: actions/checkout@v1
+      - uses: azure/login@v1
         with:
           creds:  ${{ secrets.BBXFE_DEV_PUBLISH_PROFILE }} 
-          
       - name: Download build
         uses: actions/download-artifact@v1
         with:
           name: deploy_dist
-          
       - name: Upload to blob storage
         uses: azure/CLI@v1
         with:
           inlineScript: |
             az storage blob upload-batch --account-name $STORAGE_NAME --auth-mode key -d '$web' -s ./deploy_dist/$PROJECT_NAME --overwrite
-            
-      - name: Logout from Azure
+      - name: logout
         run: |
           az logout
         if: always()
+      - name: Azure checkout
+        uses: actions/checkout@v3
