@@ -59,7 +59,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az storage blob delete-batch --account-name $STORAGE_NAME --auth-mode key -s '$web' --pattern *
+            az storage blob delete-batch --account-name $STORAGE_NAME --auth-mode key --source '$web' --pattern '*'
             
       - name: Download build
         uses: actions/download-artifact@v1
