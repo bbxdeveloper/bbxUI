@@ -17,7 +17,7 @@ export interface Offer {
     "copies": number,
     "notice": string,
     "deleted": boolean,
-    "newOffer": boolean,
+    "newOfferVersion"?: boolean,
 
     "offerNumberX": string,
     "CustomerComment"?: string,
