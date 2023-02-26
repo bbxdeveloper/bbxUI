@@ -16,6 +16,7 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 })
 export class CustomersHasPendingInvoiceComponent extends SelectTableDialogComponent<PendingDeliveryInvoiceSummary> implements OnInit {
   @Input() public customerID!: number
+  @Input() public incoming: boolean = false
 
   public isLoaded = false
   public override isLoading = false
@@ -65,7 +66,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     const request = {
       currencyCode: 'HUF',
       warehouseCode: '001',
-      incoming: false
+      incoming: this.incoming
     }
 
     try {

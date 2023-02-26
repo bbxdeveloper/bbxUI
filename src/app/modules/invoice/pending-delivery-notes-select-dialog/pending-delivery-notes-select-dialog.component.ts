@@ -21,6 +21,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   @Input() public customerID!: number
   @Input() public checkedNotes!: PendingDeliveryNote[]
   @Output() public selectedNotes = new EventEmitter<PendingDeliveryNote[]>()
+  @Input() public incoming: boolean = false
 
   public isLoaded = false
   public override isLoading = false
@@ -69,7 +70,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     const request = {
       currencyCode: 'HUF',
       warehouseCode: '001',
-      incoming: false,
+      incoming: this.incoming,
       customerID: this.customerID
     }
 
