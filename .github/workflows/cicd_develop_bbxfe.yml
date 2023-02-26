@@ -7,6 +7,9 @@ env:
   PROJECT_NAME: bbx-ui
   
 on:
+  push:
+    branches:
+      - develop
   workflow_dispatch:
 
 jobs:
