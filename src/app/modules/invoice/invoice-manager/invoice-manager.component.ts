@@ -46,6 +46,7 @@ import moment from 'moment';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
+import { InvoiceCategory } from '../models/InvoiceCategory';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -259,6 +260,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     } else if (path === 'outgoing-delivery-note-income') {
       this.InvoiceType = InvoiceTypes.DNO;
     }
+    this.InvoiceCategory = InvoiceCategory.NORMAL
     console.log("InvoiceType: ", this.InvoiceType);
   }
 
@@ -774,6 +776,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.incoming = this.Incoming;
     this.outGoingInvoiceData.invoiceType = this.InvoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
@@ -885,7 +888,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               dialogRef.onClose.subscribe({
                 next: async res => {
                   console.log("OneTextInputDialogComponent: ", res);
-                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+                  if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);

@@ -45,6 +45,7 @@ import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
+import { InvoiceCategory } from '../models/InvoiceCategory';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -262,6 +263,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     } else if (path === 'incoming-delivery-note-income') {
       this.InvoiceType = InvoiceTypes.DNI;
     }
+    this.InvoiceCategory = InvoiceCategory.NORMAL
     console.log("InvoiceType: ", this.InvoiceType);
     console.log("Incoming: ", this.Incoming);
   }
@@ -780,6 +782,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outGoingInvoiceData.incoming = this.Incoming;
     this.outGoingInvoiceData.invoiceType = this.InvoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
@@ -889,7 +892,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               });
               dialogRef.onClose.subscribe({
                 next: async res => {
-                  if (res.answer && res.value > 0) {
+                  if (res && res.answer && res.value > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);

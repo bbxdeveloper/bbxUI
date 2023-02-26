@@ -57,6 +57,8 @@ import { InvoiceStatisticsService } from '../services/invoice-statistics.service
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
+  incoming: boolean = false
+
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   TileCssClass = TileCssClass;
@@ -265,8 +267,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     if (path === 'summary-invoice') {
       this.InvoiceType = InvoiceTypes.INV;
       this.InvoiceCategory = InvoiceCategory.AGGREGATE
+      this.incoming = false;
     } else {
-      this.InvoiceType = InvoiceTypes.INV;
+      this.InvoiceType = InvoiceTypes.INC;
+      this.InvoiceCategory = InvoiceCategory.AGGREGATE
+      this.incoming = true;
     }
     console.log("InvoiceType: ", this.InvoiceType);
   }
@@ -341,6 +346,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         invoiceOrdinal: new FormControl('', []), // in post response
         notice: new FormControl('', []),
       });
+      if (this.incoming) {
+        this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
+          Validators.required
+        ]));
+      }
     } else {
       this.outInvForm.reset(undefined);
     }
@@ -749,7 +759,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         context: {
           searchString: this.customerInputFilterString,
           allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
-          colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs
+          colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
+          incoming: this.incoming
         },
       });
 
@@ -781,7 +792,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-
+    
+    if (this.incoming) {
+      this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
+    }
+    
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
@@ -930,7 +945,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
             dialogRef.onClose.subscribe({
               next: async res => {
                 console.log("OneTextInputDialogComponent: ", res);
-                if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+                if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
                   let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                     next: cmdEnded => {
                       console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
@@ -1041,6 +1056,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         checkedNotes: checkedNotes,
         customerID: this.originalCustomerID,
         selectedNotes: event,
+        incoming: this.incoming
       }
     });
     d.onClose.subscribe({
