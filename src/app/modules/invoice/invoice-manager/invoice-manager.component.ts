@@ -885,7 +885,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               dialogRef.onClose.subscribe({
                 next: async res => {
                   console.log("OneTextInputDialogComponent: ", res);
-                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+                  if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);

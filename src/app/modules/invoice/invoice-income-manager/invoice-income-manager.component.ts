@@ -889,7 +889,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               });
               dialogRef.onClose.subscribe({
                 next: async res => {
-                  if (res.answer && res.value > 0) {
+                  if (res && res.answer && res.value > 0) {
                     let commandEndedSubscription = this.utS.CommandEnded.subscribe({
                       next: cmdEnded => {
                         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);

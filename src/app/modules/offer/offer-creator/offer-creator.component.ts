@@ -405,7 +405,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
                   await this.Reset();
 
-                  if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
+                  if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
 
                     this.buyerForm.controls['offerNumberX'].reset();
 
