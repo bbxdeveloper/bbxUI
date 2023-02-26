@@ -55,6 +55,12 @@ jobs:
         with:
           creds: ${{ secrets.BBXFE_DEV_PUBLISH_PROFILE }}
 
+      - name: Delete the content of the blob storage
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob delete-batch --account-name $STORAGE_NAME --auth-mode key -d '$web' --pattern *
+            
       - name: Download build
         uses: actions/download-artifact@v1
         with:
