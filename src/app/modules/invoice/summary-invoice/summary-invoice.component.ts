@@ -328,9 +328,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     if (this.outInvForm === undefined) {
       this.outInvForm = new FormGroup({
         paymentMethod: new FormControl('', [Validators.required]),
-        customerInvoiceNumber: new FormControl('', [
-          Validators.required
-        ]),
         invoiceDeliveryDate: new FormControl('', [
           Validators.required,
           this.validateInvoiceDeliveryDate.bind(this),
@@ -349,6 +346,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         invoiceOrdinal: new FormControl('', []), // in post response
         notice: new FormControl('', []),
       });
+      if (this.incoming) {
+        this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
+          Validators.required
+        ]));
+      }
     } else {
       this.outInvForm.reset(undefined);
     }
@@ -790,8 +792,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-    this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
-
+    
+    if (this.incoming) {
+      this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
+    }
+    
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
