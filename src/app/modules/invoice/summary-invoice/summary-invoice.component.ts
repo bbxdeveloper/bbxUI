@@ -836,9 +836,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
     await this.utS.execute(
-      Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
+      Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
       {
-        "section": "Szamla",
+        "section": "Bevételezés gyűjtőszámla",
         "fileType": "pdf",
         "report_params":
         {
@@ -847,7 +847,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         },
         "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
+      } as Constants.Dct,
+      this.seInv.GetAggregateReport({
+        "report_params": {
+          "id": id, "copies": copies
+        }
+      }));
   }
 
   Save(): void {
