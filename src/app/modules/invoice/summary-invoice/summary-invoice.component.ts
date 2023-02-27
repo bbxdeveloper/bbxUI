@@ -216,11 +216,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     public invoiceStatisticsService: InvoiceStatisticsService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
-    this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.SetModeBasedOnRoute(params);
+      this.InitialSetup();
+      this.isPageReady = true;
     })
-    this.isPageReady = true;
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
