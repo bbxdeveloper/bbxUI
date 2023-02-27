@@ -167,7 +167,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       copies: 0,
       deleted: false,
       notice: '',
-      newOffer: false,
+      newOfferVersion: false,
       offerLines: [],
       offerGrossAmount: 0,
       offerNetAmount: 0,
@@ -450,11 +450,15 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       if (selectedSaveOption !== undefined && selectedSaveOption >= 0) {
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
-        if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITH_VERSIONING) {
-          this.offerData.offerVersion += 1;
+        if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITHOUT_VERSIONING) {
+          this.offerData.newOfferVersion = false
+        }
+        else if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITH_VERSIONING) {
+          //this.offerData.offerVersion += 1;
+          this.offerData.newOfferVersion = true
         }
         else if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_NEW_VERSION) {
-          this.offerData.newOffer = true;
+          this.offerData.newOfferVersion = undefined;
         }
 
         this.isLoading = true;
@@ -484,7 +488,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
               this.isLoading = false;
               if (selectedSaveOption > 1) {
                 this.offerData.offerVersion -= 1;
-                this.offerData.newOffer = false;
+                this.offerData.newOfferVersion = false;
               }
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             },
@@ -493,7 +497,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             }
           });
         } else {
-          this.offerService.Update(this.offerData).subscribe({
+          this.offerService.Create(this.offerData).subscribe({
             next: d => {
               if (!!d.data) {
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -586,7 +590,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
               this.isLoading = false;
               if (selectedSaveOption > 1) {
                 this.offerData.offerVersion -= 1;
-                this.offerData.newOffer = false;
+                this.offerData.newOfferVersion = false;
               }
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             },
