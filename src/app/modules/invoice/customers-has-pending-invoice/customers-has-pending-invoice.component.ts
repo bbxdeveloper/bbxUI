@@ -1,13 +1,15 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary'
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-customers-has-pending-invoice',
@@ -28,6 +30,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
+    private router: Router,
   ) {
     super(dialogRef, kns, dataSourceBuilder)
     const navMap: string[][] = [[]];
@@ -101,5 +104,30 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
       this.dbDataTable.GenerateAndSetNavMatrices(this.DownNeighbour === undefined, false);
       this.kns.SetCurrentNavigatable(this.dbDataTable)
     }, 200);
+  }
+
+  backToHeader(): void {
+    this.kbS.RemoveWidgetNavigatable();
+    this.router.navigate(["home"])
+    setTimeout(() => {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.kbS.ResetToRoot()
+      this.kbS.SetPositionById("header-income")
+      this.kbS.SelectCurrentElement()
+    }, 700);
+  }
+
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      this.backToHeader();
+    }
+  }
+
+  HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<PendingDeliveryInvoiceSummary>, rowPos: number, col: string, colPos: number, upward: boolean): void {
+    if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      this.backToHeader();
+    } else {
+      this.dbDataTable.HandleGridMovement(event, row, rowPos, col, colPos, true);
+    }
   }
 }

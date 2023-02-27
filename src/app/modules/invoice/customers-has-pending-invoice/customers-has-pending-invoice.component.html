@@ -22,7 +22,7 @@
                 <ng-container [ngSwitch]="it.type">
                     <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                         *nbTreeGridCellDef="let row; let rowPos = index" (keydown.enter)="selectRow($event, row)"
-                        (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
+                        (keydown)="HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
                         (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                         [style.text-align]="it.textAlign"
                         (dblclick)="selectRow($event, row)"

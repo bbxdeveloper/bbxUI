@@ -32,7 +32,7 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UtilityService } from 'src/app/services/utility.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -182,7 +182,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
-  public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
+  public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   formKeyRows: any = {
@@ -762,6 +762,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
           incoming: this.incoming
         },
+        closeOnEsc: false,
+        closeOnBackdropClick: false
       });
 
       dialog.onClose.subscribe({ next: this.customerSelected.bind(this) })
@@ -1434,17 +1436,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           }
           _event.preventDefault();
           this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
-          break;
-        }
-        case this.KeySetting[Actions.Create].KeyCode: {
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(_event);
-            return;
-          }
-          _event.preventDefault();
-          this.CreateProduct(event.RowPos, product => {
-            return this.HandleProductChoose(product, event.WasInNavigationMode);
-          });
           break;
         }
         case KeyBindings.Enter: {
