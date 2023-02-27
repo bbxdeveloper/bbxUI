@@ -5,6 +5,8 @@ import { Actions, KeyBindings } from "./KeyBindings";
 export module Constants {
     // Messages
 
+    export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
+
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";

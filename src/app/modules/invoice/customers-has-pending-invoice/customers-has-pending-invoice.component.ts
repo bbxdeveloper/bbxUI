@@ -73,7 +73,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     }
 
     try {
-      const data = await this.invoiceService.GetPendingDeliveriInvoices(request)
+      const data = await this.invoiceService.GetPendingDeliveryInvoices(request)
 
       if (!data) {
         console.error('missing data')

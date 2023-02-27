@@ -583,47 +583,63 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    if (!!changedData && !!changedData.productCode) {
-      if ((!!col && col === 'productCode') || col === undefined) {
-        this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-          next: product => {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+    if (!changedData && !changedData.productCode) {
+      return
+    }
 
-            if (index !== undefined) {
-              let tmp = this.dbData[index].data;
+    if ((!!col && col === 'productCode') || col === undefined) {
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: product => {
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-              tmp.productDescription = product.description ?? '';
+          if (index !== undefined) {
+            let tmp = this.dbData[index].data;
 
-              product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.vatRate = product.vatPercentage ?? 1;
-              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-              tmp.vatRateCode = product.vatRateCode;
+            tmp.productDescription = product.description ?? '';
 
-              tmp.ReCalc();
+            product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
+            tmp.vatRate = product.vatPercentage ?? 1;
+            product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+            tmp.vatRateCode = product.vatRateCode;
 
-              this.dbData[index].data = tmp;
+            tmp.ReCalc();
 
-              this.dbDataDataSrc.setData(this.dbData);
-            }
+            this.dbData[index].data = tmp;
 
-            this.RecalcNetAndVat();
-          },
-          error: err => {
-            this.RecalcNetAndVat();
+            this.dbDataDataSrc.setData(this.dbData);
           }
-        });
-      } else {
-        if (index !== undefined) {
-          let tmp = this.dbData[index].data;
 
-          tmp.ReCalc();
-
-          this.dbData[index].data = tmp;
-
-          this.dbDataDataSrc.setData(this.dbData);
+          this.RecalcNetAndVat();
+        },
+        error: err => {
+          this.RecalcNetAndVat();
         }
+      });
+    } else {
+      if (index !== undefined) {
+        let tmp = this.dbData[index].data;
 
-        this.RecalcNetAndVat();
+        tmp.ReCalc();
+
+        this.dbData[index].data = tmp;
+
+        this.dbDataDataSrc.setData(this.dbData);
+      }
+
+      this.RecalcNetAndVat();
+    }
+
+    if (col === 'quantity' && index !== null && index !== undefined) {
+      if (changedData.quantity > changedData.maximumQuantity) {
+        this.bbxToastrService.show(
+          Constants.MSG_MAXIMUM_QUANTITY_REACHED,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        );
+        this.dbData[index].data.Restore('quantity')
+      }
+      else {
+        changedData.Save()
       }
     }
   }
@@ -794,11 +810,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-    
+
     if (this.incoming) {
       this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
     }
-    
+
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
@@ -1090,8 +1106,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.invoiceNumber = value.invoiceNumber
     line.workNumber = value.workNumber
     line.unitPriceDiscounted = value.unitPriceDiscounted
+    line.maximumQuantity = value.quantity
 
-    line.Save('productCode')
+    line.DeafultFieldList = ['productCode', 'quantity']
+    line.Save()
 
     return line
   }
