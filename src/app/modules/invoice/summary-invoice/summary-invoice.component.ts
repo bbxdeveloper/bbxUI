@@ -850,7 +850,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       } as Constants.Dct,
       this.seInv.GetAggregateReport({
         "report_params": {
-          "id": id, "copies": copies
+          "id": id, "copies": HelperFunctions.ToInt(copies)
         }
       }));
   }
