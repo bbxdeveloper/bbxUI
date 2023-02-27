@@ -129,6 +129,13 @@ nb-card-header {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
+    column-gap: 20px;
+
+    nb-form-field {
+        margin: unset;
+        margin-left: unset;
+        margin-right: unset;
+    }
 
     .form-field-full-width {
         display: flex !important;
