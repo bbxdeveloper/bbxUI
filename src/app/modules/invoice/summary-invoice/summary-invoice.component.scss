@@ -128,19 +128,7 @@ nb-card-header {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-
-    > * {
-        flex: 1 0 18%;
-    }
-
-    nb-form-field {
-        min-width: 20% !important;
-
-        input,
-        nb-select {
-            min-width: 100% !important;
-        }
-    }
+    align-items: flex-start;
 
     .form-field-full-width {
         display: flex !important;
