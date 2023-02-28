@@ -1434,6 +1434,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
+        case KeyBindings.F3: {
+          HelperFunctions.StopEvent(_event);
+          return;
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
