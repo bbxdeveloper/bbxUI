@@ -1085,7 +1085,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     d.onClose.subscribe({
       next: res => {
         if (res) {
-          this.JumpToCell('quantity');
+          // debugger
+          // this.kbS.SelectElement('PRODUCT-2-0')
+          // this.JumpToCell('quantity');
         }
       }
     });
@@ -1161,6 +1163,15 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.RefreshTable()
 
     this.UpdateOutGoingData()
+
+    if (notes.length === 1) {
+      const index = this.dbData.findIndex(x => x.data.relDeliveryNoteInvoiceLineID === notes[0].relDeliveryNoteInvoiceLineID)
+
+      const elementId = 'PRODUCT-2-' + index
+
+      this.kbS.SelectElement(elementId)
+      this.kbS.ClickElement(elementId)
+    }
   }
 
   private generateWorkNumbers(): void {
