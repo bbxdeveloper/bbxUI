@@ -125,9 +125,9 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   override selectRow(event: any, row: TreeGridNode<PendingDeliveryNote>): void {
     HelperFunctions.StopEvent(event);
 
-    this.selectedNotes.emit([row.data])
-
     this.close({} as PendingDeliveryNote);
+
+    this.selectedNotes.emit([row.data])
   }
 
   public GetDateString(val: string): string {
