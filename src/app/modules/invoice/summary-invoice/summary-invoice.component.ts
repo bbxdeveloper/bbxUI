@@ -987,6 +987,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                       this.isSaveInProgress = false;
                     },
                     error: cmdEnded => {
+                      this.Reset();
+
                       console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
                       this.isLoading = false;
@@ -1012,6 +1014,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                   this.isSaveInProgress = false;
                   this.Reset();
                 }
+              },
+              error: err => {
+                this.Reset();
+                this.cs.HandleError(d.errors);
+                this.isSaveInProgress = false;
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
               }
             });
           } else {
