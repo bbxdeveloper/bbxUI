@@ -1,6 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
-import { ElectronService } from 'ngx-electron';
 import { Title } from '@angular/platform-browser';
 import { environment } from 'src/environments/environment';
 import packageJson from '../../package.json';
@@ -17,14 +16,14 @@ export class AppComponent implements OnInit {
   devVersion: boolean = false;
   buildType: string = 'unknown';
 
-  constructor(private es: ElectronService, private sidebarService: NbSidebarService, private title: Title, private status: StatusService) { }
+  constructor(private sidebarService: NbSidebarService, private title: Title, private status: StatusService) { }
 
   ngOnInit() {
     setTimeout(() => {
       this.sidebarService.collapse();
     }, 200);
     
-    environment.electron = this.es.isElectronApp;
+    environment.electron = !!window.navigator.userAgent.match(/Electron/);
     
     this.devVersion = !environment.production;
     this.version = packageJson.version;

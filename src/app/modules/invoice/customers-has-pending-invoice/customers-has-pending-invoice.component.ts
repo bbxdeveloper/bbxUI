@@ -56,6 +56,17 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
       setTimeout(() => this.kbS.ClickCurrentElement(), 1000)
     }
     this.kbS.SelectCurrentElement();
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      this.kbS.SetCurrentNavigatable(this.dbDataTable)
+      setTimeout(() => {
+        this.kbS.SelectFirstTile()
+        this.kbS.ClickCurrentElement()
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+        setTimeout(() => {
+          this.kbS.SelectCurrentElement()
+        }, 200);
+      }, 500);
+    }
   }
 
   ngOnDestroy(): void {

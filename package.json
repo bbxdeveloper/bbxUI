@@ -1,6 +1,6 @@
 {
   "name": "bbx-ui",
-  "version": "0.1.106",
+  "version": "0.1.107",
   "main": "app.js",
   "author": {
     "name": "BBX",
@@ -43,7 +43,6 @@
     "inputmask": "5.0.5",
     "jquery": "^3.6.0",
     "moment": "^2.29.3",
-    "ngx-electron": "^2.2.0",
     "ngx-mask": "^13.1.1",
     "npm": "^8.3.0",
     "pdf-to-printer": "^5.2.0",

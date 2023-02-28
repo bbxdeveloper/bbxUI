@@ -209,13 +209,13 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     FillCurrentlyEditedRow(newRowData: TreeGridNode<T>): TreeGridNode<T> | undefined {
         if (!!newRowData && !!this.editedRow) {
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            
+
             this.data[this.editedRowPos!] = newRowData;
             var currentRow = this.data[this.editedRowPos!];
-            
+
             this.SetCreatorRow();
             this.ResetEdit();
-            
+
             this.GenerateAndSetNavMatrices(false);
 
             setTimeout(() => {
@@ -289,7 +289,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             }
             this.Matrix.push(row);
         }
-        
+
         if (environment.inlineEditableTableMatrixGenerationLog) {
             console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
@@ -374,7 +374,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, upward: boolean): void {
         // Új sorokat generáló sort nem dobhatjuk el.
         if (rowPos !== this.data.length - 1) {
-            
+
             // Csak befejezetlen sort dobhatunk el, amikor nincs szerkesztésmód.
             let _data = row.data;
             if (!!_data && _data.IsUnfinished() && !this.kbS.isEditModeActivated) {
@@ -390,7 +390,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
                         // Ha felfelé navigálunk, akkor egyet kell lefelé navigálnunk, hogy korrigáljuk a mozgást.
                         this.GenerateAndSetNavMatrices(false);
-                        
+
                         setTimeout(() => {
                             this.kbS.MoveDown();
                         }, 50);
@@ -420,7 +420,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         const fromEditMode = this.kbs.isEditModeActivated; // && !!this.editedRow && !!this.editedRow?.data;
 
         this.kbs.setEditMode(firstCol ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT);
-        
+
         this.ResetEdit();
 
         // We can't assume all of the colDefs are displayed. We have to use the index of the col key from
@@ -449,7 +449,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         // Stats
         console.log(
             `            ==========[HandleGridEnter]========
-            wasEditActivatedPreviously: ${wasEditActivatedPreviously}, IS EDIT MODE: ${this.kbS.isEditModeActivated}, 
+            wasEditActivatedPreviously: ${wasEditActivatedPreviously}, IS EDIT MODE: ${this.kbS.isEditModeActivated},
             ROW: ${row}, EDITEDROW: ${this.editedRow}, ROWPOS: ${rowPos}, COL: ${col}, COLPOS: ${colPos},
             INPUT ID: ${inputId}, F INPUT TYPE: ${fInputType}, IS UNFINISHED: ${row.data.IsUnfinished()}
             --------------
@@ -471,7 +471,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         //     this.repairMode = false;
         // }
 
-        
+
         // Cache edited data
         let tmp: T | undefined = this.editedRow?.data;
 
@@ -563,25 +563,25 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             setTimeout(() => {
                 // Already in Edit mode
                 if (wasEditActivatedPreviously && !!tmp) {
-    
+
                     // New blank row if needed
                     if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !tmp.IsUnfinished()) {
                         this.productCreatorRow = this.GenerateCreatorRow;
                         this.data.push(this.productCreatorRow);
-    
+
                         this.dataSource.setData(this.data);
-    
+
                         this.GenerateAndSetNavMatrices(false);
-    
+
                         this.isUnfinishedRowDeletable = true;
                     }
-    
+
                     // Clear edit data
                     this.ResetEdit();
-    
+
                     // Detect changes in DOM
                     this.cdref!.detectChanges();
-    
+
                     if (!this.repairMode) {
                         // Move to the next cell and enter edit mode in it
                         let newX = this.MoveNextInTable();
@@ -597,7 +597,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
                         this.repairMode = false;
                     }
-    
+
                     // Notify the parent component about the datachange
                     this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
                 } else {
@@ -635,13 +635,13 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                         }
                     }
                 }
-    
+
                 this.PushFooterCommandList();
-    
+
                 console.log((this.data[rowPos].data as any)[col]);
             }, 10);
         }
-        
+
         this.parentComponent.RecalcNetAndVat();
     }
 

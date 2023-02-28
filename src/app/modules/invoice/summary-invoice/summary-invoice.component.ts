@@ -987,6 +987,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                       this.isSaveInProgress = false;
                     },
                     error: cmdEnded => {
+                      this.Reset();
+
                       console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
                       this.isLoading = false;
@@ -1012,6 +1014,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                   this.isSaveInProgress = false;
                   this.Reset();
                 }
+              },
+              error: err => {
+                this.Reset();
+                this.cs.HandleError(d.errors);
+                this.isSaveInProgress = false;
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
               }
             });
           } else {
@@ -1085,7 +1093,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     d.onClose.subscribe({
       next: res => {
         if (res) {
-          this.JumpToCell('quantity');
+          // debugger
+          // this.kbS.SelectElement('PRODUCT-2-0')
+          // this.JumpToCell('quantity');
         }
       }
     });
@@ -1161,6 +1171,15 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.RefreshTable()
 
     this.UpdateOutGoingData()
+
+    if (notes.length === 1) {
+      const index = this.dbData.findIndex(x => x.data.relDeliveryNoteInvoiceLineID === notes[0].relDeliveryNoteInvoiceLineID)
+
+      const elementId = 'PRODUCT-2-' + index
+
+      this.kbS.SelectElement(elementId)
+      this.kbS.ClickElement(elementId)
+    }
   }
 
   private generateWorkNumbers(): void {
@@ -1434,6 +1453,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
+        case KeyBindings.F3: {
+          HelperFunctions.StopEvent(_event);
+          return;
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
