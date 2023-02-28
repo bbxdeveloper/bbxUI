@@ -58,12 +58,14 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     this.kbS.SelectCurrentElement();
     if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       this.kbS.SetCurrentNavigatable(this.dbDataTable)
-      this.kbS.SelectFirstTile()
-      this.kbS.ClickCurrentElement()
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
       setTimeout(() => {
-        this.kbS.ClickCurrentElement();
-      }, 200);
+        this.kbS.SelectFirstTile()
+        this.kbS.ClickCurrentElement()
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+        setTimeout(() => {
+          this.kbS.SelectCurrentElement()
+        }, 200);
+      }, 500);
     }
   }
 
