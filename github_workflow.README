@@ -1,0 +1,8 @@
+GitHub Action: deploy to Azure blob storage
+===========================================
+https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-static-site-github-actions?tabs=userlevel
+
+https://techdirectarchive.com/2022/06/22/how-to-upload-batch-files-to-azure-storage-account-using-azure-cli/
+https://svirlan.com/copy-files-from-azure-blob-storage-to-file-system-using-azure-cli/
+https://honesdev.com/deploy-website-to-azure-storage/
+https://gist.github.com/justinyoo/babbc243f01051ca36d419d26e31fce6?file=github-actions-workflow.yaml
