@@ -635,7 +635,15 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           Constants.MSG_MAXIMUM_QUANTITY_REACHED,
           Constants.TITLE_ERROR,
           Constants.TOASTR_ERROR
-        );
+        )
+        this.dbData[index].data.Restore('quantity')
+      }
+      else if (changedData.quantity < 1) {
+        this.bbxToastrService.show(
+          Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        )
         this.dbData[index].data.Restore('quantity')
       }
       else {
