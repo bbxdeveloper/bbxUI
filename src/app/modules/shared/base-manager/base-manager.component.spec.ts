@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Empty } from 'src/assets/model/Empty';
 
 import { BaseManagerComponent } from './base-manager.component';
 
 describe('BaseManagerComponent', () => {
-  let component: BaseManagerComponent;
-  let fixture: ComponentFixture<BaseManagerComponent>;
+  let component: BaseManagerComponent<Empty>;
+  let fixture: ComponentFixture<BaseManagerComponent<Empty>>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -14,7 +15,7 @@ describe('BaseManagerComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BaseManagerComponent);
+    fixture = TestBed.createComponent(BaseManagerComponent<Empty>);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
