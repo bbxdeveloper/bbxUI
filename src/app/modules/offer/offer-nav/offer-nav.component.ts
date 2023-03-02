@@ -35,7 +35,7 @@ import { SendEmailDialogComponent } from '../../infrastructure/send-email-dialog
 import { IframeViewerDialogComponent } from '../../shared/iframe-viewer-dialog/iframe-viewer-dialog.component';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { SendEmailRequest } from '../../infrastructure/models/Email';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
@@ -319,7 +319,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     sts: StatusService,
     private router: Router,
     private infrastructureService: InfrastructureService,
-    private utS: UtilityService,
+    private utS: PrintAndDownloadService,
     private tokenService: TokenStorageService,
     private khs: KeyboardHelperService
   ) {
@@ -834,11 +834,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD]);
-      this.utS.execute(Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV, Constants.FileExtensions.CSV,
+      this.utS.download_csv(
         {
-          "ID": HelperFunctions.ToFloat(id),
+          "report_params":
+          {
+            "ID": HelperFunctions.ToFloat(id)
+          },
           "data_operation": Constants.DataOperation.DOWNLOAD_BLOB,
-        } as Constants.Dct);
+        } as Constants.Dct,
+        this.offerService.GetCsv
+      );
     }
   }
 
@@ -1105,23 +1110,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    let params = {
-      "section": "Szamla",
-      "fileType": "pdf",
-      "report_params":
+    await this.utS.print_pdf(
       {
-        "id": id,
-        "copies": HelperFunctions.ToInt(copies)
-      },
-      "copies": 1,
-      "data_operation": Constants.DataOperation.PRINT_BLOB,
-      "blob_data": null
-    } as Constants.Dct;
-    await this.utS.execute(
-      Constants.CommandType.PRINT_OFFER,
-      Constants.FileExtensions.PDF,
-      params,
-      this.offerService.GetReport(params)
+        "report_params":
+        {
+          "id": id,
+          "copies": HelperFunctions.ToInt(copies)
+        },
+        "data_operation": Constants.DataOperation.PRINT_BLOB
+      } as Constants.Dct,
+      this.offerService.GetReport
     );
   }
 

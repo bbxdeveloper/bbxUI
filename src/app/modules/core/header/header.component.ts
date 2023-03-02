@@ -15,7 +15,7 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { AttachDirection, SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { DateIntervalDialogComponent } from '../../shared/date-interval-dialog/date-interval-dialog.component';
 import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -79,7 +79,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private tokenService: TokenStorageService,
     private bbxToastrService: BbxToastrService,
     private simpleToastrService: NbToastrService,
-    private utS: UtilityService,
+    private utS: PrintAndDownloadService,
     private status: StatusService,
     private khs: KeyboardHelperService) {
     super();

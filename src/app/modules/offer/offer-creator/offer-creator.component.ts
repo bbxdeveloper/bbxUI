@@ -18,7 +18,7 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
@@ -78,7 +78,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     cs: CommonService,
     sts: StatusService,
     productService: ProductService,
-    utS: UtilityService,
+    utS: PrintAndDownloadService,
     router: Router,
     vatRateService: VatRateService,
     route: ActivatedRoute,

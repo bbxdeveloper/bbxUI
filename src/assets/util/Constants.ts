@@ -1,4 +1,5 @@
 import { NbIconConfig, NbToastrConfig } from "@nebular/theme";
+import { Observable } from "rxjs";
 import { ProcessStatus } from "../model/ProcessStatus";
 import { Actions, KeyBindings } from "./KeyBindings";
 
@@ -183,6 +184,7 @@ export module Constants {
 
     export type Dct = { [id: string]: any; };
     export type KeySettingsDct = { [key in Actions]: KeySettingRow; };
+    export type ServiceFunctionGenericParams = (p: Constants.Dct) => Observable<any>
 
     export interface CommandDescriptor {
         Id: number,

@@ -19,7 +19,7 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { InvoiceService } from '../../invoice/services/invoice.service';
@@ -233,7 +233,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     cs: CommonService,
     sts: StatusService,
     protected productService: ProductService,
-    protected utS: UtilityService,
+    protected utS: PrintAndDownloadService,
     protected router: Router,
     protected vatRateService: VatRateService,
     protected route: ActivatedRoute,
@@ -471,19 +471,17 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
+    await this.utS.print_pdf(
       {
-        "section": "Szamla",
-        "fileType": "pdf",
         "report_params":
         {
           "id": id,
           "copies": HelperFunctions.ToInt(copies)
         },
-        "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
+      } as Constants.Dct,
+      this.offerService.GetReport
+    );
   }
 
   Save(): void {}

@@ -30,7 +30,7 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
@@ -207,7 +207,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private utS: UtilityService,
+    private utS: PrintAndDownloadService,
     private status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
@@ -853,24 +853,17 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
+    await this.utS.print_pdf(
       {
-        "section": "Bevételezés gyűjtőszámla",
-        "fileType": "pdf",
         "report_params":
         {
           "id": id,
           "copies": HelperFunctions.ToInt(copies)
         },
-        "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
       } as Constants.Dct,
-      this.seInv.GetAggregateReport({
-        "report_params": {
-          "id": id, "copies": HelperFunctions.ToInt(copies)
-        }
-      }));
+      this.seInv.GetAggregateReport
+    );
   }
 
   Save(): void {

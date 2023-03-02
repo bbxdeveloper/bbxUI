@@ -24,7 +24,7 @@ import { Actions, KeyBindings, GetFooterCommandListFromKeySettings, InvRowNavKey
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
 import { InvRow } from '../models/InvRow';
@@ -201,7 +201,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     private stockService: StockService,
     cs: CommonService,
     sts: StatusService,
-    private utS: UtilityService,
+    private utS: PrintAndDownloadService,
     private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
@@ -489,20 +489,14 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   async printReport(id: any, copies: number, title: string): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
+    await this.utS.print_pdf(
       {
-        "section": "Leltári időszak",
-        "fileType": "pdf",
-        "report_params": {},
-        "copies": 1,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct,
-      this.inventoryCtrlItemService.GetAbsentReport({
         "report_params": {
           "invCtrlPeriodID": id, "invPeriodTitle": title, "isInStock": this.getInputParams.IsInStock
-        }
-      })
+        },
+        "data_operation": Constants.DataOperation.PRINT_BLOB
+      } as Constants.Dct,
+      this.inventoryCtrlItemService.GetAbsentReport
     );
   }
 

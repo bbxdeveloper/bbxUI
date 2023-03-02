@@ -33,7 +33,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
@@ -199,7 +199,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private utS: UtilityService,
+    private utS: PrintAndDownloadService,
     private status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
@@ -785,19 +785,17 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
+    await this.utS.print_pdf(
       {
-        "section": "Szamla",
-        "fileType": "pdf",
         "report_params":
         {
           "id": id,
           "copies": HelperFunctions.ToInt(copies)
         },
-        "copies": 1,
         "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
+      } as Constants.Dct,
+      this.seInv.GetReport
+    );
   }
 
   Save(): void {

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { UtilityService } from './utility.service';
+import { PrintAndDownloadService } from './print-and-download.service';
 
 describe('UtilityService', () => {
-  let service: UtilityService;
+  let service: PrintAndDownloadService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(UtilityService);
+    service = TestBed.inject(PrintAndDownloadService);
   });
 
   it('should be created', () => {

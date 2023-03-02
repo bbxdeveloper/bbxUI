@@ -16,7 +16,7 @@ import { OfferService } from '../../offer/services/offer.service';
 import { StatusService } from 'src/app/services/status.service';
 import { lastValueFrom } from 'rxjs';
 import { Offer } from '../../offer/models/Offer';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
@@ -100,7 +100,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     private simpleToastrService: NbToastrService,
     private offerService: OfferService,
     private sts: StatusService,
-    private utS: UtilityService
+    private utS: PrintAndDownloadService
   ) {
     super();
     this.Setup();
@@ -244,24 +244,17 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
 
   async printReport(id: any, copies: number): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    let params = {
-      "section": "Szamla",
-      "fileType": "pdf",
+    await this.utS.print_pdf(
+      {
       "report_params":
       {
         "id": id,
         "copies": HelperFunctions.ToInt(copies)
       },
-      "copies": 1,
       "data_operation": Constants.DataOperation.PRINT_BLOB,
-      "blob_data": null,
       "ignore_electron": true
-    } as Constants.Dct;
-    await this.utS.execute(
-      Constants.CommandType.PRINT_OFFER,
-      Constants.FileExtensions.PDF,
-      params,
-      this.offerService.GetReport(params)
+    } as Constants.Dct,
+      this.offerService.GetReport
     );
   }
 

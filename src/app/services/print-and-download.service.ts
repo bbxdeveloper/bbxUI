@@ -23,7 +23,7 @@ const BLOB_DOWNLOAD_WITH_ERROR =
 @Injectable({
   providedIn: 'root'
 })
-export class UtilityService {
+export class PrintAndDownloadService {
   CommandEnded: BehaviorSubject<Constants.CommandDescriptor | undefined> =
     new BehaviorSubject<Constants.CommandDescriptor | undefined>(undefined);
 
@@ -39,68 +39,17 @@ export class UtilityService {
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
-  public async execute(
-    commandType: Constants.CommandType,
-    fileType: Constants.FileExtensions = Constants.FileExtensions.UNKNOWN,
-    params: Constants.Dct = {}, obs?: Observable<any>): Promise<void> {
-    console.log(`Execute command: ${commandType}, fileType: ${fileType}`);
-    switch (commandType) {
-      case Constants.CommandType.PRINT_GENERIC:
-        switch (params['data_operation'] as Constants.DataOperation) {
-          case Constants.DataOperation.PRINT_BLOB:
-            await this.print(fileType, obs!, params);
-            break;
-          case Constants.DataOperation.DOWNLOAD_BLOB:
-            await this.downloadReportPDF(obs!);
-            break;
-        }
+  public async download_csv(params: Constants.Dct = {}, obs: Constants.ServiceFunctionGenericParams): Promise<void> {
+    await this.download(obs(params["report_params"]), 'text/csv');
+  }
+
+  public async print_pdf(params: Constants.Dct = {}, obs: Constants.ServiceFunctionGenericParams): Promise<void> {
+    switch (params['data_operation'] as Constants.DataOperation) {
+      case Constants.DataOperation.PRINT_BLOB:
+        await this.print(Constants.FileExtensions.PDF, obs(params["report_params"]), params);
         break;
-      case Constants.CommandType.PRINT_OFFER:
-        switch (params['data_operation'] as Constants.DataOperation) {
-          case Constants.DataOperation.PRINT_BLOB:
-            await this.print(fileType, this.offerService.GetReport(params), params);
-            break;
-          case Constants.DataOperation.DOWNLOAD_BLOB:
-            await this.downloadReportPDF(this.invS.GetReport(params));
-            break;
-        }
-        break;
-      case Constants.CommandType.PRINT_INVOICE:
-        switch (params['data_operation'] as Constants.DataOperation) {
-          case Constants.DataOperation.PRINT_BLOB:
-            await this.print(fileType, this.invS.GetReport(params), params);
-            break;
-          case Constants.DataOperation.DOWNLOAD_BLOB:
-            await this.downloadReportPDF(this.invS.GetReport(params));
-            break;
-        }
-        break;
-      case Constants.CommandType.POC_REPORT:
-        switch (params['data_operation'] as Constants.DataOperation) {
-          case Constants.DataOperation.PRINT_BLOB:
-            await this.print(fileType, this.invS.GetReport(params), params);
-            break;
-          case Constants.DataOperation.DOWNLOAD_BLOB:
-            await this.downloadReportPDF(this.invS.GetReport(params));
-            break;
-        }
-        break;
-      case Constants.CommandType.PRINT_POC_GRADES:
-        switch (params['data_operation'] as Constants.DataOperation) {
-          case Constants.DataOperation.PRINT_BLOB:
-            await this.print(fileType, this.invS.GetGradesReport(params), params);
-            break;
-          case Constants.DataOperation.DOWNLOAD_BLOB:
-            await this.downloadReportPDF(this.invS.GetGradesReport(params));
-            break;
-        }
-        break;
-      case Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV:
-        switch (params['data_operation'] as Constants.DataOperation) {
-          case Constants.DataOperation.DOWNLOAD_BLOB:
-            await this.download(this.offerService.GetCsv(params), 'text/csv');
-            break;
-        }
+      case Constants.DataOperation.DOWNLOAD_BLOB:
+        await this.downloadReportPDF(obs(params["report_params"]));
         break;
     }
   }
@@ -343,7 +292,7 @@ export class UtilityService {
           a.setAttribute('style', 'display: none');
           a.href = blobURL;
 
-          let fileName = UtilityService.GetFileNameFromHeaders(res) ?? res.filename ?? res.fileName ?? '';
+          let fileName = PrintAndDownloadService.GetFileNameFromHeaders(res) ?? res.filename ?? res.fileName ?? '';
           a.download = fileName;
 
           a.click();
