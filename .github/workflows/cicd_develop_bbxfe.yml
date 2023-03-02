@@ -35,8 +35,8 @@ jobs:
         #run: ng build --prod --base-href        
 
       - name: Run tests
-        run: npm run test
-        # :headless
+        run: npm test
+        # npm run test :headless
         
       - name: Archive build
         if: success()
