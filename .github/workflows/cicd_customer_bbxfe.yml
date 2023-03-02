@@ -8,8 +8,9 @@ env:
 
 on:
   push:
-    branches:
-      - stage
+    branches: [ stage ]
+  pull_request: 
+    branches: [ stage ]
   workflow_dispatch:
 
 jobs:
