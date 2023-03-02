@@ -35,7 +35,7 @@ jobs:
         #run: ng build --prod --base-href        
 
       - name: Run tests
-        run: npm run test -- --prod :headless
+        run: npm run test -- --prod
         env:
             CI: true
         # npm run test :headless
