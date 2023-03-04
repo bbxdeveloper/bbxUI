@@ -138,7 +138,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   /**
    * Checkboxok esetében readonly mellett is át tudom őket kattintani, így ilyen esetekre itt blokkolok minden readonly elemre szóló kattintást.
-   * @param event 
+   * @param event
    */
   @HostListener('window:click', ['$event']) onClick(event: MouseEvent) {
     if (event.target && (event as any).target.readOnly) {
@@ -150,8 +150,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   /**
    * Billentyűsnavigálás tekintetében az event érzékelés felsőbb rétege. Iniciálisan itt történik meg a
    * 4 irányba történő navigálásra vonatkozó parancs meghívása, eventek továbbfolyásának tiltása.
-   * @param event 
-   * @returns 
+   * @param event
+   * @returns
    */
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     if (this.bbxToastrService.IsToastrOpened) {
@@ -163,7 +163,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
       return;
     }
-    
+
     if (this.kbS.IsLocked() || this.status.InProgress || this.khs.IsKeyboardBlocked) {
       console.log("[onKeyDown] Movement is locked!");
 
@@ -279,7 +279,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
               } else {
                 this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
                 this.isLoading = false;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);  
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
               }
             },
             error: err => {
