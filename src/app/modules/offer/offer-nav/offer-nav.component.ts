@@ -44,6 +44,8 @@ import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { OfferFilter } from '../models/OfferFilter';
 
 export interface OfferPrintParams {
   rowIndex: number,
@@ -59,6 +61,8 @@ export interface OfferPrintParams {
 })
 export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  private readonly localStorageKey: string
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -321,7 +325,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     private infrastructureService: InfrastructureService,
     private utS: PrintAndDownloadService,
     private tokenService: TokenStorageService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    private readonly localStorage: LocalStorageService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -329,15 +334,17 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.dbDataTableId = 'offers-table';
     this.dbDataTableEditId = 'offers-cell-edit-input';
 
+    this.localStorageKey = 'OfferNav.' + this.tokenService.user?.id ?? 'everyone'
+
     this.kbS.ResetToRoot();
 
     this.Setup();
   }
 
-  InitFormDefaultValues(): void {
-    this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
-    this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
-  }
+  // InitFormDefaultValues(): void {
+  //   this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
+  //   this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
+  // }
 
   ToInt(p: any): number {
     return parseInt(p + '');
@@ -392,73 +399,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     this.dbDataTableForm = new FormGroup({});
 
-    this.filterForm = new FormGroup({
-      OfferNumber: new FormControl(undefined, []),
-
-      CustomerSearch: new FormControl(undefined, []),
-
-      CustomerName: new FormControl(undefined, []),
-      CustomerAddress: new FormControl(undefined, []),
-      CustomerTaxNumber: new FormControl(undefined, []),
-
-      OfferIssueDateFrom: new FormControl(undefined, [
-        validDate,
-        this.validateOfferIssueDateFrom.bind(this),
-      ]),
-      OfferIssueDateTo: new FormControl(undefined, [
-        validDate,
-        this.validateOfferIssueDateTo.bind(this),
-      ]),
-
-      OfferVaidityDateForm: new FormControl(undefined, [
-        validDate,
-        this.validateOfferValidityDateFrom.bind(this),
-      ]),
-      OfferVaidityDateTo: new FormControl(undefined, [
-        validDate,
-        this.validateOfferValidityDateTo.bind(this),
-      ]),
-    });
-
-    this.filterForm.controls['OfferIssueDateFrom'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferIssueDateFrom value changed: ', newValue);
-        if (!this.filterForm.controls['OfferIssueDateTo'].valid && this.filterForm.controls['OfferIssueDateFrom'].valid) {
-          this.filterForm.controls['OfferIssueDateTo'].setValue(this.filterForm.controls['OfferIssueDateTo'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['OfferIssueDateTo'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferIssueDateTo value changed: ', newValue);
-        if (!this.filterForm.controls['OfferIssueDateFrom'].valid && this.filterForm.controls['OfferIssueDateTo'].valid) {
-          this.filterForm.controls['OfferIssueDateFrom'].setValue(this.filterForm.controls['OfferIssueDateFrom'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['OfferVaidityDateForm'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferVaidityDateForm value changed: ', newValue);
-        if (!this.filterForm.controls['OfferVaidityDateTo'].valid && this.filterForm.controls['OfferVaidityDateForm'].valid) {
-          this.filterForm.controls['OfferVaidityDateTo'].setValue(this.filterForm.controls['OfferVaidityDateTo'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['OfferVaidityDateTo'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferVaidityDateTo value changed: ', newValue);
-        if (!this.filterForm.controls['OfferVaidityDateForm'].valid && this.filterForm.controls['OfferVaidityDateTo'].valid) {
-          this.filterForm.controls['OfferVaidityDateForm'].setValue(this.filterForm.controls['OfferVaidityDateForm'].value);
-        }
-        this.filterForm.controls['OfferVaidityDateForm'].markAsDirty();
-        this.cdref.detectChanges();
-      }
-    });
-
-    this.InitFormDefaultValues();
+    this.setupFilterForm()
 
     this.filterFormNav = new FlatDesignNoTableNavigatableForm(
       this.filterForm,
@@ -502,6 +443,92 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.dbDataTable!.OuterJump = true;
 
     this.RefreshAll(this.getInputParams);
+  }
+
+  private setupFilterForm(): void {
+    let filterData = this.localStorage.get<OfferFilter>(this.localStorageKey)
+
+    if (!filterData) {
+      filterData = OfferFilter.create()
+    }
+
+    this.filterForm = new FormGroup({
+      OfferNumber: new FormControl(filterData.offerNumber, []),
+
+      CustomerSearch: new FormControl(filterData.customerSearch, []),
+
+      CustomerName: new FormControl(filterData.customerName, []),
+      CustomerAddress: new FormControl(filterData.customerAddress, []),
+      CustomerTaxNumber: new FormControl(filterData.customerTaxNumber, []),
+
+      OfferIssueDateFrom: new FormControl(filterData.offerIssueDateFrom, [
+        validDate,
+        this.validateOfferIssueDateFrom.bind(this),
+      ]),
+      OfferIssueDateTo: new FormControl(filterData.offerIssueDateTo, [
+        validDate,
+        this.validateOfferIssueDateTo.bind(this),
+      ]),
+
+      OfferVaidityDateForm: new FormControl(filterData.offerValidityDateFrom, [
+        validDate,
+        this.validateOfferValidityDateFrom.bind(this),
+      ]),
+      OfferVaidityDateTo: new FormControl(filterData.offerValidityDateTo, [
+        validDate,
+        this.validateOfferValidityDateTo.bind(this),
+      ]),
+    });
+
+    this.filterForm.valueChanges.subscribe(value => {
+      const filterData = {
+        offerNumber: value.OfferNumber,
+        customerSearch: value.CustomerSearch,
+        customerName: value.CustomerName,
+        customerAddress: value.CustomerAddress,
+        customerTaxNumber: value.CustomerTaxNumber,
+        offerIssueDateFrom: value.OfferIssueDateFrom,
+        offerIssueDateTo: value.OfferIssueDateTo,
+        offerValidityDateFrom: value.OfferVaidityDateForm,
+        offerValidityDateTo: value.offerValidityDateTo,
+      } as OfferFilter
+
+      this.localStorage.put(this.localStorageKey, filterData)
+    })
+
+    this.filterForm.controls['OfferIssueDateFrom'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferIssueDateTo'].valid && this.filterForm.controls['OfferIssueDateFrom'].valid) {
+          this.filterForm.controls['OfferIssueDateTo'].setValue(this.filterForm.controls['OfferIssueDateTo'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferIssueDateTo'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferIssueDateFrom'].valid && this.filterForm.controls['OfferIssueDateTo'].valid) {
+          this.filterForm.controls['OfferIssueDateFrom'].setValue(this.filterForm.controls['OfferIssueDateFrom'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferVaidityDateForm'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferVaidityDateTo'].valid && this.filterForm.controls['OfferVaidityDateForm'].valid) {
+          this.filterForm.controls['OfferVaidityDateTo'].setValue(this.filterForm.controls['OfferVaidityDateTo'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferVaidityDateTo'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferVaidityDateForm'].valid && this.filterForm.controls['OfferVaidityDateTo'].valid) {
+          this.filterForm.controls['OfferVaidityDateForm'].setValue(this.filterForm.controls['OfferVaidityDateForm'].value);
+        }
+        this.filterForm.controls['OfferVaidityDateForm'].markAsDirty();
+        this.cdref.detectChanges();
+      }
+    });
   }
 
   public RefreshAndJumpToTable(): void {
