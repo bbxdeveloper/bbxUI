@@ -138,7 +138,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   /**
    * Checkboxok esetében readonly mellett is át tudom őket kattintani, így ilyen esetekre itt blokkolok minden readonly elemre szóló kattintást.
-   * @param event 
+   * @param event
    */
   @HostListener('window:click', ['$event']) onClick(event: MouseEvent) {
     if (event.target && (event as any).target.readOnly) {
@@ -150,8 +150,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   /**
    * Billentyűsnavigálás tekintetében az event érzékelés felsőbb rétege. Iniciálisan itt történik meg a
    * 4 irányba történő navigálásra vonatkozó parancs meghívása, eventek továbbfolyásának tiltása.
-   * @param event 
-   * @returns 
+   * @param event
+   * @returns
    */
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     if (this.bbxToastrService.IsToastrOpened) {
@@ -163,7 +163,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
       return;
     }
-    
+
     if (this.kbS.IsLocked() || this.status.InProgress || this.khs.IsKeyboardBlocked) {
       console.log("[onKeyDown] Movement is locked!");
 
@@ -255,54 +255,47 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     event?.preventDefault();
     const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {}, closeOnEsc: false });
     this.isLoading = true;
-    dialogRef.onClose.subscribe({
-      next: (res: LoginDialogResponse) => {
-        if (!!res && res.answer) {
-          this.authService.login(
-            res.name, res.pswd
-          ).subscribe({
-            next: res => {
-              if (res.succeeded && res?.data?.token !== undefined && res?.data?.user !== undefined) {
-                this.tokenService.token = res?.data?.token;
-                this.tokenService.user = res?.data?.user;
-                this.simpleToastrService.show(
-                  Constants.MSG_LOGIN_SUCCESFUL,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-                setTimeout(() => {
-                  this.GenerateAndSetNavMatrices();
-                  this.kbS.SelectFirstTile();
-                  this.isLoading = false;
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                }, 200);
-              } else {
-                this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-                this.isLoading = false;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);  
-              }
-            },
-            error: err => {
-              this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-              this.isLoading = false;
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            },
-            complete: () => {
-              setTimeout(() => {
-                this.isLoading = false;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              }, 200);
-            }
-          });
-        } else {
+
+    dialogRef.onClose.subscribe(this.onLoginDialogClose.bind(this));
+  }
+
+  private async onLoginDialogClose(res: LoginDialogResponse): Promise<void> {
+    if (!!res && res.answer) {
+      try {
+        const response = await this.authService.login(res.name, res.pswd)
+
+        if (response.succeeded && response?.data?.token !== undefined && response?.data?.user !== undefined) {
+          this.tokenService.token = response?.data?.token;
+          this.tokenService.user = response?.data?.user;
+          this.simpleToastrService.show(
+            Constants.MSG_LOGIN_SUCCESFUL,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+
           setTimeout(() => {
+            this.GenerateAndSetNavMatrices();
             this.kbS.SelectFirstTile();
             this.isLoading = false;
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
           }, 200);
+        } else {
+          this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.isLoading = false;
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         }
+      } catch (error) {
+        this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        this.isLoading = false;
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
       }
-    });
+    } else {
+      setTimeout(() => {
+        this.kbS.SelectFirstTile();
+        this.isLoading = false;
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      }, 200);
+    }
   }
 
   logout(event: any): void {
