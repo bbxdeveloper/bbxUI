@@ -233,7 +233,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     cs: CommonService,
     sts: StatusService,
     protected productService: ProductService,
-    protected utS: PrintAndDownloadService,
+    protected printAndDownLoadService: PrintAndDownloadService,
     protected router: Router,
     protected vatRateService: VatRateService,
     protected route: ActivatedRoute,
@@ -467,21 +467,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
       this.cdref.detectChanges();
     }, 500);
-  }
-
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.print_pdf(
-      {
-        "report_params":
-        {
-          "id": id,
-          "copies": HelperFunctions.ToInt(copies)
-        },
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct,
-      this.offerService.GetReport
-    );
   }
 
   Save(): void {}

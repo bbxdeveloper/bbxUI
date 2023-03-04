@@ -1,12 +1,15 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, lastValueFrom, Observable } from 'rxjs';
+import { Injectable, Optional } from '@angular/core';
+import { BehaviorSubject, lastValueFrom, Observable, of } from 'rxjs';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { StatusService } from './status.service';
-import { NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { InvoiceService } from '../modules/invoice/services/invoice.service';
 import { CommonService } from './common.service';
 import { OfferService } from '../modules/offer/services/offer.service';
+import { BbxToastrService } from './bbx-toastr-service.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { OneTextInputDialogComponent } from '../modules/shared/one-text-input-dialog/one-text-input-dialog.component';
 
 const REPORT_ENDED =
   { Id: -1, ResultCmdType: Constants.CommandType.PRINT_REPORT } as Constants.CommandDescriptor;
@@ -20,6 +23,27 @@ const BLOB_DOWNLOAD_ENDED =
 const BLOB_DOWNLOAD_WITH_ERROR =
   { Id: -1, ResultCmdType: Constants.CommandType.DOWNLOAD_BLOB, State: Constants.CommandType.ERROR } as Constants.CommandDescriptor;
 
+export const KEY_REPORT_PARAMS: string = "report_params"
+export const KEY_COPIES: string = 'copies'
+export const KEY_DATA_OPERATION: string = 'data_operation';
+export const KEY_IGNORE_ELECTRON: string = 'ignore_electron';
+
+export class PrintDialogRequest {
+  Reset: (() => void) | (() => Promise<void>) = () => { }
+
+  ReportParams: Constants.Dct = {}
+
+  Obs: Constants.ServiceFunctionGenericParams = (p: Constants.Dct) => { return of(p) }
+
+  DialogTitle: string = ''
+  DialogInputLabel: string = 'Példányszám'
+  DefaultCopies: number = 1
+
+  MsgError: string = ''
+  MsgCancel: string = ''
+  MsgFinish: string = ''
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,11 +52,165 @@ export class PrintAndDownloadService {
     new BehaviorSubject<Constants.CommandDescriptor | undefined>(undefined);
 
   constructor(
+    @Optional() private dialogService: NbDialogService,
     private invS: InvoiceService,
     private offerService: OfferService,
     private sts: StatusService,
+    private simpleToastrService: NbToastrService,
+    private bbxToastrService: BbxToastrService,
     private toastrService: NbToastrService,
     private cs: CommonService) { }
+  
+  public async printPreview(request: PrintDialogRequest): Promise<void> {
+    let commandEndedSubscription = this.CommandEnded.subscribe({
+      next: cmdEnded => {
+        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+          this.simpleToastrService.show(
+            `Az árajánlat riport elkészítve.`,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+          commandEndedSubscription.unsubscribe();
+        }
+      },
+      error: cmdEnded => {
+        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+        commandEndedSubscription.unsubscribe();
+        this.bbxToastrService.show(
+          `Az árajánlat riport készítése közben hiba történt.`,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        );
+      }
+    });
+    
+    if (request.ReportParams[KEY_COPIES] !== undefined) {
+      request.ReportParams[KEY_COPIES] = HelperFunctions.ToInt(request.ReportParams[KEY_COPIES]);
+    }
+    await this.printReport(request.ReportParams, request.Obs);
+  }
+
+  public async printAfterConfirm(request: PrintDialogRequest): Promise<void> {
+    HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_PRINT, async () => {
+      
+      let commandEndedSubscription = this.CommandEnded.subscribe({
+        next: cmdEnded => {
+          console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+          if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+            this.simpleToastrService.show(
+              request.MsgFinish,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+            commandEndedSubscription.unsubscribe();
+          }
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+        error: cmdEnded => {
+          console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+          commandEndedSubscription.unsubscribe();
+          this.bbxToastrService.show(
+            request.MsgError,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        }
+      });
+      if (request.ReportParams[KEY_COPIES] !== undefined) {
+        request.ReportParams[KEY_COPIES] = HelperFunctions.ToInt(request.ReportParams[KEY_COPIES]);
+      }
+      await this.printReport(request.ReportParams, request.Obs, true);
+    }, async () => {
+      this.simpleToastrService.show(
+        request.MsgCancel,
+        Constants.TITLE_INFO,
+        Constants.TOASTR_SUCCESS_5_SEC
+      );
+    });
+  }
+  
+  public async openPrintDialog(request: PrintDialogRequest): Promise<void> {
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+    const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+      context: {
+        title: request.DialogTitle,
+        inputLabel: request.DialogInputLabel,
+        defaultValue: request.DefaultCopies
+      }
+    });
+    dialogRef.onClose.subscribe({
+      next: async res => {
+        console.log("OneTextInputDialogComponent: ", res);
+        if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
+          let commandEndedSubscription = this.CommandEnded.subscribe({
+            next: cmdEnded => {
+              console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+
+              if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                request.Reset();
+
+                this.simpleToastrService.show(
+                  request.MsgFinish,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                commandEndedSubscription.unsubscribe();
+              }
+            },
+            error: cmdEnded => {
+              console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+
+              this.bbxToastrService.show(
+                request.MsgError,
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR
+              );
+
+              commandEndedSubscription.unsubscribe();
+
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              request.Reset();
+            }
+          });
+
+          request.ReportParams[KEY_COPIES] = HelperFunctions.ToInt(res.value);
+          await this.printReport(request.ReportParams, request.Obs);
+        } else {
+          this.simpleToastrService.show(
+            request.MsgCancel,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          request.Reset();
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        request.Reset();
+      }
+    });
+  }
+
+  private async printReport(reportParams: any, obs: Constants.ServiceFunctionGenericParams, ignoreElectron: boolean = false): Promise<void> {
+    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
+    await this.print_pdf(
+      {
+        "report_params": reportParams,
+        "data_operation": Constants.DataOperation.PRINT_BLOB,
+        "ignore_electron": ignoreElectron
+      } as Constants.Dct,
+      obs
+    );
+  }
 
   private HandleError(err: any): void {
     this.cs.HandleError(err);
@@ -40,39 +218,39 @@ export class PrintAndDownloadService {
   }
 
   public async download_csv(params: Constants.Dct = {}, obs: Constants.ServiceFunctionGenericParams): Promise<void> {
-    await this.download(obs(params["report_params"]), 'text/csv');
+    await this.download(obs, params, 'text/csv');
   }
 
   public async print_pdf(params: Constants.Dct = {}, obs: Constants.ServiceFunctionGenericParams): Promise<void> {
-    switch (params['data_operation'] as Constants.DataOperation) {
+    switch (params[KEY_DATA_OPERATION] as Constants.DataOperation) {
       case Constants.DataOperation.PRINT_BLOB:
-        await this.print(Constants.FileExtensions.PDF, obs(params["report_params"]), params);
+        await this.print(Constants.FileExtensions.PDF, obs, params);
         break;
       case Constants.DataOperation.DOWNLOAD_BLOB:
-        await this.downloadReportPDF(obs(params["report_params"]));
+        await this.downloadReportPDF(obs, params);
         break;
     }
   }
 
-  private async print(fileType: Constants.FileExtensions, res: Observable<any>, params: Constants.Dct = {}): Promise<void> {
+  private async print(fileType: Constants.FileExtensions, res: Constants.ServiceFunctionGenericParams, params: Constants.Dct = {}): Promise<void> {
     this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.GENERATING]);
-    const checkElectron = params['ignore_electron'] === undefined || (params['ignore_electron'] !== undefined && !params['ignore_electron']);
+    const checkElectron = params[KEY_IGNORE_ELECTRON] === undefined || (params[KEY_IGNORE_ELECTRON] !== undefined && !params[KEY_IGNORE_ELECTRON]);
     console.log(`Print: ${fileType}`);
     switch (fileType) {
       case Constants.FileExtensions.PDF:
         if (checkElectron && environment.electron) {
-          await this.sendPdfToElectron(res);
+          await this.sendPdfToElectron(res, params);
         } else {
-          await this.printPdfFromResponse(res);
+          await this.printPdfFromResponse(res, params);
         }
         break;
     }
   }
 
-  private async sendPdfToElectron(resData: Observable<any>, params: Constants.Dct = {}): Promise<void> {
+  private async sendPdfToElectron(resData: Constants.ServiceFunctionGenericParams, params: Constants.Dct = {}): Promise<void> {
     console.log(`Preparing electron print. Waiting for print data.`);
 
-    await lastValueFrom(resData)
+    await lastValueFrom(resData(params[KEY_REPORT_PARAMS]))
       .then(res => {
         if (res) {
           console.log(`Print data acquired.`);
@@ -120,10 +298,10 @@ export class PrintAndDownloadService {
       });
   }
 
-  private async printPdfFromResponse(resData: Observable<any>, params: Constants.Dct = {}): Promise<void> {
+  private async printPdfFromResponse(resData: Constants.ServiceFunctionGenericParams, params: Constants.Dct = {}): Promise<void> {
     console.log(`Preparing web print. Waiting for print data.`);
 
-    await lastValueFrom(resData)
+    await lastValueFrom(resData(params[KEY_REPORT_PARAMS]))
       .then(res => {
         if (res) {
           console.log(`Print data acquired.`);
@@ -226,15 +404,15 @@ export class PrintAndDownloadService {
     };
   }
 
-  private async downloadReportPDF(resData: Observable<any>): Promise<void> {
+  private async downloadReportPDF(resData: Constants.ServiceFunctionGenericParams, params: Constants.Dct): Promise<void> {
     this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadReportProcessPhases.GENERATING]);
-    await this.downloadReportPDFBlobFromResponse(resData);
+    await this.downloadReportPDFBlobFromResponse(resData, params);
   }
 
-  private async downloadReportPDFBlobFromResponse(resData: Observable<any>): Promise<void> {
+  private async downloadReportPDFBlobFromResponse(resData: Constants.ServiceFunctionGenericParams, params: Constants.Dct): Promise<void> {
     console.log(`Download blob from response. Waiting for data.`);
 
-    await lastValueFrom(resData)
+    await lastValueFrom(resData(params[KEY_REPORT_PARAMS]))
       .then(res => {
         if (res) {
           console.log(`Data acquired.`);
@@ -269,15 +447,15 @@ export class PrintAndDownloadService {
       });
   }
 
-  private async download(resData: Observable<any>, mimeType: string): Promise<void> {
+  private async download(resData: Constants.ServiceFunctionGenericParams, params: Constants.Dct, mimeType: string): Promise<void> {
     this.sts.pushProcessStatus(Constants.DownloadStatuses[Constants.DownloadProcessPhases.GENERATING]);
-    await this.downloadBlobFromResponse(resData, mimeType);
+    await this.downloadBlobFromResponse(resData, params, mimeType);
   }
 
-  private async downloadBlobFromResponse(resData: Observable<any>, mimeType: string): Promise<void> {
+  private async downloadBlobFromResponse(resData: Constants.ServiceFunctionGenericParams, params: Constants.Dct, mimeType: string): Promise<void> {
     console.log(`Download blob from response. Waiting for data.`);
 
-    await lastValueFrom(resData)
+    await lastValueFrom(resData(params[KEY_REPORT_PARAMS]))
       .then(res => {
         if (res) {
           console.log(`Data acquired.`);

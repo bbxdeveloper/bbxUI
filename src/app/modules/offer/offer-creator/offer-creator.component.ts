@@ -18,7 +18,7 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
@@ -78,7 +78,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     cs: CommonService,
     sts: StatusService,
     productService: ProductService,
-    utS: PrintAndDownloadService,
+    printAndDownLoadService: PrintAndDownloadService,
     router: Router,
     vatRateService: VatRateService,
     route: ActivatedRoute,
@@ -90,7 +90,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
-      sts, productService, utS, router, vatRateService, route, sidebarService, khs, custDiscountService,
+      sts, productService, printAndDownLoadService, router, vatRateService, route, sidebarService, khs, custDiscountService,
       systemService
     );
     this.isLoading = false;
@@ -357,6 +357,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     this.InitialSetup();
     this.AfterViewInitSetup();
     await this.refresh();
+    this.buyerForm.controls['offerNumberX'].reset();
   }
 
   override Save(): void {
@@ -393,63 +394,19 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-              const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-                context: {
-                  title: 'Ajánlat Nyomtatása',
-                  inputLabel: 'Példányszám',
-                  defaultValue: 1
-                }
-              });
-              dialogRef.onClose.subscribe({
-                next: async res => {
-
-                  await this.Reset();
-
-                  if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
-
-                    this.buyerForm.controls['offerNumberX'].reset();
-
-                    let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                      next: cmdEnded => {
-                        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.simpleToastrService.show(
-                            `Az árajánlat nyomtatása véget ért.`,
-                            Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS_5_SEC
-                          );
-                          commandEndedSubscription.unsubscribe();
-                        }
-
-                        this.isLoading = false;
-                      },
-                      error: cmdEnded => {
-                        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                        this.isLoading = false;
-
-                        commandEndedSubscription.unsubscribe();
-
-                        this.bbxToastrService.show(
-                          `Az árajánlat nyomtatása közben hiba történt.`,
-                          Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR
-                        );
-                      }
-                    });
-                    this.isLoading = true;
-                    await this.printReport(d.data?.id, res.value);
-                  } else {
-                    this.simpleToastrService.show(
-                      `Az ajánlat nyomtatása nem történt meg`,
-                      Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS_5_SEC
-                    );
-                    this.isLoading = false;
-                  }
-                }
-              });
+              this.printAndDownLoadService.openPrintDialog({
+                DialogTitle: 'Ajánlat Nyomtatása',
+                DefaultCopies: 1,
+                MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
+                MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
+                MsgFinish: `Az árajánlat nyomtatása véget ért.`,
+                Obs: this.seInv.GetReport.bind(this.offerService),
+                Reset: this.Reset.bind(this),
+                ReportParams: {
+                  "id": d.data?.id,
+                  "copies": 1 // Ki lesz töltve dialog alapján
+                } as Constants.Dct
+              } as PrintDialogRequest);
             } else {
               this.cs.HandleError(d.errors);
               this.isLoading = false;
@@ -460,9 +417,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             this.cs.HandleError(err);
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          },
-          complete: () => {
-            this.isLoading = false;
           }
         });
       }

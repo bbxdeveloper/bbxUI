@@ -35,7 +35,7 @@ import { SendEmailDialogComponent } from '../../infrastructure/send-email-dialog
 import { IframeViewerDialogComponent } from '../../shared/iframe-viewer-dialog/iframe-viewer-dialog.component';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { SendEmailRequest } from '../../infrastructure/models/Email';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
@@ -319,7 +319,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     sts: StatusService,
     private router: Router,
     private infrastructureService: InfrastructureService,
-    private utS: PrintAndDownloadService,
+    private printAndDownLoadService: PrintAndDownloadService,
     private tokenService: TokenStorageService,
     private khs: KeyboardHelperService
   ) {
@@ -834,15 +834,14 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD]);
-      this.utS.download_csv(
+      this.printAndDownLoadService.download_csv(
         {
           "report_params":
           {
             "ID": HelperFunctions.ToFloat(id)
-          },
-          "data_operation": Constants.DataOperation.DOWNLOAD_BLOB,
+          }
         } as Constants.Dct,
-        this.offerService.GetCsv
+        this.offerService.GetCsv.bind(this.offerService)
       );
     }
   }
@@ -1040,61 +1039,18 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-      const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-        context: {
-          title: 'Ajánlat Nyomtatása',
-          inputLabel: 'Példányszám',
-          defaultValue: 1
-        }
-      });
-      dialogRef.onClose.subscribe({
-        next: async res => {
-          if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
-            this.isLoading = true;
-
-            let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-              next: cmdEnded => {
-                console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                  this.simpleToastrService.show(
-                    `Az árajánlat nyomtatása véget ért.`,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  commandEndedSubscription.unsubscribe();
-                }
-                this.isLoading = false;
-              },
-              error: cmdEnded => {
-                console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                commandEndedSubscription.unsubscribe();
-                this.bbxToastrService.show(
-                  `Az árajánlat nyomtatása közben hiba történt.`,
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
-                );
-                this.isLoading = false;
-              }
-            });
-
-            await this.printReport(id, res.value);
-
-            const updatedOffer = await this.GetOffer(id);
-            if (updatedOffer) {
-              this.dbData[rowIndex].data.copies = updatedOffer.copies;
-            }
-          } else {
-            this.simpleToastrService.show(
-              `Az ajánlat nyomtatása nem történt meg.`,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-            this.isLoading = false;
-          }
-        }
-      });
+      this.printAndDownLoadService.openPrintDialog({
+        DialogTitle: 'Ajánlat Nyomtatása',
+        DefaultCopies: 1,
+        MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
+        MsgCancel: `Az ajánlat nyomtatása nem történt meg.`,
+        MsgFinish: `Az árajánlat nyomtatása véget ért.`,
+        Obs: this.offerService.GetReport.bind(this.offerService),
+        ReportParams: {
+          "id": id,
+          "copies": 1 // Ki lesz töltve dialog alapján
+        } as Constants.Dct
+      } as PrintDialogRequest);
     }
   }
 
@@ -1106,21 +1062,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   private async GetCustomer(id: number): Promise<Customer> {
     const customerRes = lastValueFrom(this.seC.Get({ ID: id }));
     return customerRes;
-  }
-
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.print_pdf(
-      {
-        "report_params":
-        {
-          "id": id,
-          "copies": HelperFunctions.ToInt(copies)
-        },
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct,
-      this.offerService.GetReport
-    );
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling

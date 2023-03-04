@@ -30,7 +30,7 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
@@ -207,7 +207,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private utS: PrintAndDownloadService,
+    private printAndDownLoadService: PrintAndDownloadService,
     private status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
@@ -859,21 +859,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
 
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.print_pdf(
-      {
-        "report_params":
-        {
-          "id": id,
-          "copies": HelperFunctions.ToInt(copies)
-        },
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct,
-      this.seInv.GetAggregateReport
-    );
-  }
-
   Save(): void {
     this.buyerForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
@@ -959,70 +944,19 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
             this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
-            const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-              context: {
-                title: 'Számla Nyomtatása',
-                inputLabel: 'Példányszám',
-                defaultValue: 1
-              }
-            });
-            dialogRef.onClose.subscribe({
-              next: async res => {
-                console.log("OneTextInputDialogComponent: ", res);
-                if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
-                  let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                    next: cmdEnded => {
-                      console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                      if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                        this.Reset();
-
-                        this.simpleToastrService.show(
-                          `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                          Constants.TITLE_INFO,
-                          Constants.TOASTR_SUCCESS_5_SEC
-                        );
-                        commandEndedSubscription.unsubscribe();
-                      }
-
-                      this.isSaveInProgress = false;
-                    },
-                    error: cmdEnded => {
-                      this.Reset();
-
-                      console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                      this.isLoading = false;
-                      this.isSaveInProgress = false;
-
-                      this.bbxToastrService.show(
-                        `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                        Constants.TITLE_ERROR,
-                        Constants.TOASTR_ERROR
-                        );
-                        this.isSaveInProgress = false;
-
-                        commandEndedSubscription.unsubscribe();
-                    }
-                  });
-                  await this.printReport(d.data?.id, res.value);
-                } else {
-                  this.simpleToastrService.show(
-                    `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  this.isSaveInProgress = false;
-                  this.Reset();
-                }
-              },
-              error: err => {
-                this.Reset();
-                this.cs.HandleError(d.errors);
-                this.isSaveInProgress = false;
-                this.status.pushProcessStatus(Constants.BlankProcessStatus);
-              }
-            });
+            this.printAndDownLoadService.openPrintDialog({
+              DialogTitle: 'Számla Nyomtatása',
+              DefaultCopies: 1,
+              MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+              MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+              MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+              Obs: this.seInv.GetAggregateReport.bind(this.seInv),
+              Reset: this.Reset.bind(this),
+              ReportParams: {
+                "id": d.data?.id,
+                "copies": 1 // Ki lesz töltve dialog alapján
+              } as Constants.Dct
+            } as PrintDialogRequest);
           } else {
             this.cs.HandleError(d.errors);
             this.isSaveInProgress = false;
