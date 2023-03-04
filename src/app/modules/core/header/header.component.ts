@@ -255,54 +255,47 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     event?.preventDefault();
     const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {}, closeOnEsc: false });
     this.isLoading = true;
-    dialogRef.onClose.subscribe({
-      next: (res: LoginDialogResponse) => {
-        if (!!res && res.answer) {
-          this.authService.login(
-            res.name, res.pswd
-          ).subscribe({
-            next: res => {
-              if (res.succeeded && res?.data?.token !== undefined && res?.data?.user !== undefined) {
-                this.tokenService.token = res?.data?.token;
-                this.tokenService.user = res?.data?.user;
-                this.simpleToastrService.show(
-                  Constants.MSG_LOGIN_SUCCESFUL,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-                setTimeout(() => {
-                  this.GenerateAndSetNavMatrices();
-                  this.kbS.SelectFirstTile();
-                  this.isLoading = false;
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                }, 200);
-              } else {
-                this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-                this.isLoading = false;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              }
-            },
-            error: err => {
-              this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-              this.isLoading = false;
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            },
-            complete: () => {
-              setTimeout(() => {
-                this.isLoading = false;
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              }, 200);
-            }
-          });
-        } else {
+
+    dialogRef.onClose.subscribe(this.onLoginDialogClose.bind(this));
+  }
+
+  private async onLoginDialogClose(res: LoginDialogResponse): Promise<void> {
+    if (!!res && res.answer) {
+      try {
+        const response = await this.authService.login(res.name, res.pswd)
+
+        if (response.succeeded && response?.data?.token !== undefined && response?.data?.user !== undefined) {
+          this.tokenService.token = response?.data?.token;
+          this.tokenService.user = response?.data?.user;
+          this.simpleToastrService.show(
+            Constants.MSG_LOGIN_SUCCESFUL,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+
           setTimeout(() => {
+            this.GenerateAndSetNavMatrices();
             this.kbS.SelectFirstTile();
             this.isLoading = false;
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
           }, 200);
+        } else {
+          this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.isLoading = false;
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         }
+      } catch (error) {
+        this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        this.isLoading = false;
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
       }
-    });
+    } else {
+      setTimeout(() => {
+        this.kbS.SelectFirstTile();
+        this.isLoading = false;
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      }, 200);
+    }
   }
 
   logout(event: any): void {
