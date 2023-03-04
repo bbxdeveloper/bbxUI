@@ -50,6 +50,7 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -630,25 +631,19 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
-      if (changedData.quantity > changedData.maximumQuantity) {
-        this.bbxToastrService.show(
-          Constants.MSG_MAXIMUM_QUANTITY_REACHED,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
-        this.dbData[index].data.Restore('quantity')
-      }
-      else if (changedData.quantity < 1) {
-        this.bbxToastrService.show(
-          Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
-        this.dbData[index].data.Restore('quantity')
-      }
-      else {
+      const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.maximumQuantity)
+
+      if (!validationResult) {
         changedData.Save()
+        return
       }
+
+      this.bbxToastrService.show(
+        validationResult,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      )
+      this.dbData[index].data.Restore('quantity')
     }
   }
 

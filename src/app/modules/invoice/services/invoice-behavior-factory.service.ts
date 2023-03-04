@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
-import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { NegativeQuantityValidator, PositiveQuantityValidator, SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +35,8 @@ export class InvoiceBehaviorFactoryService {
       invoiceCategory: InvoiceCategory.AGGREGATE,
       invoiceType: InvoiceTypes.INV,
       incoming: false,
-      correction: false
+      correction: false,
+      validateQuantity: new PositiveQuantityValidator
     } as SummaryInvoiceMode
   }
 
@@ -44,7 +45,8 @@ export class InvoiceBehaviorFactoryService {
       invoiceCategory: InvoiceCategory.AGGREGATE,
       invoiceType: InvoiceTypes.INC,
       incoming: true,
-      correction: false
+      correction: false,
+      validateQuantity: new PositiveQuantityValidator
     } as SummaryInvoiceMode
   }
 
@@ -54,7 +56,8 @@ export class InvoiceBehaviorFactoryService {
       invoiceType: InvoiceTypes.DNO,
       incoming: false,
       correction: true,
-      paymentMethod: 'OTHER'
+      paymentMethod: 'OTHER',
+      validateQuantity: new NegativeQuantityValidator
     } as SummaryInvoiceMode
   }
 }
