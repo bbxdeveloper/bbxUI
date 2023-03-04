@@ -48,6 +48,8 @@ import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-n
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -56,8 +58,6 @@ import { InvoiceStatisticsService } from '../services/invoice-statistics.service
 })
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  incoming: boolean = false
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -194,6 +194,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   private originalCustomerID: number = -1
 
+  public mode!: SummaryInvoiceMode
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -213,11 +215,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
     private custDiscountService: CustomerDiscountService,
-    public invoiceStatisticsService: InvoiceStatisticsService
+    public invoiceStatisticsService: InvoiceStatisticsService,
+    behaviorFactory: InvoiceBehaviorFactoryService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.activatedRoute.url.subscribe(params => {
-      this.SetModeBasedOnRoute(params);
+
+      this.SetModeBasedOnRoute(behaviorFactory, params);
       this.InitialSetup();
       this.isPageReady = true;
     })
@@ -251,6 +255,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.fS.pushCommands(this.commands);
     }
   }
+
   public override onFormSearchBlurred(event?: any, formFieldName?: string): void {
     this.customerSearchFocused = false;
 
@@ -261,18 +266,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
-  private SetModeBasedOnRoute(params: UrlSegment[]): void {
-    console.log("ActivatedRoute: ", params[0].path);
-    const path = params[0].path;
-    if (path === 'summary-invoice') {
-      this.InvoiceType = InvoiceTypes.INV;
-      this.InvoiceCategory = InvoiceCategory.AGGREGATE
-      this.incoming = false;
-    } else {
-      this.InvoiceType = InvoiceTypes.INC;
-      this.InvoiceCategory = InvoiceCategory.AGGREGATE
-      this.incoming = true;
-    }
+  private SetModeBasedOnRoute(behaviorFactory: InvoiceBehaviorFactoryService, params: UrlSegment[]): void {
+    this.mode = behaviorFactory.create(params[0].path)
+
+    this.InvoiceType = this.mode.invoiceType
+    this.InvoiceCategory = this.mode.invoiceCategory
+    // this.incoming = this.mode.incoming
+
     console.log("InvoiceType: ", this.InvoiceType);
   }
 
@@ -346,7 +346,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         invoiceOrdinal: new FormControl('', []), // in post response
         notice: new FormControl('', []),
       });
-      if (this.incoming) {
+      if (this.mode.incoming) {
         this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
           Validators.required
         ]));
@@ -784,7 +784,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           searchString: this.customerInputFilterString,
           allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
           colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
-          incoming: this.incoming
+          incoming: this.mode.incoming
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -819,7 +819,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
 
-    if (this.incoming) {
+    if (this.mode.incoming) {
       this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
     }
 
@@ -1022,16 +1022,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         checkedNotes: checkedNotes,
         customerID: this.originalCustomerID,
         selectedNotes: event,
-        incoming: this.incoming
-      }
-    });
-    d.onClose.subscribe({
-      next: res => {
-        if (res) {
-          // debugger
-          // this.kbS.SelectElement('PRODUCT-2-0')
-          // this.JumpToCell('quantity');
-        }
+        incoming: this.mode.incoming
       }
     });
   }

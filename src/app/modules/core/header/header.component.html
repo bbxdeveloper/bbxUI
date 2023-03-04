@@ -189,6 +189,12 @@
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-invo-sub-3" [disabled]="InProgress"
+                    (click)="goTo('invoice/minus-delivery-note')">
+                    Mínuszos szállítólevél
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-invo-sub-4" [disabled]="InProgress"
                     (click)="goTo('invoice/summary-invoice')">
                     Gyűjtőszámla
                 </button>
