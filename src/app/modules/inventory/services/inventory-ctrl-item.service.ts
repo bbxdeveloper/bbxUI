@@ -18,7 +18,7 @@ import { Constants } from 'src/assets/util/Constants';
   providedIn: 'root'
 })
 export class InventoryCtrlItemService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlICP';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrl';
 
   constructor(private http: HttpClient) { }
 
@@ -103,6 +103,6 @@ export class InventoryCtrlItemService {
   }
 
   Create(req: CreateInvCtrlItemRequest): Observable<CreateInvCtrlItemResponse> {
-    return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl, req);
+    return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl + '/creicp', req);
   }
 }
