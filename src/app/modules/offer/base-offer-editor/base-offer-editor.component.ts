@@ -640,8 +640,16 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }, 100);
   }
 
+  ConverNumbers(): void {
+    this.dbData.forEach(x => {
+      x.data.quantity = HelperFunctions.ToFloat(x.data.quantity)
+    })
+  }
+
   CheckSaveConditionsAndSave(): void {
     this.buyerForm.markAllAsTouched();
+
+    this.ConverNumbers()
 
     if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
@@ -651,6 +659,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       );
       return;
     }
+    
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
@@ -659,7 +668,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       );
       return;
     }
-    if (this.dbData.find(x => x.data.quantity === undefined || x.data.quantity === 0) === undefined) {
+
+    var t = this.dbData.find(x => x.data.id !== -1 && (x.data.quantity === undefined || x.data.quantity <= 0))
+    if (t !== undefined) {
       this.bbxToastrService.show(
         `Minden tételnek pozitív mennyiséggel kell rendelkeznie.`,
         Constants.TITLE_ERROR,

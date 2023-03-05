@@ -690,7 +690,6 @@ export class KeyboardNavigationService {
   }
 
   public MoveUp(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
-    debugger
     this.LogMoveStats(AttachDirection.UP, select, altKey, canJumpToNeighbourMatrix);
 
     const res = { moved: false, jumped: false } as MoveRes;
