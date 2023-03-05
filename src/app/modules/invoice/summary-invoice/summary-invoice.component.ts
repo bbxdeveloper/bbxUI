@@ -738,7 +738,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   private AfterViewInitSetup(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.buyerFormNav.GenerateAndSetNavMatrices(true);
+    if (this.mode.isSummaryInvoice) {
+      this.buyerFormNav.GenerateAndSetNavMatrices(true);
+    }
+
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
     this.dbDataTable?.Setup(
