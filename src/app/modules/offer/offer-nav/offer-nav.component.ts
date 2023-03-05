@@ -41,7 +41,7 @@ import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -318,7 +318,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private offerService: OfferService,
-    private seC: CustomerService,
+    private customerService: CustomerService,
     cs: CommonService,
     sts: StatusService,
     private router: Router,
@@ -441,8 +441,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
-
-    this.RefreshAll(this.getInputParams);
   }
 
   private setupFilterForm(): void {
@@ -567,7 +565,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable(undefined, this.isPageReady);
-          if (this.isPageReady) {
+          if (this.isPageReady || jumpToFirstTableCell) {
             this.JumpToFirstCellAndNav();
           }
         } else {
@@ -625,9 +623,19 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.isLoading = false;
   }
 
-  ngOnInit(): void {
+  public async ngOnInit(): Promise<void> {
+    if (this.localStorage.get<OfferFilter>(this.localStorageKey)) {
+      await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
+
+      this.RefreshAndJumpToTable()
+    }
+    else {
+      this.RefreshAll(this.getInputParams)
+    }
+
     this.fS.pushCommands(this.commands);
   }
+
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
 
@@ -646,6 +654,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       this.kbS.setEditMode(KeyboardModes.EDIT);
     }, 200);
   }
+
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
@@ -682,7 +691,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+    const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
     if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
@@ -697,7 +706,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     this.isLoading = true;
 
-    this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
       next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -759,13 +768,24 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     if (this.customerInputFilterString.replace(' ', '') === '') {
       this.buyerData = { id: -1 } as Customer;
       this.SetCustomerFormFields(undefined);
+      this.isLoading = false
       return;
     }
 
     this.isLoading = true;
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
-    } as GetCustomersParamListModel).subscribe({
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.searchCustomer(this.customerInputFilterString)
+  }
+
+  private searchCustomer(term: string): Subscription {
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    return this.customerService.GetAll(request).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
@@ -783,13 +803,48 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         }
       },
       error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
+        this.cs.HandleError(err);
+        this.isLoading = false;
         this.searchByTaxtNumber = false;
       },
       complete: () => {
         this.isLoading = false;
       },
     });
+  }
+
+  private async searchCustomerAsync(term: string): Promise<void> {
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    try {
+      const res = await firstValueFrom(this.customerService.GetAll(request))
+
+      if (!!res && res.data !== undefined && res.data.length > 0) {
+        this.buyerData = res.data[0];
+        this.cachedCustomerName = res.data[0].customerName;
+        this.SetCustomerFormFields(res.data[0]);
+        this.searchByTaxtNumber = false;
+      } else {
+        if (this.customerInputFilterString.length >= 8 &&
+          this.IsNumber(this.customerInputFilterString)) {
+          this.searchByTaxtNumber = true;
+        } else {
+          this.searchByTaxtNumber = false;
+        }
+        this.SetCustomerFormFields(undefined);
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+      this.isLoading = false;
+      this.searchByTaxtNumber = false;
+    }
   }
 
   ChooseDataForTableRow(rowIndex: number): void {}
@@ -931,7 +986,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
             offerCustomer.taxpayerNumber = offerCustomer.taxpayerNumber?.substring(0, 13);
 
-            await lastValueFrom(this.seC.Update(offerCustomer))
+            await lastValueFrom(this.customerService.Update(offerCustomer))
               .then(async updateRes => {
                 if (updateRes && updateRes.succeeded) {
                   this.simpleToastrService.show(
@@ -1092,7 +1147,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   private async GetCustomer(id: number): Promise<Customer> {
-    const customerRes = lastValueFrom(this.seC.Get({ ID: id }));
+    const customerRes = lastValueFrom(this.customerService.Get({ ID: id }));
     return customerRes;
   }
 
