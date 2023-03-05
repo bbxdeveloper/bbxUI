@@ -39,6 +39,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   @Input() Delivery: boolean = false;
   @Input() isDiscountVisible: boolean = true
   @Input() forceDisableOutgoingDelivery: boolean = false
+  @Input() negativeDiscount: boolean = false
 
   get OutGoingDelivery(): boolean {
     return !this.forceDisableOutgoingDelivery && this.data && this.data?.invoiceType == InvoiceTypes.DNO;
@@ -169,13 +170,13 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     discountedInvoiceNetAmount = HelperFunctions.Round2(discountedInvoiceNetAmount, 1);
 
     if (!this.isAggregate){
-      const invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
+      let invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
 
-      console.log("invoice net: ", this.data.invoiceNetAmount, ", discounted: ", discountedInvoiceNetAmount, ", discount percent: ", invoiceDiscountMultiplier, ", discount value: ", invoiceDiscountValue);
-
-      // const discountedInvoiceNetAmount = this.data.invoiceNetAmount - invoiceDiscountValue;
+      if (this.negativeDiscount) {
+        invoiceDiscountValue = -invoiceDiscountValue
+      }
       this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
-    } else{
+    } else {
       this.sumForm.controls['invoiceDiscountValue'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum);
 
       this.sumForm.controls['invoiceNetAmount'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineNetSum);
@@ -260,7 +261,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   ngAfterViewInit(): void {
     this.kBs.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
-    if (this.data.invoiceCategory === InvoiceCategory.AGGREGATE) {
+    if (this.data.invoiceCategory === InvoiceCategory.AGGREGATE || !this.isDiscountVisible) {
       this.formNav.OuterJump = false
       this.OuterJump = false
 
