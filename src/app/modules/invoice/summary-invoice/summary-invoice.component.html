@@ -198,10 +198,6 @@
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="editDisabled"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
                                 </nb-form-field>
-
-                                <!-- <nb-form-field class="search-row-nb-form-field" *ngIf="!mode.isSummaryInvoice">
-                                    <input formControlName="customerSearch" nbInput type="text" maxlength="80" readonly placeholder="Keresés" autocomplete="off" />
-                                </nb-form-field> -->
                             </td>
                             <td>
                                 <button *ngIf="searchByTaxtNumber" [disabled]="isLoading" [disabled]="!editDisabled"
