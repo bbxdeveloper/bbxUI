@@ -170,6 +170,10 @@ const routes: Routes = [
       {
         path: "incoming-summary-invoice",
         component: SummaryInvoiceComponent,
+      },
+      {
+        path: 'minus-incoming-delivery-note',
+        component: SummaryInvoiceComponent,
       }
     ]
   },

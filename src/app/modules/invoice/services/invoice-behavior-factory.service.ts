@@ -23,6 +23,10 @@ export class InvoiceBehaviorFactoryService {
       case 'minus-delivery-note':
         mode = this.forMinusDeliveryNote()
         break
+
+      case 'minus-incoming-delivery-note':
+        mode = this.forMinusIncomingDeliveryNote()
+        break
       default:
         throw new Error('Unsupported mode based on path: ' + path)
     }
@@ -56,6 +60,18 @@ export class InvoiceBehaviorFactoryService {
     return {
       invoiceCategory: InvoiceCategory.NORMAL,
       invoiceType: InvoiceTypes.DNO,
+      incoming: false,
+      correction: true,
+      paymentMethod: 'OTHER',
+      validateQuantity: new NegativeQuantityValidator,
+      isSummaryInvoice: false
+    } as SummaryInvoiceMode
+  }
+
+  private forMinusIncomingDeliveryNote(): SummaryInvoiceMode {
+    return {
+      invoiceCategory: InvoiceCategory.NORMAL,
+      invoiceType: InvoiceTypes.DNI,
       incoming: false,
       correction: true,
       paymentMethod: 'OTHER',

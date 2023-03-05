@@ -31,26 +31,22 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, UrlSegment } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { InvoiceTypes } from '../models/InvoiceTypes';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
-import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
-import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -814,8 +810,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
 
-    this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
-      HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
+    this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
+      ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
+      : this.mode.paymentMethod
 
     this.outGoingInvoiceData.warehouseCode = '1';
 
@@ -937,7 +934,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
               MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
               MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
               MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-              Obs: this.seInv.GetAggregateReport.bind(this.seInv),
+              Obs: this.mode.isSummaryInvoice
+                ? this.seInv.GetAggregateReport.bind(this.seInv)
+                : this.seInv.GetReport.bind(this),
               Reset: this.Reset.bind(this),
               ReportParams: {
                 "id": d.data?.id,
