@@ -481,6 +481,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     });
 
     this.filterForm.valueChanges.subscribe(value => {
+      if (value.CustomerSearch === '') {
+        this.localStorage.remove(this.localStorageKey)
+        return
+      }
+
       const filterData = {
         offerNumber: value.OfferNumber,
         customerSearch: value.CustomerSearch,
