@@ -11,6 +11,7 @@ import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from '../pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
 import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/model/TableSettings';
+import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
 @Component({
   selector: 'app-pending-delivery-notes-select-dialog',
@@ -21,7 +22,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   @Input() public customerID!: number
   @Input() public checkedNotes!: PendingDeliveryNote[]
   @Output() public selectedNotes = new EventEmitter<PendingDeliveryNote[]>()
-  @Input() public incoming: boolean = false
+  @Input() public mode!: SummaryInvoiceMode
 
   public isLoaded = false
   public override isLoading = false
@@ -70,7 +71,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     const request = {
       currencyCode: 'HUF',
       warehouseCode: '001',
-      incoming: this.incoming,
+      incoming: this.mode.incoming,
       customerID: this.customerID
     }
 
@@ -81,7 +82,12 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
         const checkedNote = this.checkedNotes.find(note => note.relDeliveryNoteInvoiceLineID === datum.relDeliveryNoteInvoiceLineID)
 
         if (checkedNote) {
-          datum.quantity -= checkedNote.quantity
+          if (this.mode.isSummaryInvoice) {
+            datum.quantity -= checkedNote.quantity
+          }
+          else {
+            datum.quantity += checkedNote.quantity
+          }
         }
 
         return datum

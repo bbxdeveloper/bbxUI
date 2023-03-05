@@ -221,8 +221,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.activatedRoute.url.subscribe(params => {
+      this.mode = behaviorFactory.create(params[0].path)
 
-      this.SetModeBasedOnRoute(behaviorFactory, params);
       this.InitialSetup();
       this.isPageReady = true;
     })
@@ -265,16 +265,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
     }
-  }
-
-  private SetModeBasedOnRoute(behaviorFactory: InvoiceBehaviorFactoryService, params: UrlSegment[]): void {
-    this.mode = behaviorFactory.create(params[0].path)
-
-    this.InvoiceType = this.mode.invoiceType
-    this.InvoiceCategory = this.mode.invoiceCategory
-    // this.incoming = this.mode.incoming
-
-    console.log("InvoiceType: ", this.InvoiceType);
   }
 
   private Reset(): void {
@@ -631,7 +621,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
-      const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.maximumQuantity)
+      const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.limit)
 
       if (!validationResult) {
         changedData.Save()
@@ -846,8 +836,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.warehouseCode = '001';
 
     this.outGoingInvoiceData.incoming = this.Incoming;
-    this.outGoingInvoiceData.invoiceType = this.InvoiceType;
-    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
+    this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
@@ -899,7 +889,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
-        data: this.outGoingInvoiceData
+        data: this.outGoingInvoiceData,
+        isDiscountVisible: false,
+        forceDisableOutgoingDelivery: true
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
@@ -1010,14 +1002,14 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       return data
     })
 
-    var d = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
+    this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         checkedNotes: checkedNotes,
         customerID: this.originalCustomerID,
         selectedNotes: event,
-        incoming: this.mode.incoming
+        mode: this.mode
       }
     });
   }
@@ -1037,7 +1029,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.invoiceNumber = value.invoiceNumber
     line.workNumber = value.workNumber
     line.unitPriceDiscounted = value.unitPriceDiscounted
-    line.maximumQuantity = value.quantity
+    line.limit = value.quantity
 
     line.DeafultFieldList = ['productCode', 'quantity']
     line.Save()
@@ -1054,6 +1046,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       if (relDeliveryDate < invoiceDeliveryDate) {
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
+      }
+
+      if (!this.mode.isSummaryInvoice) {
+        note.quantity = -note.quantity
       }
 
       const checkedNote = this.dbData.find(x => x.data.relDeliveryNoteInvoiceLineID === note.relDeliveryNoteInvoiceLineID)

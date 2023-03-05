@@ -43,8 +43,8 @@
         <nb-card-body class="form-col-2">
             <form class="form-horizontal" [formGroup]="outInvForm" #formDirective="ngForm" [id]="outInvFormId"
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
-                <label class="single_label bbx-sidebar-combo" *ngIf="Delivery">Szállítólevél</label>
-                <app-bbx-combo-box-invoice *ngIf="!Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="paymentMethod" label="Fizetési mód"
+                <label class="single_label bbx-sidebar-combo" *ngIf="!mode.isSummaryInvoice">Szállítólevél</label>
+                <app-bbx-combo-box-invoice *ngIf="mode.isSummaryInvoice" class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="paymentMethod" label="Fizetési mód"
                     [data$]="paymentMethodOptions$" [simpleMode]="true" [readonly]="editDisabled"></app-bbx-combo-box-invoice>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" *ngIf="mode.incoming">
@@ -188,7 +188,7 @@
                     <table class="customer-search-row area-row-0">
                         <tr>
                             <td>
-                                <nb-form-field class="search-row-nb-form-field"
+                                <nb-form-field class="search-row-nb-form-field" *ngIf="mode.isSummaryInvoice"
                                     (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
                                     (focusin)="onFormSearchFocused($event, 'customerSearch')"
                                     (focusout)="onFormSearchBlurred($event, 'customerSearch')"
@@ -197,6 +197,10 @@
                                         (click)="buyerFormNav.HandleFormFieldClick($event)" maxlength="80"
                                         (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="editDisabled"
                                         placeholder="Keresés" autocomplete="off" id="r00" />
+                                </nb-form-field>
+
+                                <nb-form-field class="search-row-nb-form-field" *ngIf="!mode.isSummaryInvoice">
+                                    <input formControlName="customerSearch" nbInput type="text" maxlength="80" readonly placeholder="Keresés" autocomplete="off" />
                                 </nb-form-field>
                             </td>
                             <td>

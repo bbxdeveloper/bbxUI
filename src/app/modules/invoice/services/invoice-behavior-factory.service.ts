@@ -36,7 +36,8 @@ export class InvoiceBehaviorFactoryService {
       invoiceType: InvoiceTypes.INV,
       incoming: false,
       correction: false,
-      validateQuantity: new PositiveQuantityValidator
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: true
     } as SummaryInvoiceMode
   }
 
@@ -46,7 +47,8 @@ export class InvoiceBehaviorFactoryService {
       invoiceType: InvoiceTypes.INC,
       incoming: true,
       correction: false,
-      validateQuantity: new PositiveQuantityValidator
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: true
     } as SummaryInvoiceMode
   }
 
@@ -57,7 +59,8 @@ export class InvoiceBehaviorFactoryService {
       incoming: false,
       correction: true,
       paymentMethod: 'OTHER',
-      validateQuantity: new NegativeQuantityValidator
+      validateQuantity: new NegativeQuantityValidator,
+      isSummaryInvoice: false
     } as SummaryInvoiceMode
   }
 }

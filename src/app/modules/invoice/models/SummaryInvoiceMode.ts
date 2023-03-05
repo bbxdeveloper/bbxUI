@@ -8,6 +8,7 @@ export class SummaryInvoiceMode {
     public correction!: boolean
     public incoming!: boolean
     public paymentMethod: string = ''
+    public isSummaryInvoice: boolean = false
 
     public validateQuantity!: IQuantityValidator
 }
@@ -34,7 +35,7 @@ export class NegativeQuantityValidator implements IQuantityValidator {
         if (value < limit) {
             return ValidationMessage.ErrorMin
         }
-        else if (value > 0) {
+        else if (value >= 0) {
             return ValidationMessage.ErrorMax
         }
 

@@ -37,9 +37,11 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   @Input() InvoiceType: string = "";
   @Input() Incoming: boolean = false;
   @Input() Delivery: boolean = false;
+  @Input() isDiscountVisible: boolean = true
+  @Input() forceDisableOutgoingDelivery: boolean = false
 
   get OutGoingDelivery(): boolean {
-    return this.data && this.data?.invoiceType == InvoiceTypes.DNO;
+    return !this.forceDisableOutgoingDelivery && this.data && this.data?.invoiceType == InvoiceTypes.DNO;
   }
 
   get isEditModeOff() {
