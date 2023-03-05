@@ -10,6 +10,8 @@ import { OfferService } from '../modules/offer/services/offer.service';
 import { BbxToastrService } from './bbx-toastr-service.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { OneTextInputDialogComponent } from '../modules/shared/one-text-input-dialog/one-text-input-dialog.component';
+import { OneNumberInputDialogComponent } from '../modules/shared/one-number-input-dialog/one-number-input-dialog.component';
+import { createMask } from '@ngneat/input-mask';
 
 const REPORT_ENDED =
   { Id: -1, ResultCmdType: Constants.CommandType.PRINT_REPORT } as Constants.CommandDescriptor;
@@ -138,11 +140,25 @@ export class PrintAndDownloadService {
   public async openPrintDialog(request: PrintDialogRequest): Promise<void> {
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-    const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
+    const dialogRef = this.dialogService.open(OneNumberInputDialogComponent, {
       context: {
         title: request.DialogTitle,
         inputLabel: request.DialogInputLabel,
-        defaultValue: request.DefaultCopies
+        defaultValue: request.DefaultCopies,
+        numberInputMask: createMask({
+          alias: 'numeric',
+          groupSeparator: ' ',
+          digits: 0,
+          digitsOptional: false,
+          prefix: '',
+          placeholder: '',
+          min: 1,
+          max: 99
+        }),
+        minValue: 1,
+        maxValue: 99,
+        limitValue: true,
+        placeHolder: ''
       }
     });
     dialogRef.onClose.subscribe({
