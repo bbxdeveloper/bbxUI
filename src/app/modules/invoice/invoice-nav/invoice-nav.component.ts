@@ -481,7 +481,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
-    this.RefreshAll(this.getInputParams);
   }
 
   private setupFilterForm(): void {
@@ -489,7 +488,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     if (!filterData) {
       filterData = InvoiceNavFilter.create()
-      filterData.warehouseCode = this.wh[0]?.warehouseCode ?? ''
     }
 
     this.filterForm = new FormGroup({
@@ -591,11 +589,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
           }
           this.RefreshTable();
 
-          const wHouseRes = await this.wareHouseApi.GetAllPromise();
-          if (!!wHouseRes && !!wHouseRes.data) {
-            this.wh = wHouseRes.data;
-            this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
-          }
+          await this.getAndSetWarehouses()
         } else {
           this.simpleToastrService.show(
             d.errors!.join('\n'),
@@ -614,9 +608,22 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     });
   }
 
-  ngOnInit(): void {
+  private async getAndSetWarehouses(): Promise<void> {
+    const wHouseRes = await this.wareHouseApi.GetAllPromise();
+    if (!!wHouseRes && !!wHouseRes.data) {
+      this.wh = wHouseRes.data;
+      this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+    }
+  }
+
+  public async ngOnInit(): Promise<void> {
+    await this.getAndSetWarehouses()
+
+    this.RefreshAll(this.getInputParams);
+
     this.fS.pushCommands(this.commands);
   }
+
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
 
@@ -636,6 +643,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.kbS.SelectFirstTile();
   }
+
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
