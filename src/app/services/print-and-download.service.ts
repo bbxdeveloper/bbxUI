@@ -211,7 +211,6 @@ export class PrintAndDownloadService {
               } catch (error) {
                 request.Reset()
                 this.cs.HandleError(error)
-                commandEndedSubscription?.unsubscribe()
               } finally {
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               }
