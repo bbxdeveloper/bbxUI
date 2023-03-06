@@ -1148,7 +1148,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         ReportParams: {
           "id": id,
           "copies": 1 // Ki lesz töltve dialog alapján
-        } as Constants.Dct
+        } as Constants.Dct,
+        Reset: () => { }
       } as PrintDialogRequest);
     }
   }

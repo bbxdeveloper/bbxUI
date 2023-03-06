@@ -178,6 +178,8 @@ export class PrintAndDownloadService {
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
   
                 if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                  commandEndedSubscription?.unsubscribe();
+
                   request.Reset();
   
                   this.simpleToastrService.show(
@@ -185,17 +187,19 @@ export class PrintAndDownloadService {
                     Constants.TITLE_INFO,
                     Constants.TOASTR_SUCCESS_5_SEC
                   );
-                  commandEndedSubscription.unsubscribe();
                 }
               } catch (error) {
+                if (commandEndedSubscription && !commandEndedSubscription.closed) {
+                  commandEndedSubscription.unsubscribe()
+                }
                 request.Reset()
                 this.cs.HandleError(error)
-                commandEndedSubscription?.unsubscribe()
               }
             },
             error: cmdEnded => {
-              try {
+              try {                
                 console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+                commandEndedSubscription?.unsubscribe();
 
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
@@ -207,8 +211,10 @@ export class PrintAndDownloadService {
                   Constants.TOASTR_ERROR
                 );
 
-                commandEndedSubscription.unsubscribe();
               } catch (error) {
+                if (commandEndedSubscription && !commandEndedSubscription.closed) {
+                  commandEndedSubscription.unsubscribe()
+                }
                 request.Reset()
                 this.cs.HandleError(error)
               } finally {
