@@ -31,6 +31,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -572,54 +573,64 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     });
   }
 
-  override Refresh(params?: GetInvoicesParamListModel): void {
-    console.log('Refreshing: ', params); // TODO: only for debug
+  override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
     this.isLoading = true;
-    this.invoiceService.GetAll(params).subscribe({
-      next: async (d) => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable();
 
-          await this.getAndSetWarehouses()
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
-        }
-      },
-      error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
+    try {
+      const response = await firstValueFrom(this.invoiceService.GetAll(params))
+
+      if (response && response.succeeded && !!response.data) {
+        const tempData = response.data.map((x) => {
+          return { data: x, uid: this.nextUid() };
+        });
+        this.dbData = tempData;
+        this.dbDataDataSrc.setData(this.dbData);
+        this.dbDataTable.SetPaginatorData(response);
+
+        this.RefreshTable();
+
+        await this.getAndSetWarehouses()
+      } else {
+        this.simpleToastrService.show(
+          response.errors!.join('\n'),
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        );
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+    }
+    finally {
+      this.isLoading = false
+    }
   }
 
   private async getAndSetWarehouses(): Promise<void> {
-    const wHouseRes = await this.wareHouseApi.GetAllPromise();
-    if (!!wHouseRes && !!wHouseRes.data) {
-      this.wh = wHouseRes.data;
-      this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+    try {
+      const response = await this.wareHouseApi.GetAllPromise();
+      if (!!response && !!response.data) {
+        this.wh = response.data;
+        this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+      this.isLoading = false;
     }
   }
 
   public async ngOnInit(): Promise<void> {
     await this.getAndSetWarehouses()
 
-    this.RefreshAll(this.getInputParams);
+    await this.RefreshAll(this.getInputParams);
+
+    if (this.localStorage.has(this.localStorageKey)) {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.kbS.SetCurrentNavigatable(this.dbDataTable)
+      this.kbS.SelectElementByCoordinate(0, 0)
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+    }
 
     this.fS.pushCommands(this.commands);
   }
@@ -649,8 +660,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.kbS.Detach();
   }
 
-  private RefreshAll(params?: GetInvoicesParamListModel): void {
-    this.Refresh(params);
+  private async RefreshAll(params?: GetInvoicesParamListModel): Promise<void> {
+    await this.Refresh(params);
   }
 
   RefreshData(): void { }
