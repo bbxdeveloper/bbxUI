@@ -940,7 +940,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
               MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
               Obs: this.mode.isSummaryInvoice
                 ? this.seInv.GetAggregateReport.bind(this.seInv)
-                : this.seInv.GetReport.bind(this),
+                : this.seInv.GetReport.bind(this.seInv),
               Reset: this.Reset.bind(this),
               ReportParams: {
                 "id": d.data?.id,
