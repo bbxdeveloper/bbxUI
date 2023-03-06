@@ -835,7 +835,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.warehouseCode = '001';
 
-    this.outGoingInvoiceData.incoming = this.Incoming;
+    this.outGoingInvoiceData.incoming = this.mode.incoming;
     this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
     this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 

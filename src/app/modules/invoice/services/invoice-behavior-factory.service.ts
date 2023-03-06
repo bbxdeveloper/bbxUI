@@ -72,7 +72,7 @@ export class InvoiceBehaviorFactoryService {
     return {
       invoiceCategory: InvoiceCategory.NORMAL,
       invoiceType: InvoiceTypes.DNI,
-      incoming: false,
+      incoming: true,
       correction: true,
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
