@@ -479,11 +479,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     });
 
     this.filterForm.valueChanges.subscribe(value => {
-      if (value.CustomerSearch === '') {
-        this.localStorage.remove(this.localStorageKey)
-        return
-      }
-
       const filterData = {
         offerNumber: value.OfferNumber,
         customerSearch: value.CustomerSearch,
@@ -538,11 +533,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.Refresh(this.getInputParams, true);
   }
 
-  JumpToFirstCellAndNav(): void {
+  JumpToTable(x: number = 0, y: number = 0): void {
     console.log("[JumpToFirstCellAndNav]");
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.kbS.SetCurrentNavigatable(this.dbDataTable);
-    this.kbS.SelectElementByCoordinate(0, 0);
+    this.kbS.SelectElementByCoordinate(x, y);
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     setTimeout(() => {
       this.kbS.MoveDown();
@@ -566,7 +561,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           }
           this.RefreshTable(undefined, this.isPageReady);
           if (this.isPageReady || jumpToFirstTableCell) {
-            this.JumpToFirstCellAndNav();
+            this.JumpToTable();
           }
         } else {
           this.bbxToastrService.show(
@@ -606,7 +601,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           }
           this.RefreshTable(undefined, this.isPageReady);
           if (this.isPageReady) {
-            this.JumpToFirstCellAndNav();
+            this.JumpToTable();
           }
         } else if (getAllResult.errors) {
           this.bbxToastrService.show(
@@ -624,10 +619,27 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   public async ngOnInit(): Promise<void> {
-    if (this.localStorage.get<OfferFilter>(this.localStorageKey)) {
+    if (this.localStorage.has(this.localStorageKey)) {
       await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
 
-      this.RefreshAndJumpToTable()
+      await this.RefreshAsync(this.getInputParams)
+
+      if (this.dbData.length === 0) {
+        this.kbS.SetCurrentNavigatable(this.filterFormNav)
+        this.kbS.SelectFirstTile()
+        this.kbS.setEditMode(KeyboardModes.EDIT)
+      }
+      else {
+        const offerNumber = this.filterForm.controls['OfferNumber'].value
+        if (offerNumber !== '') {
+          const index = this.dbData.findIndex(x => x.data.offerNumber === offerNumber)
+
+          this.JumpToTable(index, 0)
+        }
+        else {
+          this.JumpToTable()
+        }
+      }
     }
     else {
       this.RefreshAll(this.getInputParams)

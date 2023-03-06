@@ -620,16 +620,20 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
   }
 
+  private navigateToTable() {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+    this.kbS.SelectElementByCoordinate(0, 0)
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+  }
+
   public async ngOnInit(): Promise<void> {
     await this.getAndSetWarehouses()
 
     await this.RefreshAll(this.getInputParams);
 
     if (this.localStorage.has(this.localStorageKey)) {
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-      this.kbS.SetCurrentNavigatable(this.dbDataTable)
-      this.kbS.SelectElementByCoordinate(0, 0)
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.navigateToTable()
     }
 
     this.fS.pushCommands(this.commands);
