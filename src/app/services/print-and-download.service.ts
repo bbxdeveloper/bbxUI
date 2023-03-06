@@ -140,78 +140,115 @@ export class PrintAndDownloadService {
   public async openPrintDialog(request: PrintDialogRequest): Promise<void> {
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-    const dialogRef = this.dialogService.open(OneNumberInputDialogComponent, {
-      context: {
-        title: request.DialogTitle,
-        inputLabel: request.DialogInputLabel,
-        defaultValue: request.DefaultCopies,
-        numberInputMask: createMask({
-          alias: 'numeric',
-          groupSeparator: ' ',
-          digits: 0,
-          digitsOptional: false,
-          prefix: '',
-          placeholder: '',
-          min: 1,
-          max: 99
-        }),
-        minValue: 1,
-        maxValue: 99,
-        limitValue: true,
-        placeHolder: ''
-      }
-    });
-    dialogRef.onClose.subscribe({
+    var dialogRef;
+    try {
+      dialogRef = this.dialogService.open(OneNumberInputDialogComponent, {
+        context: {
+          title: request.DialogTitle,
+          inputLabel: request.DialogInputLabel,
+          defaultValue: request.DefaultCopies,
+          numberInputMask: createMask({
+            alias: 'numeric',
+            groupSeparator: ' ',
+            digits: 0,
+            digitsOptional: false,
+            prefix: '',
+            placeholder: '',
+            min: 1,
+            max: 99
+          }),
+          minValue: 1,
+          maxValue: 99,
+          limitValue: true,
+          placeHolder: ''
+        }
+      });
+    } catch (error) {
+      request.Reset()
+      this.cs.HandleError(error)
+    }
+    
+    dialogRef?.onClose.subscribe({
       next: async res => {
         console.log("OneTextInputDialogComponent: ", res);
         if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
           let commandEndedSubscription = this.CommandEnded.subscribe({
             next: cmdEnded => {
-              console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-              if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                request.Reset();
-
-                this.simpleToastrService.show(
-                  request.MsgFinish,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-                commandEndedSubscription.unsubscribe();
+              try {
+                console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
+  
+                if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
+                  request.Reset();
+  
+                  this.simpleToastrService.show(
+                    request.MsgFinish,
+                    Constants.TITLE_INFO,
+                    Constants.TOASTR_SUCCESS_5_SEC
+                  );
+                  commandEndedSubscription.unsubscribe();
+                }
+              } catch (error) {
+                request.Reset()
+                this.cs.HandleError(error)
+                commandEndedSubscription?.unsubscribe()
               }
             },
             error: cmdEnded => {
-              console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
+              try {
+                console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
-              this.bbxToastrService.show(
-                request.MsgError,
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
-              );
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-              commandEndedSubscription.unsubscribe();
+                request.Reset();
 
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              request.Reset();
+                this.bbxToastrService.show(
+                  request.MsgError,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                );
+
+                commandEndedSubscription.unsubscribe();
+              } catch (error) {
+                request.Reset()
+                this.cs.HandleError(error)
+                commandEndedSubscription?.unsubscribe()
+              } finally {
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
             }
           });
 
-          request.ReportParams[KEY_COPIES] = HelperFunctions.ToInt(res.value);
-          await this.printReport(request.ReportParams, request.Obs);
+          try {
+            request.ReportParams[KEY_COPIES] = HelperFunctions.ToInt(res.value);
+            await this.printReport(request.ReportParams, request.Obs);
+          } catch (error) {
+            this.cs.HandleError(error)
+            request.Reset()
+          }
         } else {
-          this.simpleToastrService.show(
-            request.MsgCancel,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          request.Reset();
+          try {
+            request.Reset();
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.simpleToastrService.show(
+              request.MsgCancel,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+          } catch (error) {
+            this.cs.HandleError(error)
+            request.Reset()
+          }
         }
       },
       error: err => {
-        this.cs.HandleError(err);
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        request.Reset();
+        try {
+          this.cs.HandleError(err);
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          request.Reset();
+        } catch (error) {
+          this.cs.HandleError(error)
+          request.Reset()
+        }
       }
     });
   }
