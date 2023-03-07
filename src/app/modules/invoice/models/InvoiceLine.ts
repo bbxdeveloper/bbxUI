@@ -101,7 +101,7 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     unitPriceDiscounted: number = 0
 
     //#region Gyűjtő számla
-    maximumQuantity: number = 0
+    limit: number = 0
 
     public get rowDiscountedNetPrice(): number {
         return this.unitPriceDiscounted * this.quantity

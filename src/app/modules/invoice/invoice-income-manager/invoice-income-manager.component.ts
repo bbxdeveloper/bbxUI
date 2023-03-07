@@ -33,7 +33,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
@@ -203,7 +203,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private utS: UtilityService,
+    private printAndDownLoadService: PrintAndDownloadService,
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
@@ -789,23 +789,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
   }
 
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
-      {
-        "section": "Szamla",
-        "fileType": "pdf",
-        "report_params":
-        {
-          "id": id,
-          "copies": HelperFunctions.ToInt(copies)
-        },
-        "copies": 1,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
-  }
-
   Save(): void {
     this.activeForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
@@ -883,59 +866,19 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-              const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-                context: {
-                  title: 'Számla Nyomtatása',
-                  inputLabel: 'Példányszám',
-                  defaultValue: 1
-                }
-              });
-              dialogRef.onClose.subscribe({
-                next: async res => {
-                  if (res && res.answer && res.value > 0) {
-                    let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                      next: cmdEnded => {
-                        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.Reset();
-
-                          this.simpleToastrService.show(
-                            `A ${ordinal} számla nyomtatása véget ért.`,
-                            Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS_5_SEC
-                          );
-                          commandEndedSubscription.unsubscribe();
-                        }
-
-                        this.isSaveInProgress = false;
-                      },
-                      error: cmdEnded => {
-                        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                        this.isSaveInProgress = false;
-
-                        commandEndedSubscription.unsubscribe();
-
-                        this.bbxToastrService.show(
-                          `A ${ordinal} számla nyomtatása közben hiba történt.`,
-                          Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR
-                        );
-                      }
-                    });
-                    await this.printReport(d.data?.id, res.value);
-                  } else {
-                    this.simpleToastrService.show(
-                      `A ${ordinal} számla nyomtatása nem történt meg.`,
-                      Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS_5_SEC
-                    );
-                    this.isSaveInProgress = false;
-                    this.Reset();
-                  }
-                }
-              });
+              this.printAndDownLoadService.openPrintDialog({
+                DialogTitle: 'Számla Nyomtatása',
+                DefaultCopies: 1,
+                MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
+                MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
+                MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,
+                Obs: this.seInv.GetReport.bind(this.seInv),
+                Reset: this.Reset.bind(this),
+                ReportParams: {
+                  "id": d.data?.id,
+                  "copies": 1 // Ki lesz töltve dialog alapján
+                } as Constants.Dct
+              } as PrintDialogRequest);
             } else {
               this.cs.HandleError(d.errors);
               this.isSaveInProgress = false;

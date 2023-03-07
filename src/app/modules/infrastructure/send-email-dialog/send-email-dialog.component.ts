@@ -16,7 +16,7 @@ import { OfferService } from '../../offer/services/offer.service';
 import { StatusService } from 'src/app/services/status.service';
 import { lastValueFrom } from 'rxjs';
 import { Offer } from '../../offer/models/Offer';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
@@ -100,7 +100,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     private simpleToastrService: NbToastrService,
     private offerService: OfferService,
     private sts: StatusService,
-    private utS: UtilityService
+    private printAndDownLoadService: PrintAndDownloadService
   ) {
     super();
     this.Setup();
@@ -213,56 +213,18 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     if (this.PrintParams) {
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-      let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-        next: cmdEnded => {
-          console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-          if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-            this.simpleToastrService.show(
-              `Az árajánlat riport elkészítve.`,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-            commandEndedSubscription.unsubscribe();
-          }
-        },
-        error: cmdEnded => {
-          console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-          commandEndedSubscription.unsubscribe();
-          this.bbxToastrService.show(
-            `Az árajánlat riport készítése közben hiba történt.`,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
-        }
-      });
-
-      await this.printReport(this.PrintParams!.id, 1);
+      this.printAndDownLoadService.printPreview({
+        DialogTitle: 'Számla Nyomtatása',
+        DefaultCopies: 1,
+        MsgError: `Az árajánlat riport készítése közben hiba történt.`,
+        MsgFinish: `Az árajánlat riport elkészítve.`,
+        Obs: this.offerService.GetReport.bind(this.offerService),
+        ReportParams: {
+          "id": this.PrintParams!.id,
+          "copies": 1
+        } as Constants.Dct
+      } as PrintDialogRequest);
     }
-  }
-
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    let params = {
-      "section": "Szamla",
-      "fileType": "pdf",
-      "report_params":
-      {
-        "id": id,
-        "copies": HelperFunctions.ToInt(copies)
-      },
-      "copies": 1,
-      "data_operation": Constants.DataOperation.PRINT_BLOB,
-      "blob_data": null,
-      "ignore_electron": true
-    } as Constants.Dct;
-    await this.utS.execute(
-      Constants.CommandType.PRINT_OFFER,
-      Constants.FileExtensions.PDF,
-      params,
-      this.offerService.GetReport(params)
-    );
   }
 
   private async GetOffer(id: number): Promise<Offer> {

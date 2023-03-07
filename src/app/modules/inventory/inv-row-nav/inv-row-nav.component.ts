@@ -24,7 +24,7 @@ import { Actions, KeyBindings, GetFooterCommandListFromKeySettings, InvRowNavKey
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { BehaviorSubject, last, lastValueFrom, Subscription } from 'rxjs';
 import { InvRow } from '../models/InvRow';
@@ -182,7 +182,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     private inventoryCtrlItemService: InventoryCtrlItemService,
     cs: CommonService,
     sts: StatusService,
-    private utS: UtilityService,
+    private printAndDownLoadService: PrintAndDownloadService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -431,65 +431,18 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-      HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_PRINT, async () => {
-        this.isLoading = true;
-
-        let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-          next: cmdEnded => {
-            console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-            if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-              this.simpleToastrService.show(
-                `Az leltári időszak nyomtatása véget ért.`,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.isLoading = false;
-              commandEndedSubscription.unsubscribe();
-            } else {
-              this.isLoading = false;
-            }
-          },
-          error: cmdEnded => {
-            console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-            this.isLoading = false;
-            commandEndedSubscription.unsubscribe();
-            this.bbxToastrService.show(
-              `Az leltári időszak nyomtatása közben hiba történt.`,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-          }
-        });
-        await this.printReport(id, 1, title!);
-      }, async () => {
-        this.simpleToastrService.show(
-          `Az leltári időszak nyomtatása nem történt meg.`,
-          Constants.TITLE_INFO,
-          Constants.TOASTR_SUCCESS_5_SEC
-        );
-        this.isLoading = false;
-      });
-    }
-  }
-
-  async printReport(id: any, copies: number, title: string): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
-      {
-        "section": "Leltári időszak",
-        "fileType": "pdf",
-        "report_params": {},
-        "copies": 1,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct,
-      this.inventoryService.GetReport({
-        "report_params": {
+      this.isLoading = false;
+      this.printAndDownLoadService.printAfterConfirm({
+        DialogTitle: Constants.MSG_CONFIRMATION_PRINT,
+        MsgError: `Az leltári időszak nyomtatása közben hiba történt.`,
+        MsgCancel: `Az leltári időszak nyomtatása nem történt meg.`,
+        MsgFinish: `Az leltári időszak nyomtatása véget ért.`,
+        Obs: this.inventoryService.GetReport.bind(this.inventoryService),
+        ReportParams: {
           "invCtrlPeriodID": id, "invPeriodTitle": title
-        }
-      }));
+        } as Constants.Dct
+      } as PrintDialogRequest);
+    }
   }
 
   ChooseDataForTableRow(): void {

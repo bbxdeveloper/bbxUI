@@ -1,4 +1,5 @@
 import { NbIconConfig, NbToastrConfig } from "@nebular/theme";
+import { Observable } from "rxjs";
 import { ProcessStatus } from "../model/ProcessStatus";
 import { Actions, KeyBindings } from "./KeyBindings";
 
@@ -6,6 +7,7 @@ export module Constants {
     // Messages
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
+    export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'
 
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
@@ -183,6 +185,7 @@ export module Constants {
 
     export type Dct = { [id: string]: any; };
     export type KeySettingsDct = { [key in Actions]: KeySettingRow; };
+    export type ServiceFunctionGenericParams = (p: Constants.Dct) => Observable<any>
 
     export interface CommandDescriptor {
         Id: number,

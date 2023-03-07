@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvCtrlItemParamListModel } from '../models/GetInvCtrlItemParamListModel';
@@ -18,21 +18,24 @@ import { Constants } from 'src/assets/util/Constants';
   providedIn: 'root'
 })
 export class InventoryCtrlItemService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlICP';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrl';
 
   constructor(private http: HttpClient) { }
 
   GetAbsentReport(params: Constants.Dct): Observable<any> {
-    console.log("GetReport: ", params);
-    let options = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set("charset", "utf8")
-      .set("accept", "application/pdf");
-    return this.http.post(
-      `${this.BaseUrl}/report`,
-      JSON.stringify(params['report_params']),
-      { responseType: 'blob', headers: options }
-    );
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/report`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
   }
 
   GetAll(params?: GetAllInvCtrlItemsParamListModel): Observable<GetAllInvCtrlItemsResponse> {
@@ -100,6 +103,6 @@ export class InventoryCtrlItemService {
   }
 
   Create(req: CreateInvCtrlItemRequest): Observable<CreateInvCtrlItemResponse> {
-    return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl, req);
+    return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl + '/creicp', req);
   }
 }

@@ -107,7 +107,7 @@ export class KeyboardNavigationService {
 
   public clear(): void {
     this.ResetToRoot();
-    this.CurrentNavigatable.ClearNeighbours(); 
+    this.CurrentNavigatable.ClearNeighbours();
     this.SelectFirstTile();
   }
 
@@ -342,7 +342,7 @@ export class KeyboardNavigationService {
       window.setTimeout(function () {
         const tempVal = _input.value;
         _input.value = 'cursor';
-        _input.setSelectionRange(0, 0); 
+        _input.setSelectionRange(0, 0);
         _input.value = tempVal;
         // const txtVal = ((row.data as any)[col] as string);
         // console.log('txtVal: ', txtVal);
@@ -464,9 +464,9 @@ export class KeyboardNavigationService {
   /**
    * Tile selection is set with a 200ms delay.
    * Additional edit mode selection should be included with the parameters due to the delay.
-   * @param direction 
-   * @param setEdit 
-   * @returns 
+   * @param direction
+   * @param setEdit
+   * @returns
    */
   public Jump(direction: AttachDirection, setEdit: boolean = false): MoveRes {
     const res = { moved: false, jumped: false } as MoveRes;
@@ -932,10 +932,10 @@ export class KeyboardNavigationService {
   }
 
   /**
-   * 
+   *
    * @param newX New X coordinate after detach.
    * @param newY New Y coordinate after detach.
-   * @returns 
+   * @returns
    */
   public Detach(newX?: number, newY?: number): void {
     if (this.CurrentNavigatable === this.Root) {
@@ -986,7 +986,7 @@ export class KeyboardNavigationService {
     this.p.x = 0;
     this.p.y = 0;
   }
-  
+
   public IsDialogOpen(): boolean {
     // console.log("IsDialogOpen: ", this.WidgetStack);
     return this.WidgetStack.length > 0;

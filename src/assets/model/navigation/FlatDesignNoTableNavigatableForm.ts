@@ -142,7 +142,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     CanShowFormErrors(formControlName: string): boolean {
-        return this.form.controls[formControlName].invalid && (this.form.controls[formControlName].dirty || this.form.controls[formControlName].touched);
+        return this.form && this.form.controls[formControlName].invalid && (this.form.controls[formControlName].dirty || this.form.controls[formControlName].touched);
     }
 
     IsErrorApparent(formControlName: string, validationName: string): boolean {

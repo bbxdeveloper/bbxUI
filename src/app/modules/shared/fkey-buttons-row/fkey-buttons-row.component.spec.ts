@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FkeyButtonsRowComponent } from './fkey-buttons-row.component';
+import { FKeyButtonsRowComponent } from './fkey-buttons-row.component';
 
 describe('FkeyButtonsRowComponent', () => {
-  let component: FkeyButtonsRowComponent;
-  let fixture: ComponentFixture<FkeyButtonsRowComponent>;
+  let component: FKeyButtonsRowComponent;
+  let fixture: ComponentFixture<FKeyButtonsRowComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FkeyButtonsRowComponent ]
+      declarations: [FKeyButtonsRowComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FkeyButtonsRowComponent);
+    fixture = TestBed.createComponent(FKeyButtonsRowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

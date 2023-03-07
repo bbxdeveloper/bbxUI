@@ -19,7 +19,7 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { InvoiceService } from '../../invoice/services/invoice.service';
@@ -233,7 +233,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     cs: CommonService,
     sts: StatusService,
     protected productService: ProductService,
-    protected utS: UtilityService,
+    protected printAndDownLoadService: PrintAndDownloadService,
     protected router: Router,
     protected vatRateService: VatRateService,
     protected route: ActivatedRoute,
@@ -469,23 +469,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }, 500);
   }
 
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_OFFER, Constants.FileExtensions.PDF,
-      {
-        "section": "Szamla",
-        "fileType": "pdf",
-        "report_params":
-        {
-          "id": id,
-          "copies": HelperFunctions.ToInt(copies)
-        },
-        "copies": 1,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
-  }
-
   Save(): void {}
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
@@ -657,8 +640,16 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }, 100);
   }
 
+  ConverNumbers(): void {
+    this.dbData.forEach(x => {
+      x.data.quantity = HelperFunctions.ToFloat(x.data.quantity)
+    })
+  }
+
   CheckSaveConditionsAndSave(): void {
     this.buyerForm.markAllAsTouched();
+
+    this.ConverNumbers()
 
     if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
@@ -668,6 +659,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       );
       return;
     }
+    
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
@@ -676,7 +668,9 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       );
       return;
     }
-    if (this.dbData.find(x => x.data.quantity === undefined || x.data.quantity === 0) === undefined) {
+
+    var t = this.dbData.find(x => x.data.id !== -1 && (x.data.quantity === undefined || x.data.quantity <= 0))
+    if (t !== undefined) {
       this.bbxToastrService.show(
         `Minden tételnek pozitív mennyiséggel kell rendelkeznie.`,
         Constants.TITLE_ERROR,
