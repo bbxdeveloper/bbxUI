@@ -1445,4 +1445,3 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
 }
-
