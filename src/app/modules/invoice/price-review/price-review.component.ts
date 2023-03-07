@@ -191,7 +191,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   private originalCustomerID: number = -1
 
-  public mode!: SummaryInvoiceMode
+  // public mode!: SummaryInvoiceMode
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -212,12 +212,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
     private custDiscountService: CustomerDiscountService,
-    public invoiceStatisticsService: InvoiceStatisticsService,
-    behaviorFactory: InvoiceBehaviorFactoryService
+    // public invoiceStatisticsService: InvoiceStatisticsService,
+    // behaviorFactory: InvoiceBehaviorFactoryService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
     this.activatedRoute.url.subscribe(params => {
-      this.mode = behaviorFactory.create(params[0].path)
+      // this.mode = behaviorFactory.create(params[0].path)
 
       this.InitialSetup();
       this.isPageReady = true;
@@ -333,11 +333,11 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         invoiceOrdinal: new FormControl('', []), // in post response
         notice: new FormControl('', []),
       });
-      if (this.mode.incoming) {
-        this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
-          Validators.required
-        ]));
-      }
+      // if (this.mode.incoming) {
+      //   this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
+      //     Validators.required
+      //   ]));
+      // }
     } else {
       this.outInvForm.reset(undefined);
     }
@@ -484,7 +484,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   RecalcNetAndVat(): void {
-    this.invoiceStatisticsService.InvoiceLines = this.dbData;
+    // this.invoiceStatisticsService.InvoiceLines = this.dbData;
 
     this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
 
@@ -616,21 +616,21 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.RecalcNetAndVat();
     }
 
-    if (col === 'quantity' && index !== null && index !== undefined) {
-      const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.limit)
+    // if (col === 'quantity' && index !== null && index !== undefined) {
+    //   const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.limit)
 
-      if (!validationResult) {
-        changedData.Save()
-        return
-      }
+    //   if (!validationResult) {
+    //     changedData.Save()
+    //     return
+    //   }
 
-      this.bbxToastrService.show(
-        validationResult,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
-      this.dbData[index].data.Restore('quantity')
-    }
+    //   this.bbxToastrService.show(
+    //     validationResult,
+    //     Constants.TITLE_ERROR,
+    //     Constants.TOASTR_ERROR
+    //   )
+    //   this.dbData[index].data.Restore('quantity')
+    // }
   }
 
   refresh(): void {
@@ -735,12 +735,13 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
+
   private AfterViewInitSetup(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    if (this.mode.isSummaryInvoice) {
+    // if (this.mode.isSummaryInvoice) {
       this.buyerFormNav.GenerateAndSetNavMatrices(true);
-    }
+    // }
 
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
@@ -763,37 +764,37 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
       this.cdref.detectChanges();
-      const dialog = this.dialogService.open(CustomersHasPendingInvoiceComponent, {
-        context: {
-          searchString: this.customerInputFilterString,
-          allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
-          colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
-          incoming: this.mode.incoming
-        },
-        closeOnEsc: false,
-        closeOnBackdropClick: false
-      });
+      // const dialog = this.dialogService.open(CustomersHasPendingInvoiceComponent, {
+      //   context: {
+      //     searchString: this.customerInputFilterString,
+      //     allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
+      //     colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
+      //     // incoming: this.mode.incoming
+      //   },
+      //   closeOnEsc: false,
+      //   closeOnBackdropClick: false
+      // });
 
-      dialog.onClose.subscribe({ next: this.customerSelected.bind(this) })
+      // dialog.onClose.subscribe({ next: this.customerSelected.bind(this) })
     }, 500);
   }
 
-  private async customerSelected(x: PendingDeliveryInvoiceSummary) {
-    if (!x) {
-      return;
-    }
+  // private async customerSelected(x: PendingDeliveryInvoiceSummary) {
+  //   if (!x) {
+  //     return;
+  //   }
 
-    try {
-      const customer = await lastValueFrom(this.seC.Get({ ID: x.customerID }))
+  //   try {
+  //     const customer = await lastValueFrom(this.seC.Get({ ID: x.customerID }))
 
-      this.originalCustomerID = customer.id
+  //     this.originalCustomerID = customer.id
 
-      this.SetDataForForm(customer)
-    }
-    catch(error) {
-      this.cs.HandleError(error)
-    }
-  }
+  //     this.SetDataForForm(customer)
+  //   }
+  //   catch(error) {
+  //     this.cs.HandleError(error)
+  //   }
+  // }
 
   ngOnDestroy(): void {
     console.log("Detach");
@@ -803,9 +804,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
 
-    if (this.mode.incoming) {
+    // if (this.mode.incoming) {
       this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
-    }
+    // }
 
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
@@ -813,9 +814,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
 
-    this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
-      ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
-      : this.mode.paymentMethod
+    this.outGoingInvoiceData.paymentMethod = HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
+    // this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
+    //   ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
+    //   : this.mode.paymentMethod
 
     this.outGoingInvoiceData.warehouseCode = '1';
 
@@ -835,9 +837,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     this.outGoingInvoiceData.warehouseCode = '001';
 
-    this.outGoingInvoiceData.incoming = this.mode.incoming;
-    this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
-    this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
+    // this.outGoingInvoiceData.incoming = this.mode.incoming;
+    // this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
+    // this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
@@ -892,7 +894,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         data: this.outGoingInvoiceData,
         isDiscountVisible: false,
         forceDisableOutgoingDelivery: true,
-        negativeDiscount: !this.mode.isSummaryInvoice
+        // negativeDiscount: !this.mode.isSummaryInvoice
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
@@ -938,9 +940,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
               MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
               MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
               MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-              Obs: this.mode.isSummaryInvoice
-                ? this.seInv.GetAggregateReport.bind(this.seInv)
-                : this.seInv.GetReport.bind(this.seInv),
+              Obs: this.seInv.GetReport.bind(this.seInv),
+              // Obs: this.mode.isSummaryInvoice
+              //   ? this.seInv.GetAggregateReport.bind(this.seInv)
+              //   : this.seInv.GetReport.bind(this.seInv),
               Reset: this.Reset.bind(this),
               ReportParams: {
                 "id": d.data?.id,
@@ -993,137 +996,137 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const event = new EventEmitter<PendingDeliveryNote[]>()
+    // const event = new EventEmitter<PendingDeliveryNote[]>()
 
-    event.subscribe(this.fillTableWithPendingNotes.bind(this))
+    // event.subscribe(this.fillTableWithPendingNotes.bind(this))
 
-    const checkedNotes = this.dbData.map(x => {
-      const data = {
-        relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
-        quantity: x.data.quantity
-      } as PendingDeliveryNote
-      return data
-    })
+    // const checkedNotes = this.dbData.map(x => {
+    //   const data = {
+    //     relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
+    //     quantity: x.data.quantity
+    //   } as PendingDeliveryNote
+    //   return data
+    // })
 
-    this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
-      context: {
-        allColumns: PendingDeliveryNotesTableSettings.AllColumns,
-        colDefs: PendingDeliveryNotesTableSettings.ColDefs,
-        checkedNotes: checkedNotes,
-        customerID: this.originalCustomerID,
-        selectedNotes: event,
-        mode: this.mode
-      }
-    });
+    // this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
+    //   context: {
+    //     allColumns: PendingDeliveryNotesTableSettings.AllColumns,
+    //     colDefs: PendingDeliveryNotesTableSettings.ColDefs,
+    //     checkedNotes: checkedNotes,
+    //     customerID: this.originalCustomerID,
+    //     selectedNotes: event,
+    //     mode: this.mode
+    //   }
+    // });
   }
 
-  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
-    const line = new InvoiceLine()
-    line.productCode = value.productCode
-    line.productDescription = value.lineDescription
-    line.quantity = value.quantity
-    line.unitOfMeasure = value.unitOfMeasure
-    line.unitPrice = value.unitPrice
-    line.vatRateCode = value.vatRateCode
-    line.lineNetAmount = value.lineNetAmount
-    line.vatRate = value.vatPercentage
-    line.unitOfMeasureX = value.unitOfMeasureX
-    line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
-    line.invoiceNumber = value.invoiceNumber
-    line.workNumber = value.workNumber
-    line.unitPriceDiscounted = value.unitPriceDiscounted
-    line.limit = value.quantity
+  // private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
+  //   const line = new InvoiceLine()
+  //   line.productCode = value.productCode
+  //   line.productDescription = value.lineDescription
+  //   line.quantity = value.quantity
+  //   line.unitOfMeasure = value.unitOfMeasure
+  //   line.unitPrice = value.unitPrice
+  //   line.vatRateCode = value.vatRateCode
+  //   line.lineNetAmount = value.lineNetAmount
+  //   line.vatRate = value.vatPercentage
+  //   line.unitOfMeasureX = value.unitOfMeasureX
+  //   line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
+  //   line.invoiceNumber = value.invoiceNumber
+  //   line.workNumber = value.workNumber
+  //   line.unitPriceDiscounted = value.unitPriceDiscounted
+  //   line.limit = value.quantity
 
-    line.DeafultFieldList = ['productCode', 'quantity']
-    line.Save()
+  //   line.DeafultFieldList = ['productCode', 'quantity']
+  //   line.Save()
 
-    return line
-  }
+  //   return line
+  // }
 
-  private fillTableWithPendingNotes(notes: PendingDeliveryNote[]): void {
-    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+  // private fillTableWithPendingNotes(notes: PendingDeliveryNote[]): void {
+  //   this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
-    notes.forEach(note => {
-      const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
-      const relDeliveryDate = new Date(note.relDeliveryDate)
+  //   notes.forEach(note => {
+  //     const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
+  //     const relDeliveryDate = new Date(note.relDeliveryDate)
 
-      if (relDeliveryDate < invoiceDeliveryDate) {
-        this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
-      }
+  //     if (relDeliveryDate < invoiceDeliveryDate) {
+  //       this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
+  //     }
 
-      if (!this.mode.isSummaryInvoice) {
-        note.quantity = -note.quantity
-      }
+  //     if (!this.mode.isSummaryInvoice) {
+  //       note.quantity = -note.quantity
+  //     }
 
-      const checkedNote = this.dbData.find(x => x.data.relDeliveryNoteInvoiceLineID === note.relDeliveryNoteInvoiceLineID)
-      if (checkedNote) {
-        note.quantity += checkedNote.data.quantity
+  //     const checkedNote = this.dbData.find(x => x.data.relDeliveryNoteInvoiceLineID === note.relDeliveryNoteInvoiceLineID)
+  //     if (checkedNote) {
+  //       note.quantity += checkedNote.data.quantity
 
-        const index = this.dbData.indexOf(checkedNote)
-        this.dbData.splice(index, 1)
-      }
-    })
+  //       const index = this.dbData.indexOf(checkedNote)
+  //       this.dbData.splice(index, 1)
+  //     }
+  //   })
 
-    const existingNotes = this.dbData
-      .filter(x => !!x.data.relDeliveryNoteInvoiceLineID)
-      .map(x => x.data)
+    // const existingNotes = this.dbData
+    //   .filter(x => !!x.data.relDeliveryNoteInvoiceLineID)
+    //   .map(x => x.data)
 
-    this.dbData = notes
-      .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
-      .concat(existingNotes)
-      .map(x => ({ data: x, uid: this.nextUid() }))
+    // this.dbData = notes
+    //   .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
+    //   .concat(existingNotes)
+    //   .map(x => ({ data: x, uid: this.nextUid() }))
 
-    this.dbData.sort((a, b) => {
-      const aProperty = a.data.invoiceNumber + a.data.productCode
-      const bProperty = b.data.invoiceNumber + b.data.productCode
+    // this.dbData.sort((a, b) => {
+    //   const aProperty = a.data.invoiceNumber + a.data.productCode
+    //   const bProperty = b.data.invoiceNumber + b.data.productCode
 
-      if (aProperty > bProperty)
-        return 1
+    //   if (aProperty > bProperty)
+    //     return 1
 
-      if (aProperty < bProperty)
-        return -1
+    //   if (aProperty < bProperty)
+    //     return -1
 
-      return 0
-    })
+    //   return 0
+    // })
 
-    this.generateWorkNumbers()
+  //   this.generateWorkNumbers()
 
-    this.RefreshTable()
+  //   this.RefreshTable()
 
-    this.UpdateOutGoingData()
+  //   this.UpdateOutGoingData()
 
-    if (notes.length === 1) {
-      const index = this.dbData.findIndex(x => x.data.relDeliveryNoteInvoiceLineID === notes[0].relDeliveryNoteInvoiceLineID)
+  //   if (notes.length === 1) {
+  //     const index = this.dbData.findIndex(x => x.data.relDeliveryNoteInvoiceLineID === notes[0].relDeliveryNoteInvoiceLineID)
 
-      const elementId = 'PRODUCT-2-' + index
+  //     const elementId = 'PRODUCT-2-' + index
 
-      this.kbS.SelectElement(elementId)
-      this.kbS.ClickElement(elementId)
-    }
-  }
+  //     this.kbS.SelectElement(elementId)
+  //     this.kbS.ClickElement(elementId)
+  //   }
+  // }
 
-  private generateWorkNumbers(): void {
-    const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
+  // private generateWorkNumbers(): void {
+  //   const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
 
-    const noticeControl = this.outInvForm.get('notice')
-    const existingNotice = noticeControl?.value as string ?? ''
+  //   const noticeControl = this.outInvForm.get('notice')
+  //   const existingNotice = noticeControl?.value as string ?? ''
 
-    const existingWorkNumbers = !!this.workNumbers ? workNumbersAsString() : ''
-    const otherNotes = existingNotice
-      .substring(existingWorkNumbers.length)
-      .trim()
+  //   const existingWorkNumbers = !!this.workNumbers ? workNumbersAsString() : ''
+  //   const otherNotes = existingNotice
+  //     .substring(existingWorkNumbers.length)
+  //     .trim()
 
-    let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
-      .map(x => x.data.workNumber)
+  //   let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
+  //     .map(x => x.data.workNumber)
 
-    this.workNumbers = [...new Set(workNumbers)]
+  //   this.workNumbers = [...new Set(workNumbers)]
 
-    const notice = this.workNumbers.length > 0
-      ? workNumbersAsString() + ' ' + otherNotes
-      : otherNotes
+  //   const notice = this.workNumbers.length > 0
+  //     ? workNumbersAsString() + ' ' + otherNotes
+  //     : otherNotes
 
-    noticeControl?.setValue(notice.trim())
-  }
+  //   noticeControl?.setValue(notice.trim())
+  // }
 
   ChooseDataForForm(): void {
     console.log("Selecting Customer from avaiable data.");
@@ -1386,7 +1389,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
 
-            this.generateWorkNumbers()
+            // this.generateWorkNumbers()
           });
           break;
         }
