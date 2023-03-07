@@ -261,6 +261,7 @@ export module PendingDeliveryNotesTableSettings {
         'unitOfMeasureX',
         'unitPrice',
         'lineNetAmount',
+        'priceReview'
     ];
     export const ColDefs: ModelFieldDescriptor[] = [
         {
@@ -355,6 +356,18 @@ export module PendingDeliveryNotesTableSettings {
             mask: '',
             colWidth: '100px',
             textAlign: 'right',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'ÁrFelv.',
+            objectKey: 'priceReview',
+            colKey: 'priceReview',
+            defaultValue: '',
+            type: 'bool',
+            fRequired: false,
+            mask: '',
+            colWidth: '70px',
+            textAlign: 'center',
             navMatrixCssClass: TileCssClass,
         },
     ];

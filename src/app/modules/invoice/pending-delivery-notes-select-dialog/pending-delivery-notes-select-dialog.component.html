@@ -1,4 +1,4 @@
-<nb-card class="modal-product-active">
+<nb-card class="modal-product-active pending-deliveri-notes-select">
     <nb-card-header class="modal-product-active-header">
         <span>Tételek</span>
     </nb-card-header>
@@ -80,6 +80,12 @@
                             <ng-container *ngSwitchCase="'onlyDate'">
                                 <div>
                                     {{ GetDateString(row.data) }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'bool'">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '❗️' : '' }}
                                 </div>
                             </ng-container>
 
