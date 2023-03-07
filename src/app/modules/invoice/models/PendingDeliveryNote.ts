@@ -1,4 +1,4 @@
-export interface PendingDeliveryNote {
+export interface PendingDeliveryNoteItem {
     invoiceNumber: string,
     RelDeliveryDate: string,
     productCode: string,

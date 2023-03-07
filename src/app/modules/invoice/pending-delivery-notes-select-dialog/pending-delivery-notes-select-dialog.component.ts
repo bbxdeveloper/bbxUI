@@ -7,7 +7,7 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
-import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from '../pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
 import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/model/TableSettings';
@@ -18,10 +18,10 @@ import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
   templateUrl: './pending-delivery-notes-select-dialog.component.html',
   styleUrls: ['./pending-delivery-notes-select-dialog.component.scss']
 })
-export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialogComponent<PendingDeliveryNote> implements OnInit {
+export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialogComponent<PendingDeliveryNoteItem> implements OnInit {
   @Input() public customerID!: number
-  @Input() public checkedNotes!: PendingDeliveryNote[]
-  @Output() public selectedNotes = new EventEmitter<PendingDeliveryNote[]>()
+  @Input() public checkedNotes!: PendingDeliveryNoteItem[]
+  @Output() public selectedNotes = new EventEmitter<PendingDeliveryNoteItem[]>()
   @Input() public mode!: SummaryInvoiceMode
 
   public isLoaded = false
@@ -30,7 +30,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   constructor(
     private readonly kns: KeyboardNavigationService,
     dialogRef: NbDialogRef<PendingDeliveryNotesSelectDialogComponent>,
-    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryNote>>,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryNoteItem>>,
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
@@ -40,7 +40,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 
-    this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryNote>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
+    this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryNoteItem>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
   }
 
   public override ngOnInit(): void {
@@ -128,10 +128,10 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
    * @param event
    * @param row
    */
-  override selectRow(event: any, row: TreeGridNode<PendingDeliveryNote>): void {
+  override selectRow(event: any, row: TreeGridNode<PendingDeliveryNoteItem>): void {
     HelperFunctions.StopEvent(event);
 
-    this.close({} as PendingDeliveryNote);
+    this.close({} as PendingDeliveryNoteItem);
 
     this.selectedNotes.emit([row.data])
   }
@@ -167,7 +167,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
       }
     })
 
-    dialog.onClose.subscribe((selected: PendingDeliveryNote) => {
+    dialog.onClose.subscribe((selected: PendingDeliveryNoteItem) => {
       const notes = this.dbData
         .filter(x => x.data.invoiceNumber === selected.invoiceNumber)
         .map(x => x.data)

@@ -6,30 +6,30 @@ import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNaviga
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
-import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
 
 @Component({
   selector: 'app-pending-delivery-notes-by-invoice-number-dialog',
   templateUrl: './pending-delivery-notes-by-invoice-number-dialog.component.html',
   styleUrls: ['./pending-delivery-notes-by-invoice-number-dialog.component.scss']
 })
-export class PendingDeliveryNotesByInvoiceNumberDialogComponent extends SelectTableDialogComponent<PendingDeliveryNote> implements OnInit {
+export class PendingDeliveryNotesByInvoiceNumberDialogComponent extends SelectTableDialogComponent<PendingDeliveryNoteItem> implements OnInit {
   @Input()
-  public invoices: PendingDeliveryNote[] = []
+  public invoices: PendingDeliveryNoteItem[] = []
 
   public isLoaded = false
 
   constructor(
     dialogRef: NbDialogRef<PendingDeliveryNotesByInvoiceNumberDialogComponent>,
     private readonly kns: KeyboardNavigationService,
-    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryNote>>,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryNoteItem>>,
     cdref: ChangeDetectorRef
   ) {
     super(dialogRef, kns, dataSourceBuilder)
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 
-    this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryNote>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
+    this.dbDataTable = new SimpleNavigatableTable<PendingDeliveryNoteItem>(dataSourceBuilder, kns, cdref, this.dbData, '', AttachDirection.DOWN, this)
   }
 
   public override ngOnInit(): void {
@@ -84,7 +84,7 @@ export class PendingDeliveryNotesByInvoiceNumberDialogComponent extends SelectTa
    * @param event
    * @param row
    */
-  override selectRow(event: any, row: TreeGridNode<PendingDeliveryNote>): void {
+  override selectRow(event: any, row: TreeGridNode<PendingDeliveryNoteItem>): void {
     HelperFunctions.StopEvent(event)
 
     this.close(row.data)

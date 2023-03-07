@@ -43,7 +43,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
-import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
@@ -993,7 +993,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const event = new EventEmitter<PendingDeliveryNote[]>()
+    const event = new EventEmitter<PendingDeliveryNoteItem[]>()
 
     event.subscribe(this.fillTableWithPendingNotes.bind(this))
 
@@ -1001,7 +1001,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       const data = {
         relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
         quantity: x.data.quantity
-      } as PendingDeliveryNote
+      } as PendingDeliveryNoteItem
       return data
     })
 
@@ -1017,7 +1017,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
+  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): InvoiceLine {
     const line = new InvoiceLine()
     line.productCode = value.productCode
     line.productDescription = value.lineDescription
@@ -1040,7 +1040,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     return line
   }
 
-  private fillTableWithPendingNotes(notes: PendingDeliveryNote[]): void {
+  private fillTableWithPendingNotes(notes: PendingDeliveryNoteItem[]): void {
     this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
     notes.forEach(note => {

@@ -18,7 +18,7 @@ import { InvoiceLineForPost } from '../models/InvoiceLine';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
-import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
 
 @Injectable({
   providedIn: 'root'
@@ -118,9 +118,21 @@ export class InvoiceService {
     return await lastValueFrom(request)
   }
 
-  public async GetPendingDeliveryNotesItems(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNote[]> {
+  public async GetPendingDeliveryNotesItems(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNoteItem[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
-    const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotesitems?' + queryParams)
+    const request = this.http.get<PendingDeliveryNoteItem[]>(this.BaseUrl + '/pendigdeliverynotesitems?' + queryParams)
+
+    return await lastValueFrom(request)
+  }
+
+  public async GetPendingDeliveryNotes(): Promise<void> {
+    const params = {
+      incoming: false,
+      warehouseCode: '001',
+      currencyCode: 'HUF'
+    }
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    const request = this.http.get(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
 
     return await lastValueFrom(request)
   }
