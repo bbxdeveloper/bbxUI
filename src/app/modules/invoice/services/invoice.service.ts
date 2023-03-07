@@ -118,7 +118,7 @@ export class InvoiceService {
     return await lastValueFrom(request)
   }
 
-  public async GetPendingDeliveryNotes(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNote[]> {
+  public async GetPendingDeliveryNotesItems(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNote[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
     const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotesitems?' + queryParams)
 

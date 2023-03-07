@@ -76,7 +76,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     }
 
     try {
-      let data = await this.invoiceService.GetPendingDeliveryNotes(request)
+      let data = await this.invoiceService.GetPendingDeliveryNotesItems(request)
 
       data.forEach(datum => {
         const checkedNote = this.checkedNotes.find(note => note.relDeliveryNoteInvoiceLineID === datum.relDeliveryNoteInvoiceLineID)
