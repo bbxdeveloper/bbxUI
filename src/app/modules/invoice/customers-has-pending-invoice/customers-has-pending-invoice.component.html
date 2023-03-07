@@ -76,6 +76,12 @@
                                 </div>
                             </ng-container>
 
+                            <ng-container *ngSwitchCase="'bool'">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '❗️' : '' }}
+                                </div>
+                            </ng-container>
+
                             <ng-container *ngSwitchDefault="">
                                 <div>
                                     {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}

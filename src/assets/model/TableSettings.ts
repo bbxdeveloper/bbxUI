@@ -186,7 +186,8 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
         'customerID',
         'customer',
         'fullAddress',
-        'sumNetAmountDiscounted'
+        'sumNetAmountDiscounted',
+        'priceReview'
     ];
     export const ColDefs: ModelFieldDescriptor[] = [
         {
@@ -233,6 +234,18 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
             mask: '',
             colWidth: '130px',
             textAlign: 'right',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'ÁrFelv.',
+            objectKey: 'priceReview',
+            colKey: 'priceReview',
+            defaultValue: '',
+            type: 'bool',
+            fRequired: false,
+            mask: '',
+            colWidth: '70px',
+            textAlign: 'center',
             navMatrixCssClass: TileCssClass,
         },
     ];

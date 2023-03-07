@@ -48,6 +48,10 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     this.kbS.SelectFirstTile();
   }
 
+  public log(valami: any) {
+    console.log(valami)
+  }
+
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
       $('#active-prod-search').val(this.searchString);
