@@ -40,7 +40,7 @@ import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/ass
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, UrlSegment } from '@angular/router';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
@@ -207,9 +207,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
+    router: Router,
     private custDiscountService: CustomerDiscountService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sidebarService, khs, router);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.SetModeBasedOnRoute(params);
@@ -266,13 +267,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.InvoiceCategory = InvoiceCategory.NORMAL
     console.log("InvoiceType: ", this.InvoiceType);
     console.log("Incoming: ", this.Incoming);
-  }
-
-  private Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
   }
 
   private InitialSetup(): void {
@@ -847,42 +841,47 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
           next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
-
+            try {
               if (!!d.data) {
-                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                ordinal = d.data.invoiceNumber ?? '';
+                console.log('Save response: ', d);
+
+                if (!!d.data) {
+                  this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+                  ordinal = d.data.invoiceNumber ?? '';
+                }
+
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+
+                this.dbDataTable.RemoveEditRow();
+                this.kbS.SelectFirstTile();
+
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+                this.printAndDownLoadService.openPrintDialog({
+                  DialogTitle: 'Számla Nyomtatása',
+                  DefaultCopies: 1,
+                  MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
+                  MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
+                  MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,
+                  Obs: this.seInv.GetReport.bind(this.seInv),
+                  Reset: this.Reset.bind(this),
+                  ReportParams: {
+                    "id": d.data?.id,
+                    "copies": 1 // Ki lesz töltve dialog alapján
+                  } as Constants.Dct
+                } as PrintDialogRequest);
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isSaveInProgress = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               }
-
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-
-              this.printAndDownLoadService.openPrintDialog({
-                DialogTitle: 'Számla Nyomtatása',
-                DefaultCopies: 1,
-                MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
-                MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
-                MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,
-                Obs: this.seInv.GetReport.bind(this.seInv),
-                Reset: this.Reset.bind(this),
-                ReportParams: {
-                  "id": d.data?.id,
-                  "copies": 1 // Ki lesz töltve dialog alapján
-                } as Constants.Dct
-              } as PrintDialogRequest);
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isSaveInProgress = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            } catch (error) {
+              this.Reset()
+              this.cs.HandleError(error)
             }
           },
           error: err => {

@@ -38,6 +38,7 @@ import { ProductGroupSelectTableDialogComponent } from '../product-group-select-
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
 import { TableKeyDownEvent, isTableKeyDownEvent, EditedCellId, SelectFirstCharClass } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { GetCustDiscountByCustomerParamsModel } from '../models/GetCustDiscountByCustomerParamsModel';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-customer-discount-manager',
@@ -146,8 +147,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     khs: KeyboardHelperService,
     private productGroupService: ProductGroupService,
     private custDiscountService: CustomerDiscountService,
+    router: Router
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.InitialSetup();
   }
 
@@ -312,21 +314,26 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
       await lastValueFrom(this.custDiscountService.Create(this.custDiscountData))
       .then(d => {
-          if (!!d.data) {
-            console.log('Save response: ', d);
+          try {
+            if (!!d.data) {
+              console.log('Save response: ', d);
 
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+              this.simpleToastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
 
-            this.dbDataTable.RemoveEditRow();
-            this.kbS.SelectFirstTile();
+              this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
 
-            this.Reset();
-          } else {
-            this.cs.HandleError(d.errors);
+              this.Reset();
+            } else {
+              this.cs.HandleError(d.errors);
+            }
+          } catch (error) {
+            this.Reset()
+            this.cs.HandleError(error)
           }
         })
         .catch(err => {
@@ -336,13 +343,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     });
-  }
-
-  protected Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
   }
 
   protected AfterViewInitSetup(): void {

@@ -350,16 +350,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
-  protected async Reset(): Promise<void> {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.currencyCodeComboData$.next([]);
-    this.InitialSetup();
-    this.AfterViewInitSetup();
-    await this.refresh();
-    this.buyerForm.controls['offerNumberX'].reset();
-  }
-
   override Save(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -374,43 +364,48 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
         this.offerService.Create(this.offerData).subscribe({
           next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
-
+            try {
               if (!!d.data) {
-                this.FillOfferNumberX(d.data.id);
+                console.log('Save response: ', d);
+
+                if (!!d.data) {
+                  this.FillOfferNumberX(d.data.id);
+                }
+
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                this.isLoading = false;
+
+                this.dbDataTable.RemoveEditRow();
+                this.kbS.SelectFirstTile();
+
+                // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+                this.printAndDownLoadService.openPrintDialog({
+                  DialogTitle: 'Ajánlat Nyomtatása',
+                  DefaultCopies: 1,
+                  MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
+                  MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
+                  MsgFinish: `Az árajánlat nyomtatása véget ért.`,
+                  Obs: this.seInv.GetReport.bind(this.offerService),
+                  Reset: this.Reset.bind(this),
+                  ReportParams: {
+                    "id": d.data?.id,
+                    "copies": 1 // Ki lesz töltve dialog alapján
+                  } as Constants.Dct
+                } as PrintDialogRequest);
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isLoading = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               }
-
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.isLoading = false;
-
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-              // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-
-              this.printAndDownLoadService.openPrintDialog({
-                DialogTitle: 'Ajánlat Nyomtatása',
-                DefaultCopies: 1,
-                MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
-                MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
-                MsgFinish: `Az árajánlat nyomtatása véget ért.`,
-                Obs: this.seInv.GetReport.bind(this.offerService),
-                Reset: this.Reset.bind(this),
-                ReportParams: {
-                  "id": d.data?.id,
-                  "copies": 1 // Ki lesz töltve dialog alapján
-                } as Constants.Dct
-              } as PrintDialogRequest);
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            } catch (error) {
+              this.Reset()
+              this.cs.HandleError(error)
             }
           },
           error: err => {
