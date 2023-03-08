@@ -368,9 +368,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               if (!!d.data) {
                 console.log('Save response: ', d);
 
-                if (!!d.data) {
-                  this.FillOfferNumberX(d.data.id);
-                }
+                this.FillOfferNumberX(d.data.id);
 
                 this.simpleToastrService.show(
                   Constants.MSG_SAVE_SUCCESFUL,
