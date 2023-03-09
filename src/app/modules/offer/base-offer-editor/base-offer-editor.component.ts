@@ -234,7 +234,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     sts: StatusService,
     protected productService: ProductService,
     protected printAndDownLoadService: PrintAndDownloadService,
-    protected router: Router,
+    router: Router,
     protected vatRateService: VatRateService,
     protected route: ActivatedRoute,
     protected sidebarService: BbxSidebarService,
@@ -242,7 +242,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     protected custDiscountService: CustomerDiscountService,
     protected systemService: SystemService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sidebarService, khs, router);
   }
 
   protected HideColumn(col: string): void {
