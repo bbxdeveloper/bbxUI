@@ -1,4 +1,4 @@
-<nb-card class="modal-product-active pending-deliveri-notes-select">
+<nb-card class="modal-product-active get-pendign-delivery-notes-dialog">
     <nb-card-header class="modal-product-active-header">
         <span>Függőben lévő szállítólevelek</span>
     </nb-card-header>
@@ -85,7 +85,7 @@
 
                             <ng-container *ngSwitchCase="'bool'">
                                 <div>
-                                    {{ row.data[it.objectKey] ? '❗️' : '' }}
+                                    {{ row.data[it.objectKey] ? '✓' : '' }}
                                 </div>
                             </ng-container>
 
@@ -101,20 +101,6 @@
             </ng-container>
         </table>
 
-        <div class="flex justify-center pending-notes-function-row">
-            <nb-actions size="medium" >
-                <nb-action>
-                    <span class="fkey-key">F6</span>
-                    <span class="fkey-value">Szállító szerint</span>
-                </nb-action>
-                <nb-action>
-                    <span class="fkey-key">F7</span>
-                    <span class="fkey-value">Összes</span>
-                </nb-action>
-            </nb-actions>
-        </div>
-
-        <!-- <div class="msg">{{responseMessage}}</div> -->
     </nb-card-body>
 </nb-card>
 
