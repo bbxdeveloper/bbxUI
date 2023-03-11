@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { lastValueFrom, Observable, of, throwError } from 'rxjs';
+import { firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
-import { GetInvoiceParamListModel } from '../models/GetInvoiceParamListModel';
+import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { Invoice } from '../models/Invoice';
 import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { CreateOutgoingInvoiceResponse } from '../models/CreateOutgoingInvoiceResponse';
@@ -46,10 +46,11 @@ export class InvoiceService {
     return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Get(params?: GetInvoiceParamListModel): Observable<Invoice> {
+  public Get(params: GetInvoiceRequest): Promise<Invoice> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const response = this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
 
-    return this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return firstValueFrom(response)
   }
 
   CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLineForPost>): Observable<CreateOutgoingInvoiceResponse> {
@@ -127,12 +128,11 @@ export class InvoiceService {
   }
 
   public GetPendingDeliveryNotes(): Promise<PendingDeliveryNote[]> {
-    const params = {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString({
       incoming: false,
       warehouseCode: '001',
       currencyCode: 'HUF'
-    }
-    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    })
     const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
 
     return lastValueFrom(request)

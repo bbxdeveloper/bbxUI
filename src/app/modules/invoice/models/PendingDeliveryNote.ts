@@ -1,12 +1,12 @@
 export interface PendingDeliveryNote {
-    warehouseID: number,
-    invoiceID: number,
-    invoiceNumber: string,
-    invoiceDeliveryDate: string,
-    customerID: number,
-    customer: string,
-    fullAddress: string,
-    sumNetAmount: number,
-    sumNetAmountDiscounted: number,
+    customer: string
+    customerID: number
+    fullAddress: string
+    invoiceDeliveryDate: string
+    invoiceID: number
+    invoiceNumber: string
     priceReview: boolean
+    sumNetAmount: number
+    sumNetAmountDiscounted: number
+    warehouseID: number
 }

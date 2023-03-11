@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
@@ -32,7 +32,7 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, GetPendingDeliveryNotesDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
+import { CustomerDialogTableSettings, GetPendingDeliveryNotesDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -40,14 +40,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
-import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
-import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
-import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
-import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
-import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
-import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 import { GetPendingDeliveryNotesDialogComponent } from '../get-pending-delivery-notes-dialog/get-pending-delivery-notes-dialog.component';
+import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 
 @Component({
   selector: 'app-price-review',
@@ -198,8 +193,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private readonly seInv: InvoiceService,
-    private readonly seC: CustomerService,
+    private readonly invoiceService: InvoiceService,
+    private readonly customerService: CustomerService,
     private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private readonly simpleToastrService: NbToastrService,
@@ -208,7 +203,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     sts: StatusService,
     private readonly productService: ProductService,
     private readonly printAndDownLoadService: PrintAndDownloadService,
-    private readonly status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private readonly activatedRoute: ActivatedRoute,
@@ -219,8 +213,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.activatedRoute.url.subscribe(params => {
-      // this.mode = behaviorFactory.create(params[0].path)
-
       this.InitialSetup();
       this.isPageReady = true;
     })
@@ -629,7 +621,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   refresh(): void {
-    const tempPaymentSubscription = this.seInv.GetTemporaryPaymentMethod().subscribe({
+    const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);
         this.paymentMethods = d;
@@ -640,7 +632,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         }
       }
     });
-    this.seInv.GetPaymentMethods().subscribe({
+    this.invoiceService.GetPaymentMethods().subscribe({
       next: d => {
         if (!!tempPaymentSubscription && !tempPaymentSubscription.closed) {
           tempPaymentSubscription.unsubscribe();
@@ -659,7 +651,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       complete: () => { },
     })
 
-    this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
+    this.customerService.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
@@ -677,7 +669,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        this.seC.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
+        this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
             // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
@@ -765,19 +757,28 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
         }
       })
-      // const dialog = this.dialogService.open(CustomersHasPendingInvoiceComponent, {
-      //   context: {
-      //     searchString: this.customerInputFilterString,
-      //     allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
-      //     colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
-      //     // incoming: this.mode.incoming
-      //   },
-      //   closeOnEsc: false,
-      //   closeOnBackdropClick: false
-      // });
-
-      // dialog.onClose.subscribe({ next: this.customerSelected.bind(this) })
+      dialog.onClose.subscribe(this.fillCustomerForm.bind(this))
     }, 500);
+  }
+
+  private async fillCustomerForm(result: PendingDeliveryNote): Promise<void> {
+    if (!result) {
+      return
+    }
+
+    try {
+      const response = await this.invoiceService.Get({
+        id: result.invoiceID,
+        fullData: true
+      } as GetInvoiceRequest)
+
+      this.dbData = response.invoiceLines.map(x => ({ data: x, uid: this.nextUid() }))
+
+      this.RefreshTable()
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
   }
 
   // private async customerSelected(x: PendingDeliveryInvoiceSummary) {
@@ -911,8 +912,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
       const request = this.UpdateOutGoingData();
 
-      this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-      this.seInv.CreateOutgoing(request).subscribe({
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.invoiceService.CreateOutgoing(request).subscribe({
         next: d => {
           //this.isSilentLoading = false;
           if (!!d.data) {
@@ -933,7 +934,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
             this.isSaveInProgress = true;
 
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
             this.printAndDownLoadService.openPrintDialog({
               DialogTitle: 'Számla Nyomtatása',
@@ -941,7 +942,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
               MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
               MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
               MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-              Obs: this.seInv.GetReport.bind(this.seInv),
+              Obs: this.invoiceService.GetReport.bind(this.invoiceService),
               // Obs: this.mode.isSummaryInvoice
               //   ? this.seInv.GetAggregateReport.bind(this.seInv)
               //   : this.seInv.GetReport.bind(this.seInv),
@@ -954,11 +955,11 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           } else {
             this.cs.HandleError(d.errors);
             this.isSaveInProgress = false;
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
         error: err => {
-          this.status.pushProcessStatus(Constants.BlankProcessStatus);
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           this.cs.HandleError(err);
           this.isSaveInProgress = false;
         },
@@ -1242,7 +1243,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
 
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
       next: res => {
@@ -1287,7 +1288,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+    const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
     if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
       data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
@@ -1314,7 +1315,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     this.isLoading = true;
 
-    this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
       next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
