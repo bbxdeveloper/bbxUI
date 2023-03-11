@@ -43,6 +43,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetPendingDeliveryNotesDialogComponent } from '../get-pending-delivery-notes-dialog/get-pending-delivery-notes-dialog.component';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
+import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 
 @Component({
   selector: 'app-price-review',
@@ -84,7 +85,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
-    "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
+    "unitOfMeasureX", 'quantity', 'rowNetPrice','rowGrossPriceRounded'];
   override allColumns = [
     'productCode',
     'productDescription',
@@ -109,7 +110,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     },
    {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
     },
     { // unitofmeasureX show, post unitofmeasureCode
@@ -119,7 +120,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     },
     {
       label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", fReadonly: false,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
@@ -502,18 +503,19 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
-  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  public HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
     }
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
     if (this.editDisabled) {
+      const colDef = this.colDefs.find(x => x.objectKey === objectKey)
+      if (colDef?.fReadonly) {
+        return
+      }
+
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
-      setTimeout(() => {
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.kbS.ClickCurrentElement();
-      }, 50);
     } else {
       this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
     }
@@ -603,21 +605,21 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.RecalcNetAndVat();
     }
 
-    // if (col === 'quantity' && index !== null && index !== undefined) {
-    //   const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.limit)
+    if (col === 'unitPrice' && index !== null && index !== undefined) {
+      if (changedData.unitPrice > 0) {
+        changedData.Save()
 
-    //   if (!validationResult) {
-    //     changedData.Save()
-    //     return
-    //   }
+        return
+      }
 
-    //   this.bbxToastrService.show(
-    //     validationResult,
-    //     Constants.TITLE_ERROR,
-    //     Constants.TOASTR_ERROR
-    //   )
-    //   this.dbData[index].data.Restore('quantity')
-    // }
+      this.bbxToastrService.show(
+        ValidationMessage.ErrorMin,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      )
+
+      this.dbData[index].data.Restore()
+    }
   }
 
   refresh(): void {
@@ -766,37 +768,30 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       return
     }
 
+    this.isLoading = true
+
     try {
       const response = await this.invoiceService.Get({
         id: result.invoiceID,
         fullData: true
       } as GetInvoiceRequest)
 
-      this.dbData = response.invoiceLines.map(x => ({ data: x, uid: this.nextUid() }))
+      this.dbData = response.invoiceLines
+        .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
+
+      this.dbData.forEach(x => x.data.Save())
+
+      this.dbDataDataSrc.setData(this.dbData)
 
       this.RefreshTable()
     }
     catch (error) {
       this.cs.HandleError(error)
     }
+    finally {
+      this.isLoading = false
+    }
   }
-
-  // private async customerSelected(x: PendingDeliveryInvoiceSummary) {
-  //   if (!x) {
-  //     return;
-  //   }
-
-  //   try {
-  //     const customer = await lastValueFrom(this.seC.Get({ ID: x.customerID }))
-
-  //     this.originalCustomerID = customer.id
-
-  //     this.SetDataForForm(customer)
-  //   }
-  //   catch(error) {
-  //     this.cs.HandleError(error)
-  //   }
-  // }
 
   ngOnDestroy(): void {
     console.log("Detach");
@@ -997,138 +992,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     console.log("Selecting InvoiceLine from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    // const event = new EventEmitter<PendingDeliveryNote[]>()
-
-    // event.subscribe(this.fillTableWithPendingNotes.bind(this))
-
-    // const checkedNotes = this.dbData.map(x => {
-    //   const data = {
-    //     relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
-    //     quantity: x.data.quantity
-    //   } as PendingDeliveryNote
-    //   return data
-    // })
-
-    // this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
-    //   context: {
-    //     allColumns: PendingDeliveryNotesTableSettings.AllColumns,
-    //     colDefs: PendingDeliveryNotesTableSettings.ColDefs,
-    //     checkedNotes: checkedNotes,
-    //     customerID: this.originalCustomerID,
-    //     selectedNotes: event,
-    //     mode: this.mode
-    //   }
-    // });
   }
-
-  // private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
-  //   const line = new InvoiceLine()
-  //   line.productCode = value.productCode
-  //   line.productDescription = value.lineDescription
-  //   line.quantity = value.quantity
-  //   line.unitOfMeasure = value.unitOfMeasure
-  //   line.unitPrice = value.unitPrice
-  //   line.vatRateCode = value.vatRateCode
-  //   line.lineNetAmount = value.lineNetAmount
-  //   line.vatRate = value.vatPercentage
-  //   line.unitOfMeasureX = value.unitOfMeasureX
-  //   line.relDeliveryNoteInvoiceLineID = value.relDeliveryNoteInvoiceLineID
-  //   line.invoiceNumber = value.invoiceNumber
-  //   line.workNumber = value.workNumber
-  //   line.unitPriceDiscounted = value.unitPriceDiscounted
-  //   line.limit = value.quantity
-
-  //   line.DeafultFieldList = ['productCode', 'quantity']
-  //   line.Save()
-
-  //   return line
-  // }
-
-  // private fillTableWithPendingNotes(notes: PendingDeliveryNote[]): void {
-  //   this.kbS.SetCurrentNavigatable(this.dbDataTable)
-
-  //   notes.forEach(note => {
-  //     const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
-  //     const relDeliveryDate = new Date(note.relDeliveryDate)
-
-  //     if (relDeliveryDate < invoiceDeliveryDate) {
-  //       this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
-  //     }
-
-  //     if (!this.mode.isSummaryInvoice) {
-  //       note.quantity = -note.quantity
-  //     }
-
-  //     const checkedNote = this.dbData.find(x => x.data.relDeliveryNoteInvoiceLineID === note.relDeliveryNoteInvoiceLineID)
-  //     if (checkedNote) {
-  //       note.quantity += checkedNote.data.quantity
-
-  //       const index = this.dbData.indexOf(checkedNote)
-  //       this.dbData.splice(index, 1)
-  //     }
-  //   })
-
-    // const existingNotes = this.dbData
-    //   .filter(x => !!x.data.relDeliveryNoteInvoiceLineID)
-    //   .map(x => x.data)
-
-    // this.dbData = notes
-    //   .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
-    //   .concat(existingNotes)
-    //   .map(x => ({ data: x, uid: this.nextUid() }))
-
-    // this.dbData.sort((a, b) => {
-    //   const aProperty = a.data.invoiceNumber + a.data.productCode
-    //   const bProperty = b.data.invoiceNumber + b.data.productCode
-
-    //   if (aProperty > bProperty)
-    //     return 1
-
-    //   if (aProperty < bProperty)
-    //     return -1
-
-    //   return 0
-    // })
-
-  //   this.generateWorkNumbers()
-
-  //   this.RefreshTable()
-
-  //   this.UpdateOutGoingData()
-
-  //   if (notes.length === 1) {
-  //     const index = this.dbData.findIndex(x => x.data.relDeliveryNoteInvoiceLineID === notes[0].relDeliveryNoteInvoiceLineID)
-
-  //     const elementId = 'PRODUCT-2-' + index
-
-  //     this.kbS.SelectElement(elementId)
-  //     this.kbS.ClickElement(elementId)
-  //   }
-  // }
-
-  // private generateWorkNumbers(): void {
-  //   const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
-
-  //   const noticeControl = this.outInvForm.get('notice')
-  //   const existingNotice = noticeControl?.value as string ?? ''
-
-  //   const existingWorkNumbers = !!this.workNumbers ? workNumbersAsString() : ''
-  //   const otherNotes = existingNotice
-  //     .substring(existingWorkNumbers.length)
-  //     .trim()
-
-  //   let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
-  //     .map(x => x.data.workNumber)
-
-  //   this.workNumbers = [...new Set(workNumbers)]
-
-  //   const notice = this.workNumbers.length > 0
-  //     ? workNumbersAsString() + ' ' + otherNotes
-  //     : otherNotes
-
-  //   noticeControl?.setValue(notice.trim())
-  // }
 
   ChooseDataForForm(): void {
     console.log("Selecting Customer from avaiable data.");

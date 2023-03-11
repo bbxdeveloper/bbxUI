@@ -68,10 +68,11 @@ export class GetPendingDeliveryNotesDialogComponent extends SelectTableDialogCom
       this.dbDataSource.setData(this.dbData)
 
       this.refreshTable()
-      this.isLoading = false
     }
     catch (error) {
       this.cs.HandleError(error)
+    }
+    finally {
       this.isLoading = false
     }
   }
