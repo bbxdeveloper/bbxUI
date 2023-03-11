@@ -32,11 +32,11 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
+import { CustomerDialogTableSettings, GetPendingDeliveryNotesDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
@@ -47,6 +47,7 @@ import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { GetPendingDeliveryNotesDialogComponent } from '../get-pending-delivery-notes-dialog/get-pending-delivery-notes-dialog.component';
 
 @Component({
   selector: 'app-price-review',
@@ -196,26 +197,27 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private seInv: InvoiceService,
-    private seC: CustomerService,
-    private cdref: ChangeDetectorRef,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
+    private readonly seInv: InvoiceService,
+    private readonly seC: CustomerService,
+    private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private simpleToastrService: NbToastrService,
-    private bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
+    private readonly bbxToastrService: BbxToastrService,
     cs: CommonService,
     sts: StatusService,
-    private productService: ProductService,
-    private printAndDownLoadService: PrintAndDownloadService,
-    private status: StatusService,
+    private readonly productService: ProductService,
+    private readonly printAndDownLoadService: PrintAndDownloadService,
+    private readonly status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private activatedRoute: ActivatedRoute,
-    private custDiscountService: CustomerDiscountService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly custDiscountService: CustomerDiscountService,
+    router: Router
     // public invoiceStatisticsService: InvoiceStatisticsService,
     // behaviorFactory: InvoiceBehaviorFactoryService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.activatedRoute.url.subscribe(params => {
       // this.mode = behaviorFactory.create(params[0].path)
 
@@ -261,13 +263,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
     }
-  }
-
-  private Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
   }
 
   private InitialSetup(): void {
@@ -764,6 +759,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
       this.cdref.detectChanges();
+      const dialog = this.dialogService.open(GetPendingDeliveryNotesDialogComponent, {
+        context: {
+          allColumns: GetPendingDeliveryNotesDialogTableSettings.AllColumns,
+          colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
+        }
+      })
       // const dialog = this.dialogService.open(CustomersHasPendingInvoiceComponent, {
       //   context: {
       //     searchString: this.customerInputFilterString,
