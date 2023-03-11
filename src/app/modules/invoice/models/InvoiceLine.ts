@@ -91,6 +91,8 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     workNumber: string = ''
 
+    priceReview: boolean = false
+
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.
      */

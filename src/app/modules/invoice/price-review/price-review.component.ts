@@ -521,6 +521,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     }
   }
 
+  public isRowInErrorState(row: TreeGridNode<InvoiceLine>): boolean {
+    return row.data.priceReview
+  }
+
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
@@ -759,11 +763,11 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
         }
       })
-      dialog.onClose.subscribe(this.fillCustomerForm.bind(this))
+      dialog.onClose.subscribe(this.fillPageWithData.bind(this))
     }, 500);
   }
 
-  private async fillCustomerForm(result: PendingDeliveryNote): Promise<void> {
+  private async fillPageWithData(result: PendingDeliveryNote): Promise<void> {
     if (!result) {
       return
     }

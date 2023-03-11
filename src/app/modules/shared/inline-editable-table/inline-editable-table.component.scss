@@ -108,6 +108,10 @@ form.form-with-rows {
     tr:nth-child(even) {
         background-color: #493668 !important;
 
+        &.error {
+            background-color: #b51414 !important;
+        }
+
         th,
         td {
             height: $td-height;
@@ -156,6 +160,10 @@ form.form-with-rows {
 
     tr:nth-child(odd) {
         background-color: #323258 !important;
+
+        &.error {
+            background-color: #6d0e0e !important;
+        }
 
         th,
         td {
