@@ -1,3 +1,5 @@
+import { DynamicObject, JsonIgnore } from "./navigation/DynamicObject";
+
 interface Dictionary<T> {
     [Key: string]: T
 }
@@ -5,25 +7,28 @@ interface Dictionary<T> {
 /**
  * Saves and restores values for fields
  */
-export class MementoObject<T = any> {
+export class MementoObject<T = any> extends DynamicObject {
     /**
      * Default field list for save and restore
      */
+    @JsonIgnore
     public DeafultFieldList: string[] = [];
 
     /**
      * Cache
      */
+    @JsonIgnore
     private FieldMemory: Dictionary<T> = {};
 
     /**
      * For indexing this object as a dictionary
      * Works well with inheritance
      */
+    @JsonIgnore
     private get t(): any { return this as any; }
 
     constructor() {
-
+        super()
     }
 
     /**
