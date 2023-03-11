@@ -286,7 +286,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       paymentMethod: '',
       exchangeRate: 1,
       currencyCode: CurrencyCodes.HUF,
-      invoiceDiscountPercent: 0
+      invoiceDiscountPercent: 0,
+      correction: this.mode.correction
     } as OutGoingInvoiceFullData;
 
     this.dbData = [];
@@ -509,18 +510,19 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
-  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  public HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
     }
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
     if (this.editDisabled) {
+      const colDef = this.colDefs.find(x => x.objectKey === objectKey)
+      if (colDef?.fReadonly) {
+        return
+      }
+
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
-      setTimeout(() => {
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.kbS.ClickCurrentElement();
-      }, 50);
     } else {
       this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
     }
