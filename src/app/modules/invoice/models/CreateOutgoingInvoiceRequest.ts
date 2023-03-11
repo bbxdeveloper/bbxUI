@@ -29,6 +29,7 @@ export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
 
     "workNumber"?: string;
     "priceReview"?: boolean;
+    correction?: boolean;
 }
 
 export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -56,7 +57,8 @@ export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData, nee
             invoiceType: f.invoiceType,
             invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent),
             workNumber: f.workNumber,
-            priceReview: f.priceReview
+            priceReview: f.priceReview,
+            correction: f.correction
         } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
         return res;
     } else {

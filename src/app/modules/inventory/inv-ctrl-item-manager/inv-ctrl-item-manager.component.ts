@@ -181,9 +181,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private vatRateService: VatRateService,
     private stockService: StockService,
     sideBarService: BbxSidebarService,
-    khs: KeyboardHelperService
+    khs: KeyboardHelperService,
+    router: Router
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.InitialSetup();
   }
 
@@ -317,23 +318,28 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
         this.invCtrlItemService.Create(this.offerData).subscribe({
           next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
+            try {
+              if (!!d.data) {
+                console.log('Save response: ', d);
 
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.isLoading = false;
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                this.isLoading = false;
 
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
+                this.dbDataTable.RemoveEditRow();
+                this.kbS.SelectFirstTile();
 
-              this.Reset();
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isLoading = false;
+                this.Reset();
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isLoading = false;
+              }
+            } catch (error) {
+              this.Reset()
+              this.cs.HandleError(error)
             }
           },
           error: err => {
@@ -346,13 +352,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         });
       }
     });
-  }
-
-  protected Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
   }
 
   protected AfterViewInitSetup(): void {

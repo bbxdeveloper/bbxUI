@@ -1,4 +1,4 @@
-<nb-card class="modal-product-active">
+<nb-card class="modal-product-active cusomer-has-peding-invoice">
     <nb-card-header class="modal-product-active-header">
         <span>Partnerek</span>
     </nb-card-header>
@@ -73,6 +73,12 @@
                             <ng-container *ngSwitchCase="'formatted-number-integer'">
                                 <div>
                                     {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'bool'">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '❗️' : '' }}
                                 </div>
                             </ng-container>
 

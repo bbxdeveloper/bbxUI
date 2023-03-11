@@ -25,6 +25,7 @@ import { CreateNewProductDialogComponent } from '../create-new-product-dialog/cr
 import { Product } from '../../product/models/Product';
 import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
 import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -169,9 +170,17 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     protected cs: CommonService,
     protected sts: StatusService,
     protected sideBarService: BbxSidebarService,
-    protected khs: KeyboardHelperService
+    protected khs: KeyboardHelperService,
+    protected router: Router
   ) {
     this.sideBarService.collapse();
+  }
+
+  protected Reset(): void {
+    const currentUrl = this.router.url
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl])
+    })
   }
 
   JumpToCell(key: string, edit: boolean = true){
