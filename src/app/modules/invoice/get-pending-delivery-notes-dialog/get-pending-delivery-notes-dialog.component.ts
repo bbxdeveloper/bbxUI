@@ -8,7 +8,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { PendingDeliveryNote } from '../models/PendingDeliveryNoteItem';
+import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 
 @Component({
   selector: 'app-get-pending-delivery-notes-dialog',

@@ -7,7 +7,7 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
-import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from '../pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
 import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/model/TableSettings';

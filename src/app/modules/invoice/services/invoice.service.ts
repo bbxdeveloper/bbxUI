@@ -18,8 +18,8 @@ import { InvoiceLineForPost } from '../models/InvoiceLine';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
-import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
-import { PendingDeliveryNote } from '../models/PendingDeliveryNoteItem';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
+import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 
 @Injectable({
   providedIn: 'root'

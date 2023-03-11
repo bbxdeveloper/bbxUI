@@ -6,7 +6,7 @@ import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNaviga
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
-import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 
 @Component({
   selector: 'app-pending-delivery-notes-by-invoice-number-dialog',

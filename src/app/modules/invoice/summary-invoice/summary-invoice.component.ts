@@ -43,7 +43,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
-import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNote';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
