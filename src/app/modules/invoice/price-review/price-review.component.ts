@@ -772,6 +772,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       return
     }
 
+    this.buyerData.id = result.customerID
+
     this.originalCustomerID = result.customerID
     this.buyerForm.controls['customerName'].setValue(result.customer)
     this.buyerForm.controls['zipCodeCity'].setValue(result.fullAddress)
@@ -872,20 +874,21 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       );
       valid = false;
     }
-    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      valid = false;
-    }
+    // if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+    //   this.bbxToastrService.show(
+    //     `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+    //     Constants.TITLE_ERROR,
+    //     Constants.TOASTR_ERROR
+    //   );
+    //   valid = false;
+    // }
     if (!valid) {
       return;
     }
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
+    debugger
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);

@@ -20,6 +20,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { PricePreviewRequest } from '../models/PricePreviewRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -136,5 +137,15 @@ export class InvoiceService {
     const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
 
     return lastValueFrom(request)
+  }
+
+  public pricePreview(pricePreview: PricePreviewRequest): Promise<unknown> {
+    const body = JSON.stringify(pricePreview)
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('charset', 'utf')
+    const request = this.http.patch(this.BaseUrl + '/pricepreview', body, { headers })
+
+    return firstValueFrom(request)
   }
 }
