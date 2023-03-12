@@ -60,6 +60,8 @@ export class InvoiceLinePriceData {
 export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IEditable {
     public override DeafultFieldList: string[] = ['productCode'];
 
+    id?: string
+
     lineNumber: number = 0; // hidden
 
     productCode: string = ''; // editable

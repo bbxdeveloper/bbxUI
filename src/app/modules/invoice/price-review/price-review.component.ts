@@ -45,6 +45,7 @@ import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
+import { InvoiceLineUnitPriceChange } from '../models/InvoiceLineUnitPriceChange';
 
 @Component({
   selector: 'app-price-review',
@@ -141,8 +142,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   exporterForm!: FormGroup;
 
-  workNumbers: string[] = []
-
   outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
   outInvFormNav!: InlineTableNavigatableForm;
@@ -187,8 +186,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     }
   }
 
-  private originalCustomerID: number = -1
+  // private originalCustomerID: number = -1
 
+  private invoiceId: number = -1
   // public mode!: SummaryInvoiceMode
 
   constructor(
@@ -778,6 +778,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         fullData: true
       } as GetInvoiceRequest)
 
+      this.invoiceId = response.id
+
       this.buyerForm.controls['customerName'].setValue(response.customerName)
       this.buyerForm.controls['zipCodeCity'].setValue(response.customerPostalCode + " " + response.customerCity)
       this.buyerForm.controls['additionalAddressDetail'].setValue(response.customerAdditionalAddressDetail)
@@ -786,11 +788,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.buyerForm.controls['comment'].setValue(response.CustomerComment)
 
       this.buyerData.id = response.customerID
-      // this.buyerData.customerName = response.customerName
-      // this.buyerData.city = response.customerCity
-      // this.buyerData.postalCode = response.customerPostalCode
-      // this.buyerData.additionalAddressDetail = response.customerAdditionalAddressDetail
-      // this.buyerData.customerBankAccountNumber = response.customerBankAccountNumber
 
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
@@ -880,8 +877,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
-    debugger
-
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
@@ -898,7 +893,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         // negativeDiscount: !this.mode.isSummaryInvoice
       }
     });
-    dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
+    dialogRef.onClose.subscribe(async (res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
       if (!res) {
         this.isSaveInProgress = false;
@@ -908,64 +903,81 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         return
       }
 
-      this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
-      const request = this.UpdateOutGoingData();
+      try {
+        await this.invoiceService.pricePreview({
+          customerID: this.buyerData.id,
+          id: this.invoiceId,
+          invoiceLines: this.dbData.map(x => ({
+            id: parseInt(x.data.id!),
+            unitPrice: x.data.unitPrice
+          }))
+        })
+      }
+      catch (error) {
+        this.cs.HandleError(error)
+      }
+      finally {
+        this.isSaveInProgress = false
+      }
 
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-      this.invoiceService.CreateOutgoing(request).subscribe({
-        next: d => {
-          //this.isSilentLoading = false;
-          if (!!d.data) {
-            console.log('Save response: ', d);
+      // this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
+      // const request = this.UpdateOutGoingData();
 
-            if (!!d.data) {
-              this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-            }
+      // this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      // this.invoiceService.CreateOutgoing(request).subscribe({
+      //   next: d => {
+      //     //this.isSilentLoading = false;
+      //     if (!!d.data) {
+      //       console.log('Save response: ', d);
 
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+      //       if (!!d.data) {
+      //         this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+      //       }
 
-            this.dbDataTable.RemoveEditRow();
-            this.kbS.SelectFirstTile();
+      //       this.simpleToastrService.show(
+      //         Constants.MSG_SAVE_SUCCESFUL,
+      //         Constants.TITLE_INFO,
+      //         Constants.TOASTR_SUCCESS_5_SEC
+      //       );
 
-            this.isSaveInProgress = true;
+      //       this.dbDataTable.RemoveEditRow();
+      //       this.kbS.SelectFirstTile();
 
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      //       this.isSaveInProgress = true;
 
-            this.printAndDownLoadService.openPrintDialog({
-              DialogTitle: 'Számla Nyomtatása',
-              DefaultCopies: 1,
-              MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-              MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-              MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-              Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-              // Obs: this.mode.isSummaryInvoice
-              //   ? this.seInv.GetAggregateReport.bind(this.seInv)
-              //   : this.seInv.GetReport.bind(this.seInv),
-              Reset: this.Reset.bind(this),
-              ReportParams: {
-                "id": d.data?.id,
-                "copies": 1 // Ki lesz töltve dialog alapján
-              } as Constants.Dct
-            } as PrintDialogRequest);
-          } else {
-            this.cs.HandleError(d.errors);
-            this.isSaveInProgress = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          }
-        },
-        error: err => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          this.cs.HandleError(err);
-          this.isSaveInProgress = false;
-        },
-        complete: () => {
-          this.isSaveInProgress = false;
-        }
-      });
+      //       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+      //       this.printAndDownLoadService.openPrintDialog({
+      //         DialogTitle: 'Számla Nyomtatása',
+      //         DefaultCopies: 1,
+      //         MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+      //         MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+      //         MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+      //         Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+      //         // Obs: this.mode.isSummaryInvoice
+      //         //   ? this.seInv.GetAggregateReport.bind(this.seInv)
+      //         //   : this.seInv.GetReport.bind(this.seInv),
+      //         Reset: this.Reset.bind(this),
+      //         ReportParams: {
+      //           "id": d.data?.id,
+      //           "copies": 1 // Ki lesz töltve dialog alapján
+      //         } as Constants.Dct
+      //       } as PrintDialogRequest);
+      //     } else {
+      //       this.cs.HandleError(d.errors);
+      //       this.isSaveInProgress = false;
+      //       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      //     }
+      //   },
+      //   error: err => {
+      //     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      //     this.cs.HandleError(err);
+      //     this.isSaveInProgress = false;
+      //   },
+      //   complete: () => {
+      //     this.isSaveInProgress = false;
+      //   }
+      // });
     });
   }
 
