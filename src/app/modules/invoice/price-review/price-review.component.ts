@@ -773,12 +773,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       return
     }
 
-    this.buyerData.id = result.customerID
-
-    this.originalCustomerID = result.customerID
-    this.buyerForm.controls['customerName'].setValue(result.customer)
-    this.buyerForm.controls['zipCodeCity'].setValue(result.fullAddress)
-
     this.isLoading = true
 
     try {
@@ -786,6 +780,20 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         id: result.invoiceID,
         fullData: true
       } as GetInvoiceRequest)
+
+      this.buyerForm.controls['customerName'].setValue(response.customerName)
+      this.buyerForm.controls['zipCodeCity'].setValue(response.customerPostalCode + " " + response.customerCity)
+      this.buyerForm.controls['additionalAddressDetail'].setValue(response.customerAdditionalAddressDetail)
+      this.buyerForm.controls['customerBankAccountNumber'].setValue(response.customerBankAccountNumber)
+      this.buyerForm.controls['taxpayerNumber'].setValue(response.customerTaxpayerNumber)
+      this.buyerForm.controls['comment'].setValue(response.CustomerComment)
+
+      this.buyerData.id = response.customerID
+      this.buyerData.customerName = response.customerName
+      this.buyerData.city = response.customerCity
+      this.buyerData.postalCode = response.customerPostalCode
+      this.buyerData.additionalAddressDetail = response.customerAdditionalAddressDetail
+      this.buyerData.customerBankAccountNumber = response.customerBankAccountNumber
 
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
