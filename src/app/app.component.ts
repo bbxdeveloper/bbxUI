@@ -1,9 +1,12 @@
+import 'reflect-metadata'
 import { Component, HostListener, OnInit } from '@angular/core';
 import { NbSidebarService } from '@nebular/theme';
 import { Title } from '@angular/platform-browser';
 import { environment } from 'src/environments/environment';
 import packageJson from '../../package.json';
 import { StatusService } from './services/status.service';
+
+declare function JsonIgnore(target?: Object, propertyKey?: string, descriptor?: PropertyDescriptor): any
 
 @Component({
   selector: 'app-root',
