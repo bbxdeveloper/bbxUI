@@ -3,6 +3,7 @@ export interface Product {
     productCode?: any,
     description?: string,
     productGroup?: any,
+    productGroupCode?: string
     origin?: string,
     unitOfMeasure?: any,
     unitOfMeasureX?: any,

@@ -733,10 +733,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   private AfterViewInitSetup(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    // if (this.mode.isSummaryInvoice) {
-      this.buyerFormNav.GenerateAndSetNavMatrices(true);
-    // }
-
+    this.buyerFormNav.GenerateAndSetNavMatrices(true);
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
     this.dbDataTable?.Setup(
@@ -789,11 +786,11 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.buyerForm.controls['comment'].setValue(response.CustomerComment)
 
       this.buyerData.id = response.customerID
-      this.buyerData.customerName = response.customerName
-      this.buyerData.city = response.customerCity
-      this.buyerData.postalCode = response.customerPostalCode
-      this.buyerData.additionalAddressDetail = response.customerAdditionalAddressDetail
-      this.buyerData.customerBankAccountNumber = response.customerBankAccountNumber
+      // this.buyerData.customerName = response.customerName
+      // this.buyerData.city = response.customerCity
+      // this.buyerData.postalCode = response.customerPostalCode
+      // this.buyerData.additionalAddressDetail = response.customerAdditionalAddressDetail
+      // this.buyerData.customerBankAccountNumber = response.customerBankAccountNumber
 
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
@@ -803,6 +800,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.dbDataDataSrc.setData(this.dbData)
 
       this.RefreshTable()
+
+      this.RecalcNetAndVat()
     }
     catch (error) {
       this.cs.HandleError(error)
@@ -821,7 +820,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.customerID = this.buyerData.id;
 
     // if (this.mode.incoming) {
-      this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
+      // this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
     // }
 
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
@@ -831,11 +830,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
 
     this.outGoingInvoiceData.paymentMethod = HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
-    // this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
-    //   ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
-    //   : this.mode.paymentMethod
-
-    this.outGoingInvoiceData.warehouseCode = '1';
 
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;
@@ -852,10 +846,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.exchangeRate = 1;
 
     this.outGoingInvoiceData.warehouseCode = '001';
-
-    // this.outGoingInvoiceData.incoming = this.mode.incoming;
-    // this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
-    // this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
@@ -883,14 +873,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       );
       valid = false;
     }
-    // if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-    //   this.bbxToastrService.show(
-    //     `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-    //     Constants.TITLE_ERROR,
-    //     Constants.TOASTR_ERROR
-    //   );
-    //   valid = false;
-    // }
+
     if (!valid) {
       return;
     }
@@ -898,6 +881,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outInvForm.controls['invoiceOrdinal'].reset();
 
     debugger
+
     this.UpdateOutGoingData();
 
     console.log('Save: ', this.outGoingInvoiceData);
@@ -1282,9 +1266,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   private recalcuatePrices(customerDiscounts: CustDicountForGet[], products: Product[]): void {
-    this.dbData.forEach(item => {
-      const invoiceLine = item.data
-      const product = products.find(x => x.productCode === invoiceLine.productCode)
+    for (const { data: invoiceLine } of this.dbData) {
+      const product = products.find(x => x.id == invoiceLine.productID)
 
       if (!product || !product.unitPrice2)
         return
@@ -1294,13 +1277,13 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         return
       }
 
-      const customerDiscount = customerDiscounts.find(x => x.productGroup + "-" + x.productGroupCode === product.productGroup)
+      const customerDiscount = customerDiscounts.find(x => x.productGroupCode === product.productGroupCode)
 
       if (!customerDiscount)
         return
 
       invoiceLine.unitPrice = product.unitPrice2 - product.unitPrice2 * customerDiscount.discount / 100
-    })
+    }
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {

@@ -83,6 +83,8 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     noDiscount: boolean = false;
     discount: number = 0;
 
+    productID?: number
+
     vatRate: number = 1; // hidden
 
     unitOfMeasureX?: string;
