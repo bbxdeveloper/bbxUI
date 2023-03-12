@@ -265,7 +265,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                     );
                   }
                 },
-                error: (err) => { this.HandleError(err); },
+                error: (err) => {
+                  this.HandleError(err);
+                  this.dbDataTable.SetFormReadonly(false)
+                },
               });
             } else {
               console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
@@ -276,9 +279,13 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.dbDataTable.SetFormReadonly(false)
             }
           },
-          error: (err) => { this.HandleError(err); },
+          error: (err) => {
+            this.HandleError(err);
+            this.dbDataTable.SetFormReadonly(false)
+           },
         });
       });
     }
@@ -320,7 +327,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                   }
                 },
-                error: (err) => { this.HandleError(err); },
+                error: (err) => {
+                  this.HandleError(err);
+                  this.dbDataTable.SetFormReadonly(false)
+                 },
               });
             } else {
               this.bbxToastrService.show(
@@ -330,9 +340,13 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.dbDataTable.SetFormReadonly(false)
             }
           },
-          error: (err) => { this.HandleError(err); },
+          error: (err) => {
+            this.HandleError(err);
+            this.dbDataTable.SetFormReadonly(false)
+          },
         });
       });
     }

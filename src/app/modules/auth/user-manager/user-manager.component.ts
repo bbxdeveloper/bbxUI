@@ -282,6 +282,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 })
                 .catch(err => {
                   this.HandleError(err);
+                  this.dbDataTable.SetFormReadonly(false)
                 })
                 .finally(() => {});
             } else {
@@ -297,9 +298,13 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.dbDataTable.SetFormReadonly(false)
             }
           },
-          error: (err) => { this.HandleError(err); },
+          error: (err) => {
+            this.HandleError(err);
+            this.dbDataTable.SetFormReadonly(false)
+          },
         });
     }
   }
@@ -345,9 +350,13 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.dbDataTable.SetFormReadonly(false)
             }
           },
-          error: (err) => { this.HandleError(err); },
+          error: (err) => {
+            this.HandleError(err);
+            this.dbDataTable.SetFormReadonly(false)
+          },
         });
     }
   }

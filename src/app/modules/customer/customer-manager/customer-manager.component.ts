@@ -340,12 +340,14 @@ export class CustomerManagerComponent
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
           }
         },
         error: (err) => {
           this.cs.HandleError(err);
           this.isLoading = false;
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.dbDataTable.SetFormReadonly(false)
         },
       });
     }
@@ -387,12 +389,14 @@ export class CustomerManagerComponent
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
           }
         },
         error: (err) => {
           this.cs.HandleError(err);
           this.isLoading = false;
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.dbDataTable.SetFormReadonly(false)
         },
       });
     }

@@ -138,12 +138,14 @@ export class OriginManagerComponent
               Constants.TOASTR_ERROR
               );
               this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
           }
         },
         error: (err) => {
           this.HandleError(err);
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.dbDataTable.SetFormReadonly(false)
         }
       });
     }
@@ -180,9 +182,13 @@ export class OriginManagerComponent
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
           }
         },
-        error: (err) => { this.HandleError(err); },
+        error: (err) => {
+          this.HandleError(err);
+          this.dbDataTable.SetFormReadonly(false)
+        },
       });
     }
   }
