@@ -772,6 +772,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       return
     }
 
+    this.originalCustomerID = result.customerID
+    this.buyerForm.controls['customerName'].setValue(result.customer)
+    this.buyerForm.controls['zipCodeCity'].setValue(result.fullAddress)
+
     this.isLoading = true
 
     try {

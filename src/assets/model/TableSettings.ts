@@ -493,7 +493,7 @@ export module GetPendingDeliveryNotesDialogTableSettings {
             type: 'bool',
             fRequired: true,
             mask: '',
-            colWidth: '70px',
+            colWidth: '85px',
             textAlign: 'center',
             navMatrixCssClass: TileCssClass,
         },
