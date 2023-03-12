@@ -44,6 +44,7 @@ import { GetPendingDeliveryNotesDialogComponent } from '../get-pending-delivery-
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
+import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 
 @Component({
   selector: 'app-price-review',
@@ -208,7 +209,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     khs: KeyboardHelperService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly custDiscountService: CustomerDiscountService,
-    router: Router
+    router: Router,
     // public invoiceStatisticsService: InvoiceStatisticsService,
     // behaviorFactory: InvoiceBehaviorFactoryService
   ) {
@@ -1235,6 +1236,65 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
 
+  @HostListener('window:keydown.f9', ['$event'])
+  public recalculatePricesDialog(event: Event): void {
+    HelperFunctions.confirm(this.dialogService, 'Eladási árak frissítése?', async () => {
+      const data = await this.getDiscountsAndProducts()
+
+      if (data) {
+        const [customerDiscounts, products] = data
+
+        this.recalcuatePrices(customerDiscounts, products)
+      }
+    })
+  }
+
+  private async getDiscountsAndProducts(): Promise<[CustDicountForGet[], Product[]] | undefined> {
+    this.isLoading = true
+
+    try {
+      const discountRequest = this.custDiscountService.getByCustomerAsync({ CustomerID: this.buyerData.id })
+
+      const requests = this.dbData
+        .map(x => this.productService.getProductByCodeAsync({ ProductCode: x.data.productCode }))
+
+      const customerDiscounts = await discountRequest
+      const products = await Promise.all(requests)
+
+      this.isLoading = false
+
+      return [customerDiscounts, products]
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+      this.isLoading = false
+    }
+
+    return undefined
+  }
+
+  private recalcuatePrices(customerDiscounts: CustDicountForGet[], products: Product[]): void {
+    this.dbData.forEach(item => {
+      const invoiceLine = item.data
+      const product = products.find(x => x.productCode === invoiceLine.productCode)
+
+      if (!product || !product.unitPrice2)
+        return
+
+      if (product.noDiscount) {
+        invoiceLine.unitPrice = product.unitPrice2 ?? invoiceLine.unitPrice
+        return
+      }
+
+      const customerDiscount = customerDiscounts.find(x => x.productGroup + "-" + x.productGroupCode === product.productGroup)
+
+      if (!customerDiscount)
+        return
+
+      invoiceLine.unitPrice = product.unitPrice2 - product.unitPrice2 * customerDiscount.discount / 100
+    })
+  }
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -1265,8 +1325,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           _event.preventDefault();
           HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
-
-            // this.generateWorkNumbers()
           });
           break;
         }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetCustDiscountParamsModel } from '../models/GetCustDiscountParamsModel';
@@ -38,7 +38,7 @@ export class CustomerDiscountService {
     return this.http.get<CustDicountForGet>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  GetByCustomer(params?: GetCustDiscountByCustomerParamsModel): Observable<CustDicountForGet[]> {
+  public GetByCustomer(params?: GetCustDiscountByCustomerParamsModel): Observable<CustDicountForGet[]> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -57,6 +57,10 @@ export class CustomerDiscountService {
     }
 
     return this.http.get<CustDicountForGet[]>(this.BaseUrl + '/discountforcustomer' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  public getByCustomerAsync(params: GetCustDiscountByCustomerParamsModel): Promise<CustDicountForGet[]> {
+    return firstValueFrom(this.GetByCustomer(params))
   }
 
   Create(req: CreateCustDiscountRequest): Observable<CreateCustDiscountResponse> {

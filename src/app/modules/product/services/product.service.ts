@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetProductsParamListModel } from '../models/GetProductsParamListModel';
@@ -112,7 +112,7 @@ export class ProductService {
     return this.http.delete<DeleteProductResponse>(this.BaseUrl + '?ID=' + req.id);
   }
 
-  GetProductByCode(params: GetProductByCodeRequest): Observable<Product> {
+  public GetProductByCode(params: GetProductByCodeRequest): Observable<Product> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -132,5 +132,9 @@ export class ProductService {
 
     // Get
     return this.http.get<Product>(this.BaseUrl + '/productbycode' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  public getProductByCodeAsync(params: GetProductByCodeRequest): Promise<Product> {
+    return firstValueFrom(this.GetProductByCode(params))
   }
 }
