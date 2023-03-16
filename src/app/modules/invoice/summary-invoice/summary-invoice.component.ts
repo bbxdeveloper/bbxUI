@@ -1126,7 +1126,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     noticeControl?.setValue(notice.trim())
   }
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -1426,7 +1426,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
             return;
           }
           event.preventDefault();
-          this.ChooseDataForForm();
+          this.ChooseDataForCustomerForm();
           break;
         }
         case this.KeySetting[Actions.Create].KeyCode: {

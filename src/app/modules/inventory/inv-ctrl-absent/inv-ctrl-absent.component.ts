@@ -420,7 +420,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   ChooseDataForTableRow(rowIndex: number): void { }
 
-  ChooseDataForForm(): void { }
+  ChooseDataForCustomerForm(): void { }
 
   RefreshData(): void { }
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
@@ -443,7 +443,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       const title = this.SelectedInvCtrlPeriodComboValue;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-      
+
       this.isLoading = false;
       this.printAndDownLoadService.printAfterConfirm({
         DialogTitle: Constants.MSG_CONFIRMATION_PRINT,

@@ -772,7 +772,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             return;
           }
           event.preventDefault();
-          this.ChooseDataForForm();
+          this.ChooseDataForCustomerForm();
           break;
         }
         case this.KeySetting[Actions.Create].KeyCode: {
