@@ -512,7 +512,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     return row.data.priceReview
   }
 
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+  public TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
     if (!changedData && !changedData.productCode) {
       return
     }
@@ -744,7 +744,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       controls['invoiceDeliveryDate'].setValue(response.invoiceDeliveryDate)
       controls['invoiceIssueDate'].setValue(response.invoiceIssueDate)
       controls['paymentDate'].setValue(response.paymentDate)
-
 
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
