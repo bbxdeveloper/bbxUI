@@ -1,5 +1,6 @@
 import { IEditable } from "src/assets/model/IEditable";
 import { MementoObject } from "src/assets/model/MementoObject";
+import { JsonIgnore } from "src/assets/model/navigation/DynamicObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { Price } from "src/assets/util/Price";
 
@@ -58,6 +59,7 @@ export class InvoiceLinePriceData {
  * Invoiceline class for handling grids, calculations, conversions...
  */
 export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IEditable {
+    @JsonIgnore
     public override DeafultFieldList: string[] = ['productCode'];
 
     id?: string
@@ -69,20 +71,28 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     quantity: number = 0.0; // editable
 
-
     unitOfMeasure: string = "";
 
     unitPrice: number = 0.0; // editable
 
     vatRateCode: string = ''; // below table
 
+    @JsonIgnore
     lineNetAmount: number = 0.0; // price * quant
 
+    @JsonIgnore
     lineGrossAmount: number = 0.0; // netamount + vatamount
+
+    @JsonIgnore
     lineVatAmount: number = 0.0; // netamount * vat - hidden
 
+    @JsonIgnore
     custDiscounted: boolean = false;
+
+    @JsonIgnore
     noDiscount: boolean = false;
+
+    @JsonIgnore
     discount: number = 0;
 
 
@@ -91,10 +101,12 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     vatRate: number = 1; // hidden
 
+    @JsonIgnore
     unitOfMeasureX?: string;
 
     relDeliveryNoteInvoiceLineID: number = 0
 
+    @JsonIgnore
     workNumber: string = ''
 
     /**
@@ -105,39 +117,50 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.
      */
+    @JsonIgnore
     discountedData?: InvoiceLinePriceData;
 
+    @JsonIgnore
     invoiceNumber?: string;
 
+    @JsonIgnore
     unitPriceDiscounted: number = 0
 
     //#region Gyűjtő számla
+    @JsonIgnore
     limit: number = 0
 
+    @JsonIgnore
     public get rowDiscountedNetPrice(): number {
         return this.unitPriceDiscounted * this.quantity
     }
 
+    @JsonIgnore
     public get rowNetPrice(): number {
         return this.unitPrice * this.quantity;
     }
 
+    @JsonIgnore
     public get rowDiscountValue(): number {
         return this.rowNetPrice - this.rowDiscountedNetPrice;
     }
 
+    @JsonIgnore
     public get rowGrossPrice(): number {
         return Price.gross(this.rowNetPrice, this.vatRate)
     }
 
+    @JsonIgnore
     public get rowDiscountedGrossPrice(): number {
         return Price.gross(this.rowDiscountedNetPrice, this.vatRate)
     }
 
+    @JsonIgnore
     public get rowNetPriceRounded(): number {
         return HelperFunctions.Round2(this.rowDiscountedNetPrice, 1);
     }
 
+    @JsonIgnore
     public get rowGrossPriceRounded(): number {
         return HelperFunctions.Round2(this.rowGrossPrice, 0);
     }

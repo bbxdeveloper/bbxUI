@@ -150,7 +150,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
     return this.filterForm.controls['invCtrlPeriod'].value !== undefined ?
-      this.invCtrlPeriodValues[this.filterForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
+      this.invCtrlPeriodValues[this.filterForm.controls['invCtrlPeriod'].value] : undefined;
   }
 
   get SelectedInvCtrlPeriodComboValue(): string | undefined {
@@ -309,7 +309,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
             return res;
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
-        if (this.invCtrlPeriods.length > 0) {
+        if (this.invCtrlPeriods.length > 0 && !this.invCtrlPeriods.includes(this.SelectedInvCtrlPeriodComboValue ?? 'no data')) {
           this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
         }
       })
@@ -319,21 +319,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       .finally(() => {})
   }
 
-  private GetInvCtrlAbsentFromResponse(x: InvCtrlAbsent): InvCtrlAbsent {
-    let res = x;
-
-    x.latestIn = x.latestIn ?? "";
-    x.LatestOut = x.LatestOut ?? ""
-
-    return res;
-  }
-
-  override async Refresh(params?: GetAllInvCtrlAbsentParamsModel, jumpToFirstTableCell: boolean = false): Promise<void> {
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-
-    console.log('Refreshing: ', params); // TODO: only for debug
-
-    await this.refreshComboboxData();
+  private async refreshGridData(params: any): Promise<void> {
     await lastValueFrom(this.stockService.GetAllAbsent(params ?? this.getInputParams))
       .then(d => {
         if (d.succeeded && !!d.data) {
@@ -366,6 +352,24 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
           this.isPageReady = true;
         }
       })
+  }
+
+  private GetInvCtrlAbsentFromResponse(x: InvCtrlAbsent): InvCtrlAbsent {
+    let res = x;
+
+    x.latestIn = x.latestIn ?? "";
+    x.LatestOut = x.LatestOut ?? ""
+
+    return res;
+  }
+
+  override async Refresh(params?: GetAllInvCtrlAbsentParamsModel, jumpToFirstTableCell: boolean = false, refreshCombo = true): Promise<void> {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+    console.log('Refreshing: ', params); // TODO: only for debug
+
+    await this.refreshComboboxData();
+    await this.refreshGridData(params);
 
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }

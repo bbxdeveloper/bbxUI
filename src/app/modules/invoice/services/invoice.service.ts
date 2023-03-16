@@ -55,7 +55,10 @@ export class InvoiceService {
   }
 
   CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLineForPost>): Observable<CreateOutgoingInvoiceResponse> {
-    return this.http.post<CreateOutgoingInvoiceResponse>(this.BaseUrl, req);
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+    return this.http.post<CreateOutgoingInvoiceResponse>(this.BaseUrl, req.JsonStringify(), { headers: options });
   }
 
   Update(req: UpdateInvoiceRequest): Observable<UpdateInvoiceResponse> {

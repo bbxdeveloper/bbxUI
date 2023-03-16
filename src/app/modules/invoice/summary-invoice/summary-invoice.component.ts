@@ -272,7 +272,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
-    this.outGoingInvoiceData = {
+    this.outGoingInvoiceData = new OutGoingInvoiceFullData({
       lineGrossAmount: 0.0,
       invoiceVatAmount: 0.0,
       invoiceNetAmount: 0.0,
@@ -288,7 +288,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       currencyCode: CurrencyCodes.HUF,
       invoiceDiscountPercent: 0,
       correction: this.mode.correction
-    } as OutGoingInvoiceFullData;
+    });
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);

@@ -129,9 +129,13 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
           }
         },
-        error: (err) => { this.HandleError(err); },
+        error: (err) => {
+          this.HandleError(err);
+          this.dbDataTable.SetFormReadonly(false)
+        },
       });
     }
   }
@@ -167,9 +171,13 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
           }
         },
-        error: (err) => { this.HandleError(err); },
+        error: (err) => {
+          this.HandleError(err);
+          this.dbDataTable.SetFormReadonly(false)
+        },
       });
     }
   }
