@@ -46,6 +46,7 @@ import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 import { InvoiceLineUnitPriceChange } from '../models/InvoiceLineUnitPriceChange';
+import { PricePreviewRequest } from '../models/PricePreviewRequest';
 
 @Component({
   selector: 'app-price-review',
@@ -475,10 +476,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   RecalcNetAndVat(): void {
     // this.invoiceStatisticsService.InvoiceLines = this.dbData;
 
-    this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
+    this.outGoingInvoiceData.invoiceLines = this.dbData.map(x => x.data);
 
     this.outGoingInvoiceData.invoiceNetAmount = this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.rowNetPriceRounded))
+      .map(x => HelperFunctions.ToFloat(x.rowNetPrice))
       .reduce((sum, current) => sum + current, 0);
 
     this.outGoingInvoiceData.invoiceVatAmount = this.outGoingInvoiceData.invoiceLines
@@ -491,7 +492,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     // Csak gyűjtőszámlánál
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceLines
-      .map(x => HelperFunctions.ToFloat(x.rowDiscountedGrossPrice))
+      .map(x => HelperFunctions.ToFloat(x.rowGrossPrice))
       .reduce((sum, current) => sum + current, 0);
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
@@ -612,6 +613,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     if (col === 'unitPrice' && index !== null && index !== undefined) {
       if (changedData.unitPrice > 0) {
+        changedData.priceReview = false
         changedData.Save()
 
         return
@@ -792,6 +794,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
+      // vatPercentage is missing from the model but we get it from the bakend
+      // we have vatRate
+      this.dbData.forEach(x => x.data.vatRate = (x.data as any).vatPercentage)
+
       this.dbData.forEach(x => x.data.Save())
 
       this.dbDataDataSrc.setData(this.dbData)
@@ -888,9 +894,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData,
-        isDiscountVisible: false,
+        isDiscountVisible: true,
         forceDisableOutgoingDelivery: true,
-        // negativeDiscount: !this.mode.isSummaryInvoice
       }
     });
     dialogRef.onClose.subscribe(async (res?: OutGoingInvoiceFullData) => {
@@ -904,14 +909,16 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       }
 
       try {
-        await this.invoiceService.pricePreview({
+        const request = {
           customerID: this.buyerData.id,
           id: this.invoiceId,
           invoiceLines: this.dbData.map(x => ({
             id: parseInt(x.data.id!),
             unitPrice: x.data.unitPrice
           }))
-        })
+        } as PricePreviewRequest
+
+        await this.invoiceService.pricePreview(request)
       }
       catch (error) {
         this.cs.HandleError(error)
@@ -1295,6 +1302,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         return
 
       invoiceLine.unitPrice = product.unitPrice2 - product.unitPrice2 * customerDiscount.discount / 100
+      invoiceLine.priceReview = false
     }
   }
 

@@ -109,52 +109,56 @@
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
         </app-inline-editable-table>
     </nb-card-body>
+    <nb-card-footer class="price-review-table-statistics">
+        <div>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</div>
+        <div>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</div>
+    </nb-card-footer>
 </nb-card>
 
 <ng-template #passiveForm let-label="label">
-        <div class="card-col-1">
-            <nb-card>
-                <nb-card-header class="card-header-txt-center card-header-top-margin">
-                    {{label}}
-                </nb-card-header>
-                <nb-card-body class="form-col-1">
-                    <form class="invoice-customer-form" [formGroup]="exporterForm" (keydown.enter)="$event.preventDefault()"
-                        #formDirective="ngForm">
-                        <nb-form-field class="area-row-1">
-                            <input nbInput type="text" formControlName='customerName' required="true" readonly id="l00">
-                        </nb-form-field>
+    <div class="card-col-1">
+        <nb-card>
+            <nb-card-header class="card-header-txt-center card-header-top-margin">
+                {{label}}
+            </nb-card-header>
+            <nb-card-body class="form-col-1">
+                <form class="invoice-customer-form" [formGroup]="exporterForm" (keydown.enter)="$event.preventDefault()"
+                    #formDirective="ngForm">
+                    <nb-form-field class="area-row-1">
+                        <input nbInput type="text" formControlName='customerName' required="true" readonly id="l00">
+                    </nb-form-field>
 
-                        <nb-form-field class="area-row-2">
-                            <input nbInput type="text" formControlName='zipCodeCity' required="true" readonly id="l01">
-                        </nb-form-field>
+                    <nb-form-field class="area-row-2">
+                        <input nbInput type="text" formControlName='zipCodeCity' required="true" readonly id="l01">
+                    </nb-form-field>
 
-                        <nb-form-field class="area-row-3">
-                            <input nbInput type="text" formControlName='additionalAddressDetail' required="true" readonly
-                                id="l02">
-                        </nb-form-field>
+                    <nb-form-field class="area-row-3">
+                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" readonly
+                            id="l02">
+                    </nb-form-field>
 
-                        <nb-form-field class="area-row-4">
-                            <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" readonly
-                                id="l03">
-                        </nb-form-field>
+                    <nb-form-field class="area-row-4">
+                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" readonly
+                            id="l03">
+                    </nb-form-field>
 
-                        <nb-form-field class="area-row-5">
-                            <input nbInput type="text" formControlName='taxpayerNumber' required="true" readonly id="l04">
-                        </nb-form-field>
-                        <nb-form-field class="area-row-6">
-                            <div>
-                                <label>EUR adósz.:</label>
-                                <input nbInput type="text" formControlName='thirdStateTaxId' required="true" readonly id="l04">
-                            </div>
-                        </nb-form-field>
+                    <nb-form-field class="area-row-5">
+                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" readonly id="l04">
+                    </nb-form-field>
+                    <nb-form-field class="area-row-6">
+                        <div>
+                            <label>EUR adósz.:</label>
+                            <input nbInput type="text" formControlName='thirdStateTaxId' required="true" readonly id="l04">
+                        </div>
+                    </nb-form-field>
 
-                        <nb-form-field class="area-row-7">
-                            <input nbInput type="text" formControlName='comment' required="false" readonly id="l05">
-                        </nb-form-field>
-                    </form>
-                </nb-card-body>
-            </nb-card>
-        </div>
+                    <nb-form-field class="area-row-7">
+                        <input nbInput type="text" formControlName='comment' required="false" readonly id="l05">
+                    </nb-form-field>
+                </form>
+            </nb-card-body>
+        </nb-card>
+    </div>
 </ng-template>
 
 <ng-template #activeForm let-label="label">

@@ -322,11 +322,23 @@ input, label, th, td {
     }
 }
 
-div.table-statistics-net-vat-gross {
+.price-review-table-statistics {
+    padding: 0px;
+    padding-right: 150px;
+
+    width: 100%;
+    text-align: right;
+
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
-    align-content: center;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-end;
+    gap: 200px;
+
+    font-size: 1.1rem;
+
+    span.line-amount {
+        font-size: 1rem;
+        margin-left: 25px;
+    }
 }

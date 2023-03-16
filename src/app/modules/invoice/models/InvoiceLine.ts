@@ -85,7 +85,9 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
     noDiscount: boolean = false;
     discount: number = 0;
 
+
     productID?: number
+
 
     vatRate: number = 1; // hidden
 
@@ -95,6 +97,9 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     workNumber: string = ''
 
+    /**
+     * Árfelülvizsgálatos-e ez a sor
+     */
     priceReview: boolean = false
 
     /**
