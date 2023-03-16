@@ -266,7 +266,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
-    this.outGoingInvoiceData = {
+    this.outGoingInvoiceData = new OutGoingInvoiceFullData({
       lineGrossAmount: 0.0,
       invoiceVatAmount: 0.0,
       invoiceNetAmount: 0.0,
@@ -281,7 +281,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       exchangeRate: 1,
       currencyCode: CurrencyCodes.HUF,
       invoiceDiscountPercent: 0
-    } as OutGoingInvoiceFullData;
+    })
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -801,7 +801,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
 
-    this.outGoingInvoiceData.currencyCode = 'HUF';
+    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF;
     this.outGoingInvoiceData.exchangeRate = 1;
 
     this.outGoingInvoiceData.warehouseCode = '001';
