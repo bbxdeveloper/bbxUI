@@ -21,7 +21,7 @@ import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
+import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
@@ -775,7 +775,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
+  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
 
     // if (this.mode.incoming) {
@@ -865,6 +865,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       }
 
       try {
+        this.isSaveInProgress = true
+        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+
         const request = {
           customerID: this.buyerData.id,
           id: this.invoiceId,
@@ -875,6 +878,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         } as PricePreviewRequest
 
         const response = await this.invoiceService.pricePreview(request)
+
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+
+        this.simpleToastrService.show(
+          Constants.MSG_SAVE_SUCCESFUL,
+          Constants.TITLE_INFO,
+          Constants.TOASTR_SUCCESS_5_SEC
+        );
 
         this.printAndDownLoadService.openPrintDialog({
           DialogTitle: 'Számla Nyomtatása',
