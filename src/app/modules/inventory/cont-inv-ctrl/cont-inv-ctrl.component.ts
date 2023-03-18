@@ -12,7 +12,6 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCss
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
@@ -21,7 +20,6 @@ import { ProductSelectTableDialogComponent } from '../../shared/product-select-t
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
-import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
@@ -67,13 +65,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   get SelectedWareHouseId(): number {
     return this.dateForm.controls['invCtrlPeriod'].value !== undefined ?
       HelperFunctions.ToInt(this.invCtrlPeriodValues[this.dateForm.controls['invCtrlPeriod'].value ?? -1]?.warehouseID) : -1;
-  }
-  get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
-    if (!!this.dateForm && this.dateForm.controls !== undefined) {
-      return this.dateForm.controls['invCtrlPeriod'].value !== undefined ?
-        this.invCtrlPeriodValues[this.dateForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
-    }
-    return undefined;
   }
 
   get getAllPeriodsParams(): GetAllInvCtrlPeriodsParamListModel {
@@ -177,32 +168,14 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
 
-    this.InitialSetup();
+    this.initialSetup();
   }
 
   validateInvCtrlDate(control: AbstractControl): any {
-    if (!!!this.SelectedInvCtrlPeriod) {
-      return null;
-    }
-
-    var ctrlPeriod = this.SelectedInvCtrlPeriod;
-
-    let v = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let to = HelperFunctions.GetDateIfDateStringValid(ctrlPeriod?.dateTo);
-    let from = HelperFunctions.GetDateIfDateStringValid(ctrlPeriod?.dateFrom);
-
-    if (v === undefined || from === undefined || to === undefined) {
-      return null;
-    }
-
-    console.log("validateInvCtrlDate: ", from, to, v);
-
-    let wrong = !v.isBetween(from, to, null, '[]');
-
-    return wrong ? { minMaxDate: { value: control.value } } : null;
+    // TODO
   }
 
-  InitialSetup(): void {
+  private initialSetup(): void {
     this.dbDataTableId = "offers-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 
@@ -213,18 +186,13 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
-    if (this.dateForm === undefined) {
-      this.dateForm = new FormGroup({
-        invCtrlPeriod: new FormControl('', [Validators.required]),
-        invCtrlDate: new FormControl('', [
-          Validators.required,
-          this.validateInvCtrlDate.bind(this),
-          validDate
-        ])
-      });
-    } else {
-      this.dateForm.reset(undefined);
-    }
+    this.dateForm = new FormGroup({
+      invCtrlDate: new FormControl('', [
+        Validators.required,
+        this.validateInvCtrlDate.bind(this),
+        validDate
+      ])
+    });
 
     this.dateFormNav = new InlineTableNavigatableForm(
       this.dateForm,
@@ -261,8 +229,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   }
 
   refresh(): void {
-    this.refreshComboboxData();
-
     this.dbData = [];
     this.dbDataDataSrc.setData(this.dbData);
 
@@ -287,7 +253,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     this.offerData.items = this.dbDataTable.data.filter((x, index: number) => index !== this.dbDataTable.data.length - 1).map(x => {
       return {
         "warehouseID": this.SelectedWareHouseId,
-        "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.dateForm.controls['invCtrlPeriod'].value ?? -1].id),
         "productID": HelperFunctions.ToInt(x.data.productID),
         "invCtrlDate": this.dateForm.controls['invCtrlDate'].value,
         "nRealQty": HelperFunctions.ToInt(x.data.nRealQty),
@@ -374,15 +339,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       this.cdref.detectChanges();
     }, 500);
 
-    this.dateForm.controls['invCtrlPeriod'].valueChanges.subscribe({
-      next: newValue => {
-        const selected = this.SelectedInvCtrlPeriod;
-        if (selected?.dateFrom !== undefined && HelperFunctions.IsDateStringValid(selected.dateFrom)) {
-          this.dateForm.controls['invCtrlDate'].setValue(selected.dateFrom)
-        }
-      }
-    });
-
     // TODO
     if (this.dbDataTable.data.length > 1) {
       this.dbDataTable.data = [this.dbDataTable.data[0]];
@@ -431,7 +387,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     this.isLoading = true;
     await lastValueFrom(
       this.invCtrlItemService.GetAllRecords(
-        { ProductID: res.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel
+        { ProductID: res.id } as GetAllInvCtrlItemRecordsParamListModel
     ))
       .then(data => {
         if (!!data && data.id !== 0) {
@@ -600,7 +556,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
           }
 
           await lastValueFrom(this.invCtrlItemService.GetAllRecords(
-            { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel))
+            { ProductID: _product.id } as GetAllInvCtrlItemRecordsParamListModel))
           .then(data => {
               if (!!data && data.id !== 0) {
                 this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
@@ -670,26 +626,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         });
       }
     }
-  }
-
-  private refreshComboboxData(): void {
-    this.invCtrlPeriodService.GetAll(this.getAllPeriodsParams).subscribe({
-      next: data => {
-        console.log("[refreshComboboxData]: ", data);
-        this.invCtrlPeriods =
-          data?.data?.filter(x => !x.closed).map(x => {
-            let res = x.warehouse + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
-            this.invCtrlPeriodValues[res] = x;
-            return res;
-          }) ?? [];
-        this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
-        setTimeout(() => {
-          if (this.invCtrlPeriods.length > 0) {
-            this.dateForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
-          }
-        }, 100);
-      }
-    });
   }
 
   CheckSaveConditionsAndSave(): void {
