@@ -142,12 +142,12 @@ export class InvoiceService {
     return lastValueFrom(request)
   }
 
-  public pricePreview(pricePreview: PricePreviewRequest): Promise<unknown> {
+  public pricePreview(pricePreview: PricePreviewRequest): Promise<CreateOutgoingInvoiceResponse> {
     const body = JSON.stringify(pricePreview)
     const headers = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set('charset', 'utf')
-    const request = this.http.patch(this.BaseUrl + '/pricepreview', body, { headers })
+    const request = this.http.patch<CreateOutgoingInvoiceResponse>(this.BaseUrl + '/pricepreview', body, { headers })
 
     return firstValueFrom(request)
   }

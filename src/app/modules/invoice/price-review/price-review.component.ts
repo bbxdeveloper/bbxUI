@@ -874,7 +874,21 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           }))
         } as PricePreviewRequest
 
-        await this.invoiceService.pricePreview(request)
+        const response = await this.invoiceService.pricePreview(request)
+
+        this.printAndDownLoadService.openPrintDialog({
+          DialogTitle: 'Számla Nyomtatása',
+          DefaultCopies: 1,
+          MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+          MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+          MsgFinish: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+          Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+          Reset: this.Reset.bind(this),
+          ReportParams: {
+            "id": response.data?.id,
+            "copies": 1 // Ki lesz töltve dialog alapján
+          } as Constants.Dct
+        } as PrintDialogRequest)
       }
       catch (error) {
         this.cs.HandleError(error)
