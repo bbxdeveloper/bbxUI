@@ -7,7 +7,7 @@ export class DynamicObject {
     public JsonIgnoreList: string[] = [];
 
     public Replacer(key: string, value: any): any {
-        if (value !== this && typeof value == 'object' && value?.JsonIgnoreList !== undefined) {
+        if (value !== this && typeof value == 'object' && (typeof value?.GetIgnoredPropertyKeys === 'function')) {
             this.JsonIgnoreList = this.JsonIgnoreList.concat(value.GetIgnoredPropertyKeys())
         }
 
@@ -39,9 +39,9 @@ export class DynamicObject {
             if (property !== undefined) {
                 if (Reflect.getMetadataKeys(this, key).includes(MetadataKey)) {
                     this.JsonIgnoreList = this.JsonIgnoreList.concat(key)
-                } else if (typeof property == 'object' && property?.JsonIgnoreList !== undefined) {
+                } else if (typeof property == 'object' && (typeof property?.GetIgnoredPropertyKeys === 'function')) {
                     this.JsonIgnoreList = this.JsonIgnoreList.concat(property.GetIgnoredPropertyKeys())
-                } else if (Array.isArray(property) && property.length > 0 && property[0]?.JsonIgnoreList !== undefined) {
+                } else if (Array.isArray(property) && property.length > 0 && (typeof property[0]?.GetIgnoredPropertyKeys === 'function')) {
                     this.JsonIgnoreList = this.JsonIgnoreList.concat(property[0].GetIgnoredPropertyKeys())
                 }
             }
