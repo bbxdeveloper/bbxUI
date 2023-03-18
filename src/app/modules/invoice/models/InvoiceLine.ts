@@ -5,37 +5,6 @@ import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { Price } from "src/assets/util/Price";
 
 /**
- * Invoivceline model for sending data to the backend
- * Used within: @see CreateOutgoingInvoiceRequest<InvoiceLineForPost>
- */
-export interface InvoiceLineForPost {
-    // table col order
-    lineNumber: number; // hidden
-    productCode: string; // editable
-    productDescription: string;
-    quantity: number; // editable
-    unitOfMeasure: string;
-    unitPrice: number; // editable
-    vatRateCode: string; // below table
-    vatRate?: number;
-    lineNetAmount: number; // price * quant
-    relDeliveryNoteInvoiceLineID?: number
-}
-
-export function GetBlankInvoiceLineForPost(): InvoiceLineForPost {
-    return {
-        lineNumber: 0,
-        productCode: '',
-        productDescription: "",
-        quantity: 0.0,
-        unitOfMeasure: "",
-        unitPrice: 0.0,
-        vatRateCode: '',
-        lineNetAmount: 0.0
-    } as InvoiceLineForPost;
-}
-
-/**
  * Price data for invocielines.
  */
 export class InvoiceLinePriceData {
@@ -58,7 +27,7 @@ export class InvoiceLinePriceData {
 /**
  * Invoiceline class for handling grids, calculations, conversions...
  */
-export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IEditable {
+export class InvoiceLine extends MementoObject implements IEditable {
     @JsonIgnore
     public override DeafultFieldList: string[] = ['productCode'];
 
@@ -229,32 +198,5 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
         // console.log("lineGrossAmount: " + this.lineGrossAmount);
         // console.log("==========================");
         // console.log("");
-    }
-
-    /**
-     * Converts into the backend model
-     * @returns
-     */
-    public GetPOSTData(needVatRate = true): InvoiceLineForPost {
-        let res = {
-            lineNetAmount: HelperFunctions.ToFloat(this.lineNetAmount),
-            lineNumber: this.lineNumber,
-            quantity: this.quantity,
-            productCode: this.productCode,
-            productDescription: this.productDescription,
-            unitOfMeasure: this.unitOfMeasure,
-            unitPrice: HelperFunctions.ToFloat(this.unitPrice),
-            vatRateCode: this.vatRateCode,
-            relDeliveryNoteInvoiceLineID: this.relDeliveryNoteInvoiceLineID
-        } as InvoiceLineForPost;
-
-        if (needVatRate) {
-            res.vatRate = this.vatRate
-        }
-        else {
-            res.vatRate = undefined
-        }
-
-        return res;
     }
 }
