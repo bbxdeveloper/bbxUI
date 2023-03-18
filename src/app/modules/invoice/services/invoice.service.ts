@@ -14,7 +14,7 @@ import { DeleteInvoiceRequest } from '../models/DeleteInvoiceRequest';
 import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { Constants } from 'src/assets/util/Constants';
-import { InvoiceLineForPost } from '../models/InvoiceLine';
+import { InvoiceLine } from '../models/InvoiceLine';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
@@ -51,7 +51,7 @@ export class InvoiceService {
     return this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLineForPost>): Observable<CreateOutgoingInvoiceResponse> {
+  CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLine>): Observable<CreateOutgoingInvoiceResponse> {
     let options = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set("charset", "utf8")

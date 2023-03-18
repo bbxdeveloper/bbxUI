@@ -1,6 +1,6 @@
 import { DynamicObject, JsonIgnore } from "src/assets/model/navigation/DynamicObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
-import { InvoiceLine, InvoiceLineForPost } from "./InvoiceLine";
+import { InvoiceLine } from "./InvoiceLine";
 import { InvoiceTypes } from "./InvoiceTypes";
 
 export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject {
