@@ -896,65 +896,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       finally {
         this.isSaveInProgress = false
       }
-
-      // this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
-      // const request = this.UpdateOutGoingData();
-
-      // this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-      // this.invoiceService.CreateOutgoing(request).subscribe({
-      //   next: d => {
-      //     //this.isSilentLoading = false;
-      //     if (!!d.data) {
-      //       console.log('Save response: ', d);
-
-      //       if (!!d.data) {
-      //         this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-      //       }
-
-      //       this.simpleToastrService.show(
-      //         Constants.MSG_SAVE_SUCCESFUL,
-      //         Constants.TITLE_INFO,
-      //         Constants.TOASTR_SUCCESS_5_SEC
-      //       );
-
-      //       this.dbDataTable.RemoveEditRow();
-      //       this.kbS.SelectFirstTile();
-
-      //       this.isSaveInProgress = true;
-
-      //       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-
-      //       this.printAndDownLoadService.openPrintDialog({
-      //         DialogTitle: 'Számla Nyomtatása',
-      //         DefaultCopies: 1,
-      //         MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-      //         MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-      //         MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-      //         Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-      //         // Obs: this.mode.isSummaryInvoice
-      //         //   ? this.seInv.GetAggregateReport.bind(this.seInv)
-      //         //   : this.seInv.GetReport.bind(this.seInv),
-      //         Reset: this.Reset.bind(this),
-      //         ReportParams: {
-      //           "id": d.data?.id,
-      //           "copies": 1 // Ki lesz töltve dialog alapján
-      //         } as Constants.Dct
-      //       } as PrintDialogRequest);
-      //     } else {
-      //       this.cs.HandleError(d.errors);
-      //       this.isSaveInProgress = false;
-      //       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-      //     }
-      //   },
-      //   error: err => {
-      //     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-      //     this.cs.HandleError(err);
-      //     this.isSaveInProgress = false;
-      //   },
-      //   complete: () => {
-      //     this.isSaveInProgress = false;
-      //   }
-      // });
     });
   }
 
