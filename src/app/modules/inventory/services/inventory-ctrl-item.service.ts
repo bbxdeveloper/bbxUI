@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvCtrlItemParamListModel } from '../models/GetInvCtrlItemParamListModel';
@@ -13,6 +13,8 @@ import { GetAllInvCtrlPeriodsResponse } from '../models/GetAllInvCtrlPeriodsResp
 import { InvCtrl } from '../models/InvCtrl';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 import { Constants } from 'src/assets/util/Constants';
+import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Injectable({
   providedIn: 'root'
@@ -104,5 +106,12 @@ export class InventoryCtrlItemService {
 
   Create(req: CreateInvCtrlItemRequest): Observable<CreateInvCtrlItemResponse> {
     return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl + '/creicp', req);
+  }
+
+  public getLatestIcc(params: GetLatestIccRequest): Promise<unknown> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    const response = this.http.get(this.BaseUrl + '/getlatesticc?' + queryParams)
+
+    return firstValueFrom(response)
   }
 }

@@ -40,6 +40,7 @@ import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPerio
 import { StockRecord } from '../../stock/models/StockRecord';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import moment from 'moment';
+import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
 
 @Component({
   selector: 'app-cont-inv-ctrl',
@@ -366,7 +367,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   }
 
   async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
-    debugger
     if (res.id === undefined || res.id === -1) {
       return;
     }
@@ -390,25 +390,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       return;
     }
 
-    let nRealQtyFromRecord = 0.0;
-    this.isLoading = true;
-    await lastValueFrom(
-      this.invCtrlItemService.GetAllRecords(
-        { ProductID: res.id } as GetAllInvCtrlItemRecordsParamListModel
-    ))
-      .then(data => {
-        if (!!data && data.id !== 0) {
-          this.OpenAlreadyInventoryDialog((res.productCode + ' ' + res.description) ?? "", data.invCtrlDate, data.nRealQty);
-          nRealQtyFromRecord = data.nRealQty;
-        }
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => {
-        this.isLoading = false;
-      });
-
     this.isLoading = true;
     const stockRecord = await this.GetStockRecordForProduct(res.id);
     let price = res.latestSupplyPrice;
@@ -417,7 +398,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       this.dbDataTable.data[rowIndex].data.realQty = stockRecord.realQty;
     }
 
-    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, nRealQtyFromRecord) });
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, 0) });
     currentRow?.data.Save('productCode');
 
     console.log("after HandleProductSelectionFromDialog: ", this.dbDataTable.data[rowIndex]);
@@ -473,7 +454,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   RecalcNetAndVat(): void {}
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
@@ -600,38 +580,69 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       this.RoundPrices(index);
     }
 
-    if (!!changedData && !!changedData.productCode) {
-      if ((!!col && col === 'productCode') || col === undefined) {
-        this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-          next: product => {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+    if (!changedData || !changedData.productCode)
+      return
 
-            if (index !== undefined) {
-              let tmp = this.dbData[index].data;
+    if ((!!col && col === 'productCode') || col === undefined) {
+      this.productCodeChanged(changedData, index)
+    }
 
-              tmp.lineDescription = product.description ?? '';
+    if (col && col === 'nRealQty') {
+      this.quantityChanged(changedData, index)
+    }
+  }
 
-              tmp.vatRate = product.vatPercentage ?? 0.0;
-              tmp.unitVat = tmp.vatRate * tmp.unitPrice;
-              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-              tmp.vatRateCode = product.vatRateCode;
+  private productCodeChanged(changedData: InvCtrlItemLine, index?: number): void {
+    this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+      next: product => {
+        console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-              tmp.productID = product.id;
+        if (index !== undefined) {
+          let tmp = this.dbData[index].data;
 
-              this.dbData[index].data = tmp;
+          tmp.lineDescription = product.description ?? '';
 
-              this.dbDataDataSrc.setData(this.dbData);
+          tmp.vatRate = product.vatPercentage ?? 0.0;
+          tmp.unitVat = tmp.vatRate * tmp.unitPrice;
+          product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+          tmp.vatRateCode = product.vatRateCode;
 
-              console.log("after TableRowDataChanged: ", this.dbDataTable.data);
-            }
+          tmp.productID = product.id;
 
-            this.RecalcNetAndVat();
-          },
-          error: () => {
-            this.RecalcNetAndVat();
-          }
-        });
+          this.dbData[index].data = tmp;
+
+          this.dbDataDataSrc.setData(this.dbData);
+
+          console.log("after TableRowDataChanged: ", this.dbDataTable.data);
+        }
+
+        this.RecalcNetAndVat();
+      },
+      error: () => {
+        this.RecalcNetAndVat();
       }
+    });
+  }
+
+  private async quantityChanged(changedData: InvCtrlItemLine, index?: number): Promise<void> {
+    try {
+      this.isLoading = true
+
+      const request = {
+        productID: changedData.productID,
+        warehouseCode: '001',
+        retroDays: 7
+      } as GetLatestIccRequest
+
+      const response = await this.invCtrlItemService.getLatestIcc(request)
+
+      if (response) {
+        // TODO
+      }
+    } catch (error) {
+      this.cs.HandleError(error)
+    } finally {
+      this.isLoading = false
     }
   }
 
