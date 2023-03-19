@@ -27,13 +27,11 @@ import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { InventoryService } from '../services/inventory.service';
 import { StockService } from '../../stock/services/stock.service';
 import { GetStockRecordParamsModel } from '../../stock/models/GetStockRecordParamsModel';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
-import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
@@ -41,6 +39,8 @@ import { StockRecord } from '../../stock/models/StockRecord';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import moment from 'moment';
 import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
+import { CreateIccRequest } from '../models/CreateIccRequest';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-cont-inv-ctrl',
@@ -160,7 +160,8 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     private readonly stockService: StockService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    router: Router
+    router: Router,
+    private readonly tokenService: TokenStorageService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
 
@@ -272,49 +273,72 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
-    confirmDialogRef.onClose.subscribe(res => {
-      if (res) {
-        this.UpdateOutGoingData();
+    confirmDialogRef.onClose.subscribe(async res => {
+      if (!res)
+        return
 
-        console.log('Save: ', this.offerData);
+      this.UpdateOutGoingData();
 
+      console.log('Save: ', this.offerData);
+
+      try {
         this.isLoading = true;
 
-        this.invCtrlItemService.Create(this.offerData).subscribe({
-          next: d => {
-            try {
-              if (!!d.data) {
-                console.log('Save response: ', d);
+        const request = this.dbData.map(x => ({
+          warehouseCode: 1,
+          productID: x.data.productID,
+          nReadQty: x.data.nRealQty,
+          invCtrlDate: new Date().toDateString(),
+          userID: this.tokenService.user?.id
+        } as CreateIccRequest))
 
-                this.simpleToastrService.show(
-                  Constants.MSG_SAVE_SUCCESFUL,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-                this.isLoading = false;
+        await this.invCtrlItemService.createIcc(request)
 
-                this.dbDataTable.RemoveEditRow();
-                this.kbS.SelectFirstTile();
-
-                this.Reset();
-              } else {
-                this.cs.HandleError(d.errors);
-                this.isLoading = false;
-              }
-            } catch (error) {
-              this.Reset()
-              this.cs.HandleError(error)
-            }
-          },
-          error: err => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-          },
-          complete: () => {
-            this.isLoading = false;
-          }
-        });
+        this.simpleToastrService.show(
+          Constants.MSG_SAVE_SUCCESFUL,
+          Constants.TITLE_INFO,
+          Constants.TOASTR_SUCCESS_5_SEC
+        );
+      } catch (error) {
+        this.cs.HandleError(error)
+      } finally {
+        this.isLoading = false
       }
+
+      // this.invCtrlItemService.Create(this.offerData).subscribe({
+      //   next: d => {
+      //     try {
+      //       if (!!d.data) {
+      //         console.log('Save response: ', d);
+
+      //         this.simpleToastrService.show(
+      //           Constants.MSG_SAVE_SUCCESFUL,
+      //           Constants.TITLE_INFO,
+      //           Constants.TOASTR_SUCCESS_5_SEC
+      //         );
+      //         this.isLoading = false;
+
+      //         this.dbDataTable.RemoveEditRow();
+      //         this.kbS.SelectFirstTile();
+
+      //         this.Reset();
+      //       } else {
+      //         this.cs.HandleError(d.errors);
+      //         this.isLoading = false;
+      //       }
+      //     } catch (error) {
+      //       this.Reset()
+      //       this.cs.HandleError(error)
+      //     }
+      //   },
+      //   error: err => {
+      //     this.cs.HandleError(err);
+      //     this.isLoading = false;
+      //   },
+      //   complete: () => {
+      //     this.isLoading = false;
+      //   }
+      // });
     });
   }
 

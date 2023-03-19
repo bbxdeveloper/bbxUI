@@ -116,7 +116,7 @@ export class InventoryCtrlItemService {
     return firstValueFrom(response)
   }
 
-  public createIcc(params: CreateIccRequest): Promise<unknown> {
+  public createIcc(params: CreateIccRequest[]): Promise<unknown> {
     const json = JSON.stringify(params)
     const headers = new HttpHeaders()
      .set('Content-Type', 'application/json')
