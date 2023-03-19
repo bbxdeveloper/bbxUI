@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -39,6 +39,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import moment from 'moment';
 
 @Component({
   selector: 'app-cont-inv-ctrl',
@@ -165,8 +166,17 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     this.initialSetup();
   }
 
-  validateInvCtrlDate(control: AbstractControl): any {
-    // TODO
+  validateInvCtrlDate(control: AbstractControl): ValidationErrors | null {
+    if (control.value === '')
+      return null
+
+    const value = moment(control.value)
+    const today = moment()
+    const oneWeek = moment().subtract(7, 'days')
+
+    return value.isAfter(today) || value.isBefore(oneWeek)
+      ? { minMaxDate: { value: control.value } }
+      : null
   }
 
   private initialSetup(): void {
@@ -235,9 +245,11 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
   }
+
   ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
+
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
@@ -354,6 +366,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   }
 
   async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
+    debugger
     if (res.id === undefined || res.id === -1) {
       return;
     }

@@ -338,7 +338,6 @@ export class InlineTableNavigatableForm implements INavigatable {
     Detach(): void { }
 
     CanShowFormErrors(formControlName: string): boolean {
-        debugger
         return this.form && this.form.controls[formControlName].invalid && (this.form.controls[formControlName].dirty || this.form.controls[formControlName].touched);
     }
 
