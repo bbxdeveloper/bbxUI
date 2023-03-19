@@ -58,13 +58,8 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  invCtrlPeriods: string[] = [];
-  invCtrlPeriodValues: { [key: string]: InvCtrlPeriod } = {};
-  invCtrlPeriodComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-
   get SelectedWareHouseId(): number {
-    return this.dateForm.controls['invCtrlPeriod'].value !== undefined ?
-      HelperFunctions.ToInt(this.invCtrlPeriodValues[this.dateForm.controls['invCtrlPeriod'].value ?? -1]?.warehouseID) : -1;
+    return -1
   }
 
   get getAllPeriodsParams(): GetAllInvCtrlPeriodsParamListModel {
@@ -153,7 +148,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     fS: FooterService,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvCtrlItemLine>>,
     private readonly invCtrlItemService: InventoryCtrlItemService,
-    private readonly invCtrlPeriodService: InventoryService,
     private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private readonly bbxToastrService: BbxToastrService,
