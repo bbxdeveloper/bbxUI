@@ -117,7 +117,11 @@ export class InventoryCtrlItemService {
   }
 
   public createIcc(params: CreateIccRequest[]): Promise<unknown> {
-    const json = JSON.stringify(params)
+    const items = {
+      items: params
+    }
+    const json = JSON.stringify(items)
+
     const headers = new HttpHeaders()
      .set('Content-Type', 'application/json')
      .set('charset', 'utf8')

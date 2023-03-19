@@ -284,13 +284,15 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       try {
         this.isLoading = true;
 
-        const request = this.dbData.map(x => ({
-          warehouseCode: 1,
-          productID: x.data.productID,
-          nReadQty: x.data.nRealQty,
-          invCtrlDate: new Date().toDateString(),
-          userID: this.tokenService.user?.id
-        } as CreateIccRequest))
+        const request = this.dbDataTable.data
+          .map(x => ({
+            warehouseCode: '001',
+            productID: x.data.productID,
+            nReadQty: x.data.nRealQty,
+            invCtrlDate: moment().format('YYYY-MM-DD').toString(),
+            userID: this.tokenService.user?.id
+          } as CreateIccRequest))
+          .filter(x => x.productID !== 0)
 
         await this.invCtrlItemService.createIcc(request)
 
@@ -304,41 +306,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       } finally {
         this.isLoading = false
       }
-
-      // this.invCtrlItemService.Create(this.offerData).subscribe({
-      //   next: d => {
-      //     try {
-      //       if (!!d.data) {
-      //         console.log('Save response: ', d);
-
-      //         this.simpleToastrService.show(
-      //           Constants.MSG_SAVE_SUCCESFUL,
-      //           Constants.TITLE_INFO,
-      //           Constants.TOASTR_SUCCESS_5_SEC
-      //         );
-      //         this.isLoading = false;
-
-      //         this.dbDataTable.RemoveEditRow();
-      //         this.kbS.SelectFirstTile();
-
-      //         this.Reset();
-      //       } else {
-      //         this.cs.HandleError(d.errors);
-      //         this.isLoading = false;
-      //       }
-      //     } catch (error) {
-      //       this.Reset()
-      //       this.cs.HandleError(error)
-      //     }
-      //   },
-      //   error: err => {
-      //     this.cs.HandleError(err);
-      //     this.isLoading = false;
-      //   },
-      //   complete: () => {
-      //     this.isLoading = false;
-      //   }
-      // });
     });
   }
 
