@@ -32,7 +32,7 @@ export class InvoiceLine extends MementoObject implements IEditable {
     public override DeafultFieldList: string[] = ['productCode'];
 
     @JsonIgnore
-    public requiredFields: string[] = []
+    public requiredFields?: string[]
 
     lineNumber: number = 0; // hidden
 
@@ -140,12 +140,12 @@ export class InvoiceLine extends MementoObject implements IEditable {
             const x = this as any;
             return this.requiredFields.findIndex(fieldName => {
                 if (typeof x[fieldName] === 'string') {
-                    return x[fieldName]?.length === 0
+                    return HelperFunctions.isEmptyOrSpaces(x[fieldName])
                 }
                 return x[fieldName] === undefined
             }) > -1
         }
-        return this.productCode?.length === 0 || this.quantity === undefined || this.unitPrice === undefined;
+        return HelperFunctions.isEmptyOrSpaces(this.productCode) || this.quantity === undefined || this.unitPrice === undefined;
     }
 
     public override toString(): string {
