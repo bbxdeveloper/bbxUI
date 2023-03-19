@@ -16,6 +16,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { CreateIccRequest } from '../models/CreateIccRequest';
+import { GetLatestIccResponse } from '../models/GetLatestIccResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -109,9 +110,9 @@ export class InventoryCtrlItemService {
     return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl + '/creicp', req);
   }
 
-  public getLatestIcc(params: GetLatestIccRequest): Promise<unknown> {
+  public getLatestIcc(params: GetLatestIccRequest): Promise<GetLatestIccResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
-    const response = this.http.get(this.BaseUrl + '/getlatesticc?' + queryParams)
+    const response = this.http.get<GetLatestIccResponse>(this.BaseUrl + '/getlatesticc?' + queryParams)
 
     return firstValueFrom(response)
   }

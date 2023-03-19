@@ -627,8 +627,18 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
       const response = await this.invCtrlItemService.getLatestIcc(request)
 
-      if (response) {
-        // TODO
+      if (response && !changedData.doAddToExisting) {
+        const day = moment(response.invCtrlDate).format('YYYY-MM-DD')
+        const message = `${response.productCode} ${response.product} ${day}-n leltározva volt ${response.nRealQty} készlettel. Hozzáadjuk a mennyiséget a leltározott készlethez?`
+
+        HelperFunctions.confirm(
+          this.dialogService,
+          message,
+          () => {
+            changedData.doAddToExisting = true
+            changedData.nRealQty = parseInt(changedData.nRealQty.toString()) + response.nRealQty
+          },
+          () => changedData.doAddToExisting = false)
       }
     } catch (error) {
       this.cs.HandleError(error)
