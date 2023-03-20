@@ -1,4 +1,3 @@
-import { TouchBarScrubber } from "electron";
 import { IEditable } from "src/assets/model/IEditable";
 import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
@@ -38,6 +37,7 @@ export interface OfferLineFullData extends OfferLineForPost {
 
 export class OfferLine extends MementoObject implements IEditable, OfferLineFullData {
     public override DeafultFieldList: string[] = ['productCode'];
+    public requiredFields?: string[]
 
     // OfferLineForPost
     "lineNumber": number = 0;
@@ -161,17 +161,29 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         return this.unitVat / this.exchangeRate;
     }
 
-    constructor() {
+    constructor(requiredFields?: string[]) {
         super();
         this.SaveDefault();
+        if (requiredFields) {
+            this.requiredFields = requiredFields;
+        }
     }
 
     IsUnfinished(): boolean {
-        return this.productCode === undefined || this.productCode?.length === 0 || this.lineDescription?.length === 0;
+        if (this.requiredFields) {
+            const x = this as any;
+            return this.requiredFields.findIndex(fieldName => {
+                if (typeof x[fieldName] === 'string') {
+                    return HelperFunctions.isEmptyOrSpaces(x[fieldName])
+                }
+                return x[fieldName] === undefined
+            }) > -1
+        }
+        return HelperFunctions.isEmptyOrSpaces(this.productCode);
     }
 
     static IsInterfaceUnfinished(o: OfferLineForPost): boolean {
-        return o.productCode === undefined || o.productCode?.length === 0 || o.lineDescription?.length === 0;
+        return HelperFunctions.isEmptyOrSpaces(o.productCode);
     }
 
     static FromInvoiceLine(invoiceLine: InvoiceLine): OfferLine {

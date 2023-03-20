@@ -88,6 +88,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
+  requiredCols: string[] = ['productCode', 'quantity'];
   override allColumns = [
     'productCode',
     'productDescription',
@@ -377,8 +378,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.activeFormNav!.OuterJump = true;
     this.outInvFormNav!.OuterJump = true;
 
-    console.log('new InvoiceLine(): ', new InvoiceLine());
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -388,7 +387,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.dbDataTableId,
       AttachDirection.DOWN,
       () => {
-        return new InvoiceLine();
+        return new InvoiceLine(this.requiredCols);
       },
       this
     );
@@ -996,7 +995,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    let res = new InvoiceLine();
+    let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
 

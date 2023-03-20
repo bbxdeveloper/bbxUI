@@ -231,8 +231,6 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
     this.buyerFormNav!.OuterJump = true;
 
-    console.log('new InvoiceLine(): ', new InvoiceLine());
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
