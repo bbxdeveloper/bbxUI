@@ -89,6 +89,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
     "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
+  requiredCols: string[] = ['productCode', 'quantity'];
   override allColumns = [
     'productCode',
     'productDescription',
@@ -123,7 +124,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     },
     {
       label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
@@ -375,8 +376,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.buyerFormNav!.OuterJump = true;
     this.outInvFormNav!.OuterJump = true;
 
-    console.log('new InvoiceLine(): ', new InvoiceLine());
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -386,7 +385,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.dbDataTableId,
       AttachDirection.DOWN,
       () => {
-        return new InvoiceLine();
+        return new InvoiceLine(this.requiredCols);
       },
       this
     );
@@ -1019,7 +1018,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): InvoiceLine {
-    const line = new InvoiceLine()
+    const line = new InvoiceLine(this.requiredCols)
     line.productCode = value.productCode
     line.productDescription = value.lineDescription
     line.quantity = value.quantity
@@ -1189,7 +1188,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    let res = new InvoiceLine();
+    let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
 

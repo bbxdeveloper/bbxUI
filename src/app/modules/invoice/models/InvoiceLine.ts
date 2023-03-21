@@ -33,6 +33,9 @@ export class InvoiceLine extends MementoObject implements IEditable {
 
     id?: string
 
+    @JsonIgnore
+    public requiredFields?: string[]
+
     lineNumber: number = 0; // hidden
 
     productCode: string = ''; // editable
@@ -135,14 +138,25 @@ export class InvoiceLine extends MementoObject implements IEditable {
     }
     //#endregion Gyűjtő számla
 
-    constructor() {
+    constructor(requiredFields?: string[]) {
         super();
         this.SaveDefault();
+        if (requiredFields) {
+            this.requiredFields = requiredFields;
+        }
     }
 
     IsUnfinished(): boolean {
-        return this.productCode?.length === 0 || this.productDescription?.length === 0 ||
-            this.quantity === undefined || this.unitPrice === undefined;
+        if (this.requiredFields) {
+            const x = this as any;
+            return this.requiredFields.findIndex(fieldName => {
+                if (typeof x[fieldName] === 'string') {
+                    return HelperFunctions.isEmptyOrSpaces(x[fieldName])
+                }
+                return x[fieldName] === undefined
+            }) > -1
+        }
+        return HelperFunctions.isEmptyOrSpaces(this.productCode) || this.quantity === undefined || this.unitPrice === undefined;
     }
 
     public override toString(): string {
