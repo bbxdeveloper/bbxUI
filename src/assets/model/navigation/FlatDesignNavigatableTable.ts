@@ -79,10 +79,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     ];
     commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
 
-    private prevSelectedRow?: TreeGridNode<T>;
-    private prevSelectedRowPos?: number;
-    private prevSelectedCol?: string;
-    private prevSelectedColPos?: number;
+    public prevSelectedRow?: TreeGridNode<T>;
+    public prevSelectedRowPos?: number;
+    public prevSelectedCol?: string;
+    public prevSelectedColPos?: number;
     private formAttachDirection: AttachDirection = AttachDirection.RIGHT;
 
     private tag: string = '';
@@ -615,6 +615,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                     event.preventDefault();
                     this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();
+                } else {
+                    this.flatDesignForm?.ActionLock()
                 }
                 break;
             }
