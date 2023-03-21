@@ -246,8 +246,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     this.buyerFormNav!.OuterJump = true;
 
-    console.log('new InvoiceLine(): ', new InvoiceLine());
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
