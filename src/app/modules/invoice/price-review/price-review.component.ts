@@ -871,10 +871,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         const request = {
           customerID: this.buyerData.id,
           id: this.invoiceId,
-          invoiceLines: this.dbData.map(x => ({
-            id: parseInt(x.data.id!),
-            unitPrice: x.data.unitPrice
-          }))
+          invoiceLines: this.dbData
+            .filter(x => x.data.productCode && x.data.productCode !== '')
+            .map(x => ({
+              id: parseInt(x.data.id!),
+              unitPrice: x.data.unitPrice
+            }))
         } as PricePreviewRequest
 
         const response = await this.invoiceService.pricePreview(request)
@@ -1100,6 +1102,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       const discountRequest = this.custDiscountService.getByCustomerAsync({ CustomerID: this.buyerData.id })
 
       const requests = this.dbData
+        .filter(x => x.data.productCode && x.data.productCode !== '')
         .map(x => this.productService.getProductByCodeAsync({ ProductCode: x.data.productCode }))
 
       const customerDiscounts = await discountRequest
