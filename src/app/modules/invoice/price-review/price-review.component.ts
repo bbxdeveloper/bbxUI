@@ -31,7 +31,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, PricePreviewKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, GetPendingDeliveryNotesDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -175,7 +175,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
-  public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
+  public KeySetting: Constants.KeySettingsDct = PricePreviewKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   formKeyRows: any = {
@@ -1162,10 +1162,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
-        case KeyBindings.F3: {
-          HelperFunctions.StopEvent(_event);
-          return;
-        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -1175,15 +1171,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
           });
-          break;
-        }
-        case this.KeySetting[Actions.Search].KeyCode: {
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(_event);
-            return;
-          }
-          _event.preventDefault();
-          this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
           break;
         }
         case KeyBindings.Enter: {
