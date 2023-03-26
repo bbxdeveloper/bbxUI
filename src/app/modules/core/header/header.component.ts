@@ -70,6 +70,15 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     }
   }
 
+  get wareHouseInfo(): string {
+    const wareHouse = this.tokenService.wareHouse;
+    if (wareHouse) {
+      return `${wareHouse.warehouseCode} ${wareHouse.warehouseDescription}`
+    } else {
+      return 'nincs kiválasztva'
+    }
+  }
+
   constructor(
     private dialogService: NbDialogService,
     private kbS: KeyboardNavigationService,
@@ -260,13 +269,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   private async onLoginDialogClose(res: LoginDialogResponse): Promise<void> {
-    if (!!res && res.answer) {
+    if (!!res && res.answer && res.wareHouse) {
       try {
         const response = await this.authService.login(res.name, res.pswd)
 
-        if (response.succeeded && response?.data?.token !== undefined && response?.data?.user !== undefined) {
+        if (response.succeeded && !HelperFunctions.isEmptyOrSpaces(response?.data?.token) && response?.data?.user) {
           this.tokenService.token = response?.data?.token;
           this.tokenService.user = response?.data?.user;
+          this.tokenService.wareHouse = res.wareHouse
           this.simpleToastrService.show(
             Constants.MSG_LOGIN_SUCCESFUL,
             Constants.TITLE_INFO,

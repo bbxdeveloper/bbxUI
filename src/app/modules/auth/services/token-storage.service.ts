@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
+import { WareHouse } from '../../warehouse/models/WareHouse';
 import { User } from '../models/User';
 
 const TOKEN_KEY = 'auth-token';
 const USER_KEY = 'auth-user';
+const WAREHOUSE_KEY = 'auth-warehouse';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +40,22 @@ export class TokenStorageService {
     if (newUser !== undefined && newUser !== null) {
       window.sessionStorage.removeItem(USER_KEY);
       window.sessionStorage.setItem(USER_KEY, newUser !== null && newUser !== undefined ? JSON.stringify(newUser) : newUser);
+    }
+  }
+
+  get wareHouse(): WareHouse | null {
+    const wareHouseJson = window.sessionStorage.getItem(WAREHOUSE_KEY);
+    if (wareHouseJson) {
+      return JSON.parse(wareHouseJson) as WareHouse;
+    }
+    return null;
+  }
+
+  set wareHouse(newWareHouse: WareHouse | null) {
+    console.log("set warehouse: ", newWareHouse);
+    if (newWareHouse) {
+      window.sessionStorage.removeItem(WAREHOUSE_KEY);
+      window.sessionStorage.setItem(WAREHOUSE_KEY, newWareHouse ? JSON.stringify(newWareHouse) : newWareHouse);
     }
   }
 

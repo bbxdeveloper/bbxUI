@@ -654,6 +654,15 @@ export class InvCtrlPeriodManagerComponent
         this.dbDataTable?.HandleKey(event);
         break;
       }
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
       default: { }
     }
   }
