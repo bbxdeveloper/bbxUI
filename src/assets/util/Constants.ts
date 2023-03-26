@@ -5,6 +5,7 @@ import { Actions, KeyBindings } from "./KeyBindings";
 
 export module Constants {
     // Messages
+    export const MSG_ERROR_DATE_OUT_OF_RANGE: string = 'A dátum a megadott értékhatáron kívülre esik.'
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'

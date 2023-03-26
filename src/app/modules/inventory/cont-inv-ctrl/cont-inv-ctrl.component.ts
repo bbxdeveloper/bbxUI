@@ -212,8 +212,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
     this.dateFormNav!.OuterJump = true;
 
-    console.log('new InvoiceLine(): ', new InvoiceLine());
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -228,10 +226,9 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       this
     );
 
-    this.dbDataTable!.OuterJump = true;
+    this.dbDataTable.OuterJump = true;
 
-    // Refresh data
-    this.refresh();
+    this.isLoading = false
   }
 
   refresh(): void {
@@ -240,8 +237,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
     this.table?.renderRows();
     this.RefreshTable();
-
-    this.isLoading = false;
   }
 
   ngOnInit(): void {
@@ -257,18 +252,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): void {
-    this.offerData.items = this.dbDataTable.data.filter((x, index: number) => index !== this.dbDataTable.data.length - 1).map(x => {
-      return {
-        "warehouseID": this.SelectedWareHouseId,
-        "productID": HelperFunctions.ToInt(x.data.productID),
-        "invCtrlDate": this.dateForm.controls['invCtrlDate'].value,
-        "nRealQty": HelperFunctions.ToInt(x.data.nRealQty),
-        "userID": HelperFunctions.ToInt(x.data.userID),
-      } as InvCtrlItemForPost;
-    });
-  }
-
   Save(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -276,8 +259,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     confirmDialogRef.onClose.subscribe(async res => {
       if (!res)
         return
-
-      this.UpdateOutGoingData();
 
       console.log('Save: ', this.offerData);
 
@@ -304,6 +285,11 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         );
 
         this.refresh()
+
+        setTimeout(() => {
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.SelectFirstTile()
+        }, 250)
       } catch (error) {
         this.cs.HandleError(error)
       } finally {
@@ -320,7 +306,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
     this.dateFormNav.GenerateAndSetNavMatrices(true);
 
-    this.dbDataTable?.Setup(
+    this.dbDataTable.Setup(
       this.dbData,
       this.dbDataDataSrc,
       this.allColumns,
@@ -328,18 +314,16 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       this.colsToIgnore,
       'PRODUCT'
     );
-    this.dbDataTable?.GenerateAndSetNavMatrices(true);
-    this.dbDataTable!.commandsOnTable = this.commands;
-    this.dbDataTable!.commandsOnTableEditMode = this.commands;
-    this.dbDataTable?.PushFooterCommandList();
+    this.dbDataTable.GenerateAndSetNavMatrices(true);
+    this.dbDataTable.commandsOnTable = this.commands;
+    this.dbDataTable.commandsOnTableEditMode = this.commands;
+    this.dbDataTable.PushFooterCommandList();
 
-    setTimeout(() => {
-      this.kbS.SetCurrentNavigatable(this.dateFormNav);
-      this.kbS.SelectFirstTile();
-      this.kbS.setEditMode(KeyboardModes.EDIT);
+    this.kbS.SetCurrentNavigatable(this.dateFormNav);
+    this.kbS.SelectFirstTile();
+    this.kbS.setEditMode(KeyboardModes.EDIT);
 
-      this.cdref.detectChanges();
-    }, 500);
+    this.cdref.detectChanges();
 
     // TODO
     if (this.dbDataTable.data.length > 1) {
@@ -689,7 +673,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       this.CheckSaveConditionsAndSave();
       return;
     }
-    console.log("pfkepfkepfkep ", this.kbS.IsCurrentNavigatable(this.dbDataTable), !!this.dbDataTable.GetEditedRow());
+
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable) && !!this.dbDataTable.GetEditedRow()) {
       switch (event.key) {
         case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
