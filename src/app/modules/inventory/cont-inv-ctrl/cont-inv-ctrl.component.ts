@@ -282,7 +282,8 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       console.log('Save: ', this.offerData);
 
       try {
-        this.isLoading = true;
+        this.isSaveInProgress = true;
+        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
         const request = this.dbDataTable.data
           .map(x => ({
@@ -301,10 +302,13 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
           Constants.TITLE_INFO,
           Constants.TOASTR_SUCCESS_5_SEC
         );
+
+        this.refresh()
       } catch (error) {
         this.cs.HandleError(error)
       } finally {
-        this.isLoading = false
+        this.isSaveInProgress = false
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
       }
     });
   }
