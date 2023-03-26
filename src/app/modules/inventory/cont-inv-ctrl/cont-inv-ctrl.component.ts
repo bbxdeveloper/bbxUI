@@ -286,7 +286,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
         const request = this.dbDataTable.data
           .map(x => ({
-            warehouseCode: '001',
+            warehouseCode: this.tokenService.wareHouse?.warehouseCode,
             productID: x.data.productID,
             nRealQty: parseInt(x.data.nRealQty.toString()),
             invCtrlDate: moment().format('YYYY-MM-DD').toString(),
@@ -621,7 +621,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
       const request = {
         productID: changedData.productID,
-        warehouseCode: '001',
+        warehouseCode: this.tokenService.wareHouse?.warehouseCode,
         retroDays: 7
       } as GetLatestIccRequest
 
