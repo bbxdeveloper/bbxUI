@@ -479,6 +479,12 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     });
 
     this.filterForm.valueChanges.subscribe(value => {
+      if (value.CustomerSearch === '') {
+        value.CustomerName = ''
+        value.CustomerAddress = ''
+        value.CustomerTaxNumber = ''
+      }
+
       const filterData = {
         offerNumber: value.OfferNumber,
         customerSearch: value.CustomerSearch,
@@ -713,7 +719,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   ChoseDataForFormByTaxtNumber(): void {
-    debugger;
     console.log("Selecting Customer from avaiable data by taxtnumber.");
 
     this.isLoading = true;
