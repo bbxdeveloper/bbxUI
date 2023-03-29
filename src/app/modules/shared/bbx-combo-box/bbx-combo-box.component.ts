@@ -40,7 +40,7 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
   TileCssColClass = TileCssColClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get cssClasses(): string {

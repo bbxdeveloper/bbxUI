@@ -152,7 +152,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   get NextTabIndex() { return this.tabIndex++; }
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get invCtrlDate(): Date | undefined {

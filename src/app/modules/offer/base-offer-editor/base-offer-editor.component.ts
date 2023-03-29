@@ -191,7 +191,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   get NextTabIndex() { return this.tabIndex++; }
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get offerIssueDateValue(): Date | undefined {

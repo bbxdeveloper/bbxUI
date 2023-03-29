@@ -21,7 +21,7 @@ export class OneButtonMessageDialogComponent extends BaseNavigatableComponentCom
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   constructor(

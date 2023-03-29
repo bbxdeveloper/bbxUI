@@ -49,6 +49,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       case KeyboardModes.EDIT:
         return "Mód: Szerkesztés";
         break;
+      case KeyboardModes.NAVIGATION_EDIT:
+        return "Mód: Javítás";
+        break;
       default:
         return "Mód: Ismeretlen";
         break;
@@ -64,6 +67,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       case KeyboardModes.EDIT:
         return "warning";
         break;
+      case KeyboardModes.NAVIGATION_EDIT:
       default:
         return "danger";
         break;

@@ -160,7 +160,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   get NextTabIndex() { return this.tabIndex++; }
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get invoiceIssueDateValue(): Date | undefined {

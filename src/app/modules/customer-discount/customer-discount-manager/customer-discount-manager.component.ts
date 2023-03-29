@@ -120,7 +120,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   get NextTabIndex() { return this.tabIndex++; }
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get invCtrlDate(): Date | undefined {

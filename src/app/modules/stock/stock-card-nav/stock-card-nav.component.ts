@@ -221,7 +221,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public override KeySetting: Constants.KeySettingsDct = StockCardNavKeySettings;
