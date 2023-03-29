@@ -10,6 +10,7 @@ import { BehaviorSubject } from 'rxjs';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CommonService } from 'src/app/services/common.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-login-dialog',
@@ -38,7 +39,8 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     protected dialogRef: NbDialogRef<LoginDialogComponent>,
     private kbS: KeyboardNavigationService,
     private wareHouseApi: WareHouseService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private statusService: StatusService
   ) {
     super();
     this.Setup();
@@ -111,6 +113,8 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
 
   private async refreshComboboxData(): Promise<void> {
     try {
+      this.statusService.waitForLoad()
+
       const warehouseData = await this.wareHouseApi.GetAllPromise()
 
       this.wareHousesData = warehouseData.data ?? []
@@ -118,6 +122,8 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
       this.wareHouseComboData$.next(this.wareHouses)
     } catch (error) {
       this.commonService.HandleError(error)
+    } finally {
+      this.statusService.waitForLoad(false)
     }
   }
 }
