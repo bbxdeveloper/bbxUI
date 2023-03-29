@@ -659,7 +659,7 @@ export class InvCtrlPeriodManagerComponent
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
+        console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
