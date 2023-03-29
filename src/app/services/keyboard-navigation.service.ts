@@ -11,7 +11,7 @@ interface MatrixCoordinate {
 }
 
 export enum KeyboardModes {
-  NAVIGATION, EDIT
+  NAVIGATION, EDIT, NAVIGATION_EDIT
 }
 
 export enum PreferredSelectionMethod {
@@ -51,7 +51,7 @@ export class KeyboardNavigationService {
     return this._currentKeyboardMode;
   }
   get isEditModeActivated() {
-    return this._currentKeyboardMode === KeyboardModes.EDIT;
+    return this._currentKeyboardMode !== KeyboardModes.NAVIGATION;
   }
 
   ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -333,6 +333,14 @@ export class KeyboardNavigationService {
 
   IsCurrentNavigatable(potentialNavigatable: INavigatable): boolean {
     return this.CurrentNavigatable.constructor.name === potentialNavigatable.constructor.name;
+  }
+
+  IsCurrentNavigatableTable(): boolean {
+    return this.CurrentNavigatable.constructor.name.endsWith("Table")
+  }
+
+  IsCurrentNavigatableForm(): boolean {
+    return this.CurrentNavigatable.constructor.name.endsWith("Form")
   }
 
   MoveCursorBeforeFirstChar(): void {

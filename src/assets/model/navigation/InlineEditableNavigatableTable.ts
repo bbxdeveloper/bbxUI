@@ -67,7 +67,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     colsToIgnore: string[];
 
     get isEditModeOff() {
-        return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+        return !this.kbS.isEditModeActivated;
     }
 
     productCreatorRow: TreeGridNode<T>;
@@ -419,7 +419,15 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
         const fromEditMode = this.kbs.isEditModeActivated; // && !!this.editedRow && !!this.editedRow?.data;
 
-        this.kbs.setEditMode(firstCol ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT);
+        if (firstCol) {
+            this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+        } else {
+            if (fromEditMode) {
+                this.kbs.setEditMode(KeyboardModes.EDIT);
+            } else {
+                this.kbs.setEditMode(KeyboardModes.NAVIGATION);
+            }
+        }
 
         this.ResetEdit();
 
@@ -433,6 +441,28 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+        switch (this.kbS.currentKeyboardMode) {
+            case KeyboardModes.NAVIGATION: {
+                if (colPos == 0) {
+                    this.HandleGridEnterOld(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable)
+                } else {
+                    this.Edit(row, rowPos, col);
+                    this.kbS.setEditMode(KeyboardModes.NAVIGATION_EDIT)
+                }
+                break
+            }
+            case KeyboardModes.EDIT: {
+                this.HandleGridEnterOld(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable)
+                break
+            }
+            case KeyboardModes.NAVIGATION_EDIT: {
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+                break
+            }
+        }
+    }
+
+    private HandleGridEnterOld(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
         // Is there a currently edited row?
         let wasEditActivatedPreviously = this.kbS.isEditModeActivated && !!this.editedRow;
         let firstCol = colPos === 0;
@@ -775,7 +805,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     isEditingCell(rowIndex: number, col: string): boolean {
-        return this.kbS.isEditModeActivated && !!this.editedRow && this.editedRowPos == rowIndex && this.editedProperty == col;
+        return this.kbS.currentKeyboardMode !== KeyboardModes.NAVIGATION && !!this.editedRow && this.editedRowPos == rowIndex && this.editedProperty == col;
     }
 
     ClearEdit(): void {
