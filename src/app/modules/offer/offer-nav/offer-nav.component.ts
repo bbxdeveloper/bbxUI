@@ -272,6 +272,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceOfferIssueDateTo(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -289,6 +290,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceOfferVaidityDateTo(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -341,11 +343,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.Setup();
   }
 
-  // InitFormDefaultValues(): void {
-  //   this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
-  //   this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
-  // }
-
   ToInt(p: any): number {
     return parseInt(p + '');
   }
@@ -360,8 +357,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateOfferIssueDateTo(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferIssueDateFrom === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !this.invoiceOfferIssueDateFrom) {
       return null;
     }
 
@@ -372,7 +370,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   validateOfferValidityDateFrom(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferVaidityDateTo === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !this.invoiceOfferVaidityDateTo) {
       return null;
     }
 
@@ -381,8 +379,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateOfferValidityDateTo(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferValidityDateFrom === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !this.invoiceOfferValidityDateFrom) {
       return null;
     }
 
@@ -446,7 +445,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   private setupFilterForm(): void {
     let filterData = this.localStorage.get<OfferFilter>(this.localStorageKey)
 
-    if (!filterData) {
+    if (!filterData || filterData.customerSearch === '') {
       filterData = OfferFilter.create()
     }
 
@@ -483,6 +482,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         value.CustomerName = ''
         value.CustomerAddress = ''
         value.CustomerTaxNumber = ''
+
+        this.localStorage.remove(this.localStorageKey)
       }
 
       const filterData = {
@@ -625,7 +626,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   public async ngOnInit(): Promise<void> {
-    if (this.localStorage.has(this.localStorageKey)) {
+    const filterData = this.localStorage.get<OfferFilter>(this.localStorageKey)
+    if (filterData && filterData.customerSearch !== '') {
       await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
 
       await this.RefreshAsync(this.getInputParams)
