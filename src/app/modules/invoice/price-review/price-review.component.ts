@@ -752,6 +752,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       // we have vatRate
       this.dbData.forEach(x => {
         x.data.vatRate = (x.data as any).vatPercentage;
+        x.data.productDescription = (x.data as any).lineDescription
 
         x.data.Save()
       })
@@ -1134,10 +1135,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       const customerDiscount = customerDiscounts.find(x => x.productGroupCode === product.productGroupCode)
 
-      if (!customerDiscount)
-        return
+      const discount = customerDiscount?.discount ?? 0;
 
-      invoiceLine.unitPrice = product.unitPrice2 - product.unitPrice2 * customerDiscount.discount / 100
+      invoiceLine.unitPrice = product.unitPrice2 - product.unitPrice2 * discount / 100
       invoiceLine.priceReview = false
 
       invoiceLine.Save()
