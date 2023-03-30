@@ -6,6 +6,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoginDialogResponse } from '../models/LoginDialogResponse';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { BehaviorSubject } from 'rxjs';
+import { WareHouseService } from '../../warehouse/services/ware-house.service';
+import { CommonService } from 'src/app/services/common.service';
+import { WareHouse } from '../../warehouse/models/WareHouse';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-login-dialog',
@@ -24,10 +29,18 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
   }
 
+  // WareHouse
+  wareHouses: string[] = []
+  wareHousesData: WareHouse[] = []
+  wareHouseComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
+
   constructor(
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<LoginDialogComponent>,
-    private kbS: KeyboardNavigationService
+    private kbS: KeyboardNavigationService,
+    private wareHouseApi: WareHouseService,
+    private commonService: CommonService,
+    private statusService: StatusService
   ) {
     super();
     this.Setup();
@@ -52,6 +65,7 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     const loginForm = new FormGroup({
       username: new FormControl('', [Validators.required]),
       password: new FormControl('', [Validators.required]),
+      wareHouse: new FormControl('', [Validators.required]),
     });
 
     this.loginFormNav = new NavigatableForm(
@@ -64,11 +78,12 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     this.OuterJump = true;
   }
 
-  ngAfterViewInit(): void {
-    this.kbS.SetWidgetNavigatable(this);
-    this.loginFormNav.GenerateAndSetNavMatrices(true);
-    this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
+  async ngAfterViewInit(): Promise<void> {
+    await this.refreshComboboxData()
+    this.kbS.SetWidgetNavigatable(this)
+    this.loginFormNav.GenerateAndSetNavMatrices(true)
+    this.kbS.SelectFirstTile()
+    this.kbS.setEditMode(KeyboardModes.EDIT)
   }
 
   ngOnDestroy(): void {
@@ -82,14 +97,33 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     this.closedManually = true;
     this.kbS.RemoveWidgetNavigatable();
     if (answer && this.loginFormNav.form.valid) {
+      let wareHouse = this.wareHousesData.find(x => x.warehouseDescription === this.loginFormNav.form.controls['wareHouse'].value);
       this.dialogRef.close({
         answer: true,
         name: this.loginFormNav.GetValue('username'),
-        pswd: this.loginFormNav.GetValue('password')
+        pswd: this.loginFormNav.GetValue('password'),
+        wareHouse: wareHouse
+      } as LoginDialogResponse);
+    } else {
+      this.dialogRef.close({
+        answer: false
       } as LoginDialogResponse);
     }
-    this.dialogRef.close({
-      answer: false
-    } as LoginDialogResponse);
+  }
+
+  private async refreshComboboxData(): Promise<void> {
+    try {
+      this.statusService.waitForLoad()
+
+      const warehouseData = await this.wareHouseApi.GetAllPromise()
+
+      this.wareHousesData = warehouseData.data ?? []
+      this.wareHouses = warehouseData?.data?.map(x => x.warehouseDescription) ?? []
+      this.wareHouseComboData$.next(this.wareHouses)
+    } catch (error) {
+      this.commonService.HandleError(error)
+    } finally {
+      this.statusService.waitForLoad(false)
+    }
   }
 }

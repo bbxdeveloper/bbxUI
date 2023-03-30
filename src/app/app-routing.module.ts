@@ -7,6 +7,7 @@ import { DashboardComponent } from './modules/core/dashboard/dashboard.component
 import { CounterManagerComponent } from './modules/counter/counter-manager/counter-manager.component';
 import { CustomerDiscountManagerComponent } from './modules/customer-discount/customer-discount-manager/customer-discount-manager.component';
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
+import { ContInvCtrlComponent } from './modules/inventory/cont-inv-ctrl/cont-inv-ctrl.component';
 import { InvCtrlAbsentComponent } from './modules/inventory/inv-ctrl-absent/inv-ctrl-absent.component';
 import { InvCtrlItemManagerComponent } from './modules/inventory/inv-ctrl-item-manager/inv-ctrl-item-manager.component';
 import { InvCtrlPeriodManagerComponent } from './modules/inventory/inv-ctrl-period-manager/inv-ctrl-period-manager.component';
@@ -145,6 +146,10 @@ const routes: Routes = [
       {
         path: "invctrlabsent",
         component: InvCtrlAbsentComponent,
+      },
+      {
+        path: "cont-invctrl",
+        component: ContInvCtrlComponent,
       }
     ]
   },

@@ -63,7 +63,7 @@ export class CustomerService {
     return this.http.get<CountryCode[]>(this.BaseUrl + '/countrycode');
   }
 
-  GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {
+  public GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -81,19 +81,6 @@ export class CustomerService {
       });
     }
 
-    // console.log(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : '')); // TODO: only for debug
-
-    // Get
-    
-    // return of({
-    //   pageSize: 20,
-    //   pageNumber: 1,
-    //   succeeded: true,
-    //   data: MOCK_DATA,
-    //   recordsTotal: 20,
-    //   recordsFiltered: 0
-    // } as GetCustomersResponse);
-    
     return this.http.get<GetCustomersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 

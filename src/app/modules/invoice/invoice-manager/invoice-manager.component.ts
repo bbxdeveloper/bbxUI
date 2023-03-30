@@ -862,7 +862,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                   MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
                   Obs: this.seInv.GetReport.bind(this.seInv),
-                  Reset: this.Reset.bind(this),
+                  Reset: this.DelayedReset.bind(this),
                   ReportParams: {
                     "id": d.data?.id,
                     "copies": 1 // Ki lesz töltve dialog alapján

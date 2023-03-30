@@ -64,6 +64,8 @@ export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrl
     "nRealQty": number = 0;
     "userID": number = 0;
 
+    doAddToExisting?: boolean = false
+
     constructor() {
         super();
         this.SaveDefault();

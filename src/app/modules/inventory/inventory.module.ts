@@ -11,6 +11,7 @@ import { SharedModule } from '../shared/shared.module';
 import { InvCtrlItemManagerComponent } from './inv-ctrl-item-manager/inv-ctrl-item-manager.component';
 import { InvRowNavComponent } from './inv-row-nav/inv-row-nav.component';
 import { InvCtrlAbsentComponent } from './inv-ctrl-absent/inv-ctrl-absent.component';
+import { ContInvCtrlComponent } from './cont-inv-ctrl/cont-inv-ctrl.component';
 
 
 
@@ -20,7 +21,8 @@ import { InvCtrlAbsentComponent } from './inv-ctrl-absent/inv-ctrl-absent.compon
     InvCtrlPeriodSideBarFormComponent,
     InvCtrlItemManagerComponent,
     InvRowNavComponent,
-    InvCtrlAbsentComponent
+    InvCtrlAbsentComponent,
+    ContInvCtrlComponent
   ],
   imports: [
     CommonModule,
