@@ -511,7 +511,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     });
   }
 
-  ChooseDataForForm(): void {}
+  ChooseDataForCustomerForm(): void {}
   RefreshData(): void {}
   RecalcNetAndVat(): void {}
 

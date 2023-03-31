@@ -284,7 +284,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   ChooseDataForTableRow(rowIndex: number): void {
     throw new Error('Method not implemented.');
   }
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     throw new Error('Method not implemented.');
   }
 
@@ -497,7 +497,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       );
       return;
     }
-    
+
     this.isLoading = true;
 
     await lastValueFrom(this.stockService.GetAll(params))

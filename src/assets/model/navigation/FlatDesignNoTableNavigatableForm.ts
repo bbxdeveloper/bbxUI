@@ -488,7 +488,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         switch (event.key) {
             case KeyBindings.F2: {
                 event.preventDefault();
-                this.parentComponent.ChooseDataForForm();
+                this.parentComponent.ChooseDataForCustomerForm();
                 break;
             }
             default: { }

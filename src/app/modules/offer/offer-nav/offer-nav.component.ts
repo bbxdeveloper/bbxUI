@@ -868,7 +868,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   ChooseDataForTableRow(rowIndex: number): void {}
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);

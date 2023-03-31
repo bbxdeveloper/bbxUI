@@ -31,6 +31,8 @@ export class InvoiceLine extends MementoObject implements IEditable {
     @JsonIgnore
     public override DeafultFieldList: string[] = ['productCode'];
 
+    id?: string
+
     @JsonIgnore
     public requiredFields?: string[]
 
@@ -65,6 +67,10 @@ export class InvoiceLine extends MementoObject implements IEditable {
     @JsonIgnore
     discount: number = 0;
 
+
+    productID?: number
+
+
     vatRate: number = 1; // hidden
 
     @JsonIgnore
@@ -74,6 +80,11 @@ export class InvoiceLine extends MementoObject implements IEditable {
 
     @JsonIgnore
     workNumber: string = ''
+
+    /**
+     * Árfelülvizsgálatos-e ez a sor
+     */
+    priceReview: boolean = false
 
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.

@@ -59,6 +59,7 @@ export class InlineEditableTableComponent implements OnInit {
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
   @Input() confirmRowDelete: boolean = false;
+  @Input() isRowInErrorState: (row: any) => boolean = (row: any) => false
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -159,7 +160,7 @@ export class InlineEditableTableComponent implements OnInit {
         event, row, rowPos, objectKey, colPos, inputId, fInputType,
         !this.isEditModeOn, event.ctrlKey, event.shiftKey
       );
-      
+
       return;
     }
     switch ((event as KeyboardEvent).key) {
@@ -182,7 +183,7 @@ export class InlineEditableTableComponent implements OnInit {
           this.HandleGridEnter(row, rowPos, objectKey, colPos, 'PRODUCT-EDIT', fInputType, this.isEditModeOn, true, this.currentNavigatable);
         }
         return;
-      
+
       default:
         break;
     }

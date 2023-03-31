@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { lastValueFrom, Observable, of, throwError } from 'rxjs';
+import { firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
-import { GetInvoiceParamListModel } from '../models/GetInvoiceParamListModel';
+import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { Invoice } from '../models/Invoice';
 import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { CreateOutgoingInvoiceResponse } from '../models/CreateOutgoingInvoiceResponse';
@@ -18,7 +18,9 @@ import { InvoiceLine } from '../models/InvoiceLine';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { PricePreviewRequest } from '../models/PricePreviewRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -45,10 +47,11 @@ export class InvoiceService {
     return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Get(params?: GetInvoiceParamListModel): Observable<Invoice> {
+  public Get(params: GetInvoiceRequest): Promise<Invoice> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const response = this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
 
-    return this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return firstValueFrom(response)
   }
 
   CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLine>): Observable<CreateOutgoingInvoiceResponse> {
@@ -121,10 +124,31 @@ export class InvoiceService {
     return await lastValueFrom(request)
   }
 
-  public async GetPendingDeliveryNotes(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNote[]> {
+  public async GetPendingDeliveryNotesItems(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNoteItem[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
-    const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotesitems?' + queryParams)
+    const request = this.http.get<PendingDeliveryNoteItem[]>(this.BaseUrl + '/pendigdeliverynotesitems?' + queryParams)
 
     return await lastValueFrom(request)
+  }
+
+  public GetPendingDeliveryNotes(): Promise<PendingDeliveryNote[]> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString({
+      incoming: false,
+      warehouseCode: '001',
+      currencyCode: 'HUF'
+    })
+    const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
+
+    return lastValueFrom(request)
+  }
+
+  public pricePreview(pricePreview: PricePreviewRequest): Promise<CreateOutgoingInvoiceResponse> {
+    const body = JSON.stringify(pricePreview)
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('charset', 'utf')
+    const request = this.http.patch<CreateOutgoingInvoiceResponse>(this.BaseUrl + '/pricepreview', body, { headers })
+
+    return firstValueFrom(request)
   }
 }
