@@ -441,6 +441,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+        if (environment.inlineEditableTableKeyboardDebug) console.trace(this.constructor.name, this.HandleGridEnter.name)
         switch (this.kbS.currentKeyboardMode) {
             case KeyboardModes.NAVIGATION: {
                 if (colPos == 0) {
@@ -448,15 +449,32 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 } else {
                     this.Edit(row, rowPos, col);
                     this.kbS.setEditMode(KeyboardModes.NAVIGATION_EDIT)
+                    this.SelectInputChar(inputId, fInputType ?? '', row, col)
                 }
                 break
             }
             case KeyboardModes.EDIT: {
+                // Standard case for ENTER key
                 this.HandleGridEnterOld(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable)
+                // Refocus current element
+                this.kbs.SelectCurrentElement()
                 break
             }
             case KeyboardModes.NAVIGATION_EDIT: {
+                // Cache edited data
+                let tmp: T | undefined = this.editedRow?.data;
+                // Clear edit data
+                this.ResetEdit();
+                // Detect changes in DOM
+                this.cdref!.detectChanges();
+                // Set mode
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+                // Notify the parent component about the datachange
+                this.parentComponent.TableRowDataChanged(tmp, rowPos, col)
+                // Refresh parent
+                this.parentComponent.RecalcNetAndVat()
+                // Refocus current element
+                this.kbs.SelectCurrentElement()
                 break
             }
         }
@@ -487,19 +505,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             first column: ${colPos === 0}, mechanical click: ${this.mechanicalClick}
             ===================================`
         );
-
-        //this.repairMode = !fromEditMode && !firstCol;
-        // if (!this.repairMode) {
-        //     this.repairMode =
-        //         !firstCol &&
-        //         (!this.kbs.isEditModeActivated && !fromClickMethod) ||
-        //         (fromEditMode && fromClickMethod);
-        // }
-        // if (this.mechanicalClick) {
-        //     this.mechanicalClick = false;
-        //     fromClickMethod = false;
-        //     this.repairMode = false;
-        // }
 
 
         // Cache edited data
@@ -553,37 +558,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             } else {
                 // Entering edit mode
                 this.Edit(row, rowPos, col);
-                this.cdref!.detectChanges();
-                $('#' + inputId).trigger('focus');
-
-                if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
-                    const _input = document.getElementById(inputId) as HTMLInputElement;
-                    if (!!_input && _input.type === "text") {
-                        window.setTimeout(function () {
-                            const txtVal = $(_input).val() + '';
-                            console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
-                            if (!!txtVal) {
-                                const l = txtVal.split('.')[0].length;
-                                _input.setSelectionRange(0, l);
-                            } else {
-                                _input.setSelectionRange(0, 1);
-                            }
-                        }, 0);
-                    }
-                } else {
-                    const _input = document.getElementById(inputId) as HTMLInputElement;
-                    if (!!_input && _input.type === "text") {
-                        window.setTimeout(function () {
-                            const txtVal = ((row.data as any)[col] as string);
-                            console.log('txtVal: ', txtVal);
-                            if (!!txtVal) {
-                                _input.setSelectionRange(txtVal.length, txtVal.length);
-                            } else {
-                                _input.setSelectionRange(0, 0);
-                            }
-                        }, 0);
-                    }
-                }
+                this.SelectInputChar(inputId, fInputType ?? '', row, col)
             }
 
             this.PushFooterCommandList();
@@ -633,37 +608,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 } else {
                     // Entering edit mode
                     this.Edit(row, rowPos, col);
-                    this.cdref!.detectChanges();
-                    $('#' + inputId).trigger('focus');
-
-                    if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
-                        const _input = document.getElementById(inputId) as HTMLInputElement;
-                        if (!!_input && _input.type === "text") {
-                            window.setTimeout(function () {
-                                const txtVal = $(_input).val() + '';
-                                console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
-                                if (!!txtVal) {
-                                    const l = txtVal.split('.')[0].length;
-                                    _input.setSelectionRange(0, l);
-                                } else {
-                                    _input.setSelectionRange(0, 1);
-                                }
-                            }, 0);
-                        }
-                    } else {
-                        const _input = document.getElementById(inputId) as HTMLInputElement;
-                        if (!!_input && _input.type === "text") {
-                            window.setTimeout(function () {
-                                const txtVal = ((row.data as any)[col] as string);
-                                console.log('txtVal: ', txtVal);
-                                if (!!txtVal) {
-                                    _input.setSelectionRange(txtVal.length, txtVal.length);
-                                } else {
-                                    _input.setSelectionRange(0, 0);
-                                }
-                            }, 0);
-                        }
-                    }
+                    this.SelectInputChar(inputId, fInputType ?? '', row, col)
                 }
 
                 this.PushFooterCommandList();
@@ -673,6 +618,40 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         this.parentComponent.RecalcNetAndVat();
+    }
+
+    private SelectInputChar(inputId: string, fInputType: string, row: any, col: any): void {
+        this.cdref!.detectChanges();
+        $('#' + inputId).trigger('focus');
+
+        if (FORMATTED_NUMBER_COL_TYPES.includes(fInputType ?? '')) {
+            const _input = document.getElementById(inputId) as HTMLInputElement;
+            if (!!_input && _input.type === "text") {
+                window.setTimeout(function () {
+                    const txtVal = $(_input).val() + '';
+                    console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
+                    if (!!txtVal) {
+                        const l = txtVal.split('.')[0].length;
+                        _input.setSelectionRange(0, l);
+                    } else {
+                        _input.setSelectionRange(0, 1);
+                    }
+                }, 0);
+            }
+        } else {
+            const _input = document.getElementById(inputId) as HTMLInputElement;
+            if (!!_input && _input.type === "text") {
+                window.setTimeout(function () {
+                    const txtVal = ((row.data as any)[col] as string);
+                    console.log('txtVal: ', txtVal);
+                    if (!!txtVal) {
+                        _input.setSelectionRange(txtVal.length, txtVal.length);
+                    } else {
+                        _input.setSelectionRange(0, 0);
+                    }
+                }, 0);
+            }
+        }
     }
 
     private ApplyGridEnterEffects(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
