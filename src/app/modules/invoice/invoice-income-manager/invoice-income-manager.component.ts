@@ -867,7 +867,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                   MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,
                   Obs: this.seInv.GetReport.bind(this.seInv),
-                  Reset: this.Reset.bind(this),
+                  Reset: this.DelayedReset.bind(this),
                   ReportParams: {
                     "id": d.data?.id,
                     "copies": 1 // Ki lesz töltve dialog alapján
@@ -940,7 +940,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     });
   }
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -1221,7 +1221,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             return;
           }
           event.preventDefault();
-          this.ChooseDataForForm();
+          this.ChooseDataForCustomerForm();
           break;
         }
         case this.KeySetting[Actions.Create].KeyCode: {

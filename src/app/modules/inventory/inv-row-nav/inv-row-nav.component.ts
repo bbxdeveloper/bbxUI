@@ -403,7 +403,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     return !isNaN(parseFloat(val2));
   }
 
-  ChooseDataForForm(): void {}
+  ChooseDataForCustomerForm(): void {}
 
   RefreshData(): void { }
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }

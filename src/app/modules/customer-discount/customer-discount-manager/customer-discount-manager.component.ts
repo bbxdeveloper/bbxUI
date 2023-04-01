@@ -453,7 +453,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     });
   }
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -972,7 +972,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
             return;
           }
           event.preventDefault();
-          this.ChooseDataForForm();
+          this.ChooseDataForCustomerForm();
           break;
         }
         case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {

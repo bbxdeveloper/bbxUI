@@ -615,7 +615,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
   ChooseDataForTableRow(rowIndex: number): void { }
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Product from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);

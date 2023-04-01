@@ -473,7 +473,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -659,7 +659,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       );
       return;
     }
-    
+
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,

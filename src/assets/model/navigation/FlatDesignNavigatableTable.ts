@@ -602,7 +602,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             }
             case this.KeySetting[Actions.Delete].KeyCode: {
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
-                if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default && this.sidebarService.sideBarOpened) {
+                if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default) {
                     event.preventDefault();
                     this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();

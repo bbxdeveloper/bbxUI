@@ -183,6 +183,15 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     })
   }
 
+  protected DelayedReset(delay: number = 200): void {
+    const currentUrl = this.router.url
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      setTimeout(() => {
+        this.router.navigate([currentUrl])
+      }, delay);
+    })
+  }
+
   JumpToCell(key: string, edit: boolean = true){
     var colIndex = this.colDefs.findIndex(x => x.objectKey === key);
     if (colIndex === -1) {

@@ -15,7 +15,6 @@ import { Constants } from 'src/assets/util/Constants';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
@@ -23,7 +22,7 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
-import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
+import { InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
@@ -428,7 +427,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     });
   }
 
-  ChooseDataForForm(): void {}
+  ChooseDataForCustomerForm(): void {}
   RefreshData(): void {}
   RecalcNetAndVat(): void {}
 

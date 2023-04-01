@@ -739,5 +739,5 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   ChooseDataForTableRow(rowIndex: number): void { }
-  ChooseDataForForm(): void {}
+  ChooseDataForCustomerForm(): void {}
 }

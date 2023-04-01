@@ -924,7 +924,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             return;
           }
           event.preventDefault();
-          this.ChooseDataForForm();
+          this.ChooseDataForCustomerForm();
           break;
         }
         case this.KeySetting[Actions.Create].KeyCode: {
