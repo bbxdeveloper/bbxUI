@@ -380,7 +380,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         this.validatePaymentDate.bind(this),
         validDate
       ]),
-      invoiceOrdinal: new FormControl('', []), // in post response
+      invoiceNumber: new FormControl('', []), // in post response
       notice: new FormControl('', []),
     });
   }
@@ -743,6 +743,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       controls = this.outInvForm.controls
       controls['invoiceDeliveryDate'].setValue(response.invoiceDeliveryDate)
       controls['invoiceIssueDate'].setValue(response.invoiceIssueDate)
+      controls['invoiceNumber'].setValue(response.invoiceNumber)
       controls['paymentDate'].setValue(response.paymentDate)
 
       this.dbData = response.invoiceLines
@@ -838,7 +839,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       return;
     }
 
-    this.outInvForm.controls['invoiceOrdinal'].reset();
+    this.outInvForm.controls['invoiceNumber'].reset();
 
     this.UpdateOutGoingData();
 
