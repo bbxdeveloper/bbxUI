@@ -31,7 +31,6 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
-import { firstValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { InvoiceType } from '../../system/models/InvoiceType';
 
@@ -228,24 +227,24 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   ];
 
   override get getInputParams(): GetInvoicesParamListModel {
+    const controls = this.filterForm.controls
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
+      InvoiceType: this.invoiceTypes.find(x => x.text === controls['InvoiceType'].value)?.value ?? '',
+
       WarehouseCode: HelperFunctions
-        .ConvertChosenWareHouseToCode(this.filterForm.controls['WarehouseCode'].value, this.warehouses, ''),
+        .ConvertChosenWareHouseToCode(controls['WarehouseCode'].value, this.warehouses, ''),
 
       // Radio 1
-      InvoiceIssueDateFrom: this.isIssueFilterSelected ?
-        this.filterForm.controls['InvoiceIssueDateFrom'].value : null,
-      InvoiceIssueDateTo: this.isIssueFilterSelected ?
-        this.filterForm.controls['InvoiceIssueDateTo'].value : null,
+      InvoiceIssueDateFrom: this.isIssueFilterSelected ? controls['InvoiceIssueDateFrom'].value : null,
+      InvoiceIssueDateTo: this.isIssueFilterSelected ? controls['InvoiceIssueDateTo'].value : null,
 
       // Radio 2
-      InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ?
-        this.filterForm.controls['InvoiceDeliveryDateFrom'].value : null,
-      InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ?
-        this.filterForm.controls['InvoiceDeliveryDateTo'].value : null,
+      InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateFrom'].value : null,
+      InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateTo'].value : null,
+      OrderBy: 'InvoiceNumber'
     };
   }
 
@@ -579,11 +578,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     });
   }
 
-  override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
+  override async Refresh(): Promise<void> {
     this.isLoading = true;
 
     try {
-      const response = await firstValueFrom(this.invoiceService.GetAll(params))
+      const response = await this.invoiceService.getAllAsync(this.getInputParams)
 
       if (response && response.succeeded && !!response.data) {
         const tempData = response.data.map((x) => {
@@ -657,7 +656,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     await Promise.all(requests)
 
-    await this.RefreshAll(this.getInputParams);
+    await this.Refresh();
 
     if (this.localStorage.has(this.localStorageKey)) {
       this.navigateToTable()
@@ -689,10 +688,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
-  }
-
-  private async RefreshAll(params?: GetInvoicesParamListModel): Promise<void> {
-    await this.Refresh(params);
   }
 
   RefreshData(): void { }
