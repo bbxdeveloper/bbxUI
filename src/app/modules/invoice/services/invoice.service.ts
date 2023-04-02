@@ -155,4 +155,11 @@ export class InvoiceService {
 
     return firstValueFrom(request)
   }
+
+  public getCsv(params: GetInvoicesParamListModel): Promise<unknown> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    const request = this.http.get<unknown>(this.BaseUrl + '/csv?' + queryParams)
+
+    return firstValueFrom(request)
+  }
 }

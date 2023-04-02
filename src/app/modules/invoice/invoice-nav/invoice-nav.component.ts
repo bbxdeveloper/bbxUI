@@ -717,6 +717,22 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   Delete(): void { }
 
+  @HostListener('window:keydown.f12', ['$event'])
+  public async getCsv(): Promise<void> {
+    try {
+      this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
+
+      const response = await this.invoiceService.getCsv(this.getInputParams)
+
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+    }
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event'])
@@ -739,15 +755,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       return;
     }
     switch (event.key) {
-      case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-
-        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
-        this.dbDataTable?.HandleKey(event);
-        break;
-      }
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
