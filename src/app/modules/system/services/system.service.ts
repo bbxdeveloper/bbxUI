@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { CurrencyCode } from '../models/CurrencyCode';
 import { GetExchangeRateParamsModel } from '../models/GetExchangeRateParamsModel';
 import { ZipInfo } from '../models/ZipInfo';
+import { InvoiceType } from '../models/InvoiceType';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +15,11 @@ export class SystemService {
 
   constructor(private http: HttpClient) { }
 
-  GetAllCurrencyCodes(): Observable<CurrencyCode[]> {
+  public GetAllCurrencyCodes(): Observable<CurrencyCode[]> {
     return this.http.get<CurrencyCode[]>(this.BaseUrl + '/currencycodes');
   }
 
-  GetExchangeRate(params: GetExchangeRateParamsModel): Observable<number> {
+  public GetExchangeRate(params: GetExchangeRateParamsModel): Observable<number> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -39,11 +40,16 @@ export class SystemService {
     return this.http.get<number>(this.BaseUrl + '/exchangerate' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  CityByZip(zip: number | string): Observable<ZipInfo> {
+  public CityByZip(zip: number | string): Observable<ZipInfo> {
     return this.http.get<ZipInfo>(this.BaseUrl + '/citybyzip?ZipCode=' + zip);
   }
 
-  ZipByCity(city: string): Observable<ZipInfo> {
+  public ZipByCity(city: string): Observable<ZipInfo> {
     return this.http.get<ZipInfo>(this.BaseUrl + '/zipbycity?ZipCity=' + city);
+  }
+
+  public getInvoiceTypes(): Promise<InvoiceType[]> {
+    const request = this.http.get<InvoiceType[]>(this.BaseUrl + '/invoicetypes')
+    return firstValueFrom(request)
   }
 }

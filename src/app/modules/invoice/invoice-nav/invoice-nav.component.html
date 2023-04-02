@@ -9,6 +9,11 @@
                         (keydown.escape)="filterFormNav.HandleFormEscape()">
 
                         <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
+                            formFieldName="InvoiceType" class="nav-configuration" label="Bizonylattípus"
+                            [data$]="invoiceTypes$">
+                        </app-bbx-two-row-combo-box>
+
+                        <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
                             formFieldName="WarehouseCode" class="nav-configuration" label="Raktár"
                             [data$]="wareHouseData$">
                         </app-bbx-two-row-combo-box>

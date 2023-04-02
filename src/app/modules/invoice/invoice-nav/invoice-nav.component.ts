@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -32,6 +32,8 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
 import { firstValueFrom } from 'rxjs';
+import { SystemService } from '../../system/services/system.service';
+import { InvoiceType } from '../../system/models/InvoiceType';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -56,11 +58,9 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     'invoiceNumber',
     'warehouse',
     'customerName',
-    //'customerCity',
     'paymentMethodX',
     'invoiceDeliveryDate',
     'invoiceIssueDate',
-    //'paymentDate',
     'invoiceNetAmount',
     'invoiceVatAmount',
     'invoiceGrossAmount',
@@ -233,7 +233,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       WarehouseCode: HelperFunctions
-        .ConvertChosenWareHouseToCode(this.filterForm.controls['WarehouseCode'].value, this.wh, ''),
+        .ConvertChosenWareHouseToCode(this.filterForm.controls['WarehouseCode'].value, this.warehouses, ''),
 
       // Radio 1
       InvoiceIssueDateFrom: this.isIssueFilterSelected ?
@@ -254,8 +254,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   // WareHouse
-  wh: WareHouse[] = [];
+  warehouses: WareHouse[] = [];
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+  invoiceTypes: InvoiceType[] = []
+  invoiceTypes$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
 
   get isEditModeOff() {
     return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
@@ -299,19 +302,23 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   get isDeliveryFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenDeliveryFilterOptionValue; }
 
   get isIssueFilterSelectedAndValid(): boolean {
+    const controls = this.filterForm.controls
+
     return this.isIssueFilterSelected
-      && this.filterForm.controls['InvoiceIssueDateFrom'].value !== undefined && this.filterForm.controls['InvoiceIssueDateFrom'].value.length > 0
-      && this.filterForm.controls['InvoiceIssueDateTo'].value !== undefined && this.filterForm.controls['InvoiceIssueDateTo'].value.length > 0
-      && this.filterForm.controls['InvoiceIssueDateFrom'].valid && this.filterForm.controls['InvoiceIssueDateTo'].valid
-      && this.filterForm.controls['WarehouseCode'].valid;
+      && controls['InvoiceIssueDateFrom'].value !== undefined && controls['InvoiceIssueDateFrom'].value.length > 0
+      && controls['InvoiceIssueDateTo'].value !== undefined && controls['InvoiceIssueDateTo'].value.length > 0
+      && controls['InvoiceIssueDateFrom'].valid && controls['InvoiceIssueDateTo'].valid
+      && controls['InvoiceType'].valid && controls['WarehouseCode'].valid;
   }
 
   get isDeliveryFilterSelectedAndValid(): boolean {
+    const controls = this.filterForm.controls
+
     return this.isDeliveryFilterSelected
-      && this.filterForm.controls['InvoiceDeliveryDateFrom'].value !== undefined && this.filterForm.controls['InvoiceDeliveryDateFrom'].value.length > 0
-      && this.filterForm.controls['InvoiceDeliveryDateTo'].value !== undefined && this.filterForm.controls['InvoiceDeliveryDateTo'].value.length > 0
-      && this.filterForm.controls['InvoiceDeliveryDateFrom'].valid && this.filterForm.controls['InvoiceDeliveryDateTo'].valid
-      && this.filterForm.controls['WarehouseCode'].valid;
+      && controls['InvoiceDeliveryDateFrom'].value !== undefined && controls['InvoiceDeliveryDateFrom'].value.length > 0
+      && controls['InvoiceDeliveryDateTo'].value !== undefined && controls['InvoiceDeliveryDateTo'].value.length > 0
+      && controls['InvoiceDeliveryDateFrom'].valid && controls['InvoiceDeliveryDateTo'].valid
+      && controls['InvoiceType'].valid && controls['WarehouseCode'].valid;
   }
 
   get invoiceIssueDateFromValue(): Date | undefined {
@@ -351,19 +358,20 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Invoice>>,
-    private cdref: ChangeDetectorRef,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Invoice>>,
+    private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private simpleToastrService: BbxToastrService,
+    private readonly simpleToastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
-    private sidebarFormService: SideBarFormService,
-    private invoiceService: InvoiceService,
-    private wareHouseApi: WareHouseService,
+    private readonly sidebarFormService: SideBarFormService,
+    private readonly invoiceService: InvoiceService,
+    private readonly wareHouseApi: WareHouseService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService,
+    private readonly keyboardHelperService: KeyboardHelperService,
     tokenStorage: TokenStorageService,
-    private readonly localStorage: LocalStorageService
+    private readonly localStorage: LocalStorageService,
+    private readonly systemService: SystemService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -490,6 +498,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
 
     this.filterForm = new FormGroup({
+      InvoiceType: new FormControl(filterData.invoiceType, [Validators.required]),
       WarehouseCode: new FormControl(filterData.warehouseCode, []),
       InvoiceIssueDateFrom: new FormControl(filterData.invoiceIssueDateFrom, [
         this.validateInvoiceIssueDateFrom.bind(this),
@@ -512,6 +521,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.filterForm.valueChanges.subscribe(value => {
       const filterData = {
+        invoiceType: value.InvoiceType,
         warehouseCode: value.WarehouseCode,
         invoiceIssueDateFrom: value.InvoiceIssueDateFrom,
         invoiceIssueDateTo: value.InvoiceIssueDateTo,
@@ -606,13 +616,29 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     try {
       const response = await this.wareHouseApi.GetAllPromise();
       if (!!response && !!response.data) {
-        this.wh = response.data;
-        this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+        this.warehouses = response.data;
+        this.wareHouseData$.next(this.warehouses.map(x => x.warehouseDescription));
       }
     }
     catch (error) {
       this.cs.HandleError(error);
       this.isLoading = false;
+    }
+  }
+
+  private async getAndSetInvoiceTypes(): Promise<void> {
+    try {
+      const invoiceTypes = await this.systemService.getInvoiceTypes()
+
+      if (invoiceTypes) {
+        this.invoiceTypes = invoiceTypes
+        this.invoiceTypes$.next(invoiceTypes.map(x => x.text))
+
+        this.filterForm.controls['InvoiceType'].setValue(invoiceTypes.find(x => x.value === 'INV')?.text ?? '')
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error)
     }
   }
 
@@ -624,7 +650,12 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   public async ngOnInit(): Promise<void> {
-    await this.getAndSetWarehouses()
+    const requests = [
+      this.getAndSetWarehouses(),
+      this.getAndSetInvoiceTypes()
+    ]
+
+    await Promise.all(requests)
 
     await this.RefreshAll(this.getInputParams);
 
@@ -706,7 +737,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       event.stopPropagation();
       return;
     }
-    if (this.khs.IsKeyboardBlocked) {
+    if (this.keyboardHelperService.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
