@@ -173,10 +173,7 @@ export class InlineEditableTableComponent implements OnInit {
     if (event.code === 'Space' && this.kbs.IsElementCheckbox(inputId)) {
       HelperFunctions.StopEvent(event)
       $('#' + inputId).prop("checked", !$('#' + inputId).prop("checked"));
-      // setTimeout(() => {
-      //   this.kbs.SetPositionById(inputId!)
-      //   this.kbs.SelectCurrentElement()
-      // }, 200);
+      row.data[objectKey] = $('#' + inputId).prop("checked");
     }
     if (event.ctrlKey && event.key == KeyBindings.Enter && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       event.preventDefault();
