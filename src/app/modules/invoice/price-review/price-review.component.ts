@@ -746,6 +746,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       controls['invoiceNumber'].setValue(response.invoiceNumber)
       controls['paymentDate'].setValue(response.paymentDate)
 
+      this.outGoingInvoiceData.invoiceDiscountPercent = response.invoiceDiscountPercent
+
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
@@ -779,10 +781,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-
-    // if (this.mode.incoming) {
-      // this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
-    // }
 
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
