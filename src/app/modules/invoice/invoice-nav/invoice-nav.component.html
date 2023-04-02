@@ -32,7 +32,7 @@
 
                         <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
                             *ngIf="isIssueFilterSelected">
-                            <label>Számla keltezés kezdete</label>
+                            <label>Keltezés kezdete</label>
                             <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom'
                                 class="{{TileCssClass}}" (click)="filterFormNav.HandleFormFieldClick($event)"
                                 [readonly]="isEditModeOff" id="m02" mask="0000-00-00" [dropSpecialCharacters]="false"
@@ -44,7 +44,7 @@
 
                         <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
                             *ngIf="isIssueFilterSelected">
-                            <label>Számla keltezés vége</label>
+                            <label>Keltezés vége</label>
                             <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' class="{{TileCssClass}}"
                                 (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                                 mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
@@ -56,7 +56,7 @@
 
                         <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
                             *ngIf="isDeliveryFilterSelected">
-                            <label>Számla teljesítésének kezdete</label>
+                            <label>Teljesítés kezdete</label>
                             <input nbInput type="datetime" formControlName='InvoiceDeliveryDateFrom'
                                 class="{{TileCssClass}}" (click)="filterFormNav.HandleFormFieldClick($event)"
                                 [readonly]="isEditModeOff" id="m03" mask="0000-00-00" [dropSpecialCharacters]="false"
@@ -68,7 +68,7 @@
 
                         <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
                             *ngIf="isDeliveryFilterSelected">
-                            <label>Számla teljesítésének vége</label>
+                            <label>Teljesítés vége</label>
                             <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo'
                                 class="{{TileCssClass}}" (click)="filterFormNav.HandleFormFieldClick($event)"
                                 [readonly]="isEditModeOff" id="m03" mask="0000-00-00" [dropSpecialCharacters]="false"

@@ -68,7 +68,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
-      label: 'Számlaszám',
+      label: 'Bizonylatszám',
       objectKey: 'invoiceNumber',
       colKey: 'invoiceNumber',
       defaultValue: '',
