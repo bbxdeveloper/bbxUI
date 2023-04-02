@@ -28,6 +28,8 @@ export const environment = {
   inlineEditableTableMatrixGenerationLog: false,
   inlineEditableTableNavigatableFormLog: false,
   inlineEditableTableKeyboardDebug: true,
+
+  offerLineLog: false
 };
 
 /*

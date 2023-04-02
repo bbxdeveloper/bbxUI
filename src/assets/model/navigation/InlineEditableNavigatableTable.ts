@@ -441,7 +441,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
-        if (environment.inlineEditableTableKeyboardDebug) console.trace(this.constructor.name, this.HandleGridEnter.name)
+        if (environment.inlineEditableTableKeyboardDebug) console.log(this.constructor.name, this.HandleGridEnter.name)
         switch (this.kbS.currentKeyboardMode) {
             case KeyboardModes.NAVIGATION: {
                 if (colPos == 0) {

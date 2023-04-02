@@ -24,4 +24,6 @@ export const environment = {
   inlineEditableTableMatrixGenerationLog: false,
   inlineEditableTableNavigatableFormLog: false,
   inlineEditableTableKeyboardDebug: false,
+
+  offerLineLog: false
 };

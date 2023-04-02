@@ -150,12 +150,33 @@ export class InlineEditableTableComponent implements OnInit {
     }
     this.dbDataTable?.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable);
   }
+  
+  CheckBoxKeyUp(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
+                    inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.CheckBoxKeyUp.name, event)
+    // if (event.code === 'Space') {
+    //   HelperFunctions.StopEvent(event)
+    //   $('#' + inputId).prop("checked", !$('#' + inputId).prop("checked"));
+    //   setTimeout(() => {
+    //     this.kbs.SetPositionById(inputId!)
+    //     this.kbs.SelectCurrentElement()
+    //   }, 200);
+    // }
+  }
 
   HandleGridKeydown(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
                     inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
     if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridKeydown.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
+    }
+    if (event.code === 'Space' && this.kbs.IsElementCheckbox(inputId)) {
+      HelperFunctions.StopEvent(event)
+      $('#' + inputId).prop("checked", !$('#' + inputId).prop("checked"));
+      // setTimeout(() => {
+      //   this.kbs.SetPositionById(inputId!)
+      //   this.kbs.SelectCurrentElement()
+      // }, 200);
     }
     if (event.ctrlKey && event.key == KeyBindings.Enter && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       event.preventDefault();
