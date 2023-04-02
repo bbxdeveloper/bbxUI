@@ -232,8 +232,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
-      Incoming: this.filterForm.controls['Incoming'].value,
-
       WarehouseCode: HelperFunctions
         .ConvertChosenWareHouseToCode(this.filterForm.controls['WarehouseCode'].value, this.wh, ''),
 
@@ -305,7 +303,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       && this.filterForm.controls['InvoiceIssueDateFrom'].value !== undefined && this.filterForm.controls['InvoiceIssueDateFrom'].value.length > 0
       && this.filterForm.controls['InvoiceIssueDateTo'].value !== undefined && this.filterForm.controls['InvoiceIssueDateTo'].value.length > 0
       && this.filterForm.controls['InvoiceIssueDateFrom'].valid && this.filterForm.controls['InvoiceIssueDateTo'].valid
-      && this.filterForm.controls['Incoming'].valid && this.filterForm.controls['WarehouseCode'].valid;
+      && this.filterForm.controls['WarehouseCode'].valid;
   }
 
   get isDeliveryFilterSelectedAndValid(): boolean {
@@ -313,7 +311,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       && this.filterForm.controls['InvoiceDeliveryDateFrom'].value !== undefined && this.filterForm.controls['InvoiceDeliveryDateFrom'].value.length > 0
       && this.filterForm.controls['InvoiceDeliveryDateTo'].value !== undefined && this.filterForm.controls['InvoiceDeliveryDateTo'].value.length > 0
       && this.filterForm.controls['InvoiceDeliveryDateFrom'].valid && this.filterForm.controls['InvoiceDeliveryDateTo'].valid
-      && this.filterForm.controls['Incoming'].valid && this.filterForm.controls['WarehouseCode'].valid;
+      && this.filterForm.controls['WarehouseCode'].valid;
   }
 
   get invoiceIssueDateFromValue(): Date | undefined {
@@ -492,7 +490,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
 
     this.filterForm = new FormGroup({
-      Incoming: new FormControl(true, []),
       WarehouseCode: new FormControl(filterData.warehouseCode, []),
       InvoiceIssueDateFrom: new FormControl(filterData.invoiceIssueDateFrom, [
         this.validateInvoiceIssueDateFrom.bind(this),
@@ -515,7 +512,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.filterForm.valueChanges.subscribe(value => {
       const filterData = {
-        incoming: value.Incoming,
         warehouseCode: value.WarehouseCode,
         invoiceIssueDateFrom: value.InvoiceIssueDateFrom,
         invoiceIssueDateTo: value.InvoiceIssueDateTo,
@@ -697,7 +693,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
-  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
+  @HostListener('window:keydown', ['$event'])
+  public onKeyDown2(event: KeyboardEvent): void {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)

@@ -1,7 +1,6 @@
 import { HelperFunctions } from "src/assets/util/HelperFunctions"
 
 export class InvoiceNavFilter {
-    public incoming = false
     public warehouseCode: string = ''
     public invoiceIssueDateFrom: string = ''
     public invoiceIssueDateTo: string = ''
@@ -11,7 +10,6 @@ export class InvoiceNavFilter {
 
     public static create(): InvoiceNavFilter {
         return {
-            incoming: false,
             warehouseCode: '',
             invoiceIssueDateFrom: HelperFunctions.GetDateString(0, 0, -1),
             invoiceIssueDateTo: HelperFunctions.GetDateString(),

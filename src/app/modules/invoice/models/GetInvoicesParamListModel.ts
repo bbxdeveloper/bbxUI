@@ -1,5 +1,4 @@
 export interface GetInvoicesParamListModel {
-    Incoming?: boolean;
     WarehouseCode?: string;
     InvoiceNumber?: string;
     InvoiceIssueDateFrom?: any;

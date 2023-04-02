@@ -7,16 +7,6 @@
                 <nb-card-body class="filter-card-body">
                     <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                         (keydown.escape)="filterFormNav.HandleFormEscape()">
-                        <div class="bbx-fd-form-field-wrapper-div-row">
-                            <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33 checkbox-wrapper"
-                                (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                                <label class="label-checkbox">Bejövő</label>
-
-                                <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"
-                                    formControlName="Incoming" [readonly]="isEditModeOff"
-                                    (click)="filterFormNav.HandleFormFieldClick($event)">
-                            </div>
-                        </div>
 
                         <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
                             formFieldName="WarehouseCode" class="nav-configuration" label="Raktár"
