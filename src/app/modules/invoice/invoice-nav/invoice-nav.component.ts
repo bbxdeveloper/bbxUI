@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional } from '@angular/core';
+import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -33,6 +33,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
 import { SystemService } from '../../system/services/system.service';
 import { InvoiceType } from '../../system/models/InvoiceType';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -40,8 +41,6 @@ import { InvoiceType } from '../../system/models/InvoiceType';
   styleUrls: ['./invoice-nav.component.scss']
 })
 export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
-  @ViewChild('table') table?: NbTable<any>;
-
   private readonly localStorageKey: string
 
   TileCssClass = TileCssClass;
@@ -370,7 +369,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     private readonly keyboardHelperService: KeyboardHelperService,
     tokenStorage: TokenStorageService,
     private readonly localStorage: LocalStorageService,
-    private readonly systemService: SystemService
+    private readonly systemService: SystemService,
+    private readonly printAndDownloadService: PrintAndDownloadService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -748,12 +748,14 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       event.stopPropagation();
       return;
     }
+
     if (this.keyboardHelperService.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
       return;
     }
+
     switch (event.key) {
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
@@ -764,10 +766,35 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      default: { }
+      case this.KeySetting[Actions.Print].KeyCode: {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+
+        this.printSelectedInvoice()
+        break
+      }
     }
   }
 
-  ChooseDataForTableRow(rowIndex: number): void { }
+  private printSelectedInvoice(): void {
+    const selectedRow = this.dbDataTable.prevSelectedRow
+
+    const invoiceNumber = selectedRow?.data.invoiceNumber ?? ''
+
+    this.printAndDownloadService.openPrintDialog({
+      DialogTitle: 'Számla nyomtatása',
+      DefaultCopies: 1,
+      MsgError: `A ${invoiceNumber} számla nyomtatása közben hiba történt.`,
+      MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
+      MsgFinish: `A ${invoiceNumber} számla nyomtatása véget ért.`,
+      Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+      ReportParams: {
+        id: selectedRow?.data.id,
+        copies: 1
+      } as Constants.Dct,
+    } as PrintDialogRequest)
+  }
+
+  ChooseDataForTableRow(rowIndex: number): void {}
   ChooseDataForCustomerForm(): void {}
 }
