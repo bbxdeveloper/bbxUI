@@ -164,7 +164,7 @@ export class PrintAndDownloadService {
         }
       });
     } catch (error) {
-      request.Reset()
+      await request.Reset()
       this.cs.HandleError(error)
     }
     
@@ -173,7 +173,7 @@ export class PrintAndDownloadService {
         console.log("OneTextInputDialogComponent: ", res);
         if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
           let commandEndedSubscription = this.CommandEnded.subscribe({
-            next: cmdEnded => {
+            next: async cmdEnded => {
               try {
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
   
@@ -192,18 +192,18 @@ export class PrintAndDownloadService {
                 if (commandEndedSubscription && !commandEndedSubscription.closed) {
                   commandEndedSubscription.unsubscribe()
                 }
-                request.Reset()
+                await request.Reset()
                 this.cs.HandleError(error)
               }
             },
-            error: cmdEnded => {
+            error: async cmdEnded => {
               try {                
                 console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
                 commandEndedSubscription?.unsubscribe();
 
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-                request.Reset();
+                await request.Reset();
 
                 this.bbxToastrService.show(
                   request.MsgError,
@@ -215,7 +215,7 @@ export class PrintAndDownloadService {
                 if (commandEndedSubscription && !commandEndedSubscription.closed) {
                   commandEndedSubscription.unsubscribe()
                 }
-                request.Reset()
+                await request.Reset()
                 this.cs.HandleError(error)
               } finally {
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -228,11 +228,11 @@ export class PrintAndDownloadService {
             await this.printReport(request.ReportParams, request.Obs);
           } catch (error) {
             this.cs.HandleError(error)
-            request.Reset()
+            await request.Reset()
           }
         } else {
           try {
-            request.Reset();
+            await request.Reset();
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
               request.MsgCancel,
@@ -241,18 +241,18 @@ export class PrintAndDownloadService {
             );
           } catch (error) {
             this.cs.HandleError(error)
-            request.Reset()
+            await request.Reset()
           }
         }
       },
-      error: err => {
+      error: async err => {
         try {
           this.cs.HandleError(err);
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-          request.Reset();
+          await request.Reset();
         } catch (error) {
           this.cs.HandleError(error)
-          request.Reset()
+          await request.Reset()
         }
       }
     });

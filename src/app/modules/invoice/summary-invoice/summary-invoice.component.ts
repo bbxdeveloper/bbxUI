@@ -905,7 +905,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.CreateOutgoing(request).subscribe({
-        next: d => {
+        next: async d => {
           try {
             //this.isSilentLoading = false;
             if (!!d.data) {
@@ -928,7 +928,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
               this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
-              this.printAndDownLoadService.openPrintDialog({
+              await this.printAndDownLoadService.openPrintDialog({
                 DialogTitle: 'Számla Nyomtatása',
                 DefaultCopies: 1,
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
@@ -937,7 +937,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                 Obs: this.mode.isSummaryInvoice
                   ? this.seInv.GetAggregateReport.bind(this.seInv)
                   : this.seInv.GetReport.bind(this.seInv),
-                Reset: this.Reset.bind(this),
+                Reset: this.DelayedReset.bind(this),
                 ReportParams: {
                   "id": d.data?.id,
                   "copies": 1 // Ki lesz töltve dialog alapján
