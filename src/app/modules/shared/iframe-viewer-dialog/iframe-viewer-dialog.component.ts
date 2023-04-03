@@ -19,7 +19,7 @@ export class IframeViewerDialogComponent extends BaseNavigatableComponentCompone
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   constructor(

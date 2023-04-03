@@ -49,6 +49,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       case KeyboardModes.EDIT:
         return "Mód: Szerkesztés";
         break;
+      case KeyboardModes.NAVIGATION_EDIT:
+        return "Mód: Javítás";
+        break;
       default:
         return "Mód: Ismeretlen";
         break;
@@ -64,6 +67,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       case KeyboardModes.EDIT:
         return "warning";
         break;
+      case KeyboardModes.NAVIGATION_EDIT:
       default:
         return "danger";
         break;
@@ -212,13 +216,13 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         }
         break;
       }
-      case KeyBindings.edit: {
-        if (!this.kbS.isEditModeActivated) {
-          event.preventDefault();
-        }
-        this.kbS.ClickCurrentElement();
-        break;
-      }
+      // case KeyBindings.edit: {
+      //   if (!this.kbS.isEditModeActivated) {
+      //     event.preventDefault();
+      //   }
+      //   this.kbS.ClickCurrentElement();
+      //   break;
+      // }
       case KeyBindings.exitIE:
       case KeyBindings.exit: {
         if (!this.khs.IsDialogOpened) {

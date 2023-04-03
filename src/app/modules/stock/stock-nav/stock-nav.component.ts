@@ -184,7 +184,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public override KeySetting: Constants.KeySettingsDct = StockNavKeySettings;

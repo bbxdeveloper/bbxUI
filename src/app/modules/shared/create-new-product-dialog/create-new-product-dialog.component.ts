@@ -74,7 +74,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
   TileCssColClass = TileCssColClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   closedManually: boolean = false;

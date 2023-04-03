@@ -260,7 +260,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get sumGrossAmount(): any {

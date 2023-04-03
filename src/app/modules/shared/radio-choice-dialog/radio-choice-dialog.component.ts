@@ -33,7 +33,7 @@ export class RadioChoiceDialogComponent extends BaseNavigatableComponentComponen
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   constructor(

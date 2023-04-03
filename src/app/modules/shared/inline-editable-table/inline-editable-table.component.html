@@ -101,6 +101,7 @@
                                         autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
 
@@ -114,6 +115,7 @@
                                         autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
 

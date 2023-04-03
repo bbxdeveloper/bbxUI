@@ -21,7 +21,7 @@ export class DateIntervalDialogComponent extends BaseNavigatableComponentCompone
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   constructor(

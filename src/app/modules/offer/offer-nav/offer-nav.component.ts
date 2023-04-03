@@ -258,7 +258,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public KeySetting: Constants.KeySettingsDct = OfferNavKeySettings;

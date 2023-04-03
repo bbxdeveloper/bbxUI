@@ -26,7 +26,7 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   // WareHouse
