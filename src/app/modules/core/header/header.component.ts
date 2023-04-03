@@ -50,7 +50,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         return "Mód: Szerkesztés";
         break;
       case KeyboardModes.NAVIGATION_EDIT:
-        return "Mód: Navigáció"; // return "Mód: Javítás";
+        return "Mód: Javítás";
         break;
       default:
         return "Mód: Ismeretlen";
@@ -69,7 +69,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         break;
       case KeyboardModes.NAVIGATION_EDIT:
       default:
-        return "primary"; // return "danger";
+        return "danger";
         break;
     }
   }
