@@ -49,7 +49,7 @@
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
                                         [nbPopover]="calculator" nbPopoverTrigger="noop" nbPopoverPlacement="top"
-                                        (keydown.F3)="openCalculator($event, row, rowPos, it, colPos, false)"
+                                        (keydown.F4)="openCalculator($event, row, rowPos, it, colPos, false)"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"
