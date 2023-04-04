@@ -34,6 +34,7 @@ import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
 import { SystemService } from '../../system/services/system.service';
 import { InvoiceType } from '../../system/models/InvoiceType';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
+import { defer, from } from 'rxjs';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -722,7 +723,14 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     try {
       this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
 
-      const response = await this.invoiceService.getCsv(this.getInputParams)
+      // const id = this.dbDataTable.prevSelectedRow?.data.id ?? ''
+      // this.printAndDownloadService.download_csv({
+      //   report_params: {
+      //     ID: HelperFunctions.ToFloat(id)
+      //   }
+      // } as Constants.Dct,
+      // this.invoiceService.getCsv.bind(this.invoiceService))
+      // const response = await this.invoiceService.getCsv(this.getInputParams)
 
     }
     catch (error) {
