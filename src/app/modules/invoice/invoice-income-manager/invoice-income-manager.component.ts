@@ -839,7 +839,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
-          next: d => {
+          next: async d => {
             try {
               if (!!d.data) {
                 console.log('Save response: ', d);
@@ -860,7 +860,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-                this.printAndDownLoadService.openPrintDialog({
+                await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: 'Számla Nyomtatása',
                   DefaultCopies: 1,
                   MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,

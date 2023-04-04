@@ -890,14 +890,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           Constants.TOASTR_SUCCESS_5_SEC
         );
 
-        this.printAndDownLoadService.openPrintDialog({
+        await this.printAndDownLoadService.openPrintDialog({
           DialogTitle: 'Számla Nyomtatása',
           DefaultCopies: 1,
           MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
           MsgFinish: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
           Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-          Reset: this.Reset.bind(this),
+          Reset: this.DelayedReset.bind(this),
           ReportParams: {
             "id": response.data?.id,
             "copies": 1 // Ki lesz töltve dialog alapján

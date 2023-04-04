@@ -361,7 +361,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         console.log('Save: ', this.offerData);
 
         this.offerService.Create(this.offerData).subscribe({
-          next: d => {
+          next: async d => {
             try {
               if (!!d.data) {
                 console.log('Save response: ', d);
@@ -381,14 +381,14 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                 // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-                this.printAndDownLoadService.openPrintDialog({
+                await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: 'Ajánlat Nyomtatása',
                   DefaultCopies: 1,
                   MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
                   MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
                   MsgFinish: `Az árajánlat nyomtatása véget ért.`,
                   Obs: this.seInv.GetReport.bind(this.offerService),
-                  Reset: this.Reset.bind(this),
+                  Reset: this.DelayedReset.bind(this),
                   ReportParams: {
                     "id": d.data?.id,
                     "copies": 1 // Ki lesz töltve dialog alapján
