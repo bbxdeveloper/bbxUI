@@ -281,7 +281,7 @@ export module HelperFunctions {
     }
 
     export function openCalculator(dialogService: NbDialogService, startValue: number, handle: (result?: number) => Promise<void>): void {
-        const calculatorDialogRef = dialogService.open(CalculatorDialogComponent, { context: { default: startValue } });
+        const calculatorDialogRef = dialogService.open(CalculatorDialogComponent, { context: { result: startValue } });
         calculatorDialogRef.onClose.subscribe(handle);
     }
 

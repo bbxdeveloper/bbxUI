@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
@@ -28,11 +28,14 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
 
   @Input() placeHolder: string = '0.00'
 
-  @Input() default: number = 0.0
+  @Input() result: number = 0.0
+  @Output('resultChange') resultChanged: EventEmitter<number> = new EventEmitter<number>()
 
-  calcSymbol: string = ''
+  @Output() popoverClose: EventEmitter<any> = new EventEmitter<any>()
 
-  result: number = 0.0
+  calcSymbol: string = '?'
+
+  
   manipulator: number = 0.0
   base: number = 0.0
 
@@ -44,7 +47,7 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
 
   constructor(
     private cdrf: ChangeDetectorRef,
-    protected dialogRef: NbDialogRef<CalculatorDialogComponent>,
+    //protected dialogRef: NbDialogRef<CalculatorDialogComponent>,
     private kbS: KeyboardNavigationService
   ) {
     super()
@@ -60,10 +63,7 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
     this.kbS.SetWidgetNavigatable(this)
     this.kbS.SelectFirstTile()
     this.kbS.setEditMode(KeyboardModes.EDIT)
-    if (this.default !== undefined) {
-      this.base = this.default
-      this.result = this.default
-    }
+    this.base = this.result
     setTimeout(() => {
       HelperFunctions.SelectBeginningByClass('one-number-input-dialog-input', 1)
     }, 100);
@@ -79,7 +79,7 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
   close() {
     this.closedManually = true
     this.kbS.RemoveWidgetNavigatable()
-    this.dialogRef.close(this.result)
+    //this.dialogRef.close(this.result)
   }
 
   private calc(): void {
@@ -113,6 +113,8 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
     
     HelperFunctions.SelectBeginningByClass('one-number-input-dialog-input', 1)
 
+    this.resultChanged.emit(this.result)
+
     console.log(`[Calculator calc END] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
   }
 
@@ -135,6 +137,7 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
       this.calc()
     } else if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
       this.close()
+      this.popoverClose.emit()
     }
   }
 }

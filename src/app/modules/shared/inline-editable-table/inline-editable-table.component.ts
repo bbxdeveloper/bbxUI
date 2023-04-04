@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, Output, EventEmitter, HostListener, Optional } from '@angular/core';
-import { NbDialogService, NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
+import { Component, Input, OnInit, Output, EventEmitter, HostListener, Optional, ViewChild } from '@angular/core';
+import { NbDialogService, NbPopoverDirective, NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -49,6 +49,8 @@ export const SelectFirstCharClass = 'select-first-char';
   styleUrls: ['./inline-editable-table.component.scss']
 })
 export class InlineEditableTableComponent implements OnInit {
+  @ViewChild(NbPopoverDirective) popover?: NbPopoverDirective;
+  
   @Input() dbDataTable?: InlineEditableNavigatableTable<any>;
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
@@ -247,13 +249,27 @@ export class InlineEditableTableComponent implements OnInit {
     this.inputFocusChanged.emit({ Event: event, Row: row, RowPos: rowPos, FieldDescriptor: col, ColPos: colPos, Focused: focused } as InputFocusChangedEvent);
   }
 
-  public calc(event: any, row: TreeGridNode<any>, rowPos: number, col: ModelFieldDescriptor,
+  public openCalculator(event: any, row: TreeGridNode<any>, rowPos: number, col: ModelFieldDescriptor,
     colPos: number, focused: boolean, selectFirst: boolean = false, cursorAfterLastChar: boolean = false): void {
     HelperFunctions.StopEvent(event)
-    HelperFunctions.openCalculator(this.dialogService, row.data[col.objectKey] ?? 0.0, async res => {
-      const result = res ?? 0.0
-      row.data[col.objectKey] = result
-    })
+    // HelperFunctions.openCalculator(this.dialogService, row.data[col.objectKey] ?? 0.0, async res => {
+    //   const result = res ?? 0.0
+    //   row.data[col.objectKey] = result
+    // })
+    if (!this.popover?.isShown) {
+      this.popover?.show()
+    } else {
+      this.popover?.hide()
+    }
+  }
+
+  public closeCalculator(): void {
+    this.popover?.hide()
+    this.kbs.ClickCurrentElement()
+  }
+
+  public calculatorResultChanged(event: any): void {
+    console.log(event)
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
