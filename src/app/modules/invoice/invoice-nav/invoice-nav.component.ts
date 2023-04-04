@@ -793,6 +793,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
       MsgFinish: `A ${invoiceNumber} számla nyomtatása véget ért.`,
       Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+      Reset: () => {},
       ReportParams: {
         id: selectedRow?.data.id,
         copies: 1
