@@ -32,5 +32,6 @@ export interface Invoice {
     invoiceNetAmount: number,
     invoiceVatAmount: number,
     invoiceGrossAmount: number,
-    invoiceLines: InvoiceLine[]
+    invoiceLines: InvoiceLine[],
+    invoiceDiscountPercent: number,
 }
