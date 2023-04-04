@@ -156,26 +156,18 @@ export class InvoiceService {
     return firstValueFrom(request)
   }
 
-  // public getCsv(params: GetInvoicesParamListModel): Promise<unknown> {
-  //   const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
-  //   const request = this.http.get<unknown>(this.BaseUrl + '/csv?' + queryParams)
+  public getCsv(params: GetInvoicesParamListModel | Constants.Dct): Observable<any> {
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('charset', 'utf8')
+      .set('accept', 'text/csv')
 
-  //   return firstValueFrom(request)
-  // }
-  // public getCsv(params: GetInvoicesParamListModel): Observable<any> {
-  //   const headers = new HttpHeaders()
-  //     .set('Content-Type', 'application/json')
-  //     .set('charset', 'utf8')
-  //     .set('accept', 'text/csv')
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-  //   const options = {
-  //     headers: headers,
-  //     responseType: 'blob',
-  //     observe: 'response',
-  //   }
-
-  //   const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
-
-  //   // return this.http.get(this.BaseUrl + '/csv?' + queryParams, options)
-  // }
+    return this.http.get(this.BaseUrl + '/csv?' + queryParams, {
+      responseType: 'blob',
+      headers: headers,
+      observe: 'response'
+    })
+  }
 }

@@ -34,7 +34,6 @@ import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
 import { SystemService } from '../../system/services/system.service';
 import { InvoiceType } from '../../system/models/InvoiceType';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { defer, from } from 'rxjs';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -328,6 +327,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceIssueDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -345,6 +345,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceDeliveryDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -393,6 +394,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     const wrong = new Date(control.value) > this.invoiceIssueDateToValue;
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateInvoiceIssueDateTo(control: AbstractControl): any {
     if (this.invoiceIssueDateFromValue === undefined) {
       return null;
@@ -408,6 +410,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     const wrong = new Date(control.value) > this.invoiceDeliveryDateToValue;
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateInvoiceDeliveryDateTo(control: AbstractControl): any {
     if (this.invoiceDeliveryDateFromValue === undefined) {
       return null;
@@ -415,7 +418,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     const wrong = new Date(control.value) < this.invoiceDeliveryDateFromValue;
     return wrong ? { minDate: { value: control.value } } : null;
   }
-
 
   ToInt(p: any): number {
     return parseInt(p + '');
@@ -487,7 +489,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
-
   }
 
   private setupFilterForm(): void {
@@ -723,15 +724,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     try {
       this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
 
-      // const id = this.dbDataTable.prevSelectedRow?.data.id ?? ''
-      // this.printAndDownloadService.download_csv({
-      //   report_params: {
-      //     ID: HelperFunctions.ToFloat(id)
-      //   }
-      // } as Constants.Dct,
-      // this.invoiceService.getCsv.bind(this.invoiceService))
-      // const response = await this.invoiceService.getCsv(this.getInputParams)
+      const reportParams = {
+        report_params: this.getInputParams,
+      } as Constants.Dct
 
+      this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
     }
     catch (error) {
       this.cs.HandleError(error)
