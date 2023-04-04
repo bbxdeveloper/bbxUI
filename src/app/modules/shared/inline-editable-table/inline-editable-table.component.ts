@@ -249,13 +249,8 @@ export class InlineEditableTableComponent implements OnInit {
     this.inputFocusChanged.emit({ Event: event, Row: row, RowPos: rowPos, FieldDescriptor: col, ColPos: colPos, Focused: focused } as InputFocusChangedEvent);
   }
 
-  public openCalculator(event: any, row: TreeGridNode<any>, rowPos: number, col: ModelFieldDescriptor,
-    colPos: number, focused: boolean, selectFirst: boolean = false, cursorAfterLastChar: boolean = false): void {
+  public openCalculator(event: any): void {
     HelperFunctions.StopEvent(event)
-    // HelperFunctions.openCalculator(this.dialogService, row.data[col.objectKey] ?? 0.0, async res => {
-    //   const result = res ?? 0.0
-    //   row.data[col.objectKey] = result
-    // })
     if (!this.popover?.isShown) {
       this.popover?.show()
     } else {
@@ -266,10 +261,6 @@ export class InlineEditableTableComponent implements OnInit {
   public closeCalculator(): void {
     this.popover?.hide()
     this.kbs.ClickCurrentElement()
-  }
-
-  public calculatorResultChanged(event: any): void {
-    console.log(event)
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling

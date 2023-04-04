@@ -1,11 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
+import { AfterViewInit, Component, HostListener, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
 import { createMask } from '@ngneat/input-mask';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
@@ -34,7 +29,6 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
   @Output() popoverClose: EventEmitter<any> = new EventEmitter<any>()
 
   calcSymbol: string = '?'
-
   
   manipulator: number = 0.0
   base: number = 0.0
@@ -46,8 +40,6 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
   }
 
   constructor(
-    private cdrf: ChangeDetectorRef,
-    //protected dialogRef: NbDialogRef<CalculatorDialogComponent>,
     private kbS: KeyboardNavigationService
   ) {
     super()
@@ -79,17 +71,17 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
   close() {
     this.closedManually = true
     this.kbS.RemoveWidgetNavigatable()
-    //this.dialogRef.close(this.result)
+    this.popoverClose.emit()
   }
 
   private calc(): void {
-    console.log(`[Calculator calc BEGIN] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
+    // console.log(`[Calculator calc BEGIN] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
     
     this.result = HelperFunctions.ToFloat(this.result)
     this.base = HelperFunctions.ToFloat(this.base)
     this.manipulator = Math.abs(HelperFunctions.ToFloat(this.manipulator))
 
-    console.log(`[Calculator calc NUMBER CONVERT] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
+    // console.log(`[Calculator calc NUMBER CONVERT] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
     
     switch (this.calcSymbol) {
       case '-':
@@ -115,7 +107,7 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
 
     this.resultChanged.emit(this.result)
 
-    console.log(`[Calculator calc END] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
+    // console.log(`[Calculator calc END] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
@@ -137,7 +129,6 @@ export class CalculatorDialogComponent extends BaseNavigatableComponentComponent
       this.calc()
     } else if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
       this.close()
-      this.popoverClose.emit()
     }
   }
 }
