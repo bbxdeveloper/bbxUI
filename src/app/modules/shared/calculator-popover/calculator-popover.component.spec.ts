@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CalculatorDialogComponent } from './calculator-dialog.component';
+import { CalculatorPopoverComponent } from './calculator-popover.component';
 
-describe('CalculatorDialogComponent', () => {
-  let component: CalculatorDialogComponent;
-  let fixture: ComponentFixture<CalculatorDialogComponent>;
+describe('CalculatorPopoverComponent', () => {
+  let component: CalculatorPopoverComponent;
+  let fixture: ComponentFixture<CalculatorPopoverComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CalculatorDialogComponent ]
+      declarations: [ CalculatorPopoverComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CalculatorDialogComponent);
+    fixture = TestBed.createComponent(CalculatorPopoverComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

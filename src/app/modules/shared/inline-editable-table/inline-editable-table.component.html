@@ -64,7 +64,7 @@
                                     </div>
 
                                     <ng-template #calculator>
-                                        <app-calculator-dialog [(result)]="row.data[it.objectKey]" (popoverClose)="closeCalculator()"></app-calculator-dialog>
+                                        <app-calculator-popover [(result)]="row.data[it.objectKey]" (popoverClose)="closeCalculator()"></app-calculator-popover>
                                     </ng-template>
                                 </ng-container>
 

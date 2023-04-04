@@ -1,16 +1,16 @@
 import { AfterViewInit, Component, HostListener, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
+import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
 import { createMask } from '@ngneat/input-mask';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
-  selector: 'app-calculator-dialog',
-  templateUrl: './calculator-dialog.component.html',
-  styleUrls: ['./calculator-dialog.component.scss']
+  selector: 'app-calculator-popover',
+  templateUrl: './calculator-popover.component.html',
+  styleUrls: ['./calculator-popover.component.scss']
 })
-export class CalculatorDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
+export class CalculatorPopoverComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   @Input() numberInputMask: any = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
