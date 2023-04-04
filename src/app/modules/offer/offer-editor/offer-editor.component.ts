@@ -486,7 +486,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           });
         } else {
           this.offerService.Create(this.offerData).subscribe({
-            next: d => {
+            next: async d => {
               try {
                 if (!!d.data) {
                   this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -506,14 +506,14 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                   // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
                   this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-                  this.printAndDownLoadService.openPrintDialog({
+                  await this.printAndDownLoadService.openPrintDialog({
                     DialogTitle: 'Ajánlat Nyomtatása',
                     DefaultCopies: 1,
                     MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
                     MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
                     MsgFinish: `Az árajánlat nyomtatása véget ért.`,
                     Obs: this.seInv.GetReport.bind(this.offerService),
-                    Reset: this.Reset.bind(this),
+                    Reset: this.DelayedReset.bind(this),
                     ReportParams: {
                       "id": d.data?.id,
                       "copies": 1 // Ki lesz töltve dialog alapján

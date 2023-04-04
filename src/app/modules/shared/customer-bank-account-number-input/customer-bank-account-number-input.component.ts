@@ -20,7 +20,7 @@ export class CustomerBankAccountNumberInputComponent implements OnInit, AfterVie
   @Input() onFormUpdate: BehaviorSubject<FormGroup | undefined> = new BehaviorSubject<FormGroup | undefined>(undefined);
 
   get isReadonly() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT || this.readonlyMode
+    return !this.kbS.isEditModeActivated || this.readonlyMode
   }
 
   bankAccountMask: BehaviorSubject<any> = new BehaviorSubject<any>(CustomerMisc.DefaultPattern)

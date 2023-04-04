@@ -174,7 +174,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public KeySetting: Constants.KeySettingsDct = InvRowNavKeySettings;

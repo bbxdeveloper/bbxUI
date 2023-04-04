@@ -156,7 +156,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   get NextTabIndex() { return this.tabIndex++; }
 
   get editDisabled() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT && !this.isLoading && !this.isSaveInProgress;
+    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
   }
 
   get invoiceIssueDateValue(): Date | undefined {
@@ -832,7 +832,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
         this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
-          next: d => {
+          next: async d => {
             try {
               //this.isSilentLoading = false;
               if (!!d.data) {
@@ -855,7 +855,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
                 this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
-                this.printAndDownLoadService.openPrintDialog({
+                await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: 'Számla Nyomtatása',
                   DefaultCopies: 1,
                   MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,

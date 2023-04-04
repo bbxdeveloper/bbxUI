@@ -3,7 +3,7 @@
         <span>Gyorskeresés</span>
     </nb-card-header>
     <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
-        <form id="productSearchDialogForm" [formGroup]="formNav.form" #formDirective="ngForm" class="form-with-rows">
+        <form id="productSearchDialogForm" [formGroup]="formNav.form" #formDirective="ngForm" class="form-with-rows" autocomplete="off">
             <div class="form-row">
                 <nb-radio-group formControlName="chooser" class="bbx-radiogroup">
                     <nb-radio checked="true"

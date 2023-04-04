@@ -12,6 +12,7 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, DefaultKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
+import { environment } from 'src/environments/environment';
 
 export interface InputFocusChangedEvent {
     Event: any,
@@ -119,6 +120,7 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   HandleGridEscape(event: Event, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridEscape.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
@@ -126,6 +128,7 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, upward: boolean): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridMovement.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
@@ -133,6 +136,7 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridCodeFieldEnter.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
@@ -140,16 +144,36 @@ export class InlineEditableTableComponent implements OnInit {
   }
 
   HandleGridEnter(row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridEnter.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
     this.dbDataTable?.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable);
   }
+  
+  CheckBoxKeyUp(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
+                    inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.CheckBoxKeyUp.name, event)
+    // if (event.code === 'Space') {
+    //   HelperFunctions.StopEvent(event)
+    //   $('#' + inputId).prop("checked", !$('#' + inputId).prop("checked"));
+    //   setTimeout(() => {
+    //     this.kbs.SetPositionById(inputId!)
+    //     this.kbs.SelectCurrentElement()
+    //   }, 200);
+    // }
+  }
 
   HandleGridKeydown(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
                     inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridKeydown.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
+    }
+    if (event.code === 'Space' && this.kbs.IsElementCheckbox(inputId)) {
+      HelperFunctions.StopEvent(event)
+      $('#' + inputId).prop("checked", !$('#' + inputId).prop("checked"));
+      row.data[objectKey] = $('#' + inputId).prop("checked");
     }
     if (event.ctrlKey && event.key == KeyBindings.Enter && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       event.preventDefault();
@@ -199,6 +223,7 @@ export class InlineEditableTableComponent implements OnInit {
       event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string,
       colPos: number, inputId?: string, fInputType?: string,
       wasInNavigationMode: boolean = false, ctrl: boolean = false, shift: boolean = false): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.EmitKeydownEvent.name, event)
     this.tableKeyDown.emit({
       Event: event,
       Row: row,

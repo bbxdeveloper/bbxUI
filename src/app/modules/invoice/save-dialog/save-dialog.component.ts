@@ -12,7 +12,6 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
-import { Invoice } from '../models/Invoice';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { Price } from 'src/assets/util/Price';

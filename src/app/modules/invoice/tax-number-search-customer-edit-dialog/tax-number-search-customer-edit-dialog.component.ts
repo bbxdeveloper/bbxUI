@@ -82,7 +82,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   TileCssColClass = TileCssColClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   closedManually: boolean = false;

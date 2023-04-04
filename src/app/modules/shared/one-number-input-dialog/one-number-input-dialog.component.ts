@@ -39,7 +39,7 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   constructor(

@@ -380,7 +380,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         this.validatePaymentDate.bind(this),
         validDate
       ]),
-      invoiceOrdinal: new FormControl('', []), // in post response
+      invoiceNumber: new FormControl('', []), // in post response
       notice: new FormControl('', []),
     });
   }
@@ -743,7 +743,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       controls = this.outInvForm.controls
       controls['invoiceDeliveryDate'].setValue(response.invoiceDeliveryDate)
       controls['invoiceIssueDate'].setValue(response.invoiceIssueDate)
+      controls['invoiceNumber'].setValue(response.invoiceNumber)
       controls['paymentDate'].setValue(response.paymentDate)
+
+      this.outGoingInvoiceData.invoiceDiscountPercent = response.invoiceDiscountPercent
 
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
@@ -778,10 +781,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-
-    // if (this.mode.incoming) {
-      // this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
-    // }
 
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
@@ -838,7 +837,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       return;
     }
 
-    this.outInvForm.controls['invoiceOrdinal'].reset();
+    this.outInvForm.controls['invoiceNumber'].reset();
 
     this.UpdateOutGoingData();
 
@@ -890,14 +889,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           Constants.TOASTR_SUCCESS_5_SEC
         );
 
-        this.printAndDownLoadService.openPrintDialog({
+        await this.printAndDownLoadService.openPrintDialog({
           DialogTitle: 'Számla Nyomtatása',
           DefaultCopies: 1,
           MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
           MsgFinish: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
           Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-          Reset: this.Reset.bind(this),
+          Reset: this.DelayedReset.bind(this),
           ReportParams: {
             "id": response.data?.id,
             "copies": 1 // Ki lesz töltve dialog alapján

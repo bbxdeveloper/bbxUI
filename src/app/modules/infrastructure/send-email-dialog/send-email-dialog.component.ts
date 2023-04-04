@@ -88,7 +88,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   constructor(

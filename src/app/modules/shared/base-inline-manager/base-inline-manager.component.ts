@@ -183,11 +183,11 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     })
   }
 
-  protected DelayedReset(delay: number = 200): void {
+  protected async DelayedReset(delay: number = 200): Promise<void> {
     const currentUrl = this.router.url
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      setTimeout(() => {
-        this.router.navigate([currentUrl])
+    await this.router.navigateByUrl('/', { skipLocationChange: true }).then(async () => {
+      setTimeout(async  () => {
+        await this.router.navigate([currentUrl])
       }, delay);
     })
   }
