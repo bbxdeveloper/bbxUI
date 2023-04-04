@@ -1,0 +1,40 @@
+nb-card {
+    width: 280px;
+    height: 195px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+  text-align: right;
+}
+
+input {
+    max-width: 230px !important;
+}
+
+div.calc-form {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    label.calc-symbol {
+        text-align: center;
+        font-weight: bold;
+        font-size: 2rem;
+
+        min-width: 40px;
+    }
+
+    input {
+        max-width: 190px !important;
+    }
+}

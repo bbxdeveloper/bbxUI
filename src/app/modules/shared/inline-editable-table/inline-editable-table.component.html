@@ -48,6 +48,7 @@
                                 <ng-container *ngSwitchCase="'formatted-number'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        (keydown.F3)="calc($event, row, rowPos, it, colPos, false)"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"

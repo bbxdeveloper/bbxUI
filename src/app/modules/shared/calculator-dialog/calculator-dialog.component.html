@@ -1,0 +1,13 @@
+<nb-card>
+    <nb-card-body class="form-col-1">
+        <input nbInput type="text" [inputMask]="numberInputMask" [placeholder]="placeHolder" [(ngModel)]="base" readonly>        
+        <div class="calc-form">
+            <label class="calc-symbol" for="manipulator">{{calcSymbol}}</label>
+            <input class="one-number-input-dialog-input" nbInput type="text" id="calc-input" name='manipulator' required="true" [inputMask]="numberInputMask"
+                [placeholder]="placeHolder" [(ngModel)]="manipulator">
+        </div>
+    </nb-card-body>
+    <nb-card-footer>
+        <input nbInput type="text" [inputMask]="numberInputMask" [placeholder]="placeHolder" [(ngModel)]="result" readonly>
+    </nb-card-footer>
+</nb-card>
