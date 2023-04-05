@@ -186,7 +186,8 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
         'customerID',
         'customer',
         'fullAddress',
-        'sumNetAmountDiscounted'
+        'sumNetAmountDiscounted',
+        'priceReview'
     ];
     export const ColDefs: ModelFieldDescriptor[] = [
         {
@@ -235,6 +236,18 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
             textAlign: 'right',
             navMatrixCssClass: TileCssClass,
         },
+        {
+            label: 'ÁrFelv.',
+            objectKey: 'priceReview',
+            colKey: 'priceReview',
+            defaultValue: '',
+            type: 'bool',
+            fRequired: false,
+            mask: '',
+            colWidth: '70px',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
     ];
 }
 
@@ -248,6 +261,7 @@ export module PendingDeliveryNotesTableSettings {
         'unitOfMeasureX',
         'unitPrice',
         'lineNetAmount',
+        'priceReview'
     ];
     export const ColDefs: ModelFieldDescriptor[] = [
         {
@@ -344,6 +358,18 @@ export module PendingDeliveryNotesTableSettings {
             textAlign: 'right',
             navMatrixCssClass: TileCssClass,
         },
+        {
+            label: 'ÁrFelv.',
+            objectKey: 'priceReview',
+            colKey: 'priceReview',
+            defaultValue: '',
+            type: 'bool',
+            fRequired: false,
+            mask: '',
+            colWidth: '70px',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
     ];
 }
 
@@ -385,6 +411,89 @@ export module PendingDeliveryNotesByInvoiceNumberTableSettings {
             fRequired: true,
             mask: '',
             colWidth: '33%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+    ];
+}
+
+export module GetPendingDeliveryNotesDialogTableSettings {
+    export const AllColumns: string[] = [
+        'invoiceNumber',
+        'invoiceDeliveryDate',
+        'customer',
+        'fullAddress',
+        'sumNetAmountDiscounted',
+        'priceReview',
+    ];
+    export const ColDefs: ModelFieldDescriptor[] = [
+        {
+            label: 'Száll.szám',
+            objectKey: 'invoiceNumber',
+            colKey: 'invoiceNumber',
+            defaultValue: '',
+            type: 'string',
+            mask: '',
+            colWidth: '120px',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Telj.',
+            objectKey: 'invoiceDeliveryDate',
+            colKey: 'invoiceDeliveryDate',
+            defaultValue: '',
+            type: 'onlyDate',
+            mask: '',
+            colWidth: '120px',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Partner',
+            objectKey: 'customer',
+            colKey: 'customer',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            mask: '',
+            colWidth: '33%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Cím',
+            objectKey: 'fullAddress',
+            colKey: 'fullAddress',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            mask: '',
+            colWidth: '33%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Nettó',
+            objectKey: 'sumNetAmountDiscounted',
+            colKey: 'sumNetAmountDiscounted',
+            defaultValue: '',
+            type: 'formatted-number',
+            fRequired: true,
+            mask: '',
+            colWidth: '150px',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Ár felülv.',
+            objectKey: 'priceReview',
+            colKey: 'priceReview',
+            defaultValue: '',
+            type: 'bool',
+            fRequired: true,
+            mask: '',
+            colWidth: '85px',
             textAlign: 'center',
             navMatrixCssClass: TileCssClass,
         },

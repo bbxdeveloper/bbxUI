@@ -1,82 +1,72 @@
+import { DynamicObject, JsonIgnore } from "src/assets/model/navigation/DynamicObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
-import { InvoiceLine, InvoiceLineForPost } from "./InvoiceLine";
+import { InvoiceLine } from "./InvoiceLine";
 import { InvoiceTypes } from "./InvoiceTypes";
 
-export interface CreateOutgoingInvoiceRequest<T = InvoiceLine> {
-    "warehouseCode": string, // 001 - string
+export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject {
+    "warehouseCode": string; // 001 - string
 
-    "invoiceIssueDate": any, // date
-    "invoiceDeliveryDate": any, // date
-    "paymentDate": any, // date
+    "invoiceIssueDate": any;  // date
+    "invoiceDeliveryDate": any; // date
+    "paymentDate": any; // date
 
-    "customerID": number,
-    "customerInvoiceNumber"?: string,
+    "customerID": number;
+    "customerInvoiceNumber"?: string;
 
-    "paymentMethod": string,
+    "paymentMethod": string;
 
-    "notice": string,
+    "notice": string;
 
-    "invoiceLines": T[],
+    "invoiceLines": T[];
 
-    "currencyCode"?: string,
-    "exchangeRate"?: number,
+    "currencyCode"?: string;
+    "exchangeRate"?: number;
 
-    "incoming"?: boolean,
-    "invoiceType"?: string,
-    "invoiceCategory"?: string,
+    "incoming"?: boolean;
+    "invoiceType"?: string;
+    "invoiceCategory"?: string;
 
     "invoiceDiscountPercent": number;
 
     "workNumber"?: string;
     "priceReview"?: boolean;
-}
+    correction?: boolean;
 
-export interface OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<InvoiceLine> {
-    "invoiceNetAmount": number, // amount * price (sum invoicelines) - status row
-    "invoiceVatAmount": number, // netamount * vat (sum invoicelines)
-    "lineGrossAmount": number, // netamount + vatamount (sum invoicelines)
-    "invoiceDiscountPercent": number;
-}
-
-export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData, needVatRate = true): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
-    if (f.invoiceType === InvoiceTypes.DNO) {
-        let res = {
-            customerID: f.customerID,
-            invoiceDeliveryDate: f.invoiceDeliveryDate,
-            invoiceIssueDate: f.invoiceIssueDate,
-            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData()),
-            notice: f.notice,
-            paymentDate: f.paymentDate,
-            paymentMethod: f.paymentMethod,
-            warehouseCode: f.warehouseCode,
-            currencyCode: f.currencyCode,
-            customerInvoiceNumber: f.customerInvoiceNumber,
-            exchangeRate: f.exchangeRate,
-            incoming: f.incoming,
-            invoiceType: f.invoiceType,
-            invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent),
-            workNumber: f.workNumber,
-            priceReview: f.priceReview
-        } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
-        return res;
-    } else {
-        let res = {
-            customerID: f.customerID,
-            invoiceDeliveryDate: f.invoiceDeliveryDate,
-            invoiceIssueDate: f.invoiceIssueDate,
-            invoiceLines: f.invoiceLines.map(x => x.GetPOSTData(needVatRate)),
-            notice: f.notice,
-            paymentDate: f.paymentDate,
-            paymentMethod: f.paymentMethod,
-            warehouseCode: f.warehouseCode,
-            currencyCode: f.currencyCode,
-            customerInvoiceNumber: f.customerInvoiceNumber,
-            exchangeRate: f.exchangeRate,
-            incoming: f.incoming,
-            invoiceType: f.invoiceType,
-            invoiceCategory: f.invoiceCategory,
-            invoiceDiscountPercent: HelperFunctions.ToFloat(f.invoiceDiscountPercent),
-        } as CreateOutgoingInvoiceRequest<InvoiceLineForPost>;
-        return res;
+    constructor(init?: Partial<CreateOutgoingInvoiceRequest>) {
+        super()
+        if (init) {
+            Object.assign(this, init)
+        }
     }
+}
+
+export class OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<InvoiceLine> {
+    @JsonIgnore
+    "invoiceNetAmount": number; // amount * price (sum invoicelines) - status row
+    
+    @JsonIgnore
+    "invoiceVatAmount": number; // netamount * vat (sum invoicelines)
+
+    @JsonIgnore
+    "lineGrossAmount": number; // netamount + vatamount (sum invoicelines)
+
+    constructor(init?: Partial<OutGoingInvoiceFullData>) {
+        super()
+        if (init) {
+            Object.assign(this, init)
+        }
+    }
+}
+
+export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData, needVatRate = true): CreateOutgoingInvoiceRequest<InvoiceLine> {
+    if (f.invoiceType !== InvoiceTypes.DNO) {
+        f.JsonIgnoreList.push('correction', 'priceReview', 'workNumber')
+    }
+    if (!needVatRate) {
+        f.JsonIgnoreList.push('vatRate')
+    }
+
+    f.invoiceDiscountPercent = HelperFunctions.ToFloat(f.invoiceDiscountPercent)
+
+    return f;
 }

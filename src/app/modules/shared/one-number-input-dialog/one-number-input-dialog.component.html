@@ -5,14 +5,19 @@
             (keydown.escape)="formNav.HandleFormEscape()">
             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <label>{{inputLabel}}</label>
-                <input class="{{TileCssClass}} one-number-input-dialog-input" nbInput type="text" formControlName='answer' required="true"
+                <input *ngIf="!limitValue" class="{{TileCssClass}} one-number-input-dialog-input" nbInput type="text" formControlName='answer' required="true"
                     [inputMask]="numberInputMask" [placeholder]="placeHolder"
                     (click)="formNav.HandleFormFieldClick($event)">
+                <input *ngIf="limitValue" class="{{TileCssClass}} one-number-input-dialog-input" nbInput type="number" formControlName='answer'
+                    required="true" [min]="minValue" [max]="maxValue"
+                    (click)="formNav.HandleFormFieldClick($event)">
             </nb-form-field>
+            <app-form-control-error *ngIf="limitValue" [form]="formNav" [min]="minValue" [max]="maxValue" [label]="inputLabel"
+                controlName="answer"></app-form-control-error>
         </form>
     </nb-card-body>
     <nb-card-footer>
-        <button class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton (click)="close(true)"
+        <button class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton (click)="close(true)" [disabled]="formNav && formNav.form && formNav.form.invalid"
             status="primary" tabindex="-1">Igen</button>
         <button class="{{TileCssClass}}" id="date-interval-dialog-button-no" nbButton (click)="close(false)"
             status="danger" tabindex="-1">Nem</button>

@@ -22,7 +22,7 @@ import { Actions, StockNavKeySettings, KeyBindings, GetFooterCommandListFromKeyS
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { GetStocksParamsModel } from '../models/GetStocksParamsModel';
 import { ExtendedStockData, Stock } from '../models/Stock';
 import { StockService } from '../services/stock.service';
@@ -184,7 +184,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public override KeySetting: Constants.KeySettingsDct = StockNavKeySettings;
@@ -210,7 +210,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     sts: StatusService,
     private router: Router,
     private infrastructureService: InfrastructureService,
-    private utS: UtilityService,
+    private utS: PrintAndDownloadService,
     private wareHouseApi: WareHouseService,
     private khs: KeyboardHelperService,
     private productService: ProductService,
@@ -284,7 +284,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   ChooseDataForTableRow(rowIndex: number): void {
     throw new Error('Method not implemented.');
   }
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     throw new Error('Method not implemented.');
   }
 
@@ -497,7 +497,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       );
       return;
     }
-    
+
     this.isLoading = true;
 
     await lastValueFrom(this.stockService.GetAll(params))

@@ -11,7 +11,7 @@
                 </div>
             </nb-form-field>
 
-            <div [class.bbx-fd-form-field-wrapper-div-row]="!this.isAggregate">
+            <div [class.bbx-fd-form-field-wrapper-div-row]="this.isDiscountVisible">
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="this.OutGoingDelivery">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Kedvezmény %:</label>
@@ -21,7 +21,7 @@
                     </div>
                 </nb-form-field>
 
-                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="MoveToSaveButtons($event)" *ngIf="!this.OutGoingDelivery && !this.isAggregate">
+                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="MoveToSaveButtons($event)" *ngIf="!this.OutGoingDelivery && this.isDiscountVisible">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Kedvezmény %:</label>
                         <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
@@ -31,7 +31,7 @@
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
-                    <div [ngClass]="this.isAggregate ? 'bbx-fd-form-field-inner-div': 'bbx-fd-form-field-inner-div-2'">
+                    <div [ngClass]="!this.isDiscountVisible ? 'bbx-fd-form-field-inner-div': 'bbx-fd-form-field-inner-div-2'">
                         <label>Kedvezmény értéke:</label>
                         <input nbInput type="text" formControlName='invoiceDiscountValue'
                             required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"

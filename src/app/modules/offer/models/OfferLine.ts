@@ -1,4 +1,3 @@
-import { TouchBarScrubber } from "electron";
 import { IEditable } from "src/assets/model/IEditable";
 import { MementoObject } from "src/assets/model/MementoObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
@@ -38,6 +37,7 @@ export interface OfferLineFullData extends OfferLineForPost {
 
 export class OfferLine extends MementoObject implements IEditable, OfferLineFullData {
     public override DeafultFieldList: string[] = ['productCode'];
+    public requiredFields?: string[]
 
     // OfferLineForPost
     "lineNumber": number = 0;
@@ -63,7 +63,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         return this.unitPriceSwitch;
     }
     set UnitPriceSwitch(value: boolean) {
-        console.log("switch: ", value, ", label: ", value ? "E" : "L");
+        if (environment.offerLineLog) console.log("switch: ", value, ", label: ", value ? "E" : "L");
         this.ReCalc(true);
         this.unitPriceSwitch = value;
     }
@@ -108,7 +108,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
     // Discount get set
     set Discount(val: any) {
-        if (environment.getterSetterLogs) {
+        if (environment.offerLineLog) {
             console.log(`[SETTER Discount]: ${val}`);
         }
 
@@ -150,7 +150,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     // UnitVat
     set UnitVat(val: number) {
         this.unitVat = val;
-        if (environment.getterSetterLogs) {
+        if (environment.offerLineLog) {
             console.log(
                 `[SETTER UnitVat] Set unitGross, old val: ${this.unitGross}, new val: 
                 ${this.unitPrice + this.unitVat}, new unit price: ${this.unitPrice}, calc result: ${this.UnitPriceForCalc + this.unitVat}`);
@@ -161,17 +161,29 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         return this.unitVat / this.exchangeRate;
     }
 
-    constructor() {
+    constructor(requiredFields?: string[]) {
         super();
         this.SaveDefault();
+        if (requiredFields) {
+            this.requiredFields = requiredFields;
+        }
     }
 
     IsUnfinished(): boolean {
-        return this.productCode === undefined || this.productCode?.length === 0 || this.lineDescription?.length === 0;
+        if (this.requiredFields) {
+            const x = this as any;
+            return this.requiredFields.findIndex(fieldName => {
+                if (typeof x[fieldName] === 'string') {
+                    return HelperFunctions.isEmptyOrSpaces(x[fieldName])
+                }
+                return x[fieldName] === undefined
+            }) > -1
+        }
+        return HelperFunctions.isEmptyOrSpaces(this.productCode);
     }
 
     static IsInterfaceUnfinished(o: OfferLineForPost): boolean {
-        return o.productCode === undefined || o.productCode?.length === 0 || o.lineDescription?.length === 0;
+        return HelperFunctions.isEmptyOrSpaces(o.productCode);
     }
 
     static FromInvoiceLine(invoiceLine: InvoiceLine): OfferLine {
@@ -204,9 +216,11 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     }
 
     public ReCalc(unitPriceWasUpdated: boolean, currencyCode?: string, exchangeRate?: number): void {
-        console.log("....................................................");
-        console.log("....................................................");
-        console.log("ReCalc");
+        if (environment.offerLineLog) {
+            console.log("....................................................");
+            console.log("....................................................");
+            console.log("ReCalc");
+        }
 
         if (currencyCode !== undefined) {
             this.currencyCode = this.currencyCode;
@@ -215,25 +229,30 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
             this.exchangeRate = HelperFunctions.ToFloat(exchangeRate);
         }
 
-        console.log("currencyCode: ", this.currencyCode);
-        console.log("exchangeRate: ", this.exchangeRate);
+        if (environment.offerLineLog) {
+            console.log("currencyCode: ", this.currencyCode);
+            console.log("exchangeRate: ", this.exchangeRate);
+        }
 
         this.originalUnitPrice = this.unitPriceSwitch ?
             HelperFunctions.Round2(this.originalUnitPrice2 ?? 0, 2) : HelperFunctions.Round2(this.originalUnitPrice1 ?? 0, 2);
 
-        console.log("originalUnitPrice: ", this.originalUnitPrice);
+        if (environment.offerLineLog)
+            console.log("originalUnitPrice: ", this.originalUnitPrice);
 
         let discountForCalc = (HelperFunctions.ToFloat(this.DiscountForCalc) === 0.0) ? 0.0 : HelperFunctions.ToFloat(this.DiscountForCalc / 100.0);
 
-        console.log("discountForCalc: ", discountForCalc);
+        if (environment.offerLineLog)
+            console.log("discountForCalc: ", discountForCalc);
 
         let priceWithDiscount = this.exchangedOriginalUnitPrice;
         priceWithDiscount -= HelperFunctions.ToFloat(this.exchangedOriginalUnitPrice * discountForCalc);
         priceWithDiscount = HelperFunctions.Round2(priceWithDiscount, 1);
 
-        console.log("priceWithDiscount: ", priceWithDiscount);
-        
-        console.log(`unitPriceWasUpdated ${unitPriceWasUpdated}, priceWithDiscount ${priceWithDiscount}, this.unitPrice ${this.unitPrice}`);
+        if (environment.offerLineLog) {
+            console.log("priceWithDiscount: ", priceWithDiscount);
+            console.log(`unitPriceWasUpdated ${unitPriceWasUpdated}, priceWithDiscount ${priceWithDiscount}, this.unitPrice ${this.unitPrice}`);
+        }
 
         if (unitPriceWasUpdated && priceWithDiscount !== this.unitPrice) {
             this.unitPrice = HelperFunctions.Round2(this.unitPrice, 1);
@@ -244,23 +263,27 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
         this.unitVat = this.unitPrice * this.vatRate;
 
-        console.log("unitVat: ", this.unitVat);
-        console.log("unitPrice: ", this.unitPrice);
-        console.log("vatRate: ", this.vatRate);
+        if (environment.offerLineLog) {
+            console.log("unitVat: ", this.unitVat);
+            console.log("unitPrice: ", this.unitPrice);
+            console.log("vatRate: ", this.vatRate);
+        }
 
         this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
 
-        // console.log("unitGross no rounding: ", this.UnitPriceForCalc + this.unitVat);
-        // console.log("unitGross rounding 2: ", HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 2));
-        // console.log("unitGross rounding 1: ", HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1));
-        // console.log("unitGross rounding 1: ", HelperFunctions.ToFloat(HelperFunctions.ToFloat(this.UnitPriceForCalc + this.unitVat).toFixed(1)));
-        // console.log("unitGross rounding 1: ", (this.UnitPriceForCalc + this.unitVat).toFixed(1));
-        // console.log("unitGross * quantity: ", this.unitGross * this.quantity);
-        console.log("unitGross: ", this.unitGross);
-        console.log("UnitGrossVal: ", this.UnitGrossVal);
-
-        console.log("....................................................");
-        console.log("....................................................");
+        if (environment.offerLineLog) {
+            // console.log("unitGross no rounding: ", this.UnitPriceForCalc + this.unitVat);
+            // console.log("unitGross rounding 2: ", HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 2));
+            // console.log("unitGross rounding 1: ", HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1));
+            // console.log("unitGross rounding 1: ", HelperFunctions.ToFloat(HelperFunctions.ToFloat(this.UnitPriceForCalc + this.unitVat).toFixed(1)));
+            // console.log("unitGross rounding 1: ", (this.UnitPriceForCalc + this.unitVat).toFixed(1));
+            // console.log("unitGross * quantity: ", this.unitGross * this.quantity);
+            console.log("unitGross: ", this.unitGross);
+            console.log("UnitGrossVal: ", this.UnitGrossVal);
+    
+            console.log("....................................................");
+            console.log("....................................................");
+        }
     }
 
     static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
@@ -299,11 +322,13 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     }
 
     static FromOfferLineFullData(data: OfferLineFullData, currencyCode: string, exchangeRate: number): OfferLine {
-        console.log("\n\n[FromOfferLineFullData] stard, ID: ", data.id);
+        if (environment.offerLineLog)
+            console.log("\n\n[FromOfferLineFullData] stard, ID: ", data.id);
         
         let offerLine = new OfferLine();
 
-        console.log("[FromOfferLineFullData] data: ", data, ", blank offerline: ", offerLine);
+        if (environment.offerLineLog)
+            console.log("[FromOfferLineFullData] data: ", data, ", blank offerline: ", offerLine);
 
         offerLine.currencyCode = currencyCode;
         offerLine.exchangeRate = HelperFunctions.ToFloat(exchangeRate);
@@ -338,11 +363,13 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
         offerLine.unitPrice = HelperFunctions.ToFloat(data.unitPrice);
 
-        console.log("[FromOfferLineFullData] offerLine: ", offerLine);
+        if (environment.offerLineLog)
+            console.log("[FromOfferLineFullData] offerLine: ", offerLine);
 
         offerLine.ReCalc(true);
 
-        console.log("[FromOfferLineFullData] end, after ReCalc offerLine: ", offerLine, "\n\n");
+        if (environment.offerLineLog)
+            console.log("[FromOfferLineFullData] end, after ReCalc offerLine: ", offerLine, "\n\n");
 
         return offerLine;
     }

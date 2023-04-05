@@ -75,7 +75,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.grid.Lock({
             data: dt,
             rowIndex: this.DataRowIndex,
-            needConfirmation: false
+            needConfirmation: true
         } as IUpdateRequest);
     }
 
@@ -216,7 +216,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                         break;
                 }
                 break;
-            // SAVE
+            // LOCK
             case this.KeySetting[Actions.Lock].KeyCode:
                 console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
                 this.ActionLock();

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
@@ -46,16 +46,19 @@ export class InventoryService {
   }
 
   GetReport(params: Constants.Dct): Observable<any> {
-    console.log("GetAbsentReport: ", params);
-    let options = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set("charset", "utf8")
-      .set("accept", "application/pdf");
-    return this.http.post(
-      `${this.BaseUrl}/report`,
-      JSON.stringify(params['report_params']),
-      { responseType: 'blob', headers: options }
-    );
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/report`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
   }
 
   Get(params?: GetInvCtrlPeriodParamListModel): Observable<InvCtrlPeriod> {

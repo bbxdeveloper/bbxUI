@@ -51,7 +51,7 @@ export class BaseSideBarFormComponent {
   TileCssColClass = TileCssColClass;
 
   get isReadonly() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT || this.readonlyMode;
+    return !this.kbS.isEditModeActivated || this.readonlyMode;
   }
 
   public readonly KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
@@ -80,6 +80,7 @@ export class BaseSideBarFormComponent {
       case this.KeySetting[Actions.Reset].KeyCode:
       case this.KeySetting[Actions.Save].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
+      case this.KeySetting[Actions.Lock].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();

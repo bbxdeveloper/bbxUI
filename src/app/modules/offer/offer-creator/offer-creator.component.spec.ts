@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { OfferCreatorComponent } from './offer-editor.component';
+import { OfferCreatorComponent } from './offer-creator.component';
 
 describe('OfferEditorComponent', () => {
   let component: OfferCreatorComponent;

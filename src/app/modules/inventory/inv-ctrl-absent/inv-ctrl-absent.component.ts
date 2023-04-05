@@ -24,7 +24,7 @@ import { Actions, KeyBindings, GetFooterCommandListFromKeySettings, InvRowNavKey
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
 import { InvRow } from '../models/InvRow';
@@ -150,7 +150,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
     return this.filterForm.controls['invCtrlPeriod'].value !== undefined ?
-      this.invCtrlPeriodValues[this.filterForm.controls['invCtrlPeriod'].value ?? -1] : undefined;
+      this.invCtrlPeriodValues[this.filterForm.controls['invCtrlPeriod'].value] : undefined;
   }
 
   get SelectedInvCtrlPeriodComboValue(): string | undefined {
@@ -174,7 +174,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public KeySetting: Constants.KeySettingsDct = InvRowNavKeySettings;
@@ -201,7 +201,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     private stockService: StockService,
     cs: CommonService,
     sts: StatusService,
-    private utS: UtilityService,
+    private printAndDownLoadService: PrintAndDownloadService,
     private khs: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
@@ -309,7 +309,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
             return res;
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
-        if (this.invCtrlPeriods.length > 0) {
+        if (this.invCtrlPeriods.length > 0 && !this.invCtrlPeriods.includes(this.SelectedInvCtrlPeriodComboValue ?? 'no data')) {
           this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
         }
       })
@@ -319,21 +319,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       .finally(() => {})
   }
 
-  private GetInvCtrlAbsentFromResponse(x: InvCtrlAbsent): InvCtrlAbsent {
-    let res = x;
-
-    x.latestIn = x.latestIn ?? "";
-    x.LatestOut = x.LatestOut ?? ""
-
-    return res;
-  }
-
-  override async Refresh(params?: GetAllInvCtrlAbsentParamsModel, jumpToFirstTableCell: boolean = false): Promise<void> {
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-
-    console.log('Refreshing: ', params); // TODO: only for debug
-
-    await this.refreshComboboxData();
+  private async refreshGridData(params: any): Promise<void> {
     await lastValueFrom(this.stockService.GetAllAbsent(params ?? this.getInputParams))
       .then(d => {
         if (d.succeeded && !!d.data) {
@@ -366,6 +352,24 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
           this.isPageReady = true;
         }
       })
+  }
+
+  private GetInvCtrlAbsentFromResponse(x: InvCtrlAbsent): InvCtrlAbsent {
+    let res = x;
+
+    x.latestIn = x.latestIn ?? "";
+    x.LatestOut = x.LatestOut ?? ""
+
+    return res;
+  }
+
+  override async Refresh(params?: GetAllInvCtrlAbsentParamsModel, jumpToFirstTableCell: boolean = false, refreshCombo = true): Promise<void> {
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+    console.log('Refreshing: ', params); // TODO: only for debug
+
+    await this.refreshComboboxData();
+    await this.refreshGridData(params);
 
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
@@ -420,7 +424,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   ChooseDataForTableRow(rowIndex: number): void { }
 
-  ChooseDataForForm(): void { }
+  ChooseDataForCustomerForm(): void { }
 
   RefreshData(): void { }
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
@@ -444,66 +448,18 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-      HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_PRINT, async () => {
-        this.isLoading = true;
-
-        let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-          next: cmdEnded => {
-            console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-            if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-              this.simpleToastrService.show(
-                `Az leltári időszak nyomtatása véget ért.`,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.isLoading = false;
-              commandEndedSubscription.unsubscribe();
-            } else {
-              this.isLoading = false;
-            }
-          },
-          error: cmdEnded => {
-            console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-            this.isLoading = false;
-            commandEndedSubscription.unsubscribe();
-            this.bbxToastrService.show(
-              `Az leltári időszak nyomtatása közben hiba történt.`,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-          }
-        });
-        await this.printReport(id, 1, title!);
-      }, async () => {
-        this.simpleToastrService.show(
-          `Az leltári időszak nyomtatása nem történt meg.`,
-          Constants.TITLE_INFO,
-          Constants.TOASTR_SUCCESS_5_SEC
-        );
-        this.isLoading = false;
-      });
-    }
-  }
-
-  async printReport(id: any, copies: number, title: string): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
-      {
-        "section": "Leltári időszak",
-        "fileType": "pdf",
-        "report_params": {},
-        "copies": 1,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct,
-      this.inventoryCtrlItemService.GetAbsentReport({
-        "report_params": {
+      this.isLoading = false;
+      this.printAndDownLoadService.printAfterConfirm({
+        DialogTitle: Constants.MSG_CONFIRMATION_PRINT,
+        MsgError: `Az leltári időszak nyomtatása közben hiba történt.`,
+        MsgCancel: `Az leltári időszak nyomtatása nem történt meg.`,
+        MsgFinish: `Az leltári időszak nyomtatása véget ért.`,
+        Obs: this.inventoryCtrlItemService.GetAbsentReport.bind(this.inventoryCtrlItemService),
+        ReportParams: {
           "invCtrlPeriodID": id, "invPeriodTitle": title, "isInStock": this.getInputParams.IsInStock
-        }
-      })
-    );
+        } as Constants.Dct
+      } as PrintDialogRequest);
+    }
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling

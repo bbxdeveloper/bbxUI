@@ -7,6 +7,10 @@ $td-height: 30px;
     box-shadow: none !important;
 }
 
+.min-height-51 {
+    min-height: 51px;
+}
+
 .layout {
     min-height: 10vh !important;
     padding: 0px !important;
@@ -74,6 +78,7 @@ form.form-with-rows {
 .card-table-wrapper {
     position: sticky;
     top: 0;
+    min-height: 60px;
 
     nb-form-field {
         margin: 10px;
@@ -102,6 +107,10 @@ form.form-with-rows {
 
     tr:nth-child(even) {
         background-color: #493668 !important;
+
+        &.error {
+            background-color: #b51414 !important;
+        }
 
         th,
         td {
@@ -151,6 +160,10 @@ form.form-with-rows {
 
     tr:nth-child(odd) {
         background-color: #323258 !important;
+
+        &.error {
+            background-color: #6d0e0e !important;
+        }
 
         th,
         td {
@@ -306,7 +319,7 @@ input.unitprice-ch[type="checkbox"]:after {
     /* Heres your symbol replacement - this is a tick in Unicode. */
     content: "L";
     color: #fff;
-    /* The following positions my tick in the center, 
+    /* The following positions my tick in the center,
      * but you could just overlay the entire box
      * with a full after element with a background if you want to */
     position: absolute;
@@ -331,7 +344,7 @@ input.unitprice-ch[type="checkbox"]:checked:after {
     /* Heres your symbol replacement - this is a tick in Unicode. */
     content: "E";
     color: #fff;
-    /* The following positions my tick in the center, 
+    /* The following positions my tick in the center,
      * but you could just overlay the entire box
      * with a full after element with a background if you want to */
     position: absolute;

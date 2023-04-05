@@ -17,7 +17,7 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
@@ -152,7 +152,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   get NextTabIndex() { return this.tabIndex++; }
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get invCtrlDate(): Date | undefined {
@@ -181,9 +181,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private vatRateService: VatRateService,
     private stockService: StockService,
     sideBarService: BbxSidebarService,
-    khs: KeyboardHelperService
+    khs: KeyboardHelperService,
+    router: Router
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.InitialSetup();
   }
 
@@ -244,8 +245,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     );
 
     this.buyerFormNav!.OuterJump = true;
-
-    console.log('new InvoiceLine(): ', new InvoiceLine());
 
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
@@ -317,23 +316,28 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
         this.invCtrlItemService.Create(this.offerData).subscribe({
           next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
+            try {
+              if (!!d.data) {
+                console.log('Save response: ', d);
 
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.isLoading = false;
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+                this.isLoading = false;
 
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
+                this.dbDataTable.RemoveEditRow();
+                this.kbS.SelectFirstTile();
 
-              this.Reset();
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isLoading = false;
+                this.Reset();
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isLoading = false;
+              }
+            } catch (error) {
+              this.Reset()
+              this.cs.HandleError(error)
             }
           },
           error: err => {
@@ -346,13 +350,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         });
       }
     });
-  }
-
-  protected Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
   }
 
   protected AfterViewInitSetup(): void {
@@ -514,7 +511,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     });
   }
 
-  ChooseDataForForm(): void {}
+  ChooseDataForCustomerForm(): void {}
   RefreshData(): void {}
   RecalcNetAndVat(): void {}
 

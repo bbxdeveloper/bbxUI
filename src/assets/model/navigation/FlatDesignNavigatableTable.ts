@@ -79,10 +79,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     ];
     commandsOnTableEditMode: FooterCommandInfo[] = this.commandsOnTable;
 
-    private prevSelectedRow?: TreeGridNode<T>;
-    private prevSelectedRowPos?: number;
-    private prevSelectedCol?: string;
-    private prevSelectedColPos?: number;
+    public prevSelectedRow?: TreeGridNode<T>;
+    public prevSelectedRowPos?: number;
+    public prevSelectedCol?: string;
+    public prevSelectedColPos?: number;
     private formAttachDirection: AttachDirection = AttachDirection.RIGHT;
 
     private tag: string = '';
@@ -513,6 +513,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }, 200);
     }
 
+    public SetFormReadonly(readonly: boolean): void {
+        this.ReadonlySideForm = readonly
+        this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }])
+        console.trace(this.ReadonlyForm)
+    }
+
     /**
      * Open sidebarform for readonly
      * @param setFormForNew 
@@ -596,7 +602,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             }
             case this.KeySetting[Actions.Delete].KeyCode: {
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
-                if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default && this.sidebarService.sideBarOpened) {
+                if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default) {
                     event.preventDefault();
                     this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();
@@ -609,6 +615,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                     event.preventDefault();
                     this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();
+                } else {
+                    this.flatDesignForm?.ActionLock()
                 }
                 break;
             }

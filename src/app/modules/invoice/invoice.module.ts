@@ -20,6 +20,8 @@ import { SummaryInvoiceComponent } from './summary-invoice/summary-invoice.compo
 import { CustomersHasPendingInvoiceComponent } from './customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryNotesSelectDialogComponent } from './pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
 import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from './pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
+import { PriceReviewComponent } from './price-review/price-review.component';
+import { GetPendingDeliveryNotesDialogComponent } from './get-pending-delivery-notes-dialog/get-pending-delivery-notes-dialog.component';
 
 
 
@@ -36,6 +38,8 @@ import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from './pending-de
     CustomersHasPendingInvoiceComponent,
     PendingDeliveryNotesSelectDialogComponent,
     PendingDeliveryNotesByInvoiceNumberDialogComponent,
+    PriceReviewComponent,
+    GetPendingDeliveryNotesDialogComponent,
   ],
   imports: [
     CommonModule,

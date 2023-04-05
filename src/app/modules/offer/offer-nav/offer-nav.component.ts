@@ -35,15 +35,17 @@ import { SendEmailDialogComponent } from '../../infrastructure/send-email-dialog
 import { IframeViewerDialogComponent } from '../../shared/iframe-viewer-dialog/iframe-viewer-dialog.component';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { SendEmailRequest } from '../../infrastructure/models/Email';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { OfferFilter } from '../models/OfferFilter';
 
 export interface OfferPrintParams {
   rowIndex: number,
@@ -59,6 +61,8 @@ export interface OfferPrintParams {
 })
 export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
+
+  private readonly localStorageKey: string
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -254,7 +258,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public KeySetting: Constants.KeySettingsDct = OfferNavKeySettings;
@@ -268,6 +272,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceOfferIssueDateTo(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -285,6 +290,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceOfferVaidityDateTo(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -314,14 +320,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private offerService: OfferService,
-    private seC: CustomerService,
+    private customerService: CustomerService,
     cs: CommonService,
     sts: StatusService,
     private router: Router,
     private infrastructureService: InfrastructureService,
-    private utS: UtilityService,
+    private printAndDownLoadService: PrintAndDownloadService,
     private tokenService: TokenStorageService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    private readonly localStorage: LocalStorageService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -329,14 +336,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.dbDataTableId = 'offers-table';
     this.dbDataTableEditId = 'offers-cell-edit-input';
 
+    this.localStorageKey = 'OfferNav.' + this.tokenService.user?.id ?? 'everyone'
+
     this.kbS.ResetToRoot();
 
     this.Setup();
-  }
-
-  InitFormDefaultValues(): void {
-    this.filterForm.controls['OfferIssueDateFrom'].setValue(HelperFunctions.GetDateString(0, -4));
-    this.filterForm.controls['OfferIssueDateTo'].setValue(HelperFunctions.GetDateString());
   }
 
   ToInt(p: any): number {
@@ -353,8 +357,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateOfferIssueDateTo(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferIssueDateFrom === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !this.invoiceOfferIssueDateFrom) {
       return null;
     }
 
@@ -365,7 +370,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   validateOfferValidityDateFrom(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferVaidityDateTo === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !this.invoiceOfferVaidityDateTo) {
       return null;
     }
 
@@ -374,8 +379,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateOfferValidityDateTo(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || this.invoiceOfferValidityDateFrom === undefined) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !this.invoiceOfferValidityDateFrom) {
       return null;
     }
 
@@ -392,73 +398,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     this.dbDataTableForm = new FormGroup({});
 
-    this.filterForm = new FormGroup({
-      OfferNumber: new FormControl(undefined, []),
-
-      CustomerSearch: new FormControl(undefined, []),
-
-      CustomerName: new FormControl(undefined, []),
-      CustomerAddress: new FormControl(undefined, []),
-      CustomerTaxNumber: new FormControl(undefined, []),
-
-      OfferIssueDateFrom: new FormControl(undefined, [
-        validDate,
-        this.validateOfferIssueDateFrom.bind(this),
-      ]),
-      OfferIssueDateTo: new FormControl(undefined, [
-        validDate,
-        this.validateOfferIssueDateTo.bind(this),
-      ]),
-
-      OfferVaidityDateForm: new FormControl(undefined, [
-        validDate,
-        this.validateOfferValidityDateFrom.bind(this),
-      ]),
-      OfferVaidityDateTo: new FormControl(undefined, [
-        validDate,
-        this.validateOfferValidityDateTo.bind(this),
-      ]),
-    });
-
-    this.filterForm.controls['OfferIssueDateFrom'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferIssueDateFrom value changed: ', newValue);
-        if (!this.filterForm.controls['OfferIssueDateTo'].valid && this.filterForm.controls['OfferIssueDateFrom'].valid) {
-          this.filterForm.controls['OfferIssueDateTo'].setValue(this.filterForm.controls['OfferIssueDateTo'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['OfferIssueDateTo'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferIssueDateTo value changed: ', newValue);
-        if (!this.filterForm.controls['OfferIssueDateFrom'].valid && this.filterForm.controls['OfferIssueDateTo'].valid) {
-          this.filterForm.controls['OfferIssueDateFrom'].setValue(this.filterForm.controls['OfferIssueDateFrom'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['OfferVaidityDateForm'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferVaidityDateForm value changed: ', newValue);
-        if (!this.filterForm.controls['OfferVaidityDateTo'].valid && this.filterForm.controls['OfferVaidityDateForm'].valid) {
-          this.filterForm.controls['OfferVaidityDateTo'].setValue(this.filterForm.controls['OfferVaidityDateTo'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['OfferVaidityDateTo'].valueChanges.subscribe({
-      next: newValue => {
-        console.log('OfferVaidityDateTo value changed: ', newValue);
-        if (!this.filterForm.controls['OfferVaidityDateForm'].valid && this.filterForm.controls['OfferVaidityDateTo'].valid) {
-          this.filterForm.controls['OfferVaidityDateForm'].setValue(this.filterForm.controls['OfferVaidityDateForm'].value);
-        }
-        this.filterForm.controls['OfferVaidityDateForm'].markAsDirty();
-        this.cdref.detectChanges();
-      }
-    });
-
-    this.InitFormDefaultValues();
+    this.setupFilterForm()
 
     this.filterFormNav = new FlatDesignNoTableNavigatableForm(
       this.filterForm,
@@ -500,19 +440,111 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
+  }
 
-    this.RefreshAll(this.getInputParams);
+  private setupFilterForm(): void {
+    let filterData = this.localStorage.get<OfferFilter>(this.localStorageKey)
+
+    if (!filterData || filterData.customerSearch === '') {
+      filterData = OfferFilter.create()
+    }
+
+    this.filterForm = new FormGroup({
+      OfferNumber: new FormControl(filterData.offerNumber, []),
+
+      CustomerSearch: new FormControl(filterData.customerSearch, []),
+
+      CustomerName: new FormControl(filterData.customerName, []),
+      CustomerAddress: new FormControl(filterData.customerAddress, []),
+      CustomerTaxNumber: new FormControl(filterData.customerTaxNumber, []),
+
+      OfferIssueDateFrom: new FormControl(filterData.offerIssueDateFrom, [
+        validDate,
+        this.validateOfferIssueDateFrom.bind(this),
+      ]),
+      OfferIssueDateTo: new FormControl(filterData.offerIssueDateTo, [
+        validDate,
+        this.validateOfferIssueDateTo.bind(this),
+      ]),
+
+      OfferVaidityDateForm: new FormControl(filterData.offerValidityDateFrom, [
+        validDate,
+        this.validateOfferValidityDateFrom.bind(this),
+      ]),
+      OfferVaidityDateTo: new FormControl(filterData.offerValidityDateTo, [
+        validDate,
+        this.validateOfferValidityDateTo.bind(this),
+      ]),
+    });
+
+    this.filterForm.valueChanges.subscribe(value => {
+      if (value.CustomerSearch === '') {
+        value.CustomerName = ''
+        value.CustomerAddress = ''
+        value.CustomerTaxNumber = ''
+
+        this.localStorage.remove(this.localStorageKey)
+      }
+
+      const filterData = {
+        offerNumber: value.OfferNumber,
+        customerSearch: value.CustomerSearch,
+        customerName: value.CustomerName,
+        customerAddress: value.CustomerAddress,
+        customerTaxNumber: value.CustomerTaxNumber,
+        offerIssueDateFrom: value.OfferIssueDateFrom,
+        offerIssueDateTo: value.OfferIssueDateTo,
+        offerValidityDateFrom: value.OfferVaidityDateForm,
+        offerValidityDateTo: value.offerValidityDateTo,
+      } as OfferFilter
+
+      this.localStorage.put(this.localStorageKey, filterData)
+    })
+
+    this.filterForm.controls['OfferIssueDateFrom'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferIssueDateTo'].valid && this.filterForm.controls['OfferIssueDateFrom'].valid) {
+          this.filterForm.controls['OfferIssueDateTo'].setValue(this.filterForm.controls['OfferIssueDateTo'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferIssueDateTo'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferIssueDateFrom'].valid && this.filterForm.controls['OfferIssueDateTo'].valid) {
+          this.filterForm.controls['OfferIssueDateFrom'].setValue(this.filterForm.controls['OfferIssueDateFrom'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferVaidityDateForm'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferVaidityDateTo'].valid && this.filterForm.controls['OfferVaidityDateForm'].valid) {
+          this.filterForm.controls['OfferVaidityDateTo'].setValue(this.filterForm.controls['OfferVaidityDateTo'].value);
+        }
+      }
+    });
+
+    this.filterForm.controls['OfferVaidityDateTo'].valueChanges.subscribe({
+      next: newValue => {
+        if (!this.filterForm.controls['OfferVaidityDateForm'].valid && this.filterForm.controls['OfferVaidityDateTo'].valid) {
+          this.filterForm.controls['OfferVaidityDateForm'].setValue(this.filterForm.controls['OfferVaidityDateForm'].value);
+        }
+        this.filterForm.controls['OfferVaidityDateForm'].markAsDirty();
+        this.cdref.detectChanges();
+      }
+    });
   }
 
   public RefreshAndJumpToTable(): void {
     this.Refresh(this.getInputParams, true);
   }
 
-  JumpToFirstCellAndNav(): void {
+  JumpToTable(x: number = 0, y: number = 0): void {
     console.log("[JumpToFirstCellAndNav]");
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     this.kbS.SetCurrentNavigatable(this.dbDataTable);
-    this.kbS.SelectElementByCoordinate(0, 0);
+    this.kbS.SelectElementByCoordinate(x, y);
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     setTimeout(() => {
       this.kbS.MoveDown();
@@ -535,8 +567,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             this.dbDataTable.SetPaginatorData(d);
           }
           this.RefreshTable(undefined, this.isPageReady);
-          if (this.isPageReady) {
-            this.JumpToFirstCellAndNav();
+          if (this.isPageReady || jumpToFirstTableCell) {
+            this.JumpToTable();
           }
         } else {
           this.bbxToastrService.show(
@@ -576,7 +608,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
           }
           this.RefreshTable(undefined, this.isPageReady);
           if (this.isPageReady) {
-            this.JumpToFirstCellAndNav();
+            this.JumpToTable();
           }
         } else if (getAllResult.errors) {
           this.bbxToastrService.show(
@@ -593,9 +625,37 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.isLoading = false;
   }
 
-  ngOnInit(): void {
+  public async ngOnInit(): Promise<void> {
+    const filterData = this.localStorage.get<OfferFilter>(this.localStorageKey)
+    if (filterData && filterData.customerSearch !== '') {
+      await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
+
+      await this.RefreshAsync(this.getInputParams)
+
+      if (this.dbData.length === 0) {
+        this.kbS.SetCurrentNavigatable(this.filterFormNav)
+        this.kbS.SelectFirstTile()
+        this.kbS.setEditMode(KeyboardModes.EDIT)
+      }
+      else {
+        const offerNumber = this.filterForm.controls['OfferNumber'].value
+        if (offerNumber !== '') {
+          const index = this.dbData.findIndex(x => x.data.offerNumber === offerNumber)
+
+          this.JumpToTable(index, 0)
+        }
+        else {
+          this.JumpToTable()
+        }
+      }
+    }
+    else {
+      this.RefreshAll(this.getInputParams)
+    }
+
     this.fS.pushCommands(this.commands);
   }
+
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
 
@@ -614,6 +674,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       this.kbS.setEditMode(KeyboardModes.EDIT);
     }, 200);
   }
+
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
@@ -650,7 +711,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+    const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
     if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
@@ -660,12 +721,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   ChoseDataForFormByTaxtNumber(): void {
-    debugger;
     console.log("Selecting Customer from avaiable data by taxtnumber.");
 
     this.isLoading = true;
 
-    this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
       next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -727,13 +787,24 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     if (this.customerInputFilterString.replace(' ', '') === '') {
       this.buyerData = { id: -1 } as Customer;
       this.SetCustomerFormFields(undefined);
+      this.isLoading = false
       return;
     }
 
     this.isLoading = true;
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
-    } as GetCustomersParamListModel).subscribe({
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.searchCustomer(this.customerInputFilterString)
+  }
+
+  private searchCustomer(term: string): Subscription {
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    return this.customerService.GetAll(request).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
@@ -751,7 +822,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         }
       },
       error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
+        this.cs.HandleError(err);
+        this.isLoading = false;
         this.searchByTaxtNumber = false;
       },
       complete: () => {
@@ -760,9 +832,43 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     });
   }
 
+  private async searchCustomerAsync(term: string): Promise<void> {
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    try {
+      const res = await firstValueFrom(this.customerService.GetAll(request))
+
+      if (!!res && res.data !== undefined && res.data.length > 0) {
+        this.buyerData = res.data[0];
+        this.cachedCustomerName = res.data[0].customerName;
+        this.SetCustomerFormFields(res.data[0]);
+        this.searchByTaxtNumber = false;
+      } else {
+        if (this.customerInputFilterString.length >= 8 &&
+          this.IsNumber(this.customerInputFilterString)) {
+          this.searchByTaxtNumber = true;
+        } else {
+          this.searchByTaxtNumber = false;
+        }
+        this.SetCustomerFormFields(undefined);
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+      this.isLoading = false;
+      this.searchByTaxtNumber = false;
+    }
+  }
+
   ChooseDataForTableRow(rowIndex: number): void {}
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -834,11 +940,15 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const id = this.dbData[this.kbS.p.y - 1].data.id;
 
       this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD]);
-      this.utS.execute(Constants.CommandType.DOWNLOAD_OFFER_NAV_CSV, Constants.FileExtensions.CSV,
+      this.printAndDownLoadService.download_csv(
         {
-          "ID": HelperFunctions.ToFloat(id),
-          "data_operation": Constants.DataOperation.DOWNLOAD_BLOB,
-        } as Constants.Dct);
+          "report_params":
+          {
+            "ID": HelperFunctions.ToFloat(id)
+          }
+        } as Constants.Dct,
+        this.offerService.GetCsv.bind(this.offerService)
+      );
     }
   }
 
@@ -895,7 +1005,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             offerCustomer.customerName = res.to.name ?? offerCustomer.customerName;
             offerCustomer.taxpayerNumber = offerCustomer.taxpayerNumber?.substring(0, 13);
 
-            await lastValueFrom(this.seC.Update(offerCustomer))
+            await lastValueFrom(this.customerService.Update(offerCustomer))
               .then(async updateRes => {
                 if (updateRes && updateRes.succeeded) {
                   this.simpleToastrService.show(
@@ -1035,61 +1145,19 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-      const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-        context: {
-          title: 'Ajánlat Nyomtatása',
-          inputLabel: 'Példányszám',
-          defaultValue: 1
-        }
-      });
-      dialogRef.onClose.subscribe({
-        next: async res => {
-          if (res.answer && HelperFunctions.ToInt(res.value) > 0) {
-            this.isLoading = true;
-
-            let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-              next: cmdEnded => {
-                console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                  this.simpleToastrService.show(
-                    `Az árajánlat nyomtatása véget ért.`,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  commandEndedSubscription.unsubscribe();
-                }
-                this.isLoading = false;
-              },
-              error: cmdEnded => {
-                console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                commandEndedSubscription.unsubscribe();
-                this.bbxToastrService.show(
-                  `Az árajánlat nyomtatása közben hiba történt.`,
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
-                );
-                this.isLoading = false;
-              }
-            });
-
-            await this.printReport(id, res.value);
-
-            const updatedOffer = await this.GetOffer(id);
-            if (updatedOffer) {
-              this.dbData[rowIndex].data.copies = updatedOffer.copies;
-            }
-          } else {
-            this.simpleToastrService.show(
-              `Az ajánlat nyomtatása nem történt meg.`,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-            this.isLoading = false;
-          }
-        }
-      });
+      this.printAndDownLoadService.openPrintDialog({
+        DialogTitle: 'Ajánlat Nyomtatása',
+        DefaultCopies: 1,
+        MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
+        MsgCancel: `Az ajánlat nyomtatása nem történt meg.`,
+        MsgFinish: `Az árajánlat nyomtatása véget ért.`,
+        Obs: this.offerService.GetReport.bind(this.offerService),
+        ReportParams: {
+          "id": id,
+          "copies": 1 // Ki lesz töltve dialog alapján
+        } as Constants.Dct,
+        Reset: () => { }
+      } as PrintDialogRequest);
     }
   }
 
@@ -1099,30 +1167,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   private async GetCustomer(id: number): Promise<Customer> {
-    const customerRes = lastValueFrom(this.seC.Get({ ID: id }));
+    const customerRes = lastValueFrom(this.customerService.Get({ ID: id }));
     return customerRes;
-  }
-
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    let params = {
-      "section": "Szamla",
-      "fileType": "pdf",
-      "report_params":
-      {
-        "id": id,
-        "copies": HelperFunctions.ToInt(copies)
-      },
-      "copies": 1,
-      "data_operation": Constants.DataOperation.PRINT_BLOB,
-      "blob_data": null
-    } as Constants.Dct;
-    await this.utS.execute(
-      Constants.CommandType.PRINT_OFFER,
-      Constants.FileExtensions.PDF,
-      params,
-      this.offerService.GetReport(params)
-    );
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling

@@ -22,7 +22,7 @@ import { Actions, StockCardNavKeySettings, KeyBindings, GetFooterCommandListFrom
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { GetStockCardsParamsModel } from '../models/GetStockCardsParamsModel';
 import { StockCard } from '../models/StockCard';
 import { WareHouse } from '../../warehouse/models/WareHouse';
@@ -221,7 +221,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   public override KeySetting: Constants.KeySettingsDct = StockCardNavKeySettings;
@@ -248,7 +248,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     sts: StatusService,
     private router: Router,
     private infrastructureService: InfrastructureService,
-    private utS: UtilityService,
+    private utS: PrintAndDownloadService,
     private wareHouseApi: WareHouseService,
     private khs: KeyboardHelperService
   ) {
@@ -615,7 +615,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
   ChooseDataForTableRow(rowIndex: number): void { }
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Product from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);

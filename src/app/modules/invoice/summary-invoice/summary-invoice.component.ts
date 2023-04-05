@@ -21,7 +21,7 @@ import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
+import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
@@ -30,24 +30,23 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, UrlSegment } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { InvoiceTypes } from '../models/InvoiceTypes';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
-import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
-import { InvoiceCategory } from '../models/InvoiceCategory';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -56,8 +55,6 @@ import { InvoiceStatisticsService } from '../services/invoice-statistics.service
 })
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  incoming: boolean = false
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -92,6 +89,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
     "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
+  requiredCols: string[] = ['productCode', 'quantity'];
   override allColumns = [
     'productCode',
     'productDescription',
@@ -126,7 +124,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     },
     {
       label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
@@ -161,7 +159,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   get NextTabIndex() { return this.tabIndex++; }
 
   get editDisabled() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT && !this.isLoading && !this.isSaveInProgress;
+    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
   }
 
   get invoiceIssueDateValue(): Date | undefined {
@@ -194,6 +192,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   private originalCustomerID: number = -1
 
+  public mode!: SummaryInvoiceMode
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -207,17 +207,20 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private utS: UtilityService,
+    private printAndDownLoadService: PrintAndDownloadService,
     private status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
+    router: Router,
     private custDiscountService: CustomerDiscountService,
-    public invoiceStatisticsService: InvoiceStatisticsService
+    public invoiceStatisticsService: InvoiceStatisticsService,
+    behaviorFactory: InvoiceBehaviorFactoryService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.activatedRoute.url.subscribe(params => {
-      this.SetModeBasedOnRoute(params);
+      this.mode = behaviorFactory.create(params[0].path)
+
       this.InitialSetup();
       this.isPageReady = true;
     })
@@ -251,6 +254,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.fS.pushCommands(this.commands);
     }
   }
+
   public override onFormSearchBlurred(event?: any, formFieldName?: string): void {
     this.customerSearchFocused = false;
 
@@ -261,28 +265,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
-  private SetModeBasedOnRoute(params: UrlSegment[]): void {
-    console.log("ActivatedRoute: ", params[0].path);
-    const path = params[0].path;
-    if (path === 'summary-invoice') {
-      this.InvoiceType = InvoiceTypes.INV;
-      this.InvoiceCategory = InvoiceCategory.AGGREGATE
-      this.incoming = false;
-    } else {
-      this.InvoiceType = InvoiceTypes.INC;
-      this.InvoiceCategory = InvoiceCategory.AGGREGATE
-      this.incoming = true;
-    }
-    console.log("InvoiceType: ", this.InvoiceType);
-  }
-
-  private Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
-  }
-
   private InitialSetup(): void {
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
@@ -291,7 +273,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
-    this.outGoingInvoiceData = {
+    this.outGoingInvoiceData = new OutGoingInvoiceFullData({
       lineGrossAmount: 0.0,
       invoiceVatAmount: 0.0,
       invoiceNetAmount: 0.0,
@@ -305,8 +287,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       paymentMethod: '',
       exchangeRate: 1,
       currencyCode: CurrencyCodes.HUF,
-      invoiceDiscountPercent: 0
-    } as OutGoingInvoiceFullData;
+      invoiceDiscountPercent: 0,
+      correction: this.mode.correction
+    });
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -346,7 +329,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         invoiceOrdinal: new FormControl('', []), // in post response
         notice: new FormControl('', []),
       });
-      if (this.incoming) {
+      if (this.mode.incoming) {
         this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
           Validators.required
         ]));
@@ -393,8 +376,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.buyerFormNav!.OuterJump = true;
     this.outInvFormNav!.OuterJump = true;
 
-    console.log('new InvoiceLine(): ', new InvoiceLine());
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -404,7 +385,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.dbDataTableId,
       AttachDirection.DOWN,
       () => {
-        return new InvoiceLine();
+        return new InvoiceLine(this.requiredCols);
       },
       this
     );
@@ -528,18 +509,19 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
-  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  public HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
     }
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
     if (this.editDisabled) {
+      const colDef = this.colDefs.find(x => x.objectKey === objectKey)
+      if (colDef?.fReadonly) {
+        return
+      }
+
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
-      setTimeout(() => {
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.kbS.ClickCurrentElement();
-      }, 50);
     } else {
       this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
     }
@@ -630,17 +612,19 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
-      if (changedData.quantity > changedData.maximumQuantity) {
-        this.bbxToastrService.show(
-          Constants.MSG_MAXIMUM_QUANTITY_REACHED,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        );
-        this.dbData[index].data.Restore('quantity')
-      }
-      else {
+      const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.limit)
+
+      if (!validationResult) {
         changedData.Save()
+        return
       }
+
+      this.bbxToastrService.show(
+        validationResult,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      )
+      this.dbData[index].data.Restore('quantity')
     }
   }
 
@@ -749,7 +733,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   private AfterViewInitSetup(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.buyerFormNav.GenerateAndSetNavMatrices(true);
+    if (this.mode.isSummaryInvoice) {
+      this.buyerFormNav.GenerateAndSetNavMatrices(true);
+    }
+
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
     this.dbDataTable?.Setup(
@@ -776,7 +763,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           searchString: this.customerInputFilterString,
           allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
           colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
-          incoming: this.incoming
+          incoming: this.mode.incoming
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -808,10 +795,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
+  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
 
-    if (this.incoming) {
+    if (this.mode.incoming) {
       this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
     }
 
@@ -821,8 +808,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
 
-    this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
-      HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
+    this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
+      ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
+      : this.mode.paymentMethod
 
     this.outGoingInvoiceData.warehouseCode = '1';
 
@@ -842,35 +830,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.warehouseCode = '001';
 
-    this.outGoingInvoiceData.incoming = this.Incoming;
-    this.outGoingInvoiceData.invoiceType = this.InvoiceType;
-    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
+    this.outGoingInvoiceData.incoming = this.mode.incoming;
+    this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
-  }
-
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_GENERIC, Constants.FileExtensions.PDF,
-      {
-        "section": "Bevételezés gyűjtőszámla",
-        "fileType": "pdf",
-        "report_params":
-        {
-          "id": id,
-          "copies": HelperFunctions.ToInt(copies)
-        },
-        "copies": 1,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct,
-      this.seInv.GetAggregateReport({
-        "report_params": {
-          "id": id, "copies": HelperFunctions.ToInt(copies)
-        }
-      }));
   }
 
   Save(): void {
@@ -918,7 +884,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
-        data: this.outGoingInvoiceData
+        data: this.outGoingInvoiceData,
+        isDiscountVisible: false,
+        forceDisableOutgoingDelivery: true,
+        negativeDiscount: !this.mode.isSummaryInvoice
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
@@ -936,96 +905,52 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.CreateOutgoing(request).subscribe({
-        next: d => {
-          //this.isSilentLoading = false;
-          if (!!d.data) {
-            console.log('Save response: ', d);
-
+        next: async d => {
+          try {
+            //this.isSilentLoading = false;
             if (!!d.data) {
-              this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              console.log('Save response: ', d);
+
+              if (!!d.data) {
+                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              }
+
+              this.simpleToastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
+
+              this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
+
+              this.isSaveInProgress = true;
+
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
+
+              await this.printAndDownLoadService.openPrintDialog({
+                DialogTitle: 'Számla Nyomtatása',
+                DefaultCopies: 1,
+                MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+                MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+                MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+                Obs: this.mode.isSummaryInvoice
+                  ? this.seInv.GetAggregateReport.bind(this.seInv)
+                  : this.seInv.GetReport.bind(this.seInv),
+                Reset: this.DelayedReset.bind(this),
+                ReportParams: {
+                  "id": d.data?.id,
+                  "copies": 1 // Ki lesz töltve dialog alapján
+                } as Constants.Dct
+              } as PrintDialogRequest);
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isSaveInProgress = false;
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
             }
-
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-
-            this.dbDataTable.RemoveEditRow();
-            this.kbS.SelectFirstTile();
-
-            this.isSaveInProgress = true;
-
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
-
-            const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-              context: {
-                title: 'Számla Nyomtatása',
-                inputLabel: 'Példányszám',
-                defaultValue: 1
-              }
-            });
-            dialogRef.onClose.subscribe({
-              next: async res => {
-                console.log("OneTextInputDialogComponent: ", res);
-                if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
-                  let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                    next: cmdEnded => {
-                      console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                      if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                        this.Reset();
-
-                        this.simpleToastrService.show(
-                          `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                          Constants.TITLE_INFO,
-                          Constants.TOASTR_SUCCESS_5_SEC
-                        );
-                        commandEndedSubscription.unsubscribe();
-                      }
-
-                      this.isSaveInProgress = false;
-                    },
-                    error: cmdEnded => {
-                      this.Reset();
-
-                      console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                      this.isLoading = false;
-                      this.isSaveInProgress = false;
-
-                      this.bbxToastrService.show(
-                        `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                        Constants.TITLE_ERROR,
-                        Constants.TOASTR_ERROR
-                        );
-                        this.isSaveInProgress = false;
-
-                        commandEndedSubscription.unsubscribe();
-                    }
-                  });
-                  await this.printReport(d.data?.id, res.value);
-                } else {
-                  this.simpleToastrService.show(
-                    `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
-                  this.isSaveInProgress = false;
-                  this.Reset();
-                }
-              },
-              error: err => {
-                this.Reset();
-                this.cs.HandleError(d.errors);
-                this.isSaveInProgress = false;
-                this.status.pushProcessStatus(Constants.BlankProcessStatus);
-              }
-            });
-          } else {
-            this.cs.HandleError(d.errors);
-            this.isSaveInProgress = false;
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
+          } catch (error) {
+            this.Reset()
+            this.cs.HandleError(error)
           }
         },
         error: err => {
@@ -1068,7 +993,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const event = new EventEmitter<PendingDeliveryNote[]>()
+    const event = new EventEmitter<PendingDeliveryNoteItem[]>()
 
     event.subscribe(this.fillTableWithPendingNotes.bind(this))
 
@@ -1076,33 +1001,24 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       const data = {
         relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
         quantity: x.data.quantity
-      } as PendingDeliveryNote
+      } as PendingDeliveryNoteItem
       return data
     })
 
-    var d = this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
+    this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
         allColumns: PendingDeliveryNotesTableSettings.AllColumns,
         colDefs: PendingDeliveryNotesTableSettings.ColDefs,
         checkedNotes: checkedNotes,
         customerID: this.originalCustomerID,
         selectedNotes: event,
-        incoming: this.incoming
-      }
-    });
-    d.onClose.subscribe({
-      next: res => {
-        if (res) {
-          // debugger
-          // this.kbS.SelectElement('PRODUCT-2-0')
-          // this.JumpToCell('quantity');
-        }
+        mode: this.mode
       }
     });
   }
 
-  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNote): InvoiceLine {
-    const line = new InvoiceLine()
+  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): InvoiceLine {
+    const line = new InvoiceLine(this.requiredCols)
     line.productCode = value.productCode
     line.productDescription = value.lineDescription
     line.quantity = value.quantity
@@ -1116,7 +1032,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     line.invoiceNumber = value.invoiceNumber
     line.workNumber = value.workNumber
     line.unitPriceDiscounted = value.unitPriceDiscounted
-    line.maximumQuantity = value.quantity
+    line.limit = value.quantity
 
     line.DeafultFieldList = ['productCode', 'quantity']
     line.Save()
@@ -1124,7 +1040,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     return line
   }
 
-  private fillTableWithPendingNotes(notes: PendingDeliveryNote[]): void {
+  private fillTableWithPendingNotes(notes: PendingDeliveryNoteItem[]): void {
     this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
     notes.forEach(note => {
@@ -1133,6 +1049,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       if (relDeliveryDate < invoiceDeliveryDate) {
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
+      }
+
+      if (!this.mode.isSummaryInvoice) {
+        note.quantity = -note.quantity
       }
 
       const checkedNote = this.dbData.find(x => x.data.relDeliveryNoteInvoiceLineID === note.relDeliveryNoteInvoiceLineID)
@@ -1205,7 +1125,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     noticeControl?.setValue(notice.trim())
   }
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -1268,7 +1188,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    let res = new InvoiceLine();
+    let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
 
@@ -1505,7 +1425,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
             return;
           }
           event.preventDefault();
-          this.ChooseDataForForm();
+          this.ChooseDataForCustomerForm();
           break;
         }
         case this.KeySetting[Actions.Create].KeyCode: {
@@ -1525,4 +1445,3 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
 }
-

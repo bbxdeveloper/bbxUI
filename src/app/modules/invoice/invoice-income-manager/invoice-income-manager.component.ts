@@ -21,7 +21,7 @@ import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine, InvoiceLineForPost } from '../models/InvoiceLine';
+import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
@@ -33,14 +33,14 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { UtilityService } from 'src/app/services/utility.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, UrlSegment } from '@angular/router';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
@@ -88,6 +88,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
+  requiredCols: string[] = ['productCode', 'quantity'];
   override allColumns = [
     'productCode',
     'productDescription',
@@ -159,7 +160,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   get NextTabIndex() { return this.tabIndex++; }
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   get invoiceIssueDateValue(): Date | undefined {
@@ -203,13 +204,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private utS: UtilityService,
+    private printAndDownLoadService: PrintAndDownloadService,
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
+    router: Router,
     private custDiscountService: CustomerDiscountService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sidebarService, khs);
+    super(dialogService, kbS, fS, cs, sts, sidebarService, khs, router);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.SetModeBasedOnRoute(params);
@@ -268,13 +270,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     console.log("Incoming: ", this.Incoming);
   }
 
-  private Reset(): void {
-    console.log(`Reset.`);
-    this.kbS.ResetToRoot();
-    this.InitialSetup();
-    this.AfterViewInitSetup();
-  }
-
   private InitialSetup(): void {
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
@@ -283,7 +278,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
-    this.outGoingInvoiceData = {
+    this.outGoingInvoiceData = new OutGoingInvoiceFullData({
       lineGrossAmount: 0.0,
       invoiceVatAmount: 0.0,
       invoiceNetAmount: 0.0,
@@ -298,7 +293,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       exchangeRate: 1,
       currencyCode: CurrencyCodes.HUF,
       invoiceDiscountPercent: 0
-    } as OutGoingInvoiceFullData;
+    });
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -383,8 +378,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.activeFormNav!.OuterJump = true;
     this.outInvFormNav!.OuterJump = true;
 
-    console.log('new InvoiceLine(): ', new InvoiceLine());
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -394,7 +387,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.dbDataTableId,
       AttachDirection.DOWN,
       () => {
-        return new InvoiceLine();
+        return new InvoiceLine(this.requiredCols);
       },
       this
     );
@@ -749,7 +742,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLineForPost> {
+  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
     this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
 
@@ -787,23 +780,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
-  }
-
-  async printReport(id: any, copies: number): Promise<void> {
-    this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.PROC_CMD]);
-    await this.utS.execute(
-      Constants.CommandType.PRINT_INVOICE, Constants.FileExtensions.PDF,
-      {
-        "section": "Szamla",
-        "fileType": "pdf",
-        "report_params":
-        {
-          "id": id,
-          "copies": HelperFunctions.ToInt(copies)
-        },
-        "copies": 1,
-        "data_operation": Constants.DataOperation.PRINT_BLOB
-      } as Constants.Dct);
   }
 
   Save(): void {
@@ -863,83 +839,48 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.seInv.CreateOutgoing(request).subscribe({
-          next: d => {
-            if (!!d.data) {
-              console.log('Save response: ', d);
-
+          next: async d => {
+            try {
               if (!!d.data) {
-                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                ordinal = d.data.invoiceNumber ?? '';
+                console.log('Save response: ', d);
+
+                if (!!d.data) {
+                  this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+                  ordinal = d.data.invoiceNumber ?? '';
+                }
+
+                this.simpleToastrService.show(
+                  Constants.MSG_SAVE_SUCCESFUL,
+                  Constants.TITLE_INFO,
+                  Constants.TOASTR_SUCCESS_5_SEC
+                );
+
+                this.dbDataTable.RemoveEditRow();
+                this.kbS.SelectFirstTile();
+
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+                await this.printAndDownLoadService.openPrintDialog({
+                  DialogTitle: 'Számla Nyomtatása',
+                  DefaultCopies: 1,
+                  MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
+                  MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
+                  MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,
+                  Obs: this.seInv.GetReport.bind(this.seInv),
+                  Reset: this.DelayedReset.bind(this),
+                  ReportParams: {
+                    "id": d.data?.id,
+                    "copies": 1 // Ki lesz töltve dialog alapján
+                  } as Constants.Dct
+                } as PrintDialogRequest);
+              } else {
+                this.cs.HandleError(d.errors);
+                this.isSaveInProgress = false;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               }
-
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-
-              const dialogRef = this.dialogService.open(OneTextInputDialogComponent, {
-                context: {
-                  title: 'Számla Nyomtatása',
-                  inputLabel: 'Példányszám',
-                  defaultValue: 1
-                }
-              });
-              dialogRef.onClose.subscribe({
-                next: async res => {
-                  if (res && res.answer && res.value > 0) {
-                    let commandEndedSubscription = this.utS.CommandEnded.subscribe({
-                      next: cmdEnded => {
-                        console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-
-                        if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                          this.Reset();
-
-                          this.simpleToastrService.show(
-                            `A ${ordinal} számla nyomtatása véget ért.`,
-                            Constants.TITLE_INFO,
-                            Constants.TOASTR_SUCCESS_5_SEC
-                          );
-                          commandEndedSubscription.unsubscribe();
-                        }
-
-                        this.isSaveInProgress = false;
-                      },
-                      error: cmdEnded => {
-                        console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-
-                        this.isSaveInProgress = false;
-
-                        commandEndedSubscription.unsubscribe();
-
-                        this.bbxToastrService.show(
-                          `A ${ordinal} számla nyomtatása közben hiba történt.`,
-                          Constants.TITLE_ERROR,
-                          Constants.TOASTR_ERROR
-                        );
-                      }
-                    });
-                    await this.printReport(d.data?.id, res.value);
-                  } else {
-                    this.simpleToastrService.show(
-                      `A ${ordinal} számla nyomtatása nem történt meg.`,
-                      Constants.TITLE_INFO,
-                      Constants.TOASTR_SUCCESS_5_SEC
-                    );
-                    this.isSaveInProgress = false;
-                    this.Reset();
-                  }
-                }
-              });
-            } else {
-              this.cs.HandleError(d.errors);
-              this.isSaveInProgress = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            } catch (error) {
+              this.Reset()
+              this.cs.HandleError(error)
             }
           },
           error: err => {
@@ -999,7 +940,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     });
   }
 
-  ChooseDataForForm(): void {
+  ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -1054,7 +995,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    let res = new InvoiceLine();
+    let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
 
@@ -1280,7 +1221,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             return;
           }
           event.preventDefault();
-          this.ChooseDataForForm();
+          this.ChooseDataForCustomerForm();
           break;
         }
         case this.KeySetting[Actions.Create].KeyCode: {

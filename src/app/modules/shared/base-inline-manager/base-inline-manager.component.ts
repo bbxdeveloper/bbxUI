@@ -18,15 +18,14 @@ import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { Customer } from '../../customer/models/Customer';
-import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-table.component';
 import { CreateNewProductDialogComponent } from '../create-new-product-dialog/create-new-product-dialog.component';
 import { Product } from '../../product/models/Product';
 import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
 import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -171,9 +170,26 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     protected cs: CommonService,
     protected sts: StatusService,
     protected sideBarService: BbxSidebarService,
-    protected khs: KeyboardHelperService
+    protected khs: KeyboardHelperService,
+    protected router: Router
   ) {
     this.sideBarService.collapse();
+  }
+
+  protected Reset(): void {
+    const currentUrl = this.router.url
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl])
+    })
+  }
+
+  protected async DelayedReset(delay: number = 200): Promise<void> {
+    const currentUrl = this.router.url
+    await this.router.navigateByUrl('/', { skipLocationChange: true }).then(async () => {
+      setTimeout(async  () => {
+        await this.router.navigate([currentUrl])
+      }, delay);
+    })
   }
 
   JumpToCell(key: string, edit: boolean = true){

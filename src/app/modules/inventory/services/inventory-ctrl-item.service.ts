@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvCtrlItemParamListModel } from '../models/GetInvCtrlItemParamListModel';
@@ -13,26 +13,33 @@ import { GetAllInvCtrlPeriodsResponse } from '../models/GetAllInvCtrlPeriodsResp
 import { InvCtrl } from '../models/InvCtrl';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 import { Constants } from 'src/assets/util/Constants';
+import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { CreateIccRequest } from '../models/CreateIccRequest';
+import { GetLatestIccResponse } from '../models/GetLatestIccResponse';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryCtrlItemService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlICP';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrl';
 
   constructor(private http: HttpClient) { }
 
   GetAbsentReport(params: Constants.Dct): Observable<any> {
-    console.log("GetReport: ", params);
-    let options = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set("charset", "utf8")
-      .set("accept", "application/pdf");
-    return this.http.post(
-      `${this.BaseUrl}/report`,
-      JSON.stringify(params['report_params']),
-      { responseType: 'blob', headers: options }
-    );
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/report`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
   }
 
   GetAll(params?: GetAllInvCtrlItemsParamListModel): Observable<GetAllInvCtrlItemsResponse> {
@@ -100,6 +107,28 @@ export class InventoryCtrlItemService {
   }
 
   Create(req: CreateInvCtrlItemRequest): Observable<CreateInvCtrlItemResponse> {
-    return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl, req);
+    return this.http.post<CreateInvCtrlItemResponse>(this.BaseUrl + '/creicp', req);
+  }
+
+  public getLatestIcc(params: GetLatestIccRequest): Promise<GetLatestIccResponse> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    const response = this.http.get<GetLatestIccResponse>(this.BaseUrl + '/getlatesticc?' + queryParams)
+
+    return firstValueFrom(response)
+  }
+
+  public createIcc(params: CreateIccRequest[]): Promise<unknown> {
+    const items = {
+      items: params
+    }
+    const json = JSON.stringify(items)
+
+    const headers = new HttpHeaders()
+     .set('Content-Type', 'application/json')
+     .set('charset', 'utf8')
+
+    const response = this.http.post<unknown>(this.BaseUrl + '/creicc', json, { headers })
+
+    return firstValueFrom(response)
   }
 }

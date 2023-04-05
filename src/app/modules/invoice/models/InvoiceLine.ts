@@ -1,38 +1,8 @@
 import { IEditable } from "src/assets/model/IEditable";
 import { MementoObject } from "src/assets/model/MementoObject";
+import { JsonIgnore } from "src/assets/model/navigation/DynamicObject";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { Price } from "src/assets/util/Price";
-
-/**
- * Invoivceline model for sending data to the backend
- * Used within: @see CreateOutgoingInvoiceRequest<InvoiceLineForPost>
- */
-export interface InvoiceLineForPost {
-    // table col order
-    lineNumber: number; // hidden
-    productCode: string; // editable
-    productDescription: string;
-    quantity: number; // editable
-    unitOfMeasure: string;
-    unitPrice: number; // editable
-    vatRateCode: string; // below table
-    vatRate?: number;
-    lineNetAmount: number; // price * quant
-    relDeliveryNoteInvoiceLineID?: number
-}
-
-export function GetBlankInvoiceLineForPost(): InvoiceLineForPost {
-    return {
-        lineNumber: 0,
-        productCode: '',
-        productDescription: "",
-        quantity: 0.0,
-        unitOfMeasure: "",
-        unitPrice: 0.0,
-        vatRateCode: '',
-        lineNetAmount: 0.0
-    } as InvoiceLineForPost;
-}
 
 /**
  * Price data for invocielines.
@@ -57,8 +27,14 @@ export class InvoiceLinePriceData {
 /**
  * Invoiceline class for handling grids, calculations, conversions...
  */
-export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IEditable {
+export class InvoiceLine extends MementoObject implements IEditable {
+    @JsonIgnore
     public override DeafultFieldList: string[] = ['productCode'];
+
+    id?: string
+
+    @JsonIgnore
+    public requiredFields?: string[]
 
     lineNumber: number = 0; // hidden
 
@@ -67,79 +43,120 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
 
     quantity: number = 0.0; // editable
 
-
     unitOfMeasure: string = "";
 
     unitPrice: number = 0.0; // editable
 
     vatRateCode: string = ''; // below table
 
+    @JsonIgnore
     lineNetAmount: number = 0.0; // price * quant
 
+    @JsonIgnore
     lineGrossAmount: number = 0.0; // netamount + vatamount
+
+    @JsonIgnore
     lineVatAmount: number = 0.0; // netamount * vat - hidden
 
+    @JsonIgnore
     custDiscounted: boolean = false;
+
+    @JsonIgnore
     noDiscount: boolean = false;
+
+    @JsonIgnore
     discount: number = 0;
+
+
+    productID?: number
+
 
     vatRate: number = 1; // hidden
 
+    @JsonIgnore
     unitOfMeasureX?: string;
 
     relDeliveryNoteInvoiceLineID: number = 0
 
+    @JsonIgnore
     workNumber: string = ''
+
+    /**
+     * Árfelülvizsgálatos-e ez a sor
+     */
+    priceReview: boolean = false
 
     /**
      * Discounts are only used in the save dialog, so we keep this data separately.
      */
+    @JsonIgnore
     discountedData?: InvoiceLinePriceData;
 
+    @JsonIgnore
     invoiceNumber?: string;
 
+    @JsonIgnore
     unitPriceDiscounted: number = 0
 
     //#region Gyűjtő számla
-    maximumQuantity: number = 0
+    @JsonIgnore
+    limit: number = 0
 
+    @JsonIgnore
     public get rowDiscountedNetPrice(): number {
         return this.unitPriceDiscounted * this.quantity
     }
 
+    @JsonIgnore
     public get rowNetPrice(): number {
         return this.unitPrice * this.quantity;
     }
 
+    @JsonIgnore
     public get rowDiscountValue(): number {
         return this.rowNetPrice - this.rowDiscountedNetPrice;
     }
 
+    @JsonIgnore
     public get rowGrossPrice(): number {
         return Price.gross(this.rowNetPrice, this.vatRate)
     }
 
+    @JsonIgnore
     public get rowDiscountedGrossPrice(): number {
         return Price.gross(this.rowDiscountedNetPrice, this.vatRate)
     }
 
+    @JsonIgnore
     public get rowNetPriceRounded(): number {
         return HelperFunctions.Round2(this.rowDiscountedNetPrice, 1);
     }
 
+    @JsonIgnore
     public get rowGrossPriceRounded(): number {
         return HelperFunctions.Round2(this.rowGrossPrice, 0);
     }
     //#endregion Gyűjtő számla
 
-    constructor() {
+    constructor(requiredFields?: string[]) {
         super();
         this.SaveDefault();
+        if (requiredFields) {
+            this.requiredFields = requiredFields;
+        }
     }
 
     IsUnfinished(): boolean {
-        return this.productCode?.length === 0 || this.productDescription?.length === 0 ||
-            this.quantity === undefined || this.unitPrice === undefined;
+        if (this.requiredFields) {
+            const x = this as any;
+            return this.requiredFields.findIndex(fieldName => {
+                if (typeof x[fieldName] === 'string') {
+                    return HelperFunctions.isEmptyOrSpaces(x[fieldName])
+                }
+                return x[fieldName] === undefined
+            }) > -1
+        }
+        return HelperFunctions.isEmptyOrSpaces(this.productCode) || this.quantity === undefined || this.unitPrice === undefined;
     }
 
     public override toString(): string {
@@ -206,32 +223,5 @@ export class InvoiceLine extends MementoObject implements InvoiceLineForPost, IE
         // console.log("lineGrossAmount: " + this.lineGrossAmount);
         // console.log("==========================");
         // console.log("");
-    }
-
-    /**
-     * Converts into the backend model
-     * @returns
-     */
-    public GetPOSTData(needVatRate = true): InvoiceLineForPost {
-        let res = {
-            lineNetAmount: HelperFunctions.ToFloat(this.lineNetAmount),
-            lineNumber: this.lineNumber,
-            quantity: this.quantity,
-            productCode: this.productCode,
-            productDescription: this.productDescription,
-            unitOfMeasure: this.unitOfMeasure,
-            unitPrice: HelperFunctions.ToFloat(this.unitPrice),
-            vatRateCode: this.vatRateCode,
-            relDeliveryNoteInvoiceLineID: this.relDeliveryNoteInvoiceLineID
-        } as InvoiceLineForPost;
-
-        if (needVatRate) {
-            res.vatRate = this.vatRate
-        }
-        else {
-            res.vatRate = undefined
-        }
-
-        return res;
     }
 }

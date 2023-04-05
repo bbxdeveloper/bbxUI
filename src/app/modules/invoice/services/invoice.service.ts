@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { lastValueFrom, Observable, of } from 'rxjs';
+import { firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
-import { GetInvoiceParamListModel } from '../models/GetInvoiceParamListModel';
+import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { Invoice } from '../models/Invoice';
 import { CreateOutgoingInvoiceRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { CreateOutgoingInvoiceResponse } from '../models/CreateOutgoingInvoiceResponse';
@@ -14,11 +14,13 @@ import { DeleteInvoiceRequest } from '../models/DeleteInvoiceRequest';
 import { DeleteInvoiceResponse } from '../models/DeleteInvoiceResponse';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { Constants } from 'src/assets/util/Constants';
-import { InvoiceLineForPost } from '../models/InvoiceLine';
+import { InvoiceLine } from '../models/InvoiceLine';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingDeliveriInvoiceSummary';
+import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { PricePreviewRequest } from '../models/PricePreviewRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -39,20 +41,28 @@ export class InvoiceService {
     return this.http.get<PaymentMethod[]>(this.BaseUrl + '/paymentmethod');
   }
 
-  GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
+  public GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
     return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Get(params?: GetInvoiceParamListModel): Observable<Invoice> {
-    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-
-    return this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+  public getAllAsync(params: GetInvoicesParamListModel): Promise<GetInvoicesResponse> {
+    return firstValueFrom(this.GetAll(params))
   }
 
-  CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLineForPost>): Observable<CreateOutgoingInvoiceResponse> {
-    return this.http.post<CreateOutgoingInvoiceResponse>(this.BaseUrl, req);
+  public Get(params: GetInvoiceRequest): Promise<Invoice> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const response = this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+
+    return firstValueFrom(response)
+  }
+
+  CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLine>): Observable<CreateOutgoingInvoiceResponse> {
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+    return this.http.post<CreateOutgoingInvoiceResponse>(this.BaseUrl, req.JsonStringify(), { headers: options });
   }
 
   Update(req: UpdateInvoiceRequest): Observable<UpdateInvoiceResponse> {
@@ -64,39 +74,51 @@ export class InvoiceService {
   }
 
   GetReport(params: Constants.Dct): Observable<any> {
-    let options = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set("charset", "utf8")
-      .set("accept", "application/pdf");
-    return this.http.post(
-      `${this.BaseUrl}/print`,
-      JSON.stringify(params['report_params']),
-      { responseType: 'blob', headers: options }
-    );
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/print`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
   }
 
   GetGradesReport(params: Constants.Dct): Observable<any> {
-    let options = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set("charset", "utf8")
-      .set("accept", "application/pdf");
-    return this.http.post(
-      `${this.BaseUrl}/print`,
-      JSON.stringify(params['report_params']),
-      { responseType: 'blob', headers: options }
-    );
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/print`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
   }
 
   GetAggregateReport(params: Constants.Dct): Observable<any> {
-    let options = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set("charset", "utf8")
-      .set("accept", "application/pdf");
-    return this.http.post(
-      `${this.BaseUrl}/printaggregate`,
-      JSON.stringify(params['report_params']),
-      { responseType: 'blob', headers: options }
-    );
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/printaggregate`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
   }
 
   public async GetPendingDeliveryInvoices(params?: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryInvoiceSummary[]> {
@@ -106,10 +128,46 @@ export class InvoiceService {
     return await lastValueFrom(request)
   }
 
-  public async GetPendingDeliveryNotes(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNote[]> {
+  public async GetPendingDeliveryNotesItems(params: GetPendingDeliveryInvoiceSummariesRequest): Promise<PendingDeliveryNoteItem[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
-    const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
+    const request = this.http.get<PendingDeliveryNoteItem[]>(this.BaseUrl + '/pendigdeliverynotesitems?' + queryParams)
 
     return await lastValueFrom(request)
+  }
+
+  public GetPendingDeliveryNotes(): Promise<PendingDeliveryNote[]> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString({
+      incoming: false,
+      warehouseCode: '001',
+      currencyCode: 'HUF'
+    })
+    const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
+
+    return lastValueFrom(request)
+  }
+
+  public pricePreview(pricePreview: PricePreviewRequest): Promise<CreateOutgoingInvoiceResponse> {
+    const body = JSON.stringify(pricePreview)
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('charset', 'utf')
+    const request = this.http.patch<CreateOutgoingInvoiceResponse>(this.BaseUrl + '/pricepreview', body, { headers })
+
+    return firstValueFrom(request)
+  }
+
+  public getCsv(params: GetInvoicesParamListModel | Constants.Dct): Observable<any> {
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('charset', 'utf8')
+      .set('accept', 'text/csv')
+
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+
+    return this.http.get(this.BaseUrl + '/csv?' + queryParams, {
+      responseType: 'blob',
+      headers: headers,
+      observe: 'response'
+    })
   }
 }

@@ -7,6 +7,7 @@ import { DashboardComponent } from './modules/core/dashboard/dashboard.component
 import { CounterManagerComponent } from './modules/counter/counter-manager/counter-manager.component';
 import { CustomerDiscountManagerComponent } from './modules/customer-discount/customer-discount-manager/customer-discount-manager.component';
 import { CustomerManagerComponent } from './modules/customer/customer-manager/customer-manager.component';
+import { ContInvCtrlComponent } from './modules/inventory/cont-inv-ctrl/cont-inv-ctrl.component';
 import { InvCtrlAbsentComponent } from './modules/inventory/inv-ctrl-absent/inv-ctrl-absent.component';
 import { InvCtrlItemManagerComponent } from './modules/inventory/inv-ctrl-item-manager/inv-ctrl-item-manager.component';
 import { InvCtrlPeriodManagerComponent } from './modules/inventory/inv-ctrl-period-manager/inv-ctrl-period-manager.component';
@@ -14,6 +15,7 @@ import { InvRowNavComponent } from './modules/inventory/inv-row-nav/inv-row-nav.
 import { InvoiceIncomeManagerComponent } from './modules/invoice/invoice-income-manager/invoice-income-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
 import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
+import { PriceReviewComponent } from './modules/invoice/price-review/price-review.component';
 import { SummaryInvoiceComponent } from './modules/invoice/summary-invoice/summary-invoice.component';
 import { LocationManagerComponent } from './modules/location/location-manager/location-manager.component';
 import { OfferCreatorComponent } from './modules/offer/offer-creator/offer-creator.component';
@@ -90,7 +92,15 @@ const routes: Routes = [
       {
         path: "summary-invoice",
         component: SummaryInvoiceComponent,
-      }
+      },
+      {
+        path: "minus-delivery-note",
+        component: SummaryInvoiceComponent,
+      },
+      {
+        path: 'price-review',
+        component: PriceReviewComponent
+      },
     ]
   },
   {
@@ -136,6 +146,10 @@ const routes: Routes = [
       {
         path: "invctrlabsent",
         component: InvCtrlAbsentComponent,
+      },
+      {
+        path: "cont-invctrl",
+        component: ContInvCtrlComponent,
       }
     ]
   },
@@ -165,6 +179,10 @@ const routes: Routes = [
       },
       {
         path: "incoming-summary-invoice",
+        component: SummaryInvoiceComponent,
+      },
+      {
+        path: 'minus-incoming-delivery-note',
         component: SummaryInvoiceComponent,
       }
     ]

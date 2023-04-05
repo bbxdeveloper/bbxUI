@@ -37,7 +37,7 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   isLoading: boolean = true;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   private uid = 0;

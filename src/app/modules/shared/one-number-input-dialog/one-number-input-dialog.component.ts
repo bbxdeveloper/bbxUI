@@ -23,9 +23,14 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     digits: 2,
     digitsOptional: false,
     prefix: '',
-    placeholder: '0.0',
+    placeholder: '0.0'
   });
   @Input() placeHolder: string = '0.00';
+  @Input() defaultValue?: number;
+  @Input() limitValue: boolean = false;
+  @Input() minValue: number = 1;
+  @Input() maxValue: number = 99;
+  
 
   closedManually = false;
 
@@ -34,7 +39,7 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
-    return this.kbS.currentKeyboardMode !== KeyboardModes.EDIT;
+    return !this.kbS.isEditModeActivated;
   }
 
   constructor(
@@ -81,8 +86,11 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     this.formNav.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
+    if (this.defaultValue !== undefined) {
+      this.formNav.form.controls['answer'].setValue(this.defaultValue)
+    }
     setTimeout(() => {
-      HelperFunctions.SelectBeginningByClass('one-number-input-dialog-input');
+      HelperFunctions.SelectBeginningByClass('one-number-input-dialog-input')
     }, 100);
   }
 

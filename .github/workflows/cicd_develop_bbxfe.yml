@@ -8,8 +8,9 @@ env:
 
 on:
   push:
-    branches:
-      - develop
+    branches: [ develop ]
+  pull_request: 
+    branches: [ develop ]
   workflow_dispatch:
 
 jobs:
@@ -28,13 +29,17 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      #- name: Run tests
-      #  run: npm run test:headless
+        
       - name: Build
         run: npm run build-prod
-        #run: ng build --prod --base-href
+        #run: ng build --prod --base-href        
 
+      #- name: Run tests
+      #  run: npm run test -- --configuration production
+      #  env:
+      #      CI: true
+        # npm run test :headless
+        
       - name: Archive build
         if: success()
         uses: actions/upload-artifact@v1
