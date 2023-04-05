@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional } from '@angular/core';
+import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -31,7 +31,9 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
-import { firstValueFrom } from 'rxjs';
+import { SystemService } from '../../system/services/system.service';
+import { InvoiceType } from '../../system/models/InvoiceType';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -39,8 +41,6 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./invoice-nav.component.scss']
 })
 export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
-  @ViewChild('table') table?: NbTable<any>;
-
   private readonly localStorageKey: string
 
   TileCssClass = TileCssClass;
@@ -56,11 +56,9 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     'invoiceNumber',
     'warehouse',
     'customerName',
-    //'customerCity',
     'paymentMethodX',
     'invoiceDeliveryDate',
     'invoiceIssueDate',
-    //'paymentDate',
     'invoiceNetAmount',
     'invoiceVatAmount',
     'invoiceGrossAmount',
@@ -68,7 +66,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
-      label: 'Számlaszám',
+      label: 'Bizonylatszám',
       objectKey: 'invoiceNumber',
       colKey: 'invoiceNumber',
       defaultValue: '',
@@ -228,26 +226,24 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   ];
 
   override get getInputParams(): GetInvoicesParamListModel {
+    const controls = this.filterForm.controls
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
-      Incoming: this.filterForm.controls['Incoming'].value,
+      InvoiceType: this.invoiceTypes.find(x => x.text === controls['InvoiceType'].value)?.value ?? '',
 
       WarehouseCode: HelperFunctions
-        .ConvertChosenWareHouseToCode(this.filterForm.controls['WarehouseCode'].value, this.wh, ''),
+        .ConvertChosenWareHouseToCode(controls['WarehouseCode'].value, this.warehouses, ''),
 
       // Radio 1
-      InvoiceIssueDateFrom: this.isIssueFilterSelected ?
-        this.filterForm.controls['InvoiceIssueDateFrom'].value : null,
-      InvoiceIssueDateTo: this.isIssueFilterSelected ?
-        this.filterForm.controls['InvoiceIssueDateTo'].value : null,
+      InvoiceIssueDateFrom: this.isIssueFilterSelected ? controls['InvoiceIssueDateFrom'].value : null,
+      InvoiceIssueDateTo: this.isIssueFilterSelected ? controls['InvoiceIssueDateTo'].value : null,
 
       // Radio 2
-      InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ?
-        this.filterForm.controls['InvoiceDeliveryDateFrom'].value : null,
-      InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ?
-        this.filterForm.controls['InvoiceDeliveryDateTo'].value : null,
+      InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateFrom'].value : null,
+      InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateTo'].value : null,
+      OrderBy: 'InvoiceNumber'
     };
   }
 
@@ -256,8 +252,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
   // WareHouse
-  wh: WareHouse[] = [];
+  warehouses: WareHouse[] = [];
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+  invoiceTypes: InvoiceType[] = []
+  invoiceTypes$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
 
   get isEditModeOff() {
     return !this.kbS.isEditModeActivated;
@@ -301,19 +300,23 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   get isDeliveryFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenDeliveryFilterOptionValue; }
 
   get isIssueFilterSelectedAndValid(): boolean {
+    const controls = this.filterForm.controls
+
     return this.isIssueFilterSelected
-      && this.filterForm.controls['InvoiceIssueDateFrom'].value !== undefined && this.filterForm.controls['InvoiceIssueDateFrom'].value.length > 0
-      && this.filterForm.controls['InvoiceIssueDateTo'].value !== undefined && this.filterForm.controls['InvoiceIssueDateTo'].value.length > 0
-      && this.filterForm.controls['InvoiceIssueDateFrom'].valid && this.filterForm.controls['InvoiceIssueDateTo'].valid
-      && this.filterForm.controls['Incoming'].valid && this.filterForm.controls['WarehouseCode'].valid;
+      && controls['InvoiceIssueDateFrom'].value !== undefined && controls['InvoiceIssueDateFrom'].value.length > 0
+      && controls['InvoiceIssueDateTo'].value !== undefined && controls['InvoiceIssueDateTo'].value.length > 0
+      && controls['InvoiceIssueDateFrom'].valid && controls['InvoiceIssueDateTo'].valid
+      && controls['InvoiceType'].valid && controls['WarehouseCode'].valid;
   }
 
   get isDeliveryFilterSelectedAndValid(): boolean {
+    const controls = this.filterForm.controls
+
     return this.isDeliveryFilterSelected
-      && this.filterForm.controls['InvoiceDeliveryDateFrom'].value !== undefined && this.filterForm.controls['InvoiceDeliveryDateFrom'].value.length > 0
-      && this.filterForm.controls['InvoiceDeliveryDateTo'].value !== undefined && this.filterForm.controls['InvoiceDeliveryDateTo'].value.length > 0
-      && this.filterForm.controls['InvoiceDeliveryDateFrom'].valid && this.filterForm.controls['InvoiceDeliveryDateTo'].valid
-      && this.filterForm.controls['Incoming'].valid && this.filterForm.controls['WarehouseCode'].valid;
+      && controls['InvoiceDeliveryDateFrom'].value !== undefined && controls['InvoiceDeliveryDateFrom'].value.length > 0
+      && controls['InvoiceDeliveryDateTo'].value !== undefined && controls['InvoiceDeliveryDateTo'].value.length > 0
+      && controls['InvoiceDeliveryDateFrom'].valid && controls['InvoiceDeliveryDateTo'].valid
+      && controls['InvoiceType'].valid && controls['WarehouseCode'].valid;
   }
 
   get invoiceIssueDateFromValue(): Date | undefined {
@@ -324,6 +327,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceIssueDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -341,6 +345,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
+
   get invoiceDeliveryDateToValue(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
@@ -353,19 +358,21 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Invoice>>,
-    private cdref: ChangeDetectorRef,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Invoice>>,
+    private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private simpleToastrService: BbxToastrService,
+    private readonly simpleToastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
-    private sidebarFormService: SideBarFormService,
-    private invoiceService: InvoiceService,
-    private wareHouseApi: WareHouseService,
+    private readonly sidebarFormService: SideBarFormService,
+    private readonly invoiceService: InvoiceService,
+    private readonly wareHouseApi: WareHouseService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService,
+    private readonly keyboardHelperService: KeyboardHelperService,
     tokenStorage: TokenStorageService,
-    private readonly localStorage: LocalStorageService
+    private readonly localStorage: LocalStorageService,
+    private readonly systemService: SystemService,
+    private readonly printAndDownloadService: PrintAndDownloadService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
 
@@ -387,6 +394,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     const wrong = new Date(control.value) > this.invoiceIssueDateToValue;
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateInvoiceIssueDateTo(control: AbstractControl): any {
     if (this.invoiceIssueDateFromValue === undefined) {
       return null;
@@ -402,6 +410,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     const wrong = new Date(control.value) > this.invoiceDeliveryDateToValue;
     return wrong ? { maxDate: { value: control.value } } : null;
   }
+
   validateInvoiceDeliveryDateTo(control: AbstractControl): any {
     if (this.invoiceDeliveryDateFromValue === undefined) {
       return null;
@@ -409,7 +418,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     const wrong = new Date(control.value) < this.invoiceDeliveryDateFromValue;
     return wrong ? { minDate: { value: control.value } } : null;
   }
-
 
   ToInt(p: any): number {
     return parseInt(p + '');
@@ -481,7 +489,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
-
   }
 
   private setupFilterForm(): void {
@@ -492,7 +499,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
 
     this.filterForm = new FormGroup({
-      Incoming: new FormControl(true, []),
+      InvoiceType: new FormControl(filterData.invoiceType, [Validators.required]),
       WarehouseCode: new FormControl(filterData.warehouseCode, []),
       InvoiceIssueDateFrom: new FormControl(filterData.invoiceIssueDateFrom, [
         this.validateInvoiceIssueDateFrom.bind(this),
@@ -515,7 +522,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.filterForm.valueChanges.subscribe(value => {
       const filterData = {
-        incoming: value.Incoming,
+        invoiceType: value.InvoiceType,
         warehouseCode: value.WarehouseCode,
         invoiceIssueDateFrom: value.InvoiceIssueDateFrom,
         invoiceIssueDateTo: value.InvoiceIssueDateTo,
@@ -573,11 +580,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     });
   }
 
-  override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
+  override async Refresh(): Promise<void> {
     this.isLoading = true;
 
     try {
-      const response = await firstValueFrom(this.invoiceService.GetAll(params))
+      const response = await this.invoiceService.getAllAsync(this.getInputParams)
 
       if (response && response.succeeded && !!response.data) {
         const tempData = response.data.map((x) => {
@@ -610,13 +617,29 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     try {
       const response = await this.wareHouseApi.GetAllPromise();
       if (!!response && !!response.data) {
-        this.wh = response.data;
-        this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+        this.warehouses = response.data;
+        this.wareHouseData$.next(this.warehouses.map(x => x.warehouseDescription));
       }
     }
     catch (error) {
       this.cs.HandleError(error);
       this.isLoading = false;
+    }
+  }
+
+  private async getAndSetInvoiceTypes(): Promise<void> {
+    try {
+      const invoiceTypes = await this.systemService.getInvoiceTypes()
+
+      if (invoiceTypes) {
+        this.invoiceTypes = invoiceTypes
+        this.invoiceTypes$.next(invoiceTypes.map(x => x.text))
+
+        this.filterForm.controls['InvoiceType'].setValue(invoiceTypes.find(x => x.value === 'INV')?.text ?? '')
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error)
     }
   }
 
@@ -628,9 +651,14 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   public async ngOnInit(): Promise<void> {
-    await this.getAndSetWarehouses()
+    const requests = [
+      this.getAndSetWarehouses(),
+      this.getAndSetInvoiceTypes()
+    ]
 
-    await this.RefreshAll(this.getInputParams);
+    await Promise.all(requests)
+
+    await this.Refresh();
 
     if (this.localStorage.has(this.localStorageKey)) {
       this.navigateToTable()
@@ -664,10 +692,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.kbS.Detach();
   }
 
-  private async RefreshAll(params?: GetInvoicesParamListModel): Promise<void> {
-    await this.Refresh(params);
-  }
-
   RefreshData(): void { }
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
   RecalcNetAndVat(): void { }
@@ -695,9 +719,29 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   Delete(): void { }
 
+  @HostListener('window:keydown.f12', ['$event'])
+  public async getCsv(): Promise<void> {
+    try {
+      this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
+
+      const reportParams = {
+        report_params: this.getInputParams,
+      } as Constants.Dct
+
+      this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+    }
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
-  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
+  @HostListener('window:keydown', ['$event'])
+  public onKeyDown2(event: KeyboardEvent): void {
     if (event.shiftKey && event.key == 'Enter') {
       this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.filterFormNav?.HandleFormShiftEnter(event)
@@ -709,22 +753,15 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       event.stopPropagation();
       return;
     }
-    if (this.khs.IsKeyboardBlocked) {
+
+    if (this.keyboardHelperService.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
       return;
     }
-    switch (event.key) {
-      case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
-        this.dbDataTable?.HandleKey(event);
-        break;
-      }
+    switch (event.key) {
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
@@ -734,10 +771,36 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      default: { }
+      case this.KeySetting[Actions.Print].KeyCode: {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+
+        this.printSelectedInvoice()
+        break
+      }
     }
   }
 
-  ChooseDataForTableRow(rowIndex: number): void { }
+  private printSelectedInvoice(): void {
+    const selectedRow = this.dbDataTable.prevSelectedRow
+
+    const invoiceNumber = selectedRow?.data.invoiceNumber ?? ''
+
+    this.printAndDownloadService.openPrintDialog({
+      DialogTitle: 'Számla nyomtatása',
+      DefaultCopies: 1,
+      MsgError: `A ${invoiceNumber} számla nyomtatása közben hiba történt.`,
+      MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
+      MsgFinish: `A ${invoiceNumber} számla nyomtatása véget ért.`,
+      Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+      Reset: () => {},
+      ReportParams: {
+        id: selectedRow?.data.id,
+        copies: 1
+      } as Constants.Dct,
+    } as PrintDialogRequest)
+  }
+
+  ChooseDataForTableRow(rowIndex: number): void {}
   ChooseDataForCustomerForm(): void {}
 }
