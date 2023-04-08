@@ -38,10 +38,10 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   get isLoggedIn(): boolean { return this.tokenService.isLoggedIn; };
 
-  get InProgress(): boolean { return this.sts.InProgress || this.isLoading; }
+  get InProgress(): boolean { return this.statusService.InProgress || this.isLoading; }
 
   get keyboardMode(): string {
-    var mode = this.kbS.currentKeyboardMode;
+    var mode = this.keyboardService.currentKeyboardMode;
     switch (mode) {
       case KeyboardModes.NAVIGATION:
         return "Mód: Navigáció";
@@ -59,7 +59,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   get keyboardModeStatus(): string {
-    var mode = this.kbS.currentKeyboardMode;
+    var mode = this.keyboardService.currentKeyboardMode;
     switch (mode) {
       case KeyboardModes.NAVIGATION:
         return "primary";
@@ -84,17 +84,16 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   constructor(
-    private dialogService: NbDialogService,
-    private kbS: KeyboardNavigationService,
-    private router: Router,
-    private sts: StatusService,
-    private authService: AuthService,
-    private tokenService: TokenStorageService,
-    private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
-    private utS: PrintAndDownloadService,
-    private status: StatusService,
-    private khs: KeyboardHelperService) {
+    private readonly dialogService: NbDialogService,
+    private readonly keyboardService: KeyboardNavigationService,
+    private readonly router: Router,
+    private readonly statusService: StatusService,
+    private readonly authService: AuthService,
+    private readonly tokenService: TokenStorageService,
+    private readonly bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
+    private readonly status: StatusService,
+    private readonly keyboardHelperService: KeyboardHelperService) {
     super();
     this.OuterJump = true;
   }
@@ -105,7 +104,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   ngAfterViewInit(): void {
     this.GenerateAndSetNavMatrices();
-    this.kbS.SelectFirstTile();
+    this.keyboardService.SelectFirstTile();
     if (!this.isLoggedIn) {
       this.login(undefined);
     }
@@ -146,7 +145,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     //if (environment.debug)
     console.log("[HeaderComponent] Generated header matrix: ", this.Matrix, "\nSubmapping: ", this.SubMapping);
 
-    this.kbS.SetRoot(this);
+    this.keyboardService.SetRoot(this);
   }
 
   /**
@@ -177,7 +176,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       return;
     }
 
-    if (this.kbS.IsLocked() || this.status.InProgress || this.khs.IsKeyboardBlocked) {
+    if (this.keyboardService.IsLocked() || this.status.InProgress || this.keyboardHelperService.IsKeyboardBlocked) {
       console.log("[onKeyDown] Movement is locked!");
 
       event.preventDefault();
@@ -189,44 +188,37 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
     switch (event.key) {
       case KeyBindings.up: {
-        if (!this.kbS.isEditModeActivated) {
+        if (!this.keyboardService.isEditModeActivated) {
           event.preventDefault();
-          this.kbS.MoveUp(true, event.altKey);
+          this.keyboardService.MoveUp(true, event.altKey);
         }
         break;
       }
       case KeyBindings.down: {
-        if (!this.kbS.isEditModeActivated) {
+        if (!this.keyboardService.isEditModeActivated) {
           event.preventDefault();
-          this.kbS.MoveDown(true, event.altKey);
+          this.keyboardService.MoveDown(true, event.altKey);
         }
         break;
       }
       case KeyBindings.left: {
-        if (!this.kbS.isEditModeActivated) {
+        if (!this.keyboardService.isEditModeActivated) {
           event.preventDefault();
-          this.kbS.MoveLeft(true, event.altKey);
+          this.keyboardService.MoveLeft(true, event.altKey);
         }
         break;
       }
       case KeyBindings.right: {
-        if (!this.kbS.isEditModeActivated) {
+        if (!this.keyboardService.isEditModeActivated) {
           event.preventDefault();
-          this.kbS.MoveRight(true, event.altKey);
+          this.keyboardService.MoveRight(true, event.altKey);
         }
         break;
       }
-      // case KeyBindings.edit: {
-      //   if (!this.kbS.isEditModeActivated) {
-      //     event.preventDefault();
-      //   }
-      //   this.kbS.ClickCurrentElement();
-      //   break;
-      // }
       case KeyBindings.exitIE:
       case KeyBindings.exit: {
-        if (!this.khs.IsDialogOpened) {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        if (!this.keyboardHelperService.IsDialogOpened) {
+          this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
         }
         break;
       }
@@ -235,11 +227,11 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   handleEscape(): void {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
   }
 
   goTo(link: string): void {
-    this.kbS.MoveRight();
+    this.keyboardService.MoveRight();
     this.popover?.forEach(x => x?.hide());
     if (link === "home") {
       this.router.navigate([link]);
@@ -275,12 +267,15 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   private async onLoginDialogClose(res: LoginDialogResponse): Promise<void> {
     if (!!res && res.answer && res.wareHouse) {
       try {
+        this.statusService.pushProcessStatus(Constants.LoggingInStatus)
+
         const response = await this.authService.login(res.name, res.pswd)
 
         if (response.succeeded && !HelperFunctions.isEmptyOrSpaces(response?.data?.token) && response?.data?.user) {
           this.tokenService.token = response?.data?.token;
           this.tokenService.user = response?.data?.user;
           this.tokenService.wareHouse = res.wareHouse
+
           this.simpleToastrService.show(
             Constants.MSG_LOGIN_SUCCESFUL,
             Constants.TITLE_INFO,
@@ -289,25 +284,28 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
           setTimeout(() => {
             this.GenerateAndSetNavMatrices();
-            this.kbS.SelectFirstTile();
+            this.keyboardService.SelectFirstTile();
             this.isLoading = false;
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+            this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
           }, 200);
         } else {
           this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           this.isLoading = false;
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
         }
       } catch (error) {
         this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         this.isLoading = false;
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+      }
+      finally {
+        this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
       }
     } else {
       setTimeout(() => {
-        this.kbS.SelectFirstTile();
+        this.keyboardService.SelectFirstTile();
         this.isLoading = false;
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
       }, 200);
     }
   }
@@ -315,7 +313,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   logout(event: any): void {
     event?.preventDefault();
     HelperFunctions.confirm(this.dialogService, Constants.MSG_LOGOUT_CONFIGM, () => {
-      this.sts.pushProcessStatus(Constants.LogoutSavingStatuses[Constants.LogoutSavingPhases.LOGGING_OUT]);
+      this.statusService.pushProcessStatus(Constants.LogoutSavingStatuses[Constants.LogoutSavingPhases.LOGGING_OUT]);
       this.authService.logout().subscribe({
         next: res => {
           this.simpleToastrService.show(
@@ -327,14 +325,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           this.router.navigate(['/home']);
           setTimeout(() => {
             this.GenerateAndSetNavMatrices();
-            this.kbS.SelectFirstTile();
+            this.keyboardService.SelectFirstTile();
           }, 200);
         },
         error: err => {
           this.bbxToastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         },
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     });
