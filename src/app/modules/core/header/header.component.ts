@@ -215,13 +215,6 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         }
         break;
       }
-      // case KeyBindings.edit: {
-      //   if (!this.kbS.isEditModeActivated) {
-      //     event.preventDefault();
-      //   }
-      //   this.kbS.ClickCurrentElement();
-      //   break;
-      // }
       case KeyBindings.exitIE:
       case KeyBindings.exit: {
         if (!this.keyboardHelperService.IsDialogOpened) {
@@ -274,6 +267,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   private async onLoginDialogClose(res: LoginDialogResponse): Promise<void> {
     if (!!res && res.answer && res.wareHouse) {
       try {
+        this.statusService.pushProcessStatus(Constants.LoggingInStatus)
+
         const response = await this.authService.login(res.name, res.pswd)
 
         if (response.succeeded && !HelperFunctions.isEmptyOrSpaces(response?.data?.token) && response?.data?.user) {
@@ -298,6 +293,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           this.isLoading = false;
           this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
         }
+
+        this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
       } catch (error) {
         this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         this.isLoading = false;
