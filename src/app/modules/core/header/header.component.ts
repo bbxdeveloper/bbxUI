@@ -293,12 +293,13 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           this.isLoading = false;
           this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
         }
-
-        this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
       } catch (error) {
         this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         this.isLoading = false;
         this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+      }
+      finally {
+        this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
       }
     } else {
       setTimeout(() => {
