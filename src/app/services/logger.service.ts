@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { PrintAndDownloadService } from './print-and-download.service';
 
 export enum LogLevel {
@@ -45,6 +46,10 @@ export class LoggerService {
   }
 
   private logWith(level: any, msg: string): void {
+    if (environment.production) {
+      return
+    }
+
     var logLevel: string = 'None'
     var date: string = new Date().toISOString()
 
