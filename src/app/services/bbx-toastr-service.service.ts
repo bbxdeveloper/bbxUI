@@ -3,8 +3,10 @@ import { NbToastrConfig, NbToastRef, NbToastrService } from '@nebular/theme';
 import { Subscription } from 'rxjs/internal/Subscription';
 
 export interface ToastRef {
-  subscription?: Subscription;
-  toast: NbToastRef;
+  subscription?: Subscription
+  toast: NbToastRef
+  date: number
+  hash: string
 }
 
 @Injectable({
@@ -20,10 +22,23 @@ export class BbxToastrService {
 
   get IsToastrOpened() { return this.toastrRefStack.length > 0; }
 
+  private compareDelta: number = 3000000
+
   constructor(private toastrService: NbToastrService) { }
 
-  show(message: any, title?: any, userConfig?: Partial<NbToastrConfig>): NbToastRef {
-    this._toastrRef = { toast: this.toastrService.show(message, title, userConfig) } as ToastRef;
+  show(message: any, title?: any, userConfig?: Partial<NbToastrConfig>): NbToastRef | undefined {
+    const hash = window.btoa(unescape(encodeURIComponent(message)))
+    const timeStamp = Date.now()
+
+    if (this.toastrRefStack.find(x => Math.abs(x.date - timeStamp) <= this.compareDelta && x.hash == hash)) {
+      return undefined
+    }
+
+    this._toastrRef = {
+      toast: this.toastrService.show(message, title, userConfig),
+      date: timeStamp,
+      hash: hash
+    } as ToastRef;
     this.toastrRefStack.push(this._toastrRef);
     if (this.toastrRefStack.length > this.maxToastCount) {
       let i = 0;
