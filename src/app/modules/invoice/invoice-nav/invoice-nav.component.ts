@@ -721,21 +721,23 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   @HostListener('window:keydown.f12', ['$event'])
   public async getCsv(): Promise<void> {
-    try {
-      this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
+    HelperFunctions.confirm(this.dialogService, 'Export CSV formátumban?', () => {
+      try {
+        this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
 
-      const reportParams = {
-        report_params: this.getInputParams,
-      } as Constants.Dct
+        const reportParams = {
+          report_params: this.getInputParams,
+        } as Constants.Dct
 
-      this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
-    }
-    catch (error) {
-      this.cs.HandleError(error)
-    }
-    finally {
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus)
-    }
+        this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
+      }
+      catch (error) {
+        this.cs.HandleError(error)
+      }
+      finally {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+      }
+    })
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
