@@ -619,11 +619,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         return
       }
 
-      this.bbxToastrService.show(
-        validationResult,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
+      setTimeout(() => {
+        this.bbxToastrService.show(
+          validationResult,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        )
+      }, 0);
       this.dbData[index].data.Restore('quantity')
     }
   }
