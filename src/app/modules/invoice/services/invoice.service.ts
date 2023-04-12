@@ -41,10 +41,14 @@ export class InvoiceService {
     return this.http.get<PaymentMethod[]>(this.BaseUrl + '/paymentmethod');
   }
 
-  GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
+  public GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
     return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  public getAllAsync(params: GetInvoicesParamListModel): Promise<GetInvoicesResponse> {
+    return firstValueFrom(this.GetAll(params))
   }
 
   public Get(params: GetInvoiceRequest): Promise<Invoice> {
@@ -150,5 +154,20 @@ export class InvoiceService {
     const request = this.http.patch<CreateOutgoingInvoiceResponse>(this.BaseUrl + '/pricepreview', body, { headers })
 
     return firstValueFrom(request)
+  }
+
+  public getCsv(params: GetInvoicesParamListModel | Constants.Dct): Observable<any> {
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('charset', 'utf8')
+      .set('accept', 'text/csv')
+
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+
+    return this.http.get(this.BaseUrl + '/csv?' + queryParams, {
+      responseType: 'blob',
+      headers: headers,
+      observe: 'response'
+    })
   }
 }
