@@ -172,6 +172,13 @@ export module Constants {
         { title: 'Kijelentkezés', value: 0, msg: '1/1 - Kijelentkezés...', isSimple: true }
     ];
 
+    export const LoggingInStatus: ProcessStatus = {
+        title: 'Bejelentkezés folyamatban...',
+        value: 0,
+        msg: '1/1 - Bejelentkezés',
+        isSimple: true
+    }
+
     export const BlankProcessStatus: ProcessStatus = { value: -1 } as ProcessStatus;
 
     // Types
