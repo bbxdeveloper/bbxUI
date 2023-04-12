@@ -719,8 +719,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   Delete(): void { }
 
-  @HostListener('window:keydown.f12', ['$event'])
-  public async getCsv(): Promise<void> {
+  public getCsv(): void {
     HelperFunctions.confirm(this.dialogService, 'Export CSV formátumban?', () => {
       try {
         this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
@@ -778,6 +777,14 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         event.stopImmediatePropagation()
 
         this.printSelectedInvoice()
+        break
+      }
+      case this.KeySetting[Actions.CSV].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.getCsv()
         break
       }
     }
