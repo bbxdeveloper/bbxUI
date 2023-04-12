@@ -792,6 +792,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         event.stopPropagation();
         event.preventDefault();
 
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
         break
       }
     }
