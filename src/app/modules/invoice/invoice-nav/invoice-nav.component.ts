@@ -719,23 +719,24 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   Delete(): void { }
 
-  @HostListener('window:keydown.f12', ['$event'])
-  public async getCsv(): Promise<void> {
-    try {
-      this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
+  public getCsv(): void {
+    HelperFunctions.confirm(this.dialogService, 'Export CSV formátumban?', () => {
+      try {
+        this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
 
-      const reportParams = {
-        report_params: this.getInputParams,
-      } as Constants.Dct
+        const reportParams = {
+          report_params: this.getInputParams,
+        } as Constants.Dct
 
-      this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
-    }
-    catch (error) {
-      this.cs.HandleError(error)
-    }
-    finally {
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus)
-    }
+        this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
+      }
+      catch (error) {
+        this.cs.HandleError(error)
+      }
+      finally {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+      }
+    })
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
@@ -776,6 +777,23 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         event.stopImmediatePropagation()
 
         this.printSelectedInvoice()
+        break
+      }
+      case this.KeySetting[Actions.CSV].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.getCsv()
+        break
+      }
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
         break
       }
     }
