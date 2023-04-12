@@ -787,6 +787,13 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.getCsv()
         break
       }
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        break
+      }
     }
   }
 
