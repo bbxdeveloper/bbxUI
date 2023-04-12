@@ -1,0 +1,6 @@
+<input nbInput type="text" [inputMask]="numberInputMask" [placeholder]="placeHolder" [(ngModel)]="base" readonly hidden>
+<div class="calc-form">
+    <label class="calc-symbol" for="manipulator">{{calcSymbol}}</label>
+    <input class="one-number-input-dialog-input" nbInput type="text" id="calc-input" name='manipulator' required="true"
+        [inputMask]="numberInputMask" [placeholder]="placeHolder" [(ngModel)]="manipulator">
+</div>

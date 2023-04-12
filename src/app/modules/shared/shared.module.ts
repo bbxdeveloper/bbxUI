@@ -37,6 +37,7 @@ import { RadioChoiceDialogComponent } from './radio-choice-dialog/radio-choice-d
 import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-box-invoice.component';
 import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerBankAccountNumberInputComponent } from './customer-bank-account-number-input/customer-bank-account-number-input.component';
+import { CalculatorPopoverComponent } from './calculator-popover/calculator-popover.component';
 
 
 @NgModule({
@@ -72,6 +73,7 @@ import { CustomerBankAccountNumberInputComponent } from './customer-bank-account
     BbxComboBoxInvoiceComponent,
     ProductSelectTableDialogComponent,
     CustomerBankAccountNumberInputComponent,
+    CalculatorPopoverComponent,
   ],
   imports: [
     CommonModule,
@@ -133,7 +135,8 @@ import { CustomerBankAccountNumberInputComponent } from './customer-bank-account
     RadioChoiceDialogComponent,
     BbxComboBoxInvoiceComponent,
     ProductSelectTableDialogComponent,
-    CustomerBankAccountNumberInputComponent
+    CustomerBankAccountNumberInputComponent,
+    CalculatorPopoverComponent
   ],
   providers: [
     ConfirmationDialogComponent
