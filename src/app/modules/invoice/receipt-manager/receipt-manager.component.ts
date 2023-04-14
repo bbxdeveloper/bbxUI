@@ -606,7 +606,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
-        this.buyerFormNav.Setup(this.buyersData);
+        // this.buyerFormNav.Setup(this.buyersData);
         console.log('Buyers: ', d);
 
         // Set filters

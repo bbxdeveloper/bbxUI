@@ -18,7 +18,7 @@ import { NavigatableBuildingBlockComponent } from '../navigatable-building-block
   styleUrls: ['./invoice-data-form.component.scss']
 })
 export class InvoiceDataFormComponent extends NavigatableBuildingBlockComponent implements OnInit {
-  @Input() mode: SummaryInvoiceMode = { incoming: false } as SummaryInvoiceMode
+  @Input() mode: SummaryInvoiceMode = {} as SummaryInvoiceMode
 
   @Input() isLoading: boolean = true;
   @Input() isSaveInProgress: boolean = false;
