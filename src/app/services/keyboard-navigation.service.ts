@@ -248,16 +248,21 @@ export class KeyboardNavigationService {
       $(element).removeClass(SELECTED_ELEMENT_CLASS);
       $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     });
-    $(idString).addClass(SELECTED_ELEMENT_CLASS);
-    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-    if (excludeButtons && $(idString).is(':button')) {
-      $(idString).trigger('focus');
+    const element = $(idString)
+    element.addClass(SELECTED_ELEMENT_CLASS);
+    element.parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    if (excludeButtons && element.is(':button')) {
+      element.trigger('focus');
     }
-    else if ($(idString).is(':radio')) {
-      $(idString).trigger('focus');
+    else if (element.is(':radio')) {
+      element.trigger('focus');
+    }
+    else if (element.is(':checkbox')) {
+      element.trigger('focus');
     } else {
-      $(idString).trigger('click');
+      element.trigger('click');
     }
 
     this.ElementIdSelected.next(id);
