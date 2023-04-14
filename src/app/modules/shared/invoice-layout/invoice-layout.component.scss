@@ -4,7 +4,7 @@
     min-width: 100%;
     min-height: 100%;
 
-    grid-template-rows: 40% 5% 20% 5% 30%;
+    grid-template-rows: 40% 1% 20% 1% 38%;
     grid-template-columns: 100%;
     
     align-content: space-evenly;
@@ -16,7 +16,7 @@
         display: grid;
         
         grid-template-rows: 100%;
-        grid-template-columns: 30% 5% 30% 5% 30%;
+        grid-template-columns: 22% 1% 39% 1% 37%;
 
         align-content: space-evenly;
         justify-items: stretch;
