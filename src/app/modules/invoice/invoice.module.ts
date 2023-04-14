@@ -22,6 +22,7 @@ import { PendingDeliveryNotesSelectDialogComponent } from './pending-delivery-no
 import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from './pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
 import { PriceReviewComponent } from './price-review/price-review.component';
 import { GetPendingDeliveryNotesDialogComponent } from './get-pending-delivery-notes-dialog/get-pending-delivery-notes-dialog.component';
+import { ReceiptManagerComponent } from './receipt-manager/receipt-manager.component';
 
 
 
@@ -40,6 +41,7 @@ import { GetPendingDeliveryNotesDialogComponent } from './get-pending-delivery-n
     PendingDeliveryNotesByInvoiceNumberDialogComponent,
     PriceReviewComponent,
     GetPendingDeliveryNotesDialogComponent,
+    ReceiptManagerComponent,
   ],
   imports: [
     CommonModule,
