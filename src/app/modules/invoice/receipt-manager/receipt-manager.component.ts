@@ -47,6 +47,8 @@ import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
 @Component({
   selector: 'app-receipt-manager',
@@ -146,7 +148,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
   outInvFormNav!: InlineTableNavigatableForm;
-  outInvFormNav$: BehaviorSubject<InlineTableNavigatableForm[]> = new BehaviorSubject<InlineTableNavigatableForm[]>([]);
 
   buyerForm!: FormGroup;
   buyerFormId: string = "buyer-form";
@@ -187,6 +188,8 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
+  public mode!: SummaryInvoiceMode
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -206,14 +209,24 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
     private custDiscountService: CustomerDiscountService,
-    router: Router
+    router: Router,
+    private behaviorFactory: InvoiceBehaviorFactoryService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.SetModeBasedOnRoute(params);
     })
+    this.activatedRoute.url.subscribe(params => {
+      this.mode = behaviorFactory.create(params[0].path)
+
+      this.InitialSetup();
+      this.isPageReady = true;
+    })
     this.isPageReady = true;
+  }
+  ChooseDataForCustomerForm(): void {
+    throw new Error('Method not implemented.');
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
@@ -232,25 +245,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.commands = GetFooterCommandListFromKeySettings(k);
         this.fS.pushCommands(this.commands);
       }
-    }
-  }
-
-  public override onFormSearchFocused(event?: any, formFieldName?: string): void {
-    this.customerSearchFocused = true;
-
-    if (formFieldName && this.formKeyRows[formFieldName]) {
-      let k = GetUpdatedKeySettings(this.KeySetting, this.formKeyRows[formFieldName].Row, this.formKeyRows[formFieldName].Action);
-      this.commands = GetFooterCommandListFromKeySettings(k);
-      this.fS.pushCommands(this.commands);
-    }
-  }
-  public override onFormSearchBlurred(event?: any, formFieldName?: string): void {
-    this.customerSearchFocused = false;
-
-    if (formFieldName && this.formKeyRows[formFieldName]) {
-      let k = this.KeySetting;
-      this.commands = GetFooterCommandListFromKeySettings(k);
-      this.fS.pushCommands(this.commands);
     }
   }
 
@@ -348,16 +342,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.buyerForm.reset(undefined);
     }
 
-    this.buyerFormNav = new InlineTableNavigatableForm(
-      this.buyerForm,
-      this.kbS,
-      this.cdref,
-      this.buyersData,
-      this.buyerFormId,
-      AttachDirection.DOWN,
-      this
-    );
-
     this.outInvFormNav = new InlineTableNavigatableForm(
       this.outInvForm,
       this.kbS,
@@ -368,7 +352,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this
     );
 
-    this.buyerFormNav!.OuterJump = true;
     this.outInvFormNav!.OuterJump = true;
 
     this.dbDataTable = new InlineEditableNavigatableTable(
@@ -450,22 +433,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     const wrong = paymentDate?.isBefore(issueDate, "day");
     return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  InitFormDefaultValues(): void {
-    this.outInvForm.controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
-    this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
-    this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
-
-    this.outInvForm.controls['invoiceIssueDate'].valueChanges.subscribe({
-      next: p => {
-        this.outInvForm.controls['invoiceDeliveryDate'].setValue(this.outInvForm.controls['invoiceDeliveryDate'].value);
-        this.outInvForm.controls['invoiceDeliveryDate'].markAsTouched();
-
-        this.outInvForm.controls['paymentDate'].setValue(this.outInvForm.controls['paymentDate'].value);
-        this.outInvForm.controls['paymentDate'].markAsTouched();
-      }
-    });
   }
 
   ToFloat(p: any): number {
@@ -708,7 +675,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   private AfterViewInitSetup(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.buyerFormNav.GenerateAndSetNavMatrices(true);
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
     this.dbDataTable?.Setup(
@@ -722,11 +688,9 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.dbDataTable?.GenerateAndSetNavMatrices(true);
     this.dbDataTable?.PushFooterCommandList();
 
-    this.InitFormDefaultValues();
-
     setTimeout(() => {
-      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-      this.kbS.SelectFirstTile();
+      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+      this.kbS.SelectFirstTile()
       this.kbS.setEditMode(KeyboardModes.EDIT);
 
       this.cdref.detectChanges();
@@ -937,67 +901,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    });
-    dialogRef.onClose.subscribe((res: Customer) => {
-      console.log("Selected item: ", res);
-      if (!!res) {
-        this.buyerData = res;
-        this.buyerFormNav.FillForm(res);
-        this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
-
-        this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-        this.kbS.SelectFirstTile();
-        this.kbS.setEditMode(KeyboardModes.EDIT);
-
-        if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-          this.simpleToastrService.show(
-            Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
-        }
-      }
-    });
-  }
-
   RefreshData(): void { }
-
-  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
-    let discount: number | undefined = undefined;
-
-    if (this.buyerData === undefined || this.buyerData.id === undefined) {
-      this.bbxToastrService.show(
-        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return discount;
-    }
-
-    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-      .then(discounts => {
-        if (discounts) {
-          const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-          discount = res !== undefined ? (res / 100.0) : undefined;
-        }
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => { })
-    return discount;
-  }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine(this.requiredCols);
@@ -1011,7 +915,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
     if (!p.noDiscount) {
-      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
+      const discountForPrice = 0;
       if (discountForPrice !== undefined) {
         const discountedPrice = p.unitPrice2! * discountForPrice;
         res.unitPrice = p.unitPrice2! - discountedPrice;
@@ -1035,132 +939,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     console.log('ProductToInvoiceLine res: ', res);
 
     return res;
-  }
-
-  IsNumber(val: string): boolean {
-    let val2 = val.replace(' ', '');
-    return !isNaN(parseFloat(val2));
-  }
-
-  FillFormWithFirstAvailableCustomer(event: any): void {
-    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
-    }
-
-    this.customerInputFilterString = event.target.value ?? '';
-    this.isLoading = true;
-
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
-    } as GetCustomersParamListModel).subscribe({
-      next: res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.buyerData = res.data[0];
-          this.cachedCustomerName = res.data[0].customerName;
-          this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
-          this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
-          this.searchByTaxtNumber = false;
-
-          if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-            this.simpleToastrService.show(
-              Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-          }
-        } else {
-          if (this.customerInputFilterString.length >= 8 &&
-            this.IsNumber(this.customerInputFilterString)) {
-            this.searchByTaxtNumber = true;
-          } else {
-            this.searchByTaxtNumber = false;
-          }
-          this.buyerFormNav.FillForm({}, ['customerSearch']);
-          this.buyerForm.controls['zipCodeCity'].setValue(undefined);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-        this.searchByTaxtNumber = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  private async PrepareCustomer(data: Customer): Promise<Customer> {
-    console.log('Before: ', data);
-
-    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
-
-    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
-
-    if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
-      data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
-    }
-
-    return data;
-  }
-
-  override SetDataForForm(data: any): void {
-    if (!!data) {
-      this.buyerData = { ...data as Customer };
-      data.zipCodeCity = data.postalCode + ' ' + data.city;
-
-      this.buyerFormNav.FillForm(data);
-
-      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-      this.kbS.SelectFirstTile();
-      this.kbS.setEditMode(KeyboardModes.EDIT);
-    }
-  }
-
-  ChoseDataForFormByTaxtNumber(): void {
-    console.log("Selecting Customer from avaiable data by taxtnumber.");
-
-    this.isLoading = true;
-
-    this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: async res => {
-        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-            context: {
-              data: await this.PrepareCustomer(res.data)
-            },
-            closeOnEsc: false
-          });
-          dialogRef.onClose.subscribe({
-            next: (res: Customer) => {
-              console.log("Selected item: ", res);
-              this.SetDataForForm(res);
-
-              if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-                this.simpleToastrService.show(
-                  Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-              }
-            },
-            error: err => {
-              this.cs.HandleError(err);
-            }
-          });
-        } else {
-          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
   }
 
   /////////////////////////////////////////////
@@ -1233,30 +1011,30 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
     else {
       switch ((event as KeyboardEvent).key) {
-        case this.KeySetting[Actions.Search].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.ChooseDataForCustomerForm();
-          break;
-        }
-        case this.KeySetting[Actions.Create].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.CreateCustomer(event);
-          break;
-        }
+        // case this.KeySetting[Actions.Search].KeyCode: {
+        //   if (!isForm) {
+        //     return;
+        //   }
+        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        //     HelperFunctions.StopEvent(event);
+        //     return;
+        //   }
+        //   event.preventDefault();
+        //   this.ChooseDataForCustomerForm();
+        //   break;
+        // }
+        // case this.KeySetting[Actions.Create].KeyCode: {
+        //   if (!isForm) {
+        //     return;
+        //   }
+        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        //     HelperFunctions.StopEvent(event);
+        //     return;
+        //   }
+        //   event.preventDefault();
+        //   this.CreateCustomer(event);
+        //   break;
+        // }
       }
     }
   }

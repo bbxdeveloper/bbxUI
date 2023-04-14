@@ -9,7 +9,9 @@
     </app-invoice-style-label-column>
     
     <app-invoice-customer-form left [customer]="senderData" title="SZÁLLÍTÓ"></app-invoice-customer-form>
-    <div right></div> <!-- Empty in case of receipt -->
+    <div class="div-text-centered" right>
+        <span>BLOKK</span>
+    </div>
     
     <app-invoice-data-form [outInvForm]="outInvForm" [outInvFormNav]="outInvFormNav" middle></app-invoice-data-form>
     

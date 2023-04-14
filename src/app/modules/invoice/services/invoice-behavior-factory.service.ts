@@ -14,6 +14,9 @@ export class InvoiceBehaviorFactoryService {
     let mode = {} as SummaryInvoiceMode
 
     switch (path) {
+      case 'receipt':
+        mode = this.forReceipt()
+        break
       case 'summary-invoice':
         mode = this.forSummaryInvoice()
         break
@@ -32,6 +35,17 @@ export class InvoiceBehaviorFactoryService {
     }
 
     return mode
+  }
+
+  private forReceipt(): SummaryInvoiceMode {
+    return {
+      invoiceCategory: InvoiceCategory.NOT_DEFINED,
+      invoiceType: InvoiceTypes.BLK,
+      incoming: false,
+      correction: false,
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: true
+    } as SummaryInvoiceMode
   }
 
   private forSummaryInvoice(): SummaryInvoiceMode {
