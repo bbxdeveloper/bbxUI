@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, firstValueFrom, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetCustomersParamListModel } from '../models/GetCustomersParamListModel';
@@ -15,6 +15,7 @@ import { DeleteCustomerResponse } from '../models/DeleteCustomerResponse';
 import { CountryCode } from '../models/CountryCode';
 import { GetCustomerByTaxNumberParams } from '../models/GetCustomerByTaxNumberParams';
 import { GetCustomerByTaxNumberResponse } from '../models/GetCustomerByTaxNumberResponse';
+import { UnitPriceType } from '../models/UnitPriceType';
 
 // 'id', 'customerName', 'taxpayerNumber'
 const MOCK_DATA: Customer[] = [
@@ -138,5 +139,11 @@ export class CustomerService {
 
   Delete(req: DeleteCustomerRequest): Observable<DeleteCustomerResponse> {
     return this.http.delete<DeleteCustomerResponse>(this.BaseUrl + '?ID=' + req.id);
+  }
+
+  public getUnitPriceTypes(): Promise<UnitPriceType[]> {
+    const request = this.http.get<UnitPriceType[]>(this.BaseUrl + '/unitpricetype')
+
+    return firstValueFrom(request)
   }
 }

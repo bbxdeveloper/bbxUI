@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
@@ -20,9 +20,8 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { StatusService } from 'src/app/services/status.service';
 import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
-import { PieController } from 'chart.js';
 import { CountryCode } from '../models/CountryCode';
-import { BehaviorSubject, lastValueFrom, ReplaySubject } from 'rxjs';
+import { lastValueFrom, ReplaySubject } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 
@@ -31,9 +30,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
   templateUrl: './customer-manager.component.html',
   styleUrls: ['./customer-manager.component.scss'],
 })
-export class CustomerManagerComponent
-  extends BaseManagerComponent<Customer>
-  implements OnInit
+export class CustomerManagerComponent extends BaseManagerComponent<Customer> implements OnInit, OnDestroy, AfterViewInit
 {
   @ViewChild('table') table?: NbTable<any>;
 
@@ -228,19 +225,17 @@ export class CustomerManagerComponent
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<
-      TreeGridNode<Customer>
-    >,
-    private seInv: CustomerService,
-    private cdref: ChangeDetectorRef,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Customer>>,
+    private readonly customerService: CustomerService,
+    private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
+    private readonly bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
-    private sidebarFormService: SideBarFormService,
+    private readonly sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService
+    private readonly keyboardHelperService: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.SetAllColumns();
@@ -250,7 +245,6 @@ export class CustomerManagerComponent
     this.kbS.ResetToRoot();
     this.Setup();
   }
-
 
   SetAllColumns(): string[] {
     if (this.bbxSidebarService.sideBarOpened) {
@@ -319,7 +313,7 @@ export class CustomerManagerComponent
       this.sts.pushProcessStatus(
         Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]
       );
-      this.seInv.Create(createRequest).subscribe({
+      this.customerService.Create(createRequest).subscribe({
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
@@ -369,7 +363,7 @@ export class CustomerManagerComponent
       this.sts.pushProcessStatus(
         Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]
       );
-      this.seInv.Update(updateRequest).subscribe({
+      this.customerService.Update(updateRequest).subscribe({
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
@@ -409,7 +403,7 @@ export class CustomerManagerComponent
       this.sts.pushProcessStatus(
         Constants.DeleteStatuses[Constants.DeletePhases.DELETING]
       );
-      this.seInv
+      this.customerService
         .Delete({
           id: id,
         } as DeleteCustomerRequest)
@@ -462,6 +456,7 @@ export class CustomerManagerComponent
       additionalAddressDetail: new FormControl(undefined, [
         Validators.required,
       ]),
+      unitPriceType: new FormControl('Listaár', [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
@@ -514,7 +509,7 @@ export class CustomerManagerComponent
 
   private RefreshAll(params?: GetCustomersParamListModel): void {
     // CountryCodes
-    this.seInv.GetAllCountryCodes().subscribe({
+    this.customerService.GetAllCountryCodes().subscribe({
       next: (data) => {
         if (!!data) this.countryCodes = data;
       },
@@ -534,7 +529,7 @@ export class CustomerManagerComponent
   override Refresh(params?: GetCustomersParamListModel): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    this.seInv.GetAll(params).subscribe({
+    this.customerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug
@@ -566,7 +561,7 @@ export class CustomerManagerComponent
   async RefreshAsync(params?: GetCustomersParamListModel): Promise<void> {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
-    await lastValueFrom(this.seInv.GetAll(params))
+    await lastValueFrom(this.customerService.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
           console.log('GetCustomers response: ', d); // TODO: only for debug
@@ -594,10 +589,11 @@ export class CustomerManagerComponent
       });
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.fS.pushCommands(this.commands);
   }
-  ngAfterViewInit(): void {
+
+  public ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.SetTableAndFormCommandListFromManager();
@@ -607,15 +603,17 @@ export class CustomerManagerComponent
 
     this.kbS.SelectFirstTile();
   }
-  ngOnDestroy(): void {
+
+  public ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
-  @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
-    if (this.khs.IsKeyboardBlocked) {
+  @HostListener('window:keydown', ['$event'])
+  public onKeyDown2(event: KeyboardEvent) {
+    if (this.keyboardHelperService.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
