@@ -1,23 +1,41 @@
 <app-invoice-layout>
-    <!-- <nb-card labels>
-        <nb-card-header class="card-header-txt-center card-header-top-margin header-blank">-</nb-card-header>
-        <nb-card-body class="form-col-1 card-labels-right">
-            <label>Név</label>
-            <label>Irányítószám és Város</label>
-            <label>Utca, házszám</label>
-            <label>Számlaszám</label>
-            <label>Adószám</label>
-            <label>Megjegyzés</label>
+    <app-invoice-style-label-column labels>
+        <!-- <label>Név</label>
+        <label>Irányítószám és Város</label>
+        <label>Utca, házszám</label>
+        <label>Számlaszám</label>
+        <label>Adószám</label>
+        <label>Megjegyzés</label> -->
+    </app-invoice-style-label-column>
+    
+    <app-invoice-customer-form left [customer]="senderData" title="SZÁLLÍTÓ"></app-invoice-customer-form>
+    <div right></div> <!-- Empty in case of receipt -->
+    
+    <app-invoice-data-form [outInvForm]="outInvForm" [outInvFormNav]="outInvFormNav" middle></app-invoice-data-form>
+    
+    <nb-card bottom>
+        <nb-card-body>
+            <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
+                [dbDataDataSrc]="dbDataDataSrc" [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
+                [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+                (inputFocusChanged)="inlineInputFocusChanged($event)" (focusInTable)="focusOnTable(true)"
+                (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
+            </app-inline-editable-table>
         </nb-card-body>
+        <nb-card-footer class="invoice-table-statistics">
+            <table class="table-statistics-net-vat-gross">
+                <tr>
+                    <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                    <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                </tr>
+            </table>
+        </nb-card-footer>
     </nb-card>
-    <app-invoice-customer-form left></app-invoice-customer-form>
-    <app-invoice-customer-form right></app-invoice-customer-form>
-    <app-inline-editable-table bottom></app-inline-editable-table> -->
 
     <!-- LAYOUT TEST -->
-    <div style="background-color: green; min-width: 100%; min-height: 100%;" labels></div>
+    <!-- <div style="background-color: green; min-width: 100%; min-height: 100%;" labels></div>
     <div style="background-color: blue; min-width: 100%; min-height: 100%;" left></div>
     <div style="background-color: yellow; min-width: 100%; min-height: 100%;" right></div>
     <div style="background-color: red; min-width: 100%; min-height: 100%;" middle></div>
-    <div style="background-color: gray; min-width: 100%; min-height: 100%;" bottom></div>
+    <div style="background-color: gray; min-width: 100%; min-height: 100%;" bottom></div>-->
 </app-invoice-layout>

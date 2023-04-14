@@ -41,6 +41,8 @@ import { CalculatorPopoverComponent } from './calculator-popover/calculator-popo
 import { InvoiceLayoutComponent } from './invoice-layout/invoice-layout.component';
 import { InvoiceCustomerFormComponent } from './invoice-customer-form/invoice-customer-form.component';
 import { InvoiceDataFormComponent } from './invoice-data-form/invoice-data-form.component';
+import { InvoiceStyleLabelColumnComponent } from './invoice-style-label-column/invoice-style-label-column.component';
+import { NavigatableBuildingBlockComponent } from './navigatable-building-block/navigatable-building-block.component';
 
 
 @NgModule({
@@ -80,6 +82,8 @@ import { InvoiceDataFormComponent } from './invoice-data-form/invoice-data-form.
     InvoiceLayoutComponent,
     InvoiceCustomerFormComponent,
     InvoiceDataFormComponent,
+    InvoiceStyleLabelColumnComponent,
+    NavigatableBuildingBlockComponent,
   ],
   imports: [
     CommonModule,
@@ -146,6 +150,7 @@ import { InvoiceDataFormComponent } from './invoice-data-form/invoice-data-form.
     InvoiceLayoutComponent,
     InvoiceCustomerFormComponent,
     InvoiceDataFormComponent,
+    InvoiceStyleLabelColumnComponent,
   ],
   providers: [
     ConfirmationDialogComponent

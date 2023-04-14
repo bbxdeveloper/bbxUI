@@ -1,6 +1,9 @@
 @import 'invoice-common';
 
-$td-height: 30px;
+.card-header-top-margin {
+  margin-top: 25px;
+  margin-bottom: 5px;
+}
 
 label.single_label {
     align-self: center;
@@ -16,43 +19,10 @@ nb-form-field {
     margin-right: auto;
 }
 
-.div-wrapper-input {
-    display: flex;
-
-    align-items: center;
-    column-gap: 15px;
-
-    flex-flow: wrap;
-}
-
 nb-card {
     background: none;
     border: none;
     margin: 0px;
-}
-
-.card-labels-right {
-    display: flex;
-    flex-direction: column;
-
-    text-align: right;
-
-    label {
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
-}
-
-.card-labels-left {
-    display: flex;
-    flex-direction: column;
-
-    text-align: left;
-
-    label {
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
 }
 
 nb-form-field {
@@ -63,127 +33,6 @@ nb-form-field {
 
 nb-card-header {
     padding: 0px;
-}
-
-.card-row {
-    display: flex;
-
-    justify-content: center;
-    align-content: center;
-    flex-direction: row;
-
-    margin: 0;
-    margin-left: auto;
-    margin-right: auto;
-
-    .card-col-labels {
-        ::ng-deep nb-card {
-            @media (max-height: 1000px) {
-                nb-card-body {
-                    padding: 0.1rem 0.8rem !important;
-                }
-            }
-            width: 15vw;
-            form {
-                min-width: fit-content;
-                margin: auto;
-            }
-        }
-    }
-
-    .card-col-1,
-    .card-col-2 {
-        width: 40vw;
-        margin: auto;
-
-        nb-card {
-            @media (max-height: 1000px) {
-                nb-card-body {
-                    padding: 0.1rem 0.8rem !important;
-                }
-            }
-        }
-    }
-
-    .card-cols {
-        display: flex;
-        flex-direction: row;
-    }
-}
-
-.card-col,
-.card-col-1 {
-    margin: 0;
-}
-
-.card-col-2 {
-    @media (max-height: 1000px) {
-        nb-card-body {
-            padding: 0.2rem 0.8rem !important;
-        }
-    }
-}
-
-.form-horizontal {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    column-gap: 20px;
-
-    nb-form-field {
-        margin: unset;
-        margin-left: unset;
-        margin-right: unset;
-        flex: 0 0 220px;
-    }
-
-    .form-field-full-width {
-        display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
-    }
-
-    .form-field-full-width-inner-div {
-        // display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
-
-        column-gap: 25px;
-
-        input {
-            // max-width: 100% !important;
-            min-width: calc(100vw - 25px) !important;
-        }
-
-        label {
-            min-width: fit-content;
-        }
-    }
-}
-
-
-
-////////////////////////////////////////
-
-
-
-.nb-overlay-bottom {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.layout {
-  min-height: 10vh !important;
-  padding: 0px !important;
 }
 
 .card-header-txt-center {
@@ -203,130 +52,15 @@ nb-card-header {
   text-transform: uppercase;
 }
 
-tr:nth-child(even) {
-    background-color: #493668 !important;
-}
-
-th {
-    background: rgb(35, 35, 75);
-    text-align: center;
-    font-weight: bold;
-    font-variant: small-caps;
-}
-
-nb-layout-column {
-    margin-left: 0px !important;
-    margin-right: 0px !important;
-    margin-bottom: 0px !important;
-
-    padding-left: 0px !important;
-    padding-right: 0px !important;
-    padding-bottom: 0px !important;
-
-    margin-top: 5px !important;
-    padding-top: 0px !important;
-}
-
-.header-blank {
-  color: transparent !important;
-}
-
 .flex-text-center {
   display: flex;
   justify-items: center;
-}
-
-.separator-vertical {
-  background: #3ed820;
-  width: 5px;
-  border: #000000 1px solid;
-  border-radius: 50px;
-  margin-left: 30px;
-  margin-right: 30px;
-}
-
-.separator-horizontal {
-  background: #3ed820;
-  height: 5px;
-  border: #000000 1px solid;
-  margin: auto;
 }
 
 ::ng-deep nb-card-header {
     font-size: 2rem !important;
 }
 
-nb-layout-footer.custom {
-  nav {
-    padding: 0px !important;
-    background: none !important;
-  }
-}
-
 input, label, th, td {
     font-size: 1.1rem;
-}
-
-.customer-search-row {
-    margin-top: 25px;
-    display: block;
-
-    tr {
-        display: grid;
-        align-items: center;
-        grid-template-columns: 35% 15% 50%;
-        min-width: 100%;
-
-        td {
-            input {
-                min-width: 50% !important;
-            }
-
-            .card-header-top-margin {
-                margin-top: 0px;
-            }
-
-            .card-header-row-txt {
-                text-align: left;
-                margin-left: 10px;
-
-                font-size: xx-large;
-                text-transform: uppercase;
-                font-weight: 600;
-            }
-        }
-    }
-
-    .btn-hide {
-        visibility: hidden;
-    }
-    .btn-show {
-        visibility: visible;
-    }
-}
-
-.card-header-top-margin {
-  margin-top: 25px;
-  margin-bottom: 5px;
-}
-
-.invoice-table-statistics {
-    padding: 0px;
-
-    width: 100%;
-    text-align: right;
-
-    span.line-amount {
-        font-size: 1rem;
-        margin-left: 25px;
-    }
-}
-
-div.table-statistics-net-vat-gross {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-content: center;
-    align-items: center;
-    justify-content: space-evenly;
 }

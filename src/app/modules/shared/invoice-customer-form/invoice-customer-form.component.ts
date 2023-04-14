@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Customer } from '../../customer/models/Customer';
 
 @Component({
   selector: 'app-invoice-customer-form',
@@ -8,6 +9,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class InvoiceCustomerFormComponent implements OnInit {
   @Input() title: string = ''
+  @Input() customer: Customer = {} as Customer
 
   form: FormGroup;
 

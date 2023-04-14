@@ -1,5 +1,7 @@
 @import 'invoice-common';
 
+$td-height: 30px;
+
 label.single_label {
     align-self: center;
     color: #3ed820;
@@ -168,9 +170,61 @@ nb-card-header {
     }
 }
 
+
+
+////////////////////////////////////////
+
+
+
 .nb-overlay-bottom {
   background: transparent !important;
   box-shadow: none !important;
+}
+
+.layout {
+  min-height: 10vh !important;
+  padding: 0px !important;
+}
+
+.card-header-txt-center {
+  text-align: center;
+  font-size: larger;
+  text-transform: uppercase;
+}
+
+.card-title {
+  background: none !important;
+  border: none !important;
+
+  margin-bottom: 0px !important;
+
+  text-align: center;
+  font-size: larger !important;
+  text-transform: uppercase;
+}
+
+tr:nth-child(even) {
+    background-color: #493668 !important;
+}
+
+th {
+    background: rgb(35, 35, 75);
+    text-align: center;
+    font-weight: bold;
+    font-variant: small-caps;
+}
+
+nb-layout-column {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-bottom: 0px !important;
+
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+
+    margin-top: 5px !important;
+    padding-top: 0px !important;
 }
 
 .header-blank {
@@ -182,10 +236,97 @@ nb-card-header {
   justify-items: center;
 }
 
+.separator-vertical {
+  background: #3ed820;
+  width: 5px;
+  border: #000000 1px solid;
+  border-radius: 50px;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+.separator-horizontal {
+  background: #3ed820;
+  height: 5px;
+  border: #000000 1px solid;
+  margin: auto;
+}
+
 ::ng-deep nb-card-header {
     font-size: 2rem !important;
 }
 
+nb-layout-footer.custom {
+  nav {
+    padding: 0px !important;
+    background: none !important;
+  }
+}
+
 input, label, th, td {
     font-size: 1.1rem;
+}
+
+.customer-search-row {
+    margin-top: 25px;
+    display: block;
+
+    tr {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 35% 15% 50%;
+        min-width: 100%;
+
+        td {
+            input {
+                min-width: 50% !important;
+            }
+
+            .card-header-top-margin {
+                margin-top: 0px;
+            }
+
+            .card-header-row-txt {
+                text-align: left;
+                margin-left: 10px;
+
+                font-size: xx-large;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+        }
+    }
+
+    .btn-hide {
+        visibility: hidden;
+    }
+    .btn-show {
+        visibility: visible;
+    }
+}
+
+.card-header-top-margin {
+  margin-top: 25px;
+  margin-bottom: 5px;
+}
+
+.invoice-table-statistics {
+    padding: 0px;
+
+    width: 100%;
+    text-align: right;
+
+    span.line-amount {
+        font-size: 1rem;
+        margin-left: 25px;
+    }
+}
+
+div.table-statistics-net-vat-gross {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    justify-content: space-evenly;
 }
