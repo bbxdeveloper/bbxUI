@@ -138,8 +138,6 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
       this.unitPriceTypeComboData.next(unitPriceTypes.map(x => x.text))
     } catch (error) {
       this.commonService.HandleError(error)
-    } finally {
-
     }
   }
 

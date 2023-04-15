@@ -60,8 +60,14 @@ export class CustomerService {
 
   constructor(private http: HttpClient) { }
 
-  GetAllCountryCodes(): Observable<CountryCode[]> {
+  public GetAllCountryCodes(): Observable<CountryCode[]> {
     return this.http.get<CountryCode[]>(this.BaseUrl + '/countrycode');
+  }
+
+  public GetAllCountryCodesAsync(): Promise<CountryCode[]> {
+    const request = this.http.get<CountryCode[]>(this.BaseUrl + '/countrycode');
+
+    return firstValueFrom(request)
   }
 
   public GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {

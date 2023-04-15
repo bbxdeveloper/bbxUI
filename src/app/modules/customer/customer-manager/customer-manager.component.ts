@@ -24,6 +24,7 @@ import { CountryCode } from '../models/CountryCode';
 import { lastValueFrom, ReplaySubject } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { UnitPriceType } from '../models/UnitPriceType';
 
 @Component({
   selector: 'app-customer-manager',
@@ -219,8 +220,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     return params;
   }
 
-  // CountryCode
   countryCodes: CountryCode[] = [];
+
+  unitPriceTypes: UnitPriceType[] = []
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -262,6 +264,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         this.countryCodes.find((x) => x.value == data.countryCode)?.text ?? '';
     }
 
+    data.unitPriceType = data.unitPriceTypeX
+
     return data;
   }
 
@@ -275,6 +279,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
     }
 
+    const unitPriceType = this.unitPriceTypes.find(x => x.text === p.unitPriceType)?.value ?? 'LIST'
+
     const res = {
       additionalAddressDetail: p.additionalAddressDetail,
       city: p.city,
@@ -286,21 +292,25 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       postalCode: p.postalCode,
       privatePerson: p.privatePerson,
       thirdStateTaxId: p.thirdStateTaxId,
-      taxpayerNumber: p.taxpayerNumber
+      taxpayerNumber: p.taxpayerNumber,
+      unitPriceType: unitPriceType
     } as CreateCustomerRequest;
     return res;
   }
 
-  private CustomerToUpdateRequest(p: Customer): UpdateCustomerRequest {
-    if (p.customerBankAccountNumber) {
-      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+  private CustomerToUpdateRequest(customer: Customer): UpdateCustomerRequest {
+    if (customer.customerBankAccountNumber) {
+      customer.customerBankAccountNumber = customer.customerBankAccountNumber.replace(/\s/g, '');
     }
 
-    let country = this.countryCodes.find(x => x.text === p.countryCode);
+    let country = this.countryCodes.find(x => x.text === customer.countryCode);
     if (country) {
-      p.countryCode = country.value;
+      customer.countryCode = country.value;
     }
-    return p;
+
+    customer.unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? 'LIST'
+
+    return customer;
   }
 
   override ProcessActionNew(data?: IUpdateRequest<Customer>): void {
@@ -507,23 +517,22 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     });
   }
 
-  private RefreshAll(params?: GetCustomersParamListModel): void {
-    // CountryCodes
-    this.customerService.GetAllCountryCodes().subscribe({
-      next: (data) => {
-        if (!!data) this.countryCodes = data;
-      },
-      error: (err) => {
-        {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-        }
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.Refresh(params);
-      },
-    });
+  private async RefreshAll(params?: GetCustomersParamListModel): Promise<void> {
+    try {
+      this.isLoading = true
+
+      const countryCodesRequest = this.customerService.GetAllCountryCodesAsync()
+      const unitPriceTypesRequest = this.customerService.getUnitPriceTypes()
+
+      this.countryCodes = await countryCodesRequest
+      this.unitPriceTypes = await unitPriceTypesRequest
+
+      this.Refresh(params)
+    } catch (error) {
+      this.cs.HandleError(error)
+    } finally {
+      this.isLoading = false
+    }
   }
 
   override Refresh(params?: GetCustomersParamListModel): void {
