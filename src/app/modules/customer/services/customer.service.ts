@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom, of } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetCustomersParamListModel } from '../models/GetCustomersParamListModel';
@@ -65,9 +65,7 @@ export class CustomerService {
   }
 
   public GetAllCountryCodesAsync(): Promise<CountryCode[]> {
-    const request = this.http.get<CountryCode[]>(this.BaseUrl + '/countrycode');
-
-    return firstValueFrom(request)
+    return firstValueFrom(this.GetAllCountryCodes())
   }
 
   public GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {

@@ -21,7 +21,6 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
-import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { OfferLine } from '../models/OfferLine';
@@ -35,12 +34,10 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { Actions, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
-import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { CurrencyCode, CurrencyCodes } from '../../system/models/CurrencyCode';
+import { CurrencyCode } from '../../system/models/CurrencyCode';
 import { SystemService } from '../../system/services/system.service';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
-import { CurrencyAndExchangeService, ExchangeRate } from 'src/app/services/currency-and-exchange.service';
 
 @Component({
   selector: 'app-base-offer-editor',
