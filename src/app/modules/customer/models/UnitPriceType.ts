@@ -4,3 +4,8 @@ export interface UnitPriceType {
     icon: string|null,
     data: string|null
 }
+
+export enum UnitPriceTypes {
+    List = 'LIST',
+    Unit = 'UNIT'
+}

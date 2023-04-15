@@ -46,6 +46,7 @@ import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
+import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-price-review',
@@ -918,6 +919,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
   }
 
+  // Invoked when user presses F2 on the search field
   ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
@@ -1096,9 +1098,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   private async getDiscountsAndProducts(): Promise<[CustDicountForGet[], Product[]] | undefined> {
-    this.isLoading = true
-
     try {
+      this.isLoading = true
+
       const discountRequest = this.custDiscountService.getByCustomerAsync({ CustomerID: this.buyerData.id })
 
       const requests = this.dbData
@@ -1108,12 +1110,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       const customerDiscounts = await discountRequest
       const products = await Promise.all(requests)
 
-      this.isLoading = false
-
       return [customerDiscounts, products]
     }
     catch (error) {
       this.cs.HandleError(error)
+    }
+    finally {
       this.isLoading = false
     }
 
@@ -1127,8 +1129,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       if (!product || !product.unitPrice2)
         return
 
+      const unitPrice = this.buyerData.unitPriceType === UnitPriceTypes.Unit
+        ? product.unitPrice1 ?? invoiceLine.unitPrice
+        : product.unitPrice2 ?? invoiceLine.unitPrice
+
       if (product.noDiscount) {
-        invoiceLine.unitPrice = product.unitPrice2 ?? invoiceLine.unitPrice
+        invoiceLine.unitPrice = unitPrice
         return
       }
 
@@ -1136,7 +1142,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       const discount = customerDiscount?.discount ?? 0;
 
-      invoiceLine.unitPrice = product.unitPrice2 - product.unitPrice2 * discount / 100
+      invoiceLine.unitPrice = unitPrice - unitPrice * discount / 100
       invoiceLine.priceReview = false
 
       invoiceLine.Save()
