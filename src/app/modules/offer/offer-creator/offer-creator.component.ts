@@ -409,101 +409,31 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
-  async HandleProductChoose(res: Product, rowPos: number): Promise<void> {
-    if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+  async HandleProductChoose(product: Product, rowPos: number): Promise<void> {
+    if (!product) {
+      return
+    }
 
-      if (this.dbDataTable.data[rowPos].data.productID === res.id) {
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.dbDataTable.MoveNextInTable();
-        setTimeout(() => {
-          this.kbS.setEditMode(KeyboardModes.EDIT);
-          this.kbS.ClickCurrentElement();
-        }, 500);
-        return;
-      }
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
-      await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
-        .then(async d => {
-          if (!!d.data) {
-            console.log('Vatrates: ', d.data);
+    if (this.dbDataTable.data[rowPos].data.productID === product.id) {
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      this.dbDataTable.MoveNextInTable();
+      setTimeout(() => {
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+        this.kbS.ClickCurrentElement();
+      }, 500);
+      return;
+    }
 
-            let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
-
-            if (vatRateFromProduct === undefined) {
-              this.bbxToastrService.show(
-                `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
-              );
-            }
-
-            if (!res.noDiscount) {
-              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-                .then(data => {
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
-                  });
-                  currentRow?.data.Save('productCode');
-                  const _d = this.dbData[rowPos].data;
-                  this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
-                })
-                .catch(err => {
-                  this.cs.HandleError(d.errors);
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
-                  });
-                  currentRow?.data.Save('productCode');
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
-                })
-                .finally(() => { });
-            } else {
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
-              });
-              currentRow?.data.Save('productCode');
-              const _d = this.dbData[rowPos].data;
-              this.dbData[rowPos].data.discount = 0;
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-            }
-          } else {
-            this.cs.HandleError(d.errors);
-
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-              data: OfferLine.FromProduct(res, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
-            });
-            currentRow?.data.Save('productCode');
-
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 500);
-          }
-        })
-        .catch(err => {
-          this.cs.HandleError(err);
+    await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
+      .then(async d => {
+        if (!d.data) {
+          this.cs.HandleError(d.errors);
 
           let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-            data: OfferLine.FromProduct(res, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+            data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
           });
           currentRow?.data.Save('productCode');
 
@@ -513,11 +443,83 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             this.kbS.setEditMode(KeyboardModes.EDIT);
             this.kbS.ClickCurrentElement();
           }, 500);
-        })
-        .finally(() => {});
+        }
 
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-    }
+        console.log('Vatrates: ', d.data);
+
+        let vatRateFromProduct = d.data!.find(x => x.vatRateCode === product.vatRateCode);
+
+        if (vatRateFromProduct === undefined) {
+          this.bbxToastrService.show(
+            `Áfa a kiválasztott termékben található áfakódhoz (${product.vatRateCode}) nem található.`,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }
+
+        if (!product.noDiscount) {
+          await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+            .then(data => {
+              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+              });
+              currentRow?.data.Save('productCode');
+              const _d = this.dbData[rowPos].data;
+              this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+            })
+            .catch(err => {
+              this.cs.HandleError(d.errors);
+              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+              });
+              currentRow?.data.Save('productCode');
+              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+              this.dbDataTable.MoveNextInTable();
+              setTimeout(() => {
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+                this.kbS.ClickCurrentElement();
+              }, 500);
+            })
+            .finally(() => { });
+        } else {
+          let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+            data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+          });
+          currentRow?.data.Save('productCode');
+          const _d = this.dbData[rowPos].data;
+          this.dbData[rowPos].data.discount = 0;
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+          this.dbDataTable.MoveNextInTable();
+          setTimeout(() => {
+            this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.ClickCurrentElement();
+          }, 500);
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+          data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+        });
+        currentRow?.data.Save('productCode');
+
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 500);
+      })
+      .finally(() => {});
+
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
