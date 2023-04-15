@@ -1,5 +1,5 @@
 export interface UnitPriceType {
-    value: string,
+    value: UnitPriceTypes,
     text: string,
     icon: string|null,
     data: string|null
