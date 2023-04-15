@@ -26,7 +26,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SystemService } from '../../system/services/system.service';
 import { CustomerMisc } from '../../customer/models/CustomerMisc';
 import { CountryCode } from '../../customer/models/CountryCode';
-import { UnitPriceType } from '../../customer/models/UnitPriceType';
+import { UnitPriceType, UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-tax-number-search-customer-edit-dialog',
@@ -237,7 +237,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       customer.customerBankAccountNumber = customer.customerBankAccountNumber.replace(/\s/g, '');
     }
 
-    customer.unitPriceType = this.unitPriceTypes.find(x => customer.unitPriceType === x.text)?.value ?? 'LIST'
+    customer.unitPriceType = this.unitPriceTypes.find(x => customer.unitPriceType === x.text)?.value ?? UnitPriceTypes.List
 
     const res = {
       additionalAddressDetail: customer.additionalAddressDetail,

@@ -819,9 +819,4 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       }
     }
   }
-
-  private handleTableKeydown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
-
-  }
-
 }

@@ -24,7 +24,7 @@ import { CountryCode } from '../models/CountryCode';
 import { lastValueFrom, ReplaySubject } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { UnitPriceType } from '../models/UnitPriceType';
+import { UnitPriceType, UnitPriceTypes } from '../models/UnitPriceType';
 
 @Component({
   selector: 'app-customer-manager',
@@ -279,7 +279,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
     }
 
-    const unitPriceType = this.unitPriceTypes.find(x => x.text === p.unitPriceType)?.value ?? 'LIST'
+    const unitPriceType = this.unitPriceTypes.find(x => x.text === p.unitPriceType)?.value ?? UnitPriceTypes.List
 
     const res = {
       additionalAddressDetail: p.additionalAddressDetail,
@@ -308,7 +308,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       customer.countryCode = country.value;
     }
 
-    customer.unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? 'LIST'
+    customer.unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
 
     return customer;
   }
