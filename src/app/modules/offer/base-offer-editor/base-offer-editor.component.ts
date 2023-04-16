@@ -364,35 +364,37 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       this.RoundPrices(index);
     }
 
-    if (!!changedData && !!changedData.productCode) {
-      if ((!!col && col === 'productCode') || col === undefined) {
-        this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-          next: product => {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+    if (!changedData?.productCode) {
+      return
+    }
 
-            if (index !== undefined) {
-              let tmp = this.dbData[index].data;
+    if ((!!col && col === 'productCode') || col === undefined) {
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: product => {
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-              tmp.lineDescription = product.description ?? '';
+          if (index !== undefined) {
+            let tmp = this.dbData[index].data;
 
-              tmp.vatRate = product.vatPercentage ?? 0.0;
-              tmp.OriginalUnitPrice = (product.unitPrice1 ?? product.unitPrice2 ?? 0);
-              tmp.unitVat = tmp.vatRate * tmp.unitPrice;
-              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-              tmp.vatRateCode = product.vatRateCode;
+            tmp.lineDescription = product.description ?? '';
 
-              this.dbData[index].data = tmp;
+            tmp.vatRate = product.vatPercentage ?? 0.0;
+            tmp.OriginalUnitPrice = (product.unitPrice1 ?? product.unitPrice2 ?? 0);
+            tmp.unitVat = tmp.vatRate * tmp.unitPrice;
+            product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+            tmp.vatRateCode = product.vatRateCode;
 
-              this.dbDataDataSrc.setData(this.dbData);
-            }
+            this.dbData[index].data = tmp;
 
-            this.RecalcNetAndVat();
-          },
-          error: err => {
-            this.RecalcNetAndVat();
+            this.dbDataDataSrc.setData(this.dbData);
           }
-        });
-      }
+
+          this.RecalcNetAndVat();
+        },
+        error: err => {
+          this.RecalcNetAndVat();
+        }
+      });
     }
   }
 

@@ -66,8 +66,8 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     }
     set UnitPriceSwitch(value: boolean) {
         if (environment.offerLineLog) console.log("switch: ", value, ", label: ", value ? "E" : "L");
-        this.ReCalc(true);
         this.unitPriceSwitch = value;
+        this.ReCalc(true);
     }
 
     get exchangedOriginalUnitPrice(): number {
