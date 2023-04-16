@@ -288,7 +288,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         }
     }
 
-    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number, unitPriceType: UnitPriceTypes|null = null): OfferLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number, unitPriceType: UnitPriceTypes|string|null = null): OfferLine {
         let offerLine = new OfferLine();
 
         offerLine.lineDescription = product.description ?? '';

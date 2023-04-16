@@ -264,7 +264,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         this.countryCodes.find((x) => x.value == data.countryCode)?.text ?? '';
     }
 
-    data.unitPriceType = this.unitPriceTypes.find(x => x.text === data.unitPriceTypeX)?.value ?? UnitPriceTypes.List
+    data.unitPriceType = this.unitPriceTypes.find(x => x.text === data.unitPriceTypeX)?.text ?? 'Listaár'
 
     return data;
   }

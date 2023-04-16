@@ -33,7 +33,7 @@ export interface Customer {
 
     email: string;
     Email: string;
-    unitPriceType: UnitPriceTypes
+    unitPriceType: UnitPriceTypes|string
     unitPriceTypeX: string
 }
 
