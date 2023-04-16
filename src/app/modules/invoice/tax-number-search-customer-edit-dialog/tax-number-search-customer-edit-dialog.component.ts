@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -19,20 +19,21 @@ import { createMask } from '@ngneat/input-mask';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 
-import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CreateCustomerRequest } from '../../customer/models/CreateCustomerRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SystemService } from '../../system/services/system.service';
 import { CustomerMisc } from '../../customer/models/CustomerMisc';
 import { CountryCode } from '../../customer/models/CountryCode';
+import { UnitPriceType, UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-tax-number-search-customer-edit-dialog',
   templateUrl: './tax-number-search-customer-edit-dialog.component.html',
   styleUrls: ['./tax-number-search-customer-edit-dialog.component.scss']
 })
-export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
+export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewInit {
   @Input() data!: Customer;
   @Input() createCustomer: boolean = false;
 
@@ -82,19 +83,21 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   TileCssColClass = TileCssColClass;
 
   get isEditModeOff() {
-    return !this.kbS.isEditModeActivated;
+    return !this.keyboardService.isEditModeActivated;
   }
 
   closedManually: boolean = false;
 
   currentForm?: FlatDesignNoTableNavigatableForm;
-  sumForm: FormGroup;
+  sumForm!: FormGroup;
   sumFormId: string = "TaxNumberSearchCustomerEditDialogComponentForm";
 
-  // Origin
   countryCodes: string[] = [];
   _countryCodes: CountryCode[] = [];
   countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+  private unitPriceTypes: UnitPriceType[] = []
+  public unitPriceTypeData: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
 
   get privatePersonDefaultValue(): Boolean {
     return !this.createCustomer && (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
@@ -102,21 +105,23 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   constructor(
-    private bbxsb: BbxSidebarService,
-    private cService: CustomerService,
-    private cdref: ChangeDetectorRef,
-    protected dialogRef: NbDialogRef<TaxNumberSearchCustomerEditDialogComponent>,
-    private kbS: KeyboardNavigationService,
-    private fs: FooterService,
-    private sts: StatusService,
-    private cs: CommonService,
-    private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
-    private systemService: SystemService
+    private readonly bbxsb: BbxSidebarService,
+    private readonly customerService: CustomerService,
+    private readonly cdref: ChangeDetectorRef,
+    private readonly dialogRef: NbDialogRef<TaxNumberSearchCustomerEditDialogComponent>,
+    private readonly keyboardService: KeyboardNavigationService,
+    private readonly footerService: FooterService,
+    private readonly statusService: StatusService,
+    private readonly commonService: CommonService,
+    private readonly bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
+    private readonly systemService: SystemService
   ) {
     super();
     this.Setup();
+  }
 
+  private Setup(): void {
     this.sumForm = new FormGroup({
       id: new FormControl(0, []),
       customerName: new FormControl('', [Validators.required]),
@@ -129,43 +134,43 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       additionalAddressDetail: new FormControl('', [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl('', []),
+      unitPriceType: new FormControl('Listaár', [Validators.required])
     });
 
-    this.refreshComboboxData();
-  }
-
-  private Setup(): void {
     this.IsDialog = true;
     this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
   }
 
   override ngOnInit(): void {
-    // this.kbS.SelectFirstTile();
+    this.refreshComboboxData();
   }
-  ngAfterContentInit(): void {
+
+  public ngAfterContentInit(): void {
     if (!this.createCustomer) {
-      this.sumForm.controls['id'].setValue(this.data.id);
-      this.sumForm.controls['customerName'].setValue(this.data.customerName);
-      this.sumForm.controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
-      this.sumForm.controls['taxpayerNumber'].setValue(this.data.taxpayerNumber);
-      this.sumForm.controls['thirdStateTaxId'].setValue(this.data.thirdStateTaxId);
-      this.sumForm.controls['countryCode'].setValue(this.data.countryCode);
-      this.sumForm.controls['postalCode'].setValue(this.data.postalCode);
-      this.sumForm.controls['city'].setValue(this.data.city);
-      this.sumForm.controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
-      this.sumForm.controls['privatePerson'].setValue(this.data.privatePerson);
-      this.sumForm.controls['comment'].setValue(this.data.comment);
+      const controls = this.sumForm.controls
+      controls['id'].setValue(this.data.id);
+      controls['customerName'].setValue(this.data.customerName);
+      controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
+      controls['taxpayerNumber'].setValue(this.data.taxpayerNumber);
+      controls['thirdStateTaxId'].setValue(this.data.thirdStateTaxId);
+      controls['countryCode'].setValue(this.data.countryCode);
+      controls['postalCode'].setValue(this.data.postalCode);
+      controls['city'].setValue(this.data.city);
+      controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
+      controls['privatePerson'].setValue(this.data.privatePerson);
+      controls['comment'].setValue(this.data.comment);
+      controls['unitPriceType'].setValue(this.data.unitPriceType)
     }
   }
-  ngOnDestroy(): void {
+
+  public ngOnDestroy(): void {
     if (!this.closedManually) {
-      this.kbS.RemoveWidgetNavigatable();
+      this.keyboardService.RemoveWidgetNavigatable();
     }
   }
-  ngAfterViewChecked(): void {
-  }
-  ngAfterViewInit(): void {
-    this.kbS.SetWidgetNavigatable(this);
+
+  public ngAfterViewInit(): void {
+    this.keyboardService.SetWidgetNavigatable(this);
     this.SetNewForm(this.sumForm);
 
     // We can move onto the confirmation buttons from the form.
@@ -175,21 +180,21 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
     this.currentForm?.AfterViewInitSetup();
 
-    this.kbS.SelectFirstTile();
-    this.kbS.Jump(AttachDirection.UP, true);
+    this.keyboardService.SelectFirstTile();
+    this.keyboardService.Jump(AttachDirection.UP, true);
   }
 
   private SetNewForm(form?: FormGroup): void {
     this.currentForm = new FlatDesignNoTableNavigatableForm(
       this.sumForm,
-      this.kbS,
+      this.keyboardService,
       this.cdref,
       [],
       this.sumFormId,
       AttachDirection.UP,
       [],
       this.bbxsb,
-      this.fs
+      this.footerService
     );
     this.currentForm.IsFootersEnabled = false;
 
@@ -204,7 +209,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
 
   close(answer: any) {
     this.closedManually = true;
-    this.kbS.RemoveWidgetNavigatable();
+    this.keyboardService.RemoveWidgetNavigatable();
     this.dialogRef.close(answer);
   }
 
@@ -215,35 +220,38 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
-      this.kbS.Jump(AttachDirection.DOWN, false);
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      this.keyboardService.Jump(AttachDirection.DOWN, false);
+      this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
     }
   }
 
-  private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
-    console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest begin:", p);
+  private CustomerToCreateRequest(customer: Customer): CreateCustomerRequest {
+    console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest begin:", customer);
 
-    let country = this._countryCodes.find(x => x.text === p.countryCode);
+    const country = this._countryCodes.find(x => x.text === customer.countryCode);
     if (country) {
-      p.countryCode = country.value;
+      customer.countryCode = country.value;
     }
 
-    if (p.customerBankAccountNumber) {
-      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    if (customer.customerBankAccountNumber) {
+      customer.customerBankAccountNumber = customer.customerBankAccountNumber.replace(/\s/g, '');
     }
+
+    customer.unitPriceType = this.unitPriceTypes.find(x => customer.unitPriceType === x.text)?.value ?? UnitPriceTypes.List
 
     const res = {
-      additionalAddressDetail: p.additionalAddressDetail,
-      city: p.city,
-      comment: p.comment,
-      countryCode: p.countryCode,
-      customerBankAccountNumber: p.customerBankAccountNumber,
-      customerName: p.customerName,
-      isOwnData: p.isOwnData,
-      postalCode: p.postalCode,
-      privatePerson: p.privatePerson,
-      taxpayerNumber: p.taxpayerNumber,
-      thirdStateTaxId: p.thirdStateTaxId,
+      additionalAddressDetail: customer.additionalAddressDetail,
+      city: customer.city,
+      comment: customer.comment,
+      countryCode: customer.countryCode,
+      customerBankAccountNumber: customer.customerBankAccountNumber,
+      customerName: customer.customerName,
+      isOwnData: customer.isOwnData,
+      postalCode: customer.postalCode,
+      privatePerson: customer.privatePerson,
+      taxpayerNumber: customer.taxpayerNumber,
+      thirdStateTaxId: customer.thirdStateTaxId,
+      unitPriceType: customer.unitPriceType,
     } as CreateCustomerRequest;
 
     console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest after:", res);
@@ -254,13 +262,13 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   Save(): void {
     const createRequest = this.CustomerToCreateRequest(this.currentForm!.FillObjectWithForm());
 
-    this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-    this.cService.Create(createRequest).subscribe({
+    this.statusService.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+    this.customerService.Create(createRequest).subscribe({
       next: d => {
         if (d.succeeded && !!d.data) {
-          this.cService.Get({ ID: d.data.id }).subscribe({
+          this.customerService.Get({ ID: d.data.id }).subscribe({
             next: getData => {
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
 
               setTimeout(() => {
                 this.simpleToastrService.show(
@@ -273,8 +281,8 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
               this.close(getData);
             },
             error: err => {
-              this.cs.HandleError(err);
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.commonService.HandleError(err);
+              this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
             }
           });
         } else {
@@ -284,25 +292,31 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
           );
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         }
       },
       error: err => {
-        this.cs.HandleError(err);
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        this.commonService.HandleError(err);
+        this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
       }
     });
   }
 
-  private refreshComboboxData(): void {
-    // CountryCodes
-    this.cService.GetAllCountryCodes().subscribe({
-      next: data => {
-        this.countryCodes = data?.map(x => x.text) ?? [];
-        this._countryCodes = data ?? [];
-        this.countryCodeComboData$.next(this.countryCodes);
-      }
-    });
+  private async refreshComboboxData(): Promise<void> {
+    try {
+      const countryCodesRequest = this.customerService.GetAllCountryCodesAsync()
+      const unitPriceTypeRequest = this.customerService.getUnitPriceTypes()
+
+      const countryCodeData = await countryCodesRequest
+      this._countryCodes = countryCodeData ?? []
+      this.countryCodes = countryCodeData?.map(x => x.text) ?? []
+      this.countryCodeComboData$.next(this.countryCodes)
+
+      this.unitPriceTypes = await unitPriceTypeRequest ?? []
+      this.unitPriceTypeData.next(this.unitPriceTypes.map(x => x.text))
+    } catch (error) {
+      this.commonService.HandleError(error)
+    }
   }
 
   postalCodeInputFocusOut(event: any): void {
@@ -326,7 +340,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   }
 
   SetCityByZipInfo(zipOrCity: any, byZip: boolean = true) {
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.statusService.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
     if (byZip) {
       this.systemService.CityByZip(zipOrCity).subscribe({
         next: res => {
@@ -335,11 +349,11 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
           }
         },
         error: err => {
-          this.cs.HandleError(err);
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.commonService.HandleError(err);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         },
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     } else {
@@ -350,26 +364,27 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
           }
         },
         error: err => {
-          this.cs.HandleError(err);
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.commonService.HandleError(err);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         },
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
   }
 
-  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+  @HostListener('window:keydown', ['$event'])
+  public onFunctionKeyDown(event: KeyboardEvent) {
     if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
       if (this.isEditModeOff) {
         this.close(undefined)
       } else {
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+        this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
       }
     }
     if (event.shiftKey && event.key == 'Enter') {
-      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this.keyboardService.BalanceCheckboxAfterShiftEnter((event.target as any).id);
       this.currentForm?.HandleFormShiftEnter(event)
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {

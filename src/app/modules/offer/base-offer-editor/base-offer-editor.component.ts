@@ -21,7 +21,6 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
-import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { OfferLine } from '../models/OfferLine';
@@ -35,12 +34,11 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { Actions, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
-import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { CurrencyCode, CurrencyCodes } from '../../system/models/CurrencyCode';
+import { CurrencyCode } from '../../system/models/CurrencyCode';
 import { SystemService } from '../../system/services/system.service';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
-import { CurrencyAndExchangeService, ExchangeRate } from 'src/app/services/currency-and-exchange.service';
+import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -366,35 +364,37 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       this.RoundPrices(index);
     }
 
-    if (!!changedData && !!changedData.productCode) {
-      if ((!!col && col === 'productCode') || col === undefined) {
-        this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-          next: product => {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+    if (!changedData?.productCode) {
+      return
+    }
 
-            if (index !== undefined) {
-              let tmp = this.dbData[index].data;
+    if ((!!col && col === 'productCode') || col === undefined) {
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: product => {
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-              tmp.lineDescription = product.description ?? '';
+          if (index !== undefined) {
+            let tmp = this.dbData[index].data;
 
-              tmp.vatRate = product.vatPercentage ?? 0.0;
-              tmp.OriginalUnitPrice = (product.unitPrice1 ?? product.unitPrice2 ?? 0);
-              tmp.unitVat = tmp.vatRate * tmp.unitPrice;
-              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-              tmp.vatRateCode = product.vatRateCode;
+            tmp.lineDescription = product.description ?? '';
 
-              this.dbData[index].data = tmp;
+            tmp.vatRate = product.vatPercentage ?? 0.0;
+            tmp.OriginalUnitPrice = (product.unitPrice1 ?? product.unitPrice2 ?? 0);
+            tmp.unitVat = tmp.vatRate * tmp.unitPrice;
+            product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+            tmp.vatRateCode = product.vatRateCode;
 
-              this.dbDataDataSrc.setData(this.dbData);
-            }
+            this.dbData[index].data = tmp;
 
-            this.RecalcNetAndVat();
-          },
-          error: err => {
-            this.RecalcNetAndVat();
+            this.dbDataDataSrc.setData(this.dbData);
           }
-        });
-      }
+
+          this.RecalcNetAndVat();
+        },
+        error: err => {
+          this.RecalcNetAndVat();
+        }
+      });
     }
   }
 
@@ -708,11 +708,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   protected SwitchUnitPriceAll(): void {
+    const defaultValue = (this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit) === UnitPriceTypes.Unit ? 'E' : 'L'
+
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     const dialogRef = this.dialogService.open(RadioChoiceDialogComponent, {
       context: {
         title: 'Á.T. összes sorra',
-        defaultValue: 'E',
+        defaultValue: defaultValue,
         optionLabel1: 'Egységár',
         optionValue1: 'E',
         optionLabel2: 'Listaár',

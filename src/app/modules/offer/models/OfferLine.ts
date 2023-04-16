@@ -5,34 +5,35 @@ import { environment } from "src/environments/environment";
 import { InvoiceLine } from "../../invoice/models/InvoiceLine";
 import { Product } from "../../product/models/Product";
 import { CurrencyCodes } from "../../system/models/CurrencyCode";
+import { UnitPriceTypes } from "../../customer/models/UnitPriceType";
 
 export interface OfferLineForPost {
-    "lineNumber": number;
-    "productCode": string;
-    "lineDescription": string;
-    "vatRateCode": string;
-    "unitPrice": number;
-    "unitGross": number;
-    "discount": number;
-    "unitOfMeasure": string;
-    "showDiscount": boolean;
-    "quantity": number;
-    "originalUnitPrice": number;
-    "unitPriceSwitch": boolean;
+    lineNumber: number;
+    productCode: string;
+    lineDescription: string;
+    vatRateCode: string;
+    unitPrice: number;
+    unitGross: number;
+    discount: number;
+    unitOfMeasure: string;
+    showDiscount: boolean;
+    quantity: number;
+    originalUnitPrice: number;
+    unitPriceSwitch: boolean;
 }
 
 export interface OfferLineFullData extends OfferLineForPost {
-    "id": number;
-    "offerID": number;
-    "productID": number;
-    "unitOfMeasureX": string;
-    "vatRateID": number;
-    "vatPercentage": number;
-    "quantity": number;
-    "originalUnitPrice": number;
-    "unitPriceSwitch": boolean;
-    "unitPrice1": number;
-    "unitPrice2": number;
+    id: number;
+    offerID: number;
+    productID: number;
+    unitOfMeasureX: string;
+    vatRateID: number;
+    vatPercentage: number;
+    quantity: number;
+    originalUnitPrice: number;
+    unitPriceSwitch: boolean;
+    unitPrice1: number;
+    unitPrice2: number;
 }
 
 export class OfferLine extends MementoObject implements IEditable, OfferLineFullData {
@@ -40,50 +41,51 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     public requiredFields?: string[]
 
     // OfferLineForPost
-    "lineNumber": number = 0;
-    "productCode": string;
-    "productGroup": string;
-    "lineDescription": string;
-    "originalUnitPrice": number = 0; // readonly
-    "discount": number = 0;
-    "unitPrice": number = 0;
-    "vatRateCode": string;
-    "unitVat": number = 0; // unitPrice * vatRate // hidden
-    "unitGross": number = 0; // unitPrice + unitVat
-    "showDiscount": boolean = false;
-    "quantity": number = 0;
+    lineNumber: number = 0;
+    productCode: string = '';
+    productGroup: string = '';
+    lineDescription: string = '';
+    originalUnitPrice: number = 0; // readonly
+    discount: number = 0;
+    unitPrice: number = 0;
+    vatRateCode: string = '';
+    unitVat: number = 0; // unitPrice * vatRate // hidden
+    unitGross: number = 0; // unitPrice + unitVat
+    showDiscount: boolean = false;
+    quantity: number = 0;
 
-    "unitPrice1": number = 0;
-    "unitPrice2": number = 0;
+    unitPrice1: number = 0;
+    unitPrice2: number = 0;
 
-    "originalUnitPrice1": number = 0; // L = false
-    "originalUnitPrice2": number = 0; // E = true
-    "unitPriceSwitch": boolean = true;
+    originalUnitPrice1: number = 0; // L = false
+    originalUnitPrice2: number = 0; // E = true
+    unitPriceSwitch: boolean = true;
+
     get UnitPriceSwitch(): boolean {
         return this.unitPriceSwitch;
     }
     set UnitPriceSwitch(value: boolean) {
         if (environment.offerLineLog) console.log("switch: ", value, ", label: ", value ? "E" : "L");
-        this.ReCalc(true);
         this.unitPriceSwitch = value;
+        this.ReCalc(true);
     }
 
     get exchangedOriginalUnitPrice(): number {
         return HelperFunctions.Round2(this.originalUnitPrice / this.exchangeRate, 1);
     }
-    
+
     // Custom
-    "vatRate": number = 1.0;
-    
-    "unitOfMeasure": string;
+    vatRate: number = 1.0;
+
+    unitOfMeasure: string = '';
 
     // OfferLineFullData
-    "id": number = -1;
-    "offerID": number = -1;
-    "productID": number = -1;
-    "unitOfMeasureX": string = "";
-    "vatRateID": number = -1;
-    "vatPercentage": number = -1;
+    id: number = -1;
+    offerID: number = -1;
+    productID: number = -1;
+    unitOfMeasureX: string = "";
+    vatRateID: number = -1;
+    vatPercentage: number = -1;
 
     currencyCode: string = CurrencyCodes.HUF;
     exchangeRate: number = 1;
@@ -152,7 +154,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         this.unitVat = val;
         if (environment.offerLineLog) {
             console.log(
-                `[SETTER UnitVat] Set unitGross, old val: ${this.unitGross}, new val: 
+                `[SETTER UnitVat] Set unitGross, old val: ${this.unitGross}, new val:
                 ${this.unitPrice + this.unitVat}, new unit price: ${this.unitPrice}, calc result: ${this.UnitPriceForCalc + this.unitVat}`);
         }
         this.unitGross = this.UnitPriceForCalc + this.unitVat;
@@ -269,7 +271,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
             console.log("vatRate: ", this.vatRate);
         }
 
-        this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1); 
+        this.unitGross = HelperFunctions.Round2(this.UnitPriceForCalc + this.unitVat, 1);
 
         if (environment.offerLineLog) {
             // console.log("unitGross no rounding: ", this.UnitPriceForCalc + this.unitVat);
@@ -280,13 +282,13 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
             // console.log("unitGross * quantity: ", this.unitGross * this.quantity);
             console.log("unitGross: ", this.unitGross);
             console.log("UnitGrossVal: ", this.UnitGrossVal);
-    
+
             console.log("....................................................");
             console.log("....................................................");
         }
     }
 
-    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number): OfferLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, unitPriceWasUpdated: boolean, currencyCode: string, exchangeRate: number, unitPriceType: UnitPriceTypes|string|null = null): OfferLine {
         let offerLine = new OfferLine();
 
         offerLine.lineDescription = product.description ?? '';
@@ -298,6 +300,10 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         offerLine.vatRate = product.vatPercentage ?? 10;
 
         offerLine.UnitVat = product.vatPercentage ?? 0;
+
+        if (unitPriceType) {
+            offerLine.unitPriceSwitch = unitPriceType === UnitPriceTypes.Unit
+        }
 
         offerLine.originalUnitPrice1 = HelperFunctions.Round2(product.unitPrice1 ?? 0, 2);
         offerLine.originalUnitPrice2 = HelperFunctions.Round2(product.unitPrice2 ?? 0, 2);
@@ -324,7 +330,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     static FromOfferLineFullData(data: OfferLineFullData, currencyCode: string, exchangeRate: number): OfferLine {
         if (environment.offerLineLog)
             console.log("\n\n[FromOfferLineFullData] stard, ID: ", data.id);
-        
+
         let offerLine = new OfferLine();
 
         if (environment.offerLineLog)
@@ -349,7 +355,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         offerLine.quantity = HelperFunctions.ToFloat(data.quantity ?? 0);
 
         offerLine.vatRate = data.vatPercentage;
-        
+
         offerLine.id = data.id;
         offerLine.offerID = data.offerID;
         offerLine.productID = data.productID;

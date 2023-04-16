@@ -12,7 +12,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { todaysDate, validDate } from 'src/assets/model/Validators';
+import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
@@ -26,27 +26,24 @@ import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
-import { SumData } from '../models/SumData';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
-import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import moment from 'moment';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
+import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -190,22 +187,22 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private seInv: InvoiceService,
-    private seC: CustomerService,
-    private cdref: ChangeDetectorRef,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
+    private readonly invoiceService: InvoiceService,
+    private readonly customerService: CustomerService,
+    private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private simpleToastrService: NbToastrService,
-    private bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
+    private readonly bbxToastrService: BbxToastrService,
     cs: CommonService,
     sts: StatusService,
-    private productService: ProductService,
-    private printAndDownLoadService: PrintAndDownloadService,
-    private status: StatusService,
+    private readonly productService: ProductService,
+    private readonly printAndDownLoadService: PrintAndDownloadService,
+    private readonly statusService: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private activatedRoute: ActivatedRoute,
-    private custDiscountService: CustomerDiscountService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly custDiscountService: CustomerDiscountService,
     router: Router
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
@@ -244,6 +241,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.fS.pushCommands(this.commands);
     }
   }
+
   public override onFormSearchBlurred(event?: any, formFieldName?: string): void {
     this.customerSearchFocused = false;
 
@@ -605,7 +603,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   refresh(): void {
-    const tempPaymentSubscription = this.seInv.GetTemporaryPaymentMethod().subscribe({
+    const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);
         this.paymentMethods = d;
@@ -616,7 +614,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         }
       }
     });
-    this.seInv.GetPaymentMethods().subscribe({
+    this.invoiceService.GetPaymentMethods().subscribe({
       next: d => {
         if (!!tempPaymentSubscription && !tempPaymentSubscription.closed) {
           tempPaymentSubscription.unsubscribe();
@@ -635,7 +633,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       complete: () => { },
     })
 
-    this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
+    this.customerService.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
@@ -653,7 +651,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        this.seC.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
+        this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
             // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
@@ -830,8 +828,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
         const request = this.UpdateOutGoingData();
 
-        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.seInv.CreateOutgoing(request).subscribe({
+        this.statusService.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.invoiceService.CreateOutgoing(request).subscribe({
           next: async d => {
             try {
               //this.isSilentLoading = false;
@@ -853,7 +851,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
                 this.isSaveInProgress = true;
 
-                this.status.pushProcessStatus(Constants.BlankProcessStatus);
+                this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: 'Számla Nyomtatása',
@@ -861,7 +859,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
                   MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                  Obs: this.seInv.GetReport.bind(this.seInv),
+                  Obs: this.invoiceService.GetReport.bind(this.invoiceService),
                   Reset: this.DelayedReset.bind(this),
                   ReportParams: {
                     "id": d.data?.id,
@@ -871,7 +869,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               } else {
                 this.cs.HandleError(d.errors);
                 this.isSaveInProgress = false;
-                this.status.pushProcessStatus(Constants.BlankProcessStatus);
+                this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
               }
             } catch (error) {
               this.Reset()
@@ -879,7 +877,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }
           },
           error: err => {
-            this.status.pushProcessStatus(Constants.BlankProcessStatus);
+            this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
             this.cs.HandleError(err);
             this.isSaveInProgress = false;
           },
@@ -898,11 +896,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
       if (!wasInNavigationMode) {
-        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
+        const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
         currentRow?.data.Save('productCode');
+
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();
+
         setTimeout(() => {
           this.kbS.setEditMode(KeyboardModes.EDIT);
           this.kbS.ClickCurrentElement();
@@ -914,6 +915,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         }
       }
     }
+
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
@@ -999,38 +1001,49 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return discount;
   }
 
-  async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
+  async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine(this.requiredCols);
 
-    res.productCode = p.productCode!;
+    res.productCode = product.productCode!;
 
-    res.productDescription = p.description ?? '';
+    res.productDescription = product.description ?? '';
 
     res.quantity = 0;
 
-    p.productGroup = !!p.productGroup ? p.productGroup : '-';
-    res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
-      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
-      if (discountForPrice !== undefined) {
-        const discountedPrice = p.unitPrice2! * discountForPrice;
-        res.unitPrice = p.unitPrice2! - discountedPrice;
-        res.custDiscounted = true;
-      } else {
-        res.unitPrice = p.unitPrice2!;
-      }
-    } else {
-      res.unitPrice = p.unitPrice2!;
+    product.productGroup = !!product.productGroup ? product.productGroup : '-';
+    res.noDiscount = product.noDiscount;
+
+    let unitPrice: number
+    if (this.buyerData) {
+      unitPrice = this.buyerData.unitPriceType === UnitPriceTypes.Unit
+        ? product.unitPrice1!
+        : product.unitPrice2!
+    }
+    else {
+      unitPrice = product.unitPrice2!
     }
 
-    res.vatRateCode = p.vatRateCode;
+    if (!product.noDiscount) {
+      const discountForPrice = await this.GetPartnerDiscountForProduct(product.productGroup.split("-")[0]);
+      if (discountForPrice !== undefined) {
+        const discountedPrice = unitPrice * discountForPrice;
+        res.unitPrice = unitPrice - discountedPrice;
+        res.custDiscounted = true;
+      } else {
+        res.unitPrice = unitPrice;
+      }
+    } else {
+      res.unitPrice = unitPrice;
+    }
 
-    res.vatRate = p.vatPercentage ?? 1;
+    res.vatRateCode = product.vatRateCode;
+
+    res.vatRate = product.vatPercentage ?? 1;
 
     res.ReCalc();
 
-    res.unitOfMeasure = p.unitOfMeasure;
-    res.unitOfMeasureX = p.unitOfMeasureX;
+    res.unitOfMeasure = product.unitOfMeasure;
+    res.unitOfMeasureX = product.unitOfMeasureX;
 
     console.log('ProductToInvoiceLine res: ', res);
 
@@ -1050,7 +1063,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
 
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
       next: res => {
@@ -1095,7 +1108,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
 
-    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+    const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
     if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
       data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
@@ -1122,7 +1135,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.isLoading = true;
 
-    this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
       next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
