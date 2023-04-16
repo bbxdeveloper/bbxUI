@@ -38,6 +38,7 @@ import { CurrencyCode } from '../../system/models/CurrencyCode';
 import { SystemService } from '../../system/services/system.service';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
+import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -705,11 +706,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   protected SwitchUnitPriceAll(): void {
+    const defaultValue = (this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit) === UnitPriceTypes.Unit ? 'E' : 'L'
+
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     const dialogRef = this.dialogService.open(RadioChoiceDialogComponent, {
       context: {
         title: 'Á.T. összes sorra',
-        defaultValue: 'E',
+        defaultValue: defaultValue,
         optionLabel1: 'Egységár',
         optionValue1: 'E',
         optionLabel2: 'Listaár',

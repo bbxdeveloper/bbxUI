@@ -264,7 +264,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         this.countryCodes.find((x) => x.value == data.countryCode)?.text ?? '';
     }
 
-    data.unitPriceType = data.unitPriceTypeX
+    data.unitPriceType = this.unitPriceTypes.find(x => x.text === data.unitPriceTypeX)?.value ?? UnitPriceTypes.List
 
     return data;
   }
@@ -466,7 +466,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       additionalAddressDetail: new FormControl(undefined, [
         Validators.required,
       ]),
-      unitPriceType: new FormControl('Listaár', [Validators.required]),
+      unitPriceType: new FormControl(UnitPriceTypes.List, [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),

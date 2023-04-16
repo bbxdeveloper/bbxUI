@@ -41,6 +41,7 @@ import { lastValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-offer-creator',
@@ -427,13 +428,15 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
       return;
     }
 
+    const unitPriceType = this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit
+
     await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
       .then(async d => {
         if (!d.data) {
           this.cs.HandleError(d.errors);
 
           let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-            data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+            data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
           });
           currentRow?.data.Save('productCode');
 
@@ -461,7 +464,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
             .then(data => {
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
               });
               currentRow?.data.Save('productCode');
               const _d = this.dbData[rowPos].data;
@@ -476,7 +479,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             .catch(err => {
               this.cs.HandleError(d.errors);
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
               });
               currentRow?.data.Save('productCode');
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -489,7 +492,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             .finally(() => { });
         } else {
           let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-            data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+            data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
           });
           currentRow?.data.Save('productCode');
           const _d = this.dbData[rowPos].data;
@@ -506,7 +509,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         this.cs.HandleError(err);
 
         let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-          data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+          data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
         });
         currentRow?.data.Save('productCode');
 
@@ -605,11 +608,13 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               return;
             }
 
+            const unitPriceType = this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit
+
             if (!product.noDiscount) {
               await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
                 .then(data => {
                   let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
                   });
                   currentRow?.data.Save('productCode');
                   const _d = this.dbData[rowPos].data;
@@ -625,7 +630,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                   this.cs.HandleError(err);
 
                   let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
                   });
                   currentRow?.data.Save('productCode');
 
@@ -641,7 +646,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                 });
             } else {
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
               });
               currentRow?.data.Save('productCode');
 

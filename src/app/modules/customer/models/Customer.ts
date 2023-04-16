@@ -1,3 +1,5 @@
+import { UnitPriceTypes } from "./UnitPriceType";
+
 export interface Customer {
     // available in GET
     id: number;
@@ -31,7 +33,7 @@ export interface Customer {
 
     email: string;
     Email: string;
-    unitPriceType: string
+    unitPriceType: UnitPriceTypes
     unitPriceTypeX: string
 }
 

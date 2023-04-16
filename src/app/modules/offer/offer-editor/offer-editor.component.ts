@@ -19,7 +19,6 @@ import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { OfferLine, OfferLineFullData } from '../models/OfferLine';
@@ -28,7 +27,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { Offer } from '../models/Offer';
 import { OfferUpdateDialogComponent } from '../offer-update-dialog/offer-update-dialog.component';
-import { Actions, EqualRows, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, OfferEditorKeySettings } from 'src/assets/util/KeyBindings';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -41,11 +40,10 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InputFocusChangedEvent, isTableKeyDownEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { lastValueFrom } from 'rxjs';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { CurrencyAndExchangeService } from 'src/app/services/currency-and-exchange.service';
+import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-offer-editor',
@@ -548,91 +546,79 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     });
   }
 
-  async HandleProductChoose(res: Product, rowIndex: number): Promise<void> {
-    if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+  async HandleProductChoose(product: Product, rowIndex: number): Promise<void> {
+    if (!product) {
+      return
+    }
 
-      if (this.dbDataTable.data[rowIndex].data.productID === res.id) {
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.dbDataTable.MoveNextInTable();
-        setTimeout(() => {
-          this.kbS.setEditMode(KeyboardModes.EDIT);
-          this.kbS.ClickCurrentElement();
-        }, 500);
-        return;
-      }
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
-      await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
-        .then(async d => {
-          if (!!d.data) {
-            console.log('Vatrates: ', d.data);
+    if (this.dbDataTable.data[rowIndex].data.productID === product.id) {
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      this.dbDataTable.MoveNextInTable();
+      setTimeout(() => {
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+        this.kbS.ClickCurrentElement();
+      }, 500);
+      return;
+    }
 
-            let vatRateFromProduct = d.data.find(x => x.vatRateCode === res.vatRateCode);
+    await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
+      .then(async d => {
+        if (!!d.data) {
+          console.log('Vatrates: ', d.data);
 
-            if (vatRateFromProduct === undefined) {
-              this.bbxToastrService.show(
-                `Áfa a kiválasztott termékben található áfakódhoz (${res.vatRateCode}) nem található.`,
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
-              );
-            }
+          let vatRateFromProduct = d.data.find(x => x.vatRateCode === product.vatRateCode);
 
-            if (!res.noDiscount) {
-              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-                .then(data => {
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
-                  });
-                  currentRow?.data.Save('productCode');
-                  const _d = this.dbData[rowIndex].data;
-                  this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
-                })
-                .catch(err => {
-                  this.cs.HandleError(d.errors);
+          if (vatRateFromProduct === undefined) {
+            this.bbxToastrService.show(
+              `Áfa a kiválasztott termékben található áfakódhoz (${product.vatRateCode}) nem található.`,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            );
+          }
 
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
-                  });
-                  currentRow?.data.Save('productCode');
+          if (!product.noDiscount) {
+            await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+              .then(data => {
+                let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+                  data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                });
+                currentRow?.data.Save('productCode');
+                const _d = this.dbData[rowIndex].data;
+                this.dbData[rowIndex].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.dbDataTable.MoveNextInTable();
+                setTimeout(() => {
+                  this.kbS.setEditMode(KeyboardModes.EDIT);
+                  this.kbS.ClickCurrentElement();
+                }, 500);
+              })
+              .catch(err => {
+                this.cs.HandleError(d.errors);
 
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
-                })
-                .finally(() => { });
-            } else {
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(res, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
-              });
-              currentRow?.data.Save('productCode');
+                let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+                  data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+                });
+                currentRow?.data.Save('productCode');
 
-              const _d = this.dbData[rowIndex].data;
-              this.dbData[rowIndex].data.discount = 0;
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-            }
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.dbDataTable.MoveNextInTable();
+                setTimeout(() => {
+                  this.kbS.setEditMode(KeyboardModes.EDIT);
+                  this.kbS.ClickCurrentElement();
+                }, 500);
+              })
+              .finally(() => { });
           } else {
-            this.cs.HandleError(d.errors);
-
             let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-              data: OfferLine.FromProduct(res, this.offerData.id, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+              data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
             });
             currentRow?.data.Save('productCode');
 
+            const _d = this.dbData[rowIndex].data;
+            this.dbData[rowIndex].data.discount = 0;
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -640,12 +626,11 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
               this.kbS.ClickCurrentElement();
             }, 500);
           }
-        })
-        .catch(err => {
-          this.cs.HandleError(err);
+        } else {
+          this.cs.HandleError(d.errors);
 
           let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-            data: OfferLine.FromProduct(res, this.offerData.id, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+            data: OfferLine.FromProduct(product, this.offerData.id, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
           });
           currentRow?.data.Save('productCode');
 
@@ -655,11 +640,26 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             this.kbS.setEditMode(KeyboardModes.EDIT);
             this.kbS.ClickCurrentElement();
           }, 500);
-        })
-        .finally(() => {});
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
 
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-    }
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+          data: OfferLine.FromProduct(product, this.offerData.id, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate)
+        });
+        currentRow?.data.Save('productCode');
+
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.dbDataTable.MoveNextInTable();
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT);
+          this.kbS.ClickCurrentElement();
+        }, 500);
+      })
+      .finally(() => {});
+
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   override ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
