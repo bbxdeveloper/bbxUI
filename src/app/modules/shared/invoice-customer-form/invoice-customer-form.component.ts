@@ -10,7 +10,7 @@ import { Customer } from '../../customer/models/Customer';
 })
 export class InvoiceCustomerFormComponent implements OnInit, AfterContentChecked {
   @Input() title: string = ''
-  @Input() customer: Customer = {} as Customer
+  @Input() customer?: Customer
 
   form: FormGroup;
 
