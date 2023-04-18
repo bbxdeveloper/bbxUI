@@ -32,10 +32,10 @@ export class ReceiptDataFormComponent implements OnInit {
   paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get editDisabled() {
-    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
+    return !this.keyboardNavService.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
   }
 
-  constructor(private kbS: KeyboardNavigationService, private seInv: InvoiceService, private cs: CommonService) {
+  constructor(private keyboardNavService: KeyboardNavigationService, private invoiceService: InvoiceService, private commonService: CommonService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -48,7 +48,7 @@ export class ReceiptDataFormComponent implements OnInit {
   }
 
   private async Refresh(): Promise<void> {
-    const tempPaymentSubscription = this.seInv.GetTemporaryPaymentMethod().subscribe({
+    const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);
         this.paymentMethods = d;
@@ -59,7 +59,7 @@ export class ReceiptDataFormComponent implements OnInit {
         }
       }
     });
-    this.seInv.GetPaymentMethods().subscribe({
+    this.invoiceService.GetPaymentMethods().subscribe({
       next: d => {
         if (!!tempPaymentSubscription && !tempPaymentSubscription.closed) {
           tempPaymentSubscription.unsubscribe();
@@ -73,7 +73,7 @@ export class ReceiptDataFormComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.cs.HandleError(err);
+        this.commonService.HandleError(err);
       },
       complete: () => { },
     })
