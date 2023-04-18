@@ -139,16 +139,16 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   constructor(
     @Optional() dialogService: NbDialogService,
-    fS: FooterService,
+    footerService: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private seInv: InvoiceService,
-    private seC: CustomerService,
+    private invoiceService: InvoiceService,
+    private customerService: CustomerService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private simpleToastrService: NbToastrService,
     private bbxToastrService: BbxToastrService,
     cs: CommonService,
-    sts: StatusService,
+    statusService: StatusService,
     private productService: ProductService,
     private status: StatusService,
     sideBarService: BbxSidebarService,
@@ -157,7 +157,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     router: Router,
     private behaviorFactory: InvoiceBehaviorFactoryService
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
+    super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
@@ -418,13 +418,13 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   refresh(): void {
-    const tempPaymentSubscription = this.seInv.GetTemporaryPaymentMethod().subscribe({
+    const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);
         this.paymentMethods = d;
       }
     });
-    this.seInv.GetPaymentMethods().subscribe({
+    this.invoiceService.GetPaymentMethods().subscribe({
       next: d => {
         if (!!tempPaymentSubscription && !tempPaymentSubscription.closed) {
           tempPaymentSubscription.unsubscribe();
@@ -438,7 +438,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       complete: () => { },
     })
 
-    this.seC.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
+    this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
       next: d => {
         // Products
         this.dbData = [];
@@ -588,7 +588,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         const request = this.UpdateOutGoingData();
 
         this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.seInv.CreateOutgoing(request).subscribe({
+        this.invoiceService.CreateOutgoing(request).subscribe({
           next: async d => {
             try {
               if (!!d.data) {

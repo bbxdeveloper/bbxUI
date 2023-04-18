@@ -10,14 +10,13 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { SummaryInvoiceMode } from '../../invoice/models/SummaryInvoiceMode';
 import { InvoiceService } from '../../invoice/services/invoice.service';
-import { NavigatableBuildingBlockComponent } from '../navigatable-building-block/navigatable-building-block.component';
 
 @Component({
   selector: 'app-invoice-data-form',
   templateUrl: './invoice-data-form.component.html',
   styleUrls: ['./invoice-data-form.component.scss']
 })
-export class InvoiceDataFormComponent extends NavigatableBuildingBlockComponent implements OnInit {
+export class InvoiceDataFormComponent implements OnInit {
   @Input() mode: SummaryInvoiceMode = {} as SummaryInvoiceMode
 
   @Input() isLoading: boolean = true;
@@ -34,7 +33,7 @@ export class InvoiceDataFormComponent extends NavigatableBuildingBlockComponent 
   paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get editDisabled() {
-    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
+    return !this.keyboardNavService.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
   }
 
   get invoiceIssueDateValue(): Date | undefined {
@@ -55,9 +54,7 @@ export class InvoiceDataFormComponent extends NavigatableBuildingBlockComponent 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp)
   }
 
-  constructor(private kbS: KeyboardNavigationService, private seInv: InvoiceService, private cs: CommonService) {
-    super()
-
+  constructor(private keyboardNavService: KeyboardNavigationService, private invoiceService: InvoiceService, private commonService: CommonService) {
     this.outInvForm = new FormGroup({
       paymentMethod: new FormControl('', [Validators.required]),
       invoiceDeliveryDate: new FormControl('', [
@@ -144,7 +141,7 @@ export class InvoiceDataFormComponent extends NavigatableBuildingBlockComponent 
   }
 
   private async Refresh(): Promise<void> {
-    const tempPaymentSubscription = this.seInv.GetTemporaryPaymentMethod().subscribe({
+    const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);
         this.paymentMethods = d;
@@ -155,7 +152,7 @@ export class InvoiceDataFormComponent extends NavigatableBuildingBlockComponent 
         }
       }
     });
-    this.seInv.GetPaymentMethods().subscribe({
+    this.invoiceService.GetPaymentMethods().subscribe({
       next: d => {
         if (!!tempPaymentSubscription && !tempPaymentSubscription.closed) {
           tempPaymentSubscription.unsubscribe();
@@ -169,7 +166,7 @@ export class InvoiceDataFormComponent extends NavigatableBuildingBlockComponent 
         }
       },
       error: (err) => {
-        this.cs.HandleError(err);
+        this.commonService.HandleError(err);
       },
       complete: () => { },
     })
