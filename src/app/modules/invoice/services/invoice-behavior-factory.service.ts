@@ -39,7 +39,7 @@ export class InvoiceBehaviorFactoryService {
 
   private forReceipt(): SummaryInvoiceMode {
     return {
-      invoiceCategory: InvoiceCategory.NOT_DEFINED,
+      invoiceCategory: InvoiceCategory.NORMAL,
       invoiceType: InvoiceTypes.BLK,
       incoming: false,
       correction: false,

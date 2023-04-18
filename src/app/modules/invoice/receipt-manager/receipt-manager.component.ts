@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
+import { Observable, of, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -10,43 +10,31 @@ import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { todaysDate, validDate } from 'src/assets/model/Validators';
+import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
-import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
-import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
-import { SumData } from '../models/SumData';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
-import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
-import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceKeySettings, InvoiceManagerKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, ReceiptKeySettings } from 'src/assets/util/KeyBindings';
+import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
-import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import moment from 'moment';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { InvoiceTypes } from '../models/InvoiceTypes';
-import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
@@ -58,15 +46,9 @@ import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
-  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
-
   TileCssClass = TileCssClass;
-  TileCssColClass = TileCssColClass;
-
-  cachedCustomerName?: string;
 
   senderData!: Customer;
-  buyerData!: Customer;
 
   buyersData: Customer[] = [];
   filteredBuyerOptions$: Observable<string[]> = of([]);
@@ -77,17 +59,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
   outGoingInvoiceData!: OutGoingInvoiceFullData;
 
-  customerInputFilterString: string = '';
-
   isPageReady = false;
-
-  _searchByTaxtNumber: boolean = false;
-  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
-  set searchByTaxtNumber(value: boolean) {
-    this._searchByTaxtNumber = value;
-    this.cdref.detectChanges();
-    this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
-  }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
   requiredCols: string[] = ['productCode', 'quantity', 'unitPrice'];
@@ -160,33 +132,8 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
   }
 
-  get invoiceIssueDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
-      return undefined;
-    }
-    const tmp = this.outInvForm.controls['invoiceIssueDate'].value;
-
-    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
-  }
-
-  get invoiceDeliveryDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
-      return undefined;
-    }
-    const tmp = this.outInvForm.controls['invoiceDeliveryDate'].value;
-
-    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
-  }
-
-  public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
+  public KeySetting: Constants.KeySettingsDct = ReceiptKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
-
-  formKeyRows: any = {
-    "customerSearch": {
-      Action: Actions.Create,
-      Row: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner felvétele', KeyType: Constants.KeyTypes.Fn }
-    }
-  }
 
   public mode!: SummaryInvoiceMode
 
@@ -203,20 +150,15 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private printAndDownLoadService: PrintAndDownloadService,
     private status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     private activatedRoute: ActivatedRoute,
-    private custDiscountService: CustomerDiscountService,
     router: Router,
     private behaviorFactory: InvoiceBehaviorFactoryService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.InitialSetup();
-    this.activatedRoute.url.subscribe(params => {
-      this.SetModeBasedOnRoute(params);
-    })
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
 
@@ -225,9 +167,8 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     })
     this.isPageReady = true;
   }
-  ChooseDataForCustomerForm(): void {
-    throw new Error('Method not implemented.');
-  }
+
+  ChooseDataForCustomerForm(): void {}
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
     if (!event.Focused) {
@@ -248,25 +189,12 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
-  private SetModeBasedOnRoute(params: UrlSegment[]): void {
-    console.log("ActivatedRoute: ", params[0].path);
-    const path = params[0].path;
-    if (path === 'invoice') {
-      this.InvoiceType = InvoiceTypes.INV;
-    } else if (path === 'outgoing-delivery-note-income') {
-      this.InvoiceType = InvoiceTypes.DNO;
-    }
-    this.InvoiceCategory = InvoiceCategory.NORMAL
-    console.log("InvoiceType: ", this.InvoiceType);
-  }
-
   private InitialSetup(): void {
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
     this.senderData = {} as Customer;
-    this.buyerData = {} as Customer;
 
     this.outGoingInvoiceData = new OutGoingInvoiceFullData({
       lineGrossAmount: 0.0,
@@ -305,19 +233,9 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     if (this.outInvForm === undefined) {
       this.outInvForm = new FormGroup({
         paymentMethod: new FormControl('', [Validators.required]),
-        invoiceDeliveryDate: new FormControl('', [
-          Validators.required,
-          this.validateInvoiceDeliveryDate.bind(this),
-          validDate
-        ]),
         invoiceIssueDate: new FormControl('', [
           Validators.required,
           this.validateInvoiceIssueDate.bind(this),
-          validDate
-        ]),
-        paymentDate: new FormControl('', [
-          Validators.required,
-          this.validatePaymentDate.bind(this),
           validDate
         ]),
         invoiceOrdinal: new FormControl('', []), // in post response
@@ -325,21 +243,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       });
     } else {
       this.outInvForm.reset(undefined);
-    }
-
-    if (this.buyerForm === undefined) {
-      this.buyerForm = new FormGroup({
-        customerSearch: new FormControl('', []),
-        customerName: new FormControl('', [Validators.required]),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.buyerForm.reset(undefined);
     }
 
     this.outInvFormNav = new InlineTableNavigatableForm(
@@ -380,63 +283,10 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  changeSort(sortRequest: NbSortRequest): void {
-    this.dbDataDataSrc.sort(sortRequest);
-    this.sortColumn = sortRequest.column;
-    this.sortDirection = sortRequest.direction;
-
-    setTimeout(() => {
-      this.dbDataTable?.GenerateAndSetNavMatrices(false, true);
-    }, 50);
-  }
-
-  getDirection(column: string): NbSortDirection {
-    if (column === this.sortColumn) {
-      return this.sortDirection;
-    }
-    return NbSortDirection.NONE;
-  }
-
-  // invoiceDeliveryDate
-  validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
-      return null;
-    }
-
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
-
-    const wrong = deliveryDate?.isAfter(issueDate, "day") || deliveryDate?.isAfter(undefined, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
   validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined) {
-      return null;
-    }
-
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
-
-    const wrong = issueDate?.isBefore(deliveryDate, "day") || issueDate?.isAfter(undefined, "day");
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  // paymentDate
-  validatePaymentDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
-      return null;
-    }
-
-    let paymentDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toString());
-
-    const wrong = paymentDate?.isBefore(issueDate, "day");
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  ToFloat(p: any): number {
-    return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
+    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value)
+    const wrong = !!!deliveryDate
+    return wrong ? { wrongDate: { value: control.value } } : null
   }
 
   RecalcNetAndVat(): void {
@@ -455,10 +305,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
-    // this.outGoingInvoiceData.lineGrossAmount =
-    //   this.outGoingInvoiceData.invoiceLines
-    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
-    //     .reduce((sum, current) => sum + current, 0);
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
@@ -576,11 +422,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);
         this.paymentMethods = d;
-        this._paymentMethods = this.paymentMethods.map(x => x.text) ?? [];
-        this.paymentMethodOptions$.next(this._paymentMethods);
-        if (this._paymentMethods.length > 0) {
-          this.outInvForm.controls['paymentMethod'].setValue(this._paymentMethods[0])
-        }
       }
     });
     this.seInv.GetPaymentMethods().subscribe({
@@ -590,11 +431,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         }
         console.log('[GetPaymentMethods]: ', d);
         this.paymentMethods = d;
-        this._paymentMethods = this.paymentMethods.map(x => x.text) ?? [];
-        this.paymentMethodOptions$.next(this._paymentMethods);
-        if (this._paymentMethods.length > 0) {
-          this.outInvForm.controls['paymentMethod'].setValue(this._paymentMethods[0])
-        }
       },
       error: (err) => {
         this.cs.HandleError(err);
@@ -602,68 +438,36 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       complete: () => { },
     })
 
-    this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
+    this.seC.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
       next: d => {
-        // Possible buyers
-        this.buyersData = d.data!;
-        // this.buyerFormNav.Setup(this.buyersData);
-        console.log('Buyers: ', d);
-
-        // Set filters
-        this.filteredBuyerOptions$ = this.buyerForm.controls['customerName'].valueChanges
-          .pipe(
-            startWith(''),
-            map((filterString: any) => this.filterBuyers(filterString)),
-          );
-
         // Products
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
-
-        this.seC.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
-          next: d => {
-            // Exporter form
-            this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
-            console.log('Exporter: ', d);
-            this.exporterForm = new FormGroup({
-              customerName: new FormControl(this.senderData.customerName ?? '', []),
-              zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
-              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
-              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
-              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
-              comment: new FormControl(this.senderData.comment ?? '', []),
-            });
-
-            this.table?.renderRows();
-            this.RefreshTable();
-
-            this.isLoading = false;
-          },
-          error: (err) => {
-            this.cs.HandleError(err); this.isLoading = false;
-          },
-          complete: () => {
-            this.isLoading = false;
-            // this.Refresh();
-          },
+        
+        // Exporter form
+        this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
+        console.log('Exporter: ', d);
+        this.exporterForm = new FormGroup({
+          customerName: new FormControl(this.senderData.customerName ?? '', []),
+          zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
+          additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
+          customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
+          taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
+          comment: new FormControl(this.senderData.comment ?? '', []),
         });
+
+        this.table?.renderRows();
+        this.RefreshTable();
+
+        this.isLoading = false;
       },
       error: (err) => {
         this.cs.HandleError(err); this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
-  }
-
-  private filterBuyers(value: string): string[] {
-    if (this.editDisabled) {
-      return [];
-    }
-    const filterValue = value.toLowerCase();
-    return [""].concat(this.buyersData.map(x => x.customerName).filter(optionValue => optionValue.toLowerCase().includes(filterValue)));
   }
 
   ngOnInit(): void {
@@ -702,13 +506,13 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
-    this.outGoingInvoiceData.customerID = this.buyerData.id;
+    this.outGoingInvoiceData.customerID = undefined;
 
     this.outGoingInvoiceData.notice = this.outInvForm.controls['notice'].value;
 
-    this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+    this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
-    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceIssueDate'].value;
 
     this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
@@ -731,28 +535,17 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.warehouseCode = '001';
 
-    this.outGoingInvoiceData.incoming = this.Incoming;
-    this.outGoingInvoiceData.invoiceType = this.InvoiceType;
-    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
-
-    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+    this.outGoingInvoiceData.incoming = this.mode.incoming;
+    this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
   }
 
   Save(): void {
-    this.buyerForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
-    if (this.buyerForm.invalid) {
-      this.bbxToastrService.show(
-        `Nincs megadva vevő.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      valid = false;
-    }
     if (this.outInvForm.invalid) {
       this.bbxToastrService.show(
         `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
@@ -798,7 +591,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.seInv.CreateOutgoing(request).subscribe({
           next: async d => {
             try {
-              //this.isSilentLoading = false;
               if (!!d.data) {
                 console.log('Save response: ', d);
 
@@ -819,26 +611,14 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
                 this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
-                await this.printAndDownLoadService.openPrintDialog({
-                  DialogTitle: 'Számla Nyomtatása',
-                  DefaultCopies: 1,
-                  MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                  MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                  MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                  Obs: this.seInv.GetReport.bind(this.seInv),
-                  Reset: this.DelayedReset.bind(this),
-                  ReportParams: {
-                    "id": d.data?.id,
-                    "copies": 1 // Ki lesz töltve dialog alapján
-                  } as Constants.Dct
-                } as PrintDialogRequest);
+                this.DelayedReset()
               } else {
                 this.cs.HandleError(d.errors);
                 this.isSaveInProgress = false;
                 this.status.pushProcessStatus(Constants.BlankProcessStatus);
               }
             } catch (error) {
-              this.Reset()
+              this.DelayedReset()
               this.cs.HandleError(error)
             }
           },
@@ -914,18 +694,8 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
-      const discountForPrice = 0;
-      if (discountForPrice !== undefined) {
-        const discountedPrice = p.unitPrice2! * discountForPrice;
-        res.unitPrice = p.unitPrice2! - discountedPrice;
-        res.custDiscounted = true;
-      } else {
-        res.unitPrice = p.unitPrice2!;
-      }
-    } else {
-      res.unitPrice = p.unitPrice2!;
-    }
+    res.custDiscounted = !p.noDiscount
+    res.unitPrice = p.unitPrice2!
 
     res.vatRateCode = p.vatRateCode;
 
@@ -1007,34 +777,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
           }
           break;
         }
-      }
-    }
-    else {
-      switch ((event as KeyboardEvent).key) {
-        // case this.KeySetting[Actions.Search].KeyCode: {
-        //   if (!isForm) {
-        //     return;
-        //   }
-        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-        //     HelperFunctions.StopEvent(event);
-        //     return;
-        //   }
-        //   event.preventDefault();
-        //   this.ChooseDataForCustomerForm();
-        //   break;
-        // }
-        // case this.KeySetting[Actions.Create].KeyCode: {
-        //   if (!isForm) {
-        //     return;
-        //   }
-        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-        //     HelperFunctions.StopEvent(event);
-        //     return;
-        //   }
-        //   event.preventDefault();
-        //   this.CreateCustomer(event);
-        //   break;
-        // }
       }
     }
   }
