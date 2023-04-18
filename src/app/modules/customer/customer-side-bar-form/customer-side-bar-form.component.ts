@@ -12,7 +12,6 @@ import { SystemService } from '../../system/services/system.service';
 import { CountryCode } from '../models/CountryCode';
 import { CustomerMisc } from '../models/CustomerMisc';
 import { CustomerService } from '../services/customer.service';
-import { UnitPriceType } from '../models/UnitPriceType';
 
 @Component({
   selector: 'app-customer-side-bar-form',
@@ -35,8 +34,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   _countryCodes: CountryCode[] = [];
   countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  unitPriceTypes: UnitPriceType[] = []
-  unitPriceTypeComboData: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
+  public unitPriceTypeComboData: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
 
   get privatePersonDefaultValue(): Boolean {
     return false;
@@ -132,8 +130,6 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   private async setUnitPrices(): Promise<void> {
     try {
       const unitPriceTypes = await this.customerService.getUnitPriceTypes()
-
-      this.unitPriceTypes = unitPriceTypes
 
       this.unitPriceTypeComboData.next(unitPriceTypes.map(x => x.text))
     } catch (error) {

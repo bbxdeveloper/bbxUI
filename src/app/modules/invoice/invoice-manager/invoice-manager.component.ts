@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
-import { Product } from '../../product/models/Product';
+import { Product, getPriceByPriceType } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
@@ -1015,9 +1015,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     let unitPrice: number
     if (this.buyerData) {
-      unitPrice = this.buyerData.unitPriceType === UnitPriceTypes.Unit
-        ? product.unitPrice1!
-        : product.unitPrice2!
+      unitPrice = getPriceByPriceType(product, this.buyerData.unitPriceType)
     }
     else {
       unitPrice = product.unitPrice2!
