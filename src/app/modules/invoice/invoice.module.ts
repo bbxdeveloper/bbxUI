@@ -25,6 +25,7 @@ import { GetPendingDeliveryNotesDialogComponent } from './get-pending-delivery-n
 import { ReceiptManagerComponent } from './receipt-manager/receipt-manager.component';
 import { ReceiptDataFormComponent } from './receipt-data-form/receipt-data-form.component';
 import { CorrectionInvoiceComponent } from './correction-invoice/correction-invoice.component';
+import { CorrectionInvoiceSelectionDialogComponent } from './correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 
 
 
@@ -46,6 +47,7 @@ import { CorrectionInvoiceComponent } from './correction-invoice/correction-invo
     ReceiptManagerComponent,
     ReceiptDataFormComponent,
     CorrectionInvoiceComponent,
+    CorrectionInvoiceSelectionDialogComponent,
   ],
   imports: [
     CommonModule,

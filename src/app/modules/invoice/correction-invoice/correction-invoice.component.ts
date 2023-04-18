@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { NbDialogService } from '@nebular/theme';
+import { CorrectionInvoiceSelectionDialogComponent } from '../correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -7,9 +9,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CorrectionInvoiceComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private  readonly dialogService: NbDialogService
+  ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
+    this.dialogService.open(CorrectionInvoiceSelectionDialogComponent)
   }
 
 }
