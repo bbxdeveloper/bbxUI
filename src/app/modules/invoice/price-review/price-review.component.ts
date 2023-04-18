@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
-import { Product } from '../../product/models/Product';
+import { Product, getPriceByPriceType } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
@@ -46,7 +46,6 @@ import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
-import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({
   selector: 'app-price-review',
@@ -1129,9 +1128,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       if (!product || !product.unitPrice2)
         return
 
-      const unitPrice = this.buyerData.unitPriceType === UnitPriceTypes.Unit
-        ? product.unitPrice1 ?? invoiceLine.unitPrice
-        : product.unitPrice2 ?? invoiceLine.unitPrice
+      const unitPrice = getPriceByPriceType(product, this.buyerData.unitPriceType)
 
       if (product.noDiscount) {
         invoiceLine.unitPrice = unitPrice

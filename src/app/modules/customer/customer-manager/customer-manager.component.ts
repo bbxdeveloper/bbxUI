@@ -222,7 +222,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
   countryCodes: CountryCode[] = [];
 
-  unitPriceTypes: UnitPriceType[] = []
+  private unitPriceTypes: UnitPriceType[] = []
 
   constructor(
     @Optional() dialogService: NbDialogService,
