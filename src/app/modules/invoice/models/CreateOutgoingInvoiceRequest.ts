@@ -10,7 +10,7 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
     "invoiceDeliveryDate": any; // date
     "paymentDate": any; // date
 
-    "customerID": number;
+    "customerID"?: number;
     "customerInvoiceNumber"?: string;
 
     "paymentMethod": string;

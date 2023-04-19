@@ -38,6 +38,11 @@ import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-b
 import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerBankAccountNumberInputComponent } from './customer-bank-account-number-input/customer-bank-account-number-input.component';
 import { CalculatorPopoverComponent } from './calculator-popover/calculator-popover.component';
+import { InvoiceLayoutComponent } from './invoice-layout/invoice-layout.component';
+import { InvoiceCustomerFormComponent } from './invoice-customer-form/invoice-customer-form.component';
+import { InvoiceDataFormComponent } from './invoice-data-form/invoice-data-form.component';
+import { InvoiceStyleLabelColumnComponent } from './invoice-style-label-column/invoice-style-label-column.component';
+import { NavigatableBuildingBlockComponent } from './navigatable-building-block/navigatable-building-block.component';
 
 
 @NgModule({
@@ -74,6 +79,11 @@ import { CalculatorPopoverComponent } from './calculator-popover/calculator-popo
     ProductSelectTableDialogComponent,
     CustomerBankAccountNumberInputComponent,
     CalculatorPopoverComponent,
+    InvoiceLayoutComponent,
+    InvoiceCustomerFormComponent,
+    InvoiceDataFormComponent,
+    InvoiceStyleLabelColumnComponent,
+    NavigatableBuildingBlockComponent,
   ],
   imports: [
     CommonModule,
@@ -136,7 +146,11 @@ import { CalculatorPopoverComponent } from './calculator-popover/calculator-popo
     BbxComboBoxInvoiceComponent,
     ProductSelectTableDialogComponent,
     CustomerBankAccountNumberInputComponent,
-    CalculatorPopoverComponent
+    CalculatorPopoverComponent,
+    InvoiceLayoutComponent,
+    InvoiceCustomerFormComponent,
+    InvoiceDataFormComponent,
+    InvoiceStyleLabelColumnComponent,
   ],
   providers: [
     ConfirmationDialogComponent

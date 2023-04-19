@@ -172,41 +172,47 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1,header-invo-sub-2,header-invo-sub-3,header-invo-sub-4,header-invo-sub-5"
+        data-sub="header-invo-sub-1,header-invo-sub-2,header-invo-sub-3,header-invo-sub-4,header-invo-sub-5,header-invo-sub-6"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-invo" class="cl-header-menu" tabIndex="5" nbPopoverTrigger="focus"
-        data-sub="header-invo-sub-1,header-invo-sub-2,header-invo-sub-3,header-invo-sub-4,header-invo-sub-5"
+        data-sub="header-invo-sub-1,header-invo-sub-2,header-invo-sub-3,header-invo-sub-4,header-invo-sub-5,header-invo-sub-6"
         nbPopoverPlacement="bottom" [nbPopover]="sub_invo" [disabled]="InProgress">Számlázás
     </nb-action>
     <ng-template #sub_invo let-data>
         <nb-card class="card-submenu-wrapper">
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-invo-sub-1" [disabled]="InProgress"
+                    (click)="goTo('invoice/receipt')">
+                    Blokk
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress"
                     (click)="goTo('invoice/invoice')">
                     Számla
                 </button>
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-invo-sub-2" [disabled]="InProgress"
+                <button nbButton status="primary" id="header-invo-sub-3" [disabled]="InProgress"
                     (click)="goTo('invoice/outgoing-delivery-note-income')">
                     Szállítólevél
                 </button>
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-invo-sub-3" [disabled]="InProgress"
+                <button nbButton status="primary" id="header-invo-sub-4" [disabled]="InProgress"
                     (click)="goTo('invoice/minus-delivery-note')">
                     Szállító vissz.
                 </button>
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-invo-sub-4" [disabled]="InProgress"
+                <button nbButton status="primary" id="header-invo-sub-5" [disabled]="InProgress"
                     (click)="goTo('invoice/summary-invoice')">
                     Gyűjtőszámla
                 </button>
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-invo-sub-5" [disabled]="InProgress"
+                <button nbButton status="primary" id="header-invo-sub-6" [disabled]="InProgress"
                     (click)="goTo('invoice/price-review')">
                     Ár felülvizsgálat
                 </button>

@@ -1,0 +1,41 @@
+.layout-grid {
+    display: grid;
+
+    min-width: 100%;
+    min-height: 100%;
+
+    grid-template-rows: 40% 1% 20% 1% 38%;
+    grid-template-columns: 100%;
+    
+    align-content: space-evenly;
+    justify-items: stretch;
+    align-items: stretch;
+    justify-content: space-evenly;
+
+    .inner-grid-top {
+        display: grid;
+        
+        grid-template-rows: 100%;
+        grid-template-columns: 22% 1% 39% 1% 37%;
+
+        align-content: space-evenly;
+        justify-items: stretch;
+        align-items: stretch;
+        justify-content: space-evenly;
+    }
+}
+
+.separator-vertical {
+  background: #3ed820;
+  width: 5px;
+  border: #000000 1px solid;
+  border-radius: 50px;
+  min-height: 100%;
+}
+
+.separator-horizontal {
+  background: #3ed820;
+  height: 5px;
+  border: #000000 1px solid;
+  min-width: 100%;
+}

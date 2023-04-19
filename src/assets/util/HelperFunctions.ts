@@ -10,6 +10,7 @@ import * as moment from 'moment';
 import { NbDialogService } from "@nebular/theme";
 import { ConfirmationDialogComponent } from "src/app/modules/shared/confirmation-dialog/confirmation-dialog.component";
 import { CalculatorPopoverComponent } from "src/app/modules/shared/calculator-popover/calculator-popover.component";
+import { FormGroup } from "@angular/forms";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -414,5 +415,18 @@ export module HelperFunctions {
         });
 
         return queryParams;
+    }
+
+    export function FillForm(form: FormGroup, data: any, skip: string[] = [], mapping: { from: string, to: string }[] = []) {
+        if (!!data) {
+            Object.keys(form.controls).forEach((x: string) => {
+                if (!skip.includes(x)) {
+                    form.controls[x].setValue(data[x]);
+                }
+            });
+            mapping.forEach(x => {
+                form.controls[x.to].setValue(data[x.from]);
+            })
+        }
     }
 }

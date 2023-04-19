@@ -9,4 +9,6 @@ export enum InvoiceTypes {
     INV = "INV",
     /** outgoing delivery */
     DNO = "DNO",
+    /** receipt */
+    BLK = "BLK",
 }
