@@ -1,0 +1,191 @@
+@import 'invoice-common';
+
+label.single_label {
+    align-self: center;
+    color: #3ed820;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+nb-form-field {
+    margin: 10px;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.div-wrapper-input {
+    display: flex;
+
+    align-items: center;
+    column-gap: 15px;
+
+    flex-flow: wrap;
+}
+
+nb-card {
+    background: none;
+    border: none;
+    margin: 0px;
+}
+
+.card-labels-right {
+    display: flex;
+    flex-direction: column;
+
+    text-align: right;
+
+    label {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+.card-labels-left {
+    display: flex;
+    flex-direction: column;
+
+    text-align: left;
+
+    label {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+nb-form-field {
+    margin: 0px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+nb-card-header {
+    padding: 0px;
+}
+
+.card-row {
+    display: flex;
+
+    justify-content: center;
+    align-content: center;
+    flex-direction: row;
+
+    margin: 0;
+    margin-left: auto;
+    margin-right: auto;
+
+    .card-col-labels {
+        ::ng-deep nb-card {
+            @media (max-height: 1000px) {
+                nb-card-body {
+                    padding: 0.1rem 0.8rem !important;
+                }
+            }
+            width: 15vw;
+            form {
+                min-width: fit-content;
+                margin: auto;
+            }
+        }
+    }
+
+    .card-col-1,
+    .card-col-2 {
+        width: 40vw;
+        margin: auto;
+
+        nb-card {
+            @media (max-height: 1000px) {
+                nb-card-body {
+                    padding: 0.1rem 0.8rem !important;
+                }
+            }
+        }
+    }
+
+    .card-cols {
+        display: flex;
+        flex-direction: row;
+    }
+}
+
+.card-col,
+.card-col-1 {
+    margin: 0;
+}
+
+.card-col-2 {
+    @media (max-height: 1000px) {
+        nb-card-body {
+            padding: 0.2rem 0.8rem !important;
+        }
+    }
+}
+
+.form-horizontal {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 20px;
+
+    nb-form-field {
+        margin: unset;
+        margin-left: unset;
+        margin-right: unset;
+        flex: 0 0 220px;
+    }
+
+    .form-field-full-width {
+        display: flex !important;
+        flex-direction: row;
+        align-content: center;
+        justify-content: center;
+        align-items: center !important;
+        max-width: 100% !important;
+        margin: auto !important;
+    }
+
+    .form-field-full-width-inner-div {
+        // display: flex !important;
+        flex-direction: row;
+        align-content: center;
+        justify-content: center;
+        align-items: center !important;
+        max-width: 100% !important;
+        margin: auto !important;
+
+        column-gap: 25px;
+
+        input {
+            // max-width: 100% !important;
+            min-width: calc(100vw - 25px) !important;
+        }
+
+        label {
+            min-width: fit-content;
+        }
+    }
+}
+
+.nb-overlay-bottom {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.header-blank {
+  color: transparent !important;
+}
+
+.flex-text-center {
+  display: flex;
+  justify-items: center;
+}
+
+::ng-deep nb-card-header {
+    font-size: 2rem !important;
+}
+
+input, label, th, td {
+    font-size: 1.1rem;
+}
