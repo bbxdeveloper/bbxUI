@@ -1014,8 +1014,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     product.productGroup = !!product.productGroup ? product.productGroup : '-';
     res.noDiscount = product.noDiscount;
 
-
-
     let unitPrice: number
     if (this.isOutgoingDeliveryNoteIncome()) {
       unitPrice = product.latestSupplyPrice!
