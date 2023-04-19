@@ -1001,7 +1001,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     return discount;
   }
 
-  //// valami
   async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine(this.requiredCols);
 
