@@ -1,18 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { OutGoingInvoiceFullData } from '../../invoice/models/CreateOutgoingInvoiceRequest';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-invoice-layout',
   templateUrl: './invoice-layout.component.html',
   styleUrls: ['./invoice-layout.component.scss']
 })
-export class InvoiceLayoutComponent implements OnInit {
-  @Input() isPageReady: boolean = false
-  @Input() outGoingInvoiceData?: OutGoingInvoiceFullData;
-
+export class InvoiceLayoutComponent {
   constructor() { }
-
-  ngOnInit(): void {
-  }
-
 }

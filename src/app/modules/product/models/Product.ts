@@ -1,3 +1,5 @@
+import { UnitPriceTypes } from "../../customer/models/UnitPriceType"
+
 export interface Product {
     id: number,
     productCode?: any,
@@ -22,4 +24,8 @@ export interface Product {
     noDiscount: boolean,
     exhangedUnitPrice1?: number,
     exhangedUnitPrice2?: number,
+}
+
+export function getPriceByPriceType(product: Product, priceType: UnitPriceTypes|string): number {
+    return priceType === UnitPriceTypes.List ? product.unitPrice1! : product.unitPrice2!
 }

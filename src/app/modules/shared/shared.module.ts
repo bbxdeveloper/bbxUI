@@ -42,7 +42,6 @@ import { InvoiceLayoutComponent } from './invoice-layout/invoice-layout.componen
 import { InvoiceCustomerFormComponent } from './invoice-customer-form/invoice-customer-form.component';
 import { InvoiceDataFormComponent } from './invoice-data-form/invoice-data-form.component';
 import { InvoiceStyleLabelColumnComponent } from './invoice-style-label-column/invoice-style-label-column.component';
-import { NavigatableBuildingBlockComponent } from './navigatable-building-block/navigatable-building-block.component';
 
 
 @NgModule({
@@ -82,8 +81,7 @@ import { NavigatableBuildingBlockComponent } from './navigatable-building-block/
     InvoiceLayoutComponent,
     InvoiceCustomerFormComponent,
     InvoiceDataFormComponent,
-    InvoiceStyleLabelColumnComponent,
-    NavigatableBuildingBlockComponent,
+    InvoiceStyleLabelColumnComponent
   ],
   imports: [
     CommonModule,
