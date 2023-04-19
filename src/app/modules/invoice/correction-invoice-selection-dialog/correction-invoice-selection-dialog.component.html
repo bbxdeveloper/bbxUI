@@ -3,7 +3,18 @@
         <span>Javítandó számla</span>
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
-        valami
+        <form [id]="formId" [formGroup]="invoiceForm" #formDirective="ngForm" (click)="navigateable.HandleFormClick()" (focusout)="navigateable.HandleFormFocusOut()">
+            <nb-form-field (keydown.enter)="moveToButtons($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>
+                        Javítandó számla
+                    </label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber"
+                        [readonly]="isEditModeOff" (click)="navigateable.HandleFormFieldClick($event)" required>
+                </div>
+            </nb-form-field>
+        </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
         <button nbButton (click)="select()" status="primary" tabindex="-1" id="confirm-dialog-button-yes">
