@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header">
         <span>Javítandó számla</span>
     </nb-card-header>
-    <nb-card-body class="modal-product-active-body">
+    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
         <form [id]="formId" [formGroup]="invoiceForm" #formDirective="ngForm" (click)="navigateable.HandleFormClick()" (focusout)="navigateable.HandleFormFocusOut()">
             <nb-form-field (keydown.enter)="moveToButtons($event)">
                 <div class="bbx-fd-form-field-inner-div">
@@ -11,14 +11,22 @@
                     </label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber"
-                        [readonly]="isEditModeOff" (click)="navigateable.HandleFormFieldClick($event)" required>
+                        [readonly]="isEditModeOff" [disabled]="isLoading" (click)="navigateable.HandleFormFieldClick($event)" required>
+
+                    <div *ngIf="invoiceNumber?.errors?.['missingInvoice']" class="error">
+                        Nincs ilyen kimenő számla.
+                    </div>
+
+                    <div *ngIf="invoiceNumber?.errors?.['noIncoming']" class="error">
+                        Csak kimenő számla adható meg.
+                    </div>
                 </div>
             </nb-form-field>
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
-        <button nbButton (click)="select()" status="primary" tabindex="-1" id="confirm-dialog-button-yes">
-            OK
+        <button nbButton (click)="select()" [disabled]="selectedInvoice === undefined" status="primary" tabindex="-1" id="confirm-dialog-button-yes">
+            Kiválasztás
         </button>
         <button nbButton (click)="close()" status="danger" tabindex="-1" id="confirm-dialog-button-no">
             Mégse
