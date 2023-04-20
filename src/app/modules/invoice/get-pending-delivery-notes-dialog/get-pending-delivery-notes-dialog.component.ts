@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
@@ -9,6 +9,8 @@ import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNaviga
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
+import { Router } from '@angular/router';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-get-pending-delivery-notes-dialog',
@@ -26,6 +28,7 @@ export class GetPendingDeliveryNotesDialogComponent extends SelectTableDialogCom
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
     cdref: ChangeDetectorRef,
+    private router: Router,
   ) {
     super(dialogRef, kns, dataSourceBuilder)
     const navMap: string[][] = [[]];
@@ -108,35 +111,20 @@ export class GetPendingDeliveryNotesDialogComponent extends SelectTableDialogCom
     return HelperFunctions.GetDateStringFromDate(val)
   }
 
-  // @HostListener('keydown.f7', ['$event'])
-  // public sendNotesToParent(event: KeyboardEvent) {
-  //   HelperFunctions.StopEvent(event);
+  backToHeader(): void {
+    this.kbS.RemoveWidgetNavigatable();
+    this.router.navigate(["home"])
+    setTimeout(() => {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.kbS.ResetToRoot()
+      this.kbS.SetPositionById("header-invo")
+      this.kbS.SelectCurrentElement()
+    }, 700);
+  }
 
-  //   this.close()
-  // }
-
-  // @HostListener('keydown.f6', ['$event'])
-  // public notesByInvoiceNumber(event: KeyboardEvent) {
-  //   HelperFunctions.StopEvent(event)
-
-  //   this.close()
-
-  //   const invoices = this.dbData.map(x => x.data).filter(
-  //     (thing, i, arr) => arr.findIndex(t => t.invoiceNumber === thing.invoiceNumber) === i
-  //   );
-
-  //   const dialog = this.dialogService.open(PendingDeliveryNotesByInvoiceNumberDialogComponent, {
-  //     context: {
-  //       allColumns: PendingDeliveryNotesByInvoiceNumberTableSettings.AllColumns,
-  //       colDefs: PendingDeliveryNotesByInvoiceNumberTableSettings.ColDefs,
-  //       invoices: invoices
-  //     }
-  //   })
-
-  //   dialog.onClose.subscribe((selected: PendingDeliveryNoteItem) => {
-  //     const notes = this.dbData
-  //       .filter(x => x.data.invoiceNumber === selected.invoiceNumber)
-  //       .map(x => x.data)
-  //   })
-  // }
+  @HostListener('document:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      this.backToHeader();
+    }
+  }
 }
