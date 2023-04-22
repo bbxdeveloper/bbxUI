@@ -13,6 +13,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { Invoice } from '../models/Invoice';
 import { NbDialogRef } from '@nebular/theme';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
+import { debounce } from 'src/assets/util/debounce';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -53,7 +54,8 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     this.invoiceForm = new FormGroup({
       invoiceNumber: new FormControl('', [])
     })
-    this.invoiceForm.controls['invoiceNumber'].valueChanges.subscribe(this.onInvoiceNumberChanged.bind(this))
+    this.invoiceForm.controls['invoiceNumber'].valueChanges
+      .subscribe(this.onInvoiceNumberChanged.bind(this))
 
     this.navigateable = new FlatDesignNoTableNavigatableForm(
       this.invoiceForm,
@@ -72,11 +74,9 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
   }
 
+  @debounce(500)
   private async onInvoiceNumberChanged(value: string): Promise<void> {
     this.selectedInvoice = undefined
-
-    // if (value.length !== 16)
-    //   return
 
     try {
       this.isLoading = true
@@ -108,8 +108,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
       return true
     }
 
-    // const hasIncoming = response.data.find(x => x.incoming ?? false)
-    const hasIncoming = false
+    const hasIncoming = response.data.find(x => x.incoming)
     if (hasIncoming) {
       this.invoiceForm.get('invoiceNumber')?.setErrors({ noIncoming: true })
 

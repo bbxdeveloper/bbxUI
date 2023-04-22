@@ -2,6 +2,7 @@ import { InvoiceLine } from "./InvoiceLine";
 
 export interface Invoice {
     id: number,
+    incoming: boolean,
     warehouseID: number,
     warehouse: string, // 001-Raktár
     invoiceNumber: string,
@@ -17,10 +18,12 @@ export interface Invoice {
     supplierCity: string,
     supplierAdditionalAddressDetail: string,
     supplierComment: string,
+    supplierThirdStateTaxId?: string,
     customerID: number,
     customerName: string,
     customerBankAccountNumber: string,
     customerTaxpayerNumber: string,
+    customerThirdStateTaxId: string,
     customerCountryCode: string,
     customerPostalCode: string,
     customerCity: string,
