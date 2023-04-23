@@ -715,10 +715,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       context: {
         title: 'Á.T. összes sorra',
         defaultValue: defaultValue,
-        optionLabel1: 'Egységár',
-        optionValue1: 'E',
-        optionLabel2: 'Listaár',
-        optionValue2: 'L'
+        optionLabel1: 'Listaár',
+        optionValue1: 'L',
+        optionLabel2: 'Egységár',
+        optionValue2: 'E'
       },
       closeOnEsc: false
     });
