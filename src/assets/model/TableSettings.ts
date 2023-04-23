@@ -499,3 +499,73 @@ export module GetPendingDeliveryNotesDialogTableSettings {
         },
     ];
 }
+
+export module InvoiceItemsDialogTableSettings {
+    export const AllColumns: string[] = [
+        'productCode',
+        'lineDescription',
+        'quantity',
+        'unitOfMeasureX',
+        'lineNetAmount',
+    ];
+    export const ColDefs: ModelFieldDescriptor[] = [
+        {
+            label: 'Termékkód',
+            objectKey: 'productCode',
+            colKey: 'productCode',
+            defaultValue: '',
+            type: 'string',
+            mask: '',
+            colWidth: '120px',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Terméknév',
+            objectKey: 'lineDescription',
+            colKey: 'lineDescription',
+            defaultValue: '',
+            type: 'onlyDate',
+            mask: '',
+            colWidth: '120px',
+            textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Mennyiség',
+            objectKey: 'quantity',
+            colKey: 'quantity',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            mask: '',
+            colWidth: '33%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Me.E.',
+            objectKey: 'unitOfMeasureX',
+            colKey: 'unitOfMeasureX',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            mask: '',
+            colWidth: '33%',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Nettó',
+            objectKey: 'lineNetAmount',
+            colKey: 'lineNetAmount',
+            defaultValue: '',
+            type: 'formatted-number',
+            fRequired: true,
+            mask: '',
+            colWidth: '150px',
+            textAlign: 'center',
+            navMatrixCssClass: TileCssClass,
+        },
+    ];
+}

@@ -74,7 +74,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
   }
 
-  @debounce(500)
+  @debounce(400)
   private async onInvoiceNumberChanged(value: string): Promise<void> {
     this.selectedInvoice = undefined
 
