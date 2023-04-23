@@ -139,6 +139,7 @@ export class LocationManagerComponent
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {
@@ -181,6 +182,7 @@ export class LocationManagerComponent
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {

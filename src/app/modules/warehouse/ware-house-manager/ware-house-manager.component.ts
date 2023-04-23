@@ -130,6 +130,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {
@@ -172,6 +173,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {

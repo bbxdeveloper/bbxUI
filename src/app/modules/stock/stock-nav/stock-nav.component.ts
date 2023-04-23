@@ -278,6 +278,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {

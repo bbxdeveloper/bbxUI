@@ -280,6 +280,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                     );
                     this.dbDataTable.SetFormReadonly(false)
                     this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+                    this.kbS.ClickCurrentElement()
                   }
                 })
                 .catch(err => {
@@ -301,6 +302,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {
@@ -353,6 +355,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {

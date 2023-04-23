@@ -345,6 +345,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {
@@ -392,6 +393,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {

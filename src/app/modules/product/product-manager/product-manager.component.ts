@@ -327,6 +327,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
                 Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
+              this.kbS.ClickCurrentElement()
             }
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
@@ -388,6 +389,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {

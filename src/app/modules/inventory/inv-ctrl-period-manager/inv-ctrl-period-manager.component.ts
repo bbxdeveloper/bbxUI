@@ -249,9 +249,7 @@ export class InvCtrlPeriodManagerComponent
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               },
               error: (err) => {
-                this.cs.HandleError(err);
-                this.isLoading = false;
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.HandleError(err);
               },
             });
           } else {
@@ -304,6 +302,7 @@ export class InvCtrlPeriodManagerComponent
                 this.isLoading = false;
                 this.dbDataTable.SetFormReadonly(false)
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.kbS.ClickCurrentElement()
               }
             },
             error: (err) => {
@@ -357,6 +356,7 @@ export class InvCtrlPeriodManagerComponent
                 this.isLoading = false;
                 this.dbDataTable.SetFormReadonly(false)
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.kbS.ClickCurrentElement()
               }
             },
             error: (err) => {

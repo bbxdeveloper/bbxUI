@@ -280,6 +280,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {
@@ -341,6 +342,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {
