@@ -709,7 +709,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         context: {
           allColumns: GetPendingDeliveryNotesDialogTableSettings.AllColumns,
           colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
-        }
+        },
+        closeOnEsc: false,
+        closeOnBackdropClick: false
       })
       dialog.onClose.subscribe(this.fillPageWithData.bind(this))
     }, 500);
