@@ -348,9 +348,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           }
         },
         error: (err) => {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.HandleError(err);
           this.dbDataTable.SetFormReadonly(false)
         },
       });
@@ -397,9 +395,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           }
         },
         error: (err) => {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.HandleError(err);
           this.dbDataTable.SetFormReadonly(false)
         },
       });
@@ -441,9 +437,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             }
           },
           error: (err) => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.HandleError(err);
           },
         });
     }

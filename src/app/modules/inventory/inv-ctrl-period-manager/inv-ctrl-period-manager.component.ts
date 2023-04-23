@@ -256,19 +256,17 @@ export class InvCtrlPeriodManagerComponent
             });
           } else {
             console.log(d.errors!, d.errors?.join('\n'), d.errors?.join(', '));
-            this.bbxToastrService.show(
+            this.simpleToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
+              Constants.TOASTR_ERROR_5_SEC
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           }
         },
         error: (err) => {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.HandleError(err);
         },
       });
     }
@@ -298,19 +296,19 @@ export class InvCtrlPeriodManagerComponent
                 );
               } else {
                 console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-                this.bbxToastrService.show(
+                this.simpleToastrService.show(
                   d.errors!.join('\n'),
                   Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
+                  Constants.TOASTR_ERROR_5_SEC
                 );
                 this.isLoading = false;
+                this.dbDataTable.SetFormReadonly(false)
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               }
             },
             error: (err) => {
-              this.cs.HandleError(err);
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.HandleError(err);
+              this.dbDataTable.SetFormReadonly(false)
             },
           });
         });
@@ -351,19 +349,19 @@ export class InvCtrlPeriodManagerComponent
                 this.isLoading = false;
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               } else {
-                this.bbxToastrService.show(
+                this.simpleToastrService.show(
                   d.errors!.join('\n'),
                   Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
+                  Constants.TOASTR_ERROR_5_SEC
                 );
                 this.isLoading = false;
+                this.dbDataTable.SetFormReadonly(false)
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               }
             },
             error: (err) => {
-              this.cs.HandleError(err);
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.HandleError(err);
+              this.dbDataTable.SetFormReadonly(false)
             },
           });
         });
@@ -395,10 +393,10 @@ export class InvCtrlPeriodManagerComponent
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -508,10 +506,10 @@ export class InvCtrlPeriodManagerComponent
             }
           }, 300);
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       },
@@ -552,10 +550,10 @@ export class InvCtrlPeriodManagerComponent
             }
           }, 300);
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       })

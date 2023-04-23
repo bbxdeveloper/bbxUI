@@ -384,7 +384,9 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.HandleError(err); },
+          error: (err) => {
+            this.HandleError(err);
+          },
         });
     }
   }

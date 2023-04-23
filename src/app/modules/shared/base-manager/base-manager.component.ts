@@ -80,6 +80,7 @@ export class BaseManagerComponent<T> {
     this.cs.HandleError(err, '', false);
     this.isLoading = false;
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.kbS.ClickCurrentElement()
   }
 
   HandleGridSelectionAfterDelete(indexOfDeleteItem: number): void {

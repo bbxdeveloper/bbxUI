@@ -278,6 +278,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                       Constants.TITLE_ERROR,
                       Constants.TOASTR_ERROR_5_SEC
                     );
+                    this.dbDataTable.SetFormReadonly(false)
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
                   }
                 })
                 .catch(err => {
@@ -291,10 +293,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 d.errors!.join('\n'),
                 d.errors!.join(', ')
               );
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);

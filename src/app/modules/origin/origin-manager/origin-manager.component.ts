@@ -144,7 +144,6 @@ export class OriginManagerComponent
         },
         error: (err) => {
           this.HandleError(err);
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           this.dbDataTable.SetFormReadonly(false)
         }
       });
