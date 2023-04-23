@@ -77,7 +77,7 @@ export class BaseManagerComponent<T> {
   }
   
   HandleError(err: any): void {
-    this.cs.HandleError(err);
+    this.cs.HandleError(err, '', false);
     this.isLoading = false;
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
