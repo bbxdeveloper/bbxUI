@@ -337,20 +337,19 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             );
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.bbxToastrService.show(
+            this.simpleToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
+              Constants.TOASTR_ERROR_5_SEC
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.HandleError(err);
           this.dbDataTable.SetFormReadonly(false)
         },
       });
@@ -386,20 +385,19 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
               Constants.TOASTR_SUCCESS_5_SEC
             );
           } else {
-            this.bbxToastrService.show(
+            this.simpleToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
+              Constants.TOASTR_ERROR_5_SEC
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {
-          this.cs.HandleError(err);
-          this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.HandleError(err);
           this.dbDataTable.SetFormReadonly(false)
         },
       });
@@ -431,19 +429,17 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
           error: (err) => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.HandleError(err);
           },
         });
     }
@@ -551,10 +547,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       },
@@ -583,10 +579,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       })

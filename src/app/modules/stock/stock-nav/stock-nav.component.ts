@@ -264,7 +264,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
                   this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 }
               },
-              error: (err) => { this.HandleError(err); },
+              error: (err) => {
+                this.HandleError(err);
+                this.dbDataTable.SetFormReadonly(false)
+              },
             });
           } else {
             this.bbxToastrService.show(
@@ -274,9 +277,14 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
-        error: (err) => { this.HandleError(err); },
+        error: (err) => {
+          this.HandleError(err);
+          this.dbDataTable.SetFormReadonly(false)
+        },
       });
     }
   }
