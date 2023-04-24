@@ -57,5 +57,7 @@ export interface ModelFieldDescriptor {
     /**
      * Autoselect on focus the first position after the last entered char.
      */
-    cursorAfterLastChar?: boolean
+    cursorAfterLastChar?: boolean,
+
+    checkIfReadonly?: (param: any) => boolean,
 }

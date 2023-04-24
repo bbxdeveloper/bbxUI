@@ -243,7 +243,6 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 break;
             // DELETE
             case this.KeySetting[Actions.Delete].KeyCode:
-            case this.KeySetting[Actions.Delete].AlternativeKeyCode:
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         this.ActionDelete();
@@ -515,7 +514,6 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 this.ActionPut();
                 break;
             }
-            case this.KeySetting[Actions.Delete].AlternativeKeyCode:
             case this.KeySetting[Actions.Delete].KeyCode: {
                 event.preventDefault();
                 event.stopPropagation();

@@ -485,7 +485,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       case this.KeySetting[Actions.Reset].KeyCode:
       case this.KeySetting[Actions.Save].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();
