@@ -708,7 +708,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         break;
       // DELETE
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
         break;
     }
   }

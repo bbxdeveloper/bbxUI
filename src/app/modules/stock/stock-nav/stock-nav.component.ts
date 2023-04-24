@@ -643,7 +643,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       case this.KeySetting[Actions.Reset].KeyCode:
       case this.KeySetting[Actions.Save].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.JumpToForm].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
