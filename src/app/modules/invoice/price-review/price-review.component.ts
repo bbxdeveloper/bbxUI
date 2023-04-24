@@ -123,7 +123,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     {
       label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "", fReadonly: false,
-      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number',
+      checkIfReadonly: (row: TreeGridNode<InvoiceLine>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
     },
     {
       label: 'Nettó', objectKey: 'rowNetPrice', colKey: 'rowNetPrice',
