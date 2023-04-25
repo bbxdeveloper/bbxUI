@@ -27,6 +27,7 @@ import { ReceiptDataFormComponent } from './receipt-data-form/receipt-data-form.
 import { CorrectionInvoiceComponent } from './correction-invoice/correction-invoice.component';
 import { CorrectionInvoiceSelectionDialogComponent } from './correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { InvoiceItemsDialogComponent } from './invoice-items-dialog/invoice-items-dialog.component';
+import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
 
 
 
@@ -50,6 +51,7 @@ import { InvoiceItemsDialogComponent } from './invoice-items-dialog/invoice-item
     CorrectionInvoiceComponent,
     CorrectionInvoiceSelectionDialogComponent,
     InvoiceItemsDialogComponent,
+    InvoiceFormComponent,
   ],
   imports: [
     CommonModule,

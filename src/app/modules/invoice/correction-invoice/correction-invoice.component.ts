@@ -19,17 +19,17 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
-import { OutGoingInvoiceFullData } from '../models/CreateOutgoingInvoiceRequest';
+import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { GetUpdatedKeySettings } from 'src/assets/util/KeyBindings';
 import { SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
-import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
-import { InvoiceItemsDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
+import { InvoiceItemsDialogTableSettings } from 'src/assets/model/TableSettings';
 import { isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InvoiceItemsDialogComponent } from '../invoice-items-dialog/invoice-items-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { NegativeQuantityValidator } from '../models/SummaryInvoiceMode';
+import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -45,14 +45,18 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   outGoingInvoiceData!: OutGoingInvoiceFullData
 
+  public invoiceFormData!: InvoiceFormData
+
   public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
 
-  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
+  private workNumbers: string[] = []
+
+  override colsToIgnore: string[] = ["lineDescription", "lineNetAmount", "lineGrossAmount",
     "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded']
   private requiredCols: string[] = ['productCode', 'quantity']
   override allColumns = [
     'productCode',
-    'productDescription',
+    'lineDescription',
     'quantity',
     'unitOfMeasureX',
     'unitPrice',
@@ -68,7 +72,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
-      label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
+      label: 'Megnevezés', objectKey: 'lineDescription', colKey: 'lineDescription',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "70%", textAlign: "left",
     },
@@ -98,6 +102,10 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
   ]
+
+  get editDisabled() {
+    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
+  }
 
   constructor(
     dialogService: NbDialogService,
@@ -180,6 +188,15 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       thirdStateTaxId: invoice.customerThirdStateTaxId,
       comment: invoice.CustomerComment,
     } as Customer
+
+    this.invoiceFormData = {
+      paymentMethod: invoice.paymentMethod,
+      paymentDate: invoice.paymentDate,
+      invoiceDeliveryDate: invoice.invoiceDeliveryDate,
+      invoiceIssueDate: invoice.invoiceIssueDate,
+      // invoiceOrdinal: invoice.o
+      notice: invoice.notice,
+    } as InvoiceFormData
 
     this.selectedInvoiceId = invoice.id
   }
@@ -273,7 +290,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.RefreshTable()
 
-    // this.UpdateOutGoingData()
+    this.UpdateOutGoingData()
 
     if (notes.length === 1) {
       const index = this.dbData.findIndex(x => x.data.id === notes[0].id)
@@ -286,26 +303,69 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   private generateWorkNumbers(): void {
-    // const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
+    const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
 
-    // const noticeControl = this.outInvForm.get('notice')
-    // const existingNotice = noticeControl?.value as string ?? ''
+    const existingNotice = this.invoiceFormData.notice
 
-    // const existingWorkNumbers = !!this.workNumbers ? workNumbersAsString() : ''
-    // const otherNotes = existingNotice
-    //   .substring(existingWorkNumbers.length)
-    //   .trim()
+    const existingWorkNumbers = !!this.workNumbers ? workNumbersAsString() : ''
+    const otherNotes = existingNotice
+      .substring(existingWorkNumbers.length)
+      .trim()
 
-    // let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
-    //   .map(x => x.data.workNumber)
+    let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
+      .map(x => x.data.workNumber)
 
-    // this.workNumbers = [...new Set(workNumbers)]
+    this.workNumbers = [...new Set(workNumbers)]
 
-    // const notice = this.workNumbers.length > 0
-    //   ? workNumbersAsString() + ' ' + otherNotes
-    //   : otherNotes
+    const notice = this.workNumbers.length > 0
+      ? workNumbersAsString() + ' ' + otherNotes
+      : otherNotes
 
-    // noticeControl?.setValue(notice.trim())
+    this.invoiceFormData.notice = notice.trim()
+  }
+
+  private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
+    this.outGoingInvoiceData.customerID = this.buyerData.id;
+
+    // // if (this.mode.incoming) {
+    // //   this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
+    // // }
+
+    this.outGoingInvoiceData.notice = this.invoiceFormData.notice;
+
+    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceFormData.invoiceDeliveryDate
+    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceFormData.invoiceIssueDate
+    this.outGoingInvoiceData.paymentDate = this.invoiceFormData.paymentDate
+
+    // this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
+    //   ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
+    //   : this.mode.paymentMethod
+
+    this.outGoingInvoiceData.warehouseCode = '1';
+
+    this.outGoingInvoiceData.invoiceNetAmount = 0;
+    this.outGoingInvoiceData.invoiceVatAmount = 0;
+
+    this.RecalcNetAndVat();
+
+    for (let i = 0; i < this.outGoingInvoiceData.invoiceLines.length; i++) {
+      this.outGoingInvoiceData.invoiceLines[i].unitPrice = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].unitPrice);
+      this.outGoingInvoiceData.invoiceLines[i].quantity = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
+      this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
+    }
+
+    this.outGoingInvoiceData.currencyCode = 'HUF';
+    this.outGoingInvoiceData.exchangeRate = 1;
+
+    this.outGoingInvoiceData.warehouseCode = '001';
+
+    // this.outGoingInvoiceData.incoming = this.mode.incoming;
+    // this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
+    // this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
+
+    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceFormData.paymentMethod)
+
+    return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
 
   public ChooseDataForCustomerForm(): void {}

@@ -12,6 +12,8 @@
 
     <app-invoice-customer-form right [customer]="buyerData" title="VEVŐ"></app-invoice-customer-form>
 
+    <app-invoice-form middle [editDisabled]="editDisabled" [invoiceFormData]="invoiceFormData"></app-invoice-form>
+
     <nb-card bottom>
         <nb-card-body>
             <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"

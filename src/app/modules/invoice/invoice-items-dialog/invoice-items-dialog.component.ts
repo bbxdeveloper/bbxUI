@@ -6,7 +6,6 @@ import { SelectTableDialogComponent } from '../../shared/select-table-dialog/sel
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
-import { Router } from '@angular/router';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
