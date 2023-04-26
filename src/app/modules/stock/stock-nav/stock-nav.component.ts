@@ -264,7 +264,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
                   this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 }
               },
-              error: (err) => { this.HandleError(err); },
+              error: (err) => {
+                this.HandleError(err);
+                this.dbDataTable.SetFormReadonly(false)
+              },
             });
           } else {
             this.bbxToastrService.show(
@@ -274,9 +277,14 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
-        error: (err) => { this.HandleError(err); },
+        error: (err) => {
+          this.HandleError(err);
+          this.dbDataTable.SetFormReadonly(false)
+        },
       });
     }
   }
@@ -643,7 +651,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       case this.KeySetting[Actions.Reset].KeyCode:
       case this.KeySetting[Actions.Save].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.JumpToForm].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
