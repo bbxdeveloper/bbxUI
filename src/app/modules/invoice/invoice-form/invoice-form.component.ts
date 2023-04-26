@@ -1,21 +1,23 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { validDate } from 'src/assets/model/Validators';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
-import { TileCssClass } from 'src/assets/model/navigation/Navigatable';
+import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PaymentMethod } from '../models/PaymentMethod';
 import { InvoiceService } from '../services/invoice.service';
 import { CommonService } from 'src/app/services/common.service';
 import { InvoiceFormData } from './InvoiceFormData';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
 
 @Component({
   selector: 'app-invoice-form',
   templateUrl: './invoice-form.component.html',
   styleUrls: ['./invoice-form.component.scss']
 })
-export class InvoiceFormComponent implements OnInit {
+export class InvoiceFormComponent implements OnInit, IInlineManager {
   @Input()
   public editDisabled!: boolean
 
@@ -36,8 +38,22 @@ export class InvoiceFormComponent implements OnInit {
     controls['notice'].setValue(invoiceFormData.notice)
   }
   public get invoiceFormData() {
-    return {} as InvoiceFormData
+    const controls = this.outInvForm.controls
+
+    const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod'].value)?.value
+    const formData = {
+      paymentMethod: paymentMethod,
+      invoiceDeliveryDate: controls['invoiceDeliveryDate'].value,
+      invoiceIssueDate: controls['invoiceIssueDate'].value,
+      paymentDate: controls['paymentDate'].value,
+      invoiceOrdinal: controls['invoiceOrdinal'].value,
+      notice: controls['notice'].value
+    } as InvoiceFormData
+    return formData
   }
+
+  @Output()
+  public invoiceFormDataChange = new EventEmitter<InvoiceFormData>(false)
 
   public tileCssClass = TileCssClass
 
@@ -73,8 +89,9 @@ export class InvoiceFormComponent implements OnInit {
   constructor(
     private readonly invoiceService: InvoiceService,
     private readonly commonService: CommonService,
+    private readonly keyboardService: KeyboardNavigationService,
+    private readonly cdref: ChangeDetectorRef,
   ) {
-    // debugger
     this.outInvForm = new FormGroup({
       paymentMethod: new FormControl('', [Validators.required]),
       invoiceDeliveryDate: new FormControl('', [
@@ -95,6 +112,35 @@ export class InvoiceFormComponent implements OnInit {
       invoiceOrdinal: new FormControl('', []), // in post response
       notice: new FormControl('', []),
     });
+
+    this.outInvForm.valueChanges.subscribe(value => {
+      const invoiceFormData = {
+        notice: value.notice
+      } as InvoiceFormData
+      return this.invoiceFormDataChange.emit(invoiceFormData);
+    })
+  }
+
+  public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public ChooseDataForCustomerForm(): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public RefreshData(): void {
+    throw new Error('Method not implemented.');
+  }
+
+  IsTableFocused: boolean = false
+
+  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public RecalcNetAndVat(): void {
+    throw new Error('Method not implemented.');
   }
 
   private validateInvoiceDeliveryDate(control: AbstractControl): any {
@@ -134,6 +180,17 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   public ngOnInit(): void {
+    this.outInvFormNav = new InlineTableNavigatableForm(
+      this.outInvForm,
+      this.keyboardService,
+      this.cdref,
+      [],
+      this.outInvFormId,
+      AttachDirection.DOWN,
+      this
+    )
+    this.outInvFormNav.OuterJump = true
+
     const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);

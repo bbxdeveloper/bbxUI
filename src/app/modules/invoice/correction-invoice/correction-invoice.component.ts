@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { CorrectionInvoiceSelectionDialogComponent } from '../correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { Invoice } from '../models/Invoice';
@@ -30,13 +30,15 @@ import { InvoiceItemsDialogComponent } from '../invoice-items-dialog/invoice-ite
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { NegativeQuantityValidator } from '../models/SummaryInvoiceMode';
 import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { InvoiceFormComponent } from '../invoice-form/invoice-form.component';
 
 @Component({
   selector: 'app-correction-invoice',
   templateUrl: './correction-invoice.component.html',
   styleUrls: ['./correction-invoice.component.scss']
 })
-export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, OnDestroy, IInlineManager {
+export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, OnDestroy, AfterViewInit, IInlineManager {
   public senderData: Customer
 
   public buyerData: Customer
@@ -44,6 +46,9 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   private selectedInvoiceId?: number
 
   outGoingInvoiceData!: OutGoingInvoiceFullData
+
+  @ViewChild('invoiceForm')
+  public invoiceForm!: InvoiceFormComponent
 
   public invoiceFormData!: InvoiceFormData
 
@@ -140,10 +145,14 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.dbData = []
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData)
+
+    this.outGoingInvoiceData = new OutGoingInvoiceFullData()
   }
 
-  public ngOnInit(): void {
-    this.isLoading = false
+  public ngAfterViewInit(): void {
+    console.log(this)
+
+    this.invoiceForm.outInvFormNav.GenerateAndSetNavMatrices(true)
 
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
@@ -157,9 +166,15 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       this,
     )
 
+    this.dbDataTable.OuterJump = true
+
     this.dbDataTable.Setup(this.dbData, this.dbDataDataSrc, this.allColumns, this.colDefs, this.colsToIgnore, 'PRODUCT')
     this.dbDataTable.GenerateAndSetNavMatrices(true)
     this.dbDataTable.PushFooterCommandList()
+  }
+
+  public ngOnInit(): void {
+    this.isLoading = false
 
     this.dialogService
       .open(CorrectionInvoiceSelectionDialogComponent)
@@ -286,7 +301,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       return 0
     })
 
-    this.generateWorkNumbers()
+    // this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData)
 
     this.RefreshTable()
 
@@ -302,28 +317,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     }
   }
 
-  private generateWorkNumbers(): void {
-    const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
-
-    const existingNotice = this.invoiceFormData.notice
-
-    const existingWorkNumbers = !!this.workNumbers ? workNumbersAsString() : ''
-    const otherNotes = existingNotice
-      .substring(existingWorkNumbers.length)
-      .trim()
-
-    let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
-      .map(x => x.data.workNumber)
-
-    this.workNumbers = [...new Set(workNumbers)]
-
-    const notice = this.workNumbers.length > 0
-      ? workNumbersAsString() + ' ' + otherNotes
-      : otherNotes
-
-    this.invoiceFormData.notice = notice.trim()
-  }
-
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
 
@@ -331,11 +324,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     // //   this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
     // // }
 
-    this.outGoingInvoiceData.notice = this.invoiceFormData.notice;
+    this.outGoingInvoiceData.notice = this.invoiceForm!.invoiceFormData!.notice;
 
-    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceFormData.invoiceDeliveryDate
-    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceFormData.invoiceIssueDate
-    this.outGoingInvoiceData.paymentDate = this.invoiceFormData.paymentDate
+    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceForm!.invoiceFormData!.invoiceDeliveryDate
+    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceForm!.invoiceFormData!.invoiceIssueDate
+    this.outGoingInvoiceData.paymentDate = this.invoiceForm!.invoiceFormData!.paymentDate
 
     // this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
     //   ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
@@ -354,7 +347,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
 
-    this.outGoingInvoiceData.currencyCode = 'HUF';
+    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF
     this.outGoingInvoiceData.exchangeRate = 1;
 
     this.outGoingInvoiceData.warehouseCode = '001';
@@ -363,7 +356,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     // this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
     // this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
-    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceFormData.paymentMethod)
+    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm!.invoiceFormData!.paymentMethod)
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
@@ -375,6 +368,35 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   public RecalcNetAndVat(): void {
+    this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
+
+    this.outGoingInvoiceData.invoiceNetAmount =
+      this.outGoingInvoiceData.invoiceLines
+        .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
+        .reduce((sum, current) => sum + current, 0);
+
+    this.outGoingInvoiceData.invoiceVatAmount =
+      this.outGoingInvoiceData.invoiceLines
+        .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
+        .reduce((sum, current) => sum + current, 0);
+
+    // let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    //   HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
+
+    // this.outGoingInvoiceData.lineGrossAmount =
+    //   this.outGoingInvoiceData.invoiceLines
+    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
+    //     .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
+
+    // if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+    //   this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
+    // } else {
+    //   this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
+    // }
+
+    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
+    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
 
   }
 
@@ -434,8 +456,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
           _event.preventDefault();
           HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
-
-            this.generateWorkNumbers()
           });
           break;
         }

@@ -12,7 +12,7 @@
 
     <app-invoice-customer-form right [customer]="buyerData" title="VEVŐ"></app-invoice-customer-form>
 
-    <app-invoice-form middle [editDisabled]="editDisabled" [invoiceFormData]="invoiceFormData"></app-invoice-form>
+    <app-invoice-form #invoiceForm middle [editDisabled]="editDisabled" [invoiceFormData]="invoiceFormData"></app-invoice-form>
 
     <nb-card bottom>
         <nb-card-body>
@@ -23,14 +23,14 @@
                 (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
             </app-inline-editable-table>
         </nb-card-body>
-        <!-- <nb-card-footer class="invoice-table-statistics">
+        <nb-card-footer class="invoice-table-statistics">
             <table class="table-statistics-net-vat-gross">
                 <tr>
                     <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
                     <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
                 </tr>
             </table>
-        </nb-card-footer> -->
+        </nb-card-footer>
     </nb-card>
 
 </app-invoice-layout>

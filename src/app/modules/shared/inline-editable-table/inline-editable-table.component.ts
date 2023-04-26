@@ -50,7 +50,7 @@ export const SelectFirstCharClass = 'select-first-char';
 })
 export class InlineEditableTableComponent implements OnInit {
   @ViewChild(NbPopoverDirective) popover?: NbPopoverDirective;
-  
+
   @Input() dbDataTable?: InlineEditableNavigatableTable<any>;
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
@@ -152,7 +152,7 @@ export class InlineEditableTableComponent implements OnInit {
     }
     this.dbDataTable?.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable);
   }
-  
+
   CheckBoxKeyUp(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
                     inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
     if (environment.inlineEditableTableKeyboardDebug) console.log(this.CheckBoxKeyUp.name, event)
