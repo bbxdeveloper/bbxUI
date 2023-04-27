@@ -102,9 +102,6 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
         .filter(x => x.quantity > 0)
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
-      const bvvv = new InvoiceLine()
-      debugger
-
       this.dbData.forEach(x => x.data.limit = -x.data.quantity)
       this.dbDataSource.setData(this.dbData)
 

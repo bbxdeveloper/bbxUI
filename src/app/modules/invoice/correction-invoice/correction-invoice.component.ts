@@ -54,8 +54,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
 
-  private workNumbers: string[] = []
-
   override colsToIgnore: string[] = ["lineDescription", "lineNetAmount", "lineGrossAmount",
     "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded']
   private requiredCols: string[] = ['productCode', 'quantity']
