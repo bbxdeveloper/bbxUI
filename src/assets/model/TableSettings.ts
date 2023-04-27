@@ -564,7 +564,7 @@ export module InvoiceItemsDialogTableSettings {
             fRequired: true,
             mask: '',
             colWidth: '150px',
-            textAlign: 'center',
+            textAlign: 'right',
             navMatrixCssClass: TileCssClass,
         },
     ];
