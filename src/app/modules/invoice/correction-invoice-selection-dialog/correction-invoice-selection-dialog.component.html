@@ -3,7 +3,7 @@
         <span>Javítandó számla</span>
     </nb-card-header>
     <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
-        <form [id]="formId" [formGroup]="invoiceForm" #formDirective="ngForm" (click)="navigateable.HandleFormClick()" (focusout)="navigateable.HandleFormFocusOut()">
+        <form [id]="formId" [formGroup]="invoiceForm" #formDirective="ngForm">
             <nb-form-field (keydown.enter)="moveToButtons($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>

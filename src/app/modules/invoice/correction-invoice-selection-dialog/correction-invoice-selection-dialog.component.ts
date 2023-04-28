@@ -14,6 +14,8 @@ import { Invoice } from '../models/Invoice';
 import { NbDialogRef } from '@nebular/theme';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
 import { debounce } from 'src/assets/util/debounce';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -28,7 +30,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
   public TileCssClass = TileCssClass
 
   public invoiceForm: FormGroup
-  public navigateable: FlatDesignNoTableNavigatableForm
+  public navigateable: NavigatableForm
   public formId = 'CorrectionInvoiceSelectionDialogComponentForm'
 
   public get invoiceNumber() {
@@ -57,19 +59,15 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     this.invoiceForm.controls['invoiceNumber'].valueChanges
       .subscribe(this.onInvoiceNumberChanged.bind(this))
 
-    this.navigateable = new FlatDesignNoTableNavigatableForm(
+    this.navigateable = new NavigatableForm(
       this.invoiceForm,
       this.keyboardService,
       this.cdref,
       [],
       this.formId,
       AttachDirection.UP,
-      [],
-      this.sidebarService,
-      this.footerService
+      {} as IInlineManager
     )
-
-    this.navigateable.IsFootersEnabled = true
 
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
   }
@@ -126,7 +124,8 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     this.navigateable.OuterJump = true
     this.OuterJump = true
 
-    this.navigateable.AfterViewInitSetup()
+
+    this.navigateable.GenerateAndSetNavMatrices(true)
 
     this.keyboardService.SelectFirstTile()
     this.keyboardService.Jump(AttachDirection.UP, true)
