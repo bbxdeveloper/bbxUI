@@ -58,25 +58,25 @@
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Nettó érték</label>
-                    <input nbInput type="text" formControlName="invoiceNetAmount" readonly>
+                    <input nbInput type="text" formControlName="invoiceNetAmount" [inputMask]="numberInputMask" placeholder="0.00" readonly>
                 </div>
             </nb-form-field>
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Áfa értéke</label>
-                    <input nbInput type="text" formControlName="invoiceVatAmount" readonly>
+                    <input nbInput type="text" formControlName="invoiceVatAmount" [inputMask]="numberInputMask" placeholder="0.00" readonly>
                 </div>
             </nb-form-field>
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Bruttó érték</label>
-                    <input nbInput type="text" formControlName="invoiceGrossAmount" readonly>
+                    <input nbInput type="text" formControlName="invoiceGrossAmount" [inputMask]="numberInputMask" placeholder="0.00" readonly>
                 </div>
             </nb-form-field>
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
-                    <input nbInput type="text" formControlName="notice" readonly>
+                    <input nbInput type="text" formControlName="notice" [inputMask]="numberInputMask" placeholder="0.00" readonly>
                 </div>
             </nb-form-field>
         </form>
