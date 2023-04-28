@@ -259,13 +259,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
     notes.forEach(note => {
-      // const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
-      // const relDeliveryDate = new Date(note.relDeliveryDate)
-
-      // if (relDeliveryDate < invoiceDeliveryDate) {
-      //   this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
-      // }
-
       note.quantity = -note.quantity
 
       note.Save()
@@ -298,8 +291,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
       return 0
     })
-
-    // this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData)
 
     this.RefreshTable()
 
@@ -366,26 +357,23 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   public RecalcNetAndVat(): void {
-    this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
+    this.outGoingInvoiceData.invoiceLines = this.dbData
+      .filter(x => !x.data.IsUnfinished())
+      .map(x => x.data);
 
-    this.outGoingInvoiceData.invoiceNetAmount =
-      this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
-        .reduce((sum, current) => sum + current, 0);
+    this.outGoingInvoiceData.invoiceNetAmount = this.outGoingInvoiceData.invoiceLines
+      .map(x => HelperFunctions.ToFloat(x.rowNetPrice))
+      .reduce((sum, current) => sum + current, 0);
 
-    this.outGoingInvoiceData.invoiceVatAmount =
-      this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
-        .reduce((sum, current) => sum + current, 0);
+
+    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceLines
+      .map(x => x.rowGrossPrice)
+      .reduce((sum, current) => sum + current, 0);
+
+    // this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     // let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
     //   HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-
-    // this.outGoingInvoiceData.lineGrossAmount =
-    //   this.outGoingInvoiceData.invoiceLines
-    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
-    //     .reduce((sum, current) => sum + current, 0);
-    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     // if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
     //   this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
@@ -395,7 +383,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
-
   }
 
   public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
@@ -408,6 +395,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         .validate(changedData.quantity, changedData.limit)
 
       if (!validationResult) {
+        changedData.quantity = parseInt(changedData.quantity)
         changedData.Save()
         return
       }

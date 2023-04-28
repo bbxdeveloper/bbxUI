@@ -91,6 +91,7 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
       const data = await this.invoiceService.Get(request)
 
       data.invoiceLines.forEach(datum => {
+        datum.vatRate = (datum as any).vatPercentage
         const checkedNote = this.checkedLineItems.find(x => datum.id === x.id)
 
         if (checkedNote) {
