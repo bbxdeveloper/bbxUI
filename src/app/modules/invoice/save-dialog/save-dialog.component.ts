@@ -15,12 +15,15 @@ import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { Price } from 'src/assets/util/Price';
+import { LoggerService } from 'src/app/services/logger.service';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
 ];
 
 interface VatRateRow { Id: string, Value: number };
+
+const logTag: string = 'InvSaveDlgLogs'
 
 @Component({
   selector: 'app-save-dialog',
@@ -101,7 +104,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SaveDialogComponent>,
     private kBs: KeyboardNavigationService,
-    private invoiceStats: InvoiceStatisticsService
+    private invoiceStats: InvoiceStatisticsService,
+    private loggerService: LoggerService
   ) {
     super();
     this.Setup();
@@ -147,10 +151,13 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   private recalc(actualDiscount: number): void {
+    // this.logi(`actualDiscount: ${actualDiscount}`)
+
     // update discount
     this.data.invoiceDiscountPercent = actualDiscount;
-    const invoiceDiscountMultiplier = HelperFunctions.Round2(actualDiscount / 100, 1);
-    // this.sumForm.controls['invoiceDiscountPercent'].setValue(this.data.invoiceDiscountPercent);
+
+    const invoiceDiscountMultiplier = actualDiscount / 100.0
+    // this.logi(`invoiceDiscountMultiplier: ${invoiceDiscountMultiplier}`)
 
     // calc rate summary + prepare discountedData for lines
     this.prepareVatRateCodes(invoiceDiscountMultiplier);
@@ -297,5 +304,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.closedManually = true;
     this.kBs.RemoveWidgetNavigatable();
     this.dialogRef.close(answer ? this.data : undefined);
+  }
+
+  logi(msg: string): void {
+    this.loggerService.info(msg, logTag)
   }
 }

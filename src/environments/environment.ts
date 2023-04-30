@@ -29,7 +29,9 @@ export const environment = {
   inlineEditableTableNavigatableFormLog: false,
   inlineEditableTableKeyboardDebug: true,
 
-  offerLineLog: false
+  offerLineLog: false,
+
+  InvSaveDlgLogs: true,
 };
 
 /*

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { environment } from 'src/environments/environment';
 import { PrintAndDownloadService } from './print-and-download.service';
 
@@ -29,24 +30,28 @@ export class LoggerService {
 
   constructor() { }
 
-  info(msg: string): void {
-    this.logWith(LogLevel.Info, msg)
+  info(msg: string, environmentFlag: string = ''): void {
+    this.logWith(LogLevel.Info, msg, environmentFlag)
   }
 
-  warn(msg: string): void {
-    this.logWith(LogLevel.Warn, msg)
+  warn(msg: string, environmentFlag: string = ''): void {
+    this.logWith(LogLevel.Warn, msg, environmentFlag)
   }
 
-  error(msg: string): void {
-    this.logWith(LogLevel.Error, msg)
+  error(msg: string, environmentFlag: string = ''): void {
+    this.logWith(LogLevel.Error, msg, environmentFlag)
   }
 
-  trace(msg: string): void {
-    this.logWith(LogLevel.Trace, msg)
+  trace(msg: string, environmentFlag: string = ''): void {
+    this.logWith(LogLevel.Trace, msg, environmentFlag)
   }
 
-  private logWith(level: any, msg: string): void {
+  private logWith(level: any, msg: string, environmentFlag: string = ''): void {
     if (environment.production) {
+      return
+    }
+
+    if (Object.keys(environment).includes(environmentFlag) && !(environment as any)[environmentFlag]) {
       return
     }
 
