@@ -18,10 +18,9 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, GetFooterCommandListFromKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, CorrectionInvoiceKeySettings, GetFooterCommandListFromKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { GetUpdatedKeySettings } from 'src/assets/util/KeyBindings';
-import { SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { InvoiceItemsDialogTableSettings } from 'src/assets/model/TableSettings';
 import { isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
@@ -36,6 +35,7 @@ import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -47,7 +47,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public buyerData: Customer
 
-  // private selectedInvoiceId?: number
+  private KeySettings: Constants.KeySettingsDct = CorrectionInvoiceKeySettings
 
   outGoingInvoiceData!: OutGoingInvoiceFullData
 
@@ -55,8 +55,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   public invoiceForm!: InvoiceFormComponent
 
   public invoiceFormData!: InvoiceFormData
-
-  public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
 
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", 'unitPrice', 'rowNetPrice', 'rowGrossPriceRounded']
   private requiredCols: string[] = ['productCode', 'quantity']
@@ -126,8 +124,13 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly bbxToasterService: BbxToastrService,
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
+    private readonly printAndDownloadService: PrintAndDownloadService
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
+
+    const commands = GetFooterCommandListFromKeySettings(this.KeySettings)
+    footerService.pushCommands(commands)
+
 
     const defaultCustomerData = {
       customerName: '',
@@ -218,7 +221,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       paymentDate: invoice.paymentDate,
       invoiceDeliveryDate: invoice.invoiceDeliveryDate,
       invoiceIssueDate: invoice.invoiceIssueDate,
-      // invoiceOrdinal: invoice.o
       notice: invoice.notice,
     } as InvoiceFormData
 
@@ -237,11 +239,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
       if (event.Focused) {
-        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
+        let k = GetUpdatedKeySettings(this.KeySettings, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
         this.commands = GetFooterCommandListFromKeySettings(k);
         this.fS.pushCommands(this.commands);
       } else {
-        let k = this.KeySetting;
+        let k = this.KeySettings;
         this.commands = GetFooterCommandListFromKeySettings(k);
         this.fS.pushCommands(this.commands);
       }
@@ -429,7 +431,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
-        data: this.outGoingInvoiceData
+        data: this.outGoingInvoiceData,
+        isDiscountDisabled: true,
       }
     })
 
@@ -444,6 +447,22 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         const request = this.UpdateOutGoingData()
 
         await this.invoiceService.createOutgoingAsync(request)
+
+        this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
+
+        await this.printAndDownloadService.openPrintDialog({
+          DialogTitle: 'Számla Nyomtatása',
+          DefaultCopies: 1,
+          MsgError: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+          MsgCancel: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+          MsgFinish: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+          Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+          Reset: this.DelayedReset.bind(this),
+          ReportParams: {
+            "id": res.data?.id,
+            "copies": 1 // Ki lesz töltve dialog alapján
+          } as Constants.Dct
+        } as PrintDialogRequest);
       }
       catch (error) {
         this.cs.HandleError(error)
@@ -456,7 +475,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   @HostListener('window:keydown', ['$event'])
   public onFunctionKeyDown(event: KeyboardEvent) {
-    if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+    if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySettings[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -477,7 +496,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
           HelperFunctions.StopEvent(_event);
           return;
         }
-        case this.KeySetting[Actions.Delete].KeyCode: {
+        case this.KeySettings[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
             return;
@@ -488,7 +507,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
           });
           break;
         }
-        case this.KeySetting[Actions.Search].KeyCode: {
+        case this.KeySettings[Actions.Search].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
             return;
@@ -498,7 +517,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
           break;
         }
         case KeyBindings.Enter: {
-          if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
+          if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySettings[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
             if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
               _event.preventDefault();
               _event.stopImmediatePropagation();

@@ -40,6 +40,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   @Input() Incoming: boolean = false;
   @Input() Delivery: boolean = false;
   @Input() isDiscountVisible: boolean = true
+  @Input() isDiscountDisabled: boolean = false
   @Input() forceDisableOutgoingDelivery: boolean = false
   @Input() negativeDiscount: boolean = false
 
