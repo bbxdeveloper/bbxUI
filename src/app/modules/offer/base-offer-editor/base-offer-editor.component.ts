@@ -217,6 +217,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   // CountryCode
   countryCodes: CountryCode[] = [];
 
+  isOfferEditor: boolean = false
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -494,6 +496,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         this.kbS.SetCurrentNavigatable(this.buyerFormNav);
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
+
+        if (this.isOfferEditor) {
+          this.SwitchUnitPriceAll()
+        }
       }
     });
   }
