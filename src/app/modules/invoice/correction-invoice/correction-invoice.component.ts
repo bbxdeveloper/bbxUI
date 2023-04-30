@@ -33,6 +33,9 @@ import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceFormComponent } from '../invoice-form/invoice-form.component';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
+import { InvoiceService } from '../services/invoice.service';
+import { InvoiceCategory } from '../models/InvoiceCategory';
+import { InvoiceTypes } from '../models/InvoiceTypes';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -44,7 +47,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public buyerData: Customer
 
-  private selectedInvoiceId?: number
+  // private selectedInvoiceId?: number
 
   outGoingInvoiceData!: OutGoingInvoiceFullData
 
@@ -115,13 +118,14 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     keyboardService: KeyboardNavigationService,
     footerService: FooterService,
     commonService: CommonService,
-    statusService: StatusService,
+    private readonly statusService: StatusService,
     bbxSidebarService: BbxSidebarService,
     keyboardHelperService: KeyboardHelperService,
     router: Router,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     private readonly bbxToasterService: BbxToastrService,
     private readonly cdref: ChangeDetectorRef,
+    private readonly invoiceService: InvoiceService,
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
 
@@ -198,6 +202,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     } as Customer
 
     this.buyerData = {
+      id: invoice.customerID,
       customerName: invoice.customerName,
       postalCode: invoice.customerPostalCode,
       city: invoice.customerCity,
@@ -217,7 +222,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       notice: invoice.notice,
     } as InvoiceFormData
 
-    this.selectedInvoiceId = invoice.id
+    this.outGoingInvoiceData.originalInvoiceID = invoice.id
   }
 
   public ngOnDestroy(): void {
@@ -252,7 +257,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.dialogService.open(InvoiceItemsDialogComponent, {
       context: {
-        invoiceId: this.selectedInvoiceId,
+        invoiceId: this.outGoingInvoiceData.originalInvoiceID,
         checkedLineItems: this.dbData.map(x => x.data),
         allColumns: InvoiceItemsDialogTableSettings.AllColumns,
         colDefs: InvoiceItemsDialogTableSettings.ColDefs,
@@ -325,11 +330,9 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.invoiceIssueDate = this.invoiceForm!.invoiceFormData!.invoiceIssueDate
     this.outGoingInvoiceData.paymentDate = this.invoiceForm!.invoiceFormData!.paymentDate
 
-    // this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
-    //   ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
-    //   : this.mode.paymentMethod
+    this.outGoingInvoiceData.paymentMethod = this.invoiceForm!.invoiceFormData!.paymentMethod
 
-    this.outGoingInvoiceData.warehouseCode = '1';
+    this.outGoingInvoiceData.warehouseCode = '001';
 
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;
@@ -347,9 +350,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.warehouseCode = '001';
 
-    // this.outGoingInvoiceData.incoming = this.mode.incoming;
-    // this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
-    // this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
+    this.outGoingInvoiceData.incoming = false
+    this.outGoingInvoiceData.invoiceType = InvoiceTypes.INV
+    this.outGoingInvoiceData.invoiceCategory = InvoiceCategory.NORMAL
+
+    this.outGoingInvoiceData.correction = true
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm!.invoiceFormData!.paymentMethod)
 
@@ -369,7 +374,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.invoiceNetAmount = this.outGoingInvoiceData.invoiceLines
       .map(x => HelperFunctions.ToFloat(x.rowNetPrice))
       .reduce((sum, current) => sum + current, 0);
-
 
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceLines
       .map(x => x.rowGrossPrice)
@@ -423,8 +427,24 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       }
     })
 
-    dialogRef.onClose.subscribe(res => {
-      debugger
+    dialogRef.onClose.subscribe(async res => {
+      if (!res) {
+        return
+      }
+
+      try {
+        this.statusService.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+
+        const request = this.UpdateOutGoingData()
+
+        await this.invoiceService.createOutgoingAsync(request)
+      }
+      catch (error) {
+        this.cs.HandleError(error)
+      }
+      finally {
+        this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
+      }
     })
   }
 

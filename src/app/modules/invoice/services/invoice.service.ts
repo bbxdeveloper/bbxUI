@@ -58,11 +58,15 @@ export class InvoiceService {
     return firstValueFrom(response)
   }
 
-  CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLine>): Observable<CreateOutgoingInvoiceResponse> {
+  public CreateOutgoing(req: CreateOutgoingInvoiceRequest<InvoiceLine>): Observable<CreateOutgoingInvoiceResponse> {
     let options = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set("charset", "utf8")
     return this.http.post<CreateOutgoingInvoiceResponse>(this.BaseUrl, req.JsonStringify(), { headers: options });
+  }
+
+  public createOutgoingAsync(request: CreateOutgoingInvoiceRequest<InvoiceLine>): Promise<CreateOutgoingInvoiceResponse> {
+    return firstValueFrom(this.CreateOutgoing(request))
   }
 
   Update(req: UpdateInvoiceRequest): Observable<UpdateInvoiceResponse> {

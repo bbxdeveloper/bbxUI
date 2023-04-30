@@ -31,6 +31,7 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
     "workNumber"?: string;
     "priceReview"?: boolean;
     correction?: boolean;
+    originalInvoiceID: number = -1
 
     constructor(init?: Partial<CreateOutgoingInvoiceRequest>) {
         super()
@@ -43,7 +44,7 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
 export class OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<InvoiceLine> {
     @JsonIgnore
     "invoiceNetAmount": number; // amount * price (sum invoicelines) - status row
-    
+
     @JsonIgnore
     "invoiceVatAmount": number; // netamount * vat (sum invoicelines)
 
