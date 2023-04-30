@@ -32,6 +32,7 @@ import { NegativeQuantityValidator } from '../models/SummaryInvoiceMode';
 import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceFormComponent } from '../invoice-form/invoice-form.component';
+import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -54,8 +55,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
 
-  override colsToIgnore: string[] = ["lineDescription", "lineNetAmount", "lineGrossAmount",
-    "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded']
+  override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", 'unitPrice', 'rowNetPrice', 'rowGrossPriceRounded']
   private requiredCols: string[] = ['productCode', 'quantity']
   override allColumns = [
     'productCode',
@@ -145,6 +145,9 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData)
 
     this.outGoingInvoiceData = new OutGoingInvoiceFullData()
+    this.outGoingInvoiceData.invoiceNetAmount = 0
+    this.outGoingInvoiceData.invoiceVatAmount = 0
+    this.outGoingInvoiceData.lineGrossAmount = 0
   }
 
   public ngAfterViewInit(): void {
@@ -166,9 +169,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.dbDataTable.OuterJump = true
 
-    this.dbDataTable.Setup(this.dbData, this.dbDataDataSrc, this.allColumns, this.colDefs, this.colsToIgnore, 'PRODUCT')
+    this.cellClass = 'PRODUCT'
+
+    this.dbDataTable.Setup(this.dbData, this.dbDataDataSrc, this.allColumns, this.colDefs, this.colsToIgnore, this.cellClass)
     this.dbDataTable.GenerateAndSetNavMatrices(true)
     this.dbDataTable.PushFooterCommandList()
+
   }
 
   public ngOnInit(): void {
@@ -299,7 +305,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     if (notes.length === 1) {
       const index = this.dbData.findIndex(x => x.data.id === notes[0].id)
 
-      const elementId = 'PRODUCT-2-' + index
+      const elementId = this.cellClass + '-2-' + index
 
       this.kbS.SelectElement(elementId)
       this.kbS.ClickElement(elementId)
@@ -353,7 +359,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   public ChooseDataForCustomerForm(): void {}
 
   public RefreshData(): void {
-
   }
 
   public RecalcNetAndVat(): void {
@@ -411,6 +416,18 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     }
   }
 
+  private Save(): void {
+    const dialogRef = this.dialogService.open(SaveDialogComponent, {
+      context: {
+        data: this.outGoingInvoiceData
+      }
+    })
+
+    dialogRef.onClose.subscribe(res => {
+      debugger
+    })
+  }
+
   @HostListener('window:keydown', ['$event'])
   public onFunctionKeyDown(event: KeyboardEvent) {
     if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
@@ -462,7 +479,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
               _event.stopPropagation();
               return;
             }
-            // this.Save();
+            this.Save();
             return;
           }
           break;
