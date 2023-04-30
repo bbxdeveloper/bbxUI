@@ -273,7 +273,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       this.kBs.setEditMode(KeyboardModes.EDIT);
 
       setTimeout(() => {
-        HelperFunctions.SelectBeginningByClass('discount-input', 1);
+        HelperFunctions.SelectBeginningByClass('discount-input', 10);
       }, 100);
     }
   }
