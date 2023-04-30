@@ -55,6 +55,7 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
+  title: string = ''
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -262,8 +263,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     const path = params[0].path;
     if (path === 'invoice-income') {
       this.InvoiceType = InvoiceTypes.INC;
+      this.title = 'Be. Számla'
     } else if (path === 'incoming-delivery-note-income') {
       this.InvoiceType = InvoiceTypes.DNI;
+      this.title = 'Be. Szállítólevél'
     }
     this.InvoiceCategory = InvoiceCategory.NORMAL
     console.log("InvoiceType: ", this.InvoiceType);

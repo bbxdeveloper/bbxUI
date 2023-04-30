@@ -56,6 +56,8 @@ import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
+  title: string = ''
+
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   TileCssClass = TileCssClass;
@@ -221,6 +223,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
+      this.title = this.mode.title
 
       this.InitialSetup();
       this.isPageReady = true;
