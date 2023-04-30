@@ -50,7 +50,7 @@ export function BlankCustomer(): Customer {
         postalCode: '',
         city: '',
         additionalAddressDetail: '',
-        countryCode: '',
+        countryCode: 'Magyarország',
         comment: '',
         createTime: '',
         updateTime: '',
@@ -59,5 +59,6 @@ export function BlankCustomer(): Customer {
         taxpayerId: '',
         countyCode: '',
         email: '',
+        unitPriceType: 'Listaár'
     } as Customer;
 }

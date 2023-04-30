@@ -128,7 +128,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       customerBankAccountNumber: new FormControl('', []),
       taxpayerNumber: new FormControl('', []),
       thirdStateTaxId: new FormControl('', []),
-      countryCode: new FormControl(null, []),
+      countryCode: new FormControl('Magyarország', [Validators.required]),
       postalCode: new FormControl(undefined, []),
       city: new FormControl('', [Validators.required]),
       additionalAddressDetail: new FormControl('', [Validators.required]),
