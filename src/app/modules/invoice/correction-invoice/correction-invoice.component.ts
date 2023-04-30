@@ -379,16 +379,13 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       .map(x => x.rowGrossPrice)
       .reduce((sum, current) => sum + current, 0);
 
-    // this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
+    const paymentMethod = this.invoiceForm.invoiceFormData?.paymentMethod
 
-    // let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
-    //   HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-
-    // if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
-    //   this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
-    // } else {
-    //   this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
-    // }
+    if (paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
+    } else {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
+    }
 
     this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
@@ -416,11 +413,20 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
           Constants.TOASTR_ERROR
         )
       }, 0);
-      this.dbData[index].data.Restore('quantity')
+      this.dbData[index].data.Restore()
     }
   }
 
   private Save(): void {
+    if (this.invoiceForm.outInvForm.invalid) {
+      this.bbxToasterService.show(
+        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      )
+      return
+    }
+
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData
