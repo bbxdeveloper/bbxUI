@@ -876,9 +876,12 @@ export class KeyboardNavigationService {
             break;
           }
           case JumpPosPriority.same: {
+            this.p.x = this.p.x > this.maxCurrentWorldX ? this.maxCurrentWorldX : this.p.x
             break;
           }
         }
+      } else{
+        this.p.x = 0
       }
 
       if (select) {

@@ -12,6 +12,8 @@ export enum NavMatrixOrientation { NORMAL, ONLY_HORIZONTAL, ONLY_VERTICAL };
 export interface INavigatable {
     Matrix: string[][];
 
+    IsMultiColMatrixGenEnabled?: boolean;
+
     LastX?: number;
     LastY?: number;
 
