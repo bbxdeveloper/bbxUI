@@ -129,8 +129,8 @@ export class BaseManagerComponent<T> {
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionNew(data);
               }
+              this.ProcessActionNew(data);
             });
           } else {
             this.ProcessActionNew(data);
@@ -164,8 +164,8 @@ export class BaseManagerComponent<T> {
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionPut(data);
               }
+              this.ProcessActionPut(data);
             });
           } else {
             this.ProcessActionPut(data);

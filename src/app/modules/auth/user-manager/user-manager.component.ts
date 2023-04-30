@@ -189,8 +189,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionNew(data);
               }
+              this.ProcessActionNew(data);
             });
           } else {
             this.kbS.SetCurrentNavigatable(this.dbDataTable.flatDesignForm);
@@ -225,8 +225,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionPut(data);
               }
+              this.ProcessActionPut(data);
             });
           } else {
             this.kbS.SetCurrentNavigatable(this.dbDataTable.flatDesignForm);
