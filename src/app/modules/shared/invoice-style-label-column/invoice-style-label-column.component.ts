@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-invoice-style-label-column',
@@ -6,6 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./invoice-style-label-column.component.scss']
 })
 export class InvoiceStyleLabelColumnComponent implements OnInit {
+  @Input() title: string = ''
 
   constructor() { }
 

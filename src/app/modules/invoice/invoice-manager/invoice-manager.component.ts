@@ -53,6 +53,8 @@ import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
+  title: string = ''
+
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   TileCssClass = TileCssClass;
@@ -257,8 +259,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     const path = params[0].path;
     if (path === 'invoice') {
       this.InvoiceType = InvoiceTypes.INV;
+      this.title = 'Számla'
     } else if (path === 'outgoing-delivery-note-income') {
       this.InvoiceType = InvoiceTypes.DNO;
+      this.title = 'Szállítólevél '
     }
     this.InvoiceCategory = InvoiceCategory.NORMAL
     console.log("InvoiceType: ", this.InvoiceType);
