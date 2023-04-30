@@ -46,7 +46,7 @@
                 </app-form-control-error>
             </nb-form-field>
 
-            <app-bbx-combo-box [isReadonly]="isEditModeOff" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
+            <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
                 label="Országkód*" [data$]="countryCodeComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
@@ -83,8 +83,8 @@
                 <app-form-control-error [form]="currentForm" controlName="additionalAddressDetail"></app-form-control-error>
             </nb-form-field>
 
-            <app-bbx-combo-box [isReadonly]="isEditModeOff" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitPriceType"
-                label="Eladási ártípus" [data$]="unitPriceTypeData"></app-bbx-combo-box>
+            <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitPriceType"
+                label="Eladási ártípus*" [data$]="unitPriceTypeData"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
@@ -111,8 +111,14 @@
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
         <span class="label-save">Ügyfél mentése és beállítása vevőnek: </span>
-        <button nbButton (click)="Save()" status="primary" tabindex="-1" [disabled]="saveIsDisabled"
-            id="confirm-dialog-button-yes">Igen</button>
+        <ng-container *ngIf="saveIsDisabled">
+            <button nbButton (click)="Save()" status="primary" tabindex="-1" disabled
+                id="confirm-dialog-button-yes">Igen</button>
+        </ng-container>
+        <ng-container *ngIf="!saveIsDisabled">
+            <button nbButton (click)="Save()" status="primary" tabindex="-1"
+                id="confirm-dialog-button-yes">Igen</button>
+        </ng-container>
         <button nbButton (click)="close(undefined)" status="danger" tabindex="-1"
             id="confirm-dialog-button-no">Nem</button>
     </nb-card-footer>

@@ -54,7 +54,7 @@
                 <app-form-control-error [form]="currentForm" label="külföldi adószám" controlName="thirdStateTaxId"></app-form-control-error>
             </nb-form-field>
 
-            <app-bbx-combo-box [isReadonly]="isReadonly" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode" label="Országkód*"
+            <app-bbx-combo-box [isReadonly]="isReadonly" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode" label="Országkód*"
                 [data$]="countryCodeComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
@@ -115,7 +115,7 @@
                 </div>
             </div>
 
-            <app-bbx-combo-box [isReadonly]="isReadonly" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitPriceType" label="Eladási ártípus"
+            <app-bbx-combo-box [isReadonly]="isReadonly" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitPriceType" label="Eladási ártípus*"
                 [data$]="unitPriceTypeComboData"></app-bbx-combo-box>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">

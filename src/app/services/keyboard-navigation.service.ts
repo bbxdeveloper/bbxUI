@@ -416,7 +416,7 @@ export class KeyboardNavigationService {
 
     for (let y = 0; y < this.CurrentNavigatable.Matrix.length; y++) {
       for (let x = 0; x < this.CurrentNavigatable.Matrix[y].length; x++) {
-        matrixString += this.CurrentNavigatable.Matrix[y][x];
+        matrixString += this.CurrentNavigatable.Matrix[y][x] + '   ';
       }
       matrixString += "\n";
     }

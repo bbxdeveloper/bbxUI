@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/co
 import { BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { LoggerService } from 'src/app/services/logger.service';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -58,6 +59,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     private readonly systemService: SystemService,
     private readonly commonService: CommonService,
     private readonly statusService: StatusService,
+    private loggerService: LoggerService,
     cdref: ChangeDetectorRef) {
     super(kbS, cdref);
     this.refreshComboboxData();
@@ -132,6 +134,10 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
       const unitPriceTypes = await this.customerService.getUnitPriceTypes()
 
       this.unitPriceTypeComboData.next(unitPriceTypes.map(x => x.text))
+
+      if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['unitPriceType'].value) && unitPriceTypes.length > 0) {
+        this.currentForm?.form.controls['unitPriceType'].setValue(unitPriceTypes[0].text)
+      }
     } catch (error) {
       this.commonService.HandleError(error)
     }
@@ -144,6 +150,9 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
         this._countryCodes = data;
         this.countryCodes = data?.map(x => x.text) ?? [];
         this.countryCodeComboData$.next(this.countryCodes);
+        if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['countryCode'].value) && this.countryCodes.length > 0) {
+          this.currentForm?.form.controls['countryCode'].setValue(this.countryCodes[0])
+        }
       }
     });
   }

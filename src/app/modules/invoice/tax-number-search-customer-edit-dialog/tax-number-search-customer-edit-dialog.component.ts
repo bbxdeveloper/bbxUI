@@ -311,9 +311,16 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       this._countryCodes = countryCodeData ?? []
       this.countryCodes = countryCodeData?.map(x => x.text) ?? []
       this.countryCodeComboData$.next(this.countryCodes)
+      if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['countryCode'].value) && this.countryCodes.length > 0) {
+        this.currentForm?.form.controls['countryCode'].setValue(this.countryCodes[0])
+      }
 
       this.unitPriceTypes = await unitPriceTypeRequest ?? []
       this.unitPriceTypeData.next(this.unitPriceTypes.map(x => x.text))
+
+      if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['unitPriceType'].value) && this.unitPriceTypes.length > 0) {
+        this.currentForm?.form.controls['unitPriceType'].setValue(this.unitPriceTypes[0].text)
+      }
     } catch (error) {
       this.commonService.HandleError(error)
     }
