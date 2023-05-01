@@ -30,7 +30,8 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
 
     "workNumber"?: string;
     "priceReview"?: boolean;
-    correction?: boolean;
+    correction?: boolean
+    invoiceCorrection: boolean = false
     originalInvoiceID: number = -1
 
     constructor(init?: Partial<CreateOutgoingInvoiceRequest>) {

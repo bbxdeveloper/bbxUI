@@ -346,13 +346,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF
     this.outGoingInvoiceData.exchangeRate = 1;
 
-    this.outGoingInvoiceData.warehouseCode = '001';
-
     this.outGoingInvoiceData.incoming = false
     this.outGoingInvoiceData.invoiceType = InvoiceTypes.INV
     this.outGoingInvoiceData.invoiceCategory = InvoiceCategory.NORMAL
 
-    this.outGoingInvoiceData.correction = true
+    this.outGoingInvoiceData.invoiceCorrection = true
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm!.invoiceFormData!.paymentMethod)
 
