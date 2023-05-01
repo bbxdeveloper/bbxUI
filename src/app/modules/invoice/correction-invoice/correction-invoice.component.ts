@@ -128,8 +128,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
 
-    const commands = GetFooterCommandListFromKeySettings(this.KeySettings)
-    footerService.pushCommands(commands)
+    this.commands = GetFooterCommandListFromKeySettings(this.KeySettings)
+    footerService.pushCommands(this.commands)
 
     const defaultCustomerData = {
       customerName: '',
@@ -191,6 +191,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   private onCorrentionInvoiceSelectionDialogClosed(invoice: Invoice): void {
+    this.kbS.SetCurrentNavigatable(this.invoiceForm.outInvFormNav)
+
     this.senderData = {
       customerName: invoice.supplierName,
       postalCode: invoice.supplierPostalCode,
@@ -224,7 +226,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.originalInvoiceID = invoice.id
 
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+    setTimeout(() => this.kbS.SelectElementByCoordinate(0, 0), 100)
   }
 
   public ngOnDestroy(): void {
