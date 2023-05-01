@@ -322,10 +322,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
 
-    // // if (this.mode.incoming) {
-    // //   this.outGoingInvoiceData.customerInvoiceNumber = this.outInvForm.controls['customerInvoiceNumber'].value;
-    // // }
-
     this.outGoingInvoiceData.notice = this.invoiceForm!.invoiceFormData!.notice;
 
     this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceForm!.invoiceFormData!.invoiceDeliveryDate
@@ -426,6 +422,15 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       )
+      return
+    }
+
+    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+      this.bbxToasterService.show(
+        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
       return
     }
 
