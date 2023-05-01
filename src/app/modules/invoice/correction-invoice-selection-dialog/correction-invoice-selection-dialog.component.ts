@@ -1,9 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { AttachDirection, INavigatable, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { InvoiceService } from '../services/invoice.service';
@@ -44,8 +41,6 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
   constructor(
     private readonly keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
-    private readonly footerService: FooterService,
-    private readonly sidebarService: BbxSidebarService,
     private readonly invoiceService: InvoiceService,
     private readonly commonService: CommonService,
     private readonly dialogRef: NbDialogRef<Invoice>

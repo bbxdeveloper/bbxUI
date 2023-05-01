@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { validDate } from 'src/assets/model/Validators';
@@ -51,9 +51,6 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     } as InvoiceFormData
     return formData
   }
-
-  @Output()
-  public invoiceFormDataChange = new EventEmitter<InvoiceFormData>(false)
 
   public tileCssClass = TileCssClass
 
@@ -112,13 +109,6 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
       invoiceOrdinal: new FormControl('', []), // in post response
       notice: new FormControl('', []),
     });
-
-    this.outInvForm.valueChanges.subscribe(value => {
-      const invoiceFormData = {
-        notice: value.notice
-      } as InvoiceFormData
-      return this.invoiceFormDataChange.emit(invoiceFormData);
-    })
   }
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {

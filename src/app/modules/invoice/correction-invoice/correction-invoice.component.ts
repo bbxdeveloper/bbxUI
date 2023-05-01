@@ -131,7 +131,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     const commands = GetFooterCommandListFromKeySettings(this.KeySettings)
     footerService.pushCommands(commands)
 
-
     const defaultCustomerData = {
       customerName: '',
       additionalAddressDetail: '',
@@ -181,7 +180,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.dbDataTable.Setup(this.dbData, this.dbDataDataSrc, this.allColumns, this.colDefs, this.colsToIgnore, this.cellClass)
     this.dbDataTable.GenerateAndSetNavMatrices(true)
     this.dbDataTable.PushFooterCommandList()
-
   }
 
   public ngOnInit(): void {
@@ -225,6 +223,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     } as InvoiceFormData
 
     this.outGoingInvoiceData.originalInvoiceID = invoice.id
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
   }
 
   public ngOnDestroy(): void {
@@ -487,7 +487,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         event.stopPropagation();
         return;
       }
-      // this.Save();
+      this.Save();
       return;
     }
     this.HandleKeyDown(event);
