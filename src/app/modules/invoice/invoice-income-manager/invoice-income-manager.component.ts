@@ -1011,14 +1011,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
-        const discountedPrice = p.unitPrice2! * discountForPrice;
-        res.unitPrice = p.unitPrice2! - discountedPrice;
+        const discountedPrice = p.latestSupplyPrice! * discountForPrice;
+        res.unitPrice = p.latestSupplyPrice! - discountedPrice;
         res.custDiscounted = true;
       } else {
-        res.unitPrice = p.unitPrice2!;
+        res.unitPrice = p.latestSupplyPrice!;
       }
     } else {
-      res.unitPrice = p.unitPrice2!;
+      res.unitPrice = p.latestSupplyPrice!;
     }
 
     // res.unitPrice = this.Delivery ? p.latestSupplyPrice! : p.unitPrice2!;
