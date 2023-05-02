@@ -91,6 +91,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     );
     this.isLoading = false;
     this.InitialSetup();
+    this.isOfferEditor = false
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
@@ -570,6 +571,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           this.cachedCustomerName = res.data[0].customerName;
           this.SetCustomerFormFields(res.data[0]);
           this.searchByTaxtNumber = false;
+
+          // this.SwitchUnitPriceAll()
         } else {
           if (this.customerInputFilterString.length >= 8 &&
             this.IsNumber(this.customerInputFilterString)) {
