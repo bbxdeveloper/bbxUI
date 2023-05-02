@@ -1019,9 +1019,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     let unitPrice: number
     if (this.buyerData) {
-      unitPrice = this.buyerData.unitPriceType === UnitPriceTypes.Unit
-        ? product.unitPrice1!
-        : product.unitPrice2!
+      unitPrice = getPriceByPriceType(product, this.buyerData.unitPriceType)
     }
     else {
       unitPrice = product.unitPrice2!
