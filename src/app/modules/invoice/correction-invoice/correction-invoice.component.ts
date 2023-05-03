@@ -225,6 +225,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     } as InvoiceFormData
 
     this.outGoingInvoiceData.originalInvoiceID = invoice.id
+    this.outGoingInvoiceData.invoiceDiscountPercent = invoice.invoiceDiscountPercent
 
     setTimeout(() => this.kbS.SelectElementByCoordinate(0, 0), 100)
   }
