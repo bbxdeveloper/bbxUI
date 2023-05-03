@@ -432,17 +432,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.setupFilterForm()
 
-    this.filterFormNav = new FlatDesignNoTableNavigatableForm(
-      this.filterForm,
-      this.kbS,
-      this.cdref, [], this.filterFormId,
-      AttachDirection.DOWN,
-      this.colDefs,
-      this.bbxSidebarService,
-      this.fS,
-      this.dbDataTable,
-      this
-    );
 
     this.dbDataTableForm = new FormGroup({
       invoiceNumber: new FormControl(0, []),
@@ -487,7 +476,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     // });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
-    this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
   }
 
@@ -578,6 +566,20 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.cdref.detectChanges();
       }
     });
+
+    this.filterFormNav = new FlatDesignNoTableNavigatableForm(
+      this.filterForm,
+      this.kbS,
+      this.cdref, [], this.filterFormId,
+      AttachDirection.DOWN,
+      this.colDefs,
+      this.bbxSidebarService,
+      this.fS,
+      this.dbDataTable,
+      this
+    );
+
+    this.filterFormNav.OuterJump = true;
   }
 
   override async Refresh(): Promise<void> {
@@ -635,7 +637,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.invoiceTypes = invoiceTypes
         this.invoiceTypes$.next(invoiceTypes.map(x => x.text))
 
-        this.filterForm.controls['InvoiceType'].setValue(invoiceTypes.find(x => x.value === 'INV')?.text ?? '')
+        const control = this.filterForm.controls['InvoiceType']
+
+        if (control.value === '') {
+          control.setValue(invoiceTypes.find(x => x.value === 'INV')?.text ?? '')
+        }
       }
     }
     catch (error) {
