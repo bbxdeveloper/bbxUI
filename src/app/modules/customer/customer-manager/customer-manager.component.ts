@@ -4,7 +4,7 @@ import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder 
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
@@ -25,6 +25,8 @@ import { lastValueFrom, ReplaySubject } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { UnitPriceType, UnitPriceTypes } from '../models/UnitPriceType';
+import { FormHelper } from 'src/assets/util/FormHelper';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-customer-manager',
@@ -224,6 +226,25 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
   private unitPriceTypes: UnitPriceType[] = []
 
+  get maxLimit(): number | undefined {
+    return FormHelper.GetNumber(this.dbDataTableForm, 'maxLimit')
+  }
+
+  validateWarningLimit(control: AbstractControl): any {
+    if (this.maxLimit === undefined) {
+      return null
+    }
+
+    const warningLimit = HelperFunctions.ToInt(control.value)
+
+    if (warningLimit === 0 && this.maxLimit === 0) {
+      return null
+    }
+
+    const wrong = warningLimit >= this.maxLimit
+    return wrong ? { max: { value: control.value } } : null
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -293,7 +314,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       privatePerson: p.privatePerson,
       thirdStateTaxId: p.thirdStateTaxId,
       taxpayerNumber: p.taxpayerNumber,
-      unitPriceType: unitPriceType
+      unitPriceType: unitPriceType,
+      maxLimit: HelperFunctions.ToOptionalInt(p.maxLimit),
+      warningLimit: HelperFunctions.ToOptionalInt(p.warningLimit)
     } as CreateCustomerRequest;
     return res;
   }
@@ -467,6 +490,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
       email: new FormControl(undefined, []),
+      warningLimit: new FormControl(undefined, [
+        this.validateWarningLimit.bind(this),
+      ]),
+      maxLimit: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(

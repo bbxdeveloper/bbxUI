@@ -243,6 +243,10 @@ export module HelperFunctions {
         return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
     }
 
+    export function ToOptionalInt(p: any): number | undefined {
+        return !(p !== null && p !== undefined && p === '' && p === ' ') ? parseInt((p + '').replace(' ', '')) : undefined;
+    }
+
     export function Round(p: string | number): number {
         return Math.round(ToFloat(p));
     }
