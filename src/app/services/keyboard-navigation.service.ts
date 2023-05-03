@@ -418,7 +418,7 @@ export class KeyboardNavigationService {
 
     for (let y = 0; y < this.CurrentNavigatable.Matrix.length; y++) {
       for (let x = 0; x < this.CurrentNavigatable.Matrix[y].length; x++) {
-        matrixString += this.CurrentNavigatable.Matrix[y][x];
+        matrixString += this.CurrentNavigatable.Matrix[y][x] + '   ';
       }
       matrixString += "\n";
     }
@@ -765,8 +765,6 @@ export class KeyboardNavigationService {
       }
       // Not at upper bound
     } else {
-      const tmpLength = this.AroundHere[this.p.y].length;
-
       this.p.y--;
 
       if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
@@ -780,13 +778,11 @@ export class KeyboardNavigationService {
             break;
           }
           case JumpPosPriority.same: {
-            if (this.AroundHere[this.p.y].length < tmpLength) {
-              this.p.x = 0;
-            }
+            this.p.x = this.p.x > this.maxCurrentWorldX ? this.maxCurrentWorldX : this.p.x
             break;
           }
         }
-      } else if (this.AroundHere[this.p.y].length < tmpLength) {
+      } else if (this.p.x > this.maxCurrentWorldX) {
         this.p.x = 0;
       }
 
@@ -878,9 +874,12 @@ export class KeyboardNavigationService {
             break;
           }
           case JumpPosPriority.same: {
+            this.p.x = this.p.x > this.maxCurrentWorldX ? this.maxCurrentWorldX : this.p.x
             break;
           }
         }
+      } else if (this.p.x > this.maxCurrentWorldX) {
+        this.p.x = 0;
       }
 
       if (select) {

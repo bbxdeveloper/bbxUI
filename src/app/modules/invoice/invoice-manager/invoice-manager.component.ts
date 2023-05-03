@@ -37,7 +37,7 @@ import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/ass
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, PRIMARY_OUTLET, Router, UrlSegment } from '@angular/router';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
@@ -52,6 +52,8 @@ import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  title: string = ''
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -257,8 +259,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     const path = params[0].path;
     if (path === 'invoice') {
       this.InvoiceType = InvoiceTypes.INV;
+      this.title = 'Számla'
     } else if (path === 'outgoing-delivery-note-income') {
       this.InvoiceType = InvoiceTypes.DNO;
+      this.title = 'Szállítólevél '
     }
     this.InvoiceCategory = InvoiceCategory.NORMAL
     console.log("InvoiceType: ", this.InvoiceType);
@@ -1014,10 +1018,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     res.noDiscount = product.noDiscount;
 
     let unitPrice: number
-    if (this.isOutgoingDeliveryNoteIncome()) {
-      unitPrice = product.latestSupplyPrice!
-    }
-    else if (this.buyerData) {
+    if (this.buyerData) {
       unitPrice = getPriceByPriceType(product, this.buyerData.unitPriceType)
     }
     else {
@@ -1049,14 +1050,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     console.log('ProductToInvoiceLine res: ', res);
 
     return res;
-  }
-
-  private isOutgoingDeliveryNoteIncome(): boolean {
-    const urlTree = this.router.parseUrl(this.router.url)
-    const segmentGroup = urlTree.root.children[PRIMARY_OUTLET]
-    const segments = segmentGroup.segments
-
-    return segments[1].path === 'outgoing-delivery-note-income'
   }
 
   IsNumber(val: string): boolean {

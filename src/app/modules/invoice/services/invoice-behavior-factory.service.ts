@@ -44,7 +44,8 @@ export class InvoiceBehaviorFactoryService {
       incoming: false,
       correction: false,
       validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true
+      isSummaryInvoice: true,
+      title: 'Blokk'
     } as SummaryInvoiceMode
   }
 
@@ -55,7 +56,8 @@ export class InvoiceBehaviorFactoryService {
       incoming: false,
       correction: false,
       validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true
+      isSummaryInvoice: true,
+      title: 'Gyűjtőszámla'
     } as SummaryInvoiceMode
   }
 
@@ -66,7 +68,8 @@ export class InvoiceBehaviorFactoryService {
       incoming: true,
       correction: false,
       validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true
+      isSummaryInvoice: true,
+      title: 'Be. Gyűjtőszámla'
     } as SummaryInvoiceMode
   }
 
@@ -78,7 +81,8 @@ export class InvoiceBehaviorFactoryService {
       correction: true,
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
-      isSummaryInvoice: false
+      isSummaryInvoice: false,
+      title: 'Szállító vissz.'
     } as SummaryInvoiceMode
   }
 
@@ -90,7 +94,8 @@ export class InvoiceBehaviorFactoryService {
       correction: true,
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
-      isSummaryInvoice: false
+      isSummaryInvoice: false,
+      title: 'Be. Szállító vissz.'
     } as SummaryInvoiceMode
   }
 }
