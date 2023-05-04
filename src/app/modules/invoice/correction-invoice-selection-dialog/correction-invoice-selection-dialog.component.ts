@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, INavigatable, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -13,6 +13,7 @@ import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
 import { debounce } from 'src/assets/util/debounce';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -37,6 +38,9 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
   public isLoading = false
 
   public selectedInvoice?: Invoice
+
+  @Input()
+  public isIncomingCorrectionInvoice: boolean = false
 
   constructor(
     private readonly keyboardService: KeyboardNavigationService,
@@ -76,7 +80,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
       const request = {
         InvoiceNumber: value,
-        InvoiceType: InvoiceTypes.INV
+        InvoiceType: this.isIncomingCorrectionInvoice ? InvoiceTypes.INC : InvoiceTypes.INV
       } as GetInvoicesParamListModel
       const response = await this.invoiceService.getAllAsync(request)
 
@@ -102,10 +106,20 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     }
 
     const hasIncoming = response.data.find(x => x.incoming)
-    if (hasIncoming) {
-      this.invoiceForm.get('invoiceNumber')?.setErrors({ noIncoming: true })
 
-      return true
+    if (!this.isIncomingCorrectionInvoice) {
+      if (hasIncoming) {
+        this.invoiceForm.get('invoiceNumber')?.setErrors({ itsNotOutcoming: true })
+
+        return true
+      }
+    }
+    else {
+      if (!hasIncoming) {
+        this.invoiceForm.get('invoiceNumber')?.setErrors({ itsNotIncoming: true })
+
+        return true
+      }
     }
 
     return false

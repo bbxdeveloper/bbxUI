@@ -14,11 +14,21 @@
                         [readonly]="isEditModeOff" [disabled]="isLoading" (click)="navigateable.HandleFormFieldClick($event)" required>
 
                     <div *ngIf="invoiceNumber?.errors?.['missingInvoice']" class="error">
-                        Nincs ilyen kimenő számla.
+                        <ng-container *ngIf="isIncomingCorrectionInvoice; else missingOutcoming">
+                            Nincs ilyen bejövő számla.
+                        </ng-container>
+
+                        <ng-template #missingOutcoming>
+                            Nincs ilyen kimenő számla.
+                        </ng-template>
                     </div>
 
-                    <div *ngIf="invoiceNumber?.errors?.['noIncoming']" class="error">
+                    <div *ngIf="invoiceNumber?.errors?.['itsNotOutcoming']" class="error">
                         Csak kimenő számla adható meg.
+                    </div>
+
+                    <div *ngIf="invoiceNumber?.errors?.['itsNotIncoming']" class="error">
+                        Csak bejövő számla adható meg.
                     </div>
                 </div>
             </nb-form-field>

@@ -56,6 +56,10 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public invoiceFormData!: InvoiceFormData
 
+  public title: string
+
+  private readonly isIncomingCorrectionInvoice: boolean
+
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", 'unitPrice', 'rowNetPrice', 'rowGrossPriceRounded']
   private requiredCols: string[] = ['productCode', 'quantity']
   override allColumns = [
@@ -124,9 +128,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly bbxToasterService: BbxToastrService,
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
-    private readonly printAndDownloadService: PrintAndDownloadService
+    private readonly printAndDownloadService: PrintAndDownloadService,
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
+
+    this.isIncomingCorrectionInvoice = router.url.startsWith('/income')
+    this.title = this.isIncomingCorrectionInvoice ? 'Bejövő javítószámla' : 'Javítószámla'
 
     this.commands = GetFooterCommandListFromKeySettings(this.KeySettings)
     footerService.pushCommands(this.commands)
@@ -186,7 +193,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.isLoading = false
 
     this.dialogService
-      .open(CorrectionInvoiceSelectionDialogComponent)
+      .open(CorrectionInvoiceSelectionDialogComponent, {
+        context: {
+          isIncomingCorrectionInvoice: this.isIncomingCorrectionInvoice
+        }
+      })
       .onClose.subscribe(this.onCorrentionInvoiceSelectionDialogClosed.bind(this))
   }
 
@@ -350,7 +361,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.exchangeRate = 1;
 
     this.outGoingInvoiceData.incoming = false
-    this.outGoingInvoiceData.invoiceType = InvoiceTypes.INV
+    this.outGoingInvoiceData.invoiceType = this.isIncomingCorrectionInvoice ? InvoiceTypes.INC : InvoiceTypes.INV
     this.outGoingInvoiceData.invoiceCategory = InvoiceCategory.NORMAL
 
     this.outGoingInvoiceData.invoiceCorrection = true
