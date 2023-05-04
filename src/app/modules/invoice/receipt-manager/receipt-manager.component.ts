@@ -620,6 +620,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
             } catch (error) {
               this.DelayedReset()
               this.cs.HandleError(error)
+              this.isSaveInProgress = false;
             }
           },
           error: err => {

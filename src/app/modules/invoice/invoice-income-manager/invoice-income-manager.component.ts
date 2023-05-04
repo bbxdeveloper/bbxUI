@@ -884,6 +884,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             } catch (error) {
               this.Reset()
               this.cs.HandleError(error)
+              this.isSaveInProgress = false;
             }
           },
           error: err => {
@@ -895,6 +896,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           }
         });
       } else {
+        this.isSaveInProgress = false;
         // Szerkesztés esetleges folytatása miatt
         this.kbS.ClickCurrentElement();
       }

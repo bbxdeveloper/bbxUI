@@ -957,6 +957,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           } catch (error) {
             this.Reset()
             this.cs.HandleError(error)
+            this.isSaveInProgress = false;
           }
         },
         error: err => {
