@@ -194,6 +194,10 @@ const routes: Routes = [
       {
         path: 'minus-incoming-delivery-note',
         component: SummaryInvoiceComponent,
+      },
+      {
+        path: 'correction-invoice',
+        component: CorrectionInvoiceComponent,
       }
     ]
   },
