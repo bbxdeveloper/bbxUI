@@ -28,6 +28,7 @@ import { ProductManagerComponent } from './modules/product/product-manager/produ
 import { StockCardNavComponent } from './modules/stock/stock-card-nav/stock-card-nav.component';
 import { StockNavComponent } from './modules/stock/stock-nav/stock-nav.component';
 import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manager/ware-house-manager.component';
+import { CorrectionInvoiceComponent } from './modules/invoice/correction-invoice/correction-invoice.component';
 
 const routes: Routes = [
   {
@@ -105,6 +106,10 @@ const routes: Routes = [
       {
         path: 'receipt',
         component: ReceiptManagerComponent
+      },
+      {
+        path: 'correction-invoice',
+        component: CorrectionInvoiceComponent
       },
     ]
   },

@@ -202,24 +202,26 @@ export class KeyboardNavigationService {
       $(element).removeClass(SELECTED_ELEMENT_CLASS);
       $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     });
-    $(idString).addClass(SELECTED_ELEMENT_CLASS);
-    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-    if ($(idString).is(':button') || $(idString).is(':radio')) {
+    const element = $(idString)
+    element.addClass(SELECTED_ELEMENT_CLASS);
+    element.parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    if (element.is(':button') || element.is(':radio')) {
       console.log("focus");
-      $(idString).trigger('focus');
+      element.trigger('focus');
     } else {
       switch (this.CurrentNavigatable.TileSelectionMethod) {
         case PreferredSelectionMethod.both:
-          $(idString).trigger('focus');
-          $(idString).trigger('click');
+          element.trigger('focus');
+          element.trigger('click');
           break;
         case PreferredSelectionMethod.click:
-          $(idString).trigger('click');
+          element.trigger('click');
           break;
         case PreferredSelectionMethod.focus:
         default:
-          $(idString).trigger('focus');
+          element.trigger('focus');
           break;
       }
     }
