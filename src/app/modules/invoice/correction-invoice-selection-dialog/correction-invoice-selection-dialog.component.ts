@@ -13,6 +13,7 @@ import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
 import { debounce } from 'src/assets/util/debounce';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -38,7 +39,10 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
   public selectedInvoice?: Invoice
 
+  public readonly isIncomingCorrectionInvoice: boolean
+
   constructor(
+    router: Router,
     private readonly keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
@@ -46,6 +50,8 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     private readonly dialogRef: NbDialogRef<Invoice>
   ) {
     super()
+
+    this.isIncomingCorrectionInvoice = router.url.startsWith('/income')
 
     this.IsDialog = true
     this.invoiceForm = new FormGroup({
@@ -76,7 +82,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
       const request = {
         InvoiceNumber: value,
-        InvoiceType: InvoiceTypes.INV
+        InvoiceType: this.isIncomingCorrectionInvoice ? InvoiceTypes.INC : InvoiceTypes.INV
       } as GetInvoicesParamListModel
       const response = await this.invoiceService.getAllAsync(request)
 

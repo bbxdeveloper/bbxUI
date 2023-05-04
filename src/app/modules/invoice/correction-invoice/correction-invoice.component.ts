@@ -56,6 +56,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public invoiceFormData!: InvoiceFormData
 
+  public title: string
+
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", 'unitPrice', 'rowNetPrice', 'rowGrossPriceRounded']
   private requiredCols: string[] = ['productCode', 'quantity']
   override allColumns = [
@@ -124,9 +126,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly bbxToasterService: BbxToastrService,
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
-    private readonly printAndDownloadService: PrintAndDownloadService
+    private readonly printAndDownloadService: PrintAndDownloadService,
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
+
+    this.title = router.url.startsWith('/income') ? 'Bejövő javítószámla' : 'Javítószámla'
 
     this.commands = GetFooterCommandListFromKeySettings(this.KeySettings)
     footerService.pushCommands(this.commands)
