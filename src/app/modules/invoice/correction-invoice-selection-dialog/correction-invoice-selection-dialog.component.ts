@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, INavigatable, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -39,10 +39,10 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
   public selectedInvoice?: Invoice
 
-  public readonly isIncomingCorrectionInvoice: boolean
+  @Input()
+  public isIncomingCorrectionInvoice: boolean = false
 
   constructor(
-    router: Router,
     private readonly keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
@@ -50,8 +50,6 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     private readonly dialogRef: NbDialogRef<Invoice>
   ) {
     super()
-
-    this.isIncomingCorrectionInvoice = router.url.startsWith('/income')
 
     this.IsDialog = true
     this.invoiceForm = new FormGroup({
@@ -108,10 +106,20 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     }
 
     const hasIncoming = response.data.find(x => x.incoming)
-    if (hasIncoming) {
-      this.invoiceForm.get('invoiceNumber')?.setErrors({ noIncoming: true })
 
-      return true
+    if (!this.isIncomingCorrectionInvoice) {
+      if (hasIncoming) {
+        this.invoiceForm.get('invoiceNumber')?.setErrors({ itsNotOutcoming: true })
+
+        return true
+      }
+    }
+    else {
+      if (!hasIncoming) {
+        this.invoiceForm.get('invoiceNumber')?.setErrors({ itsNotIncoming: true })
+
+        return true
+      }
     }
 
     return false
