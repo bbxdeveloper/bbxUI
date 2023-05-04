@@ -17,13 +17,13 @@ export class DynamicObject {
 
         var valueKey = (typeof value === "string")
 
-        var hasJsonIgnore = valueKey ? 
+        var hasJsonIgnore = valueKey ?
             (Reflect.getMetadataKeys(this, key).includes(MetadataKey) || Reflect.getMetadataKeys(this, value).includes(MetadataKey)) :
             Reflect.getMetadataKeys(this, key).includes(MetadataKey)
-        
+
         var isInJsonIgnore = valueKey ?
             (this.JsonIgnoreList.indexOf(key) > -1 || this.JsonIgnoreList.indexOf(value) > -1) :
-            this.JsonIgnoreList.indexOf(key) > -1 
+            this.JsonIgnoreList.indexOf(key) > -1
 
         if (hasJsonIgnore || isInJsonIgnore) {
             return undefined

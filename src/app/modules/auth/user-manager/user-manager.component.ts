@@ -189,8 +189,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionNew(data);
               }
+              this.ProcessActionNew(data);
             });
           } else {
             this.kbS.SetCurrentNavigatable(this.dbDataTable.flatDesignForm);
@@ -225,8 +225,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionPut(data);
               }
+              this.ProcessActionPut(data);
             });
           } else {
             this.kbS.SetCurrentNavigatable(this.dbDataTable.flatDesignForm);
@@ -273,11 +273,14 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                       );
                     }, 200);
                   } else {
-                    this.bbxToastrService.show(
+                    this.simpleToastrService.show(
                       Constants.MSG_USER_GET_FAILED + d.data?.name,
                       Constants.TITLE_ERROR,
-                      Constants.TOASTR_ERROR
+                      Constants.TOASTR_ERROR_5_SEC
                     );
+                    this.dbDataTable.SetFormReadonly(false)
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+                    this.kbS.ClickCurrentElement()
                   }
                 })
                 .catch(err => {
@@ -291,14 +294,15 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 d.errors!.join('\n'),
                 d.errors!.join(', ')
               );
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {
@@ -343,14 +347,15 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {
@@ -385,10 +390,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -479,10 +484,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       },
@@ -520,10 +525,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       })

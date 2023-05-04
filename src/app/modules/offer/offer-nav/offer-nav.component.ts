@@ -923,7 +923,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         break;
       // DELETE
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
         if (!this.isDeleteDisabled) {
           this.Delete();
         }
@@ -1226,7 +1225,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       case this.KeySetting[Actions.Reset].KeyCode:
       case this.KeySetting[Actions.Save].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.ToggleForm].KeyCode:
         event.preventDefault();

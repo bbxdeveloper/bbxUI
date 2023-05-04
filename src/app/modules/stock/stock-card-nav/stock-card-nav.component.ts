@@ -491,7 +491,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         break;
       // DELETE
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
         if (!this.isDeleteDisabled) {
           this.Delete();
         }
@@ -531,7 +530,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       case this.KeySetting[Actions.Create].KeyCode:
       case this.KeySetting[Actions.Edit].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
-      case this.KeySetting[Actions.Delete].AlternativeKeyCode:
       case this.KeySetting[Actions.JumpToForm].KeyCode:
         event.preventDefault();
         event.stopImmediatePropagation();

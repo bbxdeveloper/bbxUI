@@ -119,7 +119,7 @@
                     (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <label class="label-checkbox">Aktív?</label>
 
-                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
+                    <input class="bbx-fd-checkbox" class="{{TileCssClass}} {{TileCssColClass}}" type="checkbox" formControlName="active"
                         [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>

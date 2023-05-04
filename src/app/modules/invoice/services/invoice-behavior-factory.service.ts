@@ -14,6 +14,9 @@ export class InvoiceBehaviorFactoryService {
     let mode = {} as SummaryInvoiceMode
 
     switch (path) {
+      case 'receipt':
+        mode = this.forReceipt()
+        break
       case 'summary-invoice':
         mode = this.forSummaryInvoice()
         break
@@ -34,6 +37,18 @@ export class InvoiceBehaviorFactoryService {
     return mode
   }
 
+  private forReceipt(): SummaryInvoiceMode {
+    return {
+      invoiceCategory: InvoiceCategory.NORMAL,
+      invoiceType: InvoiceTypes.BLK,
+      incoming: false,
+      correction: false,
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: true,
+      title: 'Blokk'
+    } as SummaryInvoiceMode
+  }
+
   private forSummaryInvoice(): SummaryInvoiceMode {
     return {
       invoiceCategory: InvoiceCategory.AGGREGATE,
@@ -41,7 +56,8 @@ export class InvoiceBehaviorFactoryService {
       incoming: false,
       correction: false,
       validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true
+      isSummaryInvoice: true,
+      title: 'Gyűjtőszámla'
     } as SummaryInvoiceMode
   }
 
@@ -52,7 +68,8 @@ export class InvoiceBehaviorFactoryService {
       incoming: true,
       correction: false,
       validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true
+      isSummaryInvoice: true,
+      title: 'Be. Gyűjtőszámla'
     } as SummaryInvoiceMode
   }
 
@@ -64,7 +81,8 @@ export class InvoiceBehaviorFactoryService {
       correction: true,
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
-      isSummaryInvoice: false
+      isSummaryInvoice: false,
+      title: 'Szállító vissz.'
     } as SummaryInvoiceMode
   }
 
@@ -76,7 +94,8 @@ export class InvoiceBehaviorFactoryService {
       correction: true,
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
-      isSummaryInvoice: false
+      isSummaryInvoice: false,
+      title: 'Be. Szállító vissz.'
     } as SummaryInvoiceMode
   }
 }

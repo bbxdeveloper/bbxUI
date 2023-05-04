@@ -131,14 +131,15 @@ export class LocationManagerComponent
             }, 200);
           } else {
             console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-            this.bbxToastrService.show(
+            this.simpleToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
+              Constants.TOASTR_ERROR_5_SEC
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {
@@ -173,14 +174,15 @@ export class LocationManagerComponent
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
           } else {
-            this.bbxToastrService.show(
+            this.simpleToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
+              Constants.TOASTR_ERROR_5_SEC
             );
             this.isLoading = false;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
           }
         },
         error: (err) => {
@@ -214,10 +216,10 @@ export class LocationManagerComponent
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -287,10 +289,10 @@ export class LocationManagerComponent
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       },
@@ -318,10 +320,10 @@ export class LocationManagerComponent
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       })

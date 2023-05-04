@@ -1,0 +1,43 @@
+<app-invoice-layout>
+    <app-invoice-style-label-column title="Blokk" labels>
+        <label class="customer-label">Név</label>
+        <label class="customer-label">Irányítószám és Város</label>
+        <label class="customer-label">Utca, házszám</label>
+        <label class="customer-label">Számlaszám</label>
+        <label class="customer-label">Adószám</label>
+        <label class="customer-label">Megjegyzés</label>
+    </app-invoice-style-label-column>
+    
+    <app-invoice-customer-form left [customer]="senderData" title="SZÁLLÍTÓ"></app-invoice-customer-form>
+    <div class="div-text-centered" right>
+        <span>BLOKK</span>
+    </div>
+    
+    <app-receipt-data-form [outInvForm]="outInvForm" [outInvFormNav]="outInvFormNav" [mode]="mode" middle></app-receipt-data-form>
+    
+    <nb-card bottom>
+        <nb-card-body>
+            <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
+                [dbDataDataSrc]="dbDataDataSrc" [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
+                [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+                (inputFocusChanged)="inlineInputFocusChanged($event)" (focusInTable)="focusOnTable(true)"
+                (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
+            </app-inline-editable-table>
+        </nb-card-body>
+        <nb-card-footer class="invoice-table-statistics">
+            <table class="table-statistics-net-vat-gross">
+                <tr>
+                    <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                    <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                </tr>
+            </table>
+        </nb-card-footer>
+    </nb-card>
+
+    <!-- LAYOUT TEST -->
+    <!-- <div style="background-color: green; min-width: 100%; min-height: 100%;" labels></div>
+    <div style="background-color: blue; min-width: 100%; min-height: 100%;" left></div>
+    <div style="background-color: yellow; min-width: 100%; min-height: 100%;" right></div>
+    <div style="background-color: red; min-width: 100%; min-height: 100%;" middle></div>
+    <div style="background-color: gray; min-width: 100%; min-height: 100%;" bottom></div>-->
+</app-invoice-layout>

@@ -1,9 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { NbSidebarService } from '@nebular/theme';
 import { BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { LoggerService } from 'src/app/services/logger.service';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
@@ -35,6 +35,8 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   _countryCodes: CountryCode[] = [];
   countryCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
+  public unitPriceTypeComboData: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
+
   get privatePersonDefaultValue(): Boolean {
     return false;
   }
@@ -50,10 +52,14 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     return HelperFunctions.isEmptyOrSpaces(countryCode) || (!!countryDesc && countryCode === countryDesc);
   }
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService, private cService: CustomerService,
-    private systemService: SystemService,
-    private cs: CommonService,
-    private sts: StatusService,
+  constructor(
+    private readonly sidebarService: SideBarFormService,
+    kbS: KeyboardNavigationService,
+    private readonly customerService: CustomerService,
+    private readonly systemService: SystemService,
+    private readonly commonService: CommonService,
+    private readonly statusService: StatusService,
+    private loggerService: LoggerService,
     cdref: ChangeDetectorRef) {
     super(kbS, cdref);
     this.refreshComboboxData();
@@ -80,7 +86,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   SetCityByZipInfo(zipOrCity: any, byZip: boolean = true) {
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.statusService.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
     if (byZip) {
       this.systemService.CityByZip(zipOrCity).subscribe({
         next: res => {
@@ -89,11 +95,11 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
           }
         },
         error: err => {
-          this.cs.HandleError(err);
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.commonService.HandleError(err);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         },
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     } else {
@@ -104,30 +110,49 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
           }
         },
         error: err => {
-          this.cs.HandleError(err);
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.commonService.HandleError(err);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         },
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
-    }    
+    }
   }
 
-  ngOnInit(): void {
-    this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+  public ngOnInit(): void {
+    this.sidebarService.forms.subscribe({ next: f => this.SetNewForm(f) });
   }
-  ngAfterViewInit(): void {
+
+  public ngAfterViewInit(): void {
+    this.setUnitPrices()
     this.currentForm?.AfterViewInitSetup();
+  }
+
+  private async setUnitPrices(): Promise<void> {
+    try {
+      const unitPriceTypes = await this.customerService.getUnitPriceTypes()
+
+      this.unitPriceTypeComboData.next(unitPriceTypes.map(x => x.text))
+
+      if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['unitPriceType'].value) && unitPriceTypes.length > 0) {
+        this.currentForm?.form.controls['unitPriceType'].setValue(unitPriceTypes[0].text)
+      }
+    } catch (error) {
+      this.commonService.HandleError(error)
+    }
   }
 
   private refreshComboboxData(): void {
     // CountryCodes
-    this.cService.GetAllCountryCodes().subscribe({
+    this.customerService.GetAllCountryCodes().subscribe({
       next: data => {
         this._countryCodes = data;
         this.countryCodes = data?.map(x => x.text) ?? [];
         this.countryCodeComboData$.next(this.countryCodes);
+        if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['countryCode'].value) && this.countryCodes.length > 0) {
+          this.currentForm?.form.controls['countryCode'].setValue(this.countryCodes[0])
+        }
       }
     });
   }

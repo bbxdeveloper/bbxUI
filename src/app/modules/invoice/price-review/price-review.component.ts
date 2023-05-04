@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
-import { Product } from '../../product/models/Product';
+import { Product, getPriceByPriceType } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
@@ -123,7 +123,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     {
       label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "", fReadonly: false,
-      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number',
+      checkIfReadonly: (row: TreeGridNode<InvoiceLine>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
     },
     {
       label: 'Nettó', objectKey: 'rowNetPrice', colKey: 'rowNetPrice',
@@ -709,7 +710,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         context: {
           allColumns: GetPendingDeliveryNotesDialogTableSettings.AllColumns,
           colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
-        }
+        },
+        closeOnEsc: false,
+        closeOnBackdropClick: false
       })
       dialog.onClose.subscribe(this.fillPageWithData.bind(this))
     }, 500);
@@ -918,6 +921,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
   }
 
+  // Invoked when user presses F2 on the search field
   ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
 
@@ -1096,9 +1100,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   private async getDiscountsAndProducts(): Promise<[CustDicountForGet[], Product[]] | undefined> {
-    this.isLoading = true
-
     try {
+      this.isLoading = true
+
       const discountRequest = this.custDiscountService.getByCustomerAsync({ CustomerID: this.buyerData.id })
 
       const requests = this.dbData
@@ -1108,12 +1112,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       const customerDiscounts = await discountRequest
       const products = await Promise.all(requests)
 
-      this.isLoading = false
-
       return [customerDiscounts, products]
     }
     catch (error) {
       this.cs.HandleError(error)
+    }
+    finally {
       this.isLoading = false
     }
 
@@ -1127,8 +1131,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       if (!product || !product.unitPrice2)
         return
 
+      const unitPrice = getPriceByPriceType(product, this.buyerData.unitPriceType)
+
       if (product.noDiscount) {
-        invoiceLine.unitPrice = product.unitPrice2 ?? invoiceLine.unitPrice
+        invoiceLine.unitPrice = unitPrice
         return
       }
 
@@ -1136,7 +1142,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       const discount = customerDiscount?.discount ?? 0;
 
-      invoiceLine.unitPrice = product.unitPrice2 - product.unitPrice2 * discount / 100
+      invoiceLine.unitPrice = unitPrice - unitPrice * discount / 100
       invoiceLine.priceReview = false
 
       invoiceLine.Save()

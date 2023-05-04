@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -261,6 +261,28 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
   HandleItemChoice(item: SelectedCell): void {
 
+  }
+
+  @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
+    if (event.code === 'Tab') {
+      event.preventDefault()
+      if (this.currentChooserValue == 1) {
+        $('#radio-2').trigger('click')
+      } else {
+        $('#radio-1').trigger('click')
+      }
+    }
+    switch (event.key) {
+      case KeyBindings.exit: {
+        if (this.shouldCloseOnEscape) {
+          event.preventDefault();
+          // Closing dialog
+          this.close(undefined);
+        }
+        break;
+      }
+      default: { }
+    }
   }
 
 }

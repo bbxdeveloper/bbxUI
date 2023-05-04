@@ -5,26 +5,26 @@
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!currentForm" [id]="sumFormId" [formGroup]="currentForm.form" #formDirective="ngForm"
             (focusout)="currentForm.HandleFormFocusOut()" (click)="currentForm.HandleFormClick()">
-        
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Név*</label>
-        
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
                         [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>
             </nb-form-field>
-        
+
 
             <app-customer-bank-account-number-input *ngIf="currentForm"
                 [currentForm]="currentForm" formFieldName="customerBankAccountNumber" label="Bankszámla" [readonlyMode]="isEditModeOff">
             </app-customer-bank-account-number-input>
-        
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Belföldi Adószám</label>
-        
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="taxpayerNumber"
                     [patterns]="customPatterns" [mask]="taxNumberMask" oninput="this.value = this.value.toUpperCase()"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [readonly]="isEditModeOff"
@@ -33,11 +33,11 @@
                 <app-form-control-error [form]="currentForm" label="belföldi adószám" controlName="taxpayerNumber">
                 </app-form-control-error>
             </nb-form-field>
-        
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Külföldi Adószám</label>
-        
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="thirdStateTaxId" [mask]="thirdStateTaxIdMask"
                         [patterns]="customPatterns" [readonly]="isEditModeOff" [showMaskTyped]="true"
                         (click)="currentForm.HandleFormFieldClick($event)">
@@ -45,25 +45,25 @@
                 <app-form-control-error [form]="currentForm" label="külföldi adószám" controlName="thirdStateTaxId">
                 </app-form-control-error>
             </nb-form-field>
-        
-            <app-bbx-combo-box [isReadonly]="isEditModeOff" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
+
+            <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
                 label="Országkód*" [data$]="countryCodeComboData$"></app-bbx-combo-box>
-        
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Irsz.</label>
-        
+
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="postalCode"
                             [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)"
                             (focusout)="postalCodeInputFocusOut($event)">
                     </div>
                 </nb-form-field>
-        
+
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label>Város*</label>
-        
+
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="city" [readonly]="isEditModeOff"
                             (click)="currentForm.HandleFormFieldClick($event)"
                             (focusout)="cityInputFocusOut($event)" required>
@@ -72,33 +72,36 @@
             </div>
             <app-form-control-error [form]="currentForm" label="irsz." controlName="postalCode"></app-form-control-error>
             <app-form-control-error [form]="currentForm" label="város" controlName="city"></app-form-control-error>
-        
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Cím*</label>
-        
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
                         [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="additionalAddressDetail"></app-form-control-error>
             </nb-form-field>
-        
+
+            <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitPriceType"
+                label="Eladási ártípus*" [data$]="unitPriceTypeData"></app-bbx-combo-box>
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
                     (keydown.enter)="currentForm.HandleFormEnter($event)">
                     <label class="label-checkbox">Magánszemély</label>
-        
+
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="privatePerson"
                         [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
             </div>
             <app-form-control-error [form]="currentForm" label="magánszemély" controlName="privatePerson">
             </app-form-control-error>
-        
+
             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
-        
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="comment" [readonly]="isEditModeOff"
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
@@ -108,8 +111,14 @@
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
         <span class="label-save">Ügyfél mentése és beállítása vevőnek: </span>
-        <button nbButton (click)="Save()" status="primary" tabindex="-1" [disabled]="saveIsDisabled"
-            id="confirm-dialog-button-yes">Igen</button>
+        <ng-container *ngIf="saveIsDisabled">
+            <button nbButton (click)="Save()" status="primary" tabindex="-1" disabled
+                id="confirm-dialog-button-yes">Igen</button>
+        </ng-container>
+        <ng-container *ngIf="!saveIsDisabled">
+            <button nbButton (click)="Save()" status="primary" tabindex="-1"
+                id="confirm-dialog-button-yes">Igen</button>
+        </ng-container>
         <button nbButton (click)="close(undefined)" status="danger" tabindex="-1"
             id="confirm-dialog-button-no">Nem</button>
     </nb-card-footer>

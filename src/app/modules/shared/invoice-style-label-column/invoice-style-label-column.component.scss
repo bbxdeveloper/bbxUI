@@ -1,0 +1,54 @@
+@import 'invoice-common';
+
+nb-card {
+    background: none;
+    border: none;
+    margin: 0px;
+}
+
+nb-card-header {
+    padding: 0px;
+}
+
+::ng-deep nb-card-header {
+    font-size: 2rem !important;
+}
+
+.card-header-top-margin {
+  margin-top: 25px;
+  margin-bottom: 5px;
+}
+
+.header-blank {
+  color: transparent !important;
+}
+
+.card-header-txt-center {
+  text-align: center;
+  font-size: larger;
+  text-transform: uppercase;
+}
+
+.flex-text-center {
+  display: flex;
+  justify-items: center;
+}
+
+.card-labels-right {
+    display: flex;
+    flex-direction: column;
+
+    text-align: right;
+
+    label {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+.card-labels-left {
+    display: flex;
+    flex-direction: column;
+
+    text-align: left;
+}

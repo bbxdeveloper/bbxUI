@@ -77,9 +77,10 @@ export class BaseManagerComponent<T> {
   }
   
   HandleError(err: any): void {
-    this.cs.HandleError(err);
+    this.cs.HandleError(err, '', false);
     this.isLoading = false;
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.kbS.ClickCurrentElement()
   }
 
   HandleGridSelectionAfterDelete(indexOfDeleteItem: number): void {
@@ -128,8 +129,8 @@ export class BaseManagerComponent<T> {
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionNew(data);
               }
+              this.ProcessActionNew(data);
             });
           } else {
             this.ProcessActionNew(data);
@@ -163,8 +164,8 @@ export class BaseManagerComponent<T> {
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
-                this.ProcessActionPut(data);
               }
+              this.ProcessActionPut(data);
             });
           } else {
             this.ProcessActionPut(data);

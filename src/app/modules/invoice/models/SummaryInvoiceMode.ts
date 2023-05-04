@@ -11,6 +11,8 @@ export class SummaryInvoiceMode {
     public isSummaryInvoice: boolean = false
 
     public validateQuantity!: IQuantityValidator
+
+    public title: string = ''
 }
 
 export interface IQuantityValidator {

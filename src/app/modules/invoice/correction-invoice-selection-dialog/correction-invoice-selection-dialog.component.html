@@ -1,0 +1,45 @@
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>Javítandó számla</span>
+    </nb-card-header>
+    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
+        <form [id]="formId" [formGroup]="invoiceForm" #formDirective="ngForm">
+            <nb-form-field (keydown.enter)="moveToButtons($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>
+                        Javítandó számla
+                    </label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber"
+                        [readonly]="isEditModeOff" [disabled]="isLoading" (click)="navigateable.HandleFormFieldClick($event)" required>
+
+                    <div *ngIf="invoiceNumber?.errors?.['missingInvoice']" class="error">
+                        <ng-container *ngIf="isIncomingCorrectionInvoice; else missingOutcoming">
+                            Nincs ilyen bejövő számla.
+                        </ng-container>
+
+                        <ng-template #missingOutcoming>
+                            Nincs ilyen kimenő számla.
+                        </ng-template>
+                    </div>
+
+                    <div *ngIf="invoiceNumber?.errors?.['itsNotOutcoming']" class="error">
+                        Csak kimenő számla adható meg.
+                    </div>
+
+                    <div *ngIf="invoiceNumber?.errors?.['itsNotIncoming']" class="error">
+                        Csak bejövő számla adható meg.
+                    </div>
+                </div>
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+    <nb-card-footer class="modal-product-active-footer">
+        <button nbButton (click)="select()" [disabled]="selectedInvoice === undefined" status="primary" tabindex="-1" id="confirm-dialog-button-yes">
+            Kiválasztás
+        </button>
+        <button nbButton (click)="close()" status="danger" tabindex="-1" id="confirm-dialog-button-no">
+            Mégse
+        </button>
+    </nb-card-footer>
+</nb-card>

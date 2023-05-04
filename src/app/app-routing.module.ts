@@ -16,6 +16,7 @@ import { InvoiceIncomeManagerComponent } from './modules/invoice/invoice-income-
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
 import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
 import { PriceReviewComponent } from './modules/invoice/price-review/price-review.component';
+import { ReceiptManagerComponent } from './modules/invoice/receipt-manager/receipt-manager.component';
 import { SummaryInvoiceComponent } from './modules/invoice/summary-invoice/summary-invoice.component';
 import { LocationManagerComponent } from './modules/location/location-manager/location-manager.component';
 import { OfferCreatorComponent } from './modules/offer/offer-creator/offer-creator.component';
@@ -27,6 +28,7 @@ import { ProductManagerComponent } from './modules/product/product-manager/produ
 import { StockCardNavComponent } from './modules/stock/stock-card-nav/stock-card-nav.component';
 import { StockNavComponent } from './modules/stock/stock-nav/stock-nav.component';
 import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manager/ware-house-manager.component';
+import { CorrectionInvoiceComponent } from './modules/invoice/correction-invoice/correction-invoice.component';
 
 const routes: Routes = [
   {
@@ -100,6 +102,14 @@ const routes: Routes = [
       {
         path: 'price-review',
         component: PriceReviewComponent
+      },
+      {
+        path: 'receipt',
+        component: ReceiptManagerComponent
+      },
+      {
+        path: 'correction-invoice',
+        component: CorrectionInvoiceComponent
       },
     ]
   },
@@ -184,6 +194,10 @@ const routes: Routes = [
       {
         path: 'minus-incoming-delivery-note',
         component: SummaryInvoiceComponent,
+      },
+      {
+        path: 'correction-invoice',
+        component: CorrectionInvoiceComponent,
       }
     ]
   },

@@ -56,6 +56,8 @@ import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
+  title: string = ''
+
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   TileCssClass = TileCssClass;
@@ -115,7 +117,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
    {
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
-      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
+      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number',
+      checkIfReadonly: (row: TreeGridNode<InvoiceLine>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
     },
     { // unitofmeasureX show, post unitofmeasureCode
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -220,6 +223,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
+      this.title = this.mode.title
 
       this.InitialSetup();
       this.isPageReady = true;
@@ -619,11 +623,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         return
       }
 
-      this.bbxToastrService.show(
-        validationResult,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
+      setTimeout(() => {
+        this.bbxToastrService.show(
+          validationResult,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        )
+      }, 0);
       this.dbData[index].data.Restore('quantity')
     }
   }
@@ -951,6 +957,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           } catch (error) {
             this.Reset()
             this.cs.HandleError(error)
+            this.isSaveInProgress = false;
           }
         },
         error: err => {

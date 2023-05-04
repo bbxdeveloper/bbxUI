@@ -55,6 +55,7 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
 
+  title: string = ''
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -262,8 +263,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     const path = params[0].path;
     if (path === 'invoice-income') {
       this.InvoiceType = InvoiceTypes.INC;
+      this.title = 'Be. Számla'
     } else if (path === 'incoming-delivery-note-income') {
       this.InvoiceType = InvoiceTypes.DNI;
+      this.title = 'Be. Szállítólevél'
     }
     this.InvoiceCategory = InvoiceCategory.NORMAL
     console.log("InvoiceType: ", this.InvoiceType);
@@ -881,6 +884,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             } catch (error) {
               this.Reset()
               this.cs.HandleError(error)
+              this.isSaveInProgress = false;
             }
           },
           error: err => {
@@ -892,6 +896,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           }
         });
       } else {
+        this.isSaveInProgress = false;
         // Szerkesztés esetleges folytatása miatt
         this.kbS.ClickCurrentElement();
       }
@@ -1008,14 +1013,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
-        const discountedPrice = p.unitPrice2! * discountForPrice;
-        res.unitPrice = p.unitPrice2! - discountedPrice;
+        const discountedPrice = p.latestSupplyPrice! * discountForPrice;
+        res.unitPrice = p.latestSupplyPrice! - discountedPrice;
         res.custDiscounted = true;
       } else {
-        res.unitPrice = p.unitPrice2!;
+        res.unitPrice = p.latestSupplyPrice!;
       }
     } else {
-      res.unitPrice = p.unitPrice2!;
+      res.unitPrice = p.latestSupplyPrice!;
     }
 
     // res.unitPrice = this.Delivery ? p.latestSupplyPrice! : p.unitPrice2!;

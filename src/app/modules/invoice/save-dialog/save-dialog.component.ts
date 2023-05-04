@@ -15,12 +15,15 @@ import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { Price } from 'src/assets/util/Price';
+import { LoggerService } from 'src/app/services/logger.service';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
 ];
 
 interface VatRateRow { Id: string, Value: number };
+
+const logTag: string = 'InvSaveDlgLogs'
 
 @Component({
   selector: 'app-save-dialog',
@@ -37,6 +40,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   @Input() Incoming: boolean = false;
   @Input() Delivery: boolean = false;
   @Input() isDiscountVisible: boolean = true
+  @Input() isDiscountDisabled: boolean = false
   @Input() forceDisableOutgoingDelivery: boolean = false
   @Input() negativeDiscount: boolean = false
 
@@ -101,7 +105,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SaveDialogComponent>,
     private kBs: KeyboardNavigationService,
-    private invoiceStats: InvoiceStatisticsService
+    private invoiceStats: InvoiceStatisticsService,
+    private loggerService: LoggerService
   ) {
     super();
     this.Setup();
@@ -147,10 +152,13 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   private recalc(actualDiscount: number): void {
+    // this.logi(`actualDiscount: ${actualDiscount}`)
+
     // update discount
     this.data.invoiceDiscountPercent = actualDiscount;
-    const invoiceDiscountMultiplier = HelperFunctions.Round2(actualDiscount / 100, 1);
-    // this.sumForm.controls['invoiceDiscountPercent'].setValue(this.data.invoiceDiscountPercent);
+
+    const invoiceDiscountMultiplier = actualDiscount / 100.0
+    // this.logi(`invoiceDiscountMultiplier: ${invoiceDiscountMultiplier}`)
 
     // calc rate summary + prepare discountedData for lines
     this.prepareVatRateCodes(invoiceDiscountMultiplier);
@@ -243,7 +251,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
     this.sumForm.addControl('lineGrossAmount', new FormControl(this.data.lineGrossAmount, [Validators.required]));
     this.sumForm.addControl('invoiceLinesCount', new FormControl(this.data.invoiceLines.length, [Validators.required]));
-    this.sumForm.addControl('invoiceDiscountPercent', new FormControl(this.data.invoiceDiscountPercent, [Validators.required]));
+    this.sumForm.addControl('invoiceDiscountPercent', new FormControl({value: this.data.invoiceDiscountPercent, disabled: this.isDiscountDisabled }, [Validators.required]));
     this.sumForm.addControl('invoiceDiscountValue', new FormControl(0, [Validators.required]));
 
     this.formNav = new NavigatableForm(
@@ -257,10 +265,11 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
     this.RefreshCalc();
   }
+
   ngAfterViewInit(): void {
     this.kBs.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
-    if (this.data.invoiceCategory === InvoiceCategory.AGGREGATE || !this.isDiscountVisible) {
+    if (this.doSelectFormField()) {
       this.formNav.OuterJump = false
       this.OuterJump = false
 
@@ -273,15 +282,21 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       this.kBs.setEditMode(KeyboardModes.EDIT);
 
       setTimeout(() => {
-        HelperFunctions.SelectBeginningByClass('discount-input', 1);
+        HelperFunctions.SelectBeginningByClass('discount-input', 10);
       }, 100);
     }
   }
+
+  private doSelectFormField(): boolean {
+    return this.data.invoiceCategory === InvoiceCategory.AGGREGATE || !this.isDiscountVisible || this.isDiscountDisabled
+  }
+
   ngOnDestroy(): void {
     if (!this.closedManually) {
       this.kBs.RemoveWidgetNavigatable();
     }
   }
+
   ngAfterViewChecked(): void {
   }
 
@@ -297,5 +312,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.closedManually = true;
     this.kBs.RemoveWidgetNavigatable();
     this.dialogRef.close(answer ? this.data : undefined);
+  }
+
+  logi(msg: string): void {
+    this.loggerService.info(msg, logTag)
   }
 }

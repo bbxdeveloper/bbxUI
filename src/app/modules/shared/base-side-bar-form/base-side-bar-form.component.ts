@@ -2,9 +2,10 @@ import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/cor
 import { FormGroup } from '@angular/forms';
 import { createMask } from '@ngneat/input-mask';
 import { BehaviorSubject } from 'rxjs';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { JumpPosPriority, KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
+import { JumpDestination } from 'src/assets/model/navigation/Navigatable';
 import { Constants } from 'src/assets/util/Constants';
 import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 'src/assets/util/KeyBindings';
 
@@ -106,6 +107,8 @@ export class BaseSideBarFormComponent {
     this.onFormUpdate.next(form[1].form.form);
 
     this.currentForm = form[1].form;
+    this.currentForm.IsMultiColMatrixGenEnabled = true
+    this.currentForm.JumpPosPriority = JumpPosPriority.same
     console.log("[SetNewForm] ", this.currentForm); // TODO: only for debug
 
     this.cdref.detectChanges();

@@ -202,24 +202,26 @@ export class KeyboardNavigationService {
       $(element).removeClass(SELECTED_ELEMENT_CLASS);
       $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     });
-    $(idString).addClass(SELECTED_ELEMENT_CLASS);
-    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-    if ($(idString).is(':button') || $(idString).is(':radio')) {
+    const element = $(idString)
+    element.addClass(SELECTED_ELEMENT_CLASS);
+    element.parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    if (element.is(':button') || element.is(':radio')) {
       console.log("focus");
-      $(idString).trigger('focus');
+      element.trigger('focus');
     } else {
       switch (this.CurrentNavigatable.TileSelectionMethod) {
         case PreferredSelectionMethod.both:
-          $(idString).trigger('focus');
-          $(idString).trigger('click');
+          element.trigger('focus');
+          element.trigger('click');
           break;
         case PreferredSelectionMethod.click:
-          $(idString).trigger('click');
+          element.trigger('click');
           break;
         case PreferredSelectionMethod.focus:
         default:
-          $(idString).trigger('focus');
+          element.trigger('focus');
           break;
       }
     }
@@ -248,16 +250,21 @@ export class KeyboardNavigationService {
       $(element).removeClass(SELECTED_ELEMENT_CLASS);
       $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
     });
-    $(idString).addClass(SELECTED_ELEMENT_CLASS);
-    $(idString).parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
-    if (excludeButtons && $(idString).is(':button')) {
-      $(idString).trigger('focus');
+    const element = $(idString)
+    element.addClass(SELECTED_ELEMENT_CLASS);
+    element.parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
+
+    if (excludeButtons && element.is(':button')) {
+      element.trigger('focus');
     }
-    else if ($(idString).is(':radio')) {
-      $(idString).trigger('focus');
+    else if (element.is(':radio')) {
+      element.trigger('focus');
+    }
+    else if (element.is(':checkbox')) {
+      element.trigger('focus');
     } else {
-      $(idString).trigger('click');
+      element.trigger('click');
     }
 
     this.ElementIdSelected.next(id);
@@ -411,7 +418,7 @@ export class KeyboardNavigationService {
 
     for (let y = 0; y < this.CurrentNavigatable.Matrix.length; y++) {
       for (let x = 0; x < this.CurrentNavigatable.Matrix[y].length; x++) {
-        matrixString += this.CurrentNavigatable.Matrix[y][x];
+        matrixString += this.CurrentNavigatable.Matrix[y][x] + '   ';
       }
       matrixString += "\n";
     }
@@ -758,8 +765,6 @@ export class KeyboardNavigationService {
       }
       // Not at upper bound
     } else {
-      const tmpLength = this.AroundHere[this.p.y].length;
-
       this.p.y--;
 
       if (this.CurrentNavigatable.JumpPositionPriority !== undefined) {
@@ -773,13 +778,11 @@ export class KeyboardNavigationService {
             break;
           }
           case JumpPosPriority.same: {
-            if (this.AroundHere[this.p.y].length < tmpLength) {
-              this.p.x = 0;
-            }
+            this.p.x = this.p.x > this.maxCurrentWorldX ? this.maxCurrentWorldX : this.p.x
             break;
           }
         }
-      } else if (this.AroundHere[this.p.y].length < tmpLength) {
+      } else if (this.p.x > this.maxCurrentWorldX) {
         this.p.x = 0;
       }
 
@@ -871,9 +874,12 @@ export class KeyboardNavigationService {
             break;
           }
           case JumpPosPriority.same: {
+            this.p.x = this.p.x > this.maxCurrentWorldX ? this.maxCurrentWorldX : this.p.x
             break;
           }
         }
+      } else if (this.p.x > this.maxCurrentWorldX) {
+        this.p.x = 0;
       }
 
       if (select) {

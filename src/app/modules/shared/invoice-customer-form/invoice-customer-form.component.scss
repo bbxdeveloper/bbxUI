@@ -1,0 +1,66 @@
+@import 'invoice-common';
+
+.card-header-top-margin {
+  margin-top: 25px;
+  margin-bottom: 5px;
+}
+
+label.single_label {
+    align-self: center;
+    color: #3ed820;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+nb-form-field {
+    margin: 10px;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+nb-card {
+    background: none;
+    border: none;
+    margin: 0px;
+}
+
+nb-form-field {
+    margin: 0px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+nb-card-header {
+    padding: 0px;
+}
+
+.card-header-txt-center {
+  text-align: center;
+  font-size: larger;
+  text-transform: uppercase;
+}
+
+.card-title {
+  background: none !important;
+  border: none !important;
+
+  margin-bottom: 0px !important;
+
+  text-align: center;
+  font-size: larger !important;
+  text-transform: uppercase;
+}
+
+.flex-text-center {
+  display: flex;
+  justify-items: center;
+}
+
+::ng-deep nb-card-header {
+    font-size: 2rem !important;
+}
+
+input, label, th, td {
+    font-size: 1.1rem;
+}

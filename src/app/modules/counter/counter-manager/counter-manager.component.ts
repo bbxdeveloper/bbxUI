@@ -272,14 +272,15 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               });
             } else {
               console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {
@@ -333,14 +334,15 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                  },
               });
             } else {
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.SetFormReadonly(false)
+              this.kbS.ClickCurrentElement()
             }
           },
           error: (err) => {
@@ -375,16 +377,18 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.bbxToastrService.show(
+              this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
+                Constants.TOASTR_ERROR_5_SEC
               );
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.HandleError(err); },
+          error: (err) => {
+            this.HandleError(err);
+          },
         });
     }
   }
@@ -478,10 +482,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       },
@@ -512,10 +516,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
           }
           this.RefreshTable();
         } else {
-          this.bbxToastrService.show(
+          this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
+            Constants.TOASTR_ERROR_5_SEC
           );
         }
       })

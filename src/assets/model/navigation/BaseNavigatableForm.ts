@@ -1,7 +1,7 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FooterService } from "src/app/services/footer.service";
-import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
+import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes, JumpPosPriority } from "src/app/services/keyboard-navigation.service";
 import { Constants } from "src/assets/util/Constants";
 import { KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
@@ -10,10 +10,13 @@ import { TreeGridNode } from "../TreeGridNode";
 import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { IFunctionHandler } from "./IFunctionHandler";
 import { BlankComboBoxValue } from "./Nav";
-import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, TileCssColClass, JumpDestination } from "./Navigatable";
 
 export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigatable, IUpdater<T> {
     Matrix: string[][] = [[]];
+
+    IsMultiColMatrixGenEnabled: boolean = false
+    JumpPosPriority: JumpPosPriority = JumpPosPriority.first
 
     LastX?: number | undefined;
     LastY?: number | undefined;
@@ -408,7 +411,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
             );
 
             // Flat Design forms are always vertical
-            if (currentParent !== '' && !(previous !== '' && $('#' + previous).hasClass('MULTICOLNAVIGATION_DISABLED'))) { // TileCssColClass
+            if (currentParent !== '' && !(previous !== '' && (!!this.IsMultiColMatrixGenEnabled && $('#' + previous).hasClass(TileCssColClass)))) {
                 this.Matrix.push([]);
                 ++currentMatrixIndex;
             }
