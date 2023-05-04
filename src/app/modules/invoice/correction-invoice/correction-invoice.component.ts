@@ -452,7 +452,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
         const request = this.UpdateOutGoingData()
 
-        await this.invoiceService.createOutgoingAsync(request)
+        var response = await this.invoiceService.createOutgoingAsync(request)
 
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
 
@@ -465,7 +465,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
           Obs: this.invoiceService.GetReport.bind(this.invoiceService),
           Reset: this.DelayedReset.bind(this),
           ReportParams: {
-            "id": res.data?.id,
+            "id": response.data?.id,
             "copies": 1 // Ki lesz töltve dialog alapján
           } as Constants.Dct
         } as PrintDialogRequest);
