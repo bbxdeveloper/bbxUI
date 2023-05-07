@@ -22,7 +22,7 @@ export class ConfirmationDialogComponent extends BaseNavigatableComponentCompone
 
   private Setup(): void {
     this.IsDialog = true;
-    this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
+    this.Matrix = [["confirm-widget-dialog-button-yes", "confirm-widget-dialog-button-no"]];
   }
 
   ngAfterContentInit(): void {

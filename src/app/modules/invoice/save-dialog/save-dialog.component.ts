@@ -195,9 +195,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
             `A partner kiegyenlítetlen összege elérte a maximális értéket (${maxLimit})!`,
             `Visszalépés`,
             () => {
-            this.close(false)
-            return
-          })
+              this.checkCustomerLimit = false
+              this.close(false)
+            }
+          )
         }
 
         else if (sum > warningLimit) {
@@ -205,7 +206,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
             this.dialogService,
             `A partner kiegyenlítetlen összege elérte a figyelmeztetés limitet (${warningLimit})!`,
             () => { this.customerLimitsChecked = true },
-            () => { this.close(false) }
+            () => { this.checkCustomerLimit = false; this.close(false) }
           )
         }
       } else {
@@ -367,6 +368,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   async FocusSaveButton(): Promise<void> {
     await this.checkCustomerLimits()
+    this.customerLimitsChecked = true
   }
 
   close(answer: boolean) {
