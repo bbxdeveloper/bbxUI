@@ -627,7 +627,11 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
             this.kbS.ClickCurrentElement()
           },
-          () => changedData.doAddToExisting = false)
+          () => {
+            changedData.doAddToExisting = false
+
+            this.kbS.ClickCurrentElement()
+          })
       }
     } catch (error) {
       this.cs.HandleError(error)
