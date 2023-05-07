@@ -10,10 +10,10 @@ import { CommonService } from 'src/app/services/common.service';
 import { Invoice } from '../models/Invoice';
 import { NbDialogRef } from '@nebular/theme';
 import { GetInvoicesResponse } from '../models/GetInvoicesResponse';
-import { debounce } from 'src/assets/util/debounce';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { Router } from '@angular/router';
+import { EMPTY, Observable, Subscription, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -42,6 +42,8 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
   @Input()
   public isIncomingCorrectionInvoice: boolean = false
 
+  private invoiceQuery: Subscription
+
   constructor(
     private readonly keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
@@ -56,8 +58,28 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     this.invoiceForm = new FormGroup({
       invoiceNumber: new FormControl('', [])
     })
-    this.invoiceForm.controls['invoiceNumber'].valueChanges
-      .subscribe(this.onInvoiceNumberChanged.bind(this))
+    this.invoiceQuery = this.invoiceForm.controls['invoiceNumber'].valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        tap(() => {
+          this.selectedInvoice = undefined
+          this.isLoading = true
+        }),
+        map(searchTerm => ({
+          InvoiceNumber: searchTerm,
+          InvoiceType: this.isIncomingCorrectionInvoice ? InvoiceTypes.INC : InvoiceTypes.INV
+        } as GetInvoicesParamListModel)),
+        switchMap(request => this.invoiceService.GetAll(request)),
+        tap(() => {
+          this.isLoading = false
+        }),
+        switchMap(this.setInputErrors.bind(this)),
+      )
+      .subscribe({
+        next: response => this.selectedInvoice = response.data[0],
+        error: this.commonService.HandleError.bind(this)
+      })
 
     this.navigateable = new NavigatableForm(
       this.invoiceForm,
@@ -72,38 +94,11 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
   }
 
-  @debounce(400)
-  private async onInvoiceNumberChanged(value: string): Promise<void> {
-    this.selectedInvoice = undefined
-
-    try {
-      this.isLoading = true
-
-      const request = {
-        InvoiceNumber: value,
-        InvoiceType: this.isIncomingCorrectionInvoice ? InvoiceTypes.INC : InvoiceTypes.INV
-      } as GetInvoicesParamListModel
-      const response = await this.invoiceService.getAllAsync(request)
-
-      if (this.setInputErrors(response)) {
-        return
-      }
-
-      this.selectedInvoice = response.data[0]
-    }
-    catch (error) {
-      this.commonService.HandleError(error)
-    }
-    finally {
-      this.isLoading = false
-    }
-  }
-
-  private setInputErrors(response: GetInvoicesResponse): boolean {
+  private setInputErrors(response: GetInvoicesResponse): Observable<GetInvoicesResponse> {
     if (response.data.length === 0) {
       this.invoiceForm.get('invoiceNumber')?.setErrors({ missingInvoice: true })
 
-      return true
+      return EMPTY
     }
 
     const hasIncoming = response.data.find(x => x.incoming)
@@ -112,18 +107,18 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
       if (hasIncoming) {
         this.invoiceForm.get('invoiceNumber')?.setErrors({ itsNotOutcoming: true })
 
-        return true
+        return EMPTY
       }
     }
     else {
       if (!hasIncoming) {
         this.invoiceForm.get('invoiceNumber')?.setErrors({ itsNotIncoming: true })
 
-        return true
+        return EMPTY
       }
     }
 
-    return false
+    return of(response)
   }
 
   public ngAfterViewInit(): void {
@@ -160,6 +155,10 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
   public ngOnDestroy(): void {
     this.keyboardService.RemoveWidgetNavigatable()
+
+    if (!this.invoiceQuery.closed) {
+      this.invoiceQuery.unsubscribe()
+    }
   }
 
   public select(): void {
