@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, INavigatable, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -47,7 +47,8 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
     private readonly commonService: CommonService,
-    private readonly dialogRef: NbDialogRef<Invoice>
+    private readonly dialogRef: NbDialogRef<Invoice>,
+    private readonly router: Router,
   ) {
     super()
 
@@ -167,5 +168,23 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
   public close(): void {
     this.dialogRef.close(undefined)
+
+    this.backToHeader()
+  }
+
+  private backToHeader(): void {
+    this.keyboardService.RemoveWidgetNavigatable();
+    this.router.navigate(["home"])
+    setTimeout(() => {
+      this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
+      this.keyboardService.ResetToRoot()
+      this.keyboardService.SetPositionById("header-income")
+      this.keyboardService.SelectCurrentElement()
+    }, 700);
+  }
+
+  @HostListener('keydown.esc', ['$event'])
+  public escKeydown(event: KeyboardEvent) {
+    this.backToHeader()
   }
 }
