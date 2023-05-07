@@ -624,6 +624,8 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
           () => {
             changedData.doAddToExisting = true
             changedData.nRealQty = parseInt(changedData.nRealQty.toString()) + response.nRealQty
+
+            this.kbS.ClickCurrentElement()
           },
           () => changedData.doAddToExisting = false)
       }
