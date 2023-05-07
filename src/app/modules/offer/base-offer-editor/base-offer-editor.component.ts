@@ -68,6 +68,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   currencyCodeValues: { [key: string]: CurrencyCode } = {};
   currencyCodeComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
+  customerChanged: boolean = false
+  // get customerChanged(): boolean { return this._customerChanged }
+  // set customerChanged(value: boolean) { this._customerChanged = value; if (value === true) debugger }
+
   get SelectedCurrency(): CurrencyCode | undefined {
     return this.buyerForm.controls['currencyCode'].value !== undefined ?
       this.currencyCodeValues[this.buyerForm.controls['currencyCode'].value ?? -1] : undefined;
@@ -279,6 +283,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       let k = this.KeySetting;
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
+    }
+
+    if (this.isOfferEditor && this.customerChanged && formFieldName === 'customerSearch') {
+      this.customerChanged = false
+      this.SwitchUnitPriceAll()
     }
   }
 
@@ -498,7 +507,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         this.kbS.setEditMode(KeyboardModes.EDIT);
 
         if (this.isOfferEditor) {
-          this.SwitchUnitPriceAll()
+          this.customerChanged = true
         }
       }
     });
