@@ -237,15 +237,15 @@ export module HelperFunctions {
     }
 
     export function ToFloat(p: any): number {
-        return (p !== null && p !== undefined) || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
+        return (p !== null && p !== undefined) || p === '' || p === ' ' ? parseFloat((p + '').replace(/\s/g, '')) : 0;
     }
 
     export function ToInt(p: any): number {
-        return (p !== null && p !== undefined) || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
+        return (p !== null && p !== undefined) || p === '' || p === ' ' ? parseInt((p + '').replace(/\s/g, '')) : 0;
     }
 
     export function ToOptionalInt(p: any): number | undefined {
-        return !(p !== null && p !== undefined && p === '' && p === ' ') ? parseInt((p + '').replace(' ', '')) : undefined;
+        return !(p !== null && p !== undefined && p === '' && p === ' ') ? parseInt((p + '').replace(/\s/g, '')) : undefined;
     }
 
     export function Round(p: string | number): number {
@@ -260,7 +260,7 @@ export module HelperFunctions {
     }
 
     export function IsNumber(val: string): boolean {
-        let val2 = val.replace(' ', '');
+        let val2 = val.replace(/\s/g, '');
         return !isNaN(parseFloat(val2));
     }
 
