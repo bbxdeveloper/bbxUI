@@ -333,6 +333,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     customer.unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
 
+    customer.maxLimit = HelperFunctions.ToOptionalInt(customer.maxLimit)
+    customer.warningLimit = HelperFunctions.ToOptionalInt(customer.warningLimit)
+
     return customer;
   }
 

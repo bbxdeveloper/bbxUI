@@ -14,6 +14,12 @@ export class InvoiceBehaviorFactoryService {
     let mode = {} as SummaryInvoiceMode
 
     switch (path) {
+      case 'invoice':
+        mode = this.forInvoice()
+        break
+      case 'outgoing-delivery-note-income':
+        mode = this.forOutgoingDeliveryNoteIncome()
+        break
       case 'receipt':
         mode = this.forReceipt()
         break
@@ -37,6 +43,32 @@ export class InvoiceBehaviorFactoryService {
     return mode
   }
 
+  private forInvoice(): SummaryInvoiceMode {
+    return {
+      invoiceCategory: InvoiceCategory.NORMAL,
+      invoiceType: InvoiceTypes.INV,
+      incoming: false,
+      correction: false,
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: false,
+      checkCustomerLimit: true,
+      title: 'Számla'
+    } as SummaryInvoiceMode
+  }
+
+  private forOutgoingDeliveryNoteIncome(): SummaryInvoiceMode {
+    return {
+      invoiceCategory: InvoiceCategory.NORMAL,
+      invoiceType: InvoiceTypes.DNI,
+      incoming: false,
+      correction: false,
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: false,
+      checkCustomerLimit: true,
+      title: 'Szállítólevél'
+    } as SummaryInvoiceMode
+  }
+
   private forReceipt(): SummaryInvoiceMode {
     return {
       invoiceCategory: InvoiceCategory.NORMAL,
@@ -57,6 +89,7 @@ export class InvoiceBehaviorFactoryService {
       correction: false,
       validateQuantity: new PositiveQuantityValidator,
       isSummaryInvoice: true,
+      checkCustomerLimit: true,
       title: 'Gyűjtőszámla'
     } as SummaryInvoiceMode
   }

@@ -170,4 +170,10 @@ export class InvoiceService {
       observe: 'response'
     })
   }
+
+  public GetCustomerUnpaidAmount(params?: { CustomerID: number }): Promise<number> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const request = this.http.get<number>(this.BaseUrl + '/customerunpaidamount' + (!!params ? ('?' + queryParams) : ''));
+    return firstValueFrom(request)
+  }
 }

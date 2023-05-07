@@ -1,5 +1,5 @@
 import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
+import { NbDialogRef, NbDialogService } from '@nebular/theme';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -16,6 +16,9 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { Price } from 'src/assets/util/Price';
 import { LoggerService } from 'src/app/services/logger.service';
+import { InvoiceService } from '../services/invoice.service';
+import { CommonService } from 'src/app/services/common.service';
+import { Customer } from '../../customer/models/Customer';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -42,6 +45,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   @Input() isDiscountVisible: boolean = true
   @Input() forceDisableOutgoingDelivery: boolean = false
   @Input() negativeDiscount: boolean = false
+
+  @Input() checkCustomerLimit: boolean = false
+  @Input() customer?: Customer
 
   get OutGoingDelivery(): boolean {
     return !this.forceDisableOutgoingDelivery && this.data && this.data?.invoiceType == InvoiceTypes.DNO;
@@ -100,12 +106,17 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   vatRateCodes: VatRateRow[] = [];
 
+  customerLimitsChecked: boolean = false
+
   constructor(
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<SaveDialogComponent>,
     private kBs: KeyboardNavigationService,
     private invoiceStats: InvoiceStatisticsService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private invoiceService: InvoiceService,
+    private cs: CommonService,
+    private dialogService: NbDialogService
   ) {
     super();
     this.Setup();
@@ -148,6 +159,63 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       x.Value = HelperFunctions.Round(x.Value);
     });
     this.vatRateCodes = result;
+  }
+
+  private async checkCustomerLimits(): Promise<void> {
+    if (this.customerLimitsChecked) {
+      return
+    }
+
+    if (!this.checkCustomerLimit) {
+      return
+    }
+
+    if (this.data.paymentMethod !== 'TRANSFER' && this.data.paymentMethod !== 'CARD') {
+      if (!(this.data.isDelivery && !this.data.incoming)) {
+        return
+      }
+    }
+
+    try {
+      if (this.data.customerID !== undefined) {
+        const maxLimit = HelperFunctions.ToInt(this.customer?.maxLimit)
+        const warningLimit = HelperFunctions.ToInt(this.customer?.warningLimit)
+
+        if (maxLimit === 0 || warningLimit === 0) {
+          return
+        }
+
+        var discountedPrice = HelperFunctions.ToFloat(this.sumForm.controls['discountedInvoiceNetAmount'].value)
+        var customerUnpaidAmount = await this.invoiceService.GetCustomerUnpaidAmount({ CustomerID: this.data.customerID })
+        var sum = discountedPrice + customerUnpaidAmount
+        
+        if (sum > maxLimit) {
+          HelperFunctions.confirmOneButtonAsync(
+            this.dialogService,
+            `A partner kiegyenlítetlen összege elérte a maximális értéket (${maxLimit})!`,
+            `Visszalépés`,
+            () => {
+            this.close(false)
+            return
+          })
+        }
+
+        else if (sum > warningLimit) {
+          HelperFunctions.confirmAsync(
+            this.dialogService,
+            `A partner kiegyenlítetlen összege elérte a figyelmeztetés limitet (${warningLimit})!`,
+            () => { this.customerLimitsChecked = true },
+            () => { this.close(false) }
+          )
+        }
+      } else {
+        throw new Error("Partnert kötelező választani!")
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+      this.close(false)
+    }
   }
 
   private recalc(actualDiscount: number): void {
@@ -294,6 +362,11 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   RefreshCalc(): void {
     this.recalc(this.sumForm.controls['invoiceDiscountPercent'].value ?? 0);
+    this.customerLimitsChecked = false
+  }
+
+  async FocusSaveButton(): Promise<void> {
+    await this.checkCustomerLimits()
   }
 
   close(answer: boolean) {

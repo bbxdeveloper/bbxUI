@@ -91,7 +91,7 @@
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
-        <button nbButton (click)="close(true)" status="primary" tabindex="-1" id="confirm-dialog-button-yes">Igen</button>
+        <button nbButton (click)="close(true)" (focusin)="FocusSaveButton()" status="primary" tabindex="-1" id="confirm-dialog-button-yes">Igen</button>
         <button nbButton (click)="close(false)" status="danger" tabindex="-1" id="confirm-dialog-button-no">Nem</button>
     </nb-card-footer>
 </nb-card>

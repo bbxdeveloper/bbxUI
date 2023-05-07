@@ -11,6 +11,7 @@ import { NbDialogService } from "@nebular/theme";
 import { ConfirmationDialogComponent } from "src/app/modules/shared/confirmation-dialog/confirmation-dialog.component";
 import { CalculatorPopoverComponent } from "src/app/modules/shared/calculator-popover/calculator-popover.component";
 import { FormGroup } from "@angular/forms";
+import { OneButtonConfirmationDialogComponent } from "src/app/modules/shared/one-button-confirmation-dialog/one-button-confirmation-dialog.component";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -236,11 +237,11 @@ export module HelperFunctions {
     }
 
     export function ToFloat(p: any): number {
-        return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
+        return (p !== null && p !== undefined) || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
     }
 
     export function ToInt(p: any): number {
-        return p !== undefined || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
+        return (p !== null && p !== undefined) || p === '' || p === ' ' ? parseInt((p + '').replace(' ', '')) : 0;
     }
 
     export function ToOptionalInt(p: any): number | undefined {
@@ -282,6 +283,13 @@ export module HelperFunctions {
             } else {
                 await noFunctionAsync();
             }
+        });
+    }
+
+    export function confirmOneButtonAsync(dialogService: NbDialogService, msg: string, buttonText: string, yesFunctionAsync: any): void {
+        const confirmDialogRef = dialogService.open(OneButtonConfirmationDialogComponent, { context: { msg: msg, buttonText: buttonText } });
+        confirmDialogRef.onClose.subscribe(async res => {
+            await yesFunctionAsync();
         });
     }
 
