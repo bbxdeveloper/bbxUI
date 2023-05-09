@@ -893,7 +893,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         data: this.outGoingInvoiceData,
         isDiscountVisible: false,
         forceDisableOutgoingDelivery: true,
-        negativeDiscount: !this.mode.isSummaryInvoice
+        negativeDiscount: !this.mode.isSummaryInvoice,
+        checkCustomerLimit: true,
+        customer: this.buyerData
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
