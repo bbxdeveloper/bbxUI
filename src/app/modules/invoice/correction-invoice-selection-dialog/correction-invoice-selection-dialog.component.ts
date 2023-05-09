@@ -67,7 +67,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
           this.isLoading = true
         }),
         map(searchTerm => ({
-          InvoiceNumber: searchTerm,
+          InvoiceNumber: searchTerm.toUpperCase(),
           InvoiceType: this.isIncomingCorrectionInvoice ? InvoiceTypes.INC : InvoiceTypes.INV
         } as GetInvoicesParamListModel)),
         switchMap(request => this.invoiceService.GetAll(request)),
