@@ -10,6 +10,8 @@ export class SummaryInvoiceMode {
     public paymentMethod: string = ''
     public isSummaryInvoice: boolean = false
 
+    public checkCustomerLimit: boolean = false
+
     public validateQuantity!: IQuantityValidator
 
     public title: string = ''

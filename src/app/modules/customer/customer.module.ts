@@ -8,6 +8,7 @@ import { SharedModule } from '../shared/shared.module';
 import { CustomerSideBarFormComponent } from './customer-side-bar-form/customer-side-bar-form.component';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { AngularSplitModule } from 'angular-split';
+import { InputMaskModule } from '@ngneat/input-mask';
 
 
 
@@ -43,6 +44,7 @@ import { AngularSplitModule } from 'angular-split';
     AngularSplitModule,
     NbAutocompleteModule,
     SharedModule,
+    InputMaskModule
   ],
   exports: [
     CustomerManagerComponent

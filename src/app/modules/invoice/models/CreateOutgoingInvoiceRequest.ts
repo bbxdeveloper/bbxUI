@@ -34,6 +34,17 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
     invoiceCorrection: boolean = false
     originalInvoiceID: number = -1
 
+    @JsonIgnore
+    get isDelivery(): boolean {
+        switch (this.invoiceType) {
+            case InvoiceTypes.DNO:
+            case InvoiceTypes.DNI:
+                return true
+            default:
+                return false
+        }
+    }
+
     constructor(init?: Partial<CreateOutgoingInvoiceRequest>) {
         super()
         if (init) {

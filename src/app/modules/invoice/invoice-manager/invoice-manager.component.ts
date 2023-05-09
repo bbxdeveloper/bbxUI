@@ -44,6 +44,8 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -186,6 +188,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
+  public mode!: SummaryInvoiceMode
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -205,11 +209,13 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     khs: KeyboardHelperService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly custDiscountService: CustomerDiscountService,
-    router: Router
+    router: Router,
+    behaviorFactory: InvoiceBehaviorFactoryService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
+      this.mode = behaviorFactory.create(params[0].path)
       this.SetModeBasedOnRoute(params);
     })
     this.isPageReady = true;
@@ -823,7 +829,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
-        data: this.outGoingInvoiceData
+        data: this.outGoingInvoiceData,
+        customer: this.buyerData,
+        checkCustomerLimit: this.mode.checkCustomerLimit
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
