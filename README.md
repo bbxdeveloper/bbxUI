@@ -1,3 +1,5 @@
+[![Build and deploy bbxFE to DEV environment](https://github.com/bbxdeveloper/bbxUI/actions/workflows/cicd_develop_bbxfe.yml/badge.svg?branch=develop&event=deployment)](https://github.com/bbxdeveloper/bbxUI/actions/workflows/cicd_develop_bbxfe.yml)
+
 # BbxUI
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.2.
