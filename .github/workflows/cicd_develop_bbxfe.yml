@@ -57,6 +57,7 @@ jobs:
     needs: build
     environment: 
       name: Development
+      url: https://bbx.z1.web.core.windows.net/index.html
     steps:
       - name: Checkout
         uses: actions/checkout@v1
