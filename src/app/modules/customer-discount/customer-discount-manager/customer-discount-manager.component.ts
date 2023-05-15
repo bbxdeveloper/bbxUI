@@ -919,6 +919,13 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       this.CheckSaveConditionsAndSave();
       return;
     }
+    // no devtools
+    if (KeyBindings.F12 === event.key) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
     this.HandleKeyDown(event);
   }
 
