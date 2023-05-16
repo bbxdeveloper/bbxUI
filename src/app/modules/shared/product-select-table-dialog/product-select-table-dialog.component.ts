@@ -20,9 +20,13 @@ import { SelectTableDialogComponent } from '../select-table-dialog/select-table-
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 const NavMap: string[][] = [
-  ['radio-1', 'radio-2'],
+  ['radio-0', 'radio-1', 'radio-2'],
   ['active-prod-search', 'show-all'] // , 'show-less'
 ];
+
+const SEARCH_NAME_CODE = 0
+const SEARCH_NAME = 1
+const SEARCH_CODE = 2
 
 @Component({
   selector: 'app-product-select-table-dialog',
@@ -31,7 +35,7 @@ const NavMap: string[][] = [
 })
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
-  currentChooserValue: any = 1;
+  currentChooserValue: any = SEARCH_NAME_CODE;
 
   inputForm!: FormGroup;
   formNav!: NavigatableForm;
@@ -55,9 +59,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       SearchString: this.srcString,
       PageSize: '10',
       PageNumber: '1',
-      OrderBy: this.currentChooserValue == 1 ? 'Description' : 'ProductCode',
-      FilterByName: this.currentChooserValue == 1,
-      FilterByCode: this.currentChooserValue != 1,
+      OrderBy: this.currentChooserValue == SEARCH_NAME ? 'Description' : 'ProductCode',
+      FilterByName: this.currentChooserValue == SEARCH_NAME || this.currentChooserValue == SEARCH_NAME_CODE,
+      FilterByCode: this.currentChooserValue == SEARCH_CODE || this.currentChooserValue == SEARCH_NAME_CODE,
     };
   }
 
@@ -65,9 +69,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     return {
       SearchString: this.srcString,
       PageSize: '999999',
-      OrderBy: this.currentChooserValue == 1 ? 'Description' : 'ProductCode',
-      FilterByName: this.currentChooserValue == 1,
-      FilterByCode: this.currentChooserValue != 1,
+      OrderBy: this.currentChooserValue == SEARCH_NAME ? 'Description' : 'ProductCode',
+      FilterByName: this.currentChooserValue == SEARCH_NAME || this.currentChooserValue == SEARCH_NAME_CODE,
+      FilterByCode: this.currentChooserValue == SEARCH_CODE || this.currentChooserValue == SEARCH_NAME_CODE,
     };
   }
 
@@ -92,8 +96,6 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     );
     this.dbDataTable.InnerJumpOnEnter = true;
     this.dbDataTable.OuterJump = true;
-    // this.dbDataTable.JumpPositionPriority = JumpPosPriority.first;
-    // this.dbDataTable.DestWhenJumpedOnto = JumpDestination.LOWER_LEFT;
   }
 
   override Setup(): void {
@@ -129,7 +131,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
   override ngOnInit(): void {
     if (!HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-      this.inputForm.controls['chooser'].setValue(2);
+      this.inputForm.controls['chooser'].setValue(SEARCH_CODE);
     }
     this.Refresh(this.getInputParams);
   }
@@ -138,8 +140,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   ngAfterContentInit(): void {
     $('*[type=radio]').addClass(TileCssClass);
 
-    $('*[type=radio]')[0].id = 'radio-1';
-    $('*[type=radio]')[1].id = 'radio-2';
+    $('*[type=radio]')[SEARCH_NAME_CODE].id = 'radio-0';
+    $('*[type=radio]')[SEARCH_NAME].id = 'radio-1';
+    $('*[type=radio]')[SEARCH_CODE].id = 'radio-2';
 
     this.kbS.SetWidgetNavigatable(this);
     this.kbS.SelectFirstTile();
@@ -147,6 +150,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
       $('#active-prod-search').val(this.searchString);
+      this.clickCurrentRadio()
       this.isLoaded = true;
     }
     this.kbS.SelectCurrentElement();
@@ -155,6 +159,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     if (!this.closedManually) {
       this.kbS.RemoveWidgetNavigatable();
     }
+  }
+
+  clickCurrentRadio(): void {
+    $(`#radio-${this.currentChooserValue}`).trigger('click')
   }
 
   override refreshFilter(event: any): void {
@@ -266,11 +274,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.code === 'Tab') {
       event.preventDefault()
-      if (this.currentChooserValue == 1) {
-        $('#radio-2').trigger('click')
-      } else {
-        $('#radio-1').trigger('click')
-      }
+      this.currentChooserValue = (this.currentChooserValue + 1) % 3
+      this.clickCurrentRadio()
+      this.Refresh(this.getInputParams)
     }
     switch (event.key) {
       case KeyBindings.exit: {

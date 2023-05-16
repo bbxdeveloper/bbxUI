@@ -75,6 +75,17 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
   productFilter?: Product = { id: -1 } as Product;
 
+  get getProductGetParams(): GetProductsParamListModel {
+    return {
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: this.productInputFilterString.trim(),
+      OrderBy: 'ProductCode',
+      FilterByName: true,
+      FilterByCode: true,
+    };
+  }
+
   override allColumns = [
     'scTypeX',
     'warehouse',
@@ -586,9 +597,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.isLoading = true;
 
-    this.Subscription_FillFormWithFirstAvailableProduct = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString.trim()
-    } as GetProductsParamListModel).subscribe({
+    this.Subscription_FillFormWithFirstAvailableProduct = this.seC.GetAll(this.getProductGetParams).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.productFilter = res.data[0];

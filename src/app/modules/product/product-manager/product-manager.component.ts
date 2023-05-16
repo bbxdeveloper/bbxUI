@@ -145,7 +145,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
 
   idParam?: number;
   override get getInputParams(): GetProductsParamListModel {
-    const params = { OrderBy: "ProductCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '', ID: this.idParam };
+    const params = {
+      OrderBy: "ProductCode",
+      PageNumber: this.dbDataTable.currentPage + '',
+      PageSize: this.dbDataTable.pageSize,
+      SearchString: this.searchString ?? '',
+      ID: this.idParam,
+      FilterByCode: true,
+      FilterByName: true
+    } as GetProductsParamListModel;
     this.idParam = undefined;
     return params;
   }
