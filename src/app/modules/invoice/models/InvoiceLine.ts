@@ -47,8 +47,8 @@ export class InvoiceLine extends MementoObject implements IEditable {
 
     unitPrice: number = 0.0; // editable
 
-    newUnitPrice1: number = 0;
-    newUnitPrice2: number = 0;
+    newUnitPrice1: number|undefined;
+    newUnitPrice2: number|undefined;
 
     vatRateCode: string = ''; // below table
 

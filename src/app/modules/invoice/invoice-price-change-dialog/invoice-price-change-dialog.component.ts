@@ -9,7 +9,7 @@ import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { Subscription } from 'rxjs';
+import { Subscription, of, switchMap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { ProductPriceChange } from '../models/ProductPriceChange';
 
@@ -24,6 +24,9 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   @Input()
   public newPrice: number = 0
+
+  @Input()
+  public priceChange: ProductPriceChange|undefined
 
   private requestSubscription: Subscription|undefined
 
@@ -89,15 +92,22 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     this.isLoading = true
 
     this.requestSubscription = this.productService.GetProductByCode(request)
+      .pipe(
+        switchMap(product => {
+          const priceDelta = this.newPrice - product.latestSupplyPrice!
+
+          return of({
+            productCode: product.productCode,
+            productDescription: product.description,
+            oldUnitPrice1: product.unitPrice1,
+            newUnitPrice1: this.priceChange ? this.priceChange.newUnitPrice1 : product.unitPrice1! + priceDelta,
+            oldUnitPrice2: product.unitPrice2,
+            newUnitPrice2: this.priceChange ? this.priceChange.newUnitPrice2 : product.unitPrice2! + priceDelta,
+          })
+        })
+      )
       .subscribe({
-        next: product => this.productPriceChangeForm.patchValue({
-          productCode: product.productCode,
-          productDescription: product.description,
-          oldUnitPrice1: product.unitPrice1,
-          newUnitPrice1: this.newPrice - product.latestSupplyPrice! + product.unitPrice1!,
-          oldUnitPrice2: product.unitPrice2,
-          newUnitPrice2: this.newPrice - product.latestSupplyPrice! + product.unitPrice2!,
-        }),
+        next: prices => this.productPriceChangeForm.patchValue(prices),
         error: this.commonService.HandleError.bind(this.commonService),
         complete: () => this.isLoading = false
       })
@@ -127,8 +137,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     return {
-      newUnitPrice1: controls['newUnitPrice1'].value,
-      newUnitPrice2: controls['newUnitPrice2'].value,
+      newUnitPrice1: parseInt(controls['newUnitPrice1'].value),
+      newUnitPrice2: parseInt(controls['newUnitPrice2'].value),
     } as ProductPriceChange
   }
 

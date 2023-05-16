@@ -713,12 +713,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     return [""].concat(this.buyersData.map(x => x.customerName).filter(optionValue => optionValue.toLowerCase().includes(filterValue)));
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.fS.pushCommands(this.commands);
   }
-  ngAfterViewInit(): void {
+
+  public ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
+
   private AfterViewInitSetup(): void {
     this.InitFormDefaultValues();
 
@@ -746,7 +748,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.cdref.detectChanges();
     }, 500);
   }
-  ngOnDestroy(): void {
+
+  public ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
   }
@@ -934,14 +937,26 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   private suggestPriceChange(invoiceLine: InvoiceLine): void {
+    let priceChange = undefined
+    if (invoiceLine.newUnitPrice1 && invoiceLine.newUnitPrice2) {
+      priceChange = {
+        newUnitPrice1: invoiceLine.newUnitPrice1,
+        newUnitPrice2: invoiceLine.newUnitPrice2,
+      } as ProductPriceChange
+    }
     const dialog = this.dialogService.open(InvoicePriceChangeDialogComponent, {
       context: {
         productCode: invoiceLine.productCode,
-        newPrice: invoiceLine.unitPrice
+        newPrice: invoiceLine.unitPrice,
+        priceChange: priceChange
       }
     })
 
-    dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
+    dialog.onClose.subscribe((priceChange: ProductPriceChange|undefined) => {
+      if (!priceChange) {
+        return
+      }
+
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
     })
@@ -1175,6 +1190,21 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
 
+  @HostListener('keydown.f9', ['$event'])
+  public onF9(event: Event): void {
+    if (!this.kbS.IsCurrentNavigatableTable() || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+      return
+    }
+
+    const regex = /PRODUCT-\d+-(\d+)/
+    const match = this.kbS.Here.match(regex)
+    if (match) {
+      const rowIndex = parseInt(match[1])
+
+      this.suggestPriceChange(this.dbData[rowIndex].data)
+    }
+  }
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -1199,6 +1229,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             return;
           }
           _event.preventDefault();
+
           HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
           });
