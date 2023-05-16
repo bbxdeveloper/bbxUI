@@ -4,26 +4,29 @@
     </nb-card-header>
     <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
         <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
-            <nb-form-field (keydown.enter)="moveToButtons($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>
-                        Termék
-                    </label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode" readonly>
+            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
+                <label>
+                    Termék
+                </label>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode" readonly>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="productDescription" readonly>
+            </div>
 
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="productDescription" readonly>
+            <div class="form-input-container">
+                <label>
+                    Listaár
+                </label>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="oldUnitPrice1" readonly>
+                <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice1">
+            </div>
 
-                    <label>
-                        Listaár
-                    </label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="oldUnitPrice1" readonly>
-                    <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice1">
-
-                    <label>
-                        Egységár
-                    </label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="oldUnitPrice2" readonly>
-                    <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice2">
+            <div class="form-input-container">
+                <label>
+                    Egységár
+                </label>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="oldUnitPrice2" readonly>
+                <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice2">
+            </div>
                     <!-- <label>
                         Javítandó számla
                     </label>
@@ -48,8 +51,6 @@
                     <div *ngIf="invoiceNumber?.errors?.['itsNotIncoming']" class="error">
                         Csak bejövő számla adható meg.
                     </div> -->
-                </div>
-            </nb-form-field>
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
