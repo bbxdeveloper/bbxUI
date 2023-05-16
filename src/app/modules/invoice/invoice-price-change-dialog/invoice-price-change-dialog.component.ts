@@ -127,7 +127,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     return {
-      productCode: controls['productCode'].value,
       newUnitPrice1: controls['newUnitPrice1'].value,
       newUnitPrice2: controls['newUnitPrice2'].value,
     } as ProductPriceChange
