@@ -942,9 +942,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                 MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                 MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                Obs: this.mode.isSummaryInvoice
-                  ? this.seInv.GetAggregateReport.bind(this.seInv)
-                  : this.seInv.GetReport.bind(this.seInv),
+                Obs: this.seInv.GetReport.bind(this.seInv),
                 Reset: this.DelayedReset.bind(this),
                 ReportParams: {
                   "id": d.data?.id,
