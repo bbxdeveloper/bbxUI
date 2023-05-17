@@ -37,7 +37,9 @@ export interface Customer {
     unitPriceTypeX: string,
 
     warningLimit?: number,
-    maxLimit?: number
+    maxLimit?: number,
+
+    paymentDays: number,
 }
 
 export function BlankCustomer(): Customer {
@@ -63,6 +65,7 @@ export function BlankCustomer(): Customer {
         countyCode: '',
         email: '',
         unitPriceType: 'Listaár',
+        paymentDays: 0,
         // warningLimit: 0,
         // maxLimit: 0
     } as Customer;
