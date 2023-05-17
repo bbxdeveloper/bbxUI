@@ -25,6 +25,20 @@ form {
 
 .form-input-container {
     display: flex;
+    column-gap: 25px;
+
+    &.head {
+        justify-content: space-evenly;
+        text-align: center;
+
+        & * {
+            flex-grow: 1;
+        }
+
+        &:last-child {
+            margin-left: -25px;
+        }
+    }
 }
 
 .modal-product-active {

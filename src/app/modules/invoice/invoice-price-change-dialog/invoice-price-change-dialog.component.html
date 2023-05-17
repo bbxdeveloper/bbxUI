@@ -8,15 +8,25 @@
                 <label>
                     Termék
                 </label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode" readonly>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName="productDescription" readonly>
+                <input nbInput type="text" formControlName="productCode" readonly>
+                <input nbInput type="text" formControlName="productDescription" readonly>
+            </div>
+
+            <div class="form-input-container head">
+                <div></div>
+                <div>
+                    Régi ár
+                </div>
+                <div>
+                    Új ár
+                </div>
             </div>
 
             <div class="form-input-container">
                 <label>
                     Listaár
                 </label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName="oldUnitPrice1" readonly>
+                <input nbInput type="text" formControlName="oldUnitPrice1" readonly>
                 <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice1">
             </div>
 
@@ -24,7 +34,7 @@
                 <label>
                     Egységár
                 </label>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName="oldUnitPrice2" readonly>
+                <input nbInput type="text" formControlName="oldUnitPrice2" readonly>
                 <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice2">
             </div>
                     <!-- <label>
