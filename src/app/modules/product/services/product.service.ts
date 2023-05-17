@@ -14,6 +14,7 @@ import { DeleteProductRequest } from '../models/DeleteProductRequest';
 import { DeleteProductResponse } from '../models/DeleteProductResponse';
 import { UnitOfMeasure } from '../models/UnitOfMeasure';
 import { GetProductByCodeRequest } from '../models/GetProductByCodeRequest';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 const MOCK_DATA: Product[] = [
   {
@@ -63,6 +64,10 @@ export class ProductService {
     var index = 0;
 
     if (!!params) {
+      if (!HelperFunctions.isEmptyOrSpaces(params.SearchString)) {
+        params.SearchString = encodeURIComponent(params.SearchString!);
+      }
+
       Object.keys(params).forEach((key: string) => {
         if (params[key as keyof GetProductsParamListModel] != undefined && params[key as keyof GetProductsParamListModel] != null) {
           if (index == 0) {
@@ -118,6 +123,10 @@ export class ProductService {
     var index = 0;
 
     if (!!params) {
+      if (!HelperFunctions.isEmptyOrSpaces(params.ProductCode)) {
+        params.ProductCode = encodeURIComponent(params.ProductCode!);
+      }
+
       Object.keys(params).forEach((key: string) => {
         if (params[key as keyof GetProductByCodeRequest] != undefined && params[key as keyof GetProductByCodeRequest] != null) {
           if (index == 0) {
