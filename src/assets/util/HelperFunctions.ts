@@ -190,6 +190,16 @@ export module HelperFunctions {
             .format(formatString);
     }
 
+    export function AddToDate(date: string, addDay: number = 0, addMonth: number = 0, addYear: number = 0,
+        formatString: string = DATE_FORMATSTRING, dateLocale: string = 'hu-HU'): string {
+        moment.locale(dateLocale)
+        return moment(date)
+            .add(addDay, "days")
+            .add(addMonth, "months")
+            .add(addYear, "years")
+            .format(formatString)
+    }
+
     export function GetOnlyDateFromUtcDateString(val: string): string {
         if (val === undefined || val === null || val.length == 0 || val.indexOf("T") === -1) {
             return "";
