@@ -46,6 +46,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
+import { InvoicePriceChangeDialogComponent } from '../invoice-price-change-dialog/invoice-price-change-dialog.component';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -537,8 +538,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (product && product.productCode !== undefined) {
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
+            const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
             currentRow?.data.Save('productCode');
+
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
             setTimeout(() => {
@@ -567,48 +569,54 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    if (!!changedData && !!changedData.productCode) {
-      if ((!!col && col === 'productCode') || col === undefined) {
-        this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-          next: product => {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+    if (!changedData || !changedData.productCode) {
+      return
+    }
 
-            if (index !== undefined) {
-              let tmp = this.dbData[index].data;
+    if ((!!col && col === 'productCode') || col === undefined) {
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: product => {
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-              tmp.productDescription = product.description ?? '';
+          if (index !== undefined) {
+            let tmp = this.dbData[index].data;
 
-              product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.vatRate = product.vatPercentage ?? 1;
-              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-              tmp.vatRateCode = product.vatRateCode;
+            tmp.productDescription = product.description ?? '';
 
-              tmp.ReCalc();
+            product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
+            tmp.vatRate = product.vatPercentage ?? 1;
+            product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
+            tmp.vatRateCode = product.vatRateCode;
 
-              this.dbData[index].data = tmp;
+            tmp.ReCalc();
 
-              this.dbDataDataSrc.setData(this.dbData);
-            }
+            this.dbData[index].data = tmp;
 
-            this.RecalcNetAndVat();
-          },
-          error: err => {
-            this.RecalcNetAndVat();
+            this.dbDataDataSrc.setData(this.dbData);
           }
-        });
-      } else {
-        if (index !== undefined) {
-          let tmp = this.dbData[index].data;
 
-          tmp.ReCalc();
-
-          this.dbData[index].data = tmp;
-
-          this.dbDataDataSrc.setData(this.dbData);
+          this.RecalcNetAndVat();
+        },
+        error: err => {
+          this.RecalcNetAndVat();
         }
+      });
+    } else {
+      if (index !== undefined) {
+        let tmp = this.dbData[index].data;
 
-        this.RecalcNetAndVat();
+        tmp.ReCalc();
+
+        this.dbData[index].data = tmp;
+
+        this.dbDataDataSrc.setData(this.dbData);
       }
+
+      this.RecalcNetAndVat();
+    }
+
+    if (col === 'unitPrice' && index === 0 && changedData.latestSupplyPrice < changedData.unitPrice) {
+      this.suggestPriceChange(this.dbData[index].data)
     }
   }
 
@@ -907,8 +915,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
-        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
+        const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
         currentRow?.data.Save('productCode');
+
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();
         setTimeout(() => {
@@ -924,6 +933,19 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     }
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
+  }
+
+  private suggestPriceChange(invoiceLine: InvoiceLine): void {
+    const dialog = this.dialogService.open(InvoicePriceChangeDialogComponent, {
+      context: {
+        productCode: invoiceLine.productCode,
+        newPrice: invoiceLine.unitPrice
+      }
+    })
+
+    dialog.onClose.subscribe(didPriceChanged => console.log(didPriceChanged))
+
+    return
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
@@ -1000,7 +1022,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   }
 
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    let res = new InvoiceLine(this.requiredCols);
+    const res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
 
@@ -1009,6 +1031,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     res.quantity = 0;
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-'
+
+    res.latestSupplyPrice = p.latestSupplyPrice
+
     res.noDiscount = p.noDiscount;
     if (!p.noDiscount) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
