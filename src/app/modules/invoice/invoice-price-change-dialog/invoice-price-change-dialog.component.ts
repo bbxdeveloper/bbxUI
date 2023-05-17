@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -18,7 +18,7 @@ import { ProductPriceChange } from '../models/ProductPriceChange';
   templateUrl: './invoice-price-change-dialog.component.html',
   styleUrls: ['./invoice-price-change-dialog.component.scss']
 })
-export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentComponent implements OnInit, OnDestroy {
+export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input()
   public productCode: string = ''
 
@@ -39,7 +39,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public TileCssClass = TileCssClass
 
   public formId = 'product-price-change-form-dialog'
-
   public productPriceChangeForm!: FormGroup
   public navigateable: NavigatableForm
 
@@ -74,6 +73,18 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     )
 
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
+  }
+  ngAfterViewInit(): void {
+    this.keyboardService.SetWidgetNavigatable(this)
+
+    this.cdref.detectChanges()
+
+    this.navigateable.OuterJump = true
+    this.OuterJump = true
+
+    this.navigateable.GenerateAndSetNavMatrices(true)
+    this.keyboardService.SelectFirstTile()
+    this.keyboardService.Jump(AttachDirection.UP, true)
   }
 
   public ngOnDestroy(): void {

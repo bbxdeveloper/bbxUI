@@ -22,45 +22,21 @@
                 </div>
             </div>
 
-            <div class="form-input-container">
+            <div class="form-input-container" (keydown.enter)="navigateable.HandleFormEnter($event)">
                 <label>
                     Listaár
                 </label>
                 <input nbInput type="text" formControlName="oldUnitPrice1" readonly>
-                <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice1">
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="newUnitPrice1">
             </div>
 
-            <div class="form-input-container">
+            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
                 <label>
                     Egységár
                 </label>
                 <input nbInput type="text" formControlName="oldUnitPrice2" readonly>
-                <input class="{{TileCssClass}}" nbInput type="number" formControlName="newUnitPrice2">
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="newUnitPrice2">
             </div>
-                    <!-- <label>
-                        Javítandó számla
-                    </label>
-
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber"
-                        [readonly]="isEditModeOff" [disabled]="isLoading" (click)="navigateable.HandleFormFieldClick($event)" required>
-
-                    <div *ngIf="invoiceNumber?.errors?.['missingInvoice']" class="error">
-                        <ng-container *ngIf="isIncomingCorrectionInvoice; else missingOutcoming">
-                            Nincs ilyen bejövő számla.
-                        </ng-container>
-
-                        <ng-template #missingOutcoming>
-                            Nincs ilyen kimenő számla.
-                        </ng-template>
-                    </div>
-
-                    <div *ngIf="invoiceNumber?.errors?.['itsNotOutcoming']" class="error">
-                        Csak kimenő számla adható meg.
-                    </div>
-
-                    <div *ngIf="invoiceNumber?.errors?.['itsNotIncoming']" class="error">
-                        Csak bejövő számla adható meg.
-                    </div> -->
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
