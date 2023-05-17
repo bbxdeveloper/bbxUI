@@ -30,6 +30,8 @@ form {
     &.head {
         justify-content: space-evenly;
         text-align: center;
+        margin-left: 125px;
+        margin-right: 133px;
 
         & * {
             flex-grow: 1;
@@ -38,6 +40,14 @@ form {
         &:last-child {
             margin-left: -25px;
         }
+    }
+
+    label {
+        min-width: 100px;
+    }
+
+    .product-description {
+        flex-grow: 1;
     }
 }
 
