@@ -257,6 +257,7 @@ export class BaseManagerComponent<T> {
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      this.kbS.ClickCurrentElement()
     }, 200);
   }
 
