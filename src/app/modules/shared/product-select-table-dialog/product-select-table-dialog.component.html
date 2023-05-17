@@ -6,6 +6,8 @@
         <form id="productSearchDialogForm" [formGroup]="formNav.form" #formDirective="ngForm" class="form-with-rows" autocomplete="off">
             <div class="form-row">
                 <nb-radio-group formControlName="chooser" class="bbx-radiogroup">
+                    <nb-radio class="radio-option-search-both" checked="true"
+                        [value]="0">Kódra és névre</nb-radio>
                     <nb-radio class="radio-option-search-name" checked="true"
                         [value]="1">Névre</nb-radio>
                     <nb-radio class="radio-option-search-code"
