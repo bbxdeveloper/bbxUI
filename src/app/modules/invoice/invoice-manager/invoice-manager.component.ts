@@ -64,7 +64,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   cachedCustomerName?: string;
 
   senderData!: Customer;
-  buyerData!: Customer;
+  customerData!: Customer;
+  get buyerData(): Customer {
+    return this.customerData
+  }
+  set buyerData(buyer: Customer) {
+    this.customerData = buyer
+    if (this.mode && !this.mode.incoming && this.mode.invoiceType === InvoiceTypes.INV && this.mode.invoiceCategory === InvoiceCategory.NORMAL) {
+      this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(buyer.paymentDays, 0, 0))
+    }
+  }
 
   buyersData: Customer[] = [];
   filteredBuyerOptions$: Observable<string[]> = of([]);
@@ -400,6 +409,15 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outInvForm.controls["paymentMethod"].valueChanges.subscribe({
       next: v => {
         this.RecalcNetAndVat();
+      }
+    });
+    this.outInvForm.controls["invoiceDeliveryDate"].valueChanges.subscribe({
+      next: v => {
+        if (this.mode && !this.mode.incoming && this.mode.invoiceType === InvoiceTypes.INV && this.mode.invoiceCategory === InvoiceCategory.NORMAL) {
+          this.outInvForm.controls['paymentDate'].setValue(
+            HelperFunctions.AddToDate(v, this.buyerData.paymentDays, 0, 0)
+          )
+        }
       }
     });
   }
