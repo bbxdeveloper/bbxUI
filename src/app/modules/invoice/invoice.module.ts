@@ -28,6 +28,7 @@ import { CorrectionInvoiceComponent } from './correction-invoice/correction-invo
 import { CorrectionInvoiceSelectionDialogComponent } from './correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { InvoiceItemsDialogComponent } from './invoice-items-dialog/invoice-items-dialog.component';
 import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
+import { InvoicePriceChangeDialogComponent } from './invoice-price-change-dialog/invoice-price-change-dialog.component';
 
 
 
@@ -52,6 +53,7 @@ import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
     CorrectionInvoiceSelectionDialogComponent,
     InvoiceItemsDialogComponent,
     InvoiceFormComponent,
+    InvoicePriceChangeDialogComponent,
   ],
   imports: [
     CommonModule,

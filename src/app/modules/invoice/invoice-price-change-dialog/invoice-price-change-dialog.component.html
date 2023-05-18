@@ -1,0 +1,49 @@
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>Árváltozás</span>
+    </nb-card-header>
+    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
+        <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
+            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
+                <label>
+                    Termék
+                </label>
+                <input nbInput type="text" formControlName="productCode" readonly>
+                <input class="product-description" nbInput type="text" formControlName="productDescription" readonly>
+            </div>
+
+            <div class="form-input-container head">
+                <div>
+                    Régi ár
+                </div>
+                <div>
+                    Új ár
+                </div>
+            </div>
+
+            <div class="form-input-container" (keydown.enter)="navigateable.HandleFormEnter($event)">
+                <label>
+                    Listaár
+                </label>
+                <input nbInput type="text" formControlName="oldUnitPrice1" readonly>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="newUnitPrice1">
+            </div>
+
+            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
+                <label>
+                    Egységár
+                </label>
+                <input nbInput type="text" formControlName="oldUnitPrice2" readonly>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="newUnitPrice2">
+            </div>
+        </form>
+    </nb-card-body>
+    <nb-card-footer class="modal-product-active-footer">
+        <button nbButton (click)="changePrice()" status="primary" tabindex="-1" id="confirm-dialog-button-yes">
+            OK
+        </button>
+        <button nbButton (click)="close()" status="danger" tabindex="-1" id="confirm-dialog-button-no">
+            Vissza
+        </button>
+    </nb-card-footer>
+</nb-card>
