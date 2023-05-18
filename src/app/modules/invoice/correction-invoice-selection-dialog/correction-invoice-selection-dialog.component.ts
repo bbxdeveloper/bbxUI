@@ -140,6 +140,10 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
   }
 
   public moveToButtons(event: Event): void {
+    if (this.isLoading) {
+      return
+    }
+
     if (this.isEditModeOff) {
       this.navigateable.HandleFormEnter(event)
     }
