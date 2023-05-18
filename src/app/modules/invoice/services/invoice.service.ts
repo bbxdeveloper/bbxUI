@@ -21,6 +21,7 @@ import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingD
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,9 @@ import { PricePreviewRequest } from '../models/PricePreviewRequest';
 export class InvoiceService {
   private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Invoice';
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private readonly http: HttpClient,
+    private readonly tokenService: TokenStorageService) { }
 
   GetTemporaryPaymentMethod(): Observable<PaymentMethod[]> {
     return of([{
@@ -126,7 +129,7 @@ export class InvoiceService {
   public GetPendingDeliveryNotes(): Promise<PendingDeliveryNote[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString({
       incoming: false,
-      warehouseCode: '001',
+      warehouseCode: this.tokenService.wareHouse?.id.toString() ?? '',
       currencyCode: 'HUF'
     })
     const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)

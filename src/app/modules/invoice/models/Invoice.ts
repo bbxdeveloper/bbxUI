@@ -4,7 +4,7 @@ export interface Invoice {
     id: number,
     incoming: boolean,
     warehouseID: number,
-    warehouse: string, // 001-Raktár
+    warehouse: string,
     invoiceNumber: string,
     invoiceIssueDate: string,
     invoiceDeliveryDate: string,
