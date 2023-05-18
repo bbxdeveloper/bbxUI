@@ -4,7 +4,7 @@ import { InvoiceLine } from "./InvoiceLine";
 import { InvoiceTypes } from "./InvoiceTypes";
 
 export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject {
-    "warehouseCode": string; // 001 - string
+    "warehouseCode": string;
 
     "invoiceIssueDate": any;  // date
     "invoiceDeliveryDate": any; // date

@@ -12,6 +12,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from '../pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
 import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/model/TableSettings';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-pending-delivery-notes-select-dialog',
@@ -33,8 +34,9 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryNoteItem>>,
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
-    private readonly cdref: ChangeDetectorRef,
-    private readonly dialogService: NbDialogService
+    cdref: ChangeDetectorRef,
+    private readonly dialogService: NbDialogService,
+    private readonly tokenService: TokenStorageService,
   ) {
     super(dialogRef, kns, dataSourceBuilder)
     const navMap: string[][] = [[]];
@@ -70,7 +72,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     this.isLoading = true
     const request = {
       currencyCode: 'HUF',
-      warehouseCode: '001',
+      warehouseCode: this.tokenService.wareHouse?.id.toString() ?? '',
       incoming: this.mode.incoming,
       customerID: this.customerID
     }

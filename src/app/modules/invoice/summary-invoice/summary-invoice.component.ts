@@ -47,6 +47,7 @@ import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -200,25 +201,26 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private seInv: InvoiceService,
-    private seC: CustomerService,
-    private cdref: ChangeDetectorRef,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
+    private readonly seInv: InvoiceService,
+    private readonly seC: CustomerService,
+    private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private simpleToastrService: NbToastrService,
-    private bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
+    private readonly bbxToastrService: BbxToastrService,
     cs: CommonService,
     sts: StatusService,
-    private productService: ProductService,
-    private printAndDownLoadService: PrintAndDownloadService,
-    private status: StatusService,
+    private readonly productService: ProductService,
+    private readonly printAndDownLoadService: PrintAndDownloadService,
+    private readonly status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private activatedRoute: ActivatedRoute,
+    private readonly activatedRoute: ActivatedRoute,
     router: Router,
-    private custDiscountService: CustomerDiscountService,
+    private readonly custDiscountService: CustomerDiscountService,
     public invoiceStatisticsService: InvoiceStatisticsService,
-    behaviorFactory: InvoiceBehaviorFactoryService
+    behaviorFactory: InvoiceBehaviorFactoryService,
+    private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.activatedRoute.url.subscribe(params => {
@@ -831,10 +833,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
 
-    this.outGoingInvoiceData.currencyCode = 'HUF';
+    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF;
     this.outGoingInvoiceData.exchangeRate = 1;
 
-    this.outGoingInvoiceData.warehouseCode = '001';
+    this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.id.toString() ?? '';
 
     this.outGoingInvoiceData.incoming = this.mode.incoming;
     this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
