@@ -105,7 +105,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
         switchMap(product => {
-          const priceDelta = this.newPrice - product.latestSupplyPrice!
+          let priceDelta = this.newPrice - product.latestSupplyPrice!
+          if (priceDelta < 0) {
+            priceDelta = 0
+          }
 
           return of({
             productCode: product.productCode,
