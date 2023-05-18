@@ -126,7 +126,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   public moveToButtons(event: Event): void {
     if (this.isEditModeOff) {
-      // this.navigateable.HandleFormEnter(event)
+      this.navigateable.HandleFormEnter(event)
     }
     else {
       event.preventDefault()
@@ -139,21 +139,24 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   }
 
   public changePrice(): void {
-    const priceChanged = this.productPriceChange()
-
-    this.dialogRef.close(priceChanged)
-  }
-
-  private productPriceChange(): ProductPriceChange {
     const controls = this.productPriceChangeForm.controls
 
-    return {
+    const priceChange = {
       newUnitPrice1: parseInt(controls['newUnitPrice1'].value),
       newUnitPrice2: parseInt(controls['newUnitPrice2'].value),
     } as ProductPriceChange
+
+    this.dialogRef.close(priceChange)
   }
 
   public close(): void {
-    this.dialogRef.close(undefined)
+    const controls = this.productPriceChangeForm.controls
+
+    const priceChange = {
+      newUnitPrice1: parseInt(controls['oldUnitPrice1'].value),
+      newUnitPrice2: parseInt(controls['oldUnitPrice2'].value),
+    } as ProductPriceChange
+
+    this.dialogRef.close(priceChange)
   }
 }

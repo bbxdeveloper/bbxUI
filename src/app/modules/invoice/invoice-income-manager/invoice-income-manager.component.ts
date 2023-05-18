@@ -952,11 +952,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       }
     })
 
-    dialog.onClose.subscribe((priceChange: ProductPriceChange|undefined) => {
-      if (!priceChange) {
-        return
-      }
-
+    dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
     })
