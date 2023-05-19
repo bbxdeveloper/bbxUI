@@ -72,7 +72,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     this.isLoading = true
     const request = {
       currencyCode: 'HUF',
-      warehouseCode: this.tokenService.wareHouse?.id.toString() ?? '',
+      warehouseCode: this.tokenService.wareHouse?.warehouseCode ?? '',
       incoming: this.mode.incoming,
       customerID: this.customerID
     }

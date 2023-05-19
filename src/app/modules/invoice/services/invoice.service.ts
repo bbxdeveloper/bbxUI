@@ -129,7 +129,7 @@ export class InvoiceService {
   public GetPendingDeliveryNotes(): Promise<PendingDeliveryNote[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString({
       incoming: false,
-      warehouseCode: this.tokenService.wareHouse?.id.toString() ?? '',
+      warehouseCode: this.tokenService.wareHouse?.warehouseCode ?? '',
       currencyCode: 'HUF'
     })
     const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
