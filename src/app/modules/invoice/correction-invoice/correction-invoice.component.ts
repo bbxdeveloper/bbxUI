@@ -346,7 +346,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.paymentMethod = this.invoiceForm!.invoiceFormData!.paymentMethod
 
-    this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode!
+    this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? ""
 
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;

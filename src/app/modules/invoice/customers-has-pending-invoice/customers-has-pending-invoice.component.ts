@@ -81,7 +81,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     this.isLoading = true
     const request = {
       currencyCode: 'HUF',
-      warehouseCode: this.tokenService.wareHouse?.id!.toString() ?? '',
+      warehouseCode: this.tokenService.wareHouse?.warehouseCode ?? '',
       incoming: this.incoming
     }
 
