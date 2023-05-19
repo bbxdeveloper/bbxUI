@@ -230,6 +230,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     return FormHelper.GetNumber(this.dbDataTableForm, 'maxLimit')
   }
 
+  paymentDateValidation(control: AbstractControl): any {
+    const value = HelperFunctions.ToInt(control.value)
+
+    return value < 0 ? { min:  { value: value } } : null
+  }
+
   validateWarningLimit(control: AbstractControl): any {
     if (this.maxLimit === undefined) {
       return null
@@ -497,6 +503,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         this.validateWarningLimit.bind(this),
       ]),
       maxLimit: new FormControl(undefined, []),
+      paymentDays: new FormControl(0, [
+        this.paymentDateValidation.bind(this)
+      ]),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
