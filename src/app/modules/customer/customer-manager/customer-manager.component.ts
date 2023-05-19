@@ -245,6 +245,29 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     return wrong ? { max: { value: control.value } } : null
   }
 
+  validateMinLimitIfMaxIsEdited(control: AbstractControl): any {
+    if (!this.maxLimit) {
+      return
+    }
+
+    const minControl = this.dbDataTableForm.controls['warningLimit']
+    if (!minControl) {
+      return
+    }
+
+    const min = HelperFunctions.ToInt(minControl.value)
+    if (min <= 0) {
+      return
+    }
+
+    const error = min >= this.maxLimit
+      ? { max: { value: min } }
+      : null
+    minControl.setErrors(error)
+
+    return null
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -496,7 +519,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       warningLimit: new FormControl(undefined, [
         this.validateWarningLimit.bind(this),
       ]),
-      maxLimit: new FormControl(undefined, []),
+      maxLimit: new FormControl(undefined, [
+        this.validateMinLimitIfMaxIsEdited.bind(this)
+      ]),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
