@@ -855,72 +855,77 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
-      if (!!res) {
-        this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
-        const request = this.UpdateOutGoingData();
-
-        this.statusService.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.invoiceService.CreateOutgoing(request).subscribe({
-          next: async d => {
-            try {
-              //this.isSilentLoading = false;
-              if (!!d.data) {
-                console.log('Save response: ', d);
-
-                if (!!d.data) {
-                  this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                }
-
-                this.simpleToastrService.show(
-                  Constants.MSG_SAVE_SUCCESFUL,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-
-                this.dbDataTable.RemoveEditRow();
-                this.kbS.SelectFirstTile();
-
-                this.isSaveInProgress = true;
-
-                this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-
-                await this.printAndDownLoadService.openPrintDialog({
-                  DialogTitle: 'Számla Nyomtatása',
-                  DefaultCopies: 1,
-                  MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                  MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                  MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                  Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-                  Reset: this.DelayedReset.bind(this),
-                  ReportParams: {
-                    "id": d.data?.id,
-                    "copies": 1 // Ki lesz töltve dialog alapján
-                  } as Constants.Dct
-                } as PrintDialogRequest);
-              } else {
-                this.cs.HandleError(d.errors);
-                this.isSaveInProgress = false;
-                this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-              }
-            } catch (error) {
-              this.Reset()
-              this.cs.HandleError(error)
-            }
-          },
-          error: err => {
-            this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-            this.cs.HandleError(err);
-            this.isSaveInProgress = false;
-          },
-          complete: () => {
-            this.isSaveInProgress = false;
-          }
-        });
-      } else {
+      if (!res) {
         this.isSaveInProgress = false;
         // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
+        setTimeout(() => {
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.SelectFirstTile();
+        }, 200)
+
+        return
       }
+
+      this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
+      const request = this.UpdateOutGoingData();
+
+      this.statusService.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.invoiceService.CreateOutgoing(request).subscribe({
+        next: async d => {
+          try {
+            //this.isSilentLoading = false;
+            if (!!d.data) {
+              console.log('Save response: ', d);
+
+              if (!!d.data) {
+                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              }
+
+              this.simpleToastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
+
+              this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
+
+              this.isSaveInProgress = true;
+
+              this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+
+              await this.printAndDownLoadService.openPrintDialog({
+                DialogTitle: 'Számla Nyomtatása',
+                DefaultCopies: 1,
+                MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+                MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+                MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+                Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+                Reset: this.DelayedReset.bind(this),
+                ReportParams: {
+                  "id": d.data?.id,
+                  "copies": 1 // Ki lesz töltve dialog alapján
+                } as Constants.Dct
+              } as PrintDialogRequest);
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isSaveInProgress = false;
+              this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          } catch (error) {
+            this.Reset()
+            this.cs.HandleError(error)
+          }
+        },
+        error: err => {
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+          this.cs.HandleError(err);
+          this.isSaveInProgress = false;
+        },
+        complete: () => {
+          this.isSaveInProgress = false;
+        }
+      });
     });
   }
 

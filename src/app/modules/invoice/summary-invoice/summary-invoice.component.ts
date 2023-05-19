@@ -902,10 +902,14 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
+
       if (!res) {
         this.isSaveInProgress = false;
         // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
+        setTimeout(() => {
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.SelectFirstTile();
+        }, 200)
 
         return
       }
