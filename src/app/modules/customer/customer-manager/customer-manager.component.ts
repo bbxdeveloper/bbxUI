@@ -231,13 +231,17 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   validateWarningLimit(control: AbstractControl): any {
-    if (this.maxLimit === undefined || this.maxLimit === 0) {
-      return null
-    }
-
     const warningLimit = HelperFunctions.ToInt(control.value)
 
     if (warningLimit === 0 && this.maxLimit === 0) {
+      return null
+    }
+
+    if (warningLimit < 0) {
+      return { min: { value: control.value } }
+    }
+
+    if (this.maxLimit === undefined || this.maxLimit === 0) {
       return null
     }
 
@@ -246,7 +250,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   validateMinLimitIfMaxIsEdited(control: AbstractControl): any {
-    if (!this.maxLimit) {
+    if (this.maxLimit === null || this.maxLimit === undefined) {
       return
     }
 
@@ -255,17 +259,21 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       return
     }
 
+    let error: any = this.maxLimit < 0
+      ? { min: { value: control.value } }
+      : null
+
+    minControl.setErrors(error)
+
     const min = HelperFunctions.ToInt(minControl.value)
     if (min <= 0) {
       return
     }
 
-    const error = min >= this.maxLimit
+    error = min >= this.maxLimit
       ? { max: { value: min } }
       : null
     minControl.setErrors(error)
-
-    return null
   }
 
   constructor(
