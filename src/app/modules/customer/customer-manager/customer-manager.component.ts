@@ -231,7 +231,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   validateWarningLimit(control: AbstractControl): any {
-    if (this.maxLimit === undefined) {
+    if (this.maxLimit === undefined || this.maxLimit === 0) {
       return null
     }
 
