@@ -1,0 +1,12 @@
+<div class="layout-grid layout-proportion-of-{{proportion}}">
+    <div class="div-stretch">
+        <ng-content select="[title]"></ng-content>
+        <ng-content select="[top]"></ng-content>
+    </div>
+
+    <div class="separator-horizontal"></div>
+
+    <div class="div-stretch">
+        <ng-content select="[bottom]"></ng-content>
+    </div>
+</div>

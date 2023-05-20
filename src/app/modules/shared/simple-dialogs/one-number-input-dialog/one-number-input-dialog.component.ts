@@ -1,13 +1,14 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
-import { createMask } from '@ngneat/input-mask';
-import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { Component, AfterViewInit, OnDestroy, Input, ChangeDetectorRef } from "@angular/core";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { NbDialogRef } from "@nebular/theme";
+import { createMask } from "@ngneat/input-mask";
+import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
+import { DateIntervalDialogResponse } from "src/assets/model/DateIntervalDialogResponse";
+import { IInlineManager } from "src/assets/model/IInlineManager";
+import { NavigatableForm } from "src/assets/model/navigation/Nav";
+import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
+import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
 @Component({
   selector: 'app-one-number-input-dialog',

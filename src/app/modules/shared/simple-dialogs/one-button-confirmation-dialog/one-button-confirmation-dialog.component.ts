@@ -1,7 +1,7 @@
-import { AfterContentInit, Component, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
+import { Component, AfterContentInit, OnDestroy, Input } from "@angular/core";
+import { NbDialogRef } from "@nebular/theme";
+import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
+import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
 @Component({
   selector: 'app-one-button-confirmation-dialog',

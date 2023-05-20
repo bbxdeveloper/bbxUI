@@ -1,11 +1,12 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
+import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { NbDialogRef } from "@nebular/theme";
+import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
+import { DateIntervalDialogResponse } from "src/assets/model/DateIntervalDialogResponse";
+import { IInlineManager } from "src/assets/model/IInlineManager";
+import { NavigatableForm } from "src/assets/model/navigation/Nav";
+import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
+import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
 @Component({
   selector: 'app-date-interval-dialog',

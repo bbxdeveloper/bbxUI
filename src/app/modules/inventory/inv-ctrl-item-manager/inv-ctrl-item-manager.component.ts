@@ -23,7 +23,7 @@ import { ProductSelectTableDialogComponent } from '../../shared/product-select-t
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -39,7 +39,7 @@ import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { InventoryService } from '../services/inventory.service';
 import { StockService } from '../../stock/services/stock.service';
 import { GetStockRecordParamsModel } from '../../stock/models/GetStockRecordParamsModel';
-import { OneButtonMessageDialogComponent } from '../../shared/one-button-message-dialog/one-button-message-dialog.component';
+import { OneButtonMessageDialogComponent } from '../../shared/simple-dialogs/one-button-message-dialog/one-button-message-dialog.component';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';

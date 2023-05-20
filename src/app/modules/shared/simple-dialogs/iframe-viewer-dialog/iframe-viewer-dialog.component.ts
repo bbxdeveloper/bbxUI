@@ -1,9 +1,9 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
-import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
-import { TileCssClass } from 'src/assets/model/navigation/Nav';
+import { Component, AfterViewInit, OnDestroy, Input, ChangeDetectorRef } from "@angular/core";
+import { NbDialogRef } from "@nebular/theme";
+import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
+import { DateIntervalDialogResponse } from "src/assets/model/DateIntervalDialogResponse";
+import { TileCssClass } from "src/assets/model/navigation/Navigatable";
+import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
 @Component({
   selector: 'app-iframe-viewer-dialog',
