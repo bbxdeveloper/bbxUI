@@ -237,18 +237,49 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   validateWarningLimit(control: AbstractControl): any {
-    if (this.maxLimit === undefined) {
-      return null
-    }
-
     const warningLimit = HelperFunctions.ToInt(control.value)
 
     if (warningLimit === 0 && this.maxLimit === 0) {
       return null
     }
 
+    if (warningLimit < 0) {
+      return { min: { value: control.value } }
+    }
+
+    if (this.maxLimit === undefined || this.maxLimit === 0) {
+      return null
+    }
+
     const wrong = warningLimit >= this.maxLimit
     return wrong ? { max: { value: control.value } } : null
+  }
+
+  validateMinLimitIfMaxIsEdited(control: AbstractControl): any {
+    if (this.maxLimit === null || this.maxLimit === undefined) {
+      return
+    }
+
+    const minControl = this.dbDataTableForm.controls['warningLimit']
+    if (!minControl) {
+      return
+    }
+
+    let error: any = this.maxLimit < 0
+      ? { min: { value: control.value } }
+      : null
+
+    minControl.setErrors(error)
+
+    const min = HelperFunctions.ToInt(minControl.value)
+    if (min <= 0) {
+      return
+    }
+
+    error = min >= this.maxLimit
+      ? { max: { value: min } }
+      : null
+    minControl.setErrors(error)
   }
 
   constructor(
@@ -502,7 +533,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       warningLimit: new FormControl(undefined, [
         this.validateWarningLimit.bind(this),
       ]),
-      maxLimit: new FormControl(undefined, []),
+      maxLimit: new FormControl(undefined, [
+        this.validateMinLimitIfMaxIsEdited.bind(this)
+      ]),
       paymentDays: new FormControl(0, [
         this.paymentDateValidation.bind(this)
       ]),
