@@ -36,4 +36,15 @@
             </form>
         </nb-card-body>
     </nb-card>
+
+    <nb-card>
+        <nb-card-body>
+            <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
+                [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+                (inputFocusChanged)="inlineInputFocusChanged($event)"
+                (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
+            </app-inline-editable-table>
+        </nb-card-body>
+    </nb-card>
 </div>

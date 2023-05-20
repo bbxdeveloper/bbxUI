@@ -13,6 +13,15 @@ import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { StatusService } from 'src/app/services/status.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
+import { Constants } from 'src/assets/util/Constants';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { TreeGridNode } from 'src/assets/model/TreeGridNode';
+import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { InbetweenWarehouseProduct } from '../models/InbetweenWarehouseProduct';
+import { InputFocusChangedEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
+import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 
 @Component({
   selector: 'app-inbetween-warehouse',
@@ -22,6 +31,11 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
 export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public TileCssClass = TileCssClass
+
+  public isLoading = false
+
+  public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
+  private commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   public headerForm: FormGroup
   public headerFormNav: InlineTableNavigatableForm
@@ -77,6 +91,57 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
     ]
   };
 
+  tableIsFocused = false
+  dbDataTableId = 'inbetween-warehouse-data-table'
+  dbData: TreeGridNode<InbetweenWarehouseProduct>[] = []
+  dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<InbetweenWarehouseProduct>>
+  dbDataTable!: InlineEditableNavigatableTable<InbetweenWarehouseProduct>;
+  cellClass = 'PRODUCT'
+
+  public allColumns = [
+    'productCode',
+    'productDescription',
+    'quantity',
+    'unitOfMeasureX',
+    'currAvgCost',
+    'value',
+  ]
+  public colDefs: ModelFieldDescriptor[] = [
+    {
+      label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
+      defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
+      colWidth: "30%", textAlign: "left", fInputType: 'code-field',
+      keyAction: Actions.Create, fReadonly: true,
+      keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
+    },
+    {
+      label: 'Megnevezés', objectKey: 'productDescription', colKey: 'productDescription',
+      defaultValue: '', type: 'string', mask: "", fReadonly: true,
+      colWidth: "70%", textAlign: "left",
+    },
+   {
+      label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
+      defaultValue: '', type: 'number', mask: "",
+      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number',
+      // checkIfReadonly: (row: TreeGridNode<InvoiceLine>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
+    },
+    {
+      label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
+      defaultValue: '', type: 'string', mask: "", fReadonly: true,
+      colWidth: "80px", textAlign: "right"
+    },
+    {
+      label: 'Ált. nyilv. ár', objectKey: 'currAvgCost', colKey: 'currAvgCost',
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
+    },
+    {
+      label: 'Nettó', objectKey: 'value', colKey: 'value',
+      defaultValue: '', type: 'number', mask: "", fReadonly: true,
+      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
+    },
+  ]
+
   constructor(
     private readonly tokenService: TokenStorageService,
     private readonly warehouseService: WareHouseService,
@@ -85,6 +150,7 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
     private readonly cdref: ChangeDetectorRef,
     private readonly footerService: FooterService,
     private readonly statusService: StatusService,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InbetweenWarehouseProduct>>,
   ) {
     this.headerForm = new FormGroup({
       fromWarehouse: new FormControl({ disabled: true }),
@@ -110,13 +176,31 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
     )
 
     this.headerFormNav.OuterJump = true
+
+    this.dbDataDataSrc = dataSourceBuilder.create(this.dbData)
+
+    this.dbDataTable = new InlineEditableNavigatableTable(
+      dataSourceBuilder,
+      this.keyboardService,
+      this.footerService,
+      this.cdref,
+      this.dbData,
+      this.dbDataTableId,
+      AttachDirection.DOWN,
+      () => {
+        return new InbetweenWarehouseProduct();
+      },
+      {} as IInlineManager
+    )
+
+    this.dbDataTable.OuterJump = true
   }
 
   public ngOnDestroy(): void {
     this.keyboardService.Detach()
   }
 
-  ngAfterViewInit(): void {
+  public ngAfterViewInit(): void {
     this.headerForm.controls['transferDate'].setValue(moment().format('YYYY-MM-DD'))
 
     this.keyboardService.SetCurrentNavigatable(this.headerFormNav)
@@ -141,6 +225,15 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
 
   public ngOnInit(): void {
     this.headerFormNav.GenerateAndSetNavMatrices(true)
+
+    this.dbDataTable.Setup(
+      this.dbData,
+      this.dbDataDataSrc,
+      this.allColumns,
+      this.colDefs,
+      [], // this.colsToIgnore,
+      this.cellClass,
+    )
 
     this.cdref.detectChanges()
 
@@ -171,7 +264,7 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
       })
   }
 
-  JumpToFirstCellAndNav(): void {
+  public JumpToFirstCellAndNav(): void {
     this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
     // this.keyboardService.SetCurrentNavigatable(this.dbDataTable);
     this.keyboardService.SelectElementByCoordinate(0, 0);
@@ -181,4 +274,39 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
     }, 100);
   }
 
+  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
+    if (!event.Focused) {
+      // this.dbData.forEach(x => x.data.ReCalc());
+      // this.RecalcNetAndVat();
+    }
+
+    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
+      if (event.Focused) {
+        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.footerService.pushCommands(this.commands);
+      } else {
+        let k = this.KeySetting;
+        this.commands = GetFooterCommandListFromKeySettings(k);
+        this.footerService.pushCommands(this.commands);
+      }
+    }
+  }
+
+  public focusOnTable(focusIn: boolean): void {
+    this.tableIsFocused = focusIn;
+    if (focusIn) {
+      this.dbDataTable.PushFooterCommandList();
+    } else {
+      this.footerService.pushCommands(this.commands);
+    }
+  }
+
+  public trackRows(index: number, row: any) {
+    return row.uid;
+  }
+
+  public onTableFunctionKeyDown(event: TableKeyDownEvent): void {
+    // this.HandleKeyDown(event);
+  }
 }
