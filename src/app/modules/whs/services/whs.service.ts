@@ -82,14 +82,23 @@ export class WhsService {
     return this.http.delete<IResponseSingleData<WhsTransferFull>>(this.BaseUrl + '?ID=' + id);
   }
 
-  GetTemporaryWhsTransferStatus(): Observable<WhsTransferStatus[]> {
-    return of([{
+  GetTemporaryWhsTransferStatus(): WhsTransferStatus[] {
+    return [{
       value: "-1",
       text: "Feltöltés alatt..."
-    }] as WhsTransferStatus[]);
+    }] as WhsTransferStatus[];
   }
 
   GetPaymentWhsTransferStatuses(): Observable<WhsTransferStatus[]> {
     return this.http.get<WhsTransferStatus[]>(this.BaseUrl + '/whstransferstatus');
+  }
+
+  async GetAllWhsTransferStatusPromise(): Promise<WhsTransferStatus[]> {
+    return lastValueFrom(this.GetPaymentWhsTransferStatuses().pipe(
+      catchError((err, c) => {
+        this.cs.HandleError(err);
+        return c;
+      })
+    ));
   }
 }

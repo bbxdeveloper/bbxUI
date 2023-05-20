@@ -289,11 +289,11 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-warehouse" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
-        data-sub="header-warehouse-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
+        data-sub="header-warehouse-sub-1,header-warehouse-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
         [disabled]="InProgress">Raktár
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-warehouse" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
-        data-sub="header-warehouse-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
+        data-sub="header-warehouse-sub-1,header-warehouse-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
         [disabled]="InProgress">Raktár
     </nb-action>
     <ng-template #sub_warehouse let-data>
@@ -302,6 +302,12 @@
                 <button nbButton status="primary" id="header-warehouse-sub-1" [disabled]="InProgress"
                     (click)="goTo('warehouse/inbetween-warehouse')">
                     Raktárközi átadás bizonylat
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-warehouse-sub-2" [disabled]="InProgress"
+                    (click)="goTo('warehouse/warehouse-document')">
+                    Raktárkészlet bizonylatok
                 </button>
             </nb-card-body>
         </nb-card>

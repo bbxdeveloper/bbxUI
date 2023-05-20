@@ -1,6 +1,7 @@
 import { WhsTransferLineFull } from "./WhsTransferLine"
 import { IBaseEntity } from "src/assets/model/IBaseEntity"
 import { WhsTransferLine } from "./WhsTransferLine"
+import { JsonIgnore } from "src/assets/model/navigation/DynamicObject"
 
 export class WhsTransferBase {
     fromWarehouseCode?: string
@@ -29,5 +30,7 @@ export class WhsTransferFull implements IBaseEntity<number> {
     fromWarehouse?: string // eg. 001-Raktár
     toWarehouse?: string // eg. 002-Külső raktár
     user?: any
+    @JsonIgnore
+    whsTransferAmount: number = 0
     whsTransferLines: WhsTransferLineFull[] = []
 }
