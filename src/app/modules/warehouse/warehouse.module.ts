@@ -8,13 +8,15 @@ import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabse
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
+import { InbetweenWarehouseComponent } from './inbetween-warehouse/inbetween-warehouse.component';
 
 
 
 @NgModule({
   declarations: [
     WareHouseManagerComponent,
-    WareHouseSideBarFormComponent
+    WareHouseSideBarFormComponent,
+    InbetweenWarehouseComponent
   ],
   imports: [
     CommonModule,
