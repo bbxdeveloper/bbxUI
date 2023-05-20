@@ -9,6 +9,7 @@ import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { InbetweenWarehouseComponent } from './inbetween-warehouse/inbetween-warehouse.component';
+import { AngularEditorModule } from '@kolkov/angular-editor';
 
 
 
@@ -44,6 +45,7 @@ import { InbetweenWarehouseComponent } from './inbetween-warehouse/inbetween-war
     NbTooltipModule,
     AngularSplitModule,
     SharedModule,
+    AngularEditorModule,
   ],
   exports: [
     WareHouseManagerComponent

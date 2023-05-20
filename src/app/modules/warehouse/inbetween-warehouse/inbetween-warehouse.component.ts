@@ -1,15 +1,184 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { WareHouseService } from '../services/ware-house.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
+import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
+import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { validDate } from 'src/assets/model/Validators';
+import moment from 'moment';
+import { BehaviorSubject, map, tap } from 'rxjs';
+import { CommonService } from 'src/app/services/common.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { StatusService } from 'src/app/services/status.service';
+import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 @Component({
   selector: 'app-inbetween-warehouse',
   templateUrl: './inbetween-warehouse.component.html',
   styleUrls: ['./inbetween-warehouse.component.scss']
 })
-export class InbetweenWarehouseComponent implements OnInit {
+export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  constructor() { }
+  public TileCssClass = TileCssClass
 
-  ngOnInit(): void {
+  public headerForm: FormGroup
+  public headerFormNav: InlineTableNavigatableForm
+  public headerFormId = 'header-form-id'
+
+  public warehouseSelectionError = false
+  public warehouses$ = new BehaviorSubject<string[]>([])
+  public toWarehouses$ = new BehaviorSubject<string[]>([])
+
+  public editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: 'auto',
+    minHeight: '0',
+    maxHeight: 'auto',
+    width: 'auto',
+    minWidth: '0',
+    translate: 'yes',
+    enableToolbar: true,
+    showToolbar: true,
+    placeholder: 'Enter text here...',
+    defaultParagraphSeparator: '',
+    defaultFontName: '',
+    defaultFontSize: '',
+    fonts: [
+      { class: 'arial', name: 'Arial' },
+      { class: 'times-new-roman', name: 'Times New Roman' },
+      { class: 'calibri', name: 'Calibri' },
+      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+    ],
+    customClasses: [
+      {
+        name: 'quote',
+        class: 'quote',
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: 'titleText',
+        class: 'titleText',
+        tag: 'h1',
+      },
+    ],
+    uploadUrl: 'v1/image',
+    uploadWithCredentials: false,
+    sanitize: true,
+    toolbarPosition: 'top',
+    toolbarHiddenButtons: [
+      ['bold', 'italic'],
+      ['fontSize']
+    ]
+  };
+
+  constructor(
+    private readonly tokenService: TokenStorageService,
+    private readonly warehouseService: WareHouseService,
+    private readonly commonService: CommonService,
+    private readonly keyboardService: KeyboardNavigationService,
+    private readonly cdref: ChangeDetectorRef,
+    private readonly footerService: FooterService,
+    private readonly statusService: StatusService,
+  ) {
+    this.headerForm = new FormGroup({
+      fromWarehouse: new FormControl({ disabled: true }),
+      toWarehouse: new FormControl('', [
+        this.notSame.bind(this)
+      ]),
+      transferDate: new FormControl('Valami', [
+        Validators.required,
+        validDate,
+        this.maxDate.bind(this)
+      ]),
+      note: new FormControl('')
+    })
+
+    this.headerFormNav = new InlineTableNavigatableForm(
+      this.headerForm,
+      this.keyboardService,
+      this.cdref,
+      [],
+      this.headerFormId,
+      AttachDirection.DOWN,
+      {} as IInlineManager
+    )
+
+    this.headerFormNav.OuterJump = true
+  }
+
+  public ngOnDestroy(): void {
+    this.keyboardService.Detach()
+  }
+
+  ngAfterViewInit(): void {
+    this.headerForm.controls['transferDate'].setValue(moment().format('YYYY-MM-DD'))
+
+    this.keyboardService.SetCurrentNavigatable(this.headerFormNav)
+    this.keyboardService.SelectFirstTile()
+  }
+
+  private maxDate(control: AbstractControl): ValidationErrors|null {
+    const date = moment(control.value)
+    if (!date.isValid()) {
+      return null
+    }
+
+    const today = moment()
+    return date.isAfter(today) ? { maxDate: { value: control.value } } : null
+  }
+
+  private notSame(control: AbstractControl): any {
+    const otherValue = this.headerForm?.controls['fromWarehouse']?.value ?? ''
+
+    this.warehouseSelectionError = !(control.value === '' && otherValue === '') && control.value === otherValue
+  }
+
+  public ngOnInit(): void {
+    this.headerFormNav.GenerateAndSetNavMatrices(true)
+
+    this.cdref.detectChanges()
+
+    this.statusService.waitForLoad()
+
+    this.warehouseService.GetAll()
+      .pipe(
+        map(response => response.data?.map(x => ({ description: x.warehouseDescription, code: x.warehouseCode})) ?? []),
+        tap(data => {
+          const warehouseFromLogin = this.tokenService.wareHouse?.warehouseCode
+          const warehouses = data.filter(x => x.code === warehouseFromLogin)
+            .map(x => x.description) ?? []
+
+          this.warehouses$.next(warehouses)
+          this.headerForm.controls['fromWarehouse'].setValue(warehouses[0])
+        }),
+        tap(data => {
+          const warehouses = data?.map(x => x.description) ?? []
+          this.toWarehouses$.next(warehouses);
+        }),
+      )
+      .subscribe({
+        error: () => {
+          this.commonService.HandleError.bind(this.commonService)
+          this.statusService.waitForLoad(false)
+        },
+        complete: () => this.statusService.waitForLoad(false)
+      })
+  }
+
+  JumpToFirstCellAndNav(): void {
+    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+    // this.keyboardService.SetCurrentNavigatable(this.dbDataTable);
+    this.keyboardService.SelectElementByCoordinate(0, 0);
+    setTimeout(() => {
+      this.keyboardService.ClickCurrentElement();
+      this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+    }, 100);
   }
 
 }

@@ -1,0 +1,15 @@
+.error {
+    color: red;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.filter-card {
+    background: unset;
+}
