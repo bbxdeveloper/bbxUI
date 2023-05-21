@@ -309,7 +309,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
-          this.RefreshTable();
+          this.RefreshTable(undefined, true);
         } else {
           this.simpleToastrService.show(
             d.errors!.join('\n'),
@@ -330,16 +330,20 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    this.SetTableAndFormCommandListFromManager();
-
-    this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.PushFooterCommandList();
+    
   }
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
+  }
+
+  public filterFormPageReady(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+
+    this.SetTableAndFormCommandListFromManager()
+
+    this.dbDataTable.GenerateAndSetNavMatrices(true)
+    this.dbDataTable.PushFooterCommandList()
   }
 
   private RefreshAll(params?: WhsTransferQueryParams): void {
@@ -403,7 +407,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
-        this.dbDataTable?.HandleKey(event);
+        this.RefreshAll(this.getInputParams);
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {

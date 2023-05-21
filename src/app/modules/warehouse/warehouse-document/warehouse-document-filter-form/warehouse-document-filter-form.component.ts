@@ -27,6 +27,9 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
   @Output()
   public refreshClicked = new EventEmitter<WarehouseDocumentFilterFormData | undefined>(undefined)
 
+  @Output()
+  public pageReady = new EventEmitter<void>()
+
   get isEditModeOff(): boolean {
     return !this.keyboardService.isEditModeActivated
   }
@@ -220,9 +223,14 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     await this.getAndSetStatuses();
 
     this.filterFormNav.GenerateAndSetNavMatrices(true)
+    
+    this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
+
+    this.pageReady.emit()
 
     this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
     this.keyboardService.SelectFirstTile()
+    this.keyboardService.ClickCurrentElement()
   }
 
   public Refresh(): void {

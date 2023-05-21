@@ -4,39 +4,45 @@
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
 
-                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                    formFieldName="FromWarehouseCode" class="nav-configuration" label="Kiadás raktár" [data$]="wareHouseData$">
-                </app-bbx-two-row-combo-box>
+                <div class="double-column">
+                    <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav" formFieldName="FromWarehouseCode"
+                        class="nav-configuration" label="Kiadás raktár" [needBlankOption]="false" [data$]="wareHouseData$" top>
+                    </app-bbx-two-row-combo-box>
+                    
+                    <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav" formFieldName="ToWarehouseCode"
+                        class="nav-configuration" label="Bevétel raktár" [needBlankOption]="false" [data$]="wareHouseData$" bottom>
+                    </app-bbx-two-row-combo-box>
+                </div>
 
-                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                    formFieldName="ToWarehouseCode" class="nav-configuration" label="Bevétel raktár" [data$]="wareHouseData$">
-                </app-bbx-two-row-combo-box>
+                <div class="double-column">
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" left>
+                        <label>Kezdődátum</label>
+                        <input nbInput type="datetime" formControlName='FromDate' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                            [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" controlName="FromDate">
+                        </app-form-control-error>
+                    </nb-form-field>
+                    
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" right>
+                        <label>Végdátum</label>
+                        <input nbInput type="datetime" formControlName='ToDate' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03" mask="0000-00-00"
+                            [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" controlName="ToDate">
+                        </app-form-control-error>
+                    </nb-form-field>
+                </div>
 
-                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                    <label>Kezdődátum</label>
-                    <input nbInput type="datetime" formControlName='FromDate' class="{{TileCssClass}}"
-                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
-                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                    <app-form-control-error [form]="filterFormNav" controlName="FromDate">
-                    </app-form-control-error>
-                </nb-form-field>
-
-                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                    <label>Végdátum</label>
-                    <input nbInput type="datetime" formControlName='ToDate' class="{{TileCssClass}}"
-                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
-                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                    <app-form-control-error [form]="filterFormNav" controlName="ToDate">
-                    </app-form-control-error>
-                </nb-form-field>
-
-                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                    formFieldName="Status" class="nav-configuration" label="Státusz" [data$]="statuses$">
-                </app-bbx-two-row-combo-box>
-
-                <div class="form-row">
-                    <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
-                        status="primary">Keresés</button>
+                <div class="double-column">
+                    <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav" formFieldName="Status"
+                        class="nav-configuration" label="Státusz" [needBlankOption]="false" [data$]="statuses$" left>
+                    </app-bbx-two-row-combo-box>
+                    
+                    <div class="form-row" right>
+                        <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
+                            status="primary">Keresés</button>
+                    </div>
                 </div>
             </form>
         </nb-card-body>
