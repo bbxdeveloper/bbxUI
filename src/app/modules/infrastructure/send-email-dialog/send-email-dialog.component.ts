@@ -10,7 +10,7 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { Constants } from 'src/assets/util/Constants';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
+import { OneTextInputDialogComponent } from '../../shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { OfferPrintParams } from '../../offer/offer-nav/offer-nav.component';
 import { OfferService } from '../../offer/services/offer.service';
 import { StatusService } from 'src/app/services/status.service';

@@ -1,0 +1,90 @@
+// @import 'side-bar-form-dialog';
+@import 'flat-design-no-side-bar-manager-component-default';
+
+$label-w-min: 185px;
+
+.label-type-1 {
+    min-width: $label-w-min;
+}
+
+.input-type-1 {
+    margin-top: 2px;
+    max-width: 100% !important;
+}
+
+.input-type-1-checkbox {
+    margin-top: 12px;
+}
+
+label {
+    align-self: center;
+    text-align: right;
+}
+label.label-checkbox {
+    align-self: auto !important;
+}
+
+input[type="checkbox"],
+[type="radio"] {
+    box-sizing: border-box;
+    padding: 0;
+    -ms-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    transform: scale(1.5);
+    margin-bottom: 10px;
+    padding: 10px;
+    margin-left: 25px;
+}
+
+label {
+    @extend .label-type-1;
+}
+
+.filter-card-body {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
+
+// form {
+//     display: contents !important;
+// }
+
+form {
+    /* display: contents !important; */
+    display: flex;
+    align-items: flex-end;
+    column-gap: 10px;
+    flex-direction: row;
+}
+
+.bbx-radiogroup {
+    display: flex;
+    flex-direction: row;
+}
+
+[hidden] { display: none !important; }
+
+table.table-statistics-net-vat-gross {
+    column-gap: 25px;
+    padding: 5px;
+    border-spacing: 15px 0px;
+
+    td {
+        min-width: 200px;
+    }
+}
+
+nb-card-body {
+    padding-bottom: 0px;
+    padding-top: 0px;
+}
+
+.search-footer {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}

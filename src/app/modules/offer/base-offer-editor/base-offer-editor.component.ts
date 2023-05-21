@@ -25,7 +25,7 @@ import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { OfferLine } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
-import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
+import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -37,7 +37,7 @@ import { Actions, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySetti
 import { CurrencyCode } from '../../system/models/CurrencyCode';
 import { SystemService } from '../../system/services/system.service';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
-import { RadioChoiceDialogComponent } from '../../shared/radio-choice-dialog/radio-choice-dialog.component';
+import { RadioChoiceDialogComponent } from '../../shared/simple-dialogs/radio-choice-dialog/radio-choice-dialog.component';
 import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 
 @Component({

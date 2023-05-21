@@ -13,7 +13,7 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, OfferNavKeySettings, KeyBindings, IsKeyFunctionKey } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
