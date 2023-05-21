@@ -28,7 +28,7 @@ import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
   templateUrl: './inbetween-warehouse.component.html',
   styleUrls: ['./inbetween-warehouse.component.scss']
 })
-export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDestroy {
+export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
 
   public TileCssClass = TileCssClass
 
@@ -91,13 +91,14 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
     ]
   };
 
-  tableIsFocused = false
+  IsTableFocused = false
   dbDataTableId = 'inbetween-warehouse-data-table'
   dbData: TreeGridNode<InbetweenWarehouseProduct>[] = []
   dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<InbetweenWarehouseProduct>>
   dbDataTable!: InlineEditableNavigatableTable<InbetweenWarehouseProduct>;
   cellClass = 'PRODUCT'
 
+  private colsToIgnore = []
   public allColumns = [
     'productCode',
     'productDescription',
@@ -190,10 +191,34 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
       () => {
         return new InbetweenWarehouseProduct();
       },
-      {} as IInlineManager
+      this
     )
 
     this.dbDataTable.OuterJump = true
+  }
+
+  public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
+    debugger
+  }
+
+  public ChooseDataForCustomerForm(): void {
+    debugger
+  }
+
+  public RefreshData(): void {
+    debugger
+  }
+
+  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
+
+  }
+
+  public RecalcNetAndVat(): void {
+
+  }
+
+  public HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InbetweenWarehouseProduct>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    debugger
   }
 
   public ngOnDestroy(): void {
@@ -231,9 +256,11 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
       this.dbDataDataSrc,
       this.allColumns,
       this.colDefs,
-      [], // this.colsToIgnore,
+      this.colsToIgnore,
       this.cellClass,
     )
+
+    this.dbDataTable.GenerateAndSetNavMatrices(true)
 
     this.cdref.detectChanges()
 
@@ -266,7 +293,7 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
 
   public JumpToFirstCellAndNav(): void {
     this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-    // this.keyboardService.SetCurrentNavigatable(this.dbDataTable);
+    this.keyboardService.SetCurrentNavigatable(this.dbDataTable);
     this.keyboardService.SelectElementByCoordinate(0, 0);
     setTimeout(() => {
       this.keyboardService.ClickCurrentElement();
@@ -277,7 +304,7 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
     if (!event.Focused) {
       // this.dbData.forEach(x => x.data.ReCalc());
-      // this.RecalcNetAndVat();
+      this.RecalcNetAndVat();
     }
 
     if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
@@ -294,7 +321,7 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
   }
 
   public focusOnTable(focusIn: boolean): void {
-    this.tableIsFocused = focusIn;
+    this.IsTableFocused = focusIn;
     if (focusIn) {
       this.dbDataTable.PushFooterCommandList();
     } else {
@@ -308,5 +335,9 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
 
   public onTableFunctionKeyDown(event: TableKeyDownEvent): void {
     // this.HandleKeyDown(event);
+  }
+
+  private HandleKeyDown(valami: any): void {
+
   }
 }
