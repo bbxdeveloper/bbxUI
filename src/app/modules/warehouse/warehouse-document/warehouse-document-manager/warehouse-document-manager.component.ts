@@ -30,6 +30,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, WarehouseDocumentsKeySettings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
+import { WarehouseDocumentFilterFormData } from '../warehouse-document-filter-form/WarehouseDocumentFilterFormData';
 
 @Component({
   selector: 'app-warehouse-document-manager',
@@ -146,9 +147,18 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     },
   ];
 
+  private filterData: WarehouseDocumentFilterFormData = {} as WarehouseDocumentFilterFormData
   override get getInputParams(): WhsTransferQueryParams {
     const params = {
-      WhsTransferStatus: 'READY'
+      WhsTransferStatus: this.filterData.Status,
+      FromWarehouseCode: this.filterData.FromWarehouseCode,
+      ToWarehouseCode: this.filterData.ToWarehouseCode,
+      TransferDateFrom: this.filterData.FromDate,
+      TransferDateTo: this.filterData.ToDate,
+      Deleted: false,
+      OrderBy: "whsTransferNumber",
+      PageNumber: HelperFunctions.ToInt(this.dbDataTable.currentPage + ''),
+      PageSize: HelperFunctions.ToInt(this.dbDataTable.pageSize)
     } as WhsTransferQueryParams;
     return params;
   }
@@ -241,6 +251,11 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
     this.bbxSidebarService.collapse();
 
+    this.isLoading = false;
+  }
+
+  public refreshClicked(filterData: WarehouseDocumentFilterFormData | undefined): void {
+    this.filterData = filterData ?? {} as WarehouseDocumentFilterFormData;
     this.RefreshAll(this.getInputParams);
   }
 
@@ -321,8 +336,6 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();
-
-    this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
     console.log('Detach');

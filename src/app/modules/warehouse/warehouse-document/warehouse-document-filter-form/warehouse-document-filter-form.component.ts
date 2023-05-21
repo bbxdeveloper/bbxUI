@@ -114,12 +114,10 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
       ToWarehouseCode: new FormControl(undefined, []),
       Status: new FormControl(undefined, [Validators.required]),
       FromDate: new FormControl('', [
-        Validators.required,
         this.validateFromDate.bind(this),
         validDate
       ]),
       ToDate: new FormControl('', [
-        Validators.required,
         this.validateToDate.bind(this),
         validDate
       ])
@@ -220,6 +218,11 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
 
     await this.getAndSetWarehouses();
     await this.getAndSetStatuses();
+
+    this.filterFormNav.GenerateAndSetNavMatrices(true)
+
+    this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
+    this.keyboardService.SelectFirstTile()
   }
 
   public Refresh(): void {

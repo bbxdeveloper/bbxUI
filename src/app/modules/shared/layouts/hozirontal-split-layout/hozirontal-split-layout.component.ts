@@ -7,6 +7,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class HozirontalSplitLayoutComponent implements OnInit {
   @Input() proportion: string = '30'
+  @Input() hideDivider: boolean = false
 
   constructor() { }
 

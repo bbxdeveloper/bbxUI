@@ -31,7 +31,7 @@ $proportionMax: 100;
 
 @for $i from 0 through $proportionMax {
     .layout-proportion-of-#{$i} {
-        grid-template-rows: $i% 1% auto;
+        grid-template-rows: calc(0% + #{$i}%) 1% calc(99% - #{$i}%);
         grid-template-columns: 100%;
     }
 }
