@@ -3,7 +3,7 @@
 
     min-width: 100%;
     min-height: 100%;
-    
+
     align-content: space-evenly;
     justify-items: stretch;
     align-items: stretch;
@@ -31,7 +31,7 @@ $proportionMax: 100;
 
 @for $i from 0 through $proportionMax {
     .layout-proportion-of-#{$i} {
-        grid-template-rows: #{$i}% 1% auto;
+        grid-template-rows: $i% 1% auto;
         grid-template-columns: 100%;
     }
 }
