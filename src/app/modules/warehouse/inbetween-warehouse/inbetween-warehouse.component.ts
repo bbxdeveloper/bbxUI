@@ -12,14 +12,13 @@ import { BehaviorSubject, map, tap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { StatusService } from 'src/app/services/status.service';
-import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InbetweenWarehouseKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { NbDialogService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { InbetweenWarehouseProduct } from '../models/InbetweenWarehouseProduct';
-import { InputFocusChangedEvent, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -56,20 +55,22 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   public headerFormNav: InlineTableNavigatableForm
   public headerFormId = 'header-form-id'
 
+  public summedCost = 0
+
   public warehouseSelectionError = false
   public warehouses$ = new BehaviorSubject<string[]>([])
   public toWarehouses$ = new BehaviorSubject<string[]>([])
 
   override cellClass = 'PRODUCT'
 
-  override colsToIgnore = ['productDescription', 'unitOfMeasureX', 'currAvgCost', 'value']
+  override colsToIgnore = ['productDescription', 'unitOfMeasureX', 'currAvgCost', 'linePrice']
   public override allColumns = [
     'productCode',
     'productDescription',
     'quantity',
     'unitOfMeasureX',
     'currAvgCost',
-    'value',
+    'linePrice',
   ]
   public override colDefs: ModelFieldDescriptor[] = [
     {
@@ -88,7 +89,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number',
-      // checkIfReadonly: (row: TreeGridNode<InvoiceLine>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
+      checkIfReadonly: (row: TreeGridNode<InbetweenWarehouseProduct>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
     },
     {
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
@@ -101,7 +102,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
     {
-      label: 'Nettó', objectKey: 'value', colKey: 'value',
+      label: 'Érték', objectKey: 'linePrice', colKey: 'linePrice',
       defaultValue: '', type: 'number', mask: "", fReadonly: true,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -211,9 +212,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   public ChooseDataForCustomerForm(): void {}
 
-  public RefreshData(): void {
-    debugger
-  }
+  public RefreshData(): void {}
 
   public TableRowDataChanged(changedData?: InbetweenWarehouseProduct, index?: number|undefined, col?: string|undefined): void {
     if (!changedData) {
@@ -256,7 +255,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   public RecalcNetAndVat(): void {
+    this.summedCost = 0
 
+    for(const { data: item } of this.dbData) {
+      this.summedCost += item.linePrice
+    }
   }
 
   public HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InbetweenWarehouseProduct>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {

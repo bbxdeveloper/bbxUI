@@ -5,12 +5,27 @@ import { ProductStock } from "../../stock/models/ProductStock"
 import { MementoObject } from "src/assets/model/MementoObject"
 
 export class InbetweenWarehouseProduct extends MementoObject implements IEditable {
-    productID: number|undefined
-    productCode: string = ''
-    productDescription: string = ''
+    private _productID: number|undefined
+    public get productID(): number|undefined {
+        return this._productID
+    }
 
-    unitOfMeasureX: string = ''
-    currAvgCost: number = 0
+    public productCode: string = ''
+
+    private _productDescription: string = ''
+    public get productDescription(): string {
+        return this._productDescription
+    }
+
+    private _unitOfMeasureX: string = ''
+    public get unitOfMeasureX(): string {
+        return this._unitOfMeasureX
+    }
+
+    private _currAvgCost: number = 0
+    public get currAvgCost(): number {
+        return this._currAvgCost
+    }
 
     private _quantity: number = 0
     public get quantity(): number {
@@ -25,7 +40,7 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
         return this._realQty
     }
 
-    public get value() {
+    public get linePrice() {
         return HelperFunctions.Round2(this.quantity * this.currAvgCost, 1)
     }
 
@@ -40,12 +55,13 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
     public static fromProductAndStock(product: Product, stock: ProductStock|undefined): InbetweenWarehouseProduct {
         const obj = new InbetweenWarehouseProduct
 
-        obj.productID = product.id
         obj.productCode = product.productCode
-        obj.productDescription = product.description ?? ''
-        obj.unitOfMeasureX = product.unitOfMeasureX
+
+        obj._productID = product.id
+        obj._productDescription = product.description ?? ''
+        obj._unitOfMeasureX = product.unitOfMeasureX
         obj._realQty = stock?.realQty ?? 0
-        obj.currAvgCost = stock?.avgCost ?? product.latestSupplyPrice!
+        obj._currAvgCost = stock?.avgCost ?? product.latestSupplyPrice!
 
         obj.Save()
 
