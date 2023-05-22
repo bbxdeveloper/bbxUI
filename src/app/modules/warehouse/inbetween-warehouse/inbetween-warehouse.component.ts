@@ -33,6 +33,7 @@ import { Product } from '../../product/models/Product';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { ProductService } from '../../product/services/product.service';
 import { StockService } from '../../stock/services/stock.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-inbetween-warehouse',
@@ -214,12 +215,44 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     debugger
   }
 
-  public TableRowDataChanged(changedData?: any, index?: number|undefined, col?: string|undefined): void {
+  public TableRowDataChanged(changedData?: InbetweenWarehouseProduct, index?: number|undefined, col?: string|undefined): void {
+    if (!changedData) {
+      return
+    }
+
     if (!index && !col) {
       return
     }
 
-    debugger
+    if (col === 'quantity') {
+      this.quantityChanged(changedData)
+    }
+  }
+
+  private quantityChanged(changedData: InbetweenWarehouseProduct): void {
+    if (changedData.quantity <= 0) {
+      this.bbxToastrService.showError(Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO)
+
+      changedData.Restore()
+
+      return
+    }
+
+    if (changedData.quantity > changedData.realQty) {
+      const message = `Raktáron: ${changedData.realQty}. Átadandó: ${changedData.quantity}. Negatív készlet keletkezik! Helyes a beírt érték?`
+      HelperFunctions.confirm(
+        this.dialogService,
+        message,
+        () => changedData.Save(),
+        () => {
+          changedData.quantity = changedData.realQty;
+          changedData.Save()
+        })
+
+        return
+    }
+
+    changedData.Save()
   }
 
   public RecalcNetAndVat(): void {
@@ -256,11 +289,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       .subscribe({
         next: async product => {
           if (!product?.id) {
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            )
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
 
             return
           }
@@ -283,40 +312,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
           this.sts.pushProcessStatus(Constants.BlankProcessStatus)
         }
       })
-    // if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-    //
-    //   this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-    //     next: async product => {
-    //       console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-    //       if (!!product && !!product?.productCode) {
-    //         // let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
-    //         // currentRow?.data.Save('productCode');
-    //         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    //         this.dbDataTable.MoveNextInTable();
-    //         setTimeout(() => {
-    //           this.kbS.setEditMode(KeyboardModes.EDIT);
-    //           this.kbS.ClickCurrentElement();
-    //         }, 200);
-    //       } else {
-    //         // this.dbDataTable.data[rowPos].data.Restore('productCode');
-    //         this.bbxToastrService.show(
-    //           Constants.MSG_NO_PRODUCT_FOUND,
-    //           Constants.TITLE_ERROR,
-    //           Constants.TOASTR_ERROR
-    //         );
-    //       }
-    //     },
-    //     error: err => {
-    //       // this.dbDataTable.data[rowPos].data.Restore('productCode');
-    //       this.cs.HandleError(err);
-    //     },
-    //     complete: () => {
-    //       this.RecalcNetAndVat();
-    //       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-    //     }
-    //   });
-    // }
   }
 
   public ngOnDestroy(): void {

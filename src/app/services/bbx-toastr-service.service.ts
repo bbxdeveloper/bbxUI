@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NbToastrConfig, NbToastRef, NbToastrService } from '@nebular/theme';
 import { Subscription } from 'rxjs/internal/Subscription';
+import { Constants } from 'src/assets/util/Constants';
 
 export interface ToastRef {
   subscription?: Subscription
@@ -54,6 +55,10 @@ export class BbxToastrService {
     });
     this._toastrOpened = true;
     return this._toastrRef?.toast;
+  }
+
+  showError(message: any): void {
+    this.show(message, Constants.TITLE_ERROR, Constants.TOASTR_ERROR)
   }
 
   close(): void {
