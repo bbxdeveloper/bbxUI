@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -15,27 +15,41 @@ import { StatusService } from 'src/app/services/status.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InbetweenWarehouseKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { InbetweenWarehouseProduct } from '../models/InbetweenWarehouseProduct';
-import { InputFocusChangedEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
+import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { Router } from '@angular/router';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { Product } from '../../product/models/Product';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { ProductService } from '../../product/services/product.service';
+import { StockService } from '../../stock/services/stock.service';
 
 @Component({
   selector: 'app-inbetween-warehouse',
   templateUrl: './inbetween-warehouse.component.html',
   styleUrls: ['./inbetween-warehouse.component.scss']
 })
-export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
+export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<InbetweenWarehouseProduct> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
+  get editDisabled() {
+    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
+  }
 
   public TileCssClass = TileCssClass
 
-  public isLoading = false
+  override isLoading = false
 
-  public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
-  private commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+  public KeySetting: Constants.KeySettingsDct = InbetweenWarehouseKeySettings;
+  public override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   public headerForm: FormGroup
   public headerFormNav: InlineTableNavigatableForm
@@ -45,61 +59,10 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
   public warehouses$ = new BehaviorSubject<string[]>([])
   public toWarehouses$ = new BehaviorSubject<string[]>([])
 
-  public editorConfig: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    height: 'auto',
-    minHeight: '0',
-    maxHeight: 'auto',
-    width: 'auto',
-    minWidth: '0',
-    translate: 'yes',
-    enableToolbar: true,
-    showToolbar: true,
-    placeholder: 'Enter text here...',
-    defaultParagraphSeparator: '',
-    defaultFontName: '',
-    defaultFontSize: '',
-    fonts: [
-      { class: 'arial', name: 'Arial' },
-      { class: 'times-new-roman', name: 'Times New Roman' },
-      { class: 'calibri', name: 'Calibri' },
-      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
-    ],
-    customClasses: [
-      {
-        name: 'quote',
-        class: 'quote',
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: 'titleText',
-        class: 'titleText',
-        tag: 'h1',
-      },
-    ],
-    uploadUrl: 'v1/image',
-    uploadWithCredentials: false,
-    sanitize: true,
-    toolbarPosition: 'top',
-    toolbarHiddenButtons: [
-      ['bold', 'italic'],
-      ['fontSize']
-    ]
-  };
+  override cellClass = 'PRODUCT'
 
-  IsTableFocused = false
-  dbDataTableId = 'inbetween-warehouse-data-table'
-  dbData: TreeGridNode<InbetweenWarehouseProduct>[] = []
-  dbDataDataSrc!: NbTreeGridDataSource<TreeGridNode<InbetweenWarehouseProduct>>
-  dbDataTable!: InlineEditableNavigatableTable<InbetweenWarehouseProduct>;
-  cellClass = 'PRODUCT'
-
-  private colsToIgnore = []
-  public allColumns = [
+  override colsToIgnore = ['productDescription', 'unitOfMeasureX', 'currAvgCost', 'value']
+  public override allColumns = [
     'productCode',
     'productDescription',
     'quantity',
@@ -107,12 +70,12 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
     'currAvgCost',
     'value',
   ]
-  public colDefs: ModelFieldDescriptor[] = [
+  public override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Termékkód', objectKey: 'productCode', colKey: 'productCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "30%", textAlign: "left", fInputType: 'code-field',
-      keyAction: Actions.Create, fReadonly: true,
+      keyAction: Actions.Create, fReadonly: false,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -146,13 +109,22 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
   constructor(
     private readonly tokenService: TokenStorageService,
     private readonly warehouseService: WareHouseService,
-    private readonly commonService: CommonService,
-    private readonly keyboardService: KeyboardNavigationService,
+    private readonly productService: ProductService,
+    private readonly stockService: StockService,
+    private readonly bbxToastrService: BbxToastrService,
+    commonService: CommonService,
+    keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
-    private readonly footerService: FooterService,
-    private readonly statusService: StatusService,
+    footerService: FooterService,
+    statusService: StatusService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InbetweenWarehouseProduct>>,
+    dialogService: NbDialogService,
+    sidebarService: BbxSidebarService,
+    keyboardHelperService: KeyboardHelperService,
+    router: Router
   ) {
+    super(dialogService, keyboardService, footerService, commonService, statusService, sidebarService, keyboardHelperService, router)
+
     this.headerForm = new FormGroup({
       fromWarehouse: new FormControl({ disabled: true }),
       toWarehouse: new FormControl('', [
@@ -168,7 +140,7 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
 
     this.headerFormNav = new InlineTableNavigatableForm(
       this.headerForm,
-      this.keyboardService,
+      this.kbS,
       this.cdref,
       [],
       this.headerFormId,
@@ -178,19 +150,19 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
 
     this.headerFormNav.OuterJump = true
 
+    this.dbData = []
+
     this.dbDataDataSrc = dataSourceBuilder.create(this.dbData)
 
     this.dbDataTable = new InlineEditableNavigatableTable(
       dataSourceBuilder,
-      this.keyboardService,
-      this.footerService,
+      this.kbS,
+      this.fS,
       this.cdref,
       this.dbData,
       this.dbDataTableId,
       AttachDirection.DOWN,
-      () => {
-        return new InbetweenWarehouseProduct();
-      },
+      () => InbetweenWarehouseProduct.makeEmpty(),
       this
     )
 
@@ -198,19 +170,56 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
   }
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    debugger
+    console.log("Selecting InvoiceLine from avaiable data.");
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
+      context: {
+        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
+      }
+    });
+    dialogRef.onClose.subscribe(async product => {
+      const inbetween = await this.createInbetweenProduct(product);
+
+      if (!inbetween) {
+        return
+      }
+
+      this.dbData = [...this.dbData.filter(x => x.data.productID), { data: inbetween }]
+
+      this.RefreshTable()
+    });
   }
 
-  public ChooseDataForCustomerForm(): void {
-    debugger
+  private async createInbetweenProduct(product: Product): Promise<InbetweenWarehouseProduct|undefined> {
+    if (this.dbData.find(x => x.data.productID === product.id)) {
+      return
+    }
+
+    const productStocks = await this.stockService.getProductStock(product.id)
+    const stock = productStocks.find(x => x.warehouseCode === this.tokenService.wareHouse?.warehouseCode)
+
+    const inbetween = InbetweenWarehouseProduct.fromProductAndStock(product, stock)
+
+    return inbetween
   }
+
+  public ChooseDataForCustomerForm(): void {}
 
   public RefreshData(): void {
     debugger
   }
 
-  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
+  public TableRowDataChanged(changedData?: any, index?: number|undefined, col?: string|undefined): void {
+    if (!index && !col) {
+      return
+    }
 
+    debugger
   }
 
   public RecalcNetAndVat(): void {
@@ -218,18 +227,107 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
   }
 
   public HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InbetweenWarehouseProduct>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    debugger
+    if (!!event) {
+      this.bbxToastrService.close();
+      event.stopPropagation();
+    }
+    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
+    if (this.editDisabled) {
+      const colDef = this.colDefs.find(x => x.objectKey === objectKey)
+      if (colDef?.fReadonly) {
+        return
+      }
+
+      this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
+    } else {
+      this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
+    }
+
+  }
+
+  private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InbetweenWarehouseProduct>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (changedData?.productCode === '') {
+      return
+    }
+
+    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+    this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest)
+      .subscribe({
+        next: async product => {
+          if (!product?.id) {
+            this.bbxToastrService.show(
+              Constants.MSG_NO_PRODUCT_FOUND,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            )
+
+            return
+          }
+
+          const inbetween = await this.createInbetweenProduct(product)
+          if (!inbetween) {
+            return
+          }
+
+          this.dbDataTable.FillCurrentlyEditedRow({ data: inbetween })
+
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+          this.dbDataTable.MoveNextInTable()
+        },
+        error: () => {
+          this.cs.HandleError.bind(this.cs)
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        } ,
+        complete: () => {
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        }
+      })
+    // if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
+    //
+    //   this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+    //     next: async product => {
+    //       console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+
+    //       if (!!product && !!product?.productCode) {
+    //         // let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
+    //         // currentRow?.data.Save('productCode');
+    //         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    //         this.dbDataTable.MoveNextInTable();
+    //         setTimeout(() => {
+    //           this.kbS.setEditMode(KeyboardModes.EDIT);
+    //           this.kbS.ClickCurrentElement();
+    //         }, 200);
+    //       } else {
+    //         // this.dbDataTable.data[rowPos].data.Restore('productCode');
+    //         this.bbxToastrService.show(
+    //           Constants.MSG_NO_PRODUCT_FOUND,
+    //           Constants.TITLE_ERROR,
+    //           Constants.TOASTR_ERROR
+    //         );
+    //       }
+    //     },
+    //     error: err => {
+    //       // this.dbDataTable.data[rowPos].data.Restore('productCode');
+    //       this.cs.HandleError(err);
+    //     },
+    //     complete: () => {
+    //       this.RecalcNetAndVat();
+    //       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    //     }
+    //   });
+    // }
   }
 
   public ngOnDestroy(): void {
-    this.keyboardService.Detach()
+    this.kbS.Detach()
   }
 
   public ngAfterViewInit(): void {
     this.headerForm.controls['transferDate'].setValue(moment().format('YYYY-MM-DD'))
 
-    this.keyboardService.SetCurrentNavigatable(this.headerFormNav)
-    this.keyboardService.SelectFirstTile()
+    this.kbS.SetCurrentNavigatable(this.headerFormNav)
+    this.kbS.SelectFirstTile()
   }
 
   private maxDate(control: AbstractControl): ValidationErrors|null {
@@ -264,7 +362,7 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
 
     this.cdref.detectChanges()
 
-    this.statusService.waitForLoad()
+    this.sts.waitForLoad()
 
     this.warehouseService.GetAll()
       .pipe(
@@ -284,20 +382,20 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
       )
       .subscribe({
         error: () => {
-          this.commonService.HandleError.bind(this.commonService)
-          this.statusService.waitForLoad(false)
+          this.cs.HandleError.bind(this.cs)
+          this.sts.waitForLoad(false)
         },
-        complete: () => this.statusService.waitForLoad(false)
+        complete: () => this.sts.waitForLoad(false)
       })
   }
 
   public JumpToFirstCellAndNav(): void {
-    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-    this.keyboardService.SetCurrentNavigatable(this.dbDataTable);
-    this.keyboardService.SelectElementByCoordinate(0, 0);
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.kbS.SetCurrentNavigatable(this.dbDataTable);
+    this.kbS.SelectElementByCoordinate(0, 0);
     setTimeout(() => {
-      this.keyboardService.ClickCurrentElement();
-      this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+      this.kbS.ClickCurrentElement();
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     }, 100);
   }
 
@@ -311,33 +409,27 @@ export class InbetweenWarehouseComponent implements OnInit, AfterViewInit, OnDes
       if (event.Focused) {
         let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
         this.commands = GetFooterCommandListFromKeySettings(k);
-        this.footerService.pushCommands(this.commands);
+        this.fS.pushCommands(this.commands);
       } else {
         let k = this.KeySetting;
         this.commands = GetFooterCommandListFromKeySettings(k);
-        this.footerService.pushCommands(this.commands);
+        this.fS.pushCommands(this.commands);
       }
     }
   }
 
-  public focusOnTable(focusIn: boolean): void {
-    this.IsTableFocused = focusIn;
-    if (focusIn) {
-      this.dbDataTable.PushFooterCommandList();
-    } else {
-      this.footerService.pushCommands(this.commands);
+  @HostListener('keydown.f2', ['$event'])
+  public onF2Keydown(event: KeyboardEvent): void {
+    if (!this.kbS.IsCurrentNavigatableTable()) {
+      return
     }
+
+    this.ChooseDataForTableRow(0, false)
   }
 
-  public trackRows(index: number, row: any) {
-    return row.uid;
-  }
-
-  public onTableFunctionKeyDown(event: TableKeyDownEvent): void {
-    // this.HandleKeyDown(event);
-  }
-
-  private HandleKeyDown(valami: any): void {
-
-  }
+  // public override HandleKeyDown(valami: any): void {
+  //   if (isTableKeyDownEvent(valami)) {
+  //     debugger
+  //   }
+  // }
 }
