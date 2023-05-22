@@ -18,7 +18,7 @@ import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, In
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { InbetweenWarehouseProduct } from '../models/InbetweenWarehouseProduct';
-import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -425,9 +425,18 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     this.ChooseDataForTableRow(0, false)
   }
 
-  // public override HandleKeyDown(valami: any): void {
-  //   if (isTableKeyDownEvent(valami)) {
-  //     debugger
-  //   }
-  // }
+  public override HandleKeyDown(event: Event|TableKeyDownEvent): void {
+    if (isTableKeyDownEvent(event)) {
+      switch(event.Event.key) {
+        case this.KeySetting[Actions.Delete].KeyCode: {
+          HelperFunctions.confirm(
+            this.dialogService,
+            HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data.productCode),
+            () => this.dbDataTable?.HandleGridDelete(event.Event, event.Row, event.RowPos, event.ObjectKey)
+          )
+          break
+        }
+      }
+    }
+  }
 }
