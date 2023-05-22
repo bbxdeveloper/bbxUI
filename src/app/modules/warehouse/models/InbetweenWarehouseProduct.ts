@@ -53,7 +53,7 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
     }
 
     public static fromProductAndStock(product: Product, stock: ProductStock|undefined): InbetweenWarehouseProduct {
-        const obj = new InbetweenWarehouseProduct
+        const obj = new InbetweenWarehouseProduct()
 
         obj.productCode = product.productCode
 
@@ -69,6 +69,6 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
     }
 
     IsUnfinished(): boolean {
-        return false
+        return this.realQty === 0
     }
 }

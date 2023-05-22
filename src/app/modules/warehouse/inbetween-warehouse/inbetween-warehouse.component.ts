@@ -130,6 +130,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     this.headerForm = new FormGroup({
       fromWarehouse: new FormControl({ disabled: true }),
       toWarehouse: new FormControl('', [
+        Validators.required,
         this.notSame.bind(this)
       ]),
       transferDate: new FormControl('Valami', [
@@ -169,6 +170,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     )
 
     this.dbDataTable.OuterJump = true
+    this.KeySetting = this.KeySetting
+
+    this.dbDataTable.PushFooterCommandList()
+
+    this.fS.pushCommands(this.commands)
   }
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
@@ -399,20 +405,25 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
     if (!event.Focused) {
-      // this.dbData.forEach(x => x.data.ReCalc());
       this.RecalcNetAndVat();
     }
 
     if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
       if (event.Focused) {
-        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
+        const k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
         this.commands = GetFooterCommandListFromKeySettings(k);
         this.fS.pushCommands(this.commands);
       } else {
-        let k = this.KeySetting;
+        const k = this.KeySetting;
         this.commands = GetFooterCommandListFromKeySettings(k);
         this.fS.pushCommands(this.commands);
       }
+    }
+  }
+
+  private Save(): void {
+    if (this.headerForm.invalid) {
+      this.bbxToastrService.showError('Sajt')
     }
   }
 
@@ -426,6 +437,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   public override HandleKeyDown(event: Event|TableKeyDownEvent): void {
+    debugger
     if (isTableKeyDownEvent(event)) {
       switch(event.Event.key) {
         case this.KeySetting[Actions.Delete].KeyCode: {
@@ -435,6 +447,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
             () => this.dbDataTable?.HandleGridDelete(event.Event, event.Row, event.RowPos, event.ObjectKey)
           )
           break
+        }
+        case this.KeySetting[Actions.Save].KeyCode: {
+          this.Save()
         }
       }
     }
