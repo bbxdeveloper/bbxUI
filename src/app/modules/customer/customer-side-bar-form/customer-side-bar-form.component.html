@@ -122,25 +122,39 @@
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Figyelmeztetés limit</label>
-            
+
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="warningLimit"
                             [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isReadonly"
                             (click)="currentForm.HandleFormFieldClick($event)">
                         </div>
                     </nb-form-field>
-                    
+
                     <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                         <div class="bbx-fd-form-field-inner-div-2">
                             <label class="multicol-label-col-2">Maximális limit</label>
-                            
+
                             <input class="{{TileCssClass}}" nbInput type="text" formControlName="maxLimit"
                             [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isReadonly"
                             (click)="currentForm.HandleFormFieldClick($event)">
                         </div>
                     </nb-form-field>
             </div>
+
             <app-form-control-error [form]="currentForm" controlName="warningLimit"></app-form-control-error>
-                
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>
+                        Fizetési határidő (nap)
+                    </label>
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="paymentDays"
+                        [readOnly]="isReadonly" [inputMask]="numberInputMaskInteger"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+
+                <app-form-control-error [form]="currentForm" controlName="paymentDays"></app-form-control-error>
+            </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
