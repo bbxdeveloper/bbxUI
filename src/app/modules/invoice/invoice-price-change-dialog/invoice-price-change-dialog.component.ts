@@ -94,7 +94,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
   }
-  ngAfterViewInit(): void {
+
+  public ngAfterViewInit(): void {
     this.keyboardService.SetWidgetNavigatable(this)
 
     this.cdref.detectChanges()
