@@ -9,9 +9,19 @@ import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { Subscription, of, switchMap } from 'rxjs';
+import { Observable, Subscription, of, switchMap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { ProductPriceChange } from '../models/ProductPriceChange';
+import { Product } from '../../product/models/Product';
+
+type PriceChangeFormValues = {
+  productCode: string
+  productDescription: string
+  oldUnitPrice1: number
+  newUnitPrice1: number
+  oldUnitPrice2: number
+  newUnitPrice2: number
+}
 
 @Component({
   selector: 'app-invoice-price-change-dialog',
@@ -104,27 +114,45 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
-        switchMap(product => {
-          let priceDelta = this.newPrice - product.latestSupplyPrice!
-          if (priceDelta < 0) {
-            priceDelta = 0
-          }
-
-          return of({
-            productCode: product.productCode,
-            productDescription: product.description,
-            oldUnitPrice1: product.unitPrice1,
-            newUnitPrice1: this.priceChange ? this.priceChange.newUnitPrice1 : product.unitPrice1! + priceDelta,
-            oldUnitPrice2: product.unitPrice2,
-            newUnitPrice2: this.priceChange ? this.priceChange.newUnitPrice2 : product.unitPrice2! + priceDelta,
-          })
-        })
+        switchMap(this.calculatePrices.bind(this))
       )
       .subscribe({
         next: prices => this.productPriceChangeForm.patchValue(prices),
         error: this.commonService.HandleError.bind(this.commonService),
         complete: () => this.isLoading = false
       })
+  }
+
+  private calculatePrices(product: Product): Observable<PriceChangeFormValues> {
+    let changeRatePercent
+    if (this.newPrice > product.latestSupplyPrice!) {
+      const priceDelta = this.newPrice - product.latestSupplyPrice!
+      changeRatePercent = priceDelta / product.latestSupplyPrice! + 1
+    }
+    else {
+      changeRatePercent = 1
+    }
+
+    let newUnitPrice1
+    let newUnitPrice2
+
+    if (this.priceChange) {
+      newUnitPrice1 = this.priceChange.newUnitPrice1
+      newUnitPrice2 = this.priceChange.newUnitPrice2
+    }
+    else {
+      newUnitPrice1 = product.unitPrice1! * changeRatePercent
+      newUnitPrice2 = product.unitPrice2! * changeRatePercent
+    }
+
+    return of({
+      productCode: product.productCode,
+      productDescription: product.description,
+      oldUnitPrice1: product.unitPrice1,
+      newUnitPrice1: newUnitPrice1,
+      oldUnitPrice2: product.unitPrice2,
+      newUnitPrice2: newUnitPrice2,
+    } as PriceChangeFormValues)
   }
 
   public moveToButtons(event: Event): void {
