@@ -16,7 +16,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, GetFooterCommandListFromKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { InbetweenWarehouseProduct } from '../models/InbetweenWarehouseProduct';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
@@ -36,6 +36,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { WhsTransferService } from '../services/whs-transfer.service';
 import { CreateWhsTransferRequest } from '../models/CreateWhsTransferRequest';
 import { WhsTransferLine } from '../../whs/models/WhsTransferLine';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 
 type WarehouseData = {
   code: string,
@@ -125,6 +126,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     private readonly stockService: StockService,
     private readonly whsTransferService: WhsTransferService,
     private readonly bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
+    private readonly printAndDownloadService: PrintAndDownloadService,
     commonService: CommonService,
     keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
@@ -433,7 +436,33 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.sts.waitForLoad()
 
       const request = this.createWhsTransferRequest()
-      await this.whsTransferService.create(request)
+      const response = await this.whsTransferService.create(request)
+
+      if (!response.succeeded) {
+        this.cs.HandleError(response.message)
+
+        return
+      }
+
+      this.simpleToastrService.show(
+        Constants.MSG_SAVE_SUCCESFUL,
+        Constants.TITLE_INFO,
+        Constants.TOASTR_SUCCESS_5_SEC
+      );
+
+      await this.printAndDownloadService.openPrintDialog({
+        DialogTitle: 'Számla Nyomtatása',
+        DefaultCopies: 1,
+        MsgError: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása közben hiba történt.`,
+        MsgCancel: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
+        MsgFinish: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása véget ért.`,
+        Obs: this.whsTransferService.getReport.bind(this.whsTransferService),
+        Reset: this.DelayedReset.bind(this),
+        ReportParams: {
+          "id": response.data?.id,
+          "copies": 1 // Ki lesz töltve dialog alapján
+        } as Constants.Dct
+      } as PrintDialogRequest);
     } catch (error) {
       this.cs.HandleError(error)
     }
