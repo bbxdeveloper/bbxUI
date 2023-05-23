@@ -165,12 +165,21 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.dbData,
       this.dbDataTableId,
       AttachDirection.DOWN,
-      () => InbetweenWarehouseProduct.makeEmpty(),
+      InbetweenWarehouseProduct.makeEmpty,
       this
     )
 
     this.dbDataTable.OuterJump = true
     this.KeySetting = this.KeySetting
+
+    this.dbDataTable.Setup(
+      this.dbData,
+      this.dbDataDataSrc,
+      this.allColumns,
+      this.colDefs,
+      this.colsToIgnore,
+      this.cellClass,
+    )
 
     this.dbDataTable.PushFooterCommandList()
 
@@ -330,8 +339,15 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   public ngAfterViewInit(): void {
     this.headerForm.controls['transferDate'].setValue(moment().format('YYYY-MM-DD'))
 
-    this.kbS.SetCurrentNavigatable(this.headerFormNav)
-    this.kbS.SelectFirstTile()
+    this.headerFormNav.GenerateAndSetNavMatrices(true)
+    this.dbDataTable.GenerateAndSetNavMatrices(true)
+
+    this.cdref.detectChanges()
+
+    setTimeout(() => {
+      this.kbS.SetCurrentNavigatable(this.headerFormNav)
+      this.kbS.SelectFirstTile()
+    }, 350)
   }
 
   private maxDate(control: AbstractControl): ValidationErrors|null {
@@ -351,20 +367,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   public ngOnInit(): void {
-    this.headerFormNav.GenerateAndSetNavMatrices(true)
-
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore,
-      this.cellClass,
-    )
-
-    this.dbDataTable.GenerateAndSetNavMatrices(true)
-
-    this.cdref.detectChanges()
 
     this.sts.waitForLoad()
 
