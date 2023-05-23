@@ -32,6 +32,7 @@ form {
         text-align: center;
         margin-left: 125px;
         margin-right: 133px;
+        max-width: 430px;
 
         & * {
             flex-grow: 1;
@@ -48,13 +49,14 @@ form {
 
     .product-description {
         flex-grow: 1;
+        max-width: unset;
     }
 }
 
 .modal-product-active {
     border: 4px yellow double;
 
-    min-width: 700px;
+    min-width: 1000px;
     max-height: 675px;
 
     button {
