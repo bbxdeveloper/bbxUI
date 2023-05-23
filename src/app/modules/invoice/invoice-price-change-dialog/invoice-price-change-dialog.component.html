@@ -25,16 +25,16 @@
                 <label>
                     Listaár
                 </label>
-                <input nbInput type="text" formControlName="oldUnitPrice1" readonly>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName="newUnitPrice1">
+                <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
+                <input class="{{TileCssClass}}" nbInput [inputMask]="numberInputMask" type="text" formControlName="newUnitPrice1">
             </div>
 
             <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
                 <label>
                     Egységár
                 </label>
-                <input nbInput type="text" formControlName="oldUnitPrice2" readonly>
-                <input class="{{TileCssClass}}" nbInput type="text" formControlName="newUnitPrice2">
+                <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
+                <input class="{{TileCssClass}}" nbInput [inputMask]="numberInputMask" type="text" formControlName="newUnitPrice2">
             </div>
         </form>
     </nb-card-body>

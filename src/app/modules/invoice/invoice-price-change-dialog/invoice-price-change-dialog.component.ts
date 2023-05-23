@@ -13,6 +13,7 @@ import { Observable, Subscription, of, switchMap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { ProductPriceChange } from '../models/ProductPriceChange';
 import { Product } from '../../product/models/Product';
+import { createMask } from '@ngneat/input-mask';
 
 type PriceChangeFormValues = {
   productCode: string
@@ -47,6 +48,15 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public isLoading = false
 
   public TileCssClass = TileCssClass
+
+  numberInputMask: any = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.0',
+  });
 
   public formId = 'product-price-change-form-dialog'
   public productPriceChangeForm!: FormGroup
