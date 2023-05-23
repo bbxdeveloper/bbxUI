@@ -207,7 +207,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        // exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
       }
     });
     dialogRef.onClose.subscribe(async product => {
@@ -311,7 +310,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       return
     }
 
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.sts.waitForLoad();
 
     this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest)
       .subscribe({
@@ -334,10 +333,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         },
         error: () => {
           this.cs.HandleError.bind(this.cs)
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+          this.sts.waitForLoad(false)
         } ,
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+          this.sts.waitForLoad(false)
         }
       })
   }
@@ -422,11 +421,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       return
     }
 
-    const isTableInvalid = this.dbData
+    const isTableValid = this.dbData
       .filter(x => x.data.productID)
-      .some(x => x.data.IsUnfinished())
+      .every(x => x.data.isSaveable())
 
-    if (isTableInvalid) {
+    if (!isTableValid) {
       this.bbxToastrService.showError('Legalább egy érvényesen megadott tétel szükséges a mentéshez.')
 
       return
@@ -476,13 +475,15 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     const fromWarehouseCode = this.warehouseData.find(x => x.description === controls['fromWarehouse'].value)?.code ?? ''
     const toWarehouseCode = this.warehouseData.find(x => x.description === controls['toWarehouse'].value)?.code ?? ''
 
-    const transferLines = this.dbData.map(({ data }, index) => ({
-      whsTransferLineNumber: index,
-      productCode: data.productCode,
-      currAvgCost: data.currAvgCost,
-      quantity: data.quantity,
-      unitOfMeasure: data.unitOfMeasure
-    } as WhsTransferLine))
+    const transferLines = this.dbData
+      .filter(({ data }) => data.productID)
+      .map(({ data }, index) => ({
+        whsTransferLineNumber: index,
+        productCode: data.productCode,
+        currAvgCost: data.currAvgCost,
+        quantity: data.quantity,
+        unitOfMeasure: data.unitOfMeasure
+      } as WhsTransferLine))
 
     return {
       fromWarehouseCode: fromWarehouseCode,

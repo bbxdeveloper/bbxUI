@@ -74,7 +74,11 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
         return obj
     }
 
-    IsUnfinished(): boolean {
-        return this.quantity === 0
+    public IsUnfinished(): boolean {
+        return false
+    }
+
+    public isSaveable(): boolean {
+        return this.quantity > 0
     }
 }
