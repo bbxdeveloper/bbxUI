@@ -946,6 +946,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         newUnitPrice2: invoiceLine.newUnitPrice2,
       } as ProductPriceChange
     }
+
     const dialog = this.dialogService.open(InvoicePriceChangeDialogComponent, {
       context: {
         productCode: invoiceLine.productCode,
@@ -955,6 +956,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
     })
@@ -1060,7 +1063,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       res.unitPrice = p.latestSupplyPrice!;
     }
 
-    // res.unitPrice = this.Delivery ? p.latestSupplyPrice! : p.unitPrice2!;
+    res.newUnitPrice1 = p.unitPrice1
+    res.newUnitPrice2 = p.unitPrice2
 
     res.vatRateCode = p.vatRateCode;
 

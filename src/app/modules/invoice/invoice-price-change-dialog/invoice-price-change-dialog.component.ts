@@ -184,8 +184,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     const priceChange = {
-      newUnitPrice1: parseInt(controls['newUnitPrice1'].value),
-      newUnitPrice2: parseInt(controls['newUnitPrice2'].value),
+      newUnitPrice1: Number(controls['newUnitPrice1'].value.replaceAll(' ', '')),
+      newUnitPrice2: Number(controls['newUnitPrice2'].value.replaceAll(' ', '')),
     } as ProductPriceChange
 
     this.dialogRef.close(priceChange)
@@ -195,8 +195,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     const priceChange = {
-      newUnitPrice1: parseInt(controls['oldUnitPrice1'].value),
-      newUnitPrice2: parseInt(controls['oldUnitPrice2'].value),
+      newUnitPrice1: Number(controls['oldUnitPrice1'].value.replaceAll(' ', '')),
+      newUnitPrice2: Number(controls['oldUnitPrice2'].value.replaceAll(' ', '')),
     } as ProductPriceChange
 
     this.dialogRef.close(priceChange)
