@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -14,11 +14,11 @@ import { FooterService } from 'src/app/services/footer.service';
 import { StatusService } from 'src/app/services/status.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { InbetweenWarehouseProduct } from '../models/InbetweenWarehouseProduct';
-import { InputFocusChangedEvent, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -33,11 +33,20 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { ProductService } from '../../product/services/product.service';
 import { StockService } from '../../stock/services/stock.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { WhsTransferService } from '../services/whs-transfer.service';
+import { CreateWhsTransferRequest } from '../models/CreateWhsTransferRequest';
+import { WhsTransferLine } from '../../whs/models/WhsTransferLine';
+
+type WarehouseData = {
+  code: string,
+  description: string,
+}
 
 @Component({
   selector: 'app-inbetween-warehouse',
   templateUrl: './inbetween-warehouse.component.html',
-  styleUrls: ['./inbetween-warehouse.component.scss']
+  styleUrls: ['./inbetween-warehouse.component.scss'],
+  providers: [WhsTransferService]
 })
 export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<InbetweenWarehouseProduct> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   get editDisabled() {
@@ -60,6 +69,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   public warehouseSelectionError = false
   public warehouses$ = new BehaviorSubject<string[]>([])
   public toWarehouses$ = new BehaviorSubject<string[]>([])
+  private warehouseData: WarehouseData[] = []
 
   override cellClass = 'PRODUCT'
 
@@ -113,6 +123,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     private readonly warehouseService: WareHouseService,
     private readonly productService: ProductService,
     private readonly stockService: StockService,
+    private readonly whsTransferService: WhsTransferService,
     private readonly bbxToastrService: BbxToastrService,
     commonService: CommonService,
     keyboardService: KeyboardNavigationService,
@@ -128,12 +139,12 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     super(dialogService, keyboardService, footerService, commonService, statusService, sidebarService, keyboardHelperService, router)
 
     this.headerForm = new FormGroup({
-      fromWarehouse: new FormControl({ disabled: true }),
+      fromWarehouse: new FormControl({ value: '', disabled: true }),
       toWarehouse: new FormControl('', [
         Validators.required,
         this.notSame.bind(this)
       ]),
-      transferDate: new FormControl('Valami', [
+      transferDate: new FormControl('', [
         Validators.required,
         validDate,
         this.maxDate.bind(this)
@@ -165,12 +176,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.dbData,
       this.dbDataTableId,
       AttachDirection.DOWN,
-      InbetweenWarehouseProduct.makeEmpty,
+      () => InbetweenWarehouseProduct.makeEmpty(),
       this
     )
 
     this.dbDataTable.OuterJump = true
-    this.KeySetting = this.KeySetting
 
     this.dbDataTable.Setup(
       this.dbData,
@@ -180,8 +190,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.colsToIgnore,
       this.cellClass,
     )
-
-    this.dbDataTable.PushFooterCommandList()
 
     this.fS.pushCommands(this.commands)
   }
@@ -293,7 +301,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     } else {
       this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
     }
-
   }
 
   private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InbetweenWarehouseProduct>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
@@ -347,7 +354,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     setTimeout(() => {
       this.kbS.SetCurrentNavigatable(this.headerFormNav)
       this.kbS.SelectFirstTile()
-    }, 350)
+    }, 300)
   }
 
   private maxDate(control: AbstractControl): ValidationErrors|null {
@@ -367,12 +374,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   public ngOnInit(): void {
-
     this.sts.waitForLoad()
 
     this.warehouseService.GetAll()
       .pipe(
-        map(response => response.data?.map(x => ({ description: x.warehouseDescription, code: x.warehouseCode})) ?? []),
+        map(response => response.data?.map(x => ({ description: x.warehouseDescription, code: x.warehouseCode} as WarehouseData)) ?? []),
         tap(data => {
           const warehouseFromLogin = this.tokenService.wareHouse?.warehouseCode
           const warehouses = data.filter(x => x.code === warehouseFromLogin)
@@ -387,6 +393,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         }),
       )
       .subscribe({
+        next: data => this.warehouseData = data,
         error: () => {
           this.cs.HandleError.bind(this.cs)
           this.sts.waitForLoad(false)
@@ -405,54 +412,82 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }, 100);
   }
 
-  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
-    if (!event.Focused) {
-      this.RecalcNetAndVat();
-    }
-
-    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
-      if (event.Focused) {
-        const k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      } else {
-        const k = this.KeySetting;
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      }
-    }
-  }
-
-  private Save(): void {
+  private async Save(): Promise<void> {
     if (this.headerForm.invalid) {
-      this.bbxToastrService.showError('Sajt')
-    }
-  }
+      this.bbxToastrService.showError('Az űrlap hibásan van kitöltve.')
 
-  @HostListener('keydown.f2', ['$event'])
-  public onF2Keydown(event: KeyboardEvent): void {
-    if (!this.kbS.IsCurrentNavigatableTable()) {
       return
     }
 
-    this.ChooseDataForTableRow(0, false)
+    const isTableInvalid = this.dbData
+      .filter(x => x.data.productID)
+      .some(x => x.data.IsUnfinished())
+
+    if (isTableInvalid) {
+      this.bbxToastrService.showError('Legalább egy érvényesen megadott tétel szükséges a mentéshez.')
+
+      return
+    }
+
+    try {
+      this.sts.waitForLoad()
+
+      const request = this.createWhsTransferRequest()
+      await this.whsTransferService.create(request)
+    } catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
+  private createWhsTransferRequest(): CreateWhsTransferRequest {
+    const controls = this.headerForm.controls
+    const fromWarehouseCode = this.warehouseData.find(x => x.description === controls['fromWarehouse'].value)?.code ?? ''
+    const toWarehouseCode = this.warehouseData.find(x => x.description === controls['toWarehouse'].value)?.code ?? ''
+
+    const transferLines = this.dbData.map(({ data }, index) => ({
+      whsTransferLineNumber: index,
+      productCode: data.productCode,
+      currAvgCost: data.currAvgCost,
+      quantity: data.quantity,
+      unitOfMeasure: data.unitOfMeasure
+    } as WhsTransferLine))
+
+    return {
+      fromWarehouseCode: fromWarehouseCode,
+      toWarehouseCode: toWarehouseCode,
+      transferDate: controls['transferDate'].value,
+      notice: controls['note'].value,
+      userID: this.tokenService.user?.id,
+      whsTransferLines: transferLines,
+    } as CreateWhsTransferRequest
   }
 
   public override HandleKeyDown(event: Event|TableKeyDownEvent): void {
-    debugger
-    if (isTableKeyDownEvent(event)) {
-      switch(event.Event.key) {
-        case this.KeySetting[Actions.Delete].KeyCode: {
-          HelperFunctions.confirm(
-            this.dialogService,
-            HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data.productCode),
-            () => this.dbDataTable?.HandleGridDelete(event.Event, event.Row, event.RowPos, event.ObjectKey)
-          )
-          break
-        }
-        case this.KeySetting[Actions.Save].KeyCode: {
-          this.Save()
-        }
+    if (!isTableKeyDownEvent(event)) {
+      return
+    }
+
+    switch(event.Event.key) {
+      case this.KeySetting[Actions.Delete].KeyCode: {
+        HelperFunctions.confirm(
+          this.dialogService,
+          HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data.productCode),
+          () => this.dbDataTable?.HandleGridDelete(event.Event, event.Row, event.RowPos, event.ObjectKey)
+        )
+        break
+      }
+      case KeyBindings.Enter: {
+        HelperFunctions.confirm(this.dialogService, 'Menthető a bizonylat?', () => this.Save())
+
+        break
+      }
+      case this.KeySetting[Actions.Search].KeyCode: {
+        this.ChooseDataForTableRow(0, false)
+
+        break
       }
     }
   }

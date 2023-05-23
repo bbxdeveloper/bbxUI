@@ -17,6 +17,11 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
         return this._productDescription
     }
 
+    private _unitOfMeasure: string = ''
+    public get unitOfMeasure(): string {
+        return this._unitOfMeasure
+    }
+
     private _unitOfMeasureX: string = ''
     public get unitOfMeasureX(): string {
         return this._unitOfMeasureX
@@ -59,6 +64,7 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
 
         obj._productID = product.id
         obj._productDescription = product.description ?? ''
+        obj._unitOfMeasure = product.unitOfMeasure
         obj._unitOfMeasureX = product.unitOfMeasureX
         obj._realQty = stock?.realQty ?? 0
         obj._currAvgCost = stock?.avgCost ?? product.latestSupplyPrice!
@@ -69,6 +75,6 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
     }
 
     IsUnfinished(): boolean {
-        return this.realQty === 0
+        return this.quantity === 0
     }
 }
