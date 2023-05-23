@@ -14,6 +14,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { ProductPriceChange } from '../models/ProductPriceChange';
 import { Product } from '../../product/models/Product';
 import { createMask } from '@ngneat/input-mask';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 type PriceChangeFormValues = {
   productCode: string
@@ -37,7 +38,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public newPrice: number = 0
 
   @Input()
-  public priceChange: ProductPriceChange|undefined
+  public priceChange!: ProductPriceChange
+
+  @Input()
+  public wasOpen: boolean = false
 
   private requestSubscription: Subscription|undefined
 
@@ -125,35 +129,31 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
-        switchMap(this.calculatePrices.bind(this))
+        switchMap(this.createFormValues.bind(this))
       )
       .subscribe({
         next: prices => this.productPriceChangeForm.patchValue(prices),
-        error: this.commonService.HandleError.bind(this.commonService),
+        error: error => {
+          this.commonService.HandleError(error)
+          this.isLoading = false
+        },
         complete: () => this.isLoading = false
       })
   }
 
-  private calculatePrices(product: Product): Observable<PriceChangeFormValues> {
-    let changeRatePercent
-    if (this.newPrice > product.latestSupplyPrice!) {
-      const priceDelta = this.newPrice - product.latestSupplyPrice!
-      changeRatePercent = priceDelta / product.latestSupplyPrice! + 1
-    }
-    else {
-      changeRatePercent = 1
-    }
-
+  private createFormValues(product: Product): Observable<PriceChangeFormValues> {
     let newUnitPrice1
     let newUnitPrice2
 
-    if (this.priceChange) {
+    if (this.wasOpen) {
       newUnitPrice1 = this.priceChange.newUnitPrice1
       newUnitPrice2 = this.priceChange.newUnitPrice2
     }
     else {
-      newUnitPrice1 = product.unitPrice1! * changeRatePercent
-      newUnitPrice2 = product.unitPrice2! * changeRatePercent
+      const [unitPrice1, unitPrice2] = this.calculateNewPrices(product)
+
+      newUnitPrice1 = unitPrice1
+      newUnitPrice2 = unitPrice2
     }
 
     return of({
@@ -164,6 +164,22 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       oldUnitPrice2: product.unitPrice2,
       newUnitPrice2: newUnitPrice2,
     } as PriceChangeFormValues)
+  }
+
+  private calculateNewPrices(product: Product): [number, number] {
+    let changeRatePercent
+    if (this.newPrice > product.latestSupplyPrice!) {
+      const priceDelta = this.newPrice - product.latestSupplyPrice!
+      changeRatePercent = priceDelta / product.latestSupplyPrice! + 1
+    }
+    else {
+      changeRatePercent = 1
+    }
+
+    return [
+      product.unitPrice1! * changeRatePercent,
+      product.unitPrice2! * changeRatePercent
+    ]
   }
 
   public moveToButtons(event: Event): void {
@@ -184,8 +200,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     const priceChange = {
-      newUnitPrice1: Number(controls['newUnitPrice1'].value.replaceAll(' ', '')),
-      newUnitPrice2: Number(controls['newUnitPrice2'].value.replaceAll(' ', '')),
+      newUnitPrice1: HelperFunctions.ToFloat(controls['newUnitPrice1'].value),
+      newUnitPrice2: HelperFunctions.ToFloat(controls['newUnitPrice2'].value)
     } as ProductPriceChange
 
     this.dialogRef.close(priceChange)
@@ -195,8 +211,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     const priceChange = {
-      newUnitPrice1: Number(controls['oldUnitPrice1'].value.replaceAll(' ', '')),
-      newUnitPrice2: Number(controls['oldUnitPrice2'].value.replaceAll(' ', '')),
+      newUnitPrice1: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice1'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice1'].value),
+      newUnitPrice2: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice2'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice2'].value)
     } as ProductPriceChange
 
     this.dialogRef.close(priceChange)

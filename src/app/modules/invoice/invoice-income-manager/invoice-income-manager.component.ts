@@ -192,6 +192,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     }
   }
 
+  private wasPriceChangeDialogOpen: boolean = false
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -951,12 +953,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       context: {
         productCode: invoiceLine.productCode,
         newPrice: invoiceLine.unitPrice,
-        priceChange: priceChange
+        priceChange: priceChange,
+        wasOpen: this.wasPriceChangeDialogOpen
       }
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
       this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.wasPriceChangeDialogOpen = true
 
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
