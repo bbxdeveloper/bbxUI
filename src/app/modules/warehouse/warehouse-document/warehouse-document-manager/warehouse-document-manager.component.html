@@ -1,5 +1,5 @@
 <as-split direction="horizontal">
-    <as-split-area [size]="50">
+    <as-split-area [size]="53">
         <app-hozirontal-split-layout proportion="30" [hideDivider]="true">
             <app-head-line msg="Raktárkészlet bizonylatok" title></app-head-line>
 
@@ -18,7 +18,7 @@
             </ng-container>
         </app-hozirontal-split-layout>
     </as-split-area>
-    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+    <as-split-area [size]="47" *ngIf="isSideBarOpened">
         <app-warehouse-document-side-bar-form class="bbx-sidebar"></app-warehouse-document-side-bar-form>
     </as-split-area>
 </as-split>

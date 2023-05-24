@@ -8,6 +8,7 @@ import { GetProductsParamListModel } from 'src/app/modules/product/models/GetPro
 import { Product } from 'src/app/modules/product/models/Product';
 import { ProductService } from 'src/app/modules/product/services/product.service';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
+import { isTableKeyDownEvent, TableKeyDownEvent } from 'src/app/modules/shared/inline-editable-table/inline-editable-table.component';
 import { VatRateService } from 'src/app/modules/vat-rate/services/vat-rate.service';
 import { WhsTransferFull } from 'src/app/modules/whs/models/WhsTransfer';
 import { WhsTransferLine, WhsTransferLineFull } from 'src/app/modules/whs/models/WhsTransferLine';
@@ -19,6 +20,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
@@ -26,6 +28,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
+import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, WarehouseDocumentsKeySettings } from 'src/assets/util/KeyBindings';
@@ -182,7 +185,8 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    private printAndDownloadService: PrintAndDownloadService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
     this.searchInputId = 'active-prod-search';
@@ -223,7 +227,8 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       this.bbxSidebarService,
       this.sidebarFormService,
       this,
-      this.blankRow
+      this.blankRow,
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
@@ -254,6 +259,41 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.isLoading = false;
   }
 
+  override ProcessActionDelete(data?: IUpdateRequest<WhsTransferFull>): void {
+    const id = data?.data?.id;
+    console.log('ActionDelete: ', id);
+    if (id !== undefined) {
+      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
+      this.whsService
+        .Delete(HelperFunctions.ToInt(id))
+        .subscribe({
+          next: (d) => {
+            if (d.succeeded && !!d.data) {
+              const di = this.dbData.findIndex((x) => x.data.id === id);
+              this.dbData.splice(di, 1);
+              this.simpleToastrService.show(
+                Constants.MSG_DELETE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
+              this.HandleGridSelectionAfterDelete(di);
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            } else {
+              this.simpleToastrService.show(
+                d.errors!.join('\n'),
+                Constants.TITLE_ERROR,
+                Constants.TOASTR_ERROR_5_SEC
+              );
+              this.isLoading = false;
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          },
+          error: (err) => { this.HandleError(err); },
+        });
+    }
+  }
+
   public refreshClicked(filterData: WarehouseDocumentFilterFormData | undefined): void {
     this.filterData = filterData ?? {} as WarehouseDocumentFilterFormData;
     this.RefreshAll(this.getInputParams);
@@ -274,7 +314,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
-          this.RefreshTable();
+          this.RefreshTable(undefined, true);
         } else {
           this.simpleToastrService.show(
             d.errors!.join('\n'),
@@ -350,6 +390,26 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.Refresh(params);
   }
 
+  private print(): void {
+    const selectedRow = this.dbDataTable.prevSelectedRow
+
+    const whsNumber = selectedRow?.data.whsTransferNumber ?? ''
+
+    this.printAndDownloadService.openPrintDialog({
+      DialogTitle: 'Bizonylat nyomtatása',
+      DefaultCopies: 1,
+      MsgError: `A ${whsNumber} bizonylat nyomtatása közben hiba történt.`,
+      MsgCancel: `A ${whsNumber} bizonylat nyomtatása nem történt meg.`,
+      MsgFinish: `A ${whsNumber} bizonylat nyomtatása véget ért.`,
+      Obs: this.whsService.GetReport.bind(this.whsService),
+      Reset: () => { },
+      ReportParams: {
+        id: selectedRow?.data.id,
+        copies: 1
+      } as Constants.Dct,
+    } as PrintDialogRequest)
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
@@ -360,6 +420,24 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Print].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+          this.simpleToastrService.show(
+            "Csak aktívan kijelölt rekord mellett lehet nyomtatni!",
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR_5_SEC
+          )
+          return
+        }
+
+        console.log(`${this.KeySetting[Actions.Print].KeyLabel} Pressed: ${this.KeySetting[Actions.Print].FunctionLabel}`);
+        this.print()
+        break;
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {
@@ -381,15 +459,6 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
         console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
-        break;
-      }
-      case this.KeySetting[Actions.Print].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-
-        console.log(`${this.KeySetting[Actions.Print].KeyLabel} Pressed: ${this.KeySetting[Actions.Print].FunctionLabel}`);
-        
         break;
       }
       case this.KeySetting[Actions.CSV].KeyCode: {

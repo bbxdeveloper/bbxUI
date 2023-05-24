@@ -253,7 +253,9 @@ export class BaseManagerComponent<T> {
       this.dbDataDataSrc,
       this.allColumns,
       this.colDefs,
-      this.colsToIgnore
+      this.colsToIgnore,
+      undefined,
+      !setAsCurrent
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);

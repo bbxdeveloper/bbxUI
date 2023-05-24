@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, lastValueFrom, catchError, of } from 'rxjs';
+import { Observable, lastValueFrom, catchError, of, throwError } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { IResponseSingleData } from 'src/assets/model/IResponse';
+import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { GetWhsTransfersResponse } from '../models/GetWhsTransfersResponse';
 import { WhsTransferBase, WhsTransferFull, WhsTransferUpdate } from '../models/WhsTransfer';
@@ -100,5 +101,21 @@ export class WhsService {
         return c;
       })
     ));
+  }
+
+  GetReport(params: Constants.Dct): Observable<any> {
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/print`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
   }
 }
