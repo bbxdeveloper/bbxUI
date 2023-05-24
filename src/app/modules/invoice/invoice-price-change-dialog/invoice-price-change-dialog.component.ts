@@ -9,9 +9,21 @@ import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { Subscription, of, switchMap } from 'rxjs';
+import { Observable, Subscription, of, switchMap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { ProductPriceChange } from '../models/ProductPriceChange';
+import { Product } from '../../product/models/Product';
+import { createMask } from '@ngneat/input-mask';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+
+type PriceChangeFormValues = {
+  productCode: string
+  productDescription: string
+  oldUnitPrice1: number
+  newUnitPrice1: number
+  oldUnitPrice2: number
+  newUnitPrice2: number
+}
 
 @Component({
   selector: 'app-invoice-price-change-dialog',
@@ -26,7 +38,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public newPrice: number = 0
 
   @Input()
-  public priceChange: ProductPriceChange|undefined
+  public priceChange!: ProductPriceChange
+
+  @Input()
+  public wasOpen: boolean = false
 
   private requestSubscription: Subscription|undefined
 
@@ -37,6 +52,15 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public isLoading = false
 
   public TileCssClass = TileCssClass
+
+  numberInputMask: any = createMask({
+    alias: 'numeric',
+    groupSeparator: ' ',
+    digits: 2,
+    digitsOptional: false,
+    prefix: '',
+    placeholder: '0.0',
+  });
 
   public formId = 'product-price-change-form-dialog'
   public productPriceChangeForm!: FormGroup
@@ -74,7 +98,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
   }
-  ngAfterViewInit(): void {
+
+  public ngAfterViewInit(): void {
     this.keyboardService.SetWidgetNavigatable(this)
 
     this.cdref.detectChanges()
@@ -104,27 +129,57 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
-        switchMap(product => {
-          let priceDelta = this.newPrice - product.latestSupplyPrice!
-          if (priceDelta < 0) {
-            priceDelta = 0
-          }
-
-          return of({
-            productCode: product.productCode,
-            productDescription: product.description,
-            oldUnitPrice1: product.unitPrice1,
-            newUnitPrice1: this.priceChange ? this.priceChange.newUnitPrice1 : product.unitPrice1! + priceDelta,
-            oldUnitPrice2: product.unitPrice2,
-            newUnitPrice2: this.priceChange ? this.priceChange.newUnitPrice2 : product.unitPrice2! + priceDelta,
-          })
-        })
+        switchMap(this.createFormValues.bind(this))
       )
       .subscribe({
         next: prices => this.productPriceChangeForm.patchValue(prices),
-        error: this.commonService.HandleError.bind(this.commonService),
+        error: error => {
+          this.commonService.HandleError(error)
+          this.isLoading = false
+        },
         complete: () => this.isLoading = false
       })
+  }
+
+  private createFormValues(product: Product): Observable<PriceChangeFormValues> {
+    let newUnitPrice1
+    let newUnitPrice2
+
+    if (this.wasOpen) {
+      newUnitPrice1 = this.priceChange.newUnitPrice1
+      newUnitPrice2 = this.priceChange.newUnitPrice2
+    }
+    else {
+      const [unitPrice1, unitPrice2] = this.calculateNewPrices(product)
+
+      newUnitPrice1 = unitPrice1
+      newUnitPrice2 = unitPrice2
+    }
+
+    return of({
+      productCode: product.productCode,
+      productDescription: product.description,
+      oldUnitPrice1: product.unitPrice1,
+      newUnitPrice1: newUnitPrice1,
+      oldUnitPrice2: product.unitPrice2,
+      newUnitPrice2: newUnitPrice2,
+    } as PriceChangeFormValues)
+  }
+
+  private calculateNewPrices(product: Product): [number, number] {
+    let changeRatePercent
+    if (this.newPrice > product.latestSupplyPrice!) {
+      const priceDelta = this.newPrice - product.latestSupplyPrice!
+      changeRatePercent = priceDelta / product.latestSupplyPrice! + 1
+    }
+    else {
+      changeRatePercent = 1
+    }
+
+    return [
+      product.unitPrice1! * changeRatePercent,
+      product.unitPrice2! * changeRatePercent
+    ]
   }
 
   public moveToButtons(event: Event): void {
@@ -145,8 +200,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     const priceChange = {
-      newUnitPrice1: parseInt(controls['newUnitPrice1'].value),
-      newUnitPrice2: parseInt(controls['newUnitPrice2'].value),
+      newUnitPrice1: HelperFunctions.ToFloat(controls['newUnitPrice1'].value),
+      newUnitPrice2: HelperFunctions.ToFloat(controls['newUnitPrice2'].value)
     } as ProductPriceChange
 
     this.dialogRef.close(priceChange)
@@ -156,8 +211,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const controls = this.productPriceChangeForm.controls
 
     const priceChange = {
-      newUnitPrice1: parseInt(controls['oldUnitPrice1'].value),
-      newUnitPrice2: parseInt(controls['oldUnitPrice2'].value),
+      newUnitPrice1: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice1'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice1'].value),
+      newUnitPrice2: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice2'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice2'].value)
     } as ProductPriceChange
 
     this.dialogRef.close(priceChange)
