@@ -205,7 +205,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     Setup(productsData: TreeGridNode<T>[], productsDataSource: NbTreeGridDataSource<TreeGridNode<T>>,
-        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>
+        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>,
+        autoSelectAfterSetup: boolean = true
     ): void {
         // Set
         this.data = productsData;
@@ -230,7 +231,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             });
         }
 
-        if (this.kbs.p.y >= (this.data.length + includeFilterY)) {
+        if (autoSelectAfterSetup && (this.kbs.p.y >= (this.data.length + includeFilterY))) {
             if (this.data.length > 0) {
                 this.kbs.SelectElementByCoordinate(0, 1);
             } else {

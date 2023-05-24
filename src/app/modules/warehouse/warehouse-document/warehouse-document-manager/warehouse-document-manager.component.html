@@ -1,8 +1,12 @@
 <as-split direction="horizontal">
-    <as-split-area [size]="50">
-        <app-hozirontal-split-layout proportion="30">
+    <as-split-area [size]="53">
+        <app-hozirontal-split-layout proportion="30" [hideDivider]="true">
             <app-head-line msg="Raktárkészlet bizonylatok" title></app-head-line>
-            <app-warehouse-document-filter-form top></app-warehouse-document-filter-form>
+
+            <app-warehouse-document-filter-form
+            (refreshClicked)="refreshClicked($event)"
+            (pageReady)="filterFormPageReady()" top>
+            </app-warehouse-document-filter-form>
 
             <ng-container bottom>
                 <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
@@ -14,7 +18,7 @@
             </ng-container>
         </app-hozirontal-split-layout>
     </as-split-area>
-    <as-split-area [size]="50" *ngIf="isSideBarOpened">
+    <as-split-area [size]="47" *ngIf="isSideBarOpened">
         <app-warehouse-document-side-bar-form class="bbx-sidebar"></app-warehouse-document-side-bar-form>
     </as-split-area>
 </as-split>

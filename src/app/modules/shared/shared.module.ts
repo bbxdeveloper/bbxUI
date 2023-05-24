@@ -44,6 +44,7 @@ import { InvoiceDataFormComponent } from './invoice-data-form/invoice-data-form.
 import { InvoiceStyleLabelColumnComponent } from './invoice-style-label-column/invoice-style-label-column.component';
 import { OneButtonConfirmationDialogComponent } from './simple-dialogs/one-button-confirmation-dialog/one-button-confirmation-dialog.component';
 import { HozirontalSplitLayoutComponent } from './layouts/hozirontal-split-layout/hozirontal-split-layout.component';
+import { VerticalSplitLayoutComponent } from './layouts/vertical-split-layout/vertical-split-layout.component';
 
 
 @NgModule({
@@ -85,7 +86,8 @@ import { HozirontalSplitLayoutComponent } from './layouts/hozirontal-split-layou
     InvoiceDataFormComponent,
     InvoiceStyleLabelColumnComponent,
     OneButtonConfirmationDialogComponent,
-    HozirontalSplitLayoutComponent
+    HozirontalSplitLayoutComponent,
+    VerticalSplitLayoutComponent
   ],
   imports: [
     CommonModule,
@@ -154,6 +156,7 @@ import { HozirontalSplitLayoutComponent } from './layouts/hozirontal-split-layou
     InvoiceDataFormComponent,
     InvoiceStyleLabelColumnComponent,
     HozirontalSplitLayoutComponent,
+    VerticalSplitLayoutComponent,
   ],
   providers: [
     ConfirmationDialogComponent

@@ -247,16 +247,22 @@ export class BaseManagerComponent<T> {
 
   Refresh(params?: any): void {}
 
-  RefreshTable(selectAfterRefresh?: any): void {
+  RefreshTable(selectAfterRefresh?: any, setAsCurrent: boolean = false): void {
     this.dbDataTable.Setup(
       this.dbData,
       this.dbDataDataSrc,
       this.allColumns,
       this.colDefs,
-      this.colsToIgnore
+      this.colsToIgnore,
+      undefined,
+      !setAsCurrent
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      if (setAsCurrent) {
+        this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.SelectFirstTile()
+      }
       this.kbS.ClickCurrentElement()
     }, 200);
   }
