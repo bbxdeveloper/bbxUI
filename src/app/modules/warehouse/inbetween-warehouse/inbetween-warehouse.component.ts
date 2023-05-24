@@ -72,13 +72,17 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   public toWarehouses$ = new BehaviorSubject<string[]>([])
   private warehouseData: WarehouseData[] = []
 
+  get isEditModeOff(): boolean {
+    return !this.kbS.isEditModeActivated
+  }
+
   override cellClass = 'PRODUCT'
 
   override colsToIgnore = ['productDescription', 'unitOfMeasureX', 'currAvgCost', 'linePrice']
   public override allColumns = [
     'productCode',
     'productDescription',
-    'quantity',
+    '_quantity',
     'unitOfMeasureX',
     'currAvgCost',
     'linePrice',
@@ -97,7 +101,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       colWidth: "70%", textAlign: "left",
     },
    {
-      label: 'Mennyiség', objectKey: 'quantity', colKey: 'quantity',
+      label: 'Mennyiség', objectKey: '_quantity', colKey: '_quantity',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number',
       checkIfReadonly: (row: TreeGridNode<InbetweenWarehouseProduct>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
@@ -216,10 +220,30 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         return
       }
 
-      this.dbData = [...this.dbData.filter(x => x.data.productID), { data: inbetween }]
-
-      this.RefreshTable()
+      this.HandleProductChoose(inbetween, wasInNavigationMode)
     });
+  }
+
+  HandleProductChoose(res: InbetweenWarehouseProduct, wasInNavigationMode: boolean): void {
+    if (!!res) {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING])
+      if (!wasInNavigationMode) {
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: res })
+        currentRow?.data.Save('productCode')
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+        this.dbDataTable.MoveNextInTable()
+        setTimeout(() => {
+          this.kbS.setEditMode(KeyboardModes.EDIT)
+          this.kbS.ClickCurrentElement()
+        }, 200)
+      } else {
+        const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode)
+        if (index !== -1) {
+          this.kbS.SelectElementByCoordinate(0, index)
+        }
+      }
+    }
+    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
   }
 
   private async createInbetweenProduct(product: Product): Promise<InbetweenWarehouseProduct|undefined> {
@@ -248,14 +272,42 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       return
     }
 
-    if (col === 'quantity') {
+    if (col === '_quantity') {
       this.quantityChanged(changedData)
+    }
+
+    else if ((!!col && col === 'productCode') || col === undefined) {
+      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
+        next: async product => {
+          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+
+          if (index !== undefined) {
+            const inbetween = await this.createInbetweenProduct(product)
+
+            if (inbetween) {
+              this.dbData[index].data = inbetween;
+              this.dbDataDataSrc.setData(this.dbData);
+            }
+          }
+
+          this.RecalcNetAndVat();
+        },
+        error: err => {
+          this.RecalcNetAndVat();
+        }
+      });
     }
   }
 
   private quantityChanged(changedData: InbetweenWarehouseProduct): void {
     if (changedData.quantity <= 0) {
-      this.bbxToastrService.showError(Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO)
+      setTimeout(() => {
+        this.bbxToastrService.show(
+          Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        )
+      }, 0);
 
       changedData.Restore()
 
@@ -263,20 +315,22 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }
 
     if (changedData.quantity > changedData.realQty) {
-      const message = `Raktáron: ${changedData.realQty}. Átadandó: ${changedData.quantity}. Negatív készlet keletkezik! Helyes a beírt érték?`
-      HelperFunctions.confirm(
-        this.dialogService,
-        message,
-        () => changedData.Save(),
-        () => {
-          changedData.quantity = changedData.realQty;
-          changedData.Save()
-        })
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
-        return
+      setTimeout(() => {
+        const message = `Raktáron: ${changedData.realQty}. Átadandó: ${changedData.quantity}. Negatív készlet keletkezik! Helyes a beírt érték?`
+        HelperFunctions.confirm(
+          this.dialogService,
+          message,
+          () => changedData.Save(),
+          () => {
+            changedData.quantity = changedData.realQty;
+            changedData.Save()
+          })
+      }, 300);
+    } else {
+      changedData.Save()
     }
-
-    changedData.Save()
   }
 
   public RecalcNetAndVat(): void {
@@ -317,7 +371,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         next: async product => {
           if (!product?.id) {
             this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
-
             return
           }
 
@@ -326,10 +379,17 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
             return
           }
 
-          this.dbDataTable.FillCurrentlyEditedRow({ data: inbetween })
+          let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: inbetween })
+
+          currentRow?.data.Save('productCode');
 
           this.kbS.setEditMode(KeyboardModes.NAVIGATION)
           this.dbDataTable.MoveNextInTable()
+
+          setTimeout(() => {
+            this.kbS.setEditMode(KeyboardModes.EDIT);
+            this.kbS.ClickCurrentElement();
+          }, 200);
         },
         error: () => {
           this.cs.HandleError.bind(this.cs)
