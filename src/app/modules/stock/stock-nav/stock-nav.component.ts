@@ -611,7 +611,12 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   GoToStockCard(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const productCode = this.dbData[this.kbS.p.y - 1].data.productCode;
-      this.router.navigate(['stock-card/nav'], { queryParams: { productCode: productCode, wareHouseId: this.getInputParams.WarehouseID } });
+      this.router.navigate(['stock-card/nav'], {
+        queryParams: {
+          productCode: productCode,
+          wareHouse: this.filterForm.controls['WarehouseID'].value
+        }
+      });
     }
   }
 
