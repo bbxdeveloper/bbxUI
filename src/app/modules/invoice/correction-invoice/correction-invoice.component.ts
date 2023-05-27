@@ -470,7 +470,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
 
         await this.printAndDownloadService.openPrintDialog({
-          DialogTitle: 'Számla Nyomtatása',
+          DialogTitle: 'Bizonylat nyomtatása',
           DefaultCopies: 1,
           MsgError: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,

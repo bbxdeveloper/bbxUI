@@ -895,7 +895,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         );
 
         await this.printAndDownLoadService.openPrintDialog({
-          DialogTitle: 'Számla Nyomtatása',
+          DialogTitle: 'Bizonylat nyomtatása',
           DefaultCopies: 1,
           MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
