@@ -10,6 +10,13 @@ import { WhsTransferBase, WhsTransferFull, WhsTransferUpdate } from '../models/W
 import { WhsTransferQueryParams } from '../models/WhsTransferQueryParams';
 import { WhsTransferStatus } from '../models/WhsTransferStatus';
 
+export enum WhsStatus {
+  /** Elkészült */
+  READY = "READY",
+  /** Feldolgozott */
+  COMPLETED = "COMPLETED"
+}
+
 @Injectable({
   providedIn: 'root'
 })

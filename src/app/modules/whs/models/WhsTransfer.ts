@@ -7,6 +7,7 @@ export class WhsTransferBase {
     fromWarehouseCode?: string
     toWarehouseCode?: string
     transferDate?: string
+    transferDateIn?: string
     notice?: string
     userID?: number
     whsTransferLines: WhsTransferLine[] = []
@@ -22,6 +23,7 @@ export class WhsTransferFull implements IBaseEntity<number> {
     fromWarehouseID?: number
     toWarehouseID?: number
     transferDate?: string
+    transferDateIn?: string
     notice?: string
     copies: number = 0
     userID?: number

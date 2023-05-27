@@ -1,19 +1,11 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
-import { OriginService } from 'src/app/modules/origin/services/origin.service';
-import { ProductGroupService } from 'src/app/modules/product-group/services/product-group.service';
-import { GetProductsParamListModel } from 'src/app/modules/product/models/GetProductsParamListModel';
-import { Product } from 'src/app/modules/product/models/Product';
-import { ProductService } from 'src/app/modules/product/services/product.service';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
-import { isTableKeyDownEvent, TableKeyDownEvent } from 'src/app/modules/shared/inline-editable-table/inline-editable-table.component';
-import { VatRateService } from 'src/app/modules/vat-rate/services/vat-rate.service';
 import { WhsTransferFull } from 'src/app/modules/whs/models/WhsTransfer';
-import { WhsTransferLine, WhsTransferLineFull } from 'src/app/modules/whs/models/WhsTransferLine';
 import { WhsTransferQueryParams } from 'src/app/modules/whs/models/WhsTransferQueryParams';
-import { WhsService } from 'src/app/modules/whs/services/whs.service';
+import { WhsService, WhsStatus } from 'src/app/modules/whs/services/whs.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -32,7 +24,6 @@ import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, WarehouseDocumentsKeySettings } from 'src/assets/util/KeyBindings';
-import { environment } from 'src/environments/environment';
 import { WarehouseDocumentFilterFormData } from '../warehouse-document-filter-form/WarehouseDocumentFilterFormData';
 
 @Component({
@@ -64,7 +55,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '200px',
+      colWidth: '150px',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -103,6 +94,18 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       navMatrixCssClass: TileCssClass,
     },
     {
+      label: 'Bev.Dát.',
+      objectKey: 'transferDateIn',
+      colKey: 'transferDateIn',
+      defaultValue: '',
+      type: 'onlyDate',
+      fRequired: true,
+      mask: '',
+      colWidth: '120px',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
       label: 'Státusz',
       objectKey: 'whsTransferStatusX',
       colKey: 'whsTransferStatusX',
@@ -110,7 +113,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       type: 'string',
       fRequired: true,
       mask: '',
-      colWidth: '85px',
+      colWidth: '100px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -133,7 +136,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '200px',
+      colWidth: '150px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -179,7 +182,6 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     private whsService: WhsService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private bbxToastrService: BbxToastrService,
     private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
@@ -237,22 +239,6 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         this.Refresh(this.getInputParams);
       },
     });
-    // this.dbDataTable.flatDesignForm.FillFormWithObject = (data: Product) => {
-    //   if (!!data && !!this.dbDataTable.flatDesignForm) {
-    //     data = { ...data };
-
-    //     data.origin = HelperFunctions.GetOriginDescription(data.origin, this.origins, '');
-    //     data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroup, this.productGroups, '');
-
-    //     Object.keys(this.dbDataTable.flatDesignForm.form.controls).forEach((x: string) => {
-    //       this.dbDataTable.flatDesignForm!.form.controls[x].setValue(data[x as keyof Product]);
-    //       if (environment.flatDesignFormDebug) {
-    //         console.log(`[FillFormWithObject] with Product: ${x}, ${data[x as keyof Product]},
-    //           ${this.dbDataTable.flatDesignForm!.form.controls[x].value}`);
-    //       }
-    //     });
-    //   }
-    // }
 
     this.bbxSidebarService.collapse();
 
@@ -299,6 +285,24 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.RefreshAll(this.getInputParams);
   }
 
+  public HideColumn(col: string): void {
+    const index = this.allColumns.findIndex(x => x == col);
+    if (index >= 0) {
+      this.allColumns.splice(index, 1);
+    }
+  }
+
+  public ShowColumn(col: string, position?: number): void {
+    if (this.allColumns.includes(col)) {
+      return;
+    }
+    if (position !== undefined) {
+      this.allColumns.splice(position!, 0, col);
+    } else {
+      this.allColumns.push(col);
+    }
+  }
+
   override Refresh(params?: WhsTransferQueryParams): void {
     console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
@@ -329,6 +333,12 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       },
       complete: () => {
         this.isLoading = false;
+
+        if (this.filterData?.Status === WhsStatus.COMPLETED) {
+          this.ShowColumn('transferDateIn', 4)
+        } else {
+          this.HideColumn('transferDateIn')
+        }
       },
     });
   }
