@@ -214,7 +214,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
       this.printAndDownLoadService.printPreview({
-        DialogTitle: 'Számla Nyomtatása',
+        DialogTitle: 'Árajánlat nyomtatása',
         DefaultCopies: 1,
         MsgError: `Az árajánlat riport készítése közben hiba történt.`,
         MsgFinish: `Az árajánlat riport elkészítve.`,

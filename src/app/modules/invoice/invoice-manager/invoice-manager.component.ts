@@ -895,7 +895,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
               this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
 
               await this.printAndDownLoadService.openPrintDialog({
-                DialogTitle: 'Számla Nyomtatása',
+                DialogTitle: 'Bizonylat nyomtatása',
                 DefaultCopies: 1,
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                 MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,

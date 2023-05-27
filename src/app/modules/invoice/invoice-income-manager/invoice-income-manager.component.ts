@@ -877,7 +877,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await this.printAndDownLoadService.openPrintDialog({
-                  DialogTitle: 'Számla Nyomtatása',
+                  DialogTitle: 'Bizonylat nyomtatása',
                   DefaultCopies: 1,
                   MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,

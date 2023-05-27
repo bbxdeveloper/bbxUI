@@ -810,7 +810,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     const invoiceNumber = selectedRow?.data.invoiceNumber ?? ''
 
     this.printAndDownloadService.openPrintDialog({
-      DialogTitle: 'Számla nyomtatása',
+      DialogTitle: 'Bizonylat nyomtatása',
       DefaultCopies: 1,
       MsgError: `A ${invoiceNumber} számla nyomtatása közben hiba történt.`,
       MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
