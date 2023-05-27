@@ -294,7 +294,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       exchangeRate: 1,
       currencyCode: CurrencyCodes.HUF,
       invoiceDiscountPercent: 0,
-      correction: this.mode.correction
+      deliveryNoteCorrection: this.mode.deliveryNoteCorrection
     });
 
     this.dbData = [];

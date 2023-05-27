@@ -30,7 +30,7 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
 
     "workNumber"?: string;
     "priceReview"?: boolean;
-    correction?: boolean
+    deliveryNoteCorrection?: boolean = undefined
     invoiceCorrection: boolean = false
     originalInvoiceID: number = -1
 
@@ -73,7 +73,7 @@ export class OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<Invoic
 
 export function OutGoingInvoiceFullDataToRequest(f: OutGoingInvoiceFullData, needVatRate = true): CreateOutgoingInvoiceRequest<InvoiceLine> {
     if (f.invoiceType !== InvoiceTypes.DNO) {
-        f.JsonIgnoreList.push('correction', 'priceReview', 'workNumber')
+        f.JsonIgnoreList.push('priceReview', 'workNumber')
     }
     if (!needVatRate) {
         f.JsonIgnoreList.push('vatRate')
