@@ -32,7 +32,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceIncomeManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -182,7 +182,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
-  public KeySetting: Constants.KeySettingsDct = InvoiceManagerKeySettings;
+  public KeySetting: Constants.KeySettingsDct = InvoiceIncomeManagerKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   formKeyRows: any = {
@@ -1207,7 +1207,17 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     if (match) {
       const rowIndex = parseInt(match[1])
 
-      this.suggestPriceChange(this.dbData[rowIndex].data)
+      if (rowIndex === this.dbData.length - 1) {
+        setTimeout(() => {
+          this.bbxToastrService.show(
+            Constants.MSG_CANNOT_ON_EDIT_ROW,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          );
+        }, 0);
+      } else {
+        this.suggestPriceChange(this.dbData[rowIndex].data)
+      }
     }
   }
 

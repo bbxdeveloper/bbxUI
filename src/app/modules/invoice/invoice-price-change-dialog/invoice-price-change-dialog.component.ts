@@ -145,7 +145,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     let newUnitPrice1
     let newUnitPrice2
 
-    if (this.wasOpen) {
+    if (this.wasOpen && this.priceChange?.newUnitPrice1 !== undefined) {
       newUnitPrice1 = this.priceChange.newUnitPrice1
       newUnitPrice2 = this.priceChange.newUnitPrice2
     }
@@ -168,17 +168,37 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   private calculateNewPrices(product: Product): [number, number] {
     let changeRatePercent
-    if (this.newPrice > product.latestSupplyPrice!) {
-      const priceDelta = this.newPrice - product.latestSupplyPrice!
-      changeRatePercent = priceDelta / product.latestSupplyPrice! + 1
+    const latestSupplyPrice = HelperFunctions.ToFloat(product.latestSupplyPrice)
+    
+    if (latestSupplyPrice === 0) {
+      changeRatePercent = this.newPrice
+    }
+    else if (this.newPrice > latestSupplyPrice) {
+      const priceDelta = this.newPrice - latestSupplyPrice
+      changeRatePercent = priceDelta / latestSupplyPrice + 1
     }
     else {
       changeRatePercent = 1
     }
 
+    var newPrice1 = 0
+    var newPrice2 = 0
+
+    if (product.unitPrice1 === 0) {
+      newPrice1 = changeRatePercent
+    } else {
+      newPrice1 = product.unitPrice1! * changeRatePercent
+    }
+
+    if (product.unitPrice2 === 0) {
+      newPrice2 = changeRatePercent
+    } else {
+      newPrice2 = product.unitPrice2! * changeRatePercent
+    }
+
     return [
-      product.unitPrice1! * changeRatePercent,
-      product.unitPrice2! * changeRatePercent
+      newPrice1,
+      newPrice2
     ]
   }
 

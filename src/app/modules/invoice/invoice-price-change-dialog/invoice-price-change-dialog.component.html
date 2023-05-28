@@ -8,33 +8,38 @@
                 <label>
                     Termék
                 </label>
-                <input nbInput type="text" formControlName="productCode" readonly>
-                <input class="product-description" nbInput type="text" formControlName="productDescription" readonly>
+                <input class="width-of-20-percent" nbInput type="text" formControlName="productCode" readonly>
+                <input class="width-of-50-percent" nbInput type="text" formControlName="productDescription" readonly>
+                <!-- product-description -->
             </div>
 
-            <div class="form-input-container head">
-                <div>
+            <!-- head -->
+            <div class="form-input-container">
+                <label class="text-transparent text-center">
+                    -
+                </label>
+                <label class="width-of-20-percent text-center" >
                     Régi ár
-                </div>
-                <div>
+                </label>
+                <label class="width-of-50-percent text-center" >
                     Új ár
-                </div>
+                </label>
             </div>
 
             <div class="form-input-container" (keydown.enter)="navigateable.HandleFormEnter($event)">
                 <label>
                     Listaár
                 </label>
-                <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
-                <input class="{{TileCssClass}}" nbInput [inputMask]="numberInputMask" type="text" formControlName="newUnitPrice1">
+                <input class="width-of-20-percent"  nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
+                <input class="{{TileCssClass}} width-of-50-percent" nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1">
             </div>
 
             <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
                 <label>
                     Egységár
                 </label>
-                <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
-                <input class="{{TileCssClass}}" nbInput [inputMask]="numberInputMask" type="text" formControlName="newUnitPrice2">
+                <input class="width-of-20-percent"  nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
+                <input class="{{TileCssClass}} width-of-50-percent" nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2">
             </div>
         </form>
     </nb-card-body>
