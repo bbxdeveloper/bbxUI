@@ -604,12 +604,16 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   override Refresh(params?: GetCustomersParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    if (!!this.Subscription_Refresh && !this.Subscription_Refresh.closed) {
+      this.Subscription_Refresh.unsubscribe();
+    }
+
+    console.log('Refreshing');
+
     this.isLoading = true;
-    this.customerService.GetAll(params).subscribe({
+    this.Subscription_Refresh = this.customerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
@@ -636,12 +640,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   async RefreshAsync(params?: GetCustomersParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.customerService.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };

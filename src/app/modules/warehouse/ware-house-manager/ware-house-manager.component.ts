@@ -21,6 +21,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { lastValueFrom } from 'rxjs';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-ware-house-manager',
@@ -106,7 +107,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   override ProcessActionNew(data?: IUpdateRequest<WareHouse>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data.data.id = HelperFunctions.ToInt(data.data.id);
       this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.seInv.Create(data.data).subscribe({
         next: async d => {
@@ -144,7 +145,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   override ProcessActionPut(data?: IUpdateRequest<WareHouse>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data.data.id = HelperFunctions.ToInt(data.data.id);
       this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
       this.seInv.Update(data.data).subscribe({
         next: (d) => {
@@ -265,12 +266,16 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   }
 
   override Refresh(params?: GetWareHousesParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    if (!!this.Subscription_Refresh && !this.Subscription_Refresh.closed) {
+      this.Subscription_Refresh.unsubscribe();
+    }
+
+    console.log('Refreshing');
+
     this.isLoading = true;
-    this.seInv.GetAll(params).subscribe({
+    this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetWareHouses response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };
@@ -296,12 +301,11 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   }
 
   async RefreshAsync(params?: GetWareHousesParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.seInv.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetWareHouses response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };

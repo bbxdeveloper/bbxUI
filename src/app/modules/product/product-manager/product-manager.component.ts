@@ -524,13 +524,18 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   override Refresh(params?: GetProductsParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    if (!!this.Subscription_Refresh && !this.Subscription_Refresh.closed) {
+      this.Subscription_Refresh.unsubscribe();
+    }
+
+    console.log('Refreshing');
+
     this.isLoading = true;
-    this.seInv.GetAll(params).subscribe({
+    this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
       next: async (d) => {
         if (d.succeeded && !!d.data) {
           await this.RefreshComboValues();
-          console.log('GetProducts response: ', d); // TODO: only for debug
+          console.log('GetProducts response: ', d);
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
@@ -559,14 +564,12 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   async RefreshAsync(params?: GetProductsParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
-
     await lastValueFrom(this.seInv.GetAll(params))
       .then(async d => {
         if (d.succeeded && !!d.data) {
           await this.RefreshComboValues();
-          console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
