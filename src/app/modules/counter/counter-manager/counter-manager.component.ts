@@ -185,12 +185,6 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   }
 
   private ConvertCombosForGet(data: Counter): Counter {
-    // if (data.warehouse !== undefined && this.wareHouses.length > 0)
-    //   data.warehouse = WareHouseCodeToDescription(
-    //     data.warehouse,
-    //     this.wareHouses
-    //   );
-
     if (environment.flatDesignCRUDManagerDebug) {
         console.log(`[ConvertCombosForGet] result: `, data);
     }
@@ -216,8 +210,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       counterDescription: p.counterDescription,
       warehouseCode: HelperFunctions.ConvertChosenWareHouseToCode(p.warehouse, this.wareHouses, ''),
       prefix: p.prefix,
-      currentNumber: parseInt(p.currentNumber + ''),
-      numbepartLength: parseInt(p.numbepartLength + ''),
+      currentNumber: HelperFunctions.ToInt(p.currentNumber),
+      numbepartLength: HelperFunctions.ToInt(p.numbepartLength),
       suffix: p.suffix
     } as CreateCounterRequest;
     return res;
@@ -225,13 +219,13 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
 
   private CounterToUpdateRequest(p: Counter): UpdateCounterRequest {
     const res = {
-      id: parseInt(p.id + ''), // TODO
+      id: HelperFunctions.ToInt(p.id),
       counterCode: p.counterCode,
       counterDescription: p.counterDescription,
       warehouseCode: HelperFunctions.ConvertChosenWareHouseToCode(p.warehouse, this.wareHouses, ''),
       prefix: p.prefix,
-      currentNumber: parseInt(p.currentNumber + ''),
-      numbepartLength: parseInt(p.numbepartLength + ''),
+      currentNumber: HelperFunctions.ToInt(p.currentNumber),
+      numbepartLength: HelperFunctions.ToInt(p.numbepartLength),
       suffix: p.suffix
     } as UpdateCounterRequest;
     return res;
@@ -303,7 +297,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
 
         this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
 
-        data.data.id = parseInt(data.data.id + ''); // TODO
+        data.data.id = HelperFunctions.ToInt(data.data.id);
         this.seInv.Update(updateRequest).subscribe({
           next: (d) => {
             if (d.succeeded && !!d.data) {
@@ -466,12 +460,16 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   }
 
   override Refresh(params?: GetCountersParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    if (!!this.Subscription_Refresh && !this.Subscription_Refresh.closed) {
+      this.Subscription_Refresh.unsubscribe();
+    }
+
+    console.log('Refreshing');
+
     this.isLoading = true;
-    this.seInv.GetAll(params).subscribe({
+    this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetCounters response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
@@ -500,12 +498,11 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   }
 
   async RefreshAsync(params?: GetCountersParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.seInv.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetCounters response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };

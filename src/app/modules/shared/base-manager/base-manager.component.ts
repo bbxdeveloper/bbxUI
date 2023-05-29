@@ -1,6 +1,7 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbDialogService, NbSidebarService, NbTreeGridDataSource } from '@nebular/theme';
+import { Subscription } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -56,6 +57,8 @@ export class BaseManagerComponent<T> {
 
   public KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
   public commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+  
+  protected Subscription_Refresh?: Subscription;
 
   constructor(
     @Optional() protected dialogService: NbDialogService,
