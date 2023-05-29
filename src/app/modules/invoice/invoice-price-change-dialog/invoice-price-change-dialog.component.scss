@@ -26,6 +26,7 @@ form {
 .form-input-container {
     display: flex;
     column-gap: 25px;
+    justify-content: space-evenly;
 
     &.head {
         justify-content: space-evenly;
@@ -327,3 +328,6 @@ form {
     -webkit-box-shadow: inset 0 0 6px rgba(85, 84, 180, 0.966) !important;
 }
 
+.text-transparent {
+    color: transparent;
+}
