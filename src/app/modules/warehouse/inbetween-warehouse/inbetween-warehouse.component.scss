@@ -8,8 +8,30 @@ form {
     display: flex;
     flex-direction: column;
     row-gap: 10px;
+
+    .horizontal {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        width: 600px;
+
+        label {
+            width: 185px;
+            text-align: right;
+        }
+
+        input {
+            width: 300px;
+        }
+    }
 }
 
 .filter-card {
     background: unset;
+}
+
+.summedCost {
+    font-size: 1rem;
+    margin-right: 240px;
+    text-align: right;
 }
