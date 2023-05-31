@@ -275,7 +275,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     if (col === '_quantity') {
       this.quantityChanged(changedData)
     }
-
     else if ((!!col && col === 'productCode') || col === undefined) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
@@ -300,6 +299,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   private quantityChanged(changedData: InbetweenWarehouseProduct): void {
+    changedData.quantity = changedData.quantity
+
     if (changedData.quantity <= 0) {
       setTimeout(() => {
         this.bbxToastrService.show(
