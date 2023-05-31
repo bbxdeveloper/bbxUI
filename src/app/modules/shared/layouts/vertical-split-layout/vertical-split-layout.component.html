@@ -1,0 +1,11 @@
+<div class="layout-grid layout-proportion-of-{{proportion}}">
+    <div class="div-stretch">
+        <ng-content select="[left]"></ng-content>
+    </div>
+
+    <div class="separator-vertical" [hidden]="hideDivider"></div>
+
+    <div class="div-stretch">
+        <ng-content select="[right]"></ng-content>
+    </div>
+</div>

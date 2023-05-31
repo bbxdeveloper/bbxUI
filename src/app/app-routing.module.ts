@@ -29,6 +29,8 @@ import { StockCardNavComponent } from './modules/stock/stock-card-nav/stock-card
 import { StockNavComponent } from './modules/stock/stock-nav/stock-nav.component';
 import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manager/ware-house-manager.component';
 import { CorrectionInvoiceComponent } from './modules/invoice/correction-invoice/correction-invoice.component';
+import { InbetweenWarehouseComponent } from './modules/warehouse/inbetween-warehouse/inbetween-warehouse.component';
+import { WarehouseDocumentManagerComponent } from './modules/warehouse/warehouse-document/warehouse-document-manager/warehouse-document-manager.component';
 
 const routes: Routes = [
   {
@@ -231,6 +233,21 @@ const routes: Routes = [
       {
         path: "manage",
         component: CustomerDiscountManagerComponent,
+      }
+    ]
+  },
+  {
+    path: 'warehouse',
+    canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
+    children: [
+      {
+        path: 'inbetween-warehouse',
+        component: InbetweenWarehouseComponent,
+      },
+      {
+        path: 'warehouse-document',
+        component: WarehouseDocumentManagerComponent,
       }
     ]
   },

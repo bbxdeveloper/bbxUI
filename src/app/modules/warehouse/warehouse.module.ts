@@ -8,13 +8,23 @@ import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabse
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
+import { InbetweenWarehouseComponent } from './inbetween-warehouse/inbetween-warehouse.component';
+import { AngularEditorModule } from '@kolkov/angular-editor';
+import { WarehouseDocumentManagerComponent } from './warehouse-document/warehouse-document-manager/warehouse-document-manager.component';
+import { WarehouseDocumentSideBarFormComponent } from './warehouse-document/warehouse-document-side-bar-form/warehouse-document-side-bar-form.component';
+import { WarehouseDocumentFilterFormComponent } from './warehouse-document/warehouse-document-filter-form/warehouse-document-filter-form.component';
+import { InputMaskModule } from '@ngneat/input-mask';
 
 
 
 @NgModule({
   declarations: [
     WareHouseManagerComponent,
-    WareHouseSideBarFormComponent
+    WareHouseSideBarFormComponent,
+    InbetweenWarehouseComponent,
+    WarehouseDocumentManagerComponent,
+    WarehouseDocumentSideBarFormComponent,
+    WarehouseDocumentFilterFormComponent
   ],
   imports: [
     CommonModule,
@@ -42,9 +52,12 @@ import { SharedModule } from '../shared/shared.module';
     NbTooltipModule,
     AngularSplitModule,
     SharedModule,
+    AngularEditorModule,
+    InputMaskModule,
   ],
   exports: [
-    WareHouseManagerComponent
+    WareHouseManagerComponent,
+    WarehouseDocumentManagerComponent,
   ]
 })
 export class WarehouseModule { }

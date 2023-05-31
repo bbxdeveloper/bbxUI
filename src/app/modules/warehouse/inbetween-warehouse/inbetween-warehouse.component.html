@@ -1,0 +1,50 @@
+<app-head-line msg="Raktárközi átadás bizonylat"></app-head-line>
+
+<div>
+    <nb-card class="filter-card">
+        <nb-card-body>
+            <form [formGroup]="headerForm" ngForm [id]="headerFormId">
+                <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="headerFormNav" formFieldName="fromWarehouse" label="Kiadás raktár" [needBlankOption]="false"
+                    [data$]="warehouses$" [needErrorMsg]="false" [isWide]="false" [isReadonly]="true"></app-bbx-combo-box>
+
+                <app-bbx-combo-box id="toWarehouse" class="bbx-sidebar-combo" [currentForm]="headerFormNav" formFieldName="toWarehouse" label="Bevételi raktár"
+                    [needBlankOption]="false"
+                    [data$]="toWarehouses$" [needErrorMsg]="false" [isWide]="false"></app-bbx-combo-box>
+
+                <div *ngIf="warehouseSelectionError" class="error">
+                    A két raktárnak különböznie kell.
+                </div>
+
+                <nb-form-field>
+                    <label>
+                        Dátum
+                    </label>
+                    <input nbInput type="text" formControlName="transferDate" mask="0000-00-00" class="{{TileCssClass}}">
+                    <app-form-control-error [form]="headerFormNav" controlName="transferDate"></app-form-control-error>
+                </nb-form-field>
+
+                <div>
+                    <label>
+                        Megjegyzés
+                    </label>
+                    <angular-editor formControlName="note" [config]="editorConfig"
+                        (keydown.esc)="JumpToFirstCellAndNav()"
+                        (keydown.tab)="JumpToFirstCellAndNav()"
+                        placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre."
+                        class="{{TileCssClass}}"></angular-editor>
+                </div>
+            </form>
+        </nb-card-body>
+    </nb-card>
+
+    <nb-card class="filter-card">
+        <nb-card-body>
+            <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
+                [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+                (inputFocusChanged)="inlineInputFocusChanged($event)"
+                (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
+            </app-inline-editable-table>
+        </nb-card-body>
+    </nb-card>
+</div>

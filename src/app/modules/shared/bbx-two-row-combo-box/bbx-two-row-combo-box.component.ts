@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
+import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 
 @Component({
   selector: 'app-bbx-two-row-combo-box',
@@ -10,7 +11,7 @@ import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/Fl
   styleUrls: ['./bbx-two-row-combo-box.component.scss']
 })
 export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
-  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm;
+  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';
   @Input() getData: () => string[] = () => [];

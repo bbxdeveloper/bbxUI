@@ -23,6 +23,14 @@ export class WareHouseService {
 
   constructor(private http: HttpClient, private cs: CommonService) { }
 
+  GetTemporaryWarehouses(): WareHouse[] {
+    return [{
+      id: -1,
+      warehouseCode: '0',
+      warehouseDescription: "Feltöltés alatt...",
+    }] as WareHouse[];
+  }
+
   GetAll(params?: GetWareHousesParamListModel): Observable<GetWareHousesResponse> {
     // Process params
     var queryParams = '';
