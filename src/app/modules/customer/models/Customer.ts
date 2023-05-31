@@ -36,6 +36,8 @@ export interface Customer {
     unitPriceType: UnitPriceTypes|string
     unitPriceTypeX: string,
 
+    defPaymentMethod: string,
+
     warningLimit?: number,
     maxLimit?: number,
 

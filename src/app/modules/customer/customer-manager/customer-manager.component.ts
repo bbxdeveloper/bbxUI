@@ -27,6 +27,8 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { UnitPriceType, UnitPriceTypes } from '../models/UnitPriceType';
 import { FormHelper } from 'src/assets/util/FormHelper';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { InvoiceService } from '../../invoice/services/invoice.service';
+import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 
 @Component({
   selector: 'app-customer-manager',
@@ -226,6 +228,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
   private unitPriceTypes: UnitPriceType[] = []
 
+  private paymentMethods: PaymentMethod[] = []
+
   get maxLimit(): number | undefined {
     return FormHelper.GetNumber(this.dbDataTableForm, 'maxLimit')
   }
@@ -295,6 +299,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     private readonly sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
+    private readonly invoiceService: InvoiceService,
     private readonly keyboardHelperService: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
@@ -539,6 +544,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       paymentDays: new FormControl(0, [
         this.paymentDateValidation.bind(this)
       ]),
+      defPaymentMethod: new FormControl('', [Validators.required])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -591,9 +597,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
       const countryCodesRequest = this.customerService.GetAllCountryCodesAsync()
       const unitPriceTypesRequest = this.customerService.getUnitPriceTypes()
+      const paymentMethodsRequest = this.invoiceService.getPaymentMethodsAsync()
 
       this.countryCodes = await countryCodesRequest
       this.unitPriceTypes = await unitPriceTypesRequest
+      this.paymentMethods = await paymentMethodsRequest
 
       this.Refresh(params)
     } catch (error) {

@@ -13,6 +13,7 @@ import { SystemService } from '../../system/services/system.service';
 import { CountryCode } from '../models/CountryCode';
 import { CustomerMisc } from '../models/CustomerMisc';
 import { CustomerService } from '../services/customer.service';
+import { InvoiceService } from '../../invoice/services/invoice.service';
 
 @Component({
   selector: 'app-customer-side-bar-form',
@@ -37,6 +38,8 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
   public unitPriceTypeComboData: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
 
+  public paymentMethodsComboData$ = new BehaviorSubject<string[]>([])
+
   get privatePersonDefaultValue(): Boolean {
     return false;
   }
@@ -59,6 +62,7 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
     private readonly systemService: SystemService,
     private readonly commonService: CommonService,
     private readonly statusService: StatusService,
+    private readonly invoiceService: InvoiceService,
     private loggerService: LoggerService,
     cdref: ChangeDetectorRef) {
     super(kbS, cdref);
@@ -125,21 +129,38 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
   }
 
   public ngAfterViewInit(): void {
-    this.setUnitPrices()
+    this.comboBoxData()
     this.currentForm?.AfterViewInitSetup();
   }
 
-  private async setUnitPrices(): Promise<void> {
+  private async comboBoxData(): Promise<void> {
+    let unitPriceTypes
+    let paymentMethods
     try {
-      const unitPriceTypes = await this.customerService.getUnitPriceTypes()
+      const unitPriceTypeRequest = this.customerService.getUnitPriceTypes()
+      const paymentMethodsRequest = this.invoiceService.getPaymentMethodsAsync()
 
-      this.unitPriceTypeComboData.next(unitPriceTypes.map(x => x.text))
-
-      if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['unitPriceType'].value) && unitPriceTypes.length > 0) {
-        this.currentForm?.form.controls['unitPriceType'].setValue(unitPriceTypes[0].text)
-      }
+      unitPriceTypes = await unitPriceTypeRequest
+      paymentMethods = await paymentMethodsRequest
     } catch (error) {
       this.commonService.HandleError(error)
+
+      return
+    }
+
+    this.unitPriceTypeComboData.next(unitPriceTypes.map(x => x.text))
+    this.paymentMethodsComboData$.next(paymentMethods.map(x => x.text))
+
+    const controls = this.currentForm!.form.controls
+
+    const unitPriceType = controls['unitPriceType']
+    if (HelperFunctions.isEmptyOrSpaces(unitPriceType.value) && unitPriceTypes.length > 0) {
+      unitPriceType.setValue(unitPriceTypes[0].text)
+    }
+
+    const defPaymentMethod = controls['defPaymentMethod']
+    if (HelperFunctions.isEmptyOrSpaces(defPaymentMethod.value) && paymentMethods.length > 0) {
+      defPaymentMethod.setValue(paymentMethods.find(x => x.value === 'CASH')?.text)
     }
   }
 
