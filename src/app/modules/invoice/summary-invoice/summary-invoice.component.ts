@@ -841,6 +841,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.incoming = this.mode.incoming;
     this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
     this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
+    this.outGoingInvoiceData.invoiceCorrection = this.mode.invoiceCorrection
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
