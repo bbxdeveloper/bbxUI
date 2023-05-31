@@ -329,36 +329,41 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     data.unitPriceType = this.unitPriceTypes.find(x => x.text === data.unitPriceTypeX)?.text ?? 'Listaár'
 
+    data.defPaymentMethod = this.paymentMethods.find(x => x.text === data.defPaymentMethodX)?.text ?? 'Kp'
+
     return data;
   }
 
-  private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
-    let country = this.countryCodes.find(x => x.text === p.countryCode);
+  private CustomerToCreateRequest(customer: Customer): CreateCustomerRequest {
+    let country = this.countryCodes.find(x => x.text === customer.countryCode);
     if (country) {
-      p.countryCode = country.value;
+      customer.countryCode = country.value;
     }
 
-    if (p.customerBankAccountNumber) {
-      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    if (customer.customerBankAccountNumber) {
+      customer.customerBankAccountNumber = customer.customerBankAccountNumber.replace(/\s/g, '');
     }
 
-    const unitPriceType = this.unitPriceTypes.find(x => x.text === p.unitPriceType)?.value ?? UnitPriceTypes.List
+    const unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
+
+    const defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
 
     const res = {
-      additionalAddressDetail: p.additionalAddressDetail,
-      city: p.city,
-      comment: p.comment,
-      countryCode: p.countryCode,
-      customerBankAccountNumber: p.customerBankAccountNumber,
-      customerName: p.customerName,
-      isOwnData: p.isOwnData,
-      postalCode: p.postalCode,
-      privatePerson: p.privatePerson,
-      thirdStateTaxId: p.thirdStateTaxId,
-      taxpayerNumber: p.taxpayerNumber,
+      additionalAddressDetail: customer.additionalAddressDetail,
+      city: customer.city,
+      comment: customer.comment,
+      countryCode: customer.countryCode,
+      customerBankAccountNumber: customer.customerBankAccountNumber,
+      customerName: customer.customerName,
+      isOwnData: customer.isOwnData,
+      postalCode: customer.postalCode,
+      privatePerson: customer.privatePerson,
+      thirdStateTaxId: customer.thirdStateTaxId,
+      taxpayerNumber: customer.taxpayerNumber,
       unitPriceType: unitPriceType,
-      maxLimit: HelperFunctions.ToOptionalInt(p.maxLimit),
-      warningLimit: HelperFunctions.ToOptionalInt(p.warningLimit)
+      maxLimit: HelperFunctions.ToOptionalInt(customer.maxLimit),
+      warningLimit: HelperFunctions.ToOptionalInt(customer.warningLimit),
+      defPaymentMethod: defPaymentMethod,
     } as CreateCustomerRequest;
     return res;
   }
@@ -374,6 +379,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     }
 
     customer.unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
+
+    customer.defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
 
     customer.maxLimit = HelperFunctions.ToOptionalInt(customer.maxLimit)
     customer.warningLimit = HelperFunctions.ToOptionalInt(customer.warningLimit)
