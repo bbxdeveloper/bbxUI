@@ -1,4 +1,5 @@
 import { IBaseEntity } from "src/assets/model/IBaseEntity"
+import { Product } from "../../product/models/Product"
 
 export class WhsTransferLine {
     whsTransferLineNumber: number = 0
@@ -12,7 +13,7 @@ export class WhsTransferLineFull extends WhsTransferLine implements IBaseEntity<
     id: number = 0
     whsTransferID?: number
     productID?: number
-    product?: string
+    product?: Product
     unitOfMeasureX?: string
     itemAmount?: number
 }

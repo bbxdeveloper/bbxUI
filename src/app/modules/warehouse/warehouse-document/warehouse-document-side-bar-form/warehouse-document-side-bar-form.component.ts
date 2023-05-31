@@ -2,9 +2,12 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/co
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { Constants } from 'src/assets/util/Constants';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { KeyBindings, WarehouseDocumentsKeySettings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../../shared/base-side-bar-form/base-side-bar-form.component';
 import { LocationService } from '../../../location/services/location.service';
+import { WhsService, WhsStatus } from 'src/app/modules/whs/services/whs.service';
+import { WhsTransferStatus } from 'src/app/modules/whs/models/WhsTransferStatus';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-warehouse-document-side-bar-form',
@@ -17,12 +20,25 @@ export class WarehouseDocumentSideBarFormComponent extends BaseSideBarFormCompon
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
+  
+  public override KeySetting: Constants.KeySettingsDct = WarehouseDocumentsKeySettings;
 
   customPatterns = Constants.ProductCodePatterns;
 
+  statuses: WhsTransferStatus[] = []
+
+  get isWhsReady(): boolean {
+    if (this.currentForm?.form?.controls !== undefined &&
+      this.currentForm?.form?.controls['whsTransferStatusX'] !== undefined &&
+      this.statuses.length > 0) {
+      return this.statuses.findIndex(x => x.text === this.currentForm!.form.controls['whsTransferStatusX'].value && x.value == WhsStatus.READY) !== -1
+    }
+    return false
+  }
+
   constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
-    private locationService: LocationService,
-    cdref: ChangeDetectorRef) {
+    private locationService: LocationService, private whsService: WhsService,
+    cdref: ChangeDetectorRef, private cs: CommonService) {
     super(kbS, cdref);
   }
 
@@ -32,8 +48,9 @@ export class WarehouseDocumentSideBarFormComponent extends BaseSideBarFormCompon
     }, 100);
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.sbf.forms.subscribe({ next: f => this.SetNewForm(f) });
+    await this.refreshComboboxData()
   }
   ngAfterViewInit(): void {
     this.currentForm?.AfterViewInitSetup();
@@ -44,5 +61,16 @@ export class WarehouseDocumentSideBarFormComponent extends BaseSideBarFormCompon
       console.log("SetCursorPose: ", event.target.value);
       event.target.setSelectionRange(0, 0);
     }, 50);
+  }
+
+  private async refreshComboboxData(): Promise<void> {
+    // ProductGroups
+    await this.whsService.GetAllWhsTransferStatusPromise()
+      .then(data => {
+        this.statuses = data
+      })
+      .catch(err => {
+        this.cs.HandleError(err)
+      })
   }
 }
