@@ -52,7 +52,8 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 @Component({
   selector: 'app-summary-invoice',
   templateUrl: './summary-invoice.component.html',
-  styleUrls: ['./summary-invoice.component.scss']
+  styleUrls: ['./summary-invoice.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -791,6 +792,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.originalCustomerID = customer.id
 
+      if (this.mode.useCustomersPaymentMethod) {
+        this.outInvForm.controls['paymentMethod'].setValue(customer.defPaymentMethodX)
+      }
+
       this.SetDataForForm(customer)
     }
     catch(error) {
@@ -1157,6 +1162,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         this.buyerFormNav.FillForm(res);
         this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
+        if (this.mode.useCustomersPaymentMethod) {
+          this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+        }
+
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
@@ -1261,6 +1270,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
           this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
+
+          if (this.mode.useCustomersPaymentMethod) {
+            this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+          }
 
           if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
             this.simpleToastrService.show(

@@ -3,9 +3,7 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { NegativeQuantityValidator, PositiveQuantityValidator, SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class InvoiceBehaviorFactoryService {
 
   constructor() { }
@@ -51,7 +49,8 @@ export class InvoiceBehaviorFactoryService {
       validateQuantity: new PositiveQuantityValidator,
       isSummaryInvoice: false,
       checkCustomerLimit: true,
-      title: 'Számla'
+      title: 'Számla',
+      useCustomersPaymentMethod: true,
     } as SummaryInvoiceMode
   }
 
@@ -86,7 +85,8 @@ export class InvoiceBehaviorFactoryService {
       validateQuantity: new PositiveQuantityValidator,
       isSummaryInvoice: true,
       checkCustomerLimit: true,
-      title: 'Gyűjtőszámla'
+      title: 'Gyűjtőszámla',
+      useCustomersPaymentMethod: true,
     } as SummaryInvoiceMode
   }
 
