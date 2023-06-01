@@ -15,5 +15,6 @@ export interface CreateCustomerRequest {
     isOwnData: boolean,
     unitPriceType: string,
     warningLimit?: number,
-    maxLimit?: number
+    maxLimit?: number,
+    paymentDays: number,
 }
