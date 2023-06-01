@@ -44,6 +44,10 @@ export class InvoiceService {
     return this.http.get<PaymentMethod[]>(this.BaseUrl + '/paymentmethod');
   }
 
+  public async getPaymentMethodsAsync(): Promise<PaymentMethod[]> {
+    return firstValueFrom(this.GetPaymentMethods())
+  }
+
   public GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
