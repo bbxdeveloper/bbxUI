@@ -50,7 +50,8 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 @Component({
   selector: 'app-invoice-manager',
   templateUrl: './invoice-manager.component.html',
-  styleUrls: ['./invoice-manager.component.scss']
+  styleUrls: ['./invoice-manager.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -994,6 +995,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.buyerFormNav.FillForm(res);
         this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
+        if (this.mode.useCustomersPaymentMethod) {
+          this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+        }
+
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
@@ -1107,6 +1112,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
           this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
+
+          if (this.mode.useCustomersPaymentMethod) {
+            this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+          }
 
           if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
             this.simpleToastrService.show(
