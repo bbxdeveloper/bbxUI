@@ -10,6 +10,7 @@ export class SummaryInvoiceMode {
     public paymentMethod: string = ''
     public isSummaryInvoice: boolean = false
     public invoiceCorrection: boolean = false
+    public useCustomersPaymentMethod: boolean = false
 
     public checkCustomerLimit: boolean = false
 

@@ -27,6 +27,8 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { UnitPriceType, UnitPriceTypes } from '../models/UnitPriceType';
 import { FormHelper } from 'src/assets/util/FormHelper';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { InvoiceService } from '../../invoice/services/invoice.service';
+import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 
 @Component({
   selector: 'app-customer-manager',
@@ -226,6 +228,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
   private unitPriceTypes: UnitPriceType[] = []
 
+  private paymentMethods: PaymentMethod[] = []
+
   get maxLimit(): number | undefined {
     return FormHelper.GetNumber(this.dbDataTableForm, 'maxLimit')
   }
@@ -295,6 +299,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     private readonly sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
+    private readonly invoiceService: InvoiceService,
     private readonly keyboardHelperService: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
@@ -324,36 +329,42 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     data.unitPriceType = this.unitPriceTypes.find(x => x.text === data.unitPriceTypeX)?.text ?? 'Listaár'
 
+    data.defPaymentMethod = this.paymentMethods.find(x => x.text === data.defPaymentMethodX)?.text ?? 'Kp'
+
     return data;
   }
 
-  private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
-    let country = this.countryCodes.find(x => x.text === p.countryCode);
+  private CustomerToCreateRequest(customer: Customer): CreateCustomerRequest {
+    let country = this.countryCodes.find(x => x.text === customer.countryCode);
     if (country) {
-      p.countryCode = country.value;
+      customer.countryCode = country.value;
     }
 
-    if (p.customerBankAccountNumber) {
-      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    if (customer.customerBankAccountNumber) {
+      customer.customerBankAccountNumber = customer.customerBankAccountNumber.replace(/\s/g, '');
     }
 
-    const unitPriceType = this.unitPriceTypes.find(x => x.text === p.unitPriceType)?.value ?? UnitPriceTypes.List
+    const unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
+
+    const defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
 
     const res = {
-      additionalAddressDetail: p.additionalAddressDetail,
-      city: p.city,
-      comment: p.comment,
-      countryCode: p.countryCode,
-      customerBankAccountNumber: p.customerBankAccountNumber,
-      customerName: p.customerName,
-      isOwnData: p.isOwnData,
-      postalCode: p.postalCode,
-      privatePerson: p.privatePerson,
-      thirdStateTaxId: p.thirdStateTaxId,
-      taxpayerNumber: p.taxpayerNumber,
+      additionalAddressDetail: customer.additionalAddressDetail,
+      city: customer.city,
+      comment: customer.comment,
+      countryCode: customer.countryCode,
+      customerBankAccountNumber: customer.customerBankAccountNumber,
+      customerName: customer.customerName,
+      isOwnData: customer.isOwnData,
+      postalCode: customer.postalCode,
+      privatePerson: customer.privatePerson,
+      thirdStateTaxId: customer.thirdStateTaxId,
+      taxpayerNumber: customer.taxpayerNumber,
       unitPriceType: unitPriceType,
-      maxLimit: HelperFunctions.ToOptionalInt(p.maxLimit),
-      warningLimit: HelperFunctions.ToOptionalInt(p.warningLimit)
+      maxLimit: HelperFunctions.ToOptionalInt(customer.maxLimit),
+      warningLimit: HelperFunctions.ToOptionalInt(customer.warningLimit),
+      paymentDays: Number(customer.paymentDays),
+      defPaymentMethod: defPaymentMethod,
     } as CreateCustomerRequest;
     return res;
   }
@@ -370,8 +381,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     customer.unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
 
+    customer.defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
+
     customer.maxLimit = HelperFunctions.ToOptionalInt(customer.maxLimit)
     customer.warningLimit = HelperFunctions.ToOptionalInt(customer.warningLimit)
+
+    customer.paymentDays = Number(customer.paymentDays)
 
     return customer;
   }
@@ -539,6 +554,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       paymentDays: new FormControl(0, [
         this.paymentDateValidation.bind(this)
       ]),
+      defPaymentMethod: new FormControl('', [Validators.required])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -591,9 +607,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
       const countryCodesRequest = this.customerService.GetAllCountryCodesAsync()
       const unitPriceTypesRequest = this.customerService.getUnitPriceTypes()
+      const paymentMethodsRequest = this.invoiceService.getPaymentMethodsAsync()
 
       this.countryCodes = await countryCodesRequest
       this.unitPriceTypes = await unitPriceTypesRequest
+      this.paymentMethods = await paymentMethodsRequest
 
       this.Refresh(params)
     } catch (error) {

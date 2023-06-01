@@ -42,7 +42,8 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 @Component({
   selector: 'app-receipt-manager',
   templateUrl: './receipt-manager.component.html',
-  styleUrls: ['./receipt-manager.component.scss']
+  styleUrls: ['./receipt-manager.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
