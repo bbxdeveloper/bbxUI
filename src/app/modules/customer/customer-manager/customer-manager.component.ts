@@ -363,6 +363,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       unitPriceType: unitPriceType,
       maxLimit: HelperFunctions.ToOptionalInt(customer.maxLimit),
       warningLimit: HelperFunctions.ToOptionalInt(customer.warningLimit),
+      paymentDays: Number(customer.paymentDays),
       defPaymentMethod: defPaymentMethod,
     } as CreateCustomerRequest;
     return res;
@@ -384,6 +385,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     customer.maxLimit = HelperFunctions.ToOptionalInt(customer.maxLimit)
     customer.warningLimit = HelperFunctions.ToOptionalInt(customer.warningLimit)
+
+    customer.paymentDays = Number(customer.paymentDays)
 
     return customer;
   }

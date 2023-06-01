@@ -16,5 +16,6 @@ export interface CreateCustomerRequest {
     unitPriceType: string,
     warningLimit?: number,
     maxLimit?: number,
+    paymentDays: number,
     defPaymentMethod: string,
 }
