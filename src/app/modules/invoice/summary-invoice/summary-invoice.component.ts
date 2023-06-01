@@ -820,8 +820,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
       : this.mode.paymentMethod
 
-    this.outGoingInvoiceData.warehouseCode = '1';
-
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;
 

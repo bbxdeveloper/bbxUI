@@ -32,7 +32,7 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
     "priceReview"?: boolean;
     deliveryNoteCorrection?: boolean = undefined
     invoiceCorrection: boolean = false
-    originalInvoiceID: number = -1
+    originalInvoiceID: number|undefined
 
     @JsonIgnore
     get isDelivery(): boolean {
