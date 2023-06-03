@@ -3,11 +3,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
-import { WhsTransferFull } from 'src/app/modules/whs/models/WhsTransfer';
-import { WhsTransferQueryParams } from 'src/app/modules/whs/models/WhsTransferQueryParams';
-import { WhsService, WhsStatus } from 'src/app/modules/whs/services/whs.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -25,11 +21,16 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, WarehouseDocumentsKeySettings } from 'src/assets/util/KeyBindings';
 import { WarehouseDocumentFilterFormData } from '../warehouse-document-filter-form/WarehouseDocumentFilterFormData';
+import { WhsTransferFull } from '../../models/whs/WhsTransfer';
+import { WhsTransferQueryParams } from '../../models/whs/WhsTransferQueryParams';
+import { WhsStatus, WhsTransferService } from '../../services/whs-transfer.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-warehouse-document-manager',
   templateUrl: './warehouse-document-manager.component.html',
-  styleUrls: ['./warehouse-document-manager.component.scss']
+  styleUrls: ['./warehouse-document-manager.component.scss'],
+  providers: [WhsTransferService]
 })
 export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsTransferFull> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
@@ -179,7 +180,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<WhsTransferFull>>,
-    private whsService: WhsService,
+    private whsService: WhsTransferService,
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private simpleToastrService: NbToastrService,
@@ -187,6 +188,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
+    private router: Router,
     private khs: KeyboardHelperService,
     private printAndDownloadService: PrintAndDownloadService
   ) {
@@ -420,6 +422,13 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     } as PrintDialogRequest)
   }
 
+  Edit(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y - 1].data.id
+      this.router.navigate(['warehouse/inbetween-warehouse-edit', id, {}])
+    }
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
@@ -495,7 +504,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
-        this.dbDataTable?.HandleKey(event);
+        this.Edit()
         break;
       }
       case this.KeySetting[Actions.Delete].KeyCode: {

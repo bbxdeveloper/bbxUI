@@ -8,7 +8,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { validDate } from 'src/assets/model/Validators';
 import moment from 'moment';
-import { BehaviorSubject, map, tap } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, lastValueFrom, map, tap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -17,14 +17,13 @@ import { Constants } from 'src/assets/util/Constants';
 import { Actions, GetFooterCommandListFromKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { NbDialogService, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { InbetweenWarehouseProduct } from '../models/InbetweenWarehouseProduct';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
@@ -34,9 +33,13 @@ import { ProductService } from '../../product/services/product.service';
 import { StockService } from '../../stock/services/stock.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { WhsTransferService } from '../services/whs-transfer.service';
-import { CreateWhsTransferRequest } from '../models/CreateWhsTransferRequest';
-import { WhsTransferLine } from '../../whs/models/WhsTransferLine';
+import { CreateWhsTransferRequest } from '../models/whs/CreateWhsTransferRequest';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
+import { WarehouseInbetweenBehaviorFactoryService } from '../services/warehouse-inbetween-behavior-factory.service';
+import { WarehouseInbetweenMode } from '../models/whs/WarehouseInbetweenMode';
+import { WhsTransferLine } from '../models/whs/WhsTransferLine';
+import { InbetweenWarehouseProduct } from '../models/whs/InbetweenWarehouseProduct';
+import { WhsTransferFull, WhsTransferUpdate } from '../models/whs/WhsTransfer';
 
 type WarehouseData = {
   code: string,
@@ -47,7 +50,7 @@ type WarehouseData = {
   selector: 'app-inbetween-warehouse',
   templateUrl: './inbetween-warehouse.component.html',
   styleUrls: ['./inbetween-warehouse.component.scss'],
-  providers: [WhsTransferService]
+  providers: [WhsTransferService, WarehouseInbetweenBehaviorFactoryService]
 })
 export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<InbetweenWarehouseProduct> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   get editDisabled() {
@@ -123,6 +126,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     },
   ]
 
+  public mode!: WarehouseInbetweenMode
+  public loadedData?: WhsTransferFull
+  public title: string = ''
+
   constructor(
     private readonly tokenService: TokenStorageService,
     private readonly warehouseService: WareHouseService,
@@ -132,6 +139,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     private readonly bbxToastrService: BbxToastrService,
     private readonly simpleToastrService: NbToastrService,
     private readonly printAndDownloadService: PrintAndDownloadService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly behaviorFactory: WarehouseInbetweenBehaviorFactoryService,
     commonService: CommonService,
     keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
@@ -199,6 +208,69 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     )
 
     this.fS.pushCommands(this.commands)
+
+    this.activatedRoute.url.subscribe(async params => {
+      this.mode = this.behaviorFactory.create(params)
+      this.title = this.mode.title
+      if (this.mode.edit) {
+        await this.LoadForEdit()
+      }
+    })
+  }
+
+  private async LoadForEdit(): Promise<void> {
+    try {
+      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+
+      const whsTransfer = await firstValueFrom(this.whsTransferService.Get({ ID: this.mode.id }))
+        .catch(err => {
+          this.cs.HandleError(err)
+        })
+
+      if (whsTransfer !== undefined) {
+        this.loadedData = whsTransfer
+
+        this.headerForm.controls['fromWarehouse'].setValue(whsTransfer.fromWarehouse!.split('-')[1])
+        this.headerForm.controls['toWarehouse'].setValue(whsTransfer.toWarehouse!.split('-')[1])
+        this.headerForm.controls['transferDate'].setValue(whsTransfer.transferDate)
+        this.headerForm.controls['note'].setValue(whsTransfer.notice)
+
+        const _data: TreeGridNode<InbetweenWarehouseProduct>[] = []
+        for (let i = 0; i < whsTransfer.whsTransferLines.length; i++) {
+          const inbetweenProduct = await this.WhsTransferLinesToInbetweenWarehouseProducts(whsTransfer.whsTransferLines[i])
+          if (inbetweenProduct !== undefined) {
+            _data.push({ data: inbetweenProduct })
+          }
+        }
+
+        this.dbData = _data.concat(this.dbData)
+        this.dbDataDataSrc.setData(this.dbData);
+        this.RecalcNetAndVat()
+        this.dbDataTable.GenerateAndSetNavMatrices(false, false)
+
+        this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.SelectFirstTile()
+      }
+    }
+    catch (err) {
+      this.cs.HandleError(err)
+    }
+    finally {
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    }
+  }
+
+  private async WhsTransferLinesToInbetweenWarehouseProducts(whsTransferLine: WhsTransferLine): Promise<InbetweenWarehouseProduct | undefined> {
+    const product = await this.productService.getProductByCodeAsync({ ProductCode: whsTransferLine.productCode! })
+      .catch(err => {
+        this.cs.HandleError(err)
+      })
+
+    if (product === undefined) {
+      return undefined
+    } else  {
+      return await this.createInbetweenProduct(product)
+    }
   }
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
@@ -492,11 +564,59 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       return
     }
 
+    if (this.mode.edit) {
+      await this.update()
+    } else {
+      await this.create()
+    }
+  }
+
+  private async create(): Promise<void> {
     try {
       this.sts.waitForLoad()
 
       const request = this.createWhsTransferRequest()
       const response = await this.whsTransferService.create(request)
+
+      if (!response.succeeded) {
+        this.cs.HandleError(response.message)
+
+        return
+      }
+
+      this.simpleToastrService.show(
+        Constants.MSG_SAVE_SUCCESFUL,
+        Constants.TITLE_INFO,
+        Constants.TOASTR_SUCCESS_5_SEC
+      );
+
+      await this.printAndDownloadService.openPrintDialog({
+        DialogTitle: 'Számla Nyomtatása',
+        DefaultCopies: 1,
+        MsgError: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása közben hiba történt.`,
+        MsgCancel: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
+        MsgFinish: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása véget ért.`,
+        Obs: this.whsTransferService.getReport.bind(this.whsTransferService),
+        Reset: this.DelayedReset.bind(this),
+        ReportParams: {
+          "id": response.data?.id,
+          "copies": 1 // Ki lesz töltve dialog alapján
+        } as Constants.Dct
+      } as PrintDialogRequest);
+    } catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
+  private async update(): Promise<void> {
+    try {
+      this.sts.waitForLoad()
+
+      const request = this.createWhsTransferUpdateRequest()
+      const response = await this.whsTransferService.update(request)
 
       if (!response.succeeded) {
         this.cs.HandleError(response.message)
@@ -554,6 +674,33 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       userID: this.tokenService.user?.id,
       whsTransferLines: transferLines,
     } as CreateWhsTransferRequest
+  }
+
+  private createWhsTransferUpdateRequest(): WhsTransferUpdate {
+    const controls = this.headerForm.controls
+    const fromWarehouseCode = this.warehouseData.find(x => x.description === controls['fromWarehouse'].value)?.code ?? ''
+    const toWarehouseCode = this.warehouseData.find(x => x.description === controls['toWarehouse'].value)?.code ?? ''
+
+    const transferLines = this.dbData
+      .filter(({ data }) => data.productID)
+      .map(({ data }, index) => ({
+        whsTransferLineNumber: index,
+        productCode: data.productCode,
+        currAvgCost: data.currAvgCost,
+        quantity: data.quantity,
+        unitOfMeasure: data.unitOfMeasure
+      } as WhsTransferLine))
+
+    return {
+      id: this.loadedData!.id,
+      fromWarehouseCode: fromWarehouseCode,
+      toWarehouseCode: toWarehouseCode,
+      transferDate: controls['transferDate'].value,
+      transferDateIn: this.loadedData!.transferDateIn,
+      notice: controls['note'].value,
+      userID: this.tokenService.user?.id,
+      whsTransferLines: transferLines,
+    } as WhsTransferUpdate
   }
 
   public override HandleKeyDown(event: Event|TableKeyDownEvent): void {
