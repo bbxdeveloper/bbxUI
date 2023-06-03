@@ -110,7 +110,8 @@ export class InvoiceBehaviorFactoryService {
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
       isSummaryInvoice: false,
-      title: 'Szállító vissz.'
+      title: 'Szállító vissz.',
+      invoiceCorrection: true,
     } as SummaryInvoiceMode
   }
 
@@ -123,7 +124,8 @@ export class InvoiceBehaviorFactoryService {
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
       isSummaryInvoice: false,
-      title: 'Be. Szállító vissz.'
+      title: 'Be. Szállító vissz.',
+      invoiceCorrection: true,
     } as SummaryInvoiceMode
   }
 }
