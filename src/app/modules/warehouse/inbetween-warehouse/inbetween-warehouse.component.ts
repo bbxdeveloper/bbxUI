@@ -126,9 +126,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     },
   ]
 
-  public mode!: WarehouseInbetweenMode
+  public mode: WarehouseInbetweenMode = { edit: false, title: '', id: -1 }
   public loadedData?: WhsTransferFull
-  public title: string = ''
 
   constructor(
     private readonly tokenService: TokenStorageService,
@@ -155,6 +154,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     super(dialogService, keyboardService, footerService, commonService, statusService, sidebarService, keyboardHelperService, router)
 
     this.headerForm = new FormGroup({
+      whsTransferNumber: new FormControl({ value: '', disabled: true }),
       fromWarehouse: new FormControl({ value: '', disabled: true }),
       toWarehouse: new FormControl('', [
         Validators.required,
@@ -211,7 +211,6 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
     this.activatedRoute.url.subscribe(async params => {
       this.mode = this.behaviorFactory.create(params)
-      this.title = this.mode.title
       if (this.mode.edit) {
         await this.LoadForEdit()
       }
@@ -230,6 +229,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       if (whsTransfer !== undefined) {
         this.loadedData = whsTransfer
 
+        this.headerForm.controls['whsTransferNumber'].setValue(whsTransfer.whsTransferNumber)
         this.headerForm.controls['fromWarehouse'].setValue(whsTransfer.fromWarehouse!.split('-')[1])
         this.headerForm.controls['toWarehouse'].setValue(whsTransfer.toWarehouse!.split('-')[1])
         this.headerForm.controls['transferDate'].setValue(whsTransfer.transferDate)
@@ -244,11 +244,14 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         }
 
         this.dbData = _data.concat(this.dbData)
-        this.dbDataDataSrc.setData(this.dbData);
+        this.dbDataTable.data = this.dbData
+        this.dbDataDataSrc.setData(this.dbData)
         this.RecalcNetAndVat()
+        
         this.dbDataTable.GenerateAndSetNavMatrices(false, false)
 
         this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         this.kbS.SelectFirstTile()
       }
     }
@@ -269,7 +272,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     if (product === undefined) {
       return undefined
     } else  {
-      return await this.createInbetweenProduct(product)
+      const inbetweenProduct = await this.createInbetweenProduct(product)
+      if (inbetweenProduct) {
+        inbetweenProduct!.quantity = whsTransferLine.quantity
+      }
+      return inbetweenProduct
     }
   }
 
@@ -611,6 +618,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }
   }
 
+  protected ExitToNav(): void {
+    this.router.navigate(['warehouse/warehouse-document']);
+  }
+
   private async update(): Promise<void> {
     try {
       this.sts.waitForLoad()
@@ -637,7 +648,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         MsgCancel: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
         MsgFinish: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása véget ért.`,
         Obs: this.whsTransferService.getReport.bind(this.whsTransferService),
-        Reset: this.DelayedReset.bind(this),
+        Reset: this.ExitToNav.bind(this),
         ReportParams: {
           "id": response.data?.id,
           "copies": 1 // Ki lesz töltve dialog alapján

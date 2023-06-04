@@ -424,7 +424,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y - 1].data.id
+      const id = this.dbData[this.kbS.p.y].data.id
       this.router.navigate(['warehouse/inbetween-warehouse-edit', id, {}])
     }
   }
