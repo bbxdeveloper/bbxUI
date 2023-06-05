@@ -4,25 +4,39 @@
     margin-top: 5px;
 }
 
+nb-card {
+    margin-bottom: 0px;
+
+    nb-card-body {
+        padding-top: 0px;
+    }
+}
+
 form {
     display: flex;
     flex-direction: column;
-    row-gap: 10px;
+    row-gap: 0px;
 
     .horizontal {
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 0px;
         width: 600px;
+    }
 
-        label {
-            width: 185px;
-            text-align: right;
-        }
+    .flex-row {
+        display: flex;
+        gap: 0px;
+    }
 
-        input {
-            width: 300px;
-        }
+    label {
+        display: inline-block !important;
+        width: 135px !important;
+        text-align: left;
+    }
+
+    input {
+        width: 300px !important;
     }
 }
 
