@@ -24,6 +24,14 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
     override commandsOnForm: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
+    public defaultConfirmationSettings: Constants.Dct = {
+        'ActionLock': true,
+        'ActionNew': false,
+        'ActionReset': false,
+        'ActionPut': false,
+        'ActionDelete': true,
+    }
+
     constructor(
         f: FormGroup,
         kbS: KeyboardNavigationService,
@@ -75,7 +83,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.grid.Lock({
             data: dt,
             rowIndex: this.DataRowIndex,
-            needConfirmation: true
+            needConfirmation: this.defaultConfirmationSettings[this.ActionLock.name]
         } as IUpdateRequest);
     }
 
@@ -87,14 +95,14 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.grid.New({
             data: dt,
             rowIndex: this.DataRowIndex,
-            needConfirmation: data?.needConfirmation ?? false
+            needConfirmation: this.defaultConfirmationSettings[this.ActionNew.name] && data?.needConfirmation
         } as IUpdateRequest);
     }
 
     override ActionReset(data?: IUpdateRequest<T>): void {
         this.grid.Reset({
             rowIndex: this.DataRowIndex,
-            needConfirmation: false
+            needConfirmation: this.defaultConfirmationSettings[this.ActionReset.name]
         } as IUpdateRequest);
     }
 
@@ -106,7 +114,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.grid.Put({
             data: dt,
             rowIndex: this.DataRowIndex,
-            needConfirmation: data?.needConfirmation ?? false
+            needConfirmation: this.defaultConfirmationSettings[this.ActionPut.name] && data?.needConfirmation
         } as IUpdateRequest);
     }
 
@@ -114,7 +122,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.grid.Delete({
             data: this.DataToEdit?.data,
             rowIndex: this.DataRowIndex,
-            needConfirmation: true
+            needConfirmation: this.defaultConfirmationSettings[this.ActionDelete.name]
         } as IUpdateRequest);
     }
 

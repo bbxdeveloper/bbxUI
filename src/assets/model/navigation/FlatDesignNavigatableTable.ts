@@ -101,6 +101,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     public get ReadonlyForm(): boolean {
         return this.ReadonlySideForm || this.ReadonlyPredicator(this.flatDesignForm.DataToEdit?.data);
     }
+    public defaultConfirmationSettings: Constants.Dct = {
+        'ActionLock': true,
+        'ActionDelete': true,
+    }
 
     constructor(
         f: FormGroup,
@@ -605,7 +609,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
                 if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default) {
                     event.preventDefault();
-                    this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.Delete({ needConfirmation: this.defaultConfirmationSettings['ActionDelete'], data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();
                 }
                 break;
@@ -614,7 +618,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
                 if (!!this.prevSelectedRow) {
                     event.preventDefault();
-                    this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.Lock({ needConfirmation: this.defaultConfirmationSettings['ActionLock'], data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();
                 } else {
                     this.flatDesignForm?.ActionLock()

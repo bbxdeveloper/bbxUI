@@ -5,7 +5,9 @@ import { CommonService } from 'src/app/services/common.service';
 import { IResponseSingleData } from 'src/assets/model/IResponse';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
+import { FinalizeWhsTransferRequest } from '../models/FinalizeWhsTransferRequest';
 import { GetWhsTransfersResponse } from '../models/GetWhsTransfersResponse';
+import { UpdateWarehouseDocumentResponse } from '../models/UpdateWarehouseDocumentResponse';
 import { WhsTransferBase, WhsTransferFull, WhsTransferUpdate } from '../models/WhsTransfer';
 import { WhsTransferQueryParams } from '../models/WhsTransferQueryParams';
 import { WhsTransferStatus } from '../models/WhsTransferStatus';
@@ -124,5 +126,27 @@ export class WhsService {
     } catch (error) {
       return throwError(error);
     }
+  }
+
+  Finalize(params?: FinalizeWhsTransferRequest): Observable<UpdateWarehouseDocumentResponse> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof FinalizeWhsTransferRequest] != undefined && params[key as keyof FinalizeWhsTransferRequest] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof FinalizeWhsTransferRequest];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof FinalizeWhsTransferRequest];
+          }
+          index++;
+        }
+      });
+    }
+
+    // Get
+    return this.http.patch<UpdateWarehouseDocumentResponse>(this.BaseUrl + '/process' + (!!params ? ('?' + queryParams) : ''), null);
   }
 }

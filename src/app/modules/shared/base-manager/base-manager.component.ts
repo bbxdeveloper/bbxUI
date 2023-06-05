@@ -70,6 +70,16 @@ export class BaseManagerComponent<T> {
       this.bbxSidebarService.collapse();
   }
 
+  UpdateKeySettingsAndCommand(): void {
+    this.commands = GetFooterCommandListFromKeySettings(this.KeySetting)
+    this.dbDataTable.KeySetting = this.KeySetting
+    this.dbDataTable.flatDesignForm.KeySetting = this.KeySetting
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands
+    this.dbDataTable.commandsOnTable = this.commands
+    this.dbDataTable.PushFooterCommandList()
+    this.fS.pushCommands(this.commands)
+  }
+
   SelectedRowProperty(objectKey: string): any {
     // Nem a táblázaton állunk || jelenlegi pozíciónk kilóg a tábla tartományából
     if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.dbDataTable?.data?.length <= this.kbS.p.y) {
