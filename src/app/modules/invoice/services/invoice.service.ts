@@ -108,6 +108,22 @@ export class InvoiceService {
     }
   }
 
+  GetReportForCustomerInvoiceSummary(params: Constants.Dct): Observable<any> {
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/printcustomerinvoicesummary`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
+  }
+
   GetGradesReport(params: Constants.Dct): Observable<any> {
     try {
       let options = new HttpHeaders()

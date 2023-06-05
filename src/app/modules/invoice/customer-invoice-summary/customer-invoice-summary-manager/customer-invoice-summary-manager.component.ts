@@ -308,24 +308,28 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
   }
 
   private print(): void {
-    const selectedRow = this.dbDataTable.prevSelectedRow
+    const selectedRow = this.dbDataTable.prevSelectedRow?.data
 
-    const id = selectedRow?.data.customerID ?? ''
-    const name = selectedRow?.data.customerName
+    const params = this.getInputParams
+    const name = selectedRow?.customerName
 
-    // this.printAndDownloadService.openPrintDialog({
-    //   DialogTitle: 'Bizonylat nyomtatása',
-    //   DefaultCopies: 1,
-    //   MsgError: `A ${name} partnerhez tartozó bizonylat nyomtatása közben hiba történt.`,
-    //   MsgCancel: `A ${name} partnerhez tartozó bizonylat nyomtatása nem történt meg.`,
-    //   MsgFinish: `A ${name} partnerhez tartozóbizonylat nyomtatása véget ért.`,
-    //   Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-    //   Reset: () => { },
-    //   ReportParams: {
-    //     id: id,
-    //     copies: 1
-    //   } as Constants.Dct,
-    // } as PrintDialogRequest)
+    this.printAndDownloadService.openPrintDialog({
+      DialogTitle: 'Bizonylat nyomtatása',
+      DefaultCopies: 1,
+      MsgError: `A ${name} partnerhez tartozó bizonylat nyomtatása közben hiba történt.`,
+      MsgCancel: `A ${name} partnerhez tartozó bizonylat nyomtatása nem történt meg.`,
+      MsgFinish: `A ${name} partnerhez tartozóbizonylat nyomtatása véget ért.`,
+      Obs: this.invoiceService.GetReportForCustomerInvoiceSummary.bind(this.invoiceService),
+      Reset: () => { },
+      ReportParams: {
+        incoming: params.Incoming === undefined ? false : params.Incoming,
+        customerID: HelperFunctions.ToOptionalInt(selectedRow?.customerID),
+        warehouseCode: HelperFunctions.isEmptyOrSpaces(params.WarehouseCode) ? undefined : params.WarehouseCode,
+        invoiceDeliveryDateFrom: HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateFrom) ? undefined : params.InvoiceDeliveryDateFrom,
+        invoiceDeliveryDateTo: HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateTo) ? undefined : params.InvoiceDeliveryDateTo,
+        copies: 1
+      } as Constants.Dct,
+    } as PrintDialogRequest)
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling

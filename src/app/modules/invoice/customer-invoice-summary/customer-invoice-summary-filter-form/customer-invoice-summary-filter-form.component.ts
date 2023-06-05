@@ -125,7 +125,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
       CustomerName: new FormControl(undefined, []),
       CustomerID: new FormControl(undefined, []),
       WarehouseCode: new FormControl(undefined, []),
-      InvoiceDeliveryDateFrom: new FormControl(HelperFunctions.GetDateString(0,0,-1), [
+      InvoiceDeliveryDateFrom: new FormControl(HelperFunctions.GetDateString(0,0,0), [
         Validators.required,
         this.validateFromDate.bind(this),
         validDate
