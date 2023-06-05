@@ -229,6 +229,17 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
+    HandleKeyNoCrud(event: any, controlKey: string): void {
+        switch (event.key) {
+            case KeyBindings.F2: {
+                event.preventDefault();
+                this.parentComponent.ChooseDataForCustomerForm();
+                break;
+            }
+            default: { }
+        }
+    }
+
     HandleFilterInputFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true, data: any, formControlName: string): void {
         if (!!data) {
             this.form.controls[formControlName].setValue(data);

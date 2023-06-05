@@ -31,6 +31,7 @@ import { WareHouseManagerComponent } from './modules/warehouse/ware-house-manage
 import { CorrectionInvoiceComponent } from './modules/invoice/correction-invoice/correction-invoice.component';
 import { InbetweenWarehouseComponent } from './modules/warehouse/inbetween-warehouse/inbetween-warehouse.component';
 import { WarehouseDocumentManagerComponent } from './modules/warehouse/warehouse-document/warehouse-document-manager/warehouse-document-manager.component';
+import { CustomerInvoiceSummaryManagerComponent } from './modules/invoice/customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
 
 const routes: Routes = [
   {
@@ -173,6 +174,10 @@ const routes: Routes = [
       {
         path: "invoices",
         component: InvoiceNavComponent,
+      },
+      {
+        path: "customerinvoicesummary",
+        component: CustomerInvoiceSummaryManagerComponent,
       }
     ]
   },
