@@ -511,7 +511,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       );
 
       await this.printAndDownloadService.openPrintDialog({
-        DialogTitle: 'Számla Nyomtatása',
+        DialogTitle: Constants.TITLE_PRINT_INVOICE,
         DefaultCopies: 1,
         MsgError: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása közben hiba történt.`,
         MsgCancel: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
