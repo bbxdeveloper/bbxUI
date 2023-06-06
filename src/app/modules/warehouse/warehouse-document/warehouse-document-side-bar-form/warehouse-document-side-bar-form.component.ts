@@ -5,9 +5,9 @@ import { Constants } from 'src/assets/util/Constants';
 import { KeyBindings, WarehouseDocumentsKeySettings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../../shared/base-side-bar-form/base-side-bar-form.component';
 import { LocationService } from '../../../location/services/location.service';
-import { WhsService, WhsStatus } from 'src/app/modules/whs/services/whs.service';
-import { WhsTransferStatus } from 'src/app/modules/whs/models/WhsTransferStatus';
 import { CommonService } from 'src/app/services/common.service';
+import { WhsTransferStatus } from '../../models/whs/WhsTransferStatus';
+import { WhsStatus, WhsTransferService } from '../../services/whs-transfer.service';
 
 @Component({
   selector: 'app-warehouse-document-side-bar-form',
@@ -37,7 +37,7 @@ export class WarehouseDocumentSideBarFormComponent extends BaseSideBarFormCompon
   }
 
   constructor(private sbf: SideBarFormService, kbS: KeyboardNavigationService,
-    private locationService: LocationService, private whsService: WhsService,
+    private locationService: LocationService, private whsService: WhsTransferService,
     cdref: ChangeDetectorRef, private cs: CommonService) {
     super(kbS, cdref);
   }

@@ -246,6 +246,10 @@ const routes: Routes = [
         component: InbetweenWarehouseComponent,
       },
       {
+        path: "inbetween-warehouse-edit/:id",
+        component: InbetweenWarehouseComponent,
+      },
+      {
         path: 'warehouse-document',
         component: WarehouseDocumentManagerComponent,
       }

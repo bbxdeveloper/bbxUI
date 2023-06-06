@@ -1,5 +1,5 @@
 export interface WhsTransferQueryParams {
-    WhsTransferStatus: string,
+    WhsTransferStatus?: string,
     FromWarehouseCode?: string,
     ToWarehouseCode?: string,
     TransferDateFrom?: string,

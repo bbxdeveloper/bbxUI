@@ -1,5 +1,5 @@
+import { Product } from "src/app/modules/product/models/Product"
 import { IBaseEntity } from "src/assets/model/IBaseEntity"
-import { Product } from "../../product/models/Product"
 
 export class WhsTransferLine {
     whsTransferLineNumber: number = 0
