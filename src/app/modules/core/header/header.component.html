@@ -267,27 +267,6 @@
         </nb-card>
     </ng-template>
 
-    <nb-action id="header-orde" class="cl-header-menu" tabIndex="6" disabled>Megrendelés</nb-action>
-
-    <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
-        [disabled]="InProgress">Információ
-    </nb-action>
-    <nb-action *ngIf="!isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
-        [disabled]="InProgress">Információ
-    </nb-action>
-    <ng-template #sub_info let-data>
-        <nb-card class="card-submenu-wrapper">
-            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-info-sub-1" [disabled]="InProgress"
-                    (click)="goTo('information/invoices')">
-                    Bizonylatok
-                </button>
-            </nb-card-body>
-        </nb-card>
-    </ng-template>
-
     <nb-action *ngIf="isLoggedIn" id="header-warehouse" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
         data-sub="header-warehouse-sub-1,header-warehouse-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
         [disabled]="InProgress">Raktár
@@ -308,6 +287,27 @@
                 <button nbButton status="primary" id="header-warehouse-sub-2" [disabled]="InProgress"
                     (click)="goTo('warehouse/warehouse-document')">
                     Raktárközi átadás bizonylatok
+                </button>
+            </nb-card-body>
+        </nb-card>
+    </ng-template>
+
+    <nb-action id="header-orde" class="cl-header-menu" tabIndex="6" disabled>Megrendelés</nb-action>
+
+    <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
+        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        [disabled]="InProgress">Információ
+    </nb-action>
+    <nb-action *ngIf="!isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
+        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        [disabled]="InProgress">Információ
+    </nb-action>
+    <ng-template #sub_info let-data>
+        <nb-card class="card-submenu-wrapper">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-info-sub-1" [disabled]="InProgress"
+                    (click)="goTo('information/invoices')">
+                    Bizonylatok
                 </button>
             </nb-card-body>
         </nb-card>
