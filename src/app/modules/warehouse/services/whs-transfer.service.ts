@@ -11,6 +11,8 @@ import { GetWhsTransfersResponse } from '../models/whs/GetWhsTransfersResponse';
 import { WhsTransferFull, WhsTransferBase, WhsTransferUpdate } from '../models/whs/WhsTransfer';
 import { WhsTransferQueryParams } from '../models/whs/WhsTransferQueryParams';
 import { WhsTransferStatus } from '../models/whs/WhsTransferStatus';
+import { FinalizeWhsTransferRequest } from '../models/whs/FinalizeWhsTransferRequest';
+import { UpdateWarehouseDocumentResponse } from '../models/whs/UpdateWarehouseDocumentResponse';
 
 export enum WhsStatus {
   /** Elkészült */
@@ -144,5 +146,27 @@ export class WhsTransferService {
     } catch (error) {
       return throwError(error);
     }
+  }
+
+  Finalize(params?: FinalizeWhsTransferRequest): Observable<UpdateWarehouseDocumentResponse> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof FinalizeWhsTransferRequest] != undefined && params[key as keyof FinalizeWhsTransferRequest] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof FinalizeWhsTransferRequest];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof FinalizeWhsTransferRequest];
+          }
+          index++;
+        }
+      });
+    }
+
+    // Get
+    return this.http.patch<UpdateWarehouseDocumentResponse>(this.baseUrl + '/process' + (!!params ? ('?' + queryParams) : ''), null);
   }
 }

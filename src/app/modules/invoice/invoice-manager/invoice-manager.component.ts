@@ -352,6 +352,22 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.outInvForm.reset(undefined);
     }
 
+    this.outInvForm.controls['paymentMethod'].valueChanges.subscribe(value => {
+      if (this.mode?.invoiceType !== InvoiceTypes.INV) {
+        return
+      }
+
+      const paymentMethod = this.paymentMethods.find(x => x.text === value)
+      if (!paymentMethod) {
+        return
+      }
+
+      if (paymentMethod.value === 'CASH' || paymentMethod.value === 'CARD') {
+        const controls = this.outInvForm.controls
+        controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
+      }
+    })
+
     if (this.buyerForm === undefined) {
       this.buyerForm = new FormGroup({
         customerSearch: new FormControl('', []),

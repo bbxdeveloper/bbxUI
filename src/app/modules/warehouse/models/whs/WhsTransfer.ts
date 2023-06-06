@@ -29,8 +29,8 @@ export class WhsTransferFull implements IBaseEntity<number> {
     userID?: number
     whsTransferStatus?: string
     whsTransferStatusX?: string
-    fromWarehouse?: string // eg. 001-Raktár
-    toWarehouse?: string // eg. 002-Külső raktár
+    fromWarehouse?: string
+    toWarehouse?: string
     user?: any
     @JsonIgnore
     whsTransferAmount: number = 0

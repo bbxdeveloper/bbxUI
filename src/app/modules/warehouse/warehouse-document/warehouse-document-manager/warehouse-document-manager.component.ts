@@ -3,6 +3,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
+import { SingleDateDialogComponent } from 'src/app/modules/shared/simple-dialogs/single-date-dialog/single-date-dialog.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -25,6 +26,9 @@ import { WhsTransferFull } from '../../models/whs/WhsTransfer';
 import { WhsTransferQueryParams } from '../../models/whs/WhsTransferQueryParams';
 import { WhsStatus, WhsTransferService } from '../../services/whs-transfer.service';
 import { Router } from '@angular/router';
+import { FinalizeWhsTransferRequest } from '../../models/whs/FinalizeWhsTransferRequest';
+
+export const TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
 
 @Component({
   selector: 'app-warehouse-document-manager',
@@ -193,7 +197,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     private printAndDownloadService: PrintAndDownloadService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
-    this.searchInputId = 'active-prod-search';
+    this.searchInputId = Constants.SearchInputId;
     this.dbDataTableId = 'product-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
@@ -206,6 +210,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
     this.dbDataTableForm = new FormGroup({
+      id: new FormControl(undefined, []),
       whsTransferNumber: new FormControl(undefined, []),
       fromWarehouse: new FormControl(undefined, []),
       toWarehouse: new FormControl(undefined, []),
@@ -234,6 +239,8 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       this.blankRow,
       false
     );
+    this.dbDataTable.flatDesignForm.defaultConfirmationSettings['ActionLock'] = false
+    this.dbDataTable.defaultConfirmationSettings['ActionLock'] = false
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
@@ -282,9 +289,86 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     }
   }
 
+  override ProcessActionLock(data?: IUpdateRequest<WhsTransferFull>): void {
+    console.log('ActionLock: ', data?.data, ', date prompt...');
+    if (!!data && !!data.data) {
+      data.data = this.dbDataTable.data.find(x => x.data.id === data.data.id)!.data
+      if (data.data.whsTransferStatus !== WhsStatus.READY) {
+        setTimeout(() => {
+          this.simpleToastrService.show(
+            Constants.MSG_WHS_ONLY_READY_CAN_BE_FINALIZED,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR_5_SEC
+          );
+        }, 0);
+        return
+      }
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+      const dialogRef = this.dialogService.open(SingleDateDialogComponent, {
+        context: {
+          title: TITLE_FINALIZE_DATE,
+          minDate: data.data.transferDate
+        }
+      });
+      dialogRef.onClose.subscribe({
+        next: res => {
+          if (res.date) {
+            this.ExecuteProcessActionLock(data, res.date)
+          }
+        }
+      });
+    }
+  }
+
+  private ExecuteProcessActionLock(data: IUpdateRequest<WhsTransferFull>, date: string): void {
+    data.data.id = HelperFunctions.ToInt(data.data.id)
+
+    this.sts.pushProcessStatus(
+      Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]
+    );
+    this.whsService.Finalize({ ID: data.data.id, TransferDateIn: date } as FinalizeWhsTransferRequest).subscribe({
+      next: async (d) => {
+        if (d.succeeded) {
+          this.simpleToastrService.show(
+            Constants.MSG_WHS_PROCESS_SUCCESFUL,
+            Constants.TITLE_INFO,
+            Constants.TOASTR_SUCCESS_5_SEC
+          );
+          await this.RefreshAsync(this.getInputParams)
+        } else {
+          console.log(d.errors!, d.errors?.join('\n'), d.errors?.join(', '))
+          this.simpleToastrService.show(
+            d.errors!.join('\n'),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR_5_SEC
+          )
+          this.isLoading = false;
+          this.dbDataTable.SetFormReadonly(false)
+          this.kbS.ClickCurrentElement()
+        }
+      },
+      error: (err) => {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        this.HandleError(err)
+        this.dbDataTable.SetFormReadonly(false)
+      },
+      complete: () => {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+      }
+    });
+  }
+
   public refreshClicked(filterData: WarehouseDocumentFilterFormData | undefined): void {
-    this.filterData = filterData ?? {} as WarehouseDocumentFilterFormData;
-    this.RefreshAll(this.getInputParams);
+    this.filterData = filterData ?? {} as WarehouseDocumentFilterFormData
+
+    this.KeySetting.Lock.KeyType =
+      this.filterData.Status === WhsStatus.READY ?
+        Constants.KeyTypes.Fn : Constants.KeyTypes.Unset
+    
+    this.UpdateKeySettingsAndCommand()
+
+    this.RefreshAll(this.getInputParams)
   }
 
   public HideColumn(col: string): void {
@@ -306,15 +390,15 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
   }
 
   override Refresh(params?: WhsTransferQueryParams): void {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
     this.whsService.GetAll(params).subscribe({
       next: async (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
+          console.log('GetProducts response: ', d);
           if (!!d) {
             const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() }; // this.ConvertCombosForGet(x)
+              return { data: x, uid: this.nextUid() };
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
@@ -346,16 +430,16 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
   }
 
   async RefreshAsync(params?: WhsTransferQueryParams): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
 
     await lastValueFrom(this.whsService.GetAll(params))
       .then(async d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
+          console.log('GetProducts response: ', d);
           if (!!d) {
             const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() }; // this.ConvertCombosForGet(x)
+              return { data: x, uid: this.nextUid() };
             });
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
@@ -408,7 +492,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     const whsNumber = selectedRow?.data.whsTransferNumber ?? ''
 
     this.printAndDownloadService.openPrintDialog({
-      DialogTitle: 'Bizonylat nyomtatása',
+      DialogTitle: Constants.TITLE_PRINT_INVOICE,
       DefaultCopies: 1,
       MsgError: `A ${whsNumber} bizonylat nyomtatása közben hiba történt.`,
       MsgCancel: `A ${whsNumber} bizonylat nyomtatása nem történt meg.`,
@@ -446,7 +530,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
         if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
           this.simpleToastrService.show(
-            "Csak aktívan kijelölt rekord mellett lehet nyomtatni!",
+            Constants.MSG_PRINT_ONLY_WHEN_ROW_SELECTED,
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR_5_SEC
           )
@@ -458,8 +542,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         break;
       }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
-        // TODO: 'active-prod-search' into global variable
-        if ((event as any).target.id !== 'active-prod-search') {
+        if ((event as any).target.id !== Constants.SearchInputId) {
           return;
         }
 
@@ -480,13 +563,13 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         this.dbDataTable?.HandleKey(event);
         break;
       }
-      case this.KeySetting[Actions.CSV].KeyCode: {
+      case this.KeySetting[Actions.Lock].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
-
-        console.log(`${this.KeySetting[Actions.CSV].KeyLabel} Pressed: ${this.KeySetting[Actions.CSV].FunctionLabel}`);
-
+        
+        console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Refresh].KeyCode: {
