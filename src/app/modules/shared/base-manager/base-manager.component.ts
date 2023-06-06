@@ -148,6 +148,10 @@ export class BaseManagerComponent<T> {
           } else {
             this.ProcessActionNew(data);
           }
+        } else {
+          this.dbDataTable.SetFormReadonly(false)
+          this.kbS.SelectFirstTile()
+          this.kbS.ClickCurrentElement()
         }
       });
     } else {
@@ -183,6 +187,10 @@ export class BaseManagerComponent<T> {
           } else {
             this.ProcessActionPut(data);
           }
+        } else {
+          this.dbDataTable.SetFormReadonly(false)
+          this.kbS.SelectFirstTile()
+          this.kbS.ClickCurrentElement()
         }
       });
     } else {

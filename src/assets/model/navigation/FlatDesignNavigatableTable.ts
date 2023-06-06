@@ -574,6 +574,18 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
+    Create(): void {
+        this.ReadonlySideForm = false;
+        this.HandleEditAndNew(true);
+        this.JumpToFirstFormField(); 
+    }
+
+    Edit(): void {
+        this.ReadonlySideForm = false;
+        this.HandleEditAndNew(false);
+        this.JumpToFirstFormField();
+    }
+
     HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.ToggleForm].KeyCode: {

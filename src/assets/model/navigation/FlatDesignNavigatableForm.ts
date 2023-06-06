@@ -26,9 +26,9 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
 
     public defaultConfirmationSettings: Constants.Dct = {
         'ActionLock': true,
-        'ActionNew': false,
+        'ActionNew': true,
         'ActionReset': false,
-        'ActionPut': false,
+        'ActionPut': true,
         'ActionDelete': true,
     }
 
