@@ -27,6 +27,7 @@ import { WhsTransferQueryParams } from '../../models/whs/WhsTransferQueryParams'
 import { WhsStatus, WhsTransferService } from '../../services/whs-transfer.service';
 import { Router } from '@angular/router';
 import { FinalizeWhsTransferRequest } from '../../models/whs/FinalizeWhsTransferRequest';
+import { ConfirmationDialogComponent } from 'src/app/modules/shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 
 export const TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
 
@@ -254,6 +255,23 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.isLoading = false;
   }
 
+  override ActionDelete(data?: IUpdateRequest<WhsTransferFull>): void {
+    console.log("ActionDelete: ", data);
+    if (data?.needConfirmation) {
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: `Törölhető a ${data.data.whsTransferNumber} raktárközi átadás bizonylat ?` } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          this.ProcessActionDelete(data);
+        }
+      });
+    } else {
+      this.ProcessActionDelete(data);
+    }
+  }
+
   override ProcessActionDelete(data?: IUpdateRequest<WhsTransferFull>): void {
     const id = data?.data?.id;
     console.log('ActionDelete: ', id);
@@ -308,7 +326,8 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       const dialogRef = this.dialogService.open(SingleDateDialogComponent, {
         context: {
           title: TITLE_FINALIZE_DATE,
-          minDate: data.data.transferDate
+          minDate: data.data.transferDate,
+          defaultDate: HelperFunctions.GetDateString(0,0,0)
         }
       });
       dialogRef.onClose.subscribe({
