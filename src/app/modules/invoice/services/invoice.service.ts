@@ -22,6 +22,8 @@ import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { GetCustomerInvoiceSummariesResponse } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummariesResponse';
+import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +48,12 @@ export class InvoiceService {
 
   public async getPaymentMethodsAsync(): Promise<PaymentMethod[]> {
     return firstValueFrom(this.GetPaymentMethods())
+  }
+
+  public GetAllCustomerInvoiceSummary(params?: GetCustomerInvoiceSummaryParamListModel): Observable<GetCustomerInvoiceSummariesResponse> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+
+    return this.http.get<GetCustomerInvoiceSummariesResponse>(this.BaseUrl + '/querycustomerinvoicesummary' + (!!params ? ('?' + queryParams) : ''));
   }
 
   public GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
@@ -92,6 +100,22 @@ export class InvoiceService {
         .set("accept", "application/pdf");
       return this.http.post(
         `${this.BaseUrl}/print`,
+        JSON.stringify(params),
+        { responseType: 'blob', headers: options }
+      );
+    } catch (error) {
+      return throwError(error);
+    }
+  }
+
+  GetReportForCustomerInvoiceSummary(params: Constants.Dct): Observable<any> {
+    try {
+      let options = new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set("charset", "utf8")
+        .set("accept", "application/pdf");
+      return this.http.post(
+        `${this.BaseUrl}/printcustomerinvoicesummary`,
         JSON.stringify(params),
         { responseType: 'blob', headers: options }
       );
