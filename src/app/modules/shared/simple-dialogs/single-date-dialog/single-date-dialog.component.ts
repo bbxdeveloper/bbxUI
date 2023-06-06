@@ -8,6 +8,7 @@ import { NavigatableForm } from "src/assets/model/navigation/Nav";
 import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
+import { validDate } from "src/assets/model/Validators";
 
 @Component({
   selector: 'app-single-date-dialog',
@@ -21,6 +22,7 @@ export class SingleDateDialogComponent extends BaseNavigatableComponentComponent
   formNav!: NavigatableForm
 
   @Input() minDate?: string
+  @Input() defaultDate?: string
   @Input() maxDate?: string
 
   get _minDate(): Date | undefined {
@@ -86,16 +88,17 @@ export class SingleDateDialogComponent extends BaseNavigatableComponentComponent
     this.IsDialog = true;
     this.Matrix = [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]]
 
-    const loginForm = new FormGroup({
+    const form = new FormGroup({
       date: new FormControl('', [
         Validators.required,
         this.validateMin.bind(this),
         this.validateMax.bind(this),
+        validDate
       ])
     })
 
     this.formNav = new NavigatableForm(
-      loginForm, this.kbS, this.cdrf, [], 'loginForm', AttachDirection.UP, {} as IInlineManager
+      form, this.kbS, this.cdrf, [], 'loginForm', AttachDirection.UP, {} as IInlineManager
     )
 
     // We can move onto the confirmation buttons from the form.
@@ -109,6 +112,7 @@ export class SingleDateDialogComponent extends BaseNavigatableComponentComponent
     this.formNav.GenerateAndSetNavMatrices(true)
     this.kbS.SelectFirstTile()
     this.kbS.setEditMode(KeyboardModes.EDIT)
+    this.formNav.form.controls['date'].setValue(HelperFunctions.isEmptyOrSpaces(this.defaultDate) ? '' : this.defaultDate)
   }
 
   ngOnDestroy(): void {
