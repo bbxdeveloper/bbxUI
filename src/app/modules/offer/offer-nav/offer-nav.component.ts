@@ -32,13 +32,13 @@ import { Actions, OfferNavKeySettings, KeyBindings, GetFooterCommandListFromKeyS
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
 import { SendEmailDialogComponent } from '../../infrastructure/send-email-dialog/send-email-dialog.component';
-import { IframeViewerDialogComponent } from '../../shared/iframe-viewer-dialog/iframe-viewer-dialog.component';
+import { IframeViewerDialogComponent } from '../../shared/simple-dialogs/iframe-viewer-dialog/iframe-viewer-dialog.component';
 import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { SendEmailRequest } from '../../infrastructure/models/Email';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
-import { OneTextInputDialogComponent } from '../../shared/one-text-input-dialog/one-text-input-dialog.component';
+import { OneTextInputDialogComponent } from '../../shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
@@ -207,21 +207,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       navMatrixCssClass: TileCssClass,
     },
   ];
-
-  /*
-{
-      label: 'Elad ár 2',
-      objectKey: 'unitPrice2',
-      colKey: 'unitPrice2',
-      defaultValue: '',
-      type: 'formatted-number',
-      fRequired: false,
-      mask: '',
-      colWidth: '130px',
-      textAlign: 'right',
-      navMatrixCssClass: TileCssClass,
-    },
-  */
 
   get CustomerId(): number | undefined {
     if (!!this.buyerData && this.buyerData.id > -1) {

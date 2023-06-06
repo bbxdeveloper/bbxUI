@@ -337,11 +337,11 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
       productID: new FormControl(undefined, []),
-      productCode: new FormControl(undefined, [Validators.required]),
-      description: new FormControl(undefined, [Validators.required]),
+      productCode: new FormControl(undefined, []),
+      description: new FormControl(undefined, []),
       productGroup: new FormControl(undefined, []),
       origin: new FormControl(undefined, []),
-      unitOfMeasure: new FormControl(undefined, [Validators.required]),
+      unitOfMeasure: new FormControl(undefined, []),
       unitPrice1: new FormControl(undefined, []),
       unitPrice2: new FormControl(undefined, []),
       latestSupplyPrice: new FormControl(undefined, []),
@@ -350,7 +350,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       ordUnit: new FormControl(undefined, []),
       productFee: new FormControl(undefined, []),
       active: new FormControl(false, []),
-      vtsz: new FormControl(undefined, [Validators.required]),
+      vtsz: new FormControl(undefined, []),
       ean: new FormControl(undefined, []),
       vatRateCode: new FormControl(undefined, []),
       noDiscount: new FormControl(false, []),
@@ -611,7 +611,12 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   GoToStockCard(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const productCode = this.dbData[this.kbS.p.y - 1].data.productCode;
-      this.router.navigate(['stock-card/nav'], { queryParams: { productCode: productCode, wareHouseId: this.getInputParams.WarehouseID } });
+      this.router.navigate(['stock-card/nav'], {
+        queryParams: {
+          productCode: productCode,
+          wareHouse: this.filterForm.controls['WarehouseID'].value
+        }
+      });
     }
   }
 

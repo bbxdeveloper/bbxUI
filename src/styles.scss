@@ -179,3 +179,30 @@ tr.parent-of-current-keyboard-nav-selected {
 input:read-only {
   background-color: #401740 !important; // #161632 #16162c
 }
+
+// Fix width %, align... styles for overwriting framework built-in or other styles
+// Do not move these rules from the global stylesheet
+
+$widthManipulatorMax: 100;
+@for $i from 0 through $widthManipulatorMax {
+    input.width-of-#{$i}-percent {
+        min-width: calc(0% + #{$i}%) !important;
+        max-width: calc(0% + #{$i}%) !important;
+    }
+    div.width-of-#{$i}-percent {
+        min-width: calc(0% + #{$i}%) !important;
+        max-width: calc(0% + #{$i}%) !important;
+    }
+    label.width-of-#{$i}-percent {
+        min-width: calc(0% + #{$i}%) !important;
+        max-width: calc(0% + #{$i}%) !important;
+    }
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+input.text-center {
+  text-align: center !important;
+}

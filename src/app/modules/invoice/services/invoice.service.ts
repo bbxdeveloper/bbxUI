@@ -21,6 +21,9 @@ import { GetPendingDeliveryInvoiceSummariesRequest } from '../models/GetPendingD
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { GetCustomerInvoiceSummariesResponse } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummariesResponse';
+import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +31,9 @@ import { PricePreviewRequest } from '../models/PricePreviewRequest';
 export class InvoiceService {
   private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Invoice';
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private readonly http: HttpClient,
+    private readonly tokenService: TokenStorageService) { }
 
   GetTemporaryPaymentMethod(): Observable<PaymentMethod[]> {
     return of([{
@@ -39,6 +44,16 @@ export class InvoiceService {
 
   GetPaymentMethods(): Observable<PaymentMethod[]> {
     return this.http.get<PaymentMethod[]>(this.BaseUrl + '/paymentmethod');
+  }
+
+  public async getPaymentMethodsAsync(): Promise<PaymentMethod[]> {
+    return firstValueFrom(this.GetPaymentMethods())
+  }
+
+  public GetAllCustomerInvoiceSummary(params?: GetCustomerInvoiceSummaryParamListModel): Observable<GetCustomerInvoiceSummariesResponse> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+
+    return this.http.get<GetCustomerInvoiceSummariesResponse>(this.BaseUrl + '/querycustomerinvoicesummary' + (!!params ? ('?' + queryParams) : ''));
   }
 
   public GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
@@ -93,14 +108,14 @@ export class InvoiceService {
     }
   }
 
-  GetGradesReport(params: Constants.Dct): Observable<any> {
+  GetReportForCustomerInvoiceSummary(params: Constants.Dct): Observable<any> {
     try {
       let options = new HttpHeaders()
         .set('Content-Type', 'application/json')
         .set("charset", "utf8")
         .set("accept", "application/pdf");
       return this.http.post(
-        `${this.BaseUrl}/print`,
+        `${this.BaseUrl}/printcustomerinvoicesummary`,
         JSON.stringify(params),
         { responseType: 'blob', headers: options }
       );
@@ -109,14 +124,14 @@ export class InvoiceService {
     }
   }
 
-  GetAggregateReport(params: Constants.Dct): Observable<any> {
+  GetGradesReport(params: Constants.Dct): Observable<any> {
     try {
       let options = new HttpHeaders()
         .set('Content-Type', 'application/json')
         .set("charset", "utf8")
         .set("accept", "application/pdf");
       return this.http.post(
-        `${this.BaseUrl}/printaggregate`,
+        `${this.BaseUrl}/print`,
         JSON.stringify(params),
         { responseType: 'blob', headers: options }
       );
@@ -142,7 +157,7 @@ export class InvoiceService {
   public GetPendingDeliveryNotes(): Promise<PendingDeliveryNote[]> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString({
       incoming: false,
-      warehouseCode: '001',
+      warehouseCode: this.tokenService.wareHouse?.warehouseCode ?? '',
       currencyCode: 'HUF'
     })
     const request = this.http.get<PendingDeliveryNote[]>(this.BaseUrl + '/pendigdeliverynotes?' + queryParams)
@@ -173,5 +188,11 @@ export class InvoiceService {
       headers: headers,
       observe: 'response'
     })
+  }
+
+  public GetCustomerUnpaidAmount(params?: { CustomerID: number }): Promise<number> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const request = this.http.get<number>(this.BaseUrl + '/customerunpaidamount' + (!!params ? ('?' + queryParams) : ''));
+    return firstValueFrom(request)
   }
 }

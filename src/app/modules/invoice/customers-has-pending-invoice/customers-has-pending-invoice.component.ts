@@ -10,6 +10,7 @@ import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNaviga
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Router } from '@angular/router';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-customers-has-pending-invoice',
@@ -29,7 +30,8 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryInvoiceSummary>>,
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
-    private readonly cdref: ChangeDetectorRef,
+    private readonly tokenService: TokenStorageService,
+    cdref: ChangeDetectorRef,
     private router: Router,
   ) {
     super(dialogRef, kns, dataSourceBuilder)
@@ -79,7 +81,7 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     this.isLoading = true
     const request = {
       currencyCode: 'HUF',
-      warehouseCode: '001',
+      warehouseCode: this.tokenService.wareHouse?.warehouseCode ?? '',
       incoming: this.incoming
     }
 

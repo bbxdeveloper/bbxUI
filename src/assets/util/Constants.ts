@@ -19,13 +19,17 @@ export module Constants {
     export const MSG_CONFIRMATION_SAVE_DATA: string = "Adatok mentése?";
     export const MSG_CONFIRMATION_DELETE_OFFER: string = "Biztosan törölni szeretné az ajánlatot?";
     export const MSG_CONFIRMATION_COPY_CUST_DISCOUNTS: string = "Biztosan felül szeretné írni a kedvezményeket a választott partnerével?";
-    export const MSG_CONFIRMATION_PRINT: string = "Biztosan el szeretné indítani a nyomtatást?";
+    export const MSG_CONFIRMATION_PRINT: string = "Biztosan el szeretné végezni a nyomtatást?";
     export const MSG_INVALID_FILTER_FORM: string = "Hiányos vagy hibásan kitöltött mezők vannak a szűrőben!";
     export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
+    export const MSG_CANNOT_ON_EDIT_ROW: string = "A kijelölt sor új elemek felvételére alkalmas! A kért művelet nem végezhető el rajta.";
+    export const MSG_WHS_ONLY_READY_CAN_BE_FINALIZED = "Csak 'Elkészült' státuszban lévő raktárközi bizonylatokat lehet véglegesíteni!"
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
     export const TITLE_INFO: string = 'Információ';
+
+    export const TITLE_PRINT_INVOICE = 'Bizonylat nyomtatása'
 
     export const MSG_EMAIL_SUCCESFUL: string = 'Email sikeresen elküldve!'
     export const MSG_CUSTOMER_UPDATE_SUCCESFUL: string = 'Ügyfél sikeresen frissítve!'
@@ -39,6 +43,8 @@ export module Constants {
 
     export const MSG_SAVE_SUCCESFUL: string = 'Sikeres mentés!'
     export const MSG_DELETE_SUCCESFUL: string = 'Sikeres törlés!'
+
+    export const MSG_WHS_PROCESS_SUCCESFUL: string = 'Sikeres véglegesítés!'
 
     export const MSG_NO_PRODUCT_FOUND: string = 'Nincs a begépelt kódnak megfelelő termék! Kérem próbálja meg a keresőablak használatával.';
     export const MSG_NO_PRODUCT_GROUP_FOUND: string = 'Nincs a begépelt kódnak megfelelő termékcsoport! Kérem próbálja meg a keresőablak használatával.';
@@ -54,6 +60,8 @@ export module Constants {
 
     export const MSG_WARNING_CUSTDISCOUNT_PREV: string = 'Figyelem: A tétellapon engedményes ár szerepel!';
 
+    export const MSG_PRINT_ONLY_WHEN_ROW_SELECTED = "Csak aktívan kijelölt rekord mellett lehet nyomtatni!"
+
     export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
         { duration: 0, status: 'primary' };
     export const TOASTR_ERROR: Partial<NbToastrConfig> =
@@ -65,11 +73,13 @@ export module Constants {
         { duration: 5000, status: 'danger' };
 
     export const ProductCodePatterns = {
-        A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') },
-        C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
+        A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}]') },
+        C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\-]') }
     };
     export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
     export const CustDiscountCodeMask = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+
+    export const SearchInputId = 'active-prod-search'
 
     // Util
 

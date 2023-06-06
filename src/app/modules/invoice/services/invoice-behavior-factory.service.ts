@@ -3,9 +3,7 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { NegativeQuantityValidator, PositiveQuantityValidator, SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class InvoiceBehaviorFactoryService {
 
   constructor() { }
@@ -14,6 +12,12 @@ export class InvoiceBehaviorFactoryService {
     let mode = {} as SummaryInvoiceMode
 
     switch (path) {
+      case 'invoice':
+        mode = this.forInvoice()
+        break
+      case 'outgoing-delivery-note-income':
+        mode = this.forOutgoingDeliveryNoteIncome()
+        break
       case 'receipt':
         mode = this.forReceipt()
         break
@@ -37,12 +41,36 @@ export class InvoiceBehaviorFactoryService {
     return mode
   }
 
+  private forInvoice(): SummaryInvoiceMode {
+    return {
+      invoiceCategory: InvoiceCategory.NORMAL,
+      invoiceType: InvoiceTypes.INV,
+      incoming: false,
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: false,
+      checkCustomerLimit: true,
+      title: 'Számla',
+      useCustomersPaymentMethod: true,
+    } as SummaryInvoiceMode
+  }
+
+  private forOutgoingDeliveryNoteIncome(): SummaryInvoiceMode {
+    return {
+      invoiceCategory: InvoiceCategory.NORMAL,
+      invoiceType: InvoiceTypes.DNI,
+      incoming: false,
+      validateQuantity: new PositiveQuantityValidator,
+      isSummaryInvoice: false,
+      checkCustomerLimit: true,
+      title: 'Szállítólevél'
+    } as SummaryInvoiceMode
+  }
+
   private forReceipt(): SummaryInvoiceMode {
     return {
       invoiceCategory: InvoiceCategory.NORMAL,
       invoiceType: InvoiceTypes.BLK,
       incoming: false,
-      correction: false,
       validateQuantity: new PositiveQuantityValidator,
       isSummaryInvoice: true,
       title: 'Blokk'
@@ -54,10 +82,11 @@ export class InvoiceBehaviorFactoryService {
       invoiceCategory: InvoiceCategory.AGGREGATE,
       invoiceType: InvoiceTypes.INV,
       incoming: false,
-      correction: false,
       validateQuantity: new PositiveQuantityValidator,
       isSummaryInvoice: true,
-      title: 'Gyűjtőszámla'
+      checkCustomerLimit: true,
+      title: 'Gyűjtőszámla',
+      useCustomersPaymentMethod: true,
     } as SummaryInvoiceMode
   }
 
@@ -66,7 +95,6 @@ export class InvoiceBehaviorFactoryService {
       invoiceCategory: InvoiceCategory.AGGREGATE,
       invoiceType: InvoiceTypes.INC,
       incoming: true,
-      correction: false,
       validateQuantity: new PositiveQuantityValidator,
       isSummaryInvoice: true,
       title: 'Be. Gyűjtőszámla'
@@ -78,11 +106,12 @@ export class InvoiceBehaviorFactoryService {
       invoiceCategory: InvoiceCategory.NORMAL,
       invoiceType: InvoiceTypes.DNO,
       incoming: false,
-      correction: true,
+      deliveryNoteCorrection: true,
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
       isSummaryInvoice: false,
-      title: 'Szállító vissz.'
+      title: 'Szállító vissz.',
+      invoiceCorrection: true,
     } as SummaryInvoiceMode
   }
 
@@ -91,11 +120,12 @@ export class InvoiceBehaviorFactoryService {
       invoiceCategory: InvoiceCategory.NORMAL,
       invoiceType: InvoiceTypes.DNI,
       incoming: true,
-      correction: true,
+      deliveryNoteCorrection: true,
       paymentMethod: 'OTHER',
       validateQuantity: new NegativeQuantityValidator,
       isSummaryInvoice: false,
-      title: 'Be. Szállító vissz.'
+      title: 'Be. Szállító vissz.',
+      invoiceCorrection: true,
     } as SummaryInvoiceMode
   }
 }

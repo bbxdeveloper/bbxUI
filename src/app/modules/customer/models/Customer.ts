@@ -34,7 +34,15 @@ export interface Customer {
     email: string;
     Email: string;
     unitPriceType: UnitPriceTypes|string
-    unitPriceTypeX: string
+    unitPriceTypeX: string,
+
+    defPaymentMethod: string,
+    defPaymentMethodX: string,
+
+    warningLimit?: number,
+    maxLimit?: number,
+
+    paymentDays: number,
 }
 
 export function BlankCustomer(): Customer {
@@ -59,6 +67,9 @@ export function BlankCustomer(): Customer {
         taxpayerId: '',
         countyCode: '',
         email: '',
-        unitPriceType: 'Listaár'
+        unitPriceType: 'Listaár',
+        paymentDays: 0,
+        // warningLimit: 0,
+        // maxLimit: 0
     } as Customer;
 }

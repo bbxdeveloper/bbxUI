@@ -43,12 +43,15 @@ import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
-import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-invoice-manager',
   templateUrl: './invoice-manager.component.html',
-  styleUrls: ['./invoice-manager.component.scss']
+  styleUrls: ['./invoice-manager.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -63,7 +66,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
   cachedCustomerName?: string;
 
   senderData!: Customer;
-  buyerData!: Customer;
+  customerData!: Customer;
+  get buyerData(): Customer {
+    return this.customerData
+  }
+  set buyerData(buyer: Customer) {
+    this.customerData = buyer
+    if (this.mode && !this.mode.incoming && this.mode.invoiceType === InvoiceTypes.INV && this.mode.invoiceCategory === InvoiceCategory.NORMAL) {
+      this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(buyer.paymentDays, 0, 0))
+    }
+  }
 
   buyersData: Customer[] = [];
   filteredBuyerOptions$: Observable<string[]> = of([]);
@@ -186,6 +198,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
+  public mode!: SummaryInvoiceMode
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -205,11 +219,14 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     khs: KeyboardHelperService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly custDiscountService: CustomerDiscountService,
-    router: Router
+    router: Router,
+    behaviorFactory: InvoiceBehaviorFactoryService,
+    private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
+      this.mode = behaviorFactory.create(params[0].path)
       this.SetModeBasedOnRoute(params);
     })
     this.isPageReady = true;
@@ -335,6 +352,22 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.outInvForm.reset(undefined);
     }
 
+    this.outInvForm.controls['paymentMethod'].valueChanges.subscribe(value => {
+      if (this.mode?.invoiceType !== InvoiceTypes.INV) {
+        return
+      }
+
+      const paymentMethod = this.paymentMethods.find(x => x.text === value)
+      if (!paymentMethod) {
+        return
+      }
+
+      if (paymentMethod.value === 'CASH' || paymentMethod.value === 'CARD') {
+        const controls = this.outInvForm.controls
+        controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
+      }
+    })
+
     if (this.buyerForm === undefined) {
       this.buyerForm = new FormGroup({
         customerSearch: new FormControl('', []),
@@ -395,6 +428,15 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outInvForm.controls["paymentMethod"].valueChanges.subscribe({
       next: v => {
         this.RecalcNetAndVat();
+      }
+    });
+    this.outInvForm.controls["invoiceDeliveryDate"].valueChanges.subscribe({
+      next: v => {
+        if (this.mode && !this.mode.incoming && this.mode.invoiceType === InvoiceTypes.INV && this.mode.invoiceCategory === InvoiceCategory.NORMAL) {
+          this.outInvForm.controls['paymentDate'].setValue(
+            HelperFunctions.AddToDate(v, this.buyerData.paymentDays, 0, 0)
+          )
+        }
       }
     });
   }
@@ -764,10 +806,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
 
-    this.outGoingInvoiceData.currencyCode = 'HUF';
+    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF;
     this.outGoingInvoiceData.exchangeRate = 1;
 
-    this.outGoingInvoiceData.warehouseCode = '001';
+    this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
     this.outGoingInvoiceData.incoming = this.Incoming;
     this.outGoingInvoiceData.invoiceType = this.InvoiceType;
@@ -823,77 +865,84 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
-        data: this.outGoingInvoiceData
+        data: this.outGoingInvoiceData,
+        customer: this.buyerData,
+        checkCustomerLimit: this.mode.checkCustomerLimit
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
       console.log("Selected item: ", res);
-      if (!!res) {
-        this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
-        const request = this.UpdateOutGoingData();
-
-        this.statusService.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-        this.invoiceService.CreateOutgoing(request).subscribe({
-          next: async d => {
-            try {
-              //this.isSilentLoading = false;
-              if (!!d.data) {
-                console.log('Save response: ', d);
-
-                if (!!d.data) {
-                  this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                }
-
-                this.simpleToastrService.show(
-                  Constants.MSG_SAVE_SUCCESFUL,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-
-                this.dbDataTable.RemoveEditRow();
-                this.kbS.SelectFirstTile();
-
-                this.isSaveInProgress = true;
-
-                this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-
-                await this.printAndDownLoadService.openPrintDialog({
-                  DialogTitle: 'Számla Nyomtatása',
-                  DefaultCopies: 1,
-                  MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                  MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                  MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                  Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-                  Reset: this.DelayedReset.bind(this),
-                  ReportParams: {
-                    "id": d.data?.id,
-                    "copies": 1 // Ki lesz töltve dialog alapján
-                  } as Constants.Dct
-                } as PrintDialogRequest);
-              } else {
-                this.cs.HandleError(d.errors);
-                this.isSaveInProgress = false;
-                this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-              }
-            } catch (error) {
-              this.Reset()
-              this.cs.HandleError(error)
-            }
-          },
-          error: err => {
-            this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-            this.cs.HandleError(err);
-            this.isSaveInProgress = false;
-          },
-          complete: () => {
-            this.isSaveInProgress = false;
-          }
-        });
-      } else {
+      if (!res) {
         this.isSaveInProgress = false;
         // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
+        setTimeout(() => {
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.SelectFirstTile();
+        }, 200)
+
+        return
       }
+
+      this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
+      const request = this.UpdateOutGoingData();
+
+      this.statusService.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.invoiceService.CreateOutgoing(request).subscribe({
+        next: async d => {
+          try {
+            //this.isSilentLoading = false;
+            if (!!d.data) {
+              console.log('Save response: ', d);
+
+              if (!!d.data) {
+                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              }
+
+              this.simpleToastrService.show(
+                Constants.MSG_SAVE_SUCCESFUL,
+                Constants.TITLE_INFO,
+                Constants.TOASTR_SUCCESS_5_SEC
+              );
+
+              this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
+
+              this.isSaveInProgress = true;
+
+              this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+
+              await this.printAndDownLoadService.openPrintDialog({
+                DialogTitle: 'Bizonylat nyomtatása',
+                DefaultCopies: 1,
+                MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+                MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+                MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+                Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+                Reset: this.DelayedReset.bind(this),
+                ReportParams: {
+                  "id": d.data?.id,
+                  "copies": 1 // Ki lesz töltve dialog alapján
+                } as Constants.Dct
+              } as PrintDialogRequest);
+            } else {
+              this.cs.HandleError(d.errors);
+              this.isSaveInProgress = false;
+              this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+            }
+          } catch (error) {
+            this.Reset()
+            this.cs.HandleError(error)
+          }
+        },
+        error: err => {
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+          this.cs.HandleError(err);
+          this.isSaveInProgress = false;
+        },
+        complete: () => {
+          this.isSaveInProgress = false;
+        }
+      });
     });
   }
 
@@ -961,6 +1010,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.buyerData = res;
         this.buyerFormNav.FillForm(res);
         this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+
+        if (this.mode.useCustomersPaymentMethod) {
+          this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+        }
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
@@ -1075,6 +1128,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
           this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
+
+          if (this.mode.useCustomersPaymentMethod) {
+            this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+          }
 
           if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
             this.simpleToastrService.show(

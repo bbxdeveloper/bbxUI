@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, firstValueFrom, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetStocksResponse } from '../models/GetStocksResponse';
@@ -13,6 +13,7 @@ import { GetAllInvCtrlAbsentParamsModel } from '../models/GetAllInvCtrlAbsentPar
 import { GetAllInvCtrlAbsentResponse } from '../models/GetAllInvCtrlAbsentResponse';
 import { UpdateStockLocationRequest } from '../models/UpdateStockLocationRequest';
 import { UpdateStockLocationResponse } from '../models/UpdateStockLocationResponse';
+import { ProductStock } from '../models/ProductStock';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +63,10 @@ export class StockService {
     }
 
     return this.http.get<StockRecord>(this.StockBaseUrl + '/record' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  public getProductStock(productId: string|number): Promise<ProductStock[]> {
+    return firstValueFrom(this.http.get<ProductStock[]>(this.StockBaseUrl + '/productstocks' + '?ProductID=' + productId))
   }
 
   Get(params?: GetStockParamsModel): Observable<Stock> {

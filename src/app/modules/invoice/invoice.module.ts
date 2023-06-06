@@ -28,6 +28,10 @@ import { CorrectionInvoiceComponent } from './correction-invoice/correction-invo
 import { CorrectionInvoiceSelectionDialogComponent } from './correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { InvoiceItemsDialogComponent } from './invoice-items-dialog/invoice-items-dialog.component';
 import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
+import { InvoicePriceChangeDialogComponent } from './invoice-price-change-dialog/invoice-price-change-dialog.component';
+import { CustomerInvoiceSummaryFilterFormComponent } from './customer-invoice-summary/customer-invoice-summary-filter-form/customer-invoice-summary-filter-form.component';
+import { CustomerInvoiceSummaryManagerComponent } from './customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
+import { CustomerInvoiceSummarySideBarFormComponent } from './customer-invoice-summary/customer-invoice-summary-side-bar-form/customer-invoice-summary-side-bar-form.component';
 
 
 
@@ -52,6 +56,10 @@ import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
     CorrectionInvoiceSelectionDialogComponent,
     InvoiceItemsDialogComponent,
     InvoiceFormComponent,
+    InvoicePriceChangeDialogComponent,
+    CustomerInvoiceSummaryFilterFormComponent,
+    CustomerInvoiceSummaryManagerComponent,
+    CustomerInvoiceSummarySideBarFormComponent,
   ],
   imports: [
     CommonModule,
@@ -91,6 +99,7 @@ import { InvoiceFormComponent } from './invoice-form/invoice-form.component';
     CustomerSelectTableDialogComponent,
     InvoiceIncomeManagerComponent,
     SummaryInvoiceComponent,
+    CustomerInvoiceSummaryManagerComponent
   ]
 })
 export class InvoiceModule { }

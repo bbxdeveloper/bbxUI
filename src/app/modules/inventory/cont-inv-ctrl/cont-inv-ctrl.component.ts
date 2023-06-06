@@ -18,7 +18,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
@@ -624,8 +624,14 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
           () => {
             changedData.doAddToExisting = true
             changedData.nRealQty = parseInt(changedData.nRealQty.toString()) + response.nRealQty
+
+            this.kbS.ClickCurrentElement()
           },
-          () => changedData.doAddToExisting = false)
+          () => {
+            changedData.doAddToExisting = false
+
+            this.kbS.ClickCurrentElement()
+          })
       }
     } catch (error) {
       this.cs.HandleError(error)

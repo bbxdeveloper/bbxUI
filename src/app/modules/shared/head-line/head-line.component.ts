@@ -6,6 +6,7 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./head-line.component.scss']
 })
 export class HeadLineComponent {
-  @Input() msg: string = '';
+  @Input() msg: string = ''
+  @Input() compact: boolean = false
   constructor() { }
 }

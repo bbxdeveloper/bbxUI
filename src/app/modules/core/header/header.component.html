@@ -248,14 +248,14 @@
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-income-sub-3" [disabled]="InProgress"
-                    (click)="goTo('income/incoming-summary-invoice')">
-                    Bejövő gyűjtőszámla
+                    (click)="goTo('income/minus-incoming-delivery-note')">
+                    Bev. Szállító vissz.
                 </button>
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-income-sub-4" [disabled]="InProgress"
-                    (click)="goTo('income/minus-incoming-delivery-note')">
-                    Szállító vissz.
+                    (click)="goTo('income/incoming-summary-invoice')">
+                    Bejövő gyűjtőszámla
                 </button>
             </nb-card-body>
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
@@ -266,15 +266,40 @@
             </nb-card-body>
         </nb-card>
     </ng-template>
-
+    
+    <nb-action *ngIf="isLoggedIn" id="header-warehouse" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
+        data-sub="header-warehouse-sub-1,header-warehouse-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
+        [disabled]="InProgress">Raktár
+    </nb-action>
+    <nb-action *ngIf="!isLoggedIn" id="header-warehouse" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
+        data-sub="header-warehouse-sub-1,header-warehouse-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
+        [disabled]="InProgress">Raktár
+    </nb-action>
+    <ng-template #sub_warehouse let-data>
+        <nb-card class="card-submenu-wrapper">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-warehouse-sub-1" [disabled]="InProgress"
+                    (click)="goTo('warehouse/inbetween-warehouse')">
+                    Raktárközi átadás bizonylat
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-warehouse-sub-2" [disabled]="InProgress"
+                    (click)="goTo('warehouse/warehouse-document')">
+                    Raktárközi átadás bizonylatok
+                </button>
+            </nb-card-body>
+        </nb-card>
+    </ng-template>
+    
     <nb-action id="header-orde" class="cl-header-menu" tabIndex="6" disabled>Megrendelés</nb-action>
 
     <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        data-sub="header-info-sub-1,header-info-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
         [disabled]="InProgress">Információ
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        data-sub="header-info-sub-1,header-info-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
         [disabled]="InProgress">Információ
     </nb-action>
     <ng-template #sub_info let-data>
@@ -285,14 +310,20 @@
                     Bizonylatok
                 </button>
             </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-info-sub-2" [disabled]="InProgress"
+                    (click)="goTo('information/customerinvoicesummary')">
+                    Partnerenkénti forgalom
+                </button>
+            </nb-card-body>
         </nb-card>
     </ng-template>
 
-    <nb-action id="header-list" class="cl-header-menu" tabIndex="8" disabled>Listák</nb-action>
+    <nb-action id="header-list" class="cl-header-menu" tabIndex="9" disabled>Listák</nb-action>
 
-    <nb-action id="header-serv" class="cl-header-menu" tabIndex="9" disabled>Szolgáltatások</nb-action>
+    <nb-action id="header-serv" class="cl-header-menu" tabIndex="10" disabled>Szolgáltatások</nb-action>
 
-    <nb-action id="header-shut" class="cl-header-menu" tabIndex="10" icon="power-outline" *ngIf="isElectron"
+    <nb-action id="header-shut" class="cl-header-menu" tabIndex="11" icon="power-outline" *ngIf="isElectron"
         [disabled]="InProgress" (click)="quit($event)">
         Kilépés
     </nb-action>

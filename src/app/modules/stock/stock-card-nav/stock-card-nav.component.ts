@@ -75,6 +75,19 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
   productFilter?: Product = { id: -1 } as Product;
 
+  wareHouseFromPathString?: string
+
+  get getProductGetParams(): GetProductsParamListModel {
+    return {
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: this.productInputFilterString.trim(),
+      OrderBy: 'ProductCode',
+      FilterByName: true,
+      FilterByCode: true,
+    };
+  }
+
   override allColumns = [
     'scTypeX',
     'warehouse',
@@ -276,17 +289,15 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.dbDataTableForm = new FormGroup({});
 
+    //debugger
     this.productCodeFromPath = this.route.snapshot.queryParams['productCode'];
-    const wareHouseIdFromPathString = this.route.snapshot.queryParams['wareHouseId'];
-    if (!!wareHouseIdFromPathString) {
-      this.wareHouseIdFromPath = parseInt(wareHouseIdFromPathString, 10);
-    }
+    this.wareHouseFromPathString = this.route.snapshot.queryParams['wareHouse'];
     this.navigatedFromStock = !!this.productCodeFromPath && !!this.wareHouseIdFromPath;
 
     this.filterForm = new FormGroup({
-      WarehouseID: new FormControl(this.productCodeFromPath ?? undefined, [Validators.required]),
+      WarehouseID: new FormControl(this.wareHouseIdFromPath, [Validators.required]),
       ProductSearch: new FormControl(undefined, []),
-      productCode: new FormControl(this.wareHouseIdFromPath ?? undefined, []),
+      productCode: new FormControl(this.productCodeFromPath ?? undefined, []),
       productDescription: new FormControl(undefined, []),
       StockCardDateFrom: new FormControl(undefined, []),
       StockCardDateTo: new FormControl(undefined, []),
@@ -369,8 +380,12 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       next: data => {
         this.wh = data?.data ?? [];
         this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
+        if (!HelperFunctions.isEmptyOrSpaces(this.wareHouseFromPathString)) {
+          this.filterForm.controls['WarehouseID'].setValue(this.wareHouseFromPathString)
+        }
       }
     });
+    
   }
 
   override Refresh(params?: GetStockCardsParamsModel): void {
@@ -586,9 +601,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.isLoading = true;
 
-    this.Subscription_FillFormWithFirstAvailableProduct = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString.trim()
-    } as GetProductsParamListModel).subscribe({
+    this.Subscription_FillFormWithFirstAvailableProduct = this.seC.GetAll(this.getProductGetParams).subscribe({
       next: res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.productFilter = res.data[0];

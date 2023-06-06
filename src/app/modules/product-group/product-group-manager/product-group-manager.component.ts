@@ -268,12 +268,16 @@ export class ProductGroupManagerComponent
   }
 
   override Refresh(params?: GetProductGroupsParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    if (!!this.Subscription_Refresh && !this.Subscription_Refresh.closed) {
+      this.Subscription_Refresh.unsubscribe();
+    }
+
+    console.log('Refreshing');
+
     this.isLoading = true;
-    this.seInv.GetAll(params).subscribe({
+    this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetProductGroups response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };
@@ -299,13 +303,12 @@ export class ProductGroupManagerComponent
   }
 
   async RefreshAsync(params?: GetProductGroupsParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
 
     await lastValueFrom(this.seInv.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetProductGroups response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };

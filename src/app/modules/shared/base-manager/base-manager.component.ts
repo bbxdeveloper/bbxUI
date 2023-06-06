@@ -1,6 +1,7 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbDialogService, NbSidebarService, NbTreeGridDataSource } from '@nebular/theme';
+import { Subscription } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -13,7 +14,7 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, InvoiceKeySettings, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-base-manager',
@@ -56,6 +57,8 @@ export class BaseManagerComponent<T> {
 
   public KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
   public commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
+  
+  protected Subscription_Refresh?: Subscription;
 
   constructor(
     @Optional() protected dialogService: NbDialogService,
@@ -65,6 +68,16 @@ export class BaseManagerComponent<T> {
     protected cs: CommonService,
     protected sts: StatusService) {
       this.bbxSidebarService.collapse();
+  }
+
+  UpdateKeySettingsAndCommand(): void {
+    this.commands = GetFooterCommandListFromKeySettings(this.KeySetting)
+    this.dbDataTable.KeySetting = this.KeySetting
+    this.dbDataTable.flatDesignForm.KeySetting = this.KeySetting
+    this.dbDataTable.flatDesignForm.commandsOnForm = this.commands
+    this.dbDataTable.commandsOnTable = this.commands
+    this.dbDataTable.PushFooterCommandList()
+    this.fS.pushCommands(this.commands)
   }
 
   SelectedRowProperty(objectKey: string): any {
@@ -135,6 +148,10 @@ export class BaseManagerComponent<T> {
           } else {
             this.ProcessActionNew(data);
           }
+        } else {
+          this.dbDataTable.SetFormReadonly(false)
+          this.kbS.SelectFirstTile()
+          this.kbS.ClickCurrentElement()
         }
       });
     } else {
@@ -170,6 +187,10 @@ export class BaseManagerComponent<T> {
           } else {
             this.ProcessActionPut(data);
           }
+        } else {
+          this.dbDataTable.SetFormReadonly(false)
+          this.kbS.SelectFirstTile()
+          this.kbS.ClickCurrentElement()
         }
       });
     } else {
@@ -247,16 +268,23 @@ export class BaseManagerComponent<T> {
 
   Refresh(params?: any): void {}
 
-  RefreshTable(selectAfterRefresh?: any): void {
+  RefreshTable(selectAfterRefresh?: any, setAsCurrent: boolean = false): void {
     this.dbDataTable.Setup(
       this.dbData,
       this.dbDataDataSrc,
       this.allColumns,
       this.colDefs,
-      this.colsToIgnore
+      this.colsToIgnore,
+      undefined,
+      !setAsCurrent
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      if (setAsCurrent) {
+        this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.SelectFirstTile()
+      }
+      this.kbS.ClickCurrentElement()
     }, 200);
   }
 

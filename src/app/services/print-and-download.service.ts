@@ -9,8 +9,8 @@ import { CommonService } from './common.service';
 import { OfferService } from '../modules/offer/services/offer.service';
 import { BbxToastrService } from './bbx-toastr-service.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { OneTextInputDialogComponent } from '../modules/shared/one-text-input-dialog/one-text-input-dialog.component';
-import { OneNumberInputDialogComponent } from '../modules/shared/one-number-input-dialog/one-number-input-dialog.component';
+import { OneTextInputDialogComponent } from '../modules/shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
+import { OneNumberInputDialogComponent } from '../modules/shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component';
 import { createMask } from '@ngneat/input-mask';
 
 const REPORT_ENDED =

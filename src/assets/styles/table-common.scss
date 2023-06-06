@@ -29,8 +29,6 @@ nb-card-body {
 }
 .card-table-wrapper-opened-form {
     max-height: calc(100vh - 290px) !important;
-    width: calc(100vw - 100px) !important;
-    max-width: 40vw;
 }
 
 // TABLE: Header
@@ -39,8 +37,6 @@ nb-card-body {
     display: block;
     position: sticky;
     top: 0;
-    width: -moz-fit-content;
-    width: fit-content;
     table-layout: fixed;
 
     tr > th {

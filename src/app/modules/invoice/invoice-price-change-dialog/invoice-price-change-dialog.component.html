@@ -1,0 +1,54 @@
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>Árváltozás</span>
+    </nb-card-header>
+    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
+        <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
+            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
+                <label>
+                    Termék
+                </label>
+                <input class="width-of-20-percent" nbInput type="text" formControlName="productCode" readonly>
+                <input class="width-of-50-percent" nbInput type="text" formControlName="productDescription" readonly>
+                <!-- product-description -->
+            </div>
+
+            <!-- head -->
+            <div class="form-input-container">
+                <label class="text-transparent text-center">
+                    -
+                </label>
+                <label class="width-of-20-percent text-center" >
+                    Régi ár
+                </label>
+                <label class="width-of-50-percent text-center" >
+                    Új ár
+                </label>
+            </div>
+
+            <div class="form-input-container" (keydown.enter)="navigateable.HandleFormEnter($event)">
+                <label>
+                    Listaár
+                </label>
+                <input class="width-of-20-percent"  nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
+                <input class="{{TileCssClass}} width-of-50-percent" nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1">
+            </div>
+
+            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
+                <label>
+                    Egységár
+                </label>
+                <input class="width-of-20-percent"  nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
+                <input class="{{TileCssClass}} width-of-50-percent" nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2">
+            </div>
+        </form>
+    </nb-card-body>
+    <nb-card-footer class="modal-product-active-footer">
+        <button nbButton (click)="changePrice()" status="primary" tabindex="-1" id="confirm-dialog-button-yes">
+            OK
+        </button>
+        <button nbButton (click)="close()" status="danger" tabindex="-1" id="confirm-dialog-button-no">
+            Vissza
+        </button>
+    </nb-card-footer>
+</nb-card>

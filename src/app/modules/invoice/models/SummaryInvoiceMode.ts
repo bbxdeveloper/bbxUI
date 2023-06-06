@@ -5,10 +5,14 @@ import { InvoiceTypes } from "./InvoiceTypes";
 export class SummaryInvoiceMode {
     public invoiceCategory!: InvoiceCategory
     public invoiceType!: InvoiceTypes
-    public correction!: boolean
+    public deliveryNoteCorrection?: boolean
     public incoming!: boolean
     public paymentMethod: string = ''
     public isSummaryInvoice: boolean = false
+    public invoiceCorrection: boolean = false
+    public useCustomersPaymentMethod: boolean = false
+
+    public checkCustomerLimit: boolean = false
 
     public validateQuantity!: IQuantityValidator
 

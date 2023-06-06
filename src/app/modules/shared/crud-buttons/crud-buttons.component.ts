@@ -24,15 +24,15 @@ export class CrudButtonsComponent implements OnInit {
 
   @Input() KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  newButtonKey: KeyBindings = DefaultKeySettings[Actions.Create].KeyCode;
-  editButtonKey: KeyBindings = DefaultKeySettings[Actions.Edit].KeyCode;
-  saveButtonKey: KeyBindings = DefaultKeySettings[Actions.Save].KeyCode;
-  resetButtonKey: KeyBindings = DefaultKeySettings[Actions.Reset].KeyCode;
-  deleteButtonKey: KeyBindings = DefaultKeySettings[Actions.Delete].KeyCode;
-  printButtonKey: KeyBindings = DefaultKeySettings[Actions.Print].KeyCode;
-  emailButtonKey: KeyBindings = DefaultKeySettings[Actions.Email].KeyCode;
-  csvButtonKey: KeyBindings = DefaultKeySettings[Actions.CSV].KeyCode;
-  lockButtonKey: KeyBindings = DefaultKeySettings[Actions.Lock].KeyCode;
+  get newButtonKey(): KeyBindings { return this.KeySetting[Actions.Create].KeyCode }
+  get editButtonKey(): KeyBindings { return this.KeySetting[Actions.Edit].KeyCode }
+  get saveButtonKey(): KeyBindings { return this.KeySetting[Actions.Save].KeyCode }
+  get resetButtonKey(): KeyBindings { return this.KeySetting[Actions.Reset].KeyCode }
+  get deleteButtonKey(): KeyBindings { return this.KeySetting[Actions.Delete].KeyCode }
+  get printButtonKey(): KeyBindings { return this.KeySetting[Actions.Print].KeyCode }
+  get emailButtonKey(): KeyBindings { return this.KeySetting[Actions.Email].KeyCode }
+  get csvButtonKey(): KeyBindings { return this.KeySetting[Actions.CSV].KeyCode }
+  get lockButtonKey(): KeyBindings { return this.KeySetting[Actions.Lock].KeyCode }
 
   @Input() newButtonDisabled: boolean = false;
   @Input() editButtonDisabled: boolean = false;

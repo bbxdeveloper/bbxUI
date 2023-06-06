@@ -4,7 +4,7 @@ import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder 
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
@@ -25,6 +25,10 @@ import { lastValueFrom, ReplaySubject } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { UnitPriceType, UnitPriceTypes } from '../models/UnitPriceType';
+import { FormHelper } from 'src/assets/util/FormHelper';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { InvoiceService } from '../../invoice/services/invoice.service';
+import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 
 @Component({
   selector: 'app-customer-manager',
@@ -224,6 +228,64 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
   private unitPriceTypes: UnitPriceType[] = []
 
+  private paymentMethods: PaymentMethod[] = []
+
+  get maxLimit(): number | undefined {
+    return FormHelper.GetNumber(this.dbDataTableForm, 'maxLimit')
+  }
+
+  paymentDateValidation(control: AbstractControl): any {
+    const value = HelperFunctions.ToInt(control.value)
+
+    return value < 0 ? { min:  { value: value } } : null
+  }
+
+  validateWarningLimit(control: AbstractControl): any {
+    const warningLimit = HelperFunctions.ToInt(control.value)
+
+    if (warningLimit === 0 && this.maxLimit === 0) {
+      return null
+    }
+
+    if (warningLimit < 0) {
+      return { min: { value: control.value } }
+    }
+
+    if (this.maxLimit === undefined || this.maxLimit === 0) {
+      return null
+    }
+
+    const wrong = warningLimit >= this.maxLimit
+    return wrong ? { max: { value: control.value } } : null
+  }
+
+  validateMinLimitIfMaxIsEdited(control: AbstractControl): any {
+    if (this.maxLimit === null || this.maxLimit === undefined) {
+      return
+    }
+
+    const minControl = this.dbDataTableForm.controls['warningLimit']
+    if (!minControl) {
+      return
+    }
+
+    let error: any = this.maxLimit < 0
+      ? { min: { value: control.value } }
+      : null
+
+    minControl.setErrors(error)
+
+    const min = HelperFunctions.ToInt(minControl.value)
+    if (min <= 0) {
+      return
+    }
+
+    error = min >= this.maxLimit
+      ? { max: { value: min } }
+      : null
+    minControl.setErrors(error)
+  }
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -237,6 +299,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     private readonly sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
+    private readonly invoiceService: InvoiceService,
     private readonly keyboardHelperService: KeyboardHelperService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
@@ -266,34 +329,42 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     data.unitPriceType = this.unitPriceTypes.find(x => x.text === data.unitPriceTypeX)?.text ?? 'Listaár'
 
+    data.defPaymentMethod = this.paymentMethods.find(x => x.text === data.defPaymentMethodX)?.text ?? 'Kp'
+
     return data;
   }
 
-  private CustomerToCreateRequest(p: Customer): CreateCustomerRequest {
-    let country = this.countryCodes.find(x => x.text === p.countryCode);
+  private CustomerToCreateRequest(customer: Customer): CreateCustomerRequest {
+    let country = this.countryCodes.find(x => x.text === customer.countryCode);
     if (country) {
-      p.countryCode = country.value;
+      customer.countryCode = country.value;
     }
 
-    if (p.customerBankAccountNumber) {
-      p.customerBankAccountNumber = p.customerBankAccountNumber.replace(/\s/g, '');
+    if (customer.customerBankAccountNumber) {
+      customer.customerBankAccountNumber = customer.customerBankAccountNumber.replace(/\s/g, '');
     }
 
-    const unitPriceType = this.unitPriceTypes.find(x => x.text === p.unitPriceType)?.value ?? UnitPriceTypes.List
+    const unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
+
+    const defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
 
     const res = {
-      additionalAddressDetail: p.additionalAddressDetail,
-      city: p.city,
-      comment: p.comment,
-      countryCode: p.countryCode,
-      customerBankAccountNumber: p.customerBankAccountNumber,
-      customerName: p.customerName,
-      isOwnData: p.isOwnData,
-      postalCode: p.postalCode,
-      privatePerson: p.privatePerson,
-      thirdStateTaxId: p.thirdStateTaxId,
-      taxpayerNumber: p.taxpayerNumber,
-      unitPriceType: unitPriceType
+      additionalAddressDetail: customer.additionalAddressDetail,
+      city: customer.city,
+      comment: customer.comment,
+      countryCode: customer.countryCode,
+      customerBankAccountNumber: customer.customerBankAccountNumber,
+      customerName: customer.customerName,
+      isOwnData: customer.isOwnData,
+      postalCode: customer.postalCode,
+      privatePerson: customer.privatePerson,
+      thirdStateTaxId: customer.thirdStateTaxId,
+      taxpayerNumber: customer.taxpayerNumber,
+      unitPriceType: unitPriceType,
+      maxLimit: HelperFunctions.ToOptionalInt(customer.maxLimit),
+      warningLimit: HelperFunctions.ToOptionalInt(customer.warningLimit),
+      paymentDays: Number(customer.paymentDays),
+      defPaymentMethod: defPaymentMethod,
     } as CreateCustomerRequest;
     return res;
   }
@@ -309,6 +380,13 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     }
 
     customer.unitPriceType = this.unitPriceTypes.find(x => x.text === customer.unitPriceType)?.value ?? UnitPriceTypes.List
+
+    customer.defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
+
+    customer.maxLimit = HelperFunctions.ToOptionalInt(customer.maxLimit)
+    customer.warningLimit = HelperFunctions.ToOptionalInt(customer.warningLimit)
+
+    customer.paymentDays = Number(customer.paymentDays)
 
     return customer;
   }
@@ -467,6 +545,16 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
       email: new FormControl(undefined, []),
+      warningLimit: new FormControl(undefined, [
+        this.validateWarningLimit.bind(this),
+      ]),
+      maxLimit: new FormControl(undefined, [
+        this.validateMinLimitIfMaxIsEdited.bind(this)
+      ]),
+      paymentDays: new FormControl(0, [
+        this.paymentDateValidation.bind(this)
+      ]),
+      defPaymentMethod: new FormControl('', [Validators.required])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -519,9 +607,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
       const countryCodesRequest = this.customerService.GetAllCountryCodesAsync()
       const unitPriceTypesRequest = this.customerService.getUnitPriceTypes()
+      const paymentMethodsRequest = this.invoiceService.getPaymentMethodsAsync()
 
       this.countryCodes = await countryCodesRequest
       this.unitPriceTypes = await unitPriceTypesRequest
+      this.paymentMethods = await paymentMethodsRequest
 
       this.Refresh(params)
     } catch (error) {
@@ -532,12 +622,16 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   override Refresh(params?: GetCustomersParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    if (!!this.Subscription_Refresh && !this.Subscription_Refresh.closed) {
+      this.Subscription_Refresh.unsubscribe();
+    }
+
+    console.log('Refreshing');
+
     this.isLoading = true;
-    this.customerService.GetAll(params).subscribe({
+    this.Subscription_Refresh = this.customerService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
@@ -564,12 +658,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   async RefreshAsync(params?: GetCustomersParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.customerService.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetCustomers response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };

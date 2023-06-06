@@ -1,0 +1,65 @@
+<app-head-line [compact]="true" [msg]="mode.title"></app-head-line>
+
+<div>
+    <nb-card class="filter-card">
+        <nb-card-body>
+            <form [formGroup]="headerForm" ngForm [id]="headerFormId">
+                <div class="flex-row">
+                    <div>
+                        <label>
+                            Kiadási raktár
+                        </label>
+                        <input nbInput type="text" formControlName="fromWarehouse">
+                    </div>
+                    <app-bbx-combo-box id="toWarehouse" class="bbx-sidebar-combo" [currentForm]="headerFormNav" formFieldName="toWarehouse" label="Bevételi raktár"
+                        [needBlankOption]="false" [data$]="toWarehouses$" [needErrorMsg]="false" [isWide]="true"></app-bbx-combo-box>
+                </div>
+
+                <div *ngIf="warehouseSelectionError" class="error">
+                    A két raktárnak különböznie kell.
+                </div>
+                
+                <div class="horizontal" *ngIf="mode.edit">
+                    <label>
+                        Bizonylat száma
+                    </label>
+                    <input nbInput type="text" formControlName="whsTransferNumber">
+                </div>
+
+                <div class="horizontal">
+                    <label>Dátum</label>
+                    <nb-form-field (keydown.enter)="headerFormNav.HandleFormEnter($event, true, true, true)" left>
+                        <input nbInput type="datetime" formControlName='transferDate' class="{{TileCssClass}}"
+                            (click)="headerFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02" mask="0000-00-00"
+                            [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                        <app-form-control-error [form]="headerFormNav" controlName="transferDate">
+                        </app-form-control-error>
+                    </nb-form-field>
+                </div>
+
+                <div>
+                    <label>
+                        Megjegyzés
+                    </label>
+                    <angular-editor formControlName="note" [config]="editorConfig"
+                        (keydown.esc)="JumpToFirstCellAndNav()"
+                        (keydown.tab)="JumpToFirstCellAndNav()"
+                        placeholder="Szövegbevitel végeztével escape megnyomása után navigálhat el másik elemre."
+                        class="{{TileCssClass}}"></angular-editor>
+                </div>
+            </form>
+        </nb-card-body>
+    </nb-card>
+
+    <nb-card class="filter-card">
+        <nb-card-body>
+            <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [wide]="false" [heightMargin]="565" [confirmRowDelete]="true"
+                [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+                (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
+            </app-inline-editable-table>
+        </nb-card-body>
+    </nb-card>
+
+    <p class="summedCost">Összesen: {{ summedCost | number:'1.2':'fr' }}</p>
+</div>

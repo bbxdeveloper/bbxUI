@@ -37,11 +37,13 @@ import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-receipt-manager',
   templateUrl: './receipt-manager.component.html',
-  styleUrls: ['./receipt-manager.component.scss']
+  styleUrls: ['./receipt-manager.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -140,22 +142,23 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   constructor(
     @Optional() dialogService: NbDialogService,
     footerService: FooterService,
-    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private invoiceService: InvoiceService,
-    private customerService: CustomerService,
-    private cdref: ChangeDetectorRef,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
+    private readonly invoiceService: InvoiceService,
+    private readonly customerService: CustomerService,
+    private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private simpleToastrService: NbToastrService,
-    private bbxToastrService: BbxToastrService,
+    private readonly simpleToastrService: NbToastrService,
+    private readonly bbxToastrService: BbxToastrService,
     cs: CommonService,
     statusService: StatusService,
-    private productService: ProductService,
-    private status: StatusService,
+    private readonly productService: ProductService,
+    private readonly status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private activatedRoute: ActivatedRoute,
+    private readonly activatedRoute: ActivatedRoute,
     router: Router,
-    private behaviorFactory: InvoiceBehaviorFactoryService
+    private readonly behaviorFactory: InvoiceBehaviorFactoryService,
+    private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
     this.InitialSetup();
@@ -443,7 +446,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         // Products
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
-        
+
         // Exporter form
         this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
         console.log('Exporter: ', d);
@@ -530,10 +533,10 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
 
-    this.outGoingInvoiceData.currencyCode = 'HUF';
+    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF;
     this.outGoingInvoiceData.exchangeRate = 1;
 
-    this.outGoingInvoiceData.warehouseCode = '001';
+    this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
     this.outGoingInvoiceData.incoming = this.mode.incoming;
     this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;

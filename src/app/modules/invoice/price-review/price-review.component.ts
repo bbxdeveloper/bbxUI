@@ -46,6 +46,7 @@ import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-price-review',
@@ -209,6 +210,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     khs: KeyboardHelperService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly custDiscountService: CustomerDiscountService,
+    private readonly tokenService: TokenStorageService,
     router: Router,
     // public invoiceStatisticsService: InvoiceStatisticsService,
     // behaviorFactory: InvoiceBehaviorFactoryService
@@ -807,7 +809,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF;
     this.outGoingInvoiceData.exchangeRate = 1;
 
-    this.outGoingInvoiceData.warehouseCode = '001';
+    this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
@@ -893,7 +895,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         );
 
         await this.printAndDownLoadService.openPrintDialog({
-          DialogTitle: 'Számla Nyomtatása',
+          DialogTitle: 'Bizonylat nyomtatása',
           DefaultCopies: 1,
           MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,

@@ -13,5 +13,9 @@ export interface CreateCustomerRequest {
     additionalAddressDetail: string,
     comment: string,
     isOwnData: boolean,
-    unitPriceType: string
+    unitPriceType: string,
+    warningLimit?: number,
+    maxLimit?: number,
+    paymentDays: number,
+    defPaymentMethod: string,
 }

@@ -1,0 +1,51 @@
+.error {
+    color: red;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+nb-card {
+    margin-bottom: 0px;
+
+    nb-card-body {
+        padding-top: 0px;
+    }
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0px;
+
+    .horizontal {
+        display: flex;
+        align-items: center;
+        gap: 0px;
+        width: 600px;
+    }
+
+    .flex-row {
+        display: flex;
+        gap: 0px;
+    }
+
+    label {
+        display: inline-block !important;
+        width: 135px !important;
+        text-align: left;
+    }
+
+    input {
+        width: 300px !important;
+    }
+}
+
+.filter-card {
+    background: unset;
+}
+
+.summedCost {
+    font-size: 1rem;
+    margin-right: 240px;
+    text-align: right;
+}

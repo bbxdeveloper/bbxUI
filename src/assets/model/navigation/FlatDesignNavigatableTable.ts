@@ -101,6 +101,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     public get ReadonlyForm(): boolean {
         return this.ReadonlySideForm || this.ReadonlyPredicator(this.flatDesignForm.DataToEdit?.data);
     }
+    public defaultConfirmationSettings: Constants.Dct = {
+        'ActionLock': true,
+        'ActionDelete': true,
+    }
 
     constructor(
         f: FormGroup,
@@ -205,7 +209,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     }
 
     Setup(productsData: TreeGridNode<T>[], productsDataSource: NbTreeGridDataSource<TreeGridNode<T>>,
-        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>
+        allColumns: string[], colDefs: ModelFieldDescriptor[], colsToIgnore: string[] = [], editedRow?: TreeGridNode<T>,
+        autoSelectAfterSetup: boolean = true
     ): void {
         // Set
         this.data = productsData;
@@ -230,7 +235,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             });
         }
 
-        if (this.kbs.p.y >= (this.data.length + includeFilterY)) {
+        if (autoSelectAfterSetup && (this.kbs.p.y >= (this.data.length + includeFilterY))) {
             if (this.data.length > 0) {
                 this.kbs.SelectElementByCoordinate(0, 1);
             } else {
@@ -569,6 +574,18 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }
     }
 
+    Create(): void {
+        this.ReadonlySideForm = false;
+        this.HandleEditAndNew(true);
+        this.JumpToFirstFormField(); 
+    }
+
+    Edit(): void {
+        this.ReadonlySideForm = false;
+        this.HandleEditAndNew(false);
+        this.JumpToFirstFormField();
+    }
+
     HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
@@ -604,7 +621,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
                 if (!!this.prevSelectedRow && this.flatDesignForm.formMode === Constants.FormState.default) {
                     event.preventDefault();
-                    this.Delete({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.Delete({ needConfirmation: this.defaultConfirmationSettings['ActionDelete'], data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();
                 }
                 break;
@@ -613,7 +630,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
                 if (!!this.prevSelectedRow) {
                     event.preventDefault();
-                    this.Lock({ needConfirmation: true, data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
+                    this.Lock({ needConfirmation: this.defaultConfirmationSettings['ActionLock'], data: this.prevSelectedRow.data, rowIndex: this.prevSelectedRowPos } as IUpdateRequest);
                     this.JumpToFirstFormField();
                 } else {
                     this.flatDesignForm?.ActionLock()

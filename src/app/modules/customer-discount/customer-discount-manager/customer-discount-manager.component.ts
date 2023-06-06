@@ -15,7 +15,7 @@ import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, CustDiscountKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CustomerDialogTableSettings, ProductGroupDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -32,7 +32,7 @@ import { CountryCode } from '../../customer/models/CountryCode';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
-import { OneNumberInputDialogComponent } from '../../shared/one-number-input-dialog/one-number-input-dialog.component';
+import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
@@ -917,6 +917,13 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         return;
       }
       this.CheckSaveConditionsAndSave();
+      return;
+    }
+    // no devtools
+    if (KeyBindings.F12 === event.key) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
       return;
     }
     this.HandleKeyDown(event);

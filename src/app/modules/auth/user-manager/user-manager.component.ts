@@ -25,7 +25,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { lastValueFrom } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-user-manager',
@@ -198,6 +198,21 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             this.kbS.p.y = lastY;
             this.ProcessActionNew(data);
           }
+        } else {
+          this.dbDataTable.prevSelectedCol = "name"
+          this.dbDataTable.prevSelectedColPos = lastX
+          this.dbDataTable.prevSelectedRowPos = lastY
+          this.dbDataTable.prevSelectedRow = this.dbDataTable.data[lastY]
+
+          this.kbS.p.x = lastX
+          this.kbS.p.y = lastY
+          
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.ClickCurrentElement()
+          
+          this.dbDataTable.Create()
+          
+          this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
     } else {
@@ -234,6 +249,21 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             this.kbS.p.y = lastY;
             this.ProcessActionPut(data);
           }
+        } else {
+          this.dbDataTable.prevSelectedCol = "name"
+          this.dbDataTable.prevSelectedColPos = lastX
+          this.dbDataTable.prevSelectedRowPos = lastY
+          this.dbDataTable.prevSelectedRow = this.dbDataTable.data[lastY]
+
+          this.kbS.p.x = lastX
+          this.kbS.p.y = lastY
+          
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.ClickCurrentElement()
+          
+          this.dbDataTable.Edit()
+          
+          this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
     } else {
@@ -459,12 +489,16 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   }
 
   override Refresh(params?: GetUsersParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
+    if (!!this.Subscription_Refresh && !this.Subscription_Refresh.closed) {
+      this.Subscription_Refresh.unsubscribe();
+    }
+
+    console.log('Refreshing');
+
     this.isLoading = true;
-    this.seInv.GetAll(params).subscribe({
+    this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetUsers response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return {
@@ -500,12 +534,11 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   }
 
   async RefreshAsync(params?: GetUsersParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
+    console.log('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.seInv.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetUsers response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return {

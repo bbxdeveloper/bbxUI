@@ -36,6 +36,7 @@ import { InvoiceService } from '../services/invoice.service';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -129,6 +130,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
     private readonly printAndDownloadService: PrintAndDownloadService,
+    private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
 
@@ -344,7 +346,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.paymentMethod = this.invoiceForm!.invoiceFormData!.paymentMethod
 
-    this.outGoingInvoiceData.warehouseCode = '001';
+    this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? ""
 
     this.outGoingInvoiceData.invoiceNetAmount = 0;
     this.outGoingInvoiceData.invoiceVatAmount = 0;
@@ -468,7 +470,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
 
         await this.printAndDownloadService.openPrintDialog({
-          DialogTitle: 'Számla Nyomtatása',
+          DialogTitle: 'Bizonylat nyomtatása',
           DefaultCopies: 1,
           MsgError: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
