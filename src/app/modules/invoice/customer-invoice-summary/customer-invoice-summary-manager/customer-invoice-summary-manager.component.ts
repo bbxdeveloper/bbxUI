@@ -313,7 +313,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     const params = this.getInputParams
     const name = selectedRow?.customerName
 
-    this.printAndDownloadService.openPrintDialog({
+    this.printAndDownloadService.printAfterConfirm({
       DialogTitle: 'Bizonylat nyomtatása',
       DefaultCopies: 1,
       MsgError: `A ${name} partnerhez tartozó bizonylat nyomtatása közben hiba történt.`,
@@ -326,8 +326,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
         customerID: HelperFunctions.ToOptionalInt(selectedRow?.customerID),
         warehouseCode: HelperFunctions.isEmptyOrSpaces(params.WarehouseCode) ? undefined : params.WarehouseCode,
         invoiceDeliveryDateFrom: HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateFrom) ? undefined : params.InvoiceDeliveryDateFrom,
-        invoiceDeliveryDateTo: HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateTo) ? undefined : params.InvoiceDeliveryDateTo,
-        copies: 1
+        invoiceDeliveryDateTo: HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateTo) ? undefined : params.InvoiceDeliveryDateTo
       } as Constants.Dct,
     } as PrintDialogRequest)
   }
