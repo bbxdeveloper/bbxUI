@@ -1,0 +1,24 @@
+<as-split direction="horizontal">
+    <as-split-area [size]="53">
+        <app-hozirontal-split-layout proportion="40" [hideDivider]="true">
+            <app-head-line msg="Partnerenkénti forgalom" title></app-head-line>
+
+            <app-customer-invoice-summary-filter-form (refreshClicked)="refreshClicked($event)"
+                (pageReady)="filterFormPageReady()" top>
+            </app-customer-invoice-summary-filter-form>
+
+            <ng-container bottom>
+                <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+                    [heightMargin]="595" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                    [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+                    (focusOutTable)="focusOnTable(false)">
+                </app-flat-design-table>
+
+                <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+            </ng-container>
+        </app-hozirontal-split-layout>
+    </as-split-area>
+    <as-split-area [size]="47" *ngIf="isSideBarOpened">
+        <app-customer-invoice-summary-side-bar-form class="bbx-sidebar"></app-customer-invoice-summary-side-bar-form>
+    </as-split-area>
+</as-split>
