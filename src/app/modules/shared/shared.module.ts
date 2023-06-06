@@ -45,6 +45,7 @@ import { InvoiceStyleLabelColumnComponent } from './invoice-style-label-column/i
 import { OneButtonConfirmationDialogComponent } from './simple-dialogs/one-button-confirmation-dialog/one-button-confirmation-dialog.component';
 import { HozirontalSplitLayoutComponent } from './layouts/hozirontal-split-layout/hozirontal-split-layout.component';
 import { VerticalSplitLayoutComponent } from './layouts/vertical-split-layout/vertical-split-layout.component';
+import { SingleDateDialogComponent } from './simple-dialogs/single-date-dialog/single-date-dialog.component';
 
 
 @NgModule({
@@ -87,7 +88,8 @@ import { VerticalSplitLayoutComponent } from './layouts/vertical-split-layout/ve
     InvoiceStyleLabelColumnComponent,
     OneButtonConfirmationDialogComponent,
     HozirontalSplitLayoutComponent,
-    VerticalSplitLayoutComponent
+    VerticalSplitLayoutComponent,
+    SingleDateDialogComponent
   ],
   imports: [
     CommonModule,
@@ -157,6 +159,7 @@ import { VerticalSplitLayoutComponent } from './layouts/vertical-split-layout/ve
     InvoiceStyleLabelColumnComponent,
     HozirontalSplitLayoutComponent,
     VerticalSplitLayoutComponent,
+    SingleDateDialogComponent,
   ],
   providers: [
     ConfirmationDialogComponent

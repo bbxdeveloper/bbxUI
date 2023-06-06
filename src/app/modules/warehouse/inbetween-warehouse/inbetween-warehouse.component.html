@@ -1,23 +1,29 @@
-<app-head-line msg="Raktárközi átadás bizonylat"></app-head-line>
+<app-head-line [compact]="true" [msg]="mode.title"></app-head-line>
 
 <div>
     <nb-card class="filter-card">
         <nb-card-body>
             <form [formGroup]="headerForm" ngForm [id]="headerFormId">
-                <div class="horizontal">
-                    <label>
-                        Kiadási raktár
-                    </label>
-                    <input nbInput type="text" formControlName="fromWarehouse">
-                </div>
-
-                <div class="horizontal">
+                <div class="flex-row">
+                    <div>
+                        <label>
+                            Kiadási raktár
+                        </label>
+                        <input nbInput type="text" formControlName="fromWarehouse">
+                    </div>
                     <app-bbx-combo-box id="toWarehouse" class="bbx-sidebar-combo" [currentForm]="headerFormNav" formFieldName="toWarehouse" label="Bevételi raktár"
                         [needBlankOption]="false" [data$]="toWarehouses$" [needErrorMsg]="false" [isWide]="true"></app-bbx-combo-box>
                 </div>
 
                 <div *ngIf="warehouseSelectionError" class="error">
                     A két raktárnak különböznie kell.
+                </div>
+                
+                <div class="horizontal" *ngIf="mode.edit">
+                    <label>
+                        Bizonylat száma
+                    </label>
+                    <input nbInput type="text" formControlName="whsTransferNumber">
                 </div>
 
                 <div class="horizontal">
@@ -48,7 +54,7 @@
     <nb-card class="filter-card">
         <nb-card-body>
             <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-            [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
+            [wide]="false" [heightMargin]="565" [confirmRowDelete]="true"
                 [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
                 (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
             </app-inline-editable-table>

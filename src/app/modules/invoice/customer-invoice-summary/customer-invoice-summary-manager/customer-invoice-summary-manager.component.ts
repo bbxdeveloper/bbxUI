@@ -3,11 +3,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
-import { WhsTransferFull } from 'src/app/modules/whs/models/WhsTransfer';
-import { WhsTransferQueryParams } from 'src/app/modules/whs/models/WhsTransferQueryParams';
-import { WhsService, WhsStatus } from 'src/app/modules/whs/services/whs.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -20,7 +16,6 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, CustomerInvoiceSummaryKeySettings } from 'src/assets/util/KeyBindings';
@@ -28,7 +23,6 @@ import { CustomerInvoiceSummary } from '../../models/CustomerInvoiceSummary/Cust
 import { CustomerInvoiceSummaryFilterFormData } from '../customer-invoice-summary-filter-form/CustomerInvoiceSummaryFilterFormData';
 import { GetCustomerInvoiceSummaryParamListModel } from '../../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 import { InvoiceService } from '../../services/invoice.service';
-import { Customer } from 'src/app/modules/customer/models/Customer';
 
 @Component({
   selector: 'app-customer-invoice-summary-manager',

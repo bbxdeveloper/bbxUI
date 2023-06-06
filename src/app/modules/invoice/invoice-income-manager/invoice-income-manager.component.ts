@@ -192,8 +192,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     }
   }
 
-  private wasPriceChangeDialogOpen: boolean = false
-
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -575,6 +573,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       return
     }
 
+    if (index === undefined) {
+      return
+    }
+
     if ((!!col && col === 'productCode') || col === undefined) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
@@ -617,7 +619,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.RecalcNetAndVat();
     }
 
-    if (col === 'unitPrice' && index === 0 && changedData.latestSupplyPrice < changedData.unitPrice) {
+    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice) {
       this.suggestPriceChange(this.dbData[index].data)
     }
   }
@@ -954,14 +956,14 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         productCode: invoiceLine.productCode,
         newPrice: invoiceLine.unitPrice,
         priceChange: priceChange,
-        wasOpen: this.wasPriceChangeDialogOpen
+        wasOpen: invoiceLine.unitPriceChanged,
       }
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
       this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-      this.wasPriceChangeDialogOpen = true
 
+      invoiceLine.unitPriceChanged = true
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
     })

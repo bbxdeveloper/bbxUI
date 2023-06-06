@@ -198,6 +198,21 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             this.kbS.p.y = lastY;
             this.ProcessActionNew(data);
           }
+        } else {
+          this.dbDataTable.prevSelectedCol = "name"
+          this.dbDataTable.prevSelectedColPos = lastX
+          this.dbDataTable.prevSelectedRowPos = lastY
+          this.dbDataTable.prevSelectedRow = this.dbDataTable.data[lastY]
+
+          this.kbS.p.x = lastX
+          this.kbS.p.y = lastY
+          
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.ClickCurrentElement()
+          
+          this.dbDataTable.Create()
+          
+          this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
     } else {
@@ -234,6 +249,21 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
             this.kbS.p.y = lastY;
             this.ProcessActionPut(data);
           }
+        } else {
+          this.dbDataTable.prevSelectedCol = "name"
+          this.dbDataTable.prevSelectedColPos = lastX
+          this.dbDataTable.prevSelectedRowPos = lastY
+          this.dbDataTable.prevSelectedRow = this.dbDataTable.data[lastY]
+
+          this.kbS.p.x = lastX
+          this.kbS.p.y = lastY
+          
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.ClickCurrentElement()
+          
+          this.dbDataTable.Edit()
+          
+          this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
     } else {

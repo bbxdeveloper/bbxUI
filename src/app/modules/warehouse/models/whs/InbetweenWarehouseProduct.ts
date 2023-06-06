@@ -1,8 +1,8 @@
 import { IEditable } from "src/assets/model/IEditable"
 import { HelperFunctions } from "src/assets/util/HelperFunctions"
-import { Product } from "../../product/models/Product"
-import { ProductStock } from "../../stock/models/ProductStock"
 import { MementoObject } from "src/assets/model/MementoObject"
+import { Product } from "src/app/modules/product/models/Product"
+import { ProductStock } from "src/app/modules/stock/models/ProductStock"
 
 export class InbetweenWarehouseProduct extends MementoObject implements IEditable {
     private _productID: number|undefined

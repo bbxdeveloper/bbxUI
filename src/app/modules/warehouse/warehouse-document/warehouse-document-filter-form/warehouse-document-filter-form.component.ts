@@ -11,14 +11,15 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { WareHouse } from 'src/app/modules/warehouse/models/WareHouse';
 import { WareHouseService } from 'src/app/modules/warehouse/services/ware-house.service';
 import { WarehouseDocumentFilterFormData } from './WarehouseDocumentFilterFormData';
-import { WhsService } from 'src/app/modules/whs/services/whs.service';
-import { WhsTransferStatus } from 'src/app/modules/whs/models/WhsTransferStatus';
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/FlatDesignNavigatableForm';
+import { WhsTransferStatus } from '../../models/whs/WhsTransferStatus';
+import { WhsTransferService } from '../../services/whs-transfer.service';
 
 @Component({
   selector: 'app-warehouse-document-filter-form',
   templateUrl: './warehouse-document-filter-form.component.html',
-  styleUrls: ['./warehouse-document-filter-form.component.scss']
+  styleUrls: ['./warehouse-document-filter-form.component.scss'],
+  providers: [WhsTransferService]
 })
 export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineManager {
   @Input()
@@ -108,7 +109,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
   constructor(
     private readonly keyboardService: KeyboardNavigationService,
     private readonly wareHouseApi: WareHouseService,
-    private readonly whsService: WhsService,
+    private readonly whsService: WhsTransferService,
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
   ) {
