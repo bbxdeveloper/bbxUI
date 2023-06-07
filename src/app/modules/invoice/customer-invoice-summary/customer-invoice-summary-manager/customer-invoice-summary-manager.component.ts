@@ -317,7 +317,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       Reset: () => { },
       ReportParams: {
         incoming: params.Incoming === undefined ? false : params.Incoming,
-        customerID: HelperFunctions.ToOptionalInt(selectedRow?.customerID),
+        customerID: HelperFunctions.ToOptionalInt(params.CustomerID),
         warehouseCode: HelperFunctions.isEmptyOrSpaces(params.WarehouseCode) ? undefined : params.WarehouseCode,
         invoiceDeliveryDateFrom: HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateFrom) ? undefined : params.InvoiceDeliveryDateFrom,
         invoiceDeliveryDateTo: HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateTo) ? undefined : params.InvoiceDeliveryDateTo
