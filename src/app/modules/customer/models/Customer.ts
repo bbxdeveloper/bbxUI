@@ -70,6 +70,7 @@ export function BlankCustomer(): Customer {
         unitPriceType: 'Listaár',
         paymentDays: 8,
         warningLimit: 0,
-        maxLimit: 0
+        maxLimit: 0,
+        defPaymentMethod: 'Kp',
     } as Customer;
 }
