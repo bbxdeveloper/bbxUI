@@ -130,7 +130,6 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     HandleAutoCompleteSelect(event: any, key: string): void {
-        // debugger;
         if (event === "") {
             Object.keys(this.form.controls).forEach((x: string) => {
                 if (x !== key) {
