@@ -545,10 +545,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
       email: new FormControl(undefined, []),
-      warningLimit: new FormControl(undefined, [
+      warningLimit: new FormControl(0, [
         this.validateWarningLimit.bind(this),
       ]),
-      maxLimit: new FormControl(undefined, [
+      maxLimit: new FormControl(0, [
         this.validateMinLimitIfMaxIsEdited.bind(this)
       ]),
       paymentDays: new FormControl(8, [
