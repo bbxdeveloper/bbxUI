@@ -69,8 +69,8 @@ export function BlankCustomer(): Customer {
         email: '',
         unitPriceType: 'Listaár',
         paymentDays: 8,
-        warningLimit: 0,
-        maxLimit: 0,
+        warningLimit: undefined,
+        maxLimit: undefined,
         defPaymentMethod: 'Kp',
     } as Customer;
 }
