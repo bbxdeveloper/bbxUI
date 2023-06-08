@@ -39,7 +39,7 @@
     <!-- AUTOCOMPLETE -->
     <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxComplete [activeFirst]="false"
         (selectedChange)="currentForm?.HandleAutoCompleteSelect($event, formFieldName)">
-        <nb-option *ngFor="let option of filteredData$ | async; let i = index" [value]="option">
+        <nb-option *ngFor="let option of filteredData$ | async; let i = index" [value]="option" [disabled]="option === '' && !needBlankOption">
             {{ option }}
         </nb-option>
     </nb-autocomplete>

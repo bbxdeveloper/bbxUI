@@ -247,7 +247,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         this.dbDataTable.data = this.dbData
         this.dbDataDataSrc.setData(this.dbData)
         this.RecalcNetAndVat()
-        
+
         this.dbDataTable.GenerateAndSetNavMatrices(false, false)
 
         this.kbS.SetCurrentNavigatable(this.dbDataTable)
@@ -382,11 +382,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
     if (changedData.quantity <= 0) {
       setTimeout(() => {
-        this.bbxToastrService.show(
-          Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
+        this.bbxToastrService.showError(Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO)
       }, 0);
 
       changedData.Restore()
@@ -404,7 +400,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
           message,
           () => changedData.Save(),
           () => {
-            changedData.quantity = changedData.realQty;
+            changedData.quantity = changedData.realQty >= 0 ? changedData.realQty : 0
             changedData.Save()
           })
       }, 300);
