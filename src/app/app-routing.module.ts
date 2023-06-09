@@ -203,7 +203,7 @@ const routes: Routes = [
         component: SummaryInvoiceComponent,
       },
       {
-        path: 'correction-invoice',
+        path: 'incoming-correction-invoice',
         component: CorrectionInvoiceComponent,
       }
     ]

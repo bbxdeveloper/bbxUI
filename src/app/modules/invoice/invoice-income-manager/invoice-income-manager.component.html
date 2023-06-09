@@ -1,7 +1,7 @@
 <div class="card-row">
     <div class="card-col-labels">
         <nb-card>
-            <nb-card-header class="card-header-txt-center card-header-top-margin card-header-title">{{title}}</nb-card-header>
+            <nb-card-header class="card-header-txt-center card-header-top-margin card-header-title">{{mode.title}}</nb-card-header>
             <nb-card-body class="form-col-1 card-labels-right">
                 <label>Név</label>
                 <label>Irányítószám és Város</label>
@@ -142,8 +142,8 @@
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
 
                 <div class="form-row">
-                    <label class="single_label bbx-sidebar-combo" *ngIf="Delivery">Szállítólevél</label>
-                    <app-bbx-combo-box-invoice *ngIf="!Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav"
+                    <label class="single_label bbx-sidebar-combo" *ngIf="mode.Delivery">Szállítólevél</label>
+                    <app-bbx-combo-box-invoice *ngIf="!mode.Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav"
                         formFieldName="paymentMethod" label="Fizetési mód" [data$]="paymentMethodOptions$"
                         [simpleMode]="true"></app-bbx-combo-box-invoice>
 
@@ -190,7 +190,7 @@
                     </nb-form-field>
 
                     <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
-                        <label *ngIf="Delivery; else invoiceNumber">
+                        <label *ngIf="mode.Delivery; else invoiceNumber">
                             Szállítólevél sorszáma
                         </label>
                         <ng-template #invoiceNumber>
@@ -198,7 +198,7 @@
                                 Számla sorszáma
                             </label>
                         </ng-template>
-                        <input nbInput type="text" formControlName='invoiceOrdinal' readonly [placeholder]="Delivery ? 'Szállítólevél sorszáma' : 'Számla sorszáma'" id="m04">
+                        <input nbInput type="text" formControlName='invoiceOrdinal' readonly [placeholder]="mode.Delivery ? 'Szállítólevél sorszáma' : 'Számla sorszáma'" id="m04">
                     </nb-form-field>
                 </div>
 

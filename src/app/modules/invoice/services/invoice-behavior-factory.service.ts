@@ -1,19 +1,34 @@
 import { Injectable } from '@angular/core';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
-import { NegativeQuantityValidator, PositiveQuantityValidator, SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { NegativeQuantityValidator, NotZeroQuantityValidator, PositiveQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 
 @Injectable()
 export class InvoiceBehaviorFactoryService {
 
   constructor() { }
 
-  public create(path: string): SummaryInvoiceMode {
-    let mode = {} as SummaryInvoiceMode
+  public create(path: string): InvoiceBehaviorMode {
+    let mode = {} as InvoiceBehaviorMode
 
     switch (path) {
       case 'invoice':
         mode = this.forInvoice()
+        break
+      case 'invoice-income':
+        mode = this.forInvoiceIncome()
+        break
+      case 'price-review':
+        mode = this.forPriceReview()
+        break
+      case 'incoming-delivery-note-income':
+        mode = this.forIncomingDeliveryNoteIncome()
+        break
+      case 'incoming-correction-invoice':
+        mode = this.forCorrectionInvoiceIncome()
+        break
+      case 'correction-invoice':
+        mode = this.forCorrectionInvoice()
         break
       case 'outgoing-delivery-note-income':
         mode = this.forOutgoingDeliveryNoteIncome()
@@ -30,7 +45,6 @@ export class InvoiceBehaviorFactoryService {
       case 'minus-delivery-note':
         mode = this.forMinusDeliveryNote()
         break
-
       case 'minus-incoming-delivery-note':
         mode = this.forMinusIncomingDeliveryNote()
         break
@@ -41,91 +55,140 @@ export class InvoiceBehaviorFactoryService {
     return mode
   }
 
-  private forInvoice(): SummaryInvoiceMode {
-    return {
-      invoiceCategory: InvoiceCategory.NORMAL,
-      invoiceType: InvoiceTypes.INV,
-      incoming: false,
-      validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: false,
-      checkCustomerLimit: true,
-      title: 'Számla',
-      useCustomersPaymentMethod: true,
-    } as SummaryInvoiceMode
+  private forIncomingDeliveryNoteIncome(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.DNI
+    result.incoming = true
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.title = 'Be. Szállítólevél'
+    return result
   }
 
-  private forOutgoingDeliveryNoteIncome(): SummaryInvoiceMode {
-    return {
-      invoiceCategory: InvoiceCategory.NORMAL,
-      invoiceType: InvoiceTypes.DNI,
-      incoming: false,
-      validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: false,
-      checkCustomerLimit: true,
-      title: 'Szállítólevél'
-    } as SummaryInvoiceMode
+  private forInvoiceIncome(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.INC
+    result.incoming = true
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.title = 'Be. Számla'
+    return result
   }
 
-  private forReceipt(): SummaryInvoiceMode {
-    return {
-      invoiceCategory: InvoiceCategory.NORMAL,
-      invoiceType: InvoiceTypes.BLK,
-      incoming: false,
-      validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true,
-      title: 'Blokk'
-    } as SummaryInvoiceMode
+  private forPriceReview(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NOT_DEFINED
+    result.invoiceType = InvoiceTypes.NOT_DEFINED
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.title = 'Árfelülvizsg.'
+    return result
   }
 
-  private forSummaryInvoice(): SummaryInvoiceMode {
-    return {
-      invoiceCategory: InvoiceCategory.AGGREGATE,
-      invoiceType: InvoiceTypes.INV,
-      incoming: false,
-      validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true,
-      checkCustomerLimit: true,
-      title: 'Gyűjtőszámla',
-      useCustomersPaymentMethod: true,
-    } as SummaryInvoiceMode
+  private forCorrectionInvoiceIncome(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.INC
+    result.incoming = false
+    result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
+    result.title = 'Bejövő javítószámla'
+    return result
   }
 
-  private forIncomingSummaryInvoice(): SummaryInvoiceMode {
-    return {
-      invoiceCategory: InvoiceCategory.AGGREGATE,
-      invoiceType: InvoiceTypes.INC,
-      incoming: true,
-      validateQuantity: new PositiveQuantityValidator,
-      isSummaryInvoice: true,
-      title: 'Be. Gyűjtőszámla'
-    } as SummaryInvoiceMode
+  private forCorrectionInvoice(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.INV
+    result.incoming = false
+    result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
+    result.title = 'Javítószámla'
+    return result
   }
 
-  private forMinusDeliveryNote(): SummaryInvoiceMode {
-    return {
-      invoiceCategory: InvoiceCategory.NORMAL,
-      invoiceType: InvoiceTypes.DNO,
-      incoming: false,
-      deliveryNoteCorrection: true,
-      paymentMethod: 'OTHER',
-      validateQuantity: new NegativeQuantityValidator,
-      isSummaryInvoice: false,
-      title: 'Szállító vissz.',
-      invoiceCorrection: true,
-    } as SummaryInvoiceMode
+  private forInvoice(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.INV
+    result.incoming = false
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.isSummaryInvoice = false
+    result.checkCustomerLimit = true
+    result.title = 'Számla'
+    result.useCustomersPaymentMethod = true
+    return result
   }
 
-  private forMinusIncomingDeliveryNote(): SummaryInvoiceMode {
-    return {
-      invoiceCategory: InvoiceCategory.NORMAL,
-      invoiceType: InvoiceTypes.DNI,
-      incoming: true,
-      deliveryNoteCorrection: true,
-      paymentMethod: 'OTHER',
-      validateQuantity: new NegativeQuantityValidator,
-      isSummaryInvoice: false,
-      title: 'Be. Szállító vissz.',
-      invoiceCorrection: true,
-    } as SummaryInvoiceMode
+  private forOutgoingDeliveryNoteIncome(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.DNO
+    result.incoming = false
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.isSummaryInvoice = false
+    result.checkCustomerLimit = true
+    result.title = 'Szállítólevél'
+    return result
+  }
+
+  private forReceipt(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.BLK
+    result.incoming = false
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.isSummaryInvoice = true
+    result.title = 'Blokk'
+    return result
+  }
+
+  private forSummaryInvoice(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.AGGREGATE
+    result.invoiceType = InvoiceTypes.INV
+    result.incoming = false
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.isSummaryInvoice = true
+    result.checkCustomerLimit = true
+    result.title = 'Gyűjtőszámla'
+    result.useCustomersPaymentMethod = true
+    return result
+  }
+
+  private forIncomingSummaryInvoice(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.AGGREGATE
+    result.invoiceType = InvoiceTypes.INC
+    result.incoming = true
+    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.isSummaryInvoice = true
+    result.title = 'Be. Gyűjtőszámla'
+    return result
+  }
+
+  private forMinusDeliveryNote(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.DNO
+    result.incoming = false
+    result.deliveryNoteCorrection = true
+    result.paymentMethod = 'OTHER'
+    result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
+    result.isSummaryInvoice = false
+    result.title = 'Szállító vissz.'
+    result.invoiceCorrection = true
+    return result
+  }
+
+  private forMinusIncomingDeliveryNote(): InvoiceBehaviorMode {
+    const result = new InvoiceBehaviorMode()
+    result.invoiceCategory = InvoiceCategory.NORMAL
+    result.invoiceType = InvoiceTypes.DNI
+    result.incoming = true
+    result.deliveryNoteCorrection = true
+    result.paymentMethod = 'OTHER'
+    result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
+    result.isSummaryInvoice = false
+    result.title = 'Be. Szállító vissz.'
+    result.invoiceCorrection = true
+    return result
   }
 }

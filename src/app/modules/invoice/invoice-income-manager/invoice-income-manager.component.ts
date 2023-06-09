@@ -46,16 +46,17 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoicePriceChangeDialogComponent } from '../invoice-price-change-dialog/invoice-price-change-dialog.component';
 import { ProductPriceChange } from '../models/ProductPriceChange';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
   templateUrl: './invoice-income-manager.component.html',
-  styleUrls: ['./invoice-income-manager.component.scss']
+  styleUrls: ['./invoice-income-manager.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  title: string = ''
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -192,6 +193,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     }
   }
 
+  public mode!: InvoiceBehaviorMode
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -212,11 +215,13 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     router: Router,
     private readonly custDiscountService: CustomerDiscountService,
     private readonly tokenService: TokenStorageService,
+    private readonly bbxToasterService: BbxToastrService,
+    behaviorFactory: InvoiceBehaviorFactoryService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs, router);
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
-      this.SetModeBasedOnRoute(params);
+      this.mode = behaviorFactory.create(params[0].path)
     })
     this.isPageReady = true;
   }
@@ -257,21 +262,6 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
     }
-  }
-
-  private SetModeBasedOnRoute(params: UrlSegment[]): void {
-    console.log("ActivatedRoute: ", params[0].path);
-    const path = params[0].path;
-    if (path === 'invoice-income') {
-      this.InvoiceType = InvoiceTypes.INC;
-      this.title = 'Be. Számla'
-    } else if (path === 'incoming-delivery-note-income') {
-      this.InvoiceType = InvoiceTypes.DNI;
-      this.title = 'Be. Szállítólevél'
-    }
-    this.InvoiceCategory = InvoiceCategory.NORMAL
-    console.log("InvoiceType: ", this.InvoiceType);
-    console.log("Incoming: ", this.Incoming);
   }
 
   private InitialSetup(): void {
@@ -498,7 +488,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
 
-    let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    let _paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
@@ -621,6 +611,25 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice) {
       this.suggestPriceChange(this.dbData[index].data)
+    }
+
+    if (col === 'quantity' && index !== null && index !== undefined) {
+      const validationResult = this.mode.validateQuantity(changedData.quantity)
+
+      if (!validationResult) {
+        changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
+        changedData.Save()
+        return
+      }
+
+      setTimeout(() => {
+        this.bbxToasterService.show(
+          validationResult,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        )
+      }, 0);
+      this.dbData[index].data.Restore()
     }
   }
 
@@ -770,7 +779,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
 
-    this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    this.outGoingInvoiceData.paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
     this.outGoingInvoiceData.warehouseCode = '1';
@@ -791,9 +800,9 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
-    this.outGoingInvoiceData.incoming = this.Incoming;
-    this.outGoingInvoiceData.invoiceType = this.InvoiceType;
-    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
+    this.outGoingInvoiceData.incoming = this.mode.incoming;
+    this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
