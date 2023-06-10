@@ -1,7 +1,7 @@
 form.invoice-customer-form {
     display: grid;
     justify-content: stretch;
-    grid-template-areas: 
+    grid-template-areas:
         "row_1 row_1"
         "row_2 row_2"
         "row_3 row_3"
@@ -58,7 +58,7 @@ form.invoice-customer-form {
 form.invoice-customer-form-search {
     display: grid;
     justify-content: stretch;
-    grid-template-areas: 
+    grid-template-areas:
         "row_0 row_0"
         "row_1 row_1"
         "row_2 row_2"
@@ -68,10 +68,11 @@ form.invoice-customer-form-search {
         "row_7 row_7";
 
     min-width: fit-content;
-    margin: auto;
+    margin: 0 24px;
 
     .area-row-0 {
         grid-area: row_0 !important;
+        margin-bottom: 10px;
     }
 
     nb-form-field {
@@ -118,6 +119,6 @@ form.invoice-customer-form-search {
 }
 
 .card-header-title {
-    color: #53664A;
+    color: #3ed820;
     font-size: 1.5rem !important;
 }
