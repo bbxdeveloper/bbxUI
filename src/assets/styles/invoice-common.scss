@@ -73,6 +73,7 @@ form.invoice-customer-form-search {
     .area-row-0 {
         grid-area: row_0 !important;
         margin-bottom: 10px;
+        height: 45px;
     }
 
     nb-form-field {
@@ -121,4 +122,5 @@ form.invoice-customer-form-search {
 .card-header-title {
     color: #3ed820;
     font-size: 1.5rem !important;
+    margin-top: 5px;
 }
