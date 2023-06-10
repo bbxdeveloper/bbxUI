@@ -127,7 +127,7 @@
                         <label class="multicol-label-col-1">Figyelmeztetés limit</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="warningLimit"
-                            [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isReadonly"
+                            [inputMask]="numberInputMask" placeholder="Nincs beállítva" [readonly]="isReadonly"
                             (click)="currentForm.HandleFormFieldClick($event)">
                         </div>
                     </nb-form-field>
@@ -137,7 +137,7 @@
                             <label class="multicol-label-col-2">Maximális limit</label>
 
                             <input class="{{TileCssClass}}" nbInput type="text" formControlName="maxLimit"
-                            [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isReadonly"
+                            [inputMask]="numberInputMask" placeholder="Nincs beállítva" [readonly]="isReadonly"
                             (click)="currentForm.HandleFormFieldClick($event)">
                         </div>
                     </nb-form-field>
