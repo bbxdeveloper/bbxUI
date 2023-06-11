@@ -94,7 +94,6 @@ nb-card-header {
     .card-col-1,
     .card-col-2 {
         width: 40vw;
-        margin: auto;
 
         nb-card {
             @media (max-height: 1000px) {
@@ -124,6 +123,11 @@ nb-card-header {
     }
 }
 
+.form-col-2 {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
 .form-horizontal {
     display: flex;
     flex-direction: row;
@@ -131,41 +135,23 @@ nb-card-header {
     align-items: flex-start;
     column-gap: 20px;
 
-    nb-form-field {
+    .last-field {
         margin: unset;
-        margin-left: unset;
-        margin-right: unset;
-        flex: 0 0 220px;
-    }
+        max-width: unset;
+        flex-basis: 100%;
 
-    .form-field-full-width {
-        display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
-    }
+        .notice {
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
-    .form-field-full-width-inner-div {
-        // display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
+            label {
+                white-space: nowrap;
+            }
 
-        column-gap: 25px;
-
-        input {
-            // max-width: 100% !important;
-            min-width: calc(100vw - 25px) !important;
-        }
-
-        label {
-            min-width: fit-content;
+            input {
+                max-width: unset;
+            }
         }
     }
 }
@@ -268,7 +254,6 @@ input, label, th, td {
 }
 
 .customer-search-row {
-    margin-top: 25px;
     display: block;
 
     tr {
@@ -280,10 +265,6 @@ input, label, th, td {
         td {
             input {
                 min-width: 50% !important;
-            }
-
-            .card-header-top-margin {
-                margin-top: 0px;
             }
 
             .card-header-row-txt {
@@ -306,7 +287,7 @@ input, label, th, td {
 }
 
 .card-header-top-margin {
-  margin-top: 25px;
+  margin-top: 10px;
   margin-bottom: 5px;
 }
 
