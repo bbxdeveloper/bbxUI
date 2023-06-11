@@ -540,6 +540,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         },
         complete: () => this.sts.waitForLoad(false)
       })
+
+    setTimeout(() => {
+      this.cs.CloseAllHeaderMenuTrigger.next(true)
+    }, 500);
   }
 
   public JumpToFirstCellAndNav(): void {
