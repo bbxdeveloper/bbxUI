@@ -7,7 +7,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
 import { TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
-import { SummaryInvoiceMode } from '../../invoice/models/SummaryInvoiceMode';
+import { InvoiceBehaviorMode } from '../../invoice/models/InvoiceBehaviorMode';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 
 @Component({
@@ -16,7 +16,7 @@ import { InvoiceService } from '../../invoice/services/invoice.service';
   styleUrls: ['./receipt-data-form.component.scss']
 })
 export class ReceiptDataFormComponent implements OnInit {
-  @Input() mode: SummaryInvoiceMode = {} as SummaryInvoiceMode
+  @Input() mode: InvoiceBehaviorMode = {} as InvoiceBehaviorMode
 
   @Input() isLoading: boolean = true;
   @Input() isSaveInProgress: boolean = false;

@@ -47,6 +47,8 @@ export class FormControlErrorComponent {
         return this.label ? `A ${this.label} értéke érvénytelen dátum!` : ValidationMessage.ErrorValidDate;
       case ValidationMessage.ErrorWrongDate:
         return this.label ? `A ${this.label} értéke helytelen!` : ValidationMessage.ErrorWrongDate;
+      case ValidationMessage.ErrorZero:
+        return this.label ? `A ${this.label} értéke nem lehet nulla!` : ValidationMessage.ErrorZero;
     }
   }
 

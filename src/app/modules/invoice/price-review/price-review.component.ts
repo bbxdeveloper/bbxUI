@@ -47,11 +47,14 @@ import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 
 @Component({
   selector: 'app-price-review',
   templateUrl: './price-review.component.html',
-  styleUrls: ['./price-review.component.scss']
+  styleUrls: ['./price-review.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -190,7 +193,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   // private originalCustomerID: number = -1
 
   private invoiceId: number = -1
-  // public mode!: SummaryInvoiceMode
+  public mode!: InvoiceBehaviorMode
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -211,12 +214,13 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     private readonly activatedRoute: ActivatedRoute,
     private readonly custDiscountService: CustomerDiscountService,
     private readonly tokenService: TokenStorageService,
+    private readonly bbxToasterService: BbxToastrService,
     router: Router,
-    // public invoiceStatisticsService: InvoiceStatisticsService,
-    // behaviorFactory: InvoiceBehaviorFactoryService
+    behaviorFactory: InvoiceBehaviorFactoryService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.activatedRoute.url.subscribe(params => {
+      this.mode = behaviorFactory.create(params[0].path)
       this.InitialSetup();
       this.isPageReady = true;
     })
@@ -476,7 +480,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
       .reduce((sum, current) => sum + current, 0);
 
-    let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    let _paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
 
     HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
@@ -576,6 +580,25 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         Constants.TOASTR_ERROR
       )
 
+      this.dbData[index].data.Restore()
+    }
+
+    if (col === 'quantity' && index !== null && index !== undefined) {
+      const validationResult = this.mode.validateQuantity(changedData.quantity, changedData.limit)
+
+      if (!validationResult) {
+        changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
+        changedData.Save()
+        return
+      }
+
+      setTimeout(() => {
+        this.bbxToasterService.show(
+          validationResult,
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        )
+      }, 0);
       this.dbData[index].data.Restore()
     }
   }

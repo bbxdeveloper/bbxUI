@@ -41,9 +41,6 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   get Delivery(): boolean {
     return this.InvoiceType == InvoiceTypes.DNI || this.InvoiceType == InvoiceTypes.DNO;
   }
-  get Incoming(): boolean {
-    return this.InvoiceType == InvoiceTypes.INC || this.InvoiceType == InvoiceTypes.DNI;
-  }
 
   // General
 

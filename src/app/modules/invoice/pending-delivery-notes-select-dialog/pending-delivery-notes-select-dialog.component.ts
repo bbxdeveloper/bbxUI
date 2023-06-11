@@ -11,7 +11,7 @@ import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from '../pending-delivery-notes-by-invoice-number-dialog/pending-delivery-notes-by-invoice-number-dialog.component';
 import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/model/TableSettings';
-import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   @Input() public customerID!: number
   @Input() public checkedNotes!: PendingDeliveryNoteItem[]
   @Output() public selectedNotes = new EventEmitter<PendingDeliveryNoteItem[]>()
-  @Input() public mode!: SummaryInvoiceMode
+  @Input() public mode!: InvoiceBehaviorMode
 
   public isLoaded = false
   public override isLoading = false
