@@ -11,7 +11,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { StatusService } from 'src/app/services/status.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
@@ -27,7 +27,7 @@ import { TableKeyDownEvent } from '../../shared/inline-editable-table/inline-edi
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InvoiceItemsDialogComponent } from '../invoice-items-dialog/invoice-items-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { NegativeQuantityValidator } from '../models/SummaryInvoiceMode';
+import { NegativeQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceFormComponent } from '../invoice-form/invoice-form.component';
@@ -37,11 +37,13 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 
 @Component({
   selector: 'app-correction-invoice',
   templateUrl: './correction-invoice.component.html',
-  styleUrls: ['./correction-invoice.component.scss']
+  styleUrls: ['./correction-invoice.component.scss'],
+  providers: [InvoiceBehaviorFactoryService]
 })
 export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, OnDestroy, AfterViewInit, IInlineManager {
   public senderData: Customer
@@ -56,8 +58,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   public invoiceForm!: InvoiceFormComponent
 
   public invoiceFormData!: InvoiceFormData
-
-  public title: string
 
   private readonly isIncomingCorrectionInvoice: boolean
 
@@ -90,7 +90,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       defaultValue: '', type: 'number', mask: "",
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number'
     },
-    { // unitofmeasureX show, post unitofmeasureCode
+    {
       label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
       colWidth: "80px", textAlign: "right"
@@ -116,6 +116,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
   }
 
+  public mode!: InvoiceBehaviorMode
+
   constructor(
     dialogService: NbDialogService,
     keyboardService: KeyboardNavigationService,
@@ -130,12 +132,14 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly cdref: ChangeDetectorRef,
     private readonly invoiceService: InvoiceService,
     private readonly printAndDownloadService: PrintAndDownloadService,
+    private readonly activatedRoute: ActivatedRoute,
+    behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
+    this.preventF12 = true
 
     this.isIncomingCorrectionInvoice = router.url.startsWith('/income')
-    this.title = this.isIncomingCorrectionInvoice ? 'Bejövő javítószámla' : 'Javítószámla'
 
     this.commands = GetFooterCommandListFromKeySettings(this.KeySettings)
     footerService.pushCommands(this.commands)
@@ -163,6 +167,10 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.invoiceNetAmount = 0
     this.outGoingInvoiceData.invoiceVatAmount = 0
     this.outGoingInvoiceData.lineGrossAmount = 0
+
+    this.activatedRoute.url.subscribe(params => {
+      this.mode = behaviorFactory.create(params[0].path)
+    })
   }
 
   public ngAfterViewInit(): void {
@@ -362,9 +370,9 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF
     this.outGoingInvoiceData.exchangeRate = 1;
 
-    this.outGoingInvoiceData.incoming = false
-    this.outGoingInvoiceData.invoiceType = this.isIncomingCorrectionInvoice ? InvoiceTypes.INC : InvoiceTypes.INV
-    this.outGoingInvoiceData.invoiceCategory = InvoiceCategory.NORMAL
+    this.outGoingInvoiceData.incoming = this.mode.incoming
+    this.outGoingInvoiceData.invoiceType = this.mode.invoiceType
+    this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     this.outGoingInvoiceData.invoiceCorrection = true
 
@@ -409,11 +417,10 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
-      const validationResult = new NegativeQuantityValidator()
-        .validate(changedData.quantity, changedData.limit)
+      const validationResult = this.mode.validateQuantity(changedData.quantity, changedData.limit)
 
       if (!validationResult) {
-        changedData.quantity = parseInt(changedData.quantity)
+        changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
         changedData.Save()
         return
       }

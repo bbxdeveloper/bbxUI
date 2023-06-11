@@ -12,7 +12,7 @@
                         <input nbInput type="text" formControlName="fromWarehouse">
                     </div>
                     <app-bbx-combo-box id="toWarehouse" class="bbx-sidebar-combo" [currentForm]="headerFormNav" formFieldName="toWarehouse" label="Bevételi raktár"
-                        [needBlankOption]="false" [data$]="toWarehouses$" [needErrorMsg]="false" [isWide]="true"></app-bbx-combo-box>
+                        [needBlankOption]="false" [data$]="toWarehouses$" [needErrorMsg]="true" [isWide]="true"></app-bbx-combo-box>
                 </div>
 
                 <div *ngIf="warehouseSelectionError" class="error">

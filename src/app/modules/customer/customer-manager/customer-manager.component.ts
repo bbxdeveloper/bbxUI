@@ -551,7 +551,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       maxLimit: new FormControl(undefined, [
         this.validateMinLimitIfMaxIsEdited.bind(this)
       ]),
-      paymentDays: new FormControl(0, [
+      paymentDays: new FormControl(8, [
         this.paymentDateValidation.bind(this)
       ]),
       defPaymentMethod: new FormControl('', [Validators.required])

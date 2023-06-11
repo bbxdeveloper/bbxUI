@@ -44,7 +44,7 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
-import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
@@ -198,7 +198,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     }
   }
 
-  public mode!: SummaryInvoiceMode
+  public mode!: InvoiceBehaviorMode
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -224,10 +224,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
+    this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
-      this.SetModeBasedOnRoute(params);
     })
     this.isPageReady = true;
   }
@@ -269,20 +269,6 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
     }
-  }
-
-  private SetModeBasedOnRoute(params: UrlSegment[]): void {
-    console.log("ActivatedRoute: ", params[0].path);
-    const path = params[0].path;
-    if (path === 'invoice') {
-      this.InvoiceType = InvoiceTypes.INV;
-      this.title = 'Számla'
-    } else if (path === 'outgoing-delivery-note-income') {
-      this.InvoiceType = InvoiceTypes.DNO;
-      this.title = 'Szállítólevél '
-    }
-    this.InvoiceCategory = InvoiceCategory.NORMAL
-    console.log("InvoiceType: ", this.InvoiceType);
   }
 
   private InitialSetup(): void {
@@ -529,13 +515,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
 
-    let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    let _paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
-    // this.outGoingInvoiceData.lineGrossAmount =
-    //   this.outGoingInvoiceData.invoiceLines
-    //   .map(x => (HelperFunctions.ToFloat(x.unitPrice) * HelperFunctions.ToFloat(x.quantity)) + HelperFunctions.ToFloat(x.lineVatAmount + ''))
-    //     .reduce((sum, current) => sum + current, 0);
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
     if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
@@ -641,9 +623,28 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.dbData[index].data = tmp;
 
           this.dbDataDataSrc.setData(this.dbData);
+
+          this.RecalcNetAndVat();
         }
 
-        this.RecalcNetAndVat();
+        if (col === 'quantity' && index !== null && index !== undefined) {
+          const validationResult = this.mode.validateQuantity(changedData.quantity)
+
+          if (!validationResult) {
+            changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
+            changedData.Save()
+            return
+          }
+
+          setTimeout(() => {
+            this.bbxToastrService.show(
+              validationResult,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            )
+          }, 0);
+          this.dbData[index].data.Restore()
+        }
       }
     }
   }
@@ -811,9 +812,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
-    this.outGoingInvoiceData.incoming = this.Incoming;
-    this.outGoingInvoiceData.invoiceType = this.InvoiceType;
-    this.outGoingInvoiceData.invoiceCategory = this.InvoiceCategory
+    this.outGoingInvoiceData.incoming = this.mode.incoming;
+    this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
+    this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 

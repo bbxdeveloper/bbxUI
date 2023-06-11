@@ -41,11 +41,15 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   get Delivery(): boolean {
     return this.InvoiceType == InvoiceTypes.DNI || this.InvoiceType == InvoiceTypes.DNO;
   }
-  get Incoming(): boolean {
-    return this.InvoiceType == InvoiceTypes.INC || this.InvoiceType == InvoiceTypes.DNI;
-  }
 
   // General
+
+  /**
+   * Prevent devtools
+   * Use if there is no function bound to F12
+   * Default: 'false'
+   */
+  preventF12: boolean = false
 
   searchInputId?: string;
   searchString: string = '';
@@ -353,6 +357,12 @@ export class BaseInlineManagerComponent<T extends IEditable> {
       // press.ctrlKey = false;
       // press.key = KeyBindings.Enter;
       // $(window).trigger(press);
+    }
+    if (this.preventF12 && KeyBindings.F12 === event.key) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
     }
     switch (event.key) {
       case OfferNavKeySettings[Actions.Search].KeyCode: {
