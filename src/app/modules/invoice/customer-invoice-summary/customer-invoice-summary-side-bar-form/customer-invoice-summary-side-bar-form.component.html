@@ -4,35 +4,24 @@
             (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape()"
             (click)="currentForm.HandleFormClick()">
 
-            <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Partner</label>
-                        <input nbInput type="text" formControlName="customerName" readonly>
-                    </div>
-                </nb-form-field>
-            
-                <nb-form-field class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div-2">
-                        <label class="multicol-label-col-2">Partner címe</label>
-                        <input nbInput type="text" formControlName="customerFullAddress" readonly>
-                    </div>
-                </nb-form-field>
-            </div>
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Partner</label><input nbInput type="text" formControlName="customerName" readonly>
+                </div>
+            </nb-form-field>
 
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Biz.száma</label>
-                    <input nbInput type="text" formControlName="invoiceCount" [inputMask]="numberInputMask"
-                            placeholder="0.00" readonly>
+                    <label>Partner címe</label>
+                    <input nbInput type="text" formControlName="customerFullAddress" readonly>
                 </div>
             </nb-form-field>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Kedvezmény</label>
-                        <input nbInput type="text" formControlName="invoiceDiscountHUFSum" [inputMask]="numberInputMask"
+                        <label class="multicol-label-col-1">Bruttó</label>
+                        <input nbInput type="text" formControlName="invoiceVatAmountHUFSum" [inputMask]="numberInputMask"
                             placeholder="0.00" readonly>
                     </div>
                 </nb-form-field>
@@ -49,8 +38,8 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Bruttó</label>
-                        <input nbInput type="text" formControlName="invoiceVatAmountHUFSum" [inputMask]="numberInputMask"
+                        <label class="multicol-label-col-1">Kedvezmény</label>
+                        <input nbInput type="text" formControlName="invoiceDiscountHUFSum" [inputMask]="numberInputMask"
                             placeholder="0.00" readonly>
                     </div>
                 </nb-form-field>
@@ -60,6 +49,16 @@
                         <label class="multicol-label-col-2">Áfa</label>
                         <input nbInput type="text" formControlName="invoiceGrossAmountHUFSum" [inputMask]="numberInputMask"
                             placeholder="0.00" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Biz.száma</label>
+                        <input nbInput type="text" formControlName="invoiceCount" [inputMask]="numberInputMask"
+                                placeholder="0.00" readonly>
                     </div>
                 </nb-form-field>
             </div>
