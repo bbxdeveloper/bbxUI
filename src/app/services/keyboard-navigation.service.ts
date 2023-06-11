@@ -198,10 +198,7 @@ export class KeyboardNavigationService {
     if (environment.navigationSelectLog)
       console.log('SelectElement: ', this.previousIdString, id, $(idString));
 
-    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
-      $(element).removeClass(SELECTED_ELEMENT_CLASS);
-      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    });
+    $('.' + SELECTED_ELEMENT_CLASS).map(this.removeSelectedElementClass.bind(this));
 
     const element = $(idString)
     element.addClass(SELECTED_ELEMENT_CLASS);
@@ -230,10 +227,13 @@ export class KeyboardNavigationService {
   }
 
   public RemoveSelectedElementClasses(): void {
-    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
-      $(element).removeClass(SELECTED_ELEMENT_CLASS);
-      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    });
+    $('.' + SELECTED_ELEMENT_CLASS).map(this.removeSelectedElementClass.bind(this));
+  }
+
+  private removeSelectedElementClass(idx: number, selectedElement: HTMLElement): void {
+    const element = $(selectedElement)
+    element.removeClass(SELECTED_ELEMENT_CLASS);
+    element.parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
   }
 
   public ClickElement(id: string, excludeButtons: boolean = false): void {
@@ -246,10 +246,7 @@ export class KeyboardNavigationService {
     if (environment.navigationSelectLog)
       console.log('ClickElement: ', this.previousIdString, id);
 
-    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
-      $(element).removeClass(SELECTED_ELEMENT_CLASS);
-      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    });
+    $('.' + SELECTED_ELEMENT_CLASS).map(this.removeSelectedElementClass.bind(this));
 
     const element = $(idString)
     element.addClass(SELECTED_ELEMENT_CLASS);
