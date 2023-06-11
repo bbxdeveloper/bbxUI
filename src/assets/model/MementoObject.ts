@@ -55,7 +55,6 @@ export class MementoObject<T = any> extends DynamicObject {
      * @param val value to save - not given: saves value from actual field
      */
     public Save(key?: string, val?: T): void {
-        console.log(`Save key ${key}, value ${val}`)
         if (key) {
             if (val !== undefined) {
                 this.FieldMemory[key] = val;
@@ -74,7 +73,6 @@ export class MementoObject<T = any> extends DynamicObject {
      * @param key field name in object: not given: restores every field
      */
     public Restore(key?: string): void {
-        console.log(`Restore key ${key}, value ${this.FieldMemory[key!]}`)
         if (key){
             this.t[key] = this.FieldMemory[key];
         } else {
