@@ -160,6 +160,15 @@ td {
   border: $selected-border-color dotted 3px !important;
 }
 
+:has(.angular-editor-textarea).current-keyboard-nav-selected {
+  border: none !important;
+
+  .angular-editor-textarea {
+    outline: none;
+    border: $selected-border-color dotted 3px !important;
+  }
+}
+
 input[type="checkbox"].current-keyboard-nav-selected {
   outline: none;
   // border: $selected-border-color dotted 3px !important;
