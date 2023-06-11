@@ -296,6 +296,10 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
       await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
       this.keyboardService.SelectElementByCoordinate(0,5)
     }
+
+    setTimeout(() => {
+      this.cs.CloseAllHeaderMenuTrigger.next(true)
+    }, 500);
   }
 
   public Refresh(): void {
