@@ -14,23 +14,19 @@
 
     <app-invoice-form #invoiceForm middle [editDisabled]="editDisabled" [invoiceFormData]="invoiceFormData"></app-invoice-form>
 
-    <nb-card bottom>
-        <nb-card-body>
-            <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
-                [dbDataDataSrc]="dbDataDataSrc" [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
-                [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
-                (inputFocusChanged)="inlineInputFocusChanged($event)" (focusInTable)="focusOnTable(true)"
-                (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
-            </app-inline-editable-table>
-        </nb-card-body>
-        <nb-card-footer class="invoice-table-statistics">
-            <table class="table-statistics-net-vat-gross">
-                <tr>
-                    <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-                    <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-                </tr>
-            </table>
-        </nb-card-footer>
-    </nb-card>
+    <div bottom>
+        <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
+            [dbDataDataSrc]="dbDataDataSrc" [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (inputFocusChanged)="inlineInputFocusChanged($event)" (focusInTable)="focusOnTable(true)"
+            (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
+        </app-inline-editable-table>
+        <table class="table-statistics-net-vat-gross">
+            <tr>
+                <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+            </tr>
+        </table>
+    </div>
 
 </app-invoice-layout>
