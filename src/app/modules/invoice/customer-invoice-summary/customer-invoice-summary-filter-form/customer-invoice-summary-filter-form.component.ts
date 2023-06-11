@@ -135,7 +135,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
       CustomerTaxNumber: new FormControl(undefined, []),
       CustomerID: new FormControl(undefined, []),
       WarehouseCode: new FormControl(undefined, []),
-      InvoiceDeliveryDateFrom: new FormControl(HelperFunctions.GetDateString(0,0,-1), [
+      InvoiceDeliveryDateFrom: new FormControl(HelperFunctions.GetDateString(0,0,0), [
         Validators.required,
         this.validateFromDate.bind(this),
         validDate
@@ -145,20 +145,24 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
         validDate
       ])
     });
-
-    this.setupFilterForm()
   }
 
   private setupFilterForm(): void {
     let filterData = this.localStorage.get<CustomerInvoiceSummaryFilterFormData>(this.localStorageKey)
 
-    if (!filterData || filterData.CustomerSearch === '') {
+    console.log("From local storage: ", filterData)
+
+    if (!filterData) {
       filterData = CustomerInvoiceSummaryFilterFormData.create()
     }
 
     HelperFunctions.FillForm(this.filterForm, filterData)
 
     this.filterForm.valueChanges.subscribe(value => {
+      if (this.filterForm.invalid) {
+        return
+      }
+
       if (value.CustomerSearch === '') {
         value.CustomerName = ''
         value.CustomerAddress = ''
@@ -166,7 +170,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
       }
 
       const filterData = {
-        Incoming: value.Incoming,
+        Incoming: HelperFunctions.isEmptyOrSpaces(value.Incoming) ? false : value.Incoming,
         InvoiceDeliveryDateFrom: value.InvoiceDeliveryDateFrom,
         InvoiceDeliveryDateTo: value.InvoiceDeliveryDateTo,
         CustomerID: value.CustomerID,
@@ -176,6 +180,8 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
         CustomerTaxNumber: value.CustomerTaxNumber,
         WarehouseCode: value.WarehouseCode,
       } as CustomerInvoiceSummaryFilterFormData
+
+      console.log("Into local storage: ", filterData)
 
       this.localStorage.put(this.localStorageKey, filterData)
     })
@@ -288,6 +294,8 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
     this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
     this.keyboardService.SelectFirstTile()
     this.keyboardService.ClickCurrentElement()
+
+    this.setupFilterForm()
 
     const filterData = this.localStorage.get<CustomerInvoiceSummaryFilterFormData>(this.localStorageKey)
     if (filterData && filterData.CustomerSearch !== '') {
