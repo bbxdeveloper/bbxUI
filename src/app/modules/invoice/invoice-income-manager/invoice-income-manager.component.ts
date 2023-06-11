@@ -219,6 +219,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     behaviorFactory: InvoiceBehaviorFactoryService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs, router);
+    this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)

@@ -185,6 +185,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     router: Router
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
+    this.preventF12 = true
     this.InitialSetup();
   }
 

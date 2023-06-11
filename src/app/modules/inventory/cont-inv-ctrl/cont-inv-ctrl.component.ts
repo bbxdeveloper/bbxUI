@@ -163,7 +163,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     private readonly tokenService: TokenStorageService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
-
+    this.preventF12 = true
     this.initialSetup();
   }
 

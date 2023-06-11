@@ -221,11 +221,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router)
+    this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
 
-      this.InitialSetup();
+      this.InitialSetup()
       this.isPageReady = true;
     })
   }
