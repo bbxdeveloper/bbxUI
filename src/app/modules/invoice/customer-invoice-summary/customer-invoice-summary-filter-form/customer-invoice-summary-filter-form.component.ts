@@ -125,7 +125,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
     private tokenService: TokenStorageService,
     private readonly localStorage: LocalStorageService
   ) {
-    this.localStorageKey = 'OfferNav.' + this.tokenService.user?.id ?? 'everyone'
+    this.localStorageKey = 'CustomerInvoiceSummary.' + this.tokenService.user?.id ?? 'everyone'
 
     this.filterForm = new FormGroup({
       Incoming: new FormControl(false, [Validators.required]),
@@ -163,8 +163,6 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
         value.CustomerName = ''
         value.CustomerAddress = ''
         value.CustomerTaxNumber = ''
-
-        this.localStorage.remove(this.localStorageKey)
       }
 
       const filterData = {
