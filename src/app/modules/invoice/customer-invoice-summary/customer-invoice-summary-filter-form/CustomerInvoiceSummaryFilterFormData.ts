@@ -13,6 +13,7 @@ export class CustomerInvoiceSummaryFilterFormData {
 
     public static create(): CustomerInvoiceSummaryFilterFormData {
         return {
+            Incoming: false,
             InvoiceDeliveryDateFrom: HelperFunctions.GetDateString(0, 0, 0)
         } as CustomerInvoiceSummaryFilterFormData
     }
