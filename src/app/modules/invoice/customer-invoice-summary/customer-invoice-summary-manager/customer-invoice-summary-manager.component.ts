@@ -51,7 +51,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '50%',
+      colWidth: '100%',
       textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
@@ -63,7 +63,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       type: 'formatted-number',
       fRequired: true,
       mask: '',
-      colWidth: '50%',
+      colWidth: '80px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -75,7 +75,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       type: 'formatted-number',
       fRequired: true,
       mask: '',
-      colWidth: '120px',
+      colWidth: '130px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -87,7 +87,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       type: 'formatted-number',
       fRequired: true,
       mask: '',
-      colWidth: '120px',
+      colWidth: '130px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -99,7 +99,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       type: 'formatted-number',
       fRequired: true,
       mask: '',
-      colWidth: '120px',
+      colWidth: '130px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -111,7 +111,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       type: 'formatted-number',
       fRequired: true,
       mask: '',
-      colWidth: '120px',
+      colWidth: '130px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     }
@@ -157,6 +157,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'product-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
+
     this.kbS.ResetToRoot();
     this.Setup();
   }

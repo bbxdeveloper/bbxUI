@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Subscription, firstValueFrom, lastValueFrom } from 'rxjs';
 import { validDate } from 'src/assets/model/Validators';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -22,6 +22,8 @@ import { CountryCode } from 'src/app/modules/customer/models/CountryCode';
 import { GetCustomersParamListModel } from 'src/app/modules/customer/models/GetCustomersParamListModel';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { CustomerSelectTableDialogComponent } from '../../customer-select-table-dialog/customer-select-table-dialog.component';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
 
 @Component({
   selector: 'app-customer-invoice-summary-filter-form',
@@ -37,6 +39,8 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
 
   @Output()
   public pageReady = new EventEmitter<void>()
+
+  private readonly localStorageKey: string
 
   isLoading: boolean = true;
 
@@ -117,12 +121,18 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
     private readonly cdref: ChangeDetectorRef,
     private readonly customerService: CustomerService,
     private readonly dialogService: NbDialogService,
-    private readonly bbxToastrService: BbxToastrService
+    private readonly bbxToastrService: BbxToastrService,
+    private tokenService: TokenStorageService,
+    private readonly localStorage: LocalStorageService
   ) {
+    this.localStorageKey = 'CustomerInvoiceSummary.' + this.tokenService.user?.id ?? 'everyone'
+
     this.filterForm = new FormGroup({
       Incoming: new FormControl(false, [Validators.required]),
       CustomerSearch: new FormControl(undefined, []),
       CustomerName: new FormControl(undefined, []),
+      CustomerAddress: new FormControl(undefined, []),
+      CustomerTaxNumber: new FormControl(undefined, []),
       CustomerID: new FormControl(undefined, []),
       WarehouseCode: new FormControl(undefined, []),
       InvoiceDeliveryDateFrom: new FormControl(HelperFunctions.GetDateString(0,0,0), [
@@ -135,6 +145,46 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
         validDate
       ])
     });
+  }
+
+  private setupFilterForm(): void {
+    let filterData = this.localStorage.get<CustomerInvoiceSummaryFilterFormData>(this.localStorageKey)
+
+    console.log("From local storage: ", filterData)
+
+    if (!filterData) {
+      filterData = CustomerInvoiceSummaryFilterFormData.create()
+    }
+
+    HelperFunctions.FillForm(this.filterForm, filterData)
+
+    this.filterForm.valueChanges.subscribe(value => {
+      if (this.filterForm.invalid) {
+        return
+      }
+
+      if (value.CustomerSearch === '') {
+        value.CustomerName = ''
+        value.CustomerAddress = ''
+        value.CustomerTaxNumber = ''
+      }
+
+      const filterData = {
+        Incoming: HelperFunctions.isEmptyOrSpaces(value.Incoming) ? false : value.Incoming,
+        InvoiceDeliveryDateFrom: value.InvoiceDeliveryDateFrom,
+        InvoiceDeliveryDateTo: value.InvoiceDeliveryDateTo,
+        CustomerID: value.CustomerID,
+        CustomerSearch: value.CustomerSearch,
+        CustomerName: value.CustomerName,
+        CustomerAddress: value.CustomerAddress,
+        CustomerTaxNumber: value.CustomerTaxNumber,
+        WarehouseCode: value.WarehouseCode,
+      } as CustomerInvoiceSummaryFilterFormData
+
+      console.log("Into local storage: ", filterData)
+
+      this.localStorage.put(this.localStorageKey, filterData)
+    })
   }
 
   private async getAndSetWarehouses(): Promise<void> {
@@ -244,6 +294,18 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
     this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
     this.keyboardService.SelectFirstTile()
     this.keyboardService.ClickCurrentElement()
+
+    this.setupFilterForm()
+
+    const filterData = this.localStorage.get<CustomerInvoiceSummaryFilterFormData>(this.localStorageKey)
+    if (filterData && filterData.CustomerSearch !== '') {
+      await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
+      this.keyboardService.SelectElementByCoordinate(0,5)
+    }
+
+    setTimeout(() => {
+      this.cs.CloseAllHeaderMenuTrigger.next(true)
+    }, 500);
   }
 
   public Refresh(): void {
@@ -253,13 +315,13 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
   private SetCustomerFormFields(data?: Customer) {
     if (data === undefined) {
       this.filterForm.controls['CustomerName'].setValue(undefined);
-      // this.filterForm.controls['CustomerAddress'].setValue(undefined);
-      // this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
+      this.filterForm.controls['CustomerAddress'].setValue(undefined);
+      this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
       return;
     }
     this.filterForm.controls['CustomerName'].setValue(data.customerName);
-    // this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
-    // this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
+    this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
+    this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
   }
 
   FillFormWithFirstAvailableCustomer(event: any): void {
@@ -278,6 +340,40 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
 
     this.isLoading = true;
     this.Subscription_FillFormWithFirstAvailableCustomer = this.searchCustomer(this.customerInputFilterString)
+  }
+
+  private async searchCustomerAsync(term: string): Promise<void> {
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    try {
+      const res = await firstValueFrom(this.customerService.GetAll(request))
+
+      if (!!res && res.data !== undefined && res.data.length > 0) {
+        this.customerData = res.data[0];
+        this.cachedCustomerName = res.data[0].customerName;
+        this.SetCustomerFormFields(res.data[0]);
+        this.searchByTaxtNumber = false;
+      } else {
+        if (this.customerInputFilterString.length >= 8 &&
+          HelperFunctions.IsNumber(this.customerInputFilterString)) {
+          this.searchByTaxtNumber = true;
+        } else {
+          this.searchByTaxtNumber = false;
+        }
+        this.SetCustomerFormFields(undefined);
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+      this.isLoading = false;
+      this.searchByTaxtNumber = false;
+    }
   }
 
   private searchCustomer(term: string): Subscription {

@@ -3,11 +3,13 @@ import { NbToastrService } from '@nebular/theme';
 import { Constants } from 'src/assets/util/Constants';
 import { BbxToastrService } from './bbx-toastr-service.service';
 import { LoggerService } from './logger.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommonService {
+  CloseAllHeaderMenuTrigger: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
 
   constructor(private bbxToastrService: BbxToastrService, private loggerService: LoggerService, private simpleToastrService: NbToastrService,) { }
 
