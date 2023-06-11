@@ -162,6 +162,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
+    this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)

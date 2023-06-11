@@ -224,6 +224,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
+    this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)

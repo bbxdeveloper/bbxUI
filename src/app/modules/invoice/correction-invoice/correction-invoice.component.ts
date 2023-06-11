@@ -137,6 +137,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
+    this.preventF12 = true
 
     this.isIncomingCorrectionInvoice = router.url.startsWith('/income')
 

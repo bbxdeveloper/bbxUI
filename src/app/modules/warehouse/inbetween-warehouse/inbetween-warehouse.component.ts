@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -152,6 +152,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     router: Router
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, sidebarService, keyboardHelperService, router)
+
+    this.preventF12 = true
 
     this.headerForm = new FormGroup({
       whsTransferNumber: new FormControl({ value: '', disabled: true }),
@@ -538,6 +540,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         },
         complete: () => this.sts.waitForLoad(false)
       })
+
+    setTimeout(() => {
+      this.cs.CloseAllHeaderMenuTrigger.next(true)
+    }, 500);
   }
 
   public JumpToFirstCellAndNav(): void {
@@ -550,10 +556,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }, 100);
   }
 
-  private async Save(): Promise<void> {
-    if (this.headerForm.invalid) {
-      this.bbxToastrService.showError('Az űrlap hibásan van kitöltve.')
+  CheckSaveConditionsAndSave(): void {
+    this.headerForm.markAllAsTouched();
 
+    if (this.headerForm.invalid) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_INVALID_FORM)
       return
     }
 
@@ -562,16 +569,17 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       .every(x => x.data.isSaveable())
 
     if (!isTableValid) {
-      this.bbxToastrService.showError('Legalább egy érvényesen megadott tétel szükséges a mentéshez.')
-
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD)
       return
     }
 
-    if (this.mode.edit) {
-      await this.update()
-    } else {
-      await this.create()
-    }
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_INVOICE, async () => {
+      if (this.mode.edit) {
+        await this.update()
+      } else {
+        await this.create()
+      }
+    })
   }
 
   private async create(): Promise<void> {
@@ -725,8 +733,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         break
       }
       case KeyBindings.Enter: {
-        HelperFunctions.confirm(this.dialogService, 'Menthető a bizonylat?', () => this.Save())
-
+        if ((this.KeySetting[Actions.Save].KeyCode == KeyBindings.CtrlEnter && event.Event.CtrlKey) || !event.Event.CtrlKey) {
+          this.CheckSaveConditionsAndSave()
+        }
         break
       }
       case this.KeySetting[Actions.Search].KeyCode: {
