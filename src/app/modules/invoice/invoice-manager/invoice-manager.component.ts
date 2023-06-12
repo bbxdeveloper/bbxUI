@@ -46,6 +46,7 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import moment from 'moment';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -348,9 +349,16 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
         return
       }
 
+      const controls = this.outInvForm.controls
       if (paymentMethod.value === 'CASH' || paymentMethod.value === 'CARD') {
-        const controls = this.outInvForm.controls
         controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
+      }
+
+      if (paymentMethod.value === 'TRANSFER') {
+        const invoiceIssueDate = moment(controls['invoiceIssueDate'].value)
+        invoiceIssueDate.add(this.buyerData?.paymentDays ?? 0, 'days')
+
+        controls['paymentDate'].setValue(invoiceIssueDate.format('YYYY-MM-DD'))
       }
     })
 
