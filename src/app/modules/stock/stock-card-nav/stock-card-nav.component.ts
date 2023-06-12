@@ -411,7 +411,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
-          this.RefreshTable();
+          this.RefreshTable(undefined, true);
         } else {
           this.bbxToastrService.show(
             d.errors!.join('\n'),
@@ -426,17 +426,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       },
       complete: () => {
         this.isLoading = false;
-        setTimeout(() => {
-          if (this.kbS.Here === this.SearchButtonId) {
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          }
-          if (this.dbDataTable.data.length > 0) {
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.kbS.SetCurrentNavigatable(this.dbDataTable);
-            this.kbS.SelectElementByCoordinate(0,0);
-            this.kbS.ClickCurrentElement();
-          }
-        }, 150);
       },
     });
   }
