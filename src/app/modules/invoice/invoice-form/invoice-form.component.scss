@@ -4,52 +4,34 @@ nb-card {
     margin: 0px;
 }
 
+.form-col-2 {
+    padding: 8px 24px;
+}
+
 .form-horizontal {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 
-    > * {
-        flex: 1 0 18%;
-    }
+    column-gap: 10px;
 
-    nb-form-field {
-        min-width: 20% !important;
+    .last-field {
+        margin: unset;
+        max-width: unset;
+        flex-basis: 100%;
 
-        input,
-        nb-select {
-            min-width: 100% !important;
-        }
-    }
+        .notice {
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
-    .form-field-full-width {
-        display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
-    }
+            label {
+                white-space: nowrap;
+            }
 
-    .form-field-full-width-inner-div {
-        // display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
-
-        column-gap: 25px;
-
-        input {
-            // max-width: 100% !important;
-            min-width: calc(100vw - 25px) !important;
-        }
-
-        label {
-            min-width: fit-content;
+            input {
+                max-width: unset;
+            }
         }
     }
 }

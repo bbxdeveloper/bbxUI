@@ -1,17 +1,14 @@
 @import 'invoice-common';
 
+.form-col-2 {
+    padding: 8px 24px;
+}
+
 label.single_label {
     align-self: center;
     color: #3ed820;
     font-weight: bold;
     font-size: 20px;
-}
-
-nb-form-field {
-    margin: 10px;
-
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .div-wrapper-input {
@@ -51,12 +48,6 @@ nb-card {
         margin-top: 10px;
         margin-bottom: 10px;
     }
-}
-
-nb-form-field {
-    margin: 0px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 nb-card-header {
@@ -129,41 +120,23 @@ nb-card-header {
     align-items: flex-start;
     column-gap: 20px;
 
-    nb-form-field {
+    .last-field {
         margin: unset;
-        margin-left: unset;
-        margin-right: unset;
-        flex: 0 0 220px;
-    }
+        max-width: unset;
+        flex-basis: 100%;
 
-    .form-field-full-width {
-        display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
-    }
+        .notice {
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
-    .form-field-full-width-inner-div {
-        // display: flex !important;
-        flex-direction: row;
-        align-content: center;
-        justify-content: center;
-        align-items: center !important;
-        max-width: 100% !important;
-        margin: auto !important;
+            label {
+                white-space: nowrap;
+            }
 
-        column-gap: 25px;
-
-        input {
-            // max-width: 100% !important;
-            min-width: calc(100vw - 25px) !important;
-        }
-
-        label {
-            min-width: fit-content;
+            input {
+                max-width: unset;
+            }
         }
     }
 }
