@@ -893,6 +893,20 @@ export class KeyboardNavigationService {
     return res;
   }
 
+  public NextColumn(): MoveRes {
+    const res = { moved: false, jumped: false } as MoveRes
+
+    if (this.p.x === this.maxCurrentWorldX && this.p.y < this.maxCurrentWorldY) {
+      this.SetPosition(0, this.p.y + 1)
+
+      this.SelectCurrentElement()
+
+      res.moved = true
+    }
+
+    return res
+  }
+
   public SetRoot(n: INavigatable): void {
     this.Root = n;
     this.SetCurrentNavigatable(n);
