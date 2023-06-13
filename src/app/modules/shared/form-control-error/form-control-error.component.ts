@@ -34,7 +34,7 @@ export class FormControlErrorComponent {
       case ValidationMessage.ErrorMin:
         return this.label ? `A ${this.label} értéke kisebb a minimumnál (${this.min})!` : ValidationMessage.ErrorMin;
       case ValidationMessage.ErrorMax:
-        return this.label ? `A ${this.label} értéke nagyobb a maximumnál (${this.min})!` : ValidationMessage.ErrorMax;
+        return this.label ? `A ${this.label} értéke nagyobb a maximumnál (${this.max})!` : ValidationMessage.ErrorMax;
       case ValidationMessage.ErrorMinDate:
         return this.label ? `A ${this.label} értéke kisebb a minimumnál!` : ValidationMessage.ErrorMinDate;
       case ValidationMessage.ErrorMaxDate:
@@ -49,6 +49,10 @@ export class FormControlErrorComponent {
         return this.label ? `A ${this.label} értéke helytelen!` : ValidationMessage.ErrorWrongDate;
       case ValidationMessage.ErrorZero:
         return this.label ? `A ${this.label} értéke nem lehet nulla!` : ValidationMessage.ErrorZero;
+      case ValidationMessage.ErrorMinLength:
+        return this.label ? `A ${this.label} értéke túl rövid (min ${this.min})!` : ValidationMessage.ErrorMinLength;
+      case ValidationMessage.ErrorMaxLength:
+        return this.label ? `A ${this.label} értéke túl hosszú (max ${this.max})!` : ValidationMessage.ErrorMaxLength;
     }
   }
 
