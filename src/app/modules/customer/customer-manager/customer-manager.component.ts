@@ -383,8 +383,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     customer.defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
 
-    customer.maxLimit = HelperFunctions.ToOptionalInt(customer.maxLimit)
-    customer.warningLimit = HelperFunctions.ToOptionalInt(customer.warningLimit)
+    customer.maxLimit = customer.maxLimit ? Number(customer.maxLimit) : undefined
+    customer.warningLimit = customer.warningLimit ? Number(customer.warningLimit) : undefined
 
     customer.paymentDays = Number(customer.paymentDays)
 
