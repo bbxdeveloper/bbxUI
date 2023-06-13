@@ -893,7 +893,7 @@ export class KeyboardNavigationService {
     return res;
   }
 
-  public NextColumn(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
+  public NextColumn(): MoveRes {
     const res = { moved: false, jumped: false } as MoveRes
 
     if (this.p.x === this.maxCurrentWorldX && this.p.y < this.maxCurrentWorldY) {

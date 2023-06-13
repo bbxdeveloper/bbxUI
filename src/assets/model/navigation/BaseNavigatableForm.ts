@@ -194,7 +194,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         let moveRes = this.kbS.MoveRight(true, false, false);
 
         if (!moveRes.moved) {
-            moveRes = this.kbS.NextColumn(true, false, false)
+            moveRes = this.kbS.NextColumn()
         }
 
         if (!moveRes.moved) {
