@@ -896,7 +896,7 @@ export class KeyboardNavigationService {
   public NextColumn(select: boolean = true, altKey: boolean = false, canJumpToNeighbourMatrix: boolean = true): MoveRes {
     const res = { moved: false, jumped: false } as MoveRes
 
-    if (this.p.x === this.maxCurrentWorldX && this.p.y !== this.maxCurrentWorldY) {
+    if (this.p.x === this.maxCurrentWorldX && this.p.y < this.maxCurrentWorldY) {
       this.SetPosition(0, this.p.y + 1)
 
       this.SelectCurrentElement()
