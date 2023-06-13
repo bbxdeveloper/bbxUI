@@ -380,6 +380,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   private quantityChanged(changedData: InbetweenWarehouseProduct): void {
+    // reassign it to itself to convert it to a Number
     changedData.quantity = changedData.quantity
 
     if (changedData.quantity <= 0) {
