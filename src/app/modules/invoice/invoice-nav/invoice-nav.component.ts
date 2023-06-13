@@ -596,7 +596,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.dbDataDataSrc.setData(this.dbData);
         this.dbDataTable.SetPaginatorData(response);
 
-        this.RefreshTable();
+        this.RefreshTable(undefined, true);
 
         await this.getAndSetWarehouses()
       } else {

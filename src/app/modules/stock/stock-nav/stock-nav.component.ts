@@ -379,7 +379,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       this,
       () => {
         return {} as ExtendedStockData;
-      }
+      },
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
@@ -392,7 +393,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
-    // this.RefreshAll(this.getInputParams);
     this.isLoading = false;
   }
 
@@ -518,16 +518,14 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
               const x = d.data[i];
               const _data = new ExtendedStockData(x);
               _data.FillProductFields(await this.GetProductData(_data.productID))
-              // console.dir(_data);
               _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
               tempData.push({ data: _data, uid: this.nextUid() });
             }
             this.dbData = tempData;
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
-            // console.trace(this.dbData);
           }
-          this.RefreshTable();
+          this.RefreshTable(undefined, true);
         } else {
           this.bbxToastrService.show(
             d.errors!.join('\n'),
