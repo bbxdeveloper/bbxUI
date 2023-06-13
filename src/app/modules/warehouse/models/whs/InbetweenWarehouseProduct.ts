@@ -37,6 +37,9 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
         return this._quantity
     }
     public set quantity(value: any) {
+        if (typeof value === 'string') {
+            value = value.replace(/\s/, '')
+        }
         this._quantity = Number(value)
     }
 
