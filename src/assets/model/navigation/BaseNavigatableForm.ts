@@ -192,9 +192,15 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
 
     protected MoveNext(): MoveRes {
         let moveRes = this.kbS.MoveRight(true, false, false);
+
+        if (!moveRes.moved) {
+            moveRes = this.kbS.NextColumn(true, false, false)
+        }
+
         if (!moveRes.moved) {
             moveRes = this.kbS.MoveDown(true, false, true);
         }
+
         return moveRes;
     }
 
