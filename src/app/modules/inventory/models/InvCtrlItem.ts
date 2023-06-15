@@ -58,7 +58,7 @@ export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrl
     "vatPercentage": number = -1;
     "warehouseID": number = 0;
     "invCtlPeriodID": number = 0;
-    "productID": number = 0;
+    "productID": number = -1;
     "invCtrlDate": string = "";
     "realQty": number = 0;
     "nRealQty": number = 0;
@@ -113,7 +113,7 @@ export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrl
     }
 
     IsUnfinished(): boolean {
-        return this.warehouseID === undefined || this.invCtlPeriodID === undefined || this.productID === undefined
+        return this.warehouseID === undefined || this.invCtlPeriodID === undefined || this.productID === -1 || HelperFunctions.isEmptyOrSpaces(this.productCode)
             || this.invCtrlDate === undefined || this.nRealQty === undefined || this.userID === undefined;
     }
 
