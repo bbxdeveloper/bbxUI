@@ -450,7 +450,8 @@ export class InvCtrlPeriodManagerComponent
       this,
       () => {
         return BlankInvCtrlPeriod();
-      }
+      },
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
@@ -472,6 +473,7 @@ export class InvCtrlPeriodManagerComponent
 
   override Refresh(params?: GetAllInvCtrlPeriodsParamListModel): void {
     this.isLoading = true;
+    this.sts.waitForLoad(true)
     this.seInv.GetAll(params).subscribe({
       next: async (d) => {
         if (d.succeeded && !!d.data) {
@@ -496,6 +498,7 @@ export class InvCtrlPeriodManagerComponent
             }
           }, 300);
         } else {
+          this.sts.waitForLoad(false)
           this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
@@ -504,16 +507,19 @@ export class InvCtrlPeriodManagerComponent
         }
       },
       error: (err) => {
+        this.sts.waitForLoad(false)
         this.HandleError(err);
       },
       complete: () => {
         this.isLoading = false;
+        this.sts.waitForLoad(false)
       },
     });
   }
 
   async RefreshAsync(params?: GetAllInvCtrlPeriodsParamListModel): Promise<void> {
     this.isLoading = true;
+    this.sts.waitForLoad(true)
     await lastValueFrom(this.seInv.GetAll(params))
       .then(async d => {
         if (d.succeeded && !!d.data) {
@@ -538,18 +544,21 @@ export class InvCtrlPeriodManagerComponent
             }
           }, 300);
         } else {
+          this.sts.waitForLoad(false)
           this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR_5_SEC
-          );
+          )
         }
       })
       .catch(err => {
-        this.HandleError(err);
+        this.sts.waitForLoad(false)
+        this.HandleError(err)
       })
       .finally(() => {
-        this.isLoading = false;
+        this.isLoading = false
+        this.sts.waitForLoad(false)
       });
   }
 
