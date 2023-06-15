@@ -52,7 +52,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       type: 'string',
       mask: '',
       colWidth: '100%',
-      textAlign: 'center',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -60,7 +60,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       objectKey: 'invoiceCount',
       colKey: 'invoiceCount',
       defaultValue: '',
-      type: 'formatted-number',
+      type: 'number',
       fRequired: true,
       mask: '',
       colWidth: '80px',
