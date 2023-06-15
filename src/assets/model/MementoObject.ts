@@ -81,4 +81,16 @@ export class MementoObject<T = any> extends DynamicObject {
             });
         }
     }
+
+    /**
+     * Get a saved value. Doesn't affect the saved content!
+     * @param key 
+     * @returns 
+     */
+    public GetSavedFieldValue(key: string): any {
+        if (key && Object.keys(this.t).includes(key)) {
+            return this.FieldMemory[key]
+        }
+        return undefined
+    }
 }

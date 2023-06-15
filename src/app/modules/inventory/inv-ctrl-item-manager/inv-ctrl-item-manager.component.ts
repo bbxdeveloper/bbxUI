@@ -410,7 +410,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     );
   }
 
-  async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
+  async HandleProductSelection(res: Product, rowIndex: number, checkIfCodeEqual: boolean = true) {
     if (res.id === undefined || res.id === -1) {
       return;
     }
@@ -429,7 +429,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       );
       this.isLoading = false;
       return;
-    } else if (res.productCode === row.data.productCode) {
+    } else if (checkIfCodeEqual && res.productCode === row.data.productCode) {
       this.isLoading = false;
       return;
     }
@@ -481,7 +481,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
-        await this.HandleProductSelectionFromDialog(res, rowIndex);
+        await this.HandleProductSelection(res, rowIndex);
       } else {
         const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
         if (index !== -1) {
@@ -517,7 +517,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   RecalcNetAndVat(): void {}
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
@@ -541,7 +540,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
 
-    let alreadyAdded = false;
+    const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('productCode')
+    if (previousValue && changedData?.productCode === previousValue) {
+      this.bbxToastrService.show(
+        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return
+    }
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
@@ -552,39 +559,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
           if (!!product && !!product?.productCode) {
             _product = product;
-
-            let row = this.dbDataTable.data[rowPos];
-            let count = this.dbDataTable.data.filter(x => x.data.productCode === _product.productCode).length;
-            if (count > 1 || (count === 1 && _product.productCode !== row.data.productCode)) {
-              alreadyAdded = true;
-              this.dbDataTable.editedRow!.data.productCode = "";
-              this.kbS.ClickCurrentElement();
-              this.bbxToastrService.show(
-                Constants.MSG_PRODUCT_ALREADY_THERE,
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
-              );
-            } else if (_product.productCode === row.data.productCode) {
-              return;
-            } else {
-              const stockRecord = await this.GetStockRecordForProduct(product.id);
-
-              let price = product.latestSupplyPrice;
-              if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
-                price = stockRecord.avgCost;
-              }
-
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product, 0, 0, price) });
-              currentRow?.data.Save('productCode');
-
-              console.log("after TableCodeFieldChanged: ", this.dbDataTable.data);
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 200);
-            }
+            await this.HandleProductSelection(_product, rowPos, false)
           } else {
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
@@ -600,29 +575,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         },
         complete: async () => {
           this.isLoading = false;
-
-          if (_product.id === undefined || _product.id === -1 || alreadyAdded) {
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            return;
-          }
-
-          await lastValueFrom(this.invCtrlItemService.GetAllRecords(
-            { ProductID: _product.id, InvCtlPeriodID: this.SelectedInvCtrlPeriod?.id } as GetAllInvCtrlItemRecordsParamListModel))
-          .then(data => {
-              if (!!data && data.id !== 0) {
-                this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
-                this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
-              }
-            }
-          );
-
-          const stockRecord = await this.GetStockRecordForProduct(_product.id);
-          if (stockRecord && stockRecord.id !== 0) {
-            console.log("STOCKRECORD");
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.data[rowPos].data.realQty = stockRecord.realQty;
-          }
-
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
@@ -710,7 +662,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       );
       return;
     }
-    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+    
+    const finishedItems = this.dbData.find(x => !x.data.IsUnfinished())
+    if (finishedItems === undefined) {
       this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
         Constants.TITLE_ERROR,
