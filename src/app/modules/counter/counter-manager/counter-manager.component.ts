@@ -4,7 +4,7 @@ import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder 
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
@@ -387,6 +387,35 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     }
   }
 
+  private validateCurrentNumber(control: AbstractControl): any {
+    if (this.dbDataTableForm === undefined || this.dbDataTableForm.controls === undefined) {
+      return null
+    }
+
+    const controlValue = (control.value + '').replace(/\s/g, '')
+    const numberPartLengths = (this.dbDataTableForm.controls['numbepartLength']?.value + '').replace(/\s/g, '')
+
+    const controlValueNumber = Number(controlValue)
+    const numberPartLengthsNumber = Number(numberPartLengths)
+
+    if (controlValueNumber < 10 && controlValueNumber > 0) {
+      return null
+    }
+
+    if (controlValueNumber < 1) {
+      return { minLength: { value: control.value } }
+    }
+
+    if (isNaN(controlValueNumber) || isNaN(numberPartLengthsNumber)) {
+      return null
+    }
+
+    console.trace(controlValue, numberPartLengthsNumber)
+
+    const wrong = controlValue.length > numberPartLengthsNumber!
+    return wrong ? { maxLength: { value: control.value } } : null
+  }
+
   private Setup(): void {
     this.dbData = [];
 
@@ -397,8 +426,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       counterCode: new FormControl('', [Validators.required]),
       counterDescription: new FormControl('', [Validators.required]),
       warehouse: new FormControl('', [Validators.required]),
-      prefix: new FormControl('', [Validators.required]),
-      currentNumber: new FormControl(0, [Validators.required]),
+      prefix: new FormControl('', [Validators.required, Validators.maxLength(80)]),
+      currentNumber: new FormControl(0, [Validators.required, this.validateCurrentNumber.bind(this)]),
       numbepartLength: new FormControl(0, [Validators.required, Validators.min(2), Validators.max(10)]),
       suffix: new FormControl('', [Validators.required]),
     });
