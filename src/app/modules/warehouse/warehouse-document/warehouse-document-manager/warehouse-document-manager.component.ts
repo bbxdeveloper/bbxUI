@@ -151,7 +151,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       objectKey: 'notice',
       colKey: 'notice',
       defaultValue: '',
-      type: 'string',
+      type: 'html',
       mask: '',
       colWidth: '30%',
       textAlign: 'left',
@@ -384,7 +384,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.KeySetting.Lock.KeyType =
       this.filterData.Status === WhsStatus.READY ?
         Constants.KeyTypes.Fn : Constants.KeyTypes.Unset
-    
+
     this.UpdateKeySettingsAndCommand()
 
     this.RefreshAll(this.getInputParams)
@@ -485,7 +485,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
-    
+
   }
   ngOnDestroy(): void {
     console.log('Detach');
@@ -586,7 +586,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
-        
+
         console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
