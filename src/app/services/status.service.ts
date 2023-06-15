@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ProcessStatus } from 'src/assets/model/ProcessStatus';
 import { Constants } from 'src/assets/util/Constants';
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,16 +14,18 @@ export class StatusService {
   private _inProgress: boolean = false;
   public get InProgress() { return this._inProgress; }
 
-  constructor() {
+  constructor(private loggerService: LoggerService) {
     this._actualStatus = new BehaviorSubject<ProcessStatus>({} as ProcessStatus);
   }
 
   public push(title: string, value: number, msg: string, isSimple: boolean = true): void {
+    this.loggerService.info(`title '${title}' value '${value}' isSimple '${isSimple}'`)
     this._inProgress = value !== -1 || !!title || !!msg;
     this._actualStatus.next({ value, msg } as ProcessStatus);
   }
 
   public pushProcessStatus(status: ProcessStatus): void {
+    this.loggerService.info(JSON.stringify(status))
     this._inProgress = status.value !== -1 || !!status.title || !!status.msg;
     this._actualStatus.next(status);
   }
