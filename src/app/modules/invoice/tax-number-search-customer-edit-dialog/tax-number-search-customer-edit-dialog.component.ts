@@ -9,7 +9,7 @@ import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 
 import { AfterViewInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes } from 'src/app/services/keyboard-navigation.service';
@@ -27,6 +27,8 @@ import { SystemService } from '../../system/services/system.service';
 import { CustomerMisc } from '../../customer/models/CustomerMisc';
 import { CountryCode } from '../../customer/models/CountryCode';
 import { UnitPriceType, UnitPriceTypes } from '../../customer/models/UnitPriceType';
+import { InvoiceService } from '../services/invoice.service';
+import { PaymentMethod, PaymentMethods } from '../models/PaymentMethod';
 
 @Component({
   selector: 'app-tax-number-search-customer-edit-dialog',
@@ -99,6 +101,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   private unitPriceTypes: UnitPriceType[] = []
   public unitPriceTypeData: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
 
+  public paymentMethods: PaymentMethod[] = []
+  public paymentMethodsComboData$ = new BehaviorSubject<string[]>([])
+
   get privatePersonDefaultValue(): Boolean {
     return !this.createCustomer && (this.currentForm?.GetValue('taxpayerNumber') === undefined || this.currentForm.GetValue('taxpayerNumber') === '') &&
       (this.currentForm?.GetValue('thirdStateTaxId') === undefined || this.currentForm.GetValue('thirdStateTaxId') === '');
@@ -115,10 +120,17 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     private readonly commonService: CommonService,
     private readonly bbxToastrService: BbxToastrService,
     private readonly simpleToastrService: NbToastrService,
-    private readonly systemService: SystemService
+    private readonly systemService: SystemService,
+    private readonly invoiceService: InvoiceService
   ) {
     super();
     this.Setup();
+  }
+
+  paymentDateValidation(control: AbstractControl): any {
+    const value = HelperFunctions.ToInt(control.value)
+
+    return value < 0 ? { min: { value: value } } : null
   }
 
   private Setup(): void {
@@ -134,7 +146,12 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       additionalAddressDetail: new FormControl('', [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl('', []),
-      unitPriceType: new FormControl('Listaár', [Validators.required])
+      unitPriceType: new FormControl('Listaár', [Validators.required]),
+      defPaymentMethod: new FormControl('', [Validators.required]),
+      paymentDays: new FormControl(8, [
+        this.paymentDateValidation.bind(this)
+      ]),
+      email: new FormControl(undefined, []),
     });
 
     this.IsDialog = true;
@@ -160,6 +177,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       controls['privatePerson'].setValue(this.data.privatePerson);
       controls['comment'].setValue(this.data.comment);
       controls['unitPriceType'].setValue(this.data.unitPriceType)
+      controls['email'].setValue(this.data.email)
+      controls['paymentDays'].setValue(this.data.paymentDays)
+      controls['defPaymentMethod'].setValue(this.data.defPaymentMethod)
     }
   }
 
@@ -238,6 +258,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     }
 
     customer.unitPriceType = this.unitPriceTypes.find(x => customer.unitPriceType === x.text)?.value ?? UnitPriceTypes.List
+    customer.defPaymentMethod = this.paymentMethods.find(x => customer.defPaymentMethod === x.text)?.value ?? PaymentMethods.Cash
 
     const res = {
       additionalAddressDetail: customer.additionalAddressDetail,
@@ -252,6 +273,9 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       taxpayerNumber: customer.taxpayerNumber,
       thirdStateTaxId: customer.thirdStateTaxId,
       unitPriceType: customer.unitPriceType,
+      email: customer.email,
+      defPaymentMethod: customer.defPaymentMethod,
+      paymentDays: HelperFunctions.ToInt(customer.paymentDays),
     } as CreateCustomerRequest;
 
     console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest after:", res);
@@ -306,6 +330,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     try {
       const countryCodesRequest = this.customerService.GetAllCountryCodesAsync()
       const unitPriceTypeRequest = this.customerService.getUnitPriceTypes()
+      const paymentMethodsRequest = this.invoiceService.getPaymentMethodsAsync()
 
       const countryCodeData = await countryCodesRequest
       this._countryCodes = countryCodeData ?? []
@@ -316,7 +341,14 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       }
 
       this.unitPriceTypes = await unitPriceTypeRequest ?? []
+      this.paymentMethods = await paymentMethodsRequest ?? []
       this.unitPriceTypeData.next(this.unitPriceTypes.map(x => x.text))
+      this.paymentMethodsComboData$.next(this.paymentMethods.map(x => x.text))
+
+      const defPaymentMethod = this.currentForm?.form.controls['defPaymentMethod']!
+      if (HelperFunctions.isEmptyOrSpaces(defPaymentMethod.value) && this.paymentMethods.length > 0) {
+        defPaymentMethod.setValue(this.paymentMethods.find(x => x.value === 'CASH')?.text)
+      }
 
       if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['unitPriceType'].value) && this.unitPriceTypes.length > 0) {
         this.currentForm?.form.controls['unitPriceType'].setValue(this.unitPriceTypes[0].text)

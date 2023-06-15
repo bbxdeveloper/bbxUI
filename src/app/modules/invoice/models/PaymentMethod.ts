@@ -4,3 +4,9 @@ export interface PaymentMethod {
     icon?: any,
     data?: any
 }
+
+export enum PaymentMethods {
+    Transfer = 'TRANSFER',
+    Cash = 'CASH',
+    Card = 'CARD'
+}

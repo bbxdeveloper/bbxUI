@@ -47,7 +47,7 @@
             </nb-form-field>
 
             <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="countryCode"
-                label="Országkód*" [data$]="countryCodeComboData$"></app-bbx-combo-box>
+                label="Ország*" [data$]="countryCodeComboData$"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -86,6 +86,22 @@
             <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitPriceType"
                 label="Eladási ártípus*" [data$]="unitPriceTypeData"></app-bbx-combo-box>
 
+            <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="defPaymentMethod" label="Alap.fiz.,mód"
+                [data$]="paymentMethodsComboData$"></app-bbx-combo-box>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>
+                        Fizetési határidő (nap)
+                    </label>
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="paymentDays"
+                        [readOnly]="isEditModeOff" [inputMask]="numberInputMaskInteger"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
+
+                <app-form-control-error [form]="currentForm" controlName="paymentDays"></app-form-control-error>
+            </nb-form-field>
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
                     (keydown.enter)="currentForm.HandleFormEnter($event)">
@@ -98,7 +114,7 @@
             <app-form-control-error [form]="currentForm" label="magánszemély" controlName="privatePerson">
             </app-form-control-error>
 
-            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
 
@@ -106,6 +122,15 @@
                         (click)="currentForm.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="currentForm" label="megjegyzés" controlName="comment"></app-form-control-error>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Email</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="email" formControlName="email" [readonly]="isEditModeOff"
+                        (click)="currentForm.HandleFormFieldClick($event)">
+                </div>
             </nb-form-field>
         </form>
     </nb-card-body>
