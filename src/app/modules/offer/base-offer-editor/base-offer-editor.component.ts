@@ -377,6 +377,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       return
     }
 
+    if ((!!col && col === 'UnitPriceSwitch') || col === undefined) {
+      this.RecalcNetAndVat()
+    }
+
     if ((!!col && col === 'productCode') || col === undefined) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
