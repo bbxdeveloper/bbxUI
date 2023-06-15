@@ -459,14 +459,18 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       });
 
     this.isLoading = true;
-    const stockRecord = await this.GetStockRecordForProduct(res.id);
     let price = res.latestSupplyPrice;
-    if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
-      price = stockRecord.avgCost;
-      this.dbDataTable.data[rowIndex].data.realQty = stockRecord.realQty;
+    let realQty = 0
+    const productStocks = await this.stockService.getProductStock(res.id)
+    if (productStocks && productStocks.length > 0) {
+      const productStock = productStocks.find(x => x.warehouseID === this.SelectedWareHouseId)
+      if (productStock && productStock.id !== undefined && productStock.id !== 0) {
+        realQty = productStock.realQty;
+        price = productStock.avgCost;
+      }
     }
 
-    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, nRealQtyFromRecord) });
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, nRealQtyFromRecord, realQty) });
     currentRow?.data.Save('productCode');
 
     console.log("after HandleProductSelectionFromDialog: ", this.dbDataTable.data[rowIndex]);

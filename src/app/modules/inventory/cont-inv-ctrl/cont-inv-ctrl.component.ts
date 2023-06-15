@@ -266,6 +266,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
         const request = this.dbDataTable.data
+          .filter(x => !x.data.IsUnfinished())
           .map(x => ({
             warehouseCode: this.tokenService.wareHouse?.warehouseCode,
             productID: x.data.productID,
@@ -273,7 +274,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
             invCtrlDate: moment().format('YYYY-MM-DD').toString(),
             userID: this.tokenService.user?.id
           } as CreateIccRequest))
-          .filter(x => x.productID !== 0)
+          .filter(x => x.productID !== -1)
 
         await this.invCtrlItemService.createIcc(request)
 
@@ -344,7 +345,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     );
   }
 
-  async HandleProductSelectionFromDialog(res: Product, rowIndex: number) {
+  async HandleProductSelection(res: Product, rowIndex: number, checkIfCodeEqual: boolean = true) {
     if (res.id === undefined || res.id === -1) {
       return;
     }
@@ -363,20 +364,30 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       );
       this.isLoading = false;
       return;
-    } else if (res.productCode === row.data.productCode) {
+    } else if (checkIfCodeEqual && res.productCode === row.data.productCode) {
+      this.bbxToastrService.show(
+        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
       this.isLoading = false;
       return;
     }
 
     this.isLoading = true;
-    const stockRecord = await this.GetStockRecordForProduct(res.id);
     let price = res.latestSupplyPrice;
-    if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
-      price = stockRecord.avgCost;
-      this.dbDataTable.data[rowIndex].data.realQty = stockRecord.realQty;
+    let realQty = 0
+    const productStocks = await this.stockService.getProductStock(res.id)
+    if (productStocks && productStocks.length > 0) {
+      const warehouseID = this.tokenService.wareHouse?.id
+      const productStock = productStocks.find(x => x.warehouseID === warehouseID)
+      if (productStock && productStock.id !== undefined && productStock.id !== 0) {
+        realQty = productStock.realQty;
+        price = productStock.avgCost;
+      }
     }
 
-    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, 0) });
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, 0, realQty) });
     currentRow?.data.Save('productCode');
 
     console.log("after HandleProductSelectionFromDialog: ", this.dbDataTable.data[rowIndex]);
@@ -396,7 +407,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
-        await this.HandleProductSelectionFromDialog(res, rowIndex);
+        await this.HandleProductSelection(res, rowIndex);
       } else {
         const index = this.dbDataTable.data.findIndex(x => x.data.productCode === res.productCode);
         if (index !== -1) {
@@ -455,7 +466,15 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
 
-    let alreadyAdded = false;
+    const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('productCode')
+    if (previousValue && changedData?.productCode === previousValue) {
+      this.bbxToastrService.show(
+        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return
+    }
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
@@ -466,39 +485,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
           if (!!product && !!product?.productCode) {
             _product = product;
-
-            let row = this.dbDataTable.data[rowPos];
-            let count = this.dbDataTable.data.filter(x => x.data.productCode === _product.productCode).length;
-            if (count > 1 || (count === 1 && _product.productCode !== row.data.productCode)) {
-              alreadyAdded = true;
-              this.dbDataTable.editedRow!.data.productCode = "";
-              this.kbS.ClickCurrentElement();
-              this.bbxToastrService.show(
-                Constants.MSG_PRODUCT_ALREADY_THERE,
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR
-              );
-            } else if (_product.productCode === row.data.productCode) {
-              return;
-            } else {
-              const stockRecord = await this.GetStockRecordForProduct(product.id);
-
-              let price = product.latestSupplyPrice;
-              if (stockRecord && stockRecord.id !== 0 && stockRecord.id !== undefined) {
-                price = stockRecord.avgCost;
-              }
-
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(product, 0, 0, price) });
-              currentRow?.data.Save('productCode');
-
-              console.log("after TableCodeFieldChanged: ", this.dbDataTable.data);
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 200);
-            }
+            await this.HandleProductSelection(_product, rowPos, false)
           } else {
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
@@ -514,29 +501,6 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         },
         complete: async () => {
           this.isLoading = false;
-
-          if (_product.id === undefined || _product.id === -1 || alreadyAdded) {
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            return;
-          }
-
-          await lastValueFrom(this.invCtrlItemService.GetAllRecords(
-            { ProductID: _product.id } as GetAllInvCtrlItemRecordsParamListModel))
-          .then(data => {
-              if (!!data && data.id !== 0) {
-                this.OpenAlreadyInventoryDialog((_product?.productCode + ' ' + _product?.description) ?? "", data.invCtrlDate, data.nRealQty);
-                this.dbDataTable.data[rowPos].data.nRealQty = data.nRealQty;
-              }
-            }
-          );
-
-          const stockRecord = await this.GetStockRecordForProduct(_product.id);
-          if (stockRecord && stockRecord.id !== 0) {
-            console.log("STOCKRECORD");
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.data[rowPos].data.realQty = stockRecord.realQty;
-          }
-
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
