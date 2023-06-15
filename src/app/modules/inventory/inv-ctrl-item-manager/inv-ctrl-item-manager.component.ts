@@ -430,6 +430,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.isLoading = false;
       return;
     } else if (checkIfCodeEqual && res.productCode === row.data.productCode) {
+      this.bbxToastrService.show(
+        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
       this.isLoading = false;
       return;
     }
