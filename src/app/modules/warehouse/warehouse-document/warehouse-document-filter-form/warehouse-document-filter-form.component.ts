@@ -14,6 +14,8 @@ import { WarehouseDocumentFilterFormData } from './WarehouseDocumentFilterFormDa
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/FlatDesignNavigatableForm';
 import { WhsTransferStatus } from '../../models/whs/WhsTransferStatus';
 import { WhsTransferService } from '../../services/whs-transfer.service';
+import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
   selector: 'app-warehouse-document-filter-form',
@@ -30,6 +32,8 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
 
   @Output()
   public pageReady = new EventEmitter<void>()
+
+  private localStorageKey: string
 
   get isEditModeOff(): boolean {
     return !this.keyboardService.isEditModeActivated
@@ -112,7 +116,11 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     private readonly whsService: WhsTransferService,
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
+    private readonly localStorage: LocalStorageService,
+    tokenService: TokenStorageService,
   ) {
+    this.localStorageKey = 'warehouse-document-filter.' + tokenService.user?.id + 'everyone'
+
     this.filterForm = new FormGroup({
       FromWarehouseCode: new FormControl(undefined, []),
       ToWarehouseCode: new FormControl(undefined, []),
@@ -126,6 +134,8 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
         validDate
       ])
     });
+
+    this.filterForm.valueChanges.subscribe(value => this.localStorage.put(this.localStorageKey, value))
   }
 
   private async getAndSetWarehouses(): Promise<void> {
@@ -224,7 +234,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     await this.getAndSetStatuses();
 
     this.filterFormNav.GenerateAndSetNavMatrices(true)
-    
+
     this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
     this.pageReady.emit()
@@ -232,10 +242,15 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
     this.keyboardService.SelectFirstTile()
     this.keyboardService.ClickCurrentElement()
+
+    const filter = this.localStorage.get<WarehouseDocumentFilterFormData>(this.localStorageKey)
+
+    if (filter) {
+      this.filterForm.patchValue(filter)
+    }
   }
 
   public Refresh(): void {
-    this.refreshClicked.emit(this.warehouseDocumentFormData) 
+    this.refreshClicked.emit(this.warehouseDocumentFormData)
   }
-
 }
