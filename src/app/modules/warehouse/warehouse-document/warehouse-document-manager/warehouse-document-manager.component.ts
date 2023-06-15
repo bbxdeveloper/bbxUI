@@ -72,7 +72,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '35%',
+      colWidth: '150px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
