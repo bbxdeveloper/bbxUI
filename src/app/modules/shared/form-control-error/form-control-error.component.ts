@@ -53,6 +53,8 @@ export class FormControlErrorComponent {
         return this.label ? `A ${this.label} értéke túl rövid (min ${this.min})!` : ValidationMessage.ErrorMinLength;
       case ValidationMessage.ErrorMaxLength:
         return this.label ? `A ${this.label} értéke túl hosszú (max ${this.max})!` : ValidationMessage.ErrorMaxLength;
+      case ValidationMessage.ErrorInvalidSelectedValue:
+        return this.label ? `A ${this.label} választott értéke érvénytelen!` : ValidationMessage.ErrorInvalidSelectedValue;
     }
   }
 
