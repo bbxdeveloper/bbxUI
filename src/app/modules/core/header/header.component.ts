@@ -179,7 +179,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
    */
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key === KeyBindings.F5) {
-      this.router.navigate(['/home'])
+      this.router.navigateByUrl('/', { skipLocationChange: false }).then(() => {
+        this.router.navigate(['home'])
+      })
     }
 
     if (this.bbxToastrService.IsToastrOpened) {
