@@ -247,6 +247,8 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
 
     if (filter) {
       this.filterForm.patchValue(filter)
+
+      this.Refresh()
     }
   }
 
