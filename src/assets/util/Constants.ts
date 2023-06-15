@@ -79,7 +79,7 @@ export module Constants {
         A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}]') },
         C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\-]') }
     };
-    export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+    export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCC";
     export const CustDiscountCodeMask = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 
     export const SearchInputId = 'active-prod-search'
