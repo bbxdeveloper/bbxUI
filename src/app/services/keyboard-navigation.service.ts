@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import * as $ from 'jquery'
 import { BehaviorSubject } from 'rxjs';
 import { AttachDirection, INavigatable, NullNavigatable } from 'src/assets/model/navigation/Nav';
@@ -47,11 +47,14 @@ export class KeyboardNavigationService {
   private WidgetStack: INavigatable[] = [];
 
   private _currentKeyboardMode: KeyboardModes = KeyboardModes.NAVIGATION;
+  set currentKeyboardMode(mode: KeyboardModes) {
+    this._currentKeyboardMode = mode
+  }
   get currentKeyboardMode() {
     return this._currentKeyboardMode;
   }
   get isEditModeActivated() {
-    return this._currentKeyboardMode !== KeyboardModes.NAVIGATION;
+    return this.currentKeyboardMode === KeyboardModes.EDIT;
   }
 
   ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -116,11 +119,6 @@ export class KeyboardNavigationService {
   }
 
   public Unlock(): void {
-    // try {
-    //     throw new Error("hmmm");
-    // } catch(error) {
-    //     console.error(error);
-    // }
     this._locked = false;
   }
 
@@ -132,18 +130,14 @@ export class KeyboardNavigationService {
     if (this.isEditModeLocked) {
       return;
     }
-    this._currentKeyboardMode = this._currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
-
-    // throw new Error("debug");
+    this.currentKeyboardMode = this.currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
   }
 
   setEditMode(mode: KeyboardModes): void {
     if (this.isEditModeLocked) {
       return;
     }
-    this._currentKeyboardMode = mode;
-
-    // throw new Error("debug");
+    this.currentKeyboardMode = mode;
   }
 
   public IsElementCheckbox(id: string = ""): boolean {
