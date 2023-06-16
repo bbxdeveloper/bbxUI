@@ -280,11 +280,11 @@ export class BaseManagerComponent<T> {
     );
     setTimeout(() => {
       this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
-      if (setAsCurrent) {
+      if (setAsCurrent && this.dbDataTable.Matrix.length > 0 && this.dbDataTable.Matrix[0].length > 0) {
         this.kbS.SetCurrentNavigatable(this.dbDataTable)
         this.kbS.SelectFirstTile()
       }
-      this.kbS.ClickCurrentElement()
+      this.kbS.ClickCurrentElement(true)
     }, 200);
   }
 

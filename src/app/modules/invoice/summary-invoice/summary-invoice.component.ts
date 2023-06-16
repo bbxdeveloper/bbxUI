@@ -46,7 +46,7 @@ import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-n
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
-import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
@@ -57,8 +57,6 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 })
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  title: string = ''
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
@@ -197,7 +195,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   private originalCustomerID: number = -1
 
-  public mode!: SummaryInvoiceMode
+  public mode!: InvoiceBehaviorMode
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -223,12 +221,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
+    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router)
+    this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
-      this.title = this.mode.title
 
-      this.InitialSetup();
+      this.InitialSetup()
       this.isPageReady = true;
     })
   }
@@ -497,7 +495,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
       .reduce((sum, current) => sum + current, 0);
 
-    let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    let _paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
 
     HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
@@ -619,9 +617,10 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
-      const validationResult = this.mode.validateQuantity.validate(changedData.quantity, changedData.limit)
+      const validationResult = this.mode.validateQuantity(changedData.quantity, changedData.limit)
 
       if (!validationResult) {
+        changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
         changedData.Save()
         return
       }
@@ -633,7 +632,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           Constants.TOASTR_ERROR
         )
       }, 0);
-      this.dbData[index].data.Restore('quantity')
+      this.dbData[index].data.Restore()
     }
   }
 

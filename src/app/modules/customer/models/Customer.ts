@@ -68,8 +68,9 @@ export function BlankCustomer(): Customer {
         countyCode: '',
         email: '',
         unitPriceType: 'Listaár',
-        paymentDays: 0,
-        // warningLimit: 0,
-        // maxLimit: 0
+        paymentDays: 8,
+        warningLimit: undefined,
+        maxLimit: undefined,
+        defPaymentMethod: 'Kp',
     } as Customer;
 }

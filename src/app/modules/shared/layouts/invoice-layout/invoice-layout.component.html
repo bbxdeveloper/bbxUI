@@ -1,36 +1,26 @@
 <div class="layout-grid">
     <div class="inner-grid-top">
-        <div class="div-stretch">
-            <!-- LABELS -->
-            <ng-content select="[labels]"></ng-content>
-        </div>
-        
+        <!-- LABELS -->
+        <ng-content select="[labels]"></ng-content>
+
         <div class="card-col separator-vertical"></div>
-        
-        <div class="div-stretch">
-            <!-- CUSTOMER FORM -->
-            <ng-content select="[left]"></ng-content>
-        </div>
-        
+
+        <!-- CUSTOMER FORM -->
+        <ng-content select="[left]"></ng-content>
+
         <div class="card-col separator-vertical"></div>
-        
-        <div class="div-stretch">
-            <!-- CUSTOMER FORM -->
-            <ng-content select="[right]"></ng-content>
-        </div>
+
+        <!-- CUSTOMER FORM -->
+        <ng-content select="[right]"></ng-content>
     </div>
-    
+
     <div class="separator-horizontal"></div>
-    
-    <div class="div-stretch">
-        <!-- DATA FORM -->
-        <ng-content select="[middle]"></ng-content>
-    </div>
-    
+
+    <!-- DATA FORM -->
+    <ng-content select="[middle]"></ng-content>
+
     <div class="separator-horizontal"></div>
-    
-    <div class="div-stretch">
-        <!-- TABLE -->
-        <ng-content select="[bottom]"></ng-content>
-    </div>
+
+    <!-- TABLE -->
+    <ng-content select="[bottom]"></ng-content>
 </div>

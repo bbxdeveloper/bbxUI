@@ -13,7 +13,7 @@
                                 <tr>
                                     <td>
                                         <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                                            formFieldName="WarehouseID" class="nav-configuration" label="Raktár"
+                                            formFieldName="WarehouseID" [autoFillFirstAvailableValue]="true" [needBlankOption]="false" class="nav-configuration" label="Raktár"
                                             [data$]="wareHouseData$">
                                         </app-bbx-two-row-combo-box>
                                     </td>

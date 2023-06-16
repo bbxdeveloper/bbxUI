@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -153,6 +153,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, sidebarService, keyboardHelperService, router)
 
+    this.preventF12 = true
+
     this.headerForm = new FormGroup({
       whsTransferNumber: new FormControl({ value: '', disabled: true }),
       fromWarehouse: new FormControl({ value: '', disabled: true }),
@@ -247,7 +249,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         this.dbDataTable.data = this.dbData
         this.dbDataDataSrc.setData(this.dbData)
         this.RecalcNetAndVat()
-        
+
         this.dbDataTable.GenerateAndSetNavMatrices(false, false)
 
         this.kbS.SetCurrentNavigatable(this.dbDataTable)
@@ -378,15 +380,12 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   private quantityChanged(changedData: InbetweenWarehouseProduct): void {
+    // reassign it to itself to convert it to a Number
     changedData.quantity = changedData.quantity
 
     if (changedData.quantity <= 0) {
       setTimeout(() => {
-        this.bbxToastrService.show(
-          Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
+        this.bbxToastrService.showError(Constants.MSG_CANNOT_BE_LOWER_THAN_ZERO)
       }, 0);
 
       changedData.Restore()
@@ -404,7 +403,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
           message,
           () => changedData.Save(),
           () => {
-            changedData.quantity = changedData.realQty;
+            changedData.quantity = changedData.realQty >= 0 ? changedData.realQty : 0
             changedData.Save()
           })
       }, 300);
@@ -542,6 +541,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         },
         complete: () => this.sts.waitForLoad(false)
       })
+
+    setTimeout(() => {
+      this.cs.CloseAllHeaderMenuTrigger.next(true)
+    }, 500);
   }
 
   public JumpToFirstCellAndNav(): void {
@@ -554,10 +557,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }, 100);
   }
 
-  private async Save(): Promise<void> {
-    if (this.headerForm.invalid) {
-      this.bbxToastrService.showError('Az űrlap hibásan van kitöltve.')
+  CheckSaveConditionsAndSave(): void {
+    this.headerForm.markAllAsTouched();
 
+    if (this.headerForm.invalid) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_INVALID_FORM)
       return
     }
 
@@ -566,16 +570,17 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       .every(x => x.data.isSaveable())
 
     if (!isTableValid) {
-      this.bbxToastrService.showError('Legalább egy érvényesen megadott tétel szükséges a mentéshez.')
-
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD)
       return
     }
 
-    if (this.mode.edit) {
-      await this.update()
-    } else {
-      await this.create()
-    }
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_INVOICE, async () => {
+      if (this.mode.edit) {
+        await this.update()
+      } else {
+        await this.create()
+      }
+    })
   }
 
   private async create(): Promise<void> {
@@ -729,8 +734,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         break
       }
       case KeyBindings.Enter: {
-        HelperFunctions.confirm(this.dialogService, 'Menthető a bizonylat?', () => this.Save())
-
+        if ((this.KeySetting[Actions.Save].KeyCode == KeyBindings.CtrlEnter && event.Event.CtrlKey) || !event.Event.CtrlKey) {
+          this.CheckSaveConditionsAndSave()
+        }
         break
       }
       case this.KeySetting[Actions.Search].KeyCode: {

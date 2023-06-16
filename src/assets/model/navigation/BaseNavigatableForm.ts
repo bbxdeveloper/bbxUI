@@ -70,10 +70,10 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
     _formMode: Constants.FormState = Constants.FormState.default;
     get formMode(): Constants.FormState { return this._formMode; }
     set formMode(val: Constants.FormState) {
-        console.log("-------------");
-        console.log("Old formstate: ", Constants.FormState[this._formMode]);
+        // console.log("-------------");
+        // console.log("Old formstate: ", Constants.FormState[this._formMode]);
         this._formMode = val;
-        console.log("New formstate: ", Constants.FormState[this._formMode]);
+        // console.log("New formstate: ", Constants.FormState[this._formMode]);
     }
 
 
@@ -192,9 +192,15 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
 
     protected MoveNext(): MoveRes {
         let moveRes = this.kbS.MoveRight(true, false, false);
+
+        if (!moveRes.moved) {
+            moveRes = this.kbS.NextColumn()
+        }
+
         if (!moveRes.moved) {
             moveRes = this.kbS.MoveDown(true, false, true);
         }
+
         return moveRes;
     }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import * as $ from 'jquery'
 import { BehaviorSubject } from 'rxjs';
 import { AttachDirection, INavigatable, NullNavigatable } from 'src/assets/model/navigation/Nav';
@@ -47,11 +47,14 @@ export class KeyboardNavigationService {
   private WidgetStack: INavigatable[] = [];
 
   private _currentKeyboardMode: KeyboardModes = KeyboardModes.NAVIGATION;
+  set currentKeyboardMode(mode: KeyboardModes) {
+    this._currentKeyboardMode = mode
+  }
   get currentKeyboardMode() {
     return this._currentKeyboardMode;
   }
   get isEditModeActivated() {
-    return this._currentKeyboardMode !== KeyboardModes.NAVIGATION;
+    return this.currentKeyboardMode === KeyboardModes.EDIT;
   }
 
   ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -116,11 +119,6 @@ export class KeyboardNavigationService {
   }
 
   public Unlock(): void {
-    // try {
-    //     throw new Error("hmmm");
-    // } catch(error) {
-    //     console.error(error);
-    // }
     this._locked = false;
   }
 
@@ -132,18 +130,14 @@ export class KeyboardNavigationService {
     if (this.isEditModeLocked) {
       return;
     }
-    this._currentKeyboardMode = this._currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
-
-    // throw new Error("debug");
+    this.currentKeyboardMode = this.currentKeyboardMode == KeyboardModes.EDIT ? KeyboardModes.NAVIGATION : KeyboardModes.EDIT;
   }
 
   setEditMode(mode: KeyboardModes): void {
     if (this.isEditModeLocked) {
       return;
     }
-    this._currentKeyboardMode = mode;
-
-    // throw new Error("debug");
+    this.currentKeyboardMode = mode;
   }
 
   public IsElementCheckbox(id: string = ""): boolean {
@@ -198,10 +192,7 @@ export class KeyboardNavigationService {
     if (environment.navigationSelectLog)
       console.log('SelectElement: ', this.previousIdString, id, $(idString));
 
-    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
-      $(element).removeClass(SELECTED_ELEMENT_CLASS);
-      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    });
+    $('.' + SELECTED_ELEMENT_CLASS).map(this.removeSelectedElementClass.bind(this));
 
     const element = $(idString)
     element.addClass(SELECTED_ELEMENT_CLASS);
@@ -230,10 +221,13 @@ export class KeyboardNavigationService {
   }
 
   public RemoveSelectedElementClasses(): void {
-    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
-      $(element).removeClass(SELECTED_ELEMENT_CLASS);
-      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    });
+    $('.' + SELECTED_ELEMENT_CLASS).map(this.removeSelectedElementClass.bind(this));
+  }
+
+  private removeSelectedElementClass(idx: number, selectedElement: HTMLElement): void {
+    const element = $(selectedElement)
+    element.removeClass(SELECTED_ELEMENT_CLASS);
+    element.parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
   }
 
   public ClickElement(id: string, excludeButtons: boolean = false): void {
@@ -246,10 +240,7 @@ export class KeyboardNavigationService {
     if (environment.navigationSelectLog)
       console.log('ClickElement: ', this.previousIdString, id);
 
-    $('.' + SELECTED_ELEMENT_CLASS).map((idx, element) => {
-      $(element).removeClass(SELECTED_ELEMENT_CLASS);
-      $(element).parent().removeClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
-    });
+    $('.' + SELECTED_ELEMENT_CLASS).map(this.removeSelectedElementClass.bind(this));
 
     const element = $(idString)
     element.addClass(SELECTED_ELEMENT_CLASS);
@@ -894,6 +885,20 @@ export class KeyboardNavigationService {
     }
 
     return res;
+  }
+
+  public NextColumn(): MoveRes {
+    const res = { moved: false, jumped: false } as MoveRes
+
+    if (this.p.x === this.maxCurrentWorldX && this.p.y < this.maxCurrentWorldY) {
+      this.SetPosition(0, this.p.y + 1)
+
+      this.SelectCurrentElement()
+
+      res.moved = true
+    }
+
+    return res
   }
 
   public SetRoot(n: INavigatable): void {

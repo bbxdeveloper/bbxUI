@@ -63,7 +63,10 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   idFromPath?: number;
 
   get IsBrutto(): boolean {
-    return this.buyerForm?.controls['isBrutto']?.value ?? false;
+    if (HelperFunctions.isEmptyOrSpaces(this.buyerForm?.controls['isBrutto']?.value)) {
+      return false
+    }
+    return this.buyerForm?.controls['isBrutto'].value
   }
 
   constructor(
@@ -381,6 +384,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   }
 
   private UpdateSaveData(): void {
+    this.offerData.isBrutto = this.IsBrutto
+    
     this.offerData.customerID = this.buyerData.id;
 
     this.offerData.notice = this.buyerForm.controls['notice'].value ?? "";

@@ -247,7 +247,12 @@ export class BaseNoFormManagerComponent<T> {
       this.colsToIgnore
     );
     setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh, setAsCurrentNavigatable);
+      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      if (setAsCurrentNavigatable && this.dbDataTable.Matrix.length > 0 && this.dbDataTable.Matrix[0].length > 0) {
+        this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.SelectFirstTile()
+      }
+      this.kbS.ClickCurrentElement(true)
     }, 200);
   }
 

@@ -23,6 +23,12 @@
     <div *ngIf="form?.IsErrorApparent(controlName, 'maxDate')">
         {{ GetErrorMessage(ValidationMessage.ErrorMaxDate) }}
     </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'minLength')">
+        {{ GetErrorMessage(ValidationMessage.ErrorMinDate) }}
+    </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'maxLength')">
+        {{ GetErrorMessage(ValidationMessage.ErrorMaxDate) }}
+    </div>
     <div *ngIf="form?.IsErrorApparent(controlName, 'minMaxDate')">
         {{ GetErrorMessage(ValidationMessage.ErrorMinMaxDate) }}
     </div>
@@ -31,5 +37,8 @@
     </div>
     <div *ngIf="form?.IsErrorApparent(controlName, 'wrongDate')">
         {{ GetErrorMessage(ValidationMessage.ErrorWrongDate) }}
+    </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'invalidSelectedValue')">
+        {{ GetErrorMessage(ValidationMessage.ErrorInvalidSelectedValue) }}
     </div>
 </div>

@@ -58,7 +58,7 @@ export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrl
     "vatPercentage": number = -1;
     "warehouseID": number = 0;
     "invCtlPeriodID": number = 0;
-    "productID": number = 0;
+    "productID": number = -1;
     "invCtrlDate": string = "";
     "realQty": number = 0;
     "nRealQty": number = 0;
@@ -72,18 +72,18 @@ export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrl
     }
 
     get NRealQty(): number {
-        return this.realQty ?? 0;
+        return HelperFunctions.isEmptyOrSpaces(this.realQty) ? 0 : this.realQty;
     }
 
     get RealQty(): number {
-        return this.nRealQty ?? 0;
+        return HelperFunctions.isEmptyOrSpaces(this.nRealQty) ? 0 : this.nRealQty;
     }
 
     get difference(): number {
         return Math.abs(this.NRealQty - this.RealQty);
     }
 
-    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, price: number = 0, nRealQty: number = 0): InvCtrlItemLine {
+    static FromProduct(product: Product, offerId: number = 0, vatRateId: number = 0, price: number = 0, nRealQty: number = 0, realQty: number = 0): InvCtrlItemLine {
         let offerLine = new InvCtrlItemLine();
 
         offerLine.lineDescription = product.description ?? '';
@@ -106,6 +106,7 @@ export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrl
         offerLine.vatPercentage = HelperFunctions.ToFloat(product.vatPercentage ?? 0.0);
 
         offerLine.nRealQty = nRealQty;
+        offerLine.realQty = realQty;
 
         console.log('FromProduct res: ', offerLine);
 
@@ -113,7 +114,7 @@ export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrl
     }
 
     IsUnfinished(): boolean {
-        return this.warehouseID === undefined || this.invCtlPeriodID === undefined || this.productID === undefined
+        return this.warehouseID === undefined || this.invCtlPeriodID === undefined || this.productID === -1 || HelperFunctions.isEmptyOrSpaces(this.productCode)
             || this.invCtrlDate === undefined || this.nRealQty === undefined || this.userID === undefined;
     }
 

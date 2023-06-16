@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, Input, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, HostListener, Input, OnDestroy, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { NbDialogService, NbIconConfig, NbPopoverDirective, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -20,13 +20,14 @@ import { DateIntervalDialogComponent } from '../../shared/simple-dialogs/date-in
 import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit {
+export class HeaderComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(NbPopoverDirective) popover?: QueryList<NbPopoverDirective>;
 
   @Input() title: string = "";
@@ -93,7 +94,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private readonly bbxToastrService: BbxToastrService,
     private readonly simpleToastrService: NbToastrService,
     private readonly status: StatusService,
-    private readonly keyboardHelperService: KeyboardHelperService) {
+    private readonly keyboardHelperService: KeyboardHelperService,
+    private readonly commonService: CommonService) {
     super();
     this.OuterJump = true;
   }
@@ -108,6 +110,16 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     if (!this.isLoggedIn) {
       this.login(undefined);
     }
+    this.commonService.CloseAllHeaderMenuTrigger.subscribe({
+      next: data => {
+        if (data) {
+          this.popover?.forEach(x => x?.hide());
+        }
+      }
+    })
+  }
+  ngOnDestroy(): void {
+    this.commonService.CloseAllHeaderMenuTrigger.unsubscribe()
   }
 
   public override GenerateAndSetNavMatrices(attach: boolean = true): void {
@@ -166,6 +178,12 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
    * @returns
    */
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === KeyBindings.F5) {
+      this.router.navigateByUrl('/', { skipLocationChange: false }).then(() => {
+        this.router.navigate(['home'])
+      })
+    }
+
     if (this.bbxToastrService.IsToastrOpened) {
       event.preventDefault();
       event.stopImmediatePropagation();

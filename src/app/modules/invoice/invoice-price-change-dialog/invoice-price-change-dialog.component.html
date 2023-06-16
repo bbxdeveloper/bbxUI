@@ -4,42 +4,33 @@
     </nb-card-header>
     <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
         <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
-            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
-                <label>
-                    Termék
-                </label>
-                <input class="width-of-20-percent" nbInput type="text" formControlName="productCode" readonly>
-                <input class="width-of-50-percent" nbInput type="text" formControlName="productDescription" readonly>
-                <!-- product-description -->
+            <label>
+                Termék
+            </label>
+            <input nbInput type="text" formControlName="productCode" readonly>
+            <input nbInput type="text" formControlName="productDescription" readonly>
+
+            <label class="old-price text-center">
+                Régi ár
+            </label>
+            <label class=" text-center">
+                Új ár
+            </label>
+
+            <label>
+                Listaár
+            </label>
+            <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
+            <div (keydown.enter)="navigateable.HandleFormEnter($event)">
+                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1">
             </div>
 
-            <!-- head -->
-            <div class="form-input-container">
-                <label class="text-transparent text-center">
-                    -
-                </label>
-                <label class="width-of-20-percent text-center" >
-                    Régi ár
-                </label>
-                <label class="width-of-50-percent text-center" >
-                    Új ár
-                </label>
-            </div>
-
-            <div class="form-input-container" (keydown.enter)="navigateable.HandleFormEnter($event)">
-                <label>
-                    Listaár
-                </label>
-                <input class="width-of-20-percent"  nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
-                <input class="{{TileCssClass}} width-of-50-percent" nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1">
-            </div>
-
-            <div class="form-input-container" (keydown.enter)="moveToButtons($event)">
-                <label>
-                    Egységár
-                </label>
-                <input class="width-of-20-percent"  nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
-                <input class="{{TileCssClass}} width-of-50-percent" nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2">
+            <label>
+                Egységár
+            </label>
+            <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
+            <div (keydown.enter)="moveToButtons($event)">
+                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2">
             </div>
         </form>
     </nb-card-body>

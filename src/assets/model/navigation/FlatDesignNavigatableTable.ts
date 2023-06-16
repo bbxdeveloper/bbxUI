@@ -268,6 +268,31 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.PushFooterCommandList();
     }
 
+    public SyncNeighbourRelations(): void {
+        switch (this.formAttachDirection) {
+            case AttachDirection.LEFT: {
+                this.flatDesignForm.RightNeighbour = this
+                this.LeftNeighbour = this.flatDesignForm
+                break;
+            }
+            case AttachDirection.RIGHT: {
+                this.flatDesignForm.LeftNeighbour = this
+                this.RightNeighbour = this.flatDesignForm
+                break;
+            }
+            case AttachDirection.UP: {
+                this.flatDesignForm.DownNeighbour = this
+                this.UpNeighbour = this.flatDesignForm
+                break;
+            }
+            case AttachDirection.DOWN: {
+                this.flatDesignForm.UpNeighbour = this
+                this.DownNeighbour = this.flatDesignForm
+                break;
+            }
+        }
+    }
+
     SetBlankInstanceForForm(openSideBar: boolean, jump: boolean = true): void {
         console.log("SetBlankInstanceForForm");
         
@@ -283,6 +308,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.prevSelectedColPos = -1;
 
         this.flatDesignForm.SetDataForEdit(creatorRow, -1, '');
+        this.SyncNeighbourRelations()
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
         
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
@@ -612,6 +638,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             case this.KeySetting[Actions.Edit].KeyCode: {
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Edit].FunctionLabel}, ${Actions[Actions.Edit]}`);
                 event.preventDefault();
+
+                if (this.data.length === 0) {
+                    return
+                }
+                
                 this.ReadonlySideForm = false;
                 this.HandleEditAndNew(false);
                 this.JumpToFirstFormField();
@@ -643,13 +674,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     JumpToFirstFormField(): void {
         if (this.ReadonlyForm) {
-            return;
+            return
         }
         if (this.sidebarService.sideBarOpened) {
-            this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-            this.kbs.setEditMode(KeyboardModes.NAVIGATION);
-            this.kbs.MoveUp();
-            this.kbs.setEditMode(KeyboardModes.EDIT);
+            this.kbs.SetCurrentNavigatable(this.flatDesignForm)
+            this.kbs.SelectFirstTile()
+            this.kbs.ClickCurrentElement()
         }
     }
 

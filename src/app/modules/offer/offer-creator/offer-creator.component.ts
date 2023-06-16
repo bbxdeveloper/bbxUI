@@ -57,7 +57,10 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   offerData!: CreateOfferRequest;
 
   get IsBrutto(): boolean {
-    return this.buyerForm?.controls['isBrutto']?.value ?? false;
+    if (HelperFunctions.isEmptyOrSpaces(this.buyerForm?.controls['isBrutto']?.value)) {
+      return false
+    }
+    return this.buyerForm?.controls['isBrutto'].value
   }
 
   constructor(
@@ -291,6 +294,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   }
 
   private UpdateOutGoingData(): void {
+    this.offerData.isBrutto = this.IsBrutto
+
     this.offerData.customerID = this.buyerData.id;
 
     this.offerData.notice = this.buyerForm.controls['notice'].value ?? "";

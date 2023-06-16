@@ -273,7 +273,7 @@ export class InvCtrlPeriodManagerComponent
   override ProcessActionNew(data?: IUpdateRequest<InvCtrlPeriod>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
-      data.data.id = HelperFunctions.ToInt(data.data.id + ''); // TODO
+      data.data.id = HelperFunctions.ToInt(data.data.id + '');
 
       this.InvCtrlPeriodToCreateRequest(data.data)
         .then(async createRequest => {
@@ -284,25 +284,17 @@ export class InvCtrlPeriodManagerComponent
             next: async (d) => {
               if (d.succeeded && !!d.data) {
                 this.idParam = d.data.id;
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 await this.RefreshAsync(this.getInputParams);
                 this.dbDataTable.SelectRowById(d.data.id);
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 this.simpleToastrService.show(
                   Constants.MSG_SAVE_SUCCESFUL,
                   Constants.TITLE_INFO,
                   Constants.TOASTR_SUCCESS_5_SEC
                 );
               } else {
-                console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
-                this.simpleToastrService.show(
-                  d.errors!.join('\n'),
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR_5_SEC
-                );
-                this.isLoading = false;
                 this.dbDataTable.SetFormReadonly(false)
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                this.kbS.ClickCurrentElement()
+                this.HandleError(d.errors)
               }
             },
             error: (err) => {
@@ -322,7 +314,7 @@ export class InvCtrlPeriodManagerComponent
       typeof data?.data.id
     );
     if (!!data && !!data.data) {
-      data.data.id = HelperFunctions.ToInt(data.data.id + ''); // TODO
+      data.data.id = HelperFunctions.ToInt(data.data.id + '');
 
       this.InvCtrlPeriodToUpdateRequest(data.data)
         .then(updateRequest => {
@@ -458,7 +450,8 @@ export class InvCtrlPeriodManagerComponent
       this,
       () => {
         return BlankInvCtrlPeriod();
-      }
+      },
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
@@ -479,8 +472,8 @@ export class InvCtrlPeriodManagerComponent
   }
 
   override Refresh(params?: GetAllInvCtrlPeriodsParamListModel): void {
-    console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
+    this.sts.waitForLoad(true)
     this.seInv.GetAll(params).subscribe({
       next: async (d) => {
         if (d.succeeded && !!d.data) {
@@ -488,7 +481,6 @@ export class InvCtrlPeriodManagerComponent
           if (!!wHouses) {
             this.wareHouses = wHouses;
           }
-          console.log('GetInvCtrlPeriods response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
@@ -506,6 +498,7 @@ export class InvCtrlPeriodManagerComponent
             }
           }, 300);
         } else {
+          this.sts.waitForLoad(false)
           this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
@@ -514,17 +507,19 @@ export class InvCtrlPeriodManagerComponent
         }
       },
       error: (err) => {
+        this.sts.waitForLoad(false)
         this.HandleError(err);
       },
       complete: () => {
         this.isLoading = false;
+        this.sts.waitForLoad(false)
       },
     });
   }
 
   async RefreshAsync(params?: GetAllInvCtrlPeriodsParamListModel): Promise<void> {
-    console.log('Refreshing'); // TODO: only for debug
     this.isLoading = true;
+    this.sts.waitForLoad(true)
     await lastValueFrom(this.seInv.GetAll(params))
       .then(async d => {
         if (d.succeeded && !!d.data) {
@@ -532,7 +527,6 @@ export class InvCtrlPeriodManagerComponent
           if (!!wHouses) {
             this.wareHouses = wHouses;
           }
-          console.log('GetInvCtrlPeriods response: ', d); // TODO: only for debug
           if (!!d) {
             this.dbData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
@@ -550,18 +544,21 @@ export class InvCtrlPeriodManagerComponent
             }
           }, 300);
         } else {
+          this.sts.waitForLoad(false)
           this.simpleToastrService.show(
             d.errors!.join('\n'),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR_5_SEC
-          );
+          )
         }
       })
       .catch(err => {
-        this.HandleError(err);
+        this.sts.waitForLoad(false)
+        this.HandleError(err)
       })
       .finally(() => {
-        this.isLoading = false;
+        this.isLoading = false
+        this.sts.waitForLoad(false)
       });
   }
 

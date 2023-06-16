@@ -36,7 +36,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
-import { SummaryInvoiceMode } from '../models/SummaryInvoiceMode';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
@@ -137,7 +137,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   public KeySetting: Constants.KeySettingsDct = ReceiptKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
-  public mode!: SummaryInvoiceMode
+  public mode!: InvoiceBehaviorMode
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -157,10 +157,12 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     khs: KeyboardHelperService,
     private readonly activatedRoute: ActivatedRoute,
     router: Router,
+    private readonly bbxToasterService: BbxToastrService,
     private readonly behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
+    this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
@@ -305,7 +307,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
 
-    let _paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    let _paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
@@ -415,7 +417,24 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.dbDataDataSrc.setData(this.dbData);
         }
 
-        this.RecalcNetAndVat();
+        if (col === 'quantity' && index !== null && index !== undefined) {
+          const validationResult = this.mode.validateQuantity(changedData.quantity)
+
+          if (!validationResult) {
+            changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
+            changedData.Save()
+            return
+          }
+
+          setTimeout(() => {
+            this.bbxToasterService.show(
+              validationResult,
+              Constants.TITLE_ERROR,
+              Constants.TOASTR_ERROR
+            )
+          }, 0);
+          this.dbData[index].data.Restore()
+        }
       }
     }
   }
@@ -517,7 +536,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceIssueDate'].value;
 
-    this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    this.outGoingInvoiceData.paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
     this.outGoingInvoiceData.warehouseCode = '1';

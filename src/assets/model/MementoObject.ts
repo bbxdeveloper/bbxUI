@@ -73,12 +73,24 @@ export class MementoObject<T = any> extends DynamicObject {
      * @param key field name in object: not given: restores every field
      */
     public Restore(key?: string): void {
-        if (key ){
+        if (key){
             this.t[key] = this.FieldMemory[key];
         } else {
             Object.keys(this.FieldMemory).forEach((key: string) => {
                 this.t[key] = this.FieldMemory[key];
             });
         }
+    }
+
+    /**
+     * Get a saved value. Doesn't affect the saved content!
+     * @param key 
+     * @returns 
+     */
+    public GetSavedFieldValue(key: string): any {
+        if (key && Object.keys(this.t).includes(key)) {
+            return this.FieldMemory[key]
+        }
+        return undefined
     }
 }

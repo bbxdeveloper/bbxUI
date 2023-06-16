@@ -414,7 +414,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       this,
       () => {
         return {} as Offer;
-      }
+      },
+      false
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
@@ -551,10 +552,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
-          this.RefreshTable(undefined, this.isPageReady);
-          if (this.isPageReady || jumpToFirstTableCell) {
-            this.JumpToTable();
-          }
+          this.RefreshTable(undefined, true);
         } else {
           this.bbxToastrService.show(
             d.errors!.join('\n'),

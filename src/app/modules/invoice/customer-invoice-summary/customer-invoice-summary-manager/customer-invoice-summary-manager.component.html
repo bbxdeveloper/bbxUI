@@ -1,7 +1,7 @@
 <as-split direction="horizontal">
     <as-split-area [size]="53">
-        <app-hozirontal-split-layout proportion="40" [hideDivider]="true">
-            <app-head-line msg="Partnerenkénti forgalom" title></app-head-line>
+        <app-hozirontal-split-layout proportion="31" [hideDivider]="true">
+            <app-head-line [compact]="true" msg="Partnerenkénti forgalom" title></app-head-line>
 
             <app-customer-invoice-summary-filter-form (refreshClicked)="refreshClicked($event)"
                 (pageReady)="filterFormPageReady()" top>
@@ -9,7 +9,7 @@
 
             <ng-container bottom>
                 <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-                    [heightMargin]="595" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                    [heightMargin]="520" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
                     [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
                     (focusOutTable)="focusOnTable(false)">
                 </app-flat-design-table>

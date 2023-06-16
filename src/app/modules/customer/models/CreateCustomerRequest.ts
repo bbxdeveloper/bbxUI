@@ -18,4 +18,5 @@ export interface CreateCustomerRequest {
     maxLimit?: number,
     paymentDays: number,
     defPaymentMethod: string,
+    email?: string,
 }
