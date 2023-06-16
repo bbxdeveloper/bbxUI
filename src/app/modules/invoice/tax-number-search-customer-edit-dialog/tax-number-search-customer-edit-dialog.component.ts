@@ -165,6 +165,18 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
   public ngAfterContentInit(): void {
     if (!this.createCustomer) {
       const controls = this.sumForm.controls
+
+      const paymentMethod = this.paymentMethods.find(x => x.value === this.data.defPaymentMethod)?.text
+      const unitPriceType = this.unitPriceTypes.find(x => x.value === this.data.unitPriceType)?.text
+
+      if (!HelperFunctions.isEmptyOrSpaces(paymentMethod)) {
+        controls['defPaymentMethod'].setValue(paymentMethod)
+      }
+
+      if (!HelperFunctions.isEmptyOrSpaces(unitPriceType)) {
+        controls['unitPriceType'].setValue(unitPriceType)
+      }
+
       controls['id'].setValue(this.data.id);
       controls['customerName'].setValue(this.data.customerName);
       controls['customerBankAccountNumber'].setValue(this.data.customerBankAccountNumber ?? '');
@@ -176,10 +188,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       controls['additionalAddressDetail'].setValue(this.data.additionalAddressDetail);
       controls['privatePerson'].setValue(this.data.privatePerson);
       controls['comment'].setValue(this.data.comment);
-      controls['unitPriceType'].setValue(this.data.unitPriceType)
       controls['email'].setValue(this.data.email)
-      controls['paymentDays'].setValue(this.data.paymentDays)
-      controls['defPaymentMethod'].setValue(this.data.defPaymentMethod)
     }
   }
 

@@ -86,8 +86,8 @@
             <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitPriceType"
                 label="Eladási ártípus*" [data$]="unitPriceTypeData"></app-bbx-combo-box>
 
-            <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="defPaymentMethod" label="Alap.fiz.,mód"
-                [data$]="paymentMethodsComboData$"></app-bbx-combo-box>
+            <app-bbx-combo-box [isReadonly]="isEditModeOff" [needBlankOption]="false" class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="defPaymentMethod"
+                label="Alapértelmezett fiz.mód" [data$]="paymentMethodsComboData$"></app-bbx-combo-box>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
