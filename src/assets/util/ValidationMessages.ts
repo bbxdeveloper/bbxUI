@@ -10,5 +10,6 @@ export enum ValidationMessage {
     ErrorWrongDate = "Helytelen dátum!",
     ErrorZero = "Az érték nem lehet nulla!",
     ErrorMinLength = "Beírt érték túl rövid!",
-    ErrorMaxLength = "Beírt érték túl hosszú!"
+    ErrorMaxLength = "Beírt érték túl hosszú!",
+    ErrorInvalidSelectedValue = "Választott érték érvénytelen!",
 }

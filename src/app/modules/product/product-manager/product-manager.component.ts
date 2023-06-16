@@ -4,7 +4,7 @@ import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder 
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
@@ -283,21 +283,21 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     let unitOfMeasureValue = HelperFunctions.ConvertChosenUOMToCode(p.unitOfMeasure, this.uom, smallestUomValue);
 
     const res = {
-      id: parseInt(p.id + ''), // TODO
+      id: HelperFunctions.ToInt(p.id),
       ean: p.ean as string,
       vtsz: p.vtsz,
       active: p.active,
       description: p.description,
       isStock: p.isStock,
-      minStock: HelperFunctions.ToInt(p.minStock),
+      minStock: HelperFunctions.ToFloat(p.minStock),
       latestSupplyPrice: HelperFunctions.ToInt(p.latestSupplyPrice),
-      ordUnit: HelperFunctions.ToInt(p.ordUnit),
+      ordUnit: HelperFunctions.ToFloat(p.ordUnit),
       originCode: originCode,
       productGroupCode: productGroupCode,
-      unitPrice1: HelperFunctions.ToInt(p.unitPrice1),
-      unitPrice2: HelperFunctions.ToInt(p.unitPrice2),
+      unitPrice1: HelperFunctions.ToFloat(p.unitPrice1),
+      unitPrice2: HelperFunctions.ToFloat(p.unitPrice2),
       unitOfMeasure: unitOfMeasureValue,
-      productFee: HelperFunctions.ToInt(p.productFee),
+      productFee: HelperFunctions.ToFloat(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode,
       noDiscount: p.noDiscount
@@ -449,6 +449,66 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     }
   }
 
+  private validateProductGroup(control: AbstractControl): any {
+    if (this.productGroups === undefined || this.productGroups.length === 0) {
+      return null
+    }
+
+    const chosenValue = control.value
+
+    if (HelperFunctions.isEmptyOrSpaces(chosenValue)) {
+      return null
+    }
+
+    const wrong = this.productGroups.find(x => x.productGroupDescription === chosenValue) === undefined
+    return wrong ? { invalidSelectedValue: { value: control.value } } : null;
+  }
+
+  private validateUom(control: AbstractControl): any {
+    if (this.uom === undefined || this.uom.length === 0) {
+      return null
+    }
+
+    const chosenValue = control.value
+
+    if (HelperFunctions.isEmptyOrSpaces(chosenValue)) {
+      return null
+    }
+
+    const wrong = this.uom.find(x => x.text === chosenValue) === undefined
+    return wrong ? { invalidSelectedValue: { value: control.value } } : null;
+  }
+
+  private validateOrigin(control: AbstractControl): any {
+    if (this.origins === undefined || this.origins.length === 0) {
+      return null
+    }
+
+    const chosenValue = control.value
+
+    if (HelperFunctions.isEmptyOrSpaces(chosenValue)) {
+      return null
+    }
+
+    const wrong = this.origins.find(x => x.originDescription === chosenValue) === undefined
+    return wrong ? { invalidSelectedValue: { value: control.value } } : null;
+  }
+
+  private validateVats(control: AbstractControl): any {
+    if (this.vats === undefined || this.vats.length === 0) {
+      return null
+    }
+
+    const chosenValue = control.value
+
+    if (HelperFunctions.isEmptyOrSpaces(chosenValue)) {
+      return null
+    }
+
+    const wrong = this.vats.find(x => x.vatRateDescription === chosenValue) === undefined
+    return wrong ? { invalidSelectedValue: { value: control.value } } : null;
+  }
+
   private Setup(): void {
     this.dbData = [];
 
@@ -458,9 +518,9 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       id: new FormControl(undefined, []),
       productCode: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
-      productGroup: new FormControl(undefined, []),
-      origin: new FormControl(undefined, []),
-      unitOfMeasure: new FormControl(undefined, [Validators.required]),
+      productGroup: new FormControl(undefined, [this.validateProductGroup.bind(this)]),
+      origin: new FormControl(undefined, [this.validateOrigin.bind(this)]),
+      unitOfMeasure: new FormControl(undefined, [Validators.required, this.validateUom.bind(this)]),
       unitPrice1: new FormControl(undefined, []),
       unitPrice2: new FormControl(undefined, []),
       latestSupplyPrice: new FormControl(undefined, []),
@@ -471,7 +531,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       active: new FormControl(false, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
-      vatRateCode: new FormControl(undefined, []),
+      vatRateCode: new FormControl(undefined, [this.validateVats.bind(this)]),
       noDiscount: new FormControl(false, [])
     });
 
@@ -662,6 +722,12 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {

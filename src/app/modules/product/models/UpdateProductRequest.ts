@@ -16,4 +16,5 @@ export interface UpdateProductRequest {
     "vtsz": string,
     "ean": string,
     "vatRateCode": string,
+    "noDiscount": boolean
 }

@@ -38,4 +38,7 @@
     <div *ngIf="form?.IsErrorApparent(controlName, 'wrongDate')">
         {{ GetErrorMessage(ValidationMessage.ErrorWrongDate) }}
     </div>
+    <div *ngIf="form?.IsErrorApparent(controlName, 'invalidSelectedValue')">
+        {{ GetErrorMessage(ValidationMessage.ErrorInvalidSelectedValue) }}
+    </div>
 </div>
