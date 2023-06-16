@@ -39,6 +39,8 @@ export interface Customer {
     defPaymentMethod: string,
     defPaymentMethodX: string,
 
+    vatCode?: string,
+
     warningLimit?: number,
     maxLimit?: number,
 
