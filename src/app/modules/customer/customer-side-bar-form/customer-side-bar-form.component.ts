@@ -10,10 +10,12 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { SystemService } from '../../system/services/system.service';
-import { CountryCode } from '../models/CountryCode';
+import { CountryCode, OfflineCountryCodes } from '../models/CountryCode';
 import { CustomerMisc } from '../models/CustomerMisc';
 import { CustomerService } from '../services/customer.service';
 import { InvoiceService } from '../../invoice/services/invoice.service';
+import { OfflinePaymentMethods } from '../../invoice/models/PaymentMethod';
+import { OfflineUnitPriceTypes } from '../models/UnitPriceType';
 
 @Component({
   selector: 'app-customer-side-bar-form',
@@ -155,12 +157,14 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
     const unitPriceType = controls['unitPriceType']
     if (HelperFunctions.isEmptyOrSpaces(unitPriceType.value) && unitPriceTypes.length > 0) {
-      unitPriceType.setValue(unitPriceTypes[0].text)
+      const tmp = unitPriceTypes.find(x => x.text === OfflineUnitPriceTypes.Unit.text) ?? unitPriceTypes[0].text
+      unitPriceType.setValue(tmp)
     }
 
     const defPaymentMethod = controls['defPaymentMethod']
     if (HelperFunctions.isEmptyOrSpaces(defPaymentMethod.value) && paymentMethods.length > 0) {
-      defPaymentMethod.setValue(paymentMethods.find(x => x.value === 'CASH')?.text)
+      const tmp = paymentMethods.find(x => x.text === OfflinePaymentMethods.Cash.text) ?? paymentMethods[0].text
+      defPaymentMethod.setValue(tmp)
     }
   }
 
@@ -172,7 +176,8 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
         this.countryCodes = data?.map(x => x.text) ?? [];
         this.countryCodeComboData$.next(this.countryCodes);
         if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['countryCode'].value) && this.countryCodes.length > 0) {
-          this.currentForm?.form.controls['countryCode'].setValue(this.countryCodes[0])
+          const tmp = this.countryCodes.find(x => x === OfflineCountryCodes.Hu.text) ?? this.countryCodes[0]
+          this.currentForm?.form.controls['countryCode'].setValue(tmp)
         }
       }
     });
