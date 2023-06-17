@@ -155,8 +155,6 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
 
     const controls = this.currentForm!.form.controls
 
-    debugger
-
     const unitPriceType = controls['unitPriceType']
     if (HelperFunctions.isEmptyOrSpaces(unitPriceType.value) && unitPriceTypes.length > 0) {
       const tmp = unitPriceTypes.find(x => x.text === OfflineUnitPriceTypes.Unit.text) ?? unitPriceTypes[0].text
