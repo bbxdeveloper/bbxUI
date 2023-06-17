@@ -381,6 +381,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       this.RecalcNetAndVat()
     }
 
+    if (col === 'discount') {
+      changedData.Discount = Number(changedData.discount)
+    }
+
     if ((!!col && col === 'productCode') || col === undefined) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: product => {
