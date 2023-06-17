@@ -109,6 +109,46 @@ export class BaseManagerComponent<T> {
     this.dbDataTable.flatDesignForm.SetFormStateToDefault();
   }
 
+  ActionExit(data?: IUpdateRequest<T>): void {
+    console.log("ActionNew: ", data);
+
+    if (data?.needConfirmation) {
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+              }
+              this.ProcessActionExit(data);
+            });
+          } else {
+            this.ProcessActionExit(data);
+          }
+        } else {
+          this.dbDataTable.SetFormReadonly(false)
+          this.kbS.SelectFirstTile()
+          this.kbS.ClickCurrentElement()
+        }
+      });
+    } else {
+      this.ProcessActionExit(data);
+    }
+  }
+  ProcessActionExit(data?: IUpdateRequest<T>): void {
+    if ((data as any)?.data?.id !== undefined && ((data as any)?.data?.id !== 0)) {
+      this.RefreshTable((data as any).data.id);
+    } else {
+      this.kbS.SetCurrentNavigatable(this.dbDataTable)
+      this.kbS.SelectFirstTile()
+    }
+  }
+
   ActionLock(data?: IUpdateRequest<T>): void {
     console.log("ActionLock: ", data);
     if (data?.needConfirmation) {

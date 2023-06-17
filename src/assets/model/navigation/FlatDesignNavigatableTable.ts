@@ -157,6 +157,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         });
     }
 
+    ExitFromForm(data?: IUpdateRequest): void {
+        this.updater.ActionExit(data);
+        this.PushFooterCommandList();
+    }
+
     Lock(data?: IUpdateRequest): void {
         this.updater.ActionLock(data);
         this.PushFooterCommandList();
@@ -223,7 +228,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.dataSource.setData(this.data);
 
         this.flatDesignForm.colDefs = this.colDefs;
-        this.flatDesignForm.OuterJump = true;
+        this.flatDesignForm.OuterJump = false;
 
         let includeFilterY = 0;
         if (this.includeSearchInNavigationMatrix) {

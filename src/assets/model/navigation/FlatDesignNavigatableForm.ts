@@ -30,6 +30,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         'ActionReset': false,
         'ActionPut': true,
         'ActionDelete': true,
+        'ActionExit': false
     }
 
     constructor(
@@ -76,6 +77,23 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 this.kbS.isEditModeLocked = false;
             }
         });
+    }
+
+    override HandleFormEscape(): void {
+        if (!this.kbS.isEditModeActivated) {
+            this.ActionExit()
+        }
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.cdref.detectChanges();
+    }
+
+    override ActionExit(data?: IUpdateRequest<T>): void {
+        const dt = this.FillObjectWithForm();
+        this.grid.ExitFromForm({
+            data: dt,
+            rowIndex: this.DataRowIndex,
+            needConfirmation: this.defaultConfirmationSettings[this.ActionExit.name]
+        } as IUpdateRequest);
     }
 
     override ActionLock(data?: IUpdateRequest<T>): void {
