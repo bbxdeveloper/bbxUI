@@ -1,4 +1,6 @@
-import { UnitPriceTypes } from "./UnitPriceType";
+import { OfflinePaymentMethods } from "../../invoice/models/PaymentMethod";
+import { OfflineCountryCodes } from "./CountryCode";
+import { OfflineUnitPriceTypes, UnitPriceTypes } from "./UnitPriceType";
 
 export interface Customer {
     // available in GET
@@ -60,7 +62,7 @@ export function BlankCustomer(): Customer {
         postalCode: '',
         city: '',
         additionalAddressDetail: '',
-        countryCode: 'Magyarország',
+        countryCode: OfflineCountryCodes.Hu.text,
         comment: '',
         createTime: '',
         updateTime: '',
@@ -69,10 +71,10 @@ export function BlankCustomer(): Customer {
         taxpayerId: '',
         countyCode: '',
         email: '',
-        unitPriceType: 'Listaár',
+        unitPriceType: OfflineUnitPriceTypes.Unit.text,
         paymentDays: 8,
         warningLimit: undefined,
         maxLimit: undefined,
-        defPaymentMethod: 'Kp',
+        defPaymentMethod: OfflinePaymentMethods.Cash.text,
     } as Customer;
 }

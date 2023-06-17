@@ -540,7 +540,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       additionalAddressDetail: new FormControl(undefined, [
         Validators.required,
       ]),
-      unitPriceType: new FormControl('Listaár', [Validators.required]),
+      unitPriceType: new FormControl('', [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
