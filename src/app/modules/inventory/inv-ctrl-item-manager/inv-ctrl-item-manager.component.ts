@@ -12,22 +12,17 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCss
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
-import { InvoiceLine } from '../../invoice/models/InvoiceLine';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
-import { InvoiceService } from '../../invoice/services/invoice.service';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
-import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -35,15 +30,12 @@ import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.servic
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { InventoryService } from '../services/inventory.service';
 import { StockService } from '../../stock/services/stock.service';
 import { GetStockRecordParamsModel } from '../../stock/models/GetStockRecordParamsModel';
-import { OneButtonMessageDialogComponent } from '../../shared/simple-dialogs/one-button-message-dialog/one-button-message-dialog.component';
 import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import * as moment from 'moment';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
@@ -292,12 +284,14 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   private UpdateOutGoingData(): void {
     this.offerData.items = this.dbDataTable.data.filter((x, index: number) => index !== this.dbDataTable.data.length - 1).map(x => {
+      const nRealQty = Number(x.data.nRealQty.toString().replace(/\s/, ''))
+
       return {
         "warehouseID": this.SelectedWareHouseId,
         "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1].id),
         "productID": HelperFunctions.ToInt(x.data.productID),
         "invCtrlDate": this.buyerForm.controls['invCtrlDate'].value,
-        "nRealQty": HelperFunctions.ToInt(x.data.nRealQty),
+        "nRealQty": Math.ceil(nRealQty),
         "userID": HelperFunctions.ToInt(x.data.userID),
       } as InvCtrlItemForPost;
     });
@@ -671,7 +665,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       );
       return;
     }
-    
+
     const finishedItems = this.dbData.find(x => !x.data.IsUnfinished())
     if (finishedItems === undefined) {
       this.bbxToastrService.show(
