@@ -181,7 +181,6 @@ export class KeyboardNavigationService {
   }
 
   public SelectElement(id: string): void {
-    // debugger
     this.LogSelectElement();
 
     if (this._locked) {
@@ -889,6 +888,7 @@ export class KeyboardNavigationService {
   }
 
   public NextColumn(): MoveRes {
+    debugger
     const res = { moved: false, jumped: false } as MoveRes
 
     if (this.p.x === this.maxCurrentWorldX && this.p.y < this.maxCurrentWorldY) {
