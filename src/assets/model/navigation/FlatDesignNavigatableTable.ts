@@ -106,6 +106,10 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         'ActionDelete': true,
     }
 
+    public includeSearchInNavigationMatrix: boolean = true
+
+    public lastKnownSelectedRow?: TreeGridNode<T>
+
     constructor(
         f: FormGroup,
         tag: string,
@@ -122,10 +126,12 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         private sidebarFormService: SideBarFormService,
         private updater: IUpdater<T>,
         getBlankInstance: () => T,
-        private includeSearchInNavigationMatrix: boolean = true,
+        includeSearchInNavigationMatrix: boolean = true,
         colDefs: ModelFieldDescriptor[] = []
     ) {
         super();
+        
+        this.includeSearchInNavigationMatrix = includeSearchInNavigationMatrix
 
         this.formAttachDirection = formAttachDirection;
 
@@ -368,6 +374,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.kbs.SetPosition(colPos, rowPos, this);
 
+        this.lastKnownSelectedRow = row
         this.prevSelectedRow = row;
         this.prevSelectedRowPos = rowPos;
         this.prevSelectedCol = col;

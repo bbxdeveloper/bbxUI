@@ -79,11 +79,19 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         });
     }
 
-    override HandleFormEscape(): void {
+    override HandleFormEscape(event?: any): void {
         if (!this.kbS.isEditModeActivated) {
+            event?.preventDefault()
+            event?.stopImmediatePropagation()
+            event?.stopPropagation()
+            
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
             this.ActionExit()
         }
+
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
         this.cdref.detectChanges();
     }
 

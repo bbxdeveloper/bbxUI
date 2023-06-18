@@ -141,12 +141,75 @@ export class BaseManagerComponent<T> {
     }
   }
   ProcessActionExit(data?: IUpdateRequest<T>): void {
-    if ((data as any)?.data?.id !== undefined && ((data as any)?.data?.id !== 0)) {
-      this.RefreshTable((data as any).data.id);
+    setTimeout(() => {
+      if (data === undefined || data.data === undefined) {
+        this.ExitWithNewOrEmptyData()
+      }
+
+      const dataToRecords = this.CompareDataToRecords(data?.data)
+
+      if (dataToRecords > -1) {
+        data!.needConfirmation = this.dbDataTable.flatDesignForm.defaultConfirmationSettings['ActionPut']
+        if (!this.dbDataTable.flatDesignForm.form.invalid) {
+          this.ActionPutOnExit(data)
+        } else {
+          this.RefreshTable(this.GetIdFromGeneric((data as any).data));
+        }
+      } else {
+        if (!this.dbDataTable.flatDesignForm.form.invalid) {
+          data!.needConfirmation = this.dbDataTable.flatDesignForm.defaultConfirmationSettings['ActionNew']
+          this.ActionNewOnExit(data)
+        } else {
+          this.ExitWithNewOrEmptyData()
+        }
+        if (this.dbDataTable.lastKnownSelectedRow !== undefined && this.dbDataTable.lastKnownSelectedRow.data !== undefined) {
+          if (this.dbData.length > 0 && this.CompareDataToRecords((this.dbDataTable.lastKnownSelectedRow as any).data)) {
+            const prevId = this.GetIdFromGeneric((this.dbDataTable.lastKnownSelectedRow as any).data)
+            this.RefreshTable(prevId);
+          }
+        }
+      }
+    }, 300);
+  }
+  ExitWithNewOrEmptyData(): void {
+    if (this.dbData.length === 0 && !this.dbDataTable.includeSearchInNavigationMatrix) {
+      this.kbS.SetPosition(0, 0)
+      this.kbS.ResetToRoot()
+      this.kbS.SelectFirstTile()
     } else {
       this.kbS.SetCurrentNavigatable(this.dbDataTable)
       this.kbS.SelectFirstTile()
     }
+  }
+
+  /**
+   * -1 = new record
+   * 0 = existing record
+   * 1 = updated existing record
+   * @param data 
+   * @returns 
+   */
+  CompareDataToRecords(data?: any): number {
+    if (data === undefined) {
+      return -1
+    }
+
+    const keys = Object.keys(data)
+    const idKey = keys.find(x => x.toLowerCase() === 'id')!
+
+    const item = this.dbData.find(x => (x.data as any)[idKey] === data[idKey])
+    
+    if (item !== undefined) {
+      return 1
+    } else {
+      return -1
+    }
+  }
+
+  GetIdFromGeneric(data?: any): any {
+    const keys = Object.keys(data)
+    const idKey = keys.find(x => x.toLowerCase() === 'id')!
+    return data[idKey]
   }
 
   ActionLock(data?: IUpdateRequest<T>): void {
@@ -198,6 +261,36 @@ export class BaseManagerComponent<T> {
       this.ProcessActionNew(data);
     }
   }
+  ActionNewOnExit(data?: IUpdateRequest<T>): void {
+    console.log("ActionNewOnExit: ", data);
+
+    if (data?.needConfirmation) {
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+              }
+              this.ProcessActionNew(data);
+            });
+          } else {
+            this.ProcessActionNew(data);
+          }
+        } else {
+          this.ExitWithNewOrEmptyData()
+          this.dbDataTableForm.reset()
+        }
+      });
+    } else {
+      this.ProcessActionNew(data);
+    }
+  }
   ProcessActionNew(data?: IUpdateRequest<T>): void { }
 
   ActionReset(data?: IUpdateRequest<T>): void {
@@ -231,6 +324,34 @@ export class BaseManagerComponent<T> {
           this.dbDataTable.SetFormReadonly(false)
           this.kbS.SelectFirstTile()
           this.kbS.ClickCurrentElement()
+        }
+      });
+    } else {
+      this.ProcessActionPut(data);
+    }
+  }
+  ActionPutOnExit(data?: IUpdateRequest<T>): void {
+    console.log("ActionPutOnExit: ", data);
+    if (data?.needConfirmation) {
+      const dialogRef = this.dialogService.open(
+        ConfirmationDialogComponent,
+        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
+      );
+      dialogRef.onClose.subscribe(res => {
+        if (res) {
+          if (this.searchString !== undefined && this.searchString.length > 0) {
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            dialogRef.onClose.subscribe(res => {
+              if (res) {
+                this.clearSearch();
+              }
+              this.ProcessActionPut(data);
+            });
+          } else {
+            this.ProcessActionPut(data);
+          }
+        } else {
+          this.RefreshTable(this.GetIdFromGeneric((data as any).data));
         }
       });
     } else {

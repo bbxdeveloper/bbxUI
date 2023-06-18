@@ -482,6 +482,7 @@ export class InvCtrlPeriodManagerComponent
             this.wareHouses = wHouses;
           }
           if (!!d) {
+            d.data = []
             this.dbData = d.data.map((x) => {
               return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
             });
