@@ -28,6 +28,7 @@ import { WhsStatus, WhsTransferService } from '../../services/whs-transfer.servi
 import { Router } from '@angular/router';
 import { FinalizeWhsTransferRequest } from '../../models/whs/FinalizeWhsTransferRequest';
 import { ConfirmationDialogComponent } from 'src/app/modules/shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
+import { LoggerService } from 'src/app/services/logger.service';
 
 export const TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
 
@@ -195,9 +196,10 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     sts: StatusService,
     private router: Router,
     private khs: KeyboardHelperService,
-    private printAndDownloadService: PrintAndDownloadService
+    private printAndDownloadService: PrintAndDownloadService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = Constants.SearchInputId;
     this.dbDataTableId = 'product-table';
     this.dbDataTableEditId = 'user-cell-edit-input';

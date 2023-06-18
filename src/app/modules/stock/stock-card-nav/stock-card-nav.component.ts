@@ -39,6 +39,7 @@ import { Subscription } from 'rxjs';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -263,9 +264,10 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     private infrastructureService: InfrastructureService,
     private utS: PrintAndDownloadService,
     private wareHouseApi: WareHouseService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
 
     this.refreshComboboxData();
 

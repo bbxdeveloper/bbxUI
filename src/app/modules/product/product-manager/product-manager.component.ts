@@ -32,6 +32,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { lastValueFrom } from 'rxjs';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { Actions } from 'src/assets/util/KeyBindings';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-product-manager',
@@ -201,9 +202,10 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     private vatApi: VatRateService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'product-table';
     this.dbDataTableEditId = 'user-cell-edit-input';

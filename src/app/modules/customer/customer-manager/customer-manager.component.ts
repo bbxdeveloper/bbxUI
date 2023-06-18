@@ -29,6 +29,7 @@ import { FormHelper } from 'src/assets/util/FormHelper';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-customer-manager',
@@ -300,9 +301,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     cs: CommonService,
     sts: StatusService,
     private readonly invoiceService: InvoiceService,
-    private readonly keyboardHelperService: KeyboardHelperService
+    private readonly keyboardHelperService: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.SetAllColumns();
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'customer-table';
