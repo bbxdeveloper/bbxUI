@@ -23,6 +23,7 @@ import { CustomerInvoiceSummary } from '../../models/CustomerInvoiceSummary/Cust
 import { CustomerInvoiceSummaryFilterFormData } from '../customer-invoice-summary-filter-form/CustomerInvoiceSummaryFilterFormData';
 import { GetCustomerInvoiceSummaryParamListModel } from '../../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 import { InvoiceService } from '../../services/invoice.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-customer-invoice-summary-manager',
@@ -151,9 +152,10 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     cs: CommonService,
     sts: StatusService,
     private khs: KeyboardHelperService,
-    private printAndDownloadService: PrintAndDownloadService
+    private printAndDownloadService: PrintAndDownloadService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'product-table';
     this.dbDataTableEditId = 'user-cell-edit-input';

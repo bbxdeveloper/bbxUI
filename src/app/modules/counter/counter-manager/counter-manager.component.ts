@@ -27,6 +27,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { lastValueFrom } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-counter-manager',
@@ -164,9 +165,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     private wareHouseApi: WareHouseService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'counter-table';
     this.dbDataTableEditId = 'user-cell-edit-input';

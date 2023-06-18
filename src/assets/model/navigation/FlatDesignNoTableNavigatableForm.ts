@@ -164,6 +164,8 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         this.formMode = Constants.FormState.new;
     }
 
+    ActionExit(data?: IUpdateRequest<T>): void { }
+    
     ActionLock(data?: IUpdateRequest<T>): void { }
 
     ActionNew(data?: IUpdateRequest<T>): void {

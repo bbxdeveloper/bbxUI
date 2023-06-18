@@ -302,9 +302,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     sts: StatusService,
     private readonly invoiceService: InvoiceService,
     private readonly keyboardHelperService: KeyboardHelperService,
-    private readonly logger: LoggerService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.SetAllColumns();
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'customer-table';

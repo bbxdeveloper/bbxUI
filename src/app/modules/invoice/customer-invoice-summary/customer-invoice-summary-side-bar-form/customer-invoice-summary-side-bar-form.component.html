@@ -1,7 +1,7 @@
 <nb-card>
     <nb-card-body class="bbx-fd-ncb">
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
-            (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape()"
+            (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape($event)"
             (click)="currentForm.HandleFormClick()">
 
             <nb-form-field>
