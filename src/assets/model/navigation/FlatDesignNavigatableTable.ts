@@ -146,7 +146,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.tag = tag;
 
         this.getBlankInstance = getBlankInstance;
-        
+
         this.kbs.NavigatableChanged.subscribe({
             next: (newNav: string) => {
                 if (newNav !== this.flatDesignForm.constructor.name) {
@@ -295,7 +295,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     SetBlankInstanceForForm(openSideBar: boolean, jump: boolean = true): void {
         console.log("SetBlankInstanceForForm");
-        
+
         const creatorRow = this.GenerateCreatorRow;
 
         if (environment.flatDesignTableDebug) {
@@ -310,14 +310,14 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.SetDataForEdit(creatorRow, -1, '');
         this.SyncNeighbourRelations()
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
-        
+
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
         this.flatDesignForm.PreviousYOnGrid = this.kbs.p.y;
-        
+
         this.flatDesignForm.SetClean();
 
         this.flatDesignForm.SetFormStateToNew();
-        
+
         if (openSideBar) {
             this.sidebarService.expand();
         }
@@ -482,9 +482,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     /**
      * Formban található adatok beállítása létrehozás és szerkesztéshez
-     * @param row 
-     * @param openSideBar 
-     * @param jump 
+     * @param row
+     * @param openSideBar
+     * @param jump
      */
     SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
         if (environment.flatDesignTableDebug) {
@@ -516,9 +516,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     /**
      * Formban található adatok beállítása kifejezetten readonly formhoz
-     * @param row 
-     * @param openSideBar 
-     * @param jump 
+     * @param row
+     * @param openSideBar
+     * @param jump
      */
     SetDataForReadonlyForm(row: TreeGridNode<T>, openSideBar: boolean): void {
         if (environment.flatDesignTableDebug) {
@@ -552,8 +552,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
     /**
      * Open sidebarform for readonly
-     * @param setFormForNew 
-     * @returns 
+     * @param setFormForNew
+     * @returns
      */
     private HandleToggleSideBarForm(setFormForNew: boolean = false): void {
         if (this.ReadonlyForm &&
@@ -603,7 +603,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     Create(): void {
         this.ReadonlySideForm = false;
         this.HandleEditAndNew(true);
-        this.JumpToFirstFormField(); 
+        this.JumpToFirstFormField();
     }
 
     Edit(): void {
@@ -642,7 +642,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 if (this.data.length === 0) {
                     return
                 }
-                
+
                 this.ReadonlySideForm = false;
                 this.HandleEditAndNew(false);
                 this.JumpToFirstFormField();
@@ -668,6 +668,18 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 }
                 break;
             }
+            case this.KeySetting[Actions.Reset].KeyCode: {
+                console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Reset].FunctionLabel}, ${Actions[Actions.Reset]}`);
+                event.preventDefault()
+                if (this.sidebarService.sideBarOpened) {
+
+                    const position = this.prevSelectedRowPos ?? 1
+                    const index = position - 1
+
+                    this.flatDesignForm.SetDataForEdit(this.data[index], position, '')
+                }
+                break
+            }
             default: { }
         }
     }
@@ -690,11 +702,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         tabKeyDownEvent?.preventDefault();
         tabKeyDownEvent?.stopImmediatePropagation();
         tabKeyDownEvent?.stopPropagation();
-        
+
         if (row !== undefined && rowPos !== undefined && col !== undefined && colPos !== undefined) {
             this.HandleGridClick(row, rowPos, col, colPos);
         }
-        
+
         this.kbs.Jump(this.flatDesignForm.attachDirection, true);
         this.flatDesignForm.PushFooterCommandList();
     }

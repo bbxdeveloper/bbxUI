@@ -144,7 +144,6 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         if (environment.flatDesignFormDebug) {
             console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
         }
-        console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
         this.DataRowIndex = rowPos;
         this.DataToEdit = row;
         this.FillFormWithObject(this.DataToEdit?.data);

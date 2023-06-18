@@ -181,6 +181,7 @@ export class KeyboardNavigationService {
   }
 
   public SelectElement(id: string): void {
+    // debugger
     this.LogSelectElement();
 
     if (this._locked) {
