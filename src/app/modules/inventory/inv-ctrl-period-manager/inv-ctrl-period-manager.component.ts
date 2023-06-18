@@ -31,6 +31,7 @@ import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodPa
 import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
 import { lastValueFrom } from 'rxjs';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-inv-ctrl-period-manager',
@@ -155,9 +156,10 @@ export class InvCtrlPeriodManagerComponent
     cs: CommonService,
     sts: StatusService,
     private wService: WareHouseService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'inv-ctrl-period-table';
     this.dbDataTableEditId = 'user-cell-edit-input';

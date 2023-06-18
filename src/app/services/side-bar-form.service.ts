@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/Nav';
 import { LoggerService } from './logger.service';
+import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 
 export interface FormSubjectData {
   form?: FlatDesignNavigatableForm,
