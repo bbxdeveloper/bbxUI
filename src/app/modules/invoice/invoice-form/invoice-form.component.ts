@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, pairwise } from 'rxjs';
 import { validDate } from 'src/assets/model/Validators';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -141,7 +141,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
     let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
 
-    const wrong = deliveryDate?.isAfter(issueDate, "day") || deliveryDate?.isAfter(undefined, "day")
+    const wrong = deliveryDate?.isAfter(issueDate, "day")
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
@@ -153,7 +153,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
     let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
 
-    const wrong = issueDate?.isBefore(deliveryDate, "day") || issueDate?.isAfter(undefined, "day");
+    const wrong = issueDate?.isBefore(deliveryDate, "day")
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
@@ -180,6 +180,28 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
       this
     )
     this.outInvFormNav.OuterJump = true
+
+    this.outInvForm.controls['invoiceDeliveryDate'].valueChanges
+      .pipe(pairwise())
+      .subscribe({
+        next: ([oldValue, newValue]: [string, string]) => {
+          if (oldValue !== newValue) {
+            this.outInvForm.controls['invoiceIssueDate'].updateValueAndValidity()
+            this.outInvForm.controls['paymentDate'].updateValueAndValidity()
+          }
+        }
+      });
+
+    this.outInvForm.controls['invoiceIssueDate'].valueChanges
+      .pipe(pairwise())
+      .subscribe({
+        next: ([oldValue, newValue]: [string, string]) => {
+          if (oldValue !== newValue) {
+            this.outInvForm.controls['invoiceDeliveryDate'].updateValueAndValidity()
+            this.outInvForm.controls['paymentDate'].updateValueAndValidity()
+          }
+        }
+      });
 
     const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
