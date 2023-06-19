@@ -888,7 +888,6 @@ export class KeyboardNavigationService {
   }
 
   public NextColumn(): MoveRes {
-    debugger
     const res = { moved: false, jumped: false } as MoveRes
 
     if (this.p.x === this.maxCurrentWorldX && this.p.y < this.maxCurrentWorldY) {
