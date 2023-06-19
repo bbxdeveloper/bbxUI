@@ -26,6 +26,7 @@ import { lastValueFrom } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -158,9 +159,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'usermanager-table';
     this.dbDataTableEditId = 'user-cell-edit-input';

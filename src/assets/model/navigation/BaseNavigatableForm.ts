@@ -11,6 +11,7 @@ import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { IFunctionHandler } from "./IFunctionHandler";
 import { BlankComboBoxValue } from "./Nav";
 import { INavigatable, AttachDirection, TileCssClass, TileCssColClass, JumpDestination } from "./Navigatable";
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigatable, IUpdater<T> {
     Matrix: string[][] = [[]];
@@ -130,6 +131,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         return this.formMode == Constants.FormState.default;
     }
 
+    ActionExit(data?: IUpdateRequest<T>): void { }
     ActionLock(data?: IUpdateRequest<T>): void { }
     ActionNew(data?: IUpdateRequest<T>): void { }
     ActionReset(data?: IUpdateRequest<T>): void { }
@@ -286,7 +288,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         }
     }
 
-    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false): void {
+    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
 
         if (preventEvent) {
@@ -304,7 +306,17 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
             event.preventDefault();
             event.stopImmediatePropagation();
             event.stopPropagation();
-            return;
+
+            if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
+                return
+            }
+
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.toLowerCase())
+            if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
+                this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
+            } else {
+                return;
+            }
         }
 
         if (ad !== null && itemCount > 1) {
