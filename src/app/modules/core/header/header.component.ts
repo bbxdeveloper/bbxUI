@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, Input, OnDestroy, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { NbDialogService, NbIconConfig, NbPopoverDirective, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -13,14 +13,12 @@ import { LoginDialogComponent } from '../../auth/login-dialog/login-dialog.compo
 import { LoginDialogResponse } from '../../auth/models/LoginDialogResponse';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { AuthService } from '../../auth/services/auth.service';
-import { AttachDirection, SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
+import { SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
-import { DateIntervalDialogComponent } from '../../shared/simple-dialogs/date-interval-dialog/date-interval-dialog.component';
-import { DateIntervalDialogResponse } from 'src/assets/model/DateIntervalDialogResponse';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { CommonService } from 'src/app/services/common.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-header',
@@ -95,7 +93,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private readonly simpleToastrService: NbToastrService,
     private readonly status: StatusService,
     private readonly keyboardHelperService: KeyboardHelperService,
-    private readonly commonService: CommonService) {
+    private readonly commonService: CommonService,
+    private readonly loggerService: LoggerService) {
     super();
     this.OuterJump = true;
   }
@@ -154,8 +153,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       }
     }
 
-    //if (environment.debug)
-    console.log("[HeaderComponent] Generated header matrix: ", this.Matrix, "\nSubmapping: ", this.SubMapping);
+    this.loggerService.info(`[HeaderComponent] Generated header matrix: '${JSON.stringify(this.Matrix)}' \nSubmapping: '${JSON.stringify(this.SubMapping)}'`);
 
     this.keyboardService.SetRoot(this);
   }
@@ -179,7 +177,15 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
    */
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key === KeyBindings.F5) {
-      this.router.navigateByUrl('/')
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      event.stopPropagation()
+
+      this.goTo('/')
+      this.keyboardService.ClickCurrentElement()
+      this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
+
+      return
     }
 
     if (this.bbxToastrService.IsToastrOpened) {
@@ -189,17 +195,17 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
       this.bbxToastrService.close();
 
-      return;
+      return
     }
 
     if (this.keyboardService.IsLocked() || this.status.InProgress || this.keyboardHelperService.IsKeyboardBlocked) {
-      console.log("[onKeyDown] Movement is locked!");
+      this.loggerService.info("[onKeyDown] Movement is locked!");
 
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
 
-      return;
+      return
     }
 
     switch (event.key) {
@@ -247,15 +253,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   goTo(link: string): void {
-    this.keyboardService.MoveRight();
-    this.popover?.forEach(x => x?.hide());
+    this.popover?.forEach(x => x?.hide())
     if (link === "home") {
-      this.router.navigate([link]);
+      this.router.navigate([link])
     } else {
-      this.router.navigate(["home"]);
+      this.router.navigate(["home"])
       setTimeout(() => {
-        this.router.navigate([link]);
-      }, 50);
+        this.router.navigate([link])
+      }, 50)
     }
   }
 
