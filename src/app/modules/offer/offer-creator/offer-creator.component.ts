@@ -196,6 +196,10 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
       this.buyerForm.controls['currencyCode'].valueChanges.subscribe({
         next: async newValue => {
+          if (this.currencyCodes.find(x => x === newValue) === undefined) {
+            return
+          }
+
           this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
           let newExchangeRate = 1;

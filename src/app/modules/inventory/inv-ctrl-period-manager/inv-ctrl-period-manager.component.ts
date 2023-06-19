@@ -31,6 +31,7 @@ import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodPa
 import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
 import { lastValueFrom } from 'rxjs';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-inv-ctrl-period-manager',
@@ -155,9 +156,10 @@ export class InvCtrlPeriodManagerComponent
     cs: CommonService,
     sts: StatusService,
     private wService: WareHouseService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'inv-ctrl-period-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
@@ -569,10 +571,10 @@ export class InvCtrlPeriodManagerComponent
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.SetTableAndFormCommandListFromManager();
-    
+
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();
-    
+
     //this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
@@ -657,6 +659,15 @@ export class InvCtrlPeriodManagerComponent
         console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
+      }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
       }
       default: { }
     }

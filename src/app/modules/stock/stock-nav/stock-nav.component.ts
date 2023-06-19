@@ -42,6 +42,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UpdateStockLocationRequest } from '../models/UpdateStockLocationRequest';
 import { LocationService } from '../../location/services/location.service';
 import { Location } from '../../location/models/Location';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-stock-nav',
@@ -214,9 +215,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     private wareHouseApi: WareHouseService,
     private khs: KeyboardHelperService,
     private productService: ProductService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.Setup();
   }
 
@@ -665,6 +667,12 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     }
 
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.Edit].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

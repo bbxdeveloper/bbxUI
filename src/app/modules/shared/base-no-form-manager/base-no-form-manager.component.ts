@@ -100,6 +100,8 @@ export class BaseNoFormManagerComponent<T> {
     this.dbDataTable.flatDesignForm.SetFormStateToDefault();
   }
 
+  ActionExit(data?: IUpdateRequest<T>): void { }
+
   ActionLock(data?: IUpdateRequest<T>): void {
     this.ProcessActionLock(data);
   }

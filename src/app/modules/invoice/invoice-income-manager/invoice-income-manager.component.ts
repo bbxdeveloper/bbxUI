@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
+import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -425,7 +425,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
     let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
 
-    const wrong = deliveryDate?.isAfter(issueDate, "day") || deliveryDate?.isAfter(undefined, "day")
+    const wrong = deliveryDate?.isAfter(issueDate, "day")
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
@@ -437,7 +437,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
     let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
 
-    const wrong = issueDate?.isBefore(deliveryDate, "day") || issueDate?.isAfter(undefined, "day");
+    const wrong = issueDate?.isBefore(deliveryDate, "day")
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
@@ -461,15 +461,27 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     this.outInvForm.controls['invoiceDeliveryDate'].setValue(dateStr);
     this.outInvForm.controls['paymentDate'].setValue(dateStr);
 
-    this.outInvForm.controls['invoiceIssueDate'].valueChanges.subscribe({
-      next: p => {
-        this.outInvForm.controls['invoiceDeliveryDate'].setValue(this.outInvForm.controls['invoiceDeliveryDate'].value);
-        this.outInvForm.controls['invoiceDeliveryDate'].markAsTouched();
+    this.outInvForm.controls['invoiceDeliveryDate'].valueChanges
+      .pipe(pairwise())
+      .subscribe({
+        next: ([oldValue, newValue]: [string, string]) => {
+          if (oldValue !== newValue) {
+            this.outInvForm.controls['invoiceIssueDate'].updateValueAndValidity()
+            this.outInvForm.controls['paymentDate'].updateValueAndValidity()
+          }
+        }
+      });
 
-        this.outInvForm.controls['paymentDate'].setValue(this.outInvForm.controls['paymentDate'].value);
-        this.outInvForm.controls['paymentDate'].markAsTouched();
-      }
-    });
+    this.outInvForm.controls['invoiceIssueDate'].valueChanges
+      .pipe(pairwise())
+      .subscribe({
+        next: ([oldValue, newValue]: [string, string]) => {
+          if (oldValue !== newValue) {
+            this.outInvForm.controls['invoiceDeliveryDate'].updateValueAndValidity()
+            this.outInvForm.controls['paymentDate'].updateValueAndValidity()
+          }
+        }
+      });
   }
 
   ToFloat(p: any): number {
