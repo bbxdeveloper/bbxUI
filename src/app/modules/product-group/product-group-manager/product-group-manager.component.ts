@@ -363,6 +363,12 @@ export class ProductGroupManagerComponent
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {
