@@ -47,6 +47,8 @@ export interface Customer {
     maxLimit?: number,
 
     paymentDays: number,
+
+    latestDiscountPercent?: number
 }
 
 export function BlankCustomer(): Customer {
@@ -76,5 +78,6 @@ export function BlankCustomer(): Customer {
         warningLimit: undefined,
         maxLimit: undefined,
         defPaymentMethod: OfflinePaymentMethods.Cash.text,
+        latestDiscountPercent: undefined
     } as Customer;
 }

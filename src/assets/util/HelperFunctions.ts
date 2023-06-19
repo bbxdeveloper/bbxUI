@@ -255,7 +255,7 @@ export module HelperFunctions {
     }
 
     export function ToOptionalInt(p: any): number | undefined {
-        return !(p !== null && p !== undefined && p !== '' && p !== ' ') ? parseInt((p + '').replace(/\s/g, '')) : undefined;
+        return isEmptyOrSpaces(p) ? undefined : parseInt((p + '').replace(/\s/g, ''));
     }
 
     export function Round(p: string | number): number {

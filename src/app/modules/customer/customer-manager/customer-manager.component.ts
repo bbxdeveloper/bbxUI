@@ -367,6 +367,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       warningLimit: HelperFunctions.ToOptionalInt(customer.warningLimit),
       paymentDays: Number(customer.paymentDays),
       defPaymentMethod: defPaymentMethod,
+      latestDiscountPercent: HelperFunctions.ToOptionalInt(customer.latestDiscountPercent),
     } as CreateCustomerRequest;
     return res;
   }
@@ -385,10 +386,11 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     customer.defPaymentMethod = this.paymentMethods.find(x => x.text === customer.defPaymentMethod)?.value ?? 'CASH'
 
-    customer.maxLimit = customer.maxLimit ? Number(customer.maxLimit) : undefined
-    customer.warningLimit = customer.warningLimit ? Number(customer.warningLimit) : undefined
+    customer.maxLimit = HelperFunctions.ToOptionalInt(customer.maxLimit)
+    customer.warningLimit = HelperFunctions.ToOptionalInt(customer.warningLimit)
 
     customer.paymentDays = Number(customer.paymentDays)
+    customer.latestDiscountPercent = HelperFunctions.ToOptionalInt(customer.latestDiscountPercent)
 
     return customer;
   }
@@ -556,7 +558,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       paymentDays: new FormControl(8, [
         this.paymentDateValidation.bind(this)
       ]),
-      defPaymentMethod: new FormControl('', [Validators.required])
+      defPaymentMethod: new FormControl('', [Validators.required]),
+      latestDiscountPercent: new FormControl(undefined, [])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(

@@ -884,11 +884,24 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+    let defaultDiscountPercent: number | undefined = undefined
+    if (!this.mode.incoming) {
+      switch (this.mode.invoiceType) {
+        case InvoiceTypes.DNO:
+        case InvoiceTypes.INV: {
+          defaultDiscountPercent = this.customerData.latestDiscountPercent
+          break;
+        }
+        default: {}
+      }
+    }
+
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData,
         customer: this.buyerData,
-        checkCustomerLimit: this.mode.checkCustomerLimit
+        checkCustomerLimit: this.mode.checkCustomerLimit,
+        defaultDiscountPercent: defaultDiscountPercent
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
