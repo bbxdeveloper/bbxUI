@@ -545,6 +545,12 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     }
 
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

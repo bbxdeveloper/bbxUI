@@ -667,6 +667,12 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     }
 
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.Edit].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

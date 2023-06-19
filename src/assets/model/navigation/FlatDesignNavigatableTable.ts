@@ -629,6 +629,11 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
                 event.preventDefault();
+
+                if (this.data.length === 0 || this.prevSelectedRowPos === undefined || this.prevSelectedRowPos < 0) {
+                    return
+                }
+
                 this.ReadonlySideForm = true;
                 this.HandleToggleSideBarForm(true);
                 break;
