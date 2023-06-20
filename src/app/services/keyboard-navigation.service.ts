@@ -995,7 +995,7 @@ export class KeyboardNavigationService {
   }
 
   public SetWidgetNavigatable(n: INavigatable): void {
-    this.loggerService.info(`[SetWidgetNavigatable] Navigatable: ${n.constructor.name}, JSON: ${JSON.stringify(n)}`)
+    this.loggerService.info(`[SetWidgetNavigatable] Navigatable: ${n.constructor.name}`)
 
     this.CurrentNavigatable.LastX = this.p.x;
     this.CurrentNavigatable.LastY = this.p.y;
