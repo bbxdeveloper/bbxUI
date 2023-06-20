@@ -177,6 +177,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
    */
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key === KeyBindings.F5) {
+      this.loggerService.info("[onKeyDown] Ctrl+F5 pressed, navigating to home...")
+
       event.preventDefault()
       event.stopImmediatePropagation()
       event.stopPropagation()
@@ -254,6 +256,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   goTo(link: string): void {
     this.popover?.forEach(x => x?.hide())
+    this.keyboardService.RemoveWidgetNavigatable()
     if (link === "home") {
       this.router.navigate([link])
     } else {
