@@ -34,6 +34,7 @@ import { InvoiceNavFilter } from '../models/InvoiceNavFilter';
 import { SystemService } from '../../system/services/system.service';
 import { InvoiceType } from '../../system/models/InvoiceType';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -372,9 +373,10 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     tokenStorage: TokenStorageService,
     private readonly localStorage: LocalStorageService,
     private readonly systemService: SystemService,
-    private readonly printAndDownloadService: PrintAndDownloadService
+    private readonly printAndDownloadService: PrintAndDownloadService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
 
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'invoices-table';
@@ -768,6 +770,12 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
 
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

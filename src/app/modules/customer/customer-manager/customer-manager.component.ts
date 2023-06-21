@@ -29,6 +29,7 @@ import { FormHelper } from 'src/assets/util/FormHelper';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-customer-manager',
@@ -300,9 +301,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     cs: CommonService,
     sts: StatusService,
     private readonly invoiceService: InvoiceService,
-    private readonly keyboardHelperService: KeyboardHelperService
+    private readonly keyboardHelperService: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.SetAllColumns();
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'customer-table';
@@ -540,7 +542,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       additionalAddressDetail: new FormControl(undefined, [
         Validators.required,
       ]),
-      unitPriceType: new FormControl('Listaár', [Validators.required]),
+      unitPriceType: new FormControl('', [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
       isOwnData: new FormControl(false, []),
@@ -626,7 +628,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       this.Subscription_Refresh.unsubscribe();
     }
 
-    console.log('Refreshing');
+    this.loggerService.info('Refreshing');
 
     this.isLoading = true;
     this.Subscription_Refresh = this.customerService.GetAll(params).subscribe({
@@ -658,7 +660,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   async RefreshAsync(params?: GetCustomersParamListModel): Promise<void> {
-    console.log('Refreshing');
+    this.loggerService.info('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.customerService.GetAll(params))
       .then(d => {
@@ -703,7 +705,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   public ngOnDestroy(): void {
-    console.log('Detach');
+    this.loggerService.info('Detach');
     this.kbS.Detach();
   }
 
@@ -718,6 +720,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {
@@ -728,7 +736,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
+        this.loggerService.info(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
@@ -737,7 +745,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.loggerService.info(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -746,7 +754,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
+        this.loggerService.info(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -755,7 +763,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.loggerService.info(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -764,7 +772,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
+        this.loggerService.info(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -773,9 +781,18 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
+        this.loggerService.info(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
+      }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
       }
       default: { }
     }

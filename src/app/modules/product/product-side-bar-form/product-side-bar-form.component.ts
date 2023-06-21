@@ -31,15 +31,15 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   _productGroups: ProductGroup[] = [];
   productGroups: string[] = [];
   productGroupComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-  
+
   // UnitOfMeasure
   uom: string[] = [];
   uomComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-  
+
   // Origin
   origins: string[] = [];
   originsComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-  
+
   // Origin
   vatRates: string[] = [];
   vatRateComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
@@ -63,6 +63,13 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   }
   ngAfterViewInit(): void {
     this.currentForm?.AfterViewInitSetup();
+  }
+
+  public fixCursorPosition(event: FocusEvent) {
+    const input = event.target as HTMLInputElement
+    const position = input.value.indexOf('.')
+    input.selectionStart = position
+    input.selectionEnd = position
   }
 
   private refreshComboboxData(): void {

@@ -188,7 +188,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   }
 
   private setNewPrice(oldPrice: number, changeRatePercent: number): number {
-    return oldPrice === 0 ? this.newPrice : oldPrice * changeRatePercent
+    const newPrice = oldPrice === 0 ? this.newPrice : oldPrice * changeRatePercent
+    return HelperFunctions.Round(newPrice)
   }
 
   public moveToButtons(event: Event): void {

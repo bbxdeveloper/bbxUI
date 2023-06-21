@@ -21,6 +21,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { lastValueFrom } from 'rxjs';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-location-manager',
@@ -100,9 +101,10 @@ export class LocationManagerComponent
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'location-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
@@ -367,6 +369,12 @@ export class LocationManagerComponent
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {
@@ -425,6 +433,15 @@ export class LocationManagerComponent
         console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
+      }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
       }
       default: { }
     }

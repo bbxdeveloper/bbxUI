@@ -7,6 +7,7 @@ import { environment } from "src/environments/environment";
 import { IInlineManager } from "../IInlineManager";
 import { BlankComboBoxValue } from "./Nav";
 import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class InlineTableNavigatableForm implements INavigatable {
     Matrix: string[][] = [[]];
@@ -202,8 +203,14 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
-    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string): void {
+    HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+
+        if (preventEvent) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+        }
 
         const ad = (event.target as any).getAttribute("aria-activedescendant");
         if (this.kbS.isEditModeActivated &&
@@ -213,7 +220,17 @@ export class InlineTableNavigatableForm implements INavigatable {
             event.preventDefault();
             event.stopImmediatePropagation();
             event.stopPropagation();
-            return;
+
+            if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
+                return
+            }
+
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.toLowerCase())
+            if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
+                this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
+            } else {
+                return;
+            }
         }
 
         if (ad !== null && itemCount > 1) {

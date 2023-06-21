@@ -5,7 +5,7 @@
         </app-crud-buttons>
 
         <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
-            (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape()"
+            (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape($event)"
             (click)="currentForm.HandleFormClick()">
 
             <div class="bbx-fd-form-field-wrapper-div-row">

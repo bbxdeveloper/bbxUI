@@ -26,6 +26,7 @@ import { lastValueFrom } from 'rxjs';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -158,9 +159,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
     sts: StatusService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    loggerService: LoggerService
   ) {
-    super(dialogService, kbS, fS, sidebarService, cs, sts);
+    super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'usermanager-table';
     this.dbDataTableEditId = 'user-cell-edit-input';
@@ -206,12 +208,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
           this.kbS.p.x = lastX
           this.kbS.p.y = lastY
-          
+
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.ClickCurrentElement()
-          
+
           this.dbDataTable.Create()
-          
+
           this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
@@ -257,12 +259,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
           this.kbS.p.x = lastX
           this.kbS.p.y = lastY
-          
+
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.ClickCurrentElement()
-          
+
           this.dbDataTable.Edit()
-          
+
           this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
@@ -602,6 +604,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       return;
     }
     switch (event.key) {
+      case this.KeySetting[Actions.Lock].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {
@@ -660,6 +668,15 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
+      }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
       }
       default: { }
     }
