@@ -9,7 +9,7 @@ export class InvoiceBehaviorFactoryService {
   constructor() { }
 
   public create(path: string): InvoiceBehaviorMode {
-    let mode = {} as InvoiceBehaviorMode
+    let mode
 
     switch (path) {
       case 'invoice':
@@ -161,6 +161,7 @@ export class InvoiceBehaviorFactoryService {
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.isSummaryInvoice = true
     result.title = 'Be. Gyűjtőszámla'
+    result.unitPriceColumnTitle = 'Besz.Ár'
     return result
   }
 
@@ -189,6 +190,7 @@ export class InvoiceBehaviorFactoryService {
     result.isSummaryInvoice = false
     result.title = 'Be. Szállító vissz.'
     result.invoiceCorrection = true
+    result.unitPriceColumnTitle = 'Besz.Ár'
     return result
   }
 }
