@@ -88,9 +88,10 @@ export class InvoiceBehaviorFactoryService {
     const result = new InvoiceBehaviorMode()
     result.invoiceCategory = InvoiceCategory.NORMAL
     result.invoiceType = InvoiceTypes.INC
-    result.incoming = false
+    result.incoming = true
     result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
     result.title = 'Bejövő javítószámla'
+    result.unitPriceColumnTitle = 'Besz.Ár'
     return result
   }
 

@@ -27,14 +27,12 @@ import { TableKeyDownEvent } from '../../shared/inline-editable-table/inline-edi
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InvoiceItemsDialogComponent } from '../invoice-items-dialog/invoice-items-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { NegativeQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceFormComponent } from '../invoice-form/invoice-form.component';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
-import { InvoiceCategory } from '../models/InvoiceCategory';
-import { InvoiceTypes } from '../models/InvoiceTypes';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
@@ -170,6 +168,13 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
+
+      if (this.mode.incoming) {
+        const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
+        if (unitPrice) {
+          unitPrice.label = this.mode.unitPriceColumnTitle
+        }
+      }
     })
   }
 
