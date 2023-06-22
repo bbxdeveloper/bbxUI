@@ -426,6 +426,15 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         this.dbDataTable?.HandleKey(event);
         break;
       }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
+      }
       default: { }
     }
   }

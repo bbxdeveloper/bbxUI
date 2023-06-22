@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AttachDirection, INavigatable, NullNavigatable } from 'src/assets/model/navigation/Nav';
 import { JumpDestination } from 'src/assets/model/navigation/Navigatable';
 import { environment } from 'src/environments/environment';
+import { LoggerService } from './logger.service';
 
 interface MatrixCoordinate {
   x: number;
@@ -106,7 +107,7 @@ export class KeyboardNavigationService {
     return ($('#' + this.Here).get(0)?.tagName ?? '').toLowerCase();
   }
 
-  constructor() { }
+  constructor(private loggerService: LoggerService) { }
 
   public clear(): void {
     this.ResetToRoot();
@@ -994,6 +995,8 @@ export class KeyboardNavigationService {
   }
 
   public SetWidgetNavigatable(n: INavigatable): void {
+    this.loggerService.info(`[SetWidgetNavigatable] Navigatable: ${n.constructor.name}`)
+
     this.CurrentNavigatable.LastX = this.p.x;
     this.CurrentNavigatable.LastY = this.p.y;
 
@@ -1007,11 +1010,12 @@ export class KeyboardNavigationService {
   }
 
   public IsDialogOpen(): boolean {
-    // console.log("IsDialogOpen: ", this.WidgetStack);
     return this.WidgetStack.length > 0;
   }
 
   public RemoveWidgetNavigatable(): void {
+    this.loggerService.info(`[RemoveWidgetNavigatable] Removing widget from stack.`)
+
     this.SetCurrentNavigatable(this.NavigatableStack.pop() ?? this.Root);
     this.WidgetStack.pop();
 

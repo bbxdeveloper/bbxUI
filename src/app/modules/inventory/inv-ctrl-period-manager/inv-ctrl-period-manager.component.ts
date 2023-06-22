@@ -571,10 +571,10 @@ export class InvCtrlPeriodManagerComponent
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.SetTableAndFormCommandListFromManager();
-    
+
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.PushFooterCommandList();
-    
+
     //this.kbS.SelectFirstTile();
   }
   ngOnDestroy(): void {
@@ -659,6 +659,15 @@ export class InvCtrlPeriodManagerComponent
         console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
+      }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
       }
       default: { }
     }

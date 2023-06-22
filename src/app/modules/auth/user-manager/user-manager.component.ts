@@ -208,12 +208,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
           this.kbS.p.x = lastX
           this.kbS.p.y = lastY
-          
+
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.ClickCurrentElement()
-          
+
           this.dbDataTable.Create()
-          
+
           this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
@@ -259,12 +259,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
           this.kbS.p.x = lastX
           this.kbS.p.y = lastY
-          
+
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.ClickCurrentElement()
-          
+
           this.dbDataTable.Edit()
-          
+
           this.dbDataTable.flatDesignForm.FillFormWithObject(data.data)
         }
       });
@@ -668,6 +668,15 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
+      }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
       }
       default: { }
     }
