@@ -46,6 +46,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   @Input() isDiscountDisabled: boolean = false
   @Input() forceDisableOutgoingDelivery: boolean = false
   @Input() negativeDiscount: boolean = false
+  @Input() defaultDiscountPercent?: number
 
   @Input() checkCustomerLimit: boolean = false
   @Input() customer?: Customer
@@ -305,6 +306,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   ngAfterContentInit(): void {
     this.prepareVatRateCodes();
+
+    if (this.defaultDiscountPercent !== undefined) {
+      this.data.invoiceDiscountPercent = HelperFunctions.ToFloat(this.defaultDiscountPercent)
+    }
 
     if (this.OutGoingDelivery) {
       this.sumForm.addControl('workNumber', new FormControl(undefined, []));
