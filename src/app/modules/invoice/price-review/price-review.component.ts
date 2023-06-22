@@ -946,6 +946,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       }
       catch (error) {
         this.cs.HandleError(error)
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
       }
       finally {
         this.isSaveInProgress = false
