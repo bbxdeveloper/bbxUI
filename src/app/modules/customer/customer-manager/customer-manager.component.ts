@@ -409,9 +409,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             await this.RefreshAsync(this.getInputParams);
             this.dbDataTable.SelectRowById(d.data.id);
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
@@ -433,7 +433,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         error: (err) => {
           this.HandleError(err);
           this.dbDataTable.SetFormReadonly(false)
-        },
+        }
       });
     }
   }
@@ -458,9 +458,9 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             await this.RefreshAsync(this.getInputParams);
             this.dbDataTable.SelectRowById(d.data.id);
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
               Constants.TITLE_INFO,
