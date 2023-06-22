@@ -226,6 +226,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
 
+      if (this.mode.incoming) {
+        const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
+        if (unitPrice) {
+          unitPrice.label = this.mode.unitPriceColumnTitle
+        }
+      }
+
       this.InitialSetup()
       this.isPageReady = true;
     })

@@ -283,18 +283,18 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   private UpdateOutGoingData(): void {
-    this.offerData.items = this.dbDataTable.data.filter((x, index: number) => index !== this.dbDataTable.data.length - 1).map(x => {
-      const nRealQty = Number(x.data.nRealQty.toString().replace(/\s/, ''))
-
-      return {
-        "warehouseID": this.SelectedWareHouseId,
-        "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1].id),
-        "productID": HelperFunctions.ToInt(x.data.productID),
-        "invCtrlDate": this.buyerForm.controls['invCtrlDate'].value,
-        "nRealQty": Math.ceil(nRealQty),
-        "userID": HelperFunctions.ToInt(x.data.userID),
-      } as InvCtrlItemForPost;
-    });
+    this.offerData.items = this.dbDataTable.data
+      .filter((x, index: number) => index !== this.dbDataTable.data.length - 1)
+      .map(x => {
+        return {
+          "warehouseID": this.SelectedWareHouseId,
+          "invCtlPeriodID": HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1].id),
+          "productID": HelperFunctions.ToInt(x.data.productID),
+          "invCtrlDate": this.buyerForm.controls['invCtrlDate'].value,
+          "nRealQty": Number(x.data.nRealQty.toString().replace(/\s/, '')),
+          "userID": HelperFunctions.ToInt(x.data.userID),
+        } as InvCtrlItemForPost;
+      });
   }
 
   Save(): void {

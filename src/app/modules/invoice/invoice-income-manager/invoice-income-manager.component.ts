@@ -37,12 +37,10 @@ import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/ass
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { InvoiceTypes } from '../models/InvoiceTypes';
-import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoicePriceChangeDialogComponent } from '../invoice-price-change-dialog/invoice-price-change-dialog.component';
 import { ProductPriceChange } from '../models/ProductPriceChange';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
@@ -124,7 +122,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       colWidth: "80px", textAlign: "right"
     },
     {
-      label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
+      label: 'Besz.Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },

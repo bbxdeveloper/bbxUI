@@ -11,6 +11,7 @@ export class InvoiceBehaviorMode {
     public isSummaryInvoice: boolean = false
     public invoiceCorrection: boolean = false
     public useCustomersPaymentMethod: boolean = false
+    public unitPriceColumnTitle: string = ''
 
     public checkCustomerLimit: boolean = false
 
@@ -28,8 +29,8 @@ export class InvoiceBehaviorMode {
 
     /**
      * Validálja az értéket és visszaadja az első hibát jelző validációs eredményt.
-     * @param value 
-     * @param limit 
+     * @param value
+     * @param limit
      * @returns Validálásnál talált hiba vagy null.
      */
     public validateQuantity(value: number, limit?: number): ValidationMessage | null {
@@ -44,8 +45,8 @@ export class InvoiceBehaviorMode {
 
     /**
      * Validálja az értéket és visszaadja azon validálások eredményét, amik hibát jeleztek.
-     * @param value 
-     * @param limit 
+     * @param value
+     * @param limit
      * @returns Validálásnál talált hibák vagy üres lista.
      */
     public multiValidateQuantity(value: number, limit?: number): ValidationMessage[] {
@@ -92,10 +93,10 @@ export class NegativeQuantityValidator implements IQuantityValidator {
 
 export class NotZeroQuantityValidator implements IQuantityValidator {
     /**
-     * 
-     * @param value 
+     *
+     * @param value
      * @param limit Nincs használva. Fixen 0-ra van az ellenőrzés.
-     * @returns 
+     * @returns
      */
     public validate(value: number, limit?: number): ValidationMessage | null {
         if (value === 0) {
