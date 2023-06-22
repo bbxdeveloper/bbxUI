@@ -1131,6 +1131,14 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private generateWorkNumbers(): void {
+    let _workNumbers = this.dbData.filter(x => !!x.data.workNumber)
+      .map(x => x.data.workNumber)
+
+    if (_workNumbers.find(x => !HelperFunctions.isEmptyOrSpaces(x)) === undefined ||
+        HelperFunctions.isEmptyOrSpaces(this.workNumbers.join(''))) {
+        return
+    }
+
     const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
 
     const noticeControl = this.outInvForm.get('notice')
@@ -1141,10 +1149,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       .substring(existingWorkNumbers.length)
       .trim()
 
-    let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
-      .map(x => x.data.workNumber)
-
-    this.workNumbers = [...new Set(workNumbers)]
+    this.workNumbers = [...new Set(_workNumbers)]
 
     const notice = this.workNumbers.length > 0
       ? workNumbersAsString() + ' ' + otherNotes
