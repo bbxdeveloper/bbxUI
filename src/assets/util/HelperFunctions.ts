@@ -426,13 +426,25 @@ export module HelperFunctions {
         var index = 0;
 
         Object.keys(params).forEach((key: string) => {
-            if (params[key as keyof T] != undefined && params[key as keyof T] != null) {
-                if (index == 0) {
-                    queryParams += key + '=' + params[key as keyof T];
+            const paramsField = params[key as keyof T]
+            if (paramsField != undefined && paramsField != null && !HelperFunctions.isEmptyOrSpaces(paramsField)) {
+                if (Array.isArray(paramsField) && paramsField.length > 0) {
+                    for (let i = 0; i < paramsField.length; i++) {
+                        if (index == 0) {
+                            queryParams += key + '=' + paramsField[i];
+                        } else {
+                            queryParams += '&' + key + '=' + paramsField[i];
+                        }
+                        index++;
+                    }
                 } else {
-                    queryParams += '&' + key + '=' + params[key as keyof T];
+                    if (index == 0) {
+                        queryParams += key + '=' + paramsField;
+                    } else {
+                        queryParams += '&' + key + '=' + paramsField;
+                    }
+                    index++;
                 }
-                index++;
             }
         });
 

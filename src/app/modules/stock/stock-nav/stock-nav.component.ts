@@ -421,13 +421,13 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       });
   }
 
-  protected async GetProductData(productId: number): Promise<Product> {
-    let p = {} as Product;
+  protected async GetProductsData(productIds: number[]): Promise<Product[]> {
+    let p: Product[] = [];
 
-    await lastValueFrom(this.productService.Get({ ID: productId }))
+    await lastValueFrom(this.productService.GetAll({ IDList: productIds, PageSize: productIds.length + '' }))
       .then(res => {
-        if (res) {
-          p = res;
+        if (res && res.data !== undefined) {
+          p = res.data;
         }
       })
       .catch(err => {
@@ -454,10 +454,12 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
           console.log('GetStocks: response: ', d); // TODO: only for debug
           if (!!d) {
             let tempData = [];
+            const productIds = d.data.map(x => x.productID)
+            const products = await this.GetProductsData(productIds)
             for(let i = 0; i < d.data.length; i++) {
               const x = d.data[i];
               const _data = new ExtendedStockData(x);
-              _data.FillProductFields(await this.GetProductData(_data.productID));
+              _data.FillProductFields(products.find(y => y.id === x.productID)!);
               _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
               // console.dir(_data);
               tempData.push({ data: _data, uid: this.nextUid() });
@@ -516,10 +518,13 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
           console.log('GetStocks: response: ', d); // TODO: only for debug
           if (!!d) {
             let tempData = [];
+            const productIds = d.data.map(x => x.productID)
+            const products = await this.GetProductsData(productIds)
             for (let i = 0; i < d.data.length; i++) {
               const x = d.data[i];
               const _data = new ExtendedStockData(x);
-              _data.FillProductFields(await this.GetProductData(_data.productID))
+              console.log(x.productID)
+              _data.FillProductFields(products.find(y => y.id === x.productID)!);
               _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
               tempData.push({ data: _data, uid: this.nextUid() });
             }

@@ -60,26 +60,7 @@ export class ProductService {
 
   GetAll(params?: GetProductsParamListModel): Observable<GetProductsResponse> {
     // Process params
-    var queryParams = '';
-    var index = 0;
-
-    if (!!params) {
-      if (!HelperFunctions.isEmptyOrSpaces(params.SearchString)) {
-        params.SearchString = encodeURIComponent(params.SearchString!);
-      }
-
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetProductsParamListModel] != undefined && params[key as keyof GetProductsParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetProductsParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetProductsParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
+    var queryParams = HelperFunctions.ParseObjectAsQueryString(params);
     return this.http.get<GetProductsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
