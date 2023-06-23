@@ -23,7 +23,7 @@ export const environment = {
   invoiceSaveDialogLogs: false,
   inlineEditableTableMatrixGenerationLog: false,
   inlineEditableTableNavigatableFormLog: false,
-  inlineEditableTableKeyboardDebug: false,
+  inlineEditableTableKeyboardDebug: true,
 
   offerLineLog: false,
 

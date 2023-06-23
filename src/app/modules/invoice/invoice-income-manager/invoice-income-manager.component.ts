@@ -1220,16 +1220,24 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   @HostListener('keydown.f9', ['$event'])
   public onF9(event: Event): void {
+    console.log("keydown.f9: ", event);
     if (!this.kbS.IsCurrentNavigatableTable() || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+      console.log(
+        "keydown.f9 blocked, !this.kbS.IsCurrentNavigatableTable() ", !this.kbS.IsCurrentNavigatableTable(),
+        ", this.khs.IsDialogOpened ", this.khs.IsDialogOpened,
+        ", this.khs.IsKeyboardBlocked ", this.khs.IsKeyboardBlocked);
       return
     }
 
     const regex = /PRODUCT-\d+-(\d+)/
     const match = this.kbS.Here.match(regex)
+    console.log("match: ", match, this.kbS.Here);
     if (match) {
       const rowIndex = parseInt(match[1])
+      console.log("rowIndex: ", rowIndex);
 
       if (rowIndex === this.dbData.length - 1) {
+        console.log("on editor row");
         setTimeout(() => {
           this.bbxToastrService.show(
             Constants.MSG_CANNOT_ON_EDIT_ROW,
@@ -1239,6 +1247,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         }, 0);
       } else {
         this.suggestPriceChange(this.dbData[rowIndex].data)
+        console.log("suggestPriceChange");
       }
     }
   }

@@ -478,6 +478,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   public onTableFunctionKeyDown(event: TableKeyDownEvent): void {
+    console.log("onTableFunctionKeyDown: ", event);
     this.HandleKeyDown(event);
   }
 
