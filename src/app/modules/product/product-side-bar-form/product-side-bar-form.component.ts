@@ -121,9 +121,14 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   override SetupForms(): void {
     this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
       next: newValue => {
+        if (newValue.endsWith('-')) {
+          newValue = newValue.slice(0, -1)
+        }
+
         let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
         if (!!newValue && newValue.length >= 3 &&
             (currentProductGroup === undefined || currentProductGroup.length === 0)) {
+
               let defaultProductGroup = this._productGroups
                 .find(x => x.productGroupCode === newValue.substring(0,3))?.productGroupDescription ?? BlankComboBoxValue;
               if (defaultProductGroup.length > 0) {
