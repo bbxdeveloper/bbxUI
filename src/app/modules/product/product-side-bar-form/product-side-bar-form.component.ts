@@ -120,24 +120,34 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
   override SetupForms(): void {
     this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
-      next: newValue => {
-        if (newValue.endsWith('-')) {
-          this.currentForm?.form.controls['productCode'].setValue(newValue.slice(0, -1))
+      next: this.onProductCodeValueChanges()
+    })
+  }
 
-          return
-        }
+  private onProductCodeValueChanges() {
+    let previousValue = ''
 
-        let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
-        if (!!newValue && newValue.length >= 3 &&
-            (currentProductGroup === undefined || currentProductGroup.length === 0)) {
+    return (newValue: string) => {
+      const delta = newValue.length - previousValue.length
+      if ((delta === 2 || delta === 3) && newValue.endsWith('-')) {
+        this.currentForm?.form.controls['productCode'].setValue(newValue.slice(0, -1))
 
-              let defaultProductGroup = this._productGroups
-                .find(x => x.productGroupCode === newValue.substring(0,3))?.productGroupDescription ?? BlankComboBoxValue;
-              if (defaultProductGroup.length > 0) {
-                this.currentForm?.form.controls['productGroup'].setValue(defaultProductGroup);
-              }
+        return
+      }
+
+      let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
+      if (!!newValue && newValue.length >= 3 &&
+        (currentProductGroup === undefined || currentProductGroup.length === 0)) {
+
+        let defaultProductGroup = this._productGroups
+          .find(x => x.productGroupCode === newValue.substring(0,3))?.productGroupDescription ?? BlankComboBoxValue;
+
+        if (defaultProductGroup.length > 0) {
+          this.currentForm?.form.controls['productGroup'].setValue(defaultProductGroup);
         }
       }
-    });
+
+      previousValue = newValue
+    }
   }
 }
