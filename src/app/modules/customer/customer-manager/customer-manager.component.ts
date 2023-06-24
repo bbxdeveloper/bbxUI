@@ -600,8 +600,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     });
     this.bbxSidebarService.collapseEvent.subscribe({
       next: () => {
-        this.kbS.SelectElementByCoordinate(0, this.kbS.p.y);
-        let tmp = this.SetAllColumns();
+        this.SetAllColumns()
       }
     });
   }

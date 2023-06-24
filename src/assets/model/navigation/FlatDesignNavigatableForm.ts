@@ -16,6 +16,7 @@ import { BaseNavigatableForm } from "./BaseNavigatableForm";
 import { FlatDesignNavigatableTable } from "./FlatDesignNavigatableTable";
 import { BlankComboBoxValue } from "./Nav";
 import { INavigatable, AttachDirection, TileCssClass, TileCssColClass } from "./Navigatable";
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     colDefs: ModelFieldDescriptor[];
@@ -66,17 +67,17 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
             next: value => {
                 if (!!this.LeftNeighbour || !!this.RightNeighbour || !!this.DownNeighbour || !!this.UpNeighbour) {
                     if (!this.kbS.IsCurrentNavigatable(this)) {
-                        this.kbS.SetCurrentNavigatable(this);
+                        this.kbS.SetCurrentNavigatable(this)
                     }
-                    this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
-                    this.grid.PushFooterCommandList();
+                    this.Detach()
+                    this.grid.PushFooterCommandList()
                 }
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                this.kbS.setEditMode(KeyboardModes.NAVIGATION)
             },
             complete: () => {
-                this.kbS.isEditModeLocked = false;
+                this.kbS.isEditModeLocked = false
             }
-        });
+        })
     }
 
     override HandleFormEscape(event?: any): void {
@@ -95,12 +96,32 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.cdref.detectChanges();
     }
 
+    CloseReadonlySideBar(wasReadonly: boolean): void {
+        if (wasReadonly) {
+            console.log("READONLY EXIT")
+            const dt = this.FillObjectWithForm();
+            this.grid.ExitFromForm({
+                data: { id: HelperFunctions.GetFieldValueFromGeneric(dt) },
+                rowIndex: this.DataRowIndex,
+                needConfirmation: false,
+                needSaveConfirmationOnExit: false
+            } as IUpdateRequest);
+        } else {
+            console.log("NOT READONLY EXIT")
+            this.ActionExit()
+        }
+        setTimeout(() => {
+            this.sidebarService.collapse()
+        }, 200);
+    }
+
     override ActionExit(data?: IUpdateRequest<T>): void {
         const dt = this.FillObjectWithForm();
         this.grid.ExitFromForm({
             data: dt,
             rowIndex: this.DataRowIndex,
-            needConfirmation: this.defaultConfirmationSettings[this.ActionExit.name]
+            needConfirmation: this.defaultConfirmationSettings[this.ActionExit.name],
+            needSaveConfirmationOnExit: true
         } as IUpdateRequest);
     }
 

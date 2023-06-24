@@ -463,4 +463,13 @@ export module HelperFunctions {
             })
         }
     }
+
+    export function GetFieldValueFromGeneric(data: any, objectKey: string = 'id', defaultValue?: any): any {
+        const keys = Object.keys(data)
+        const idKey = keys.find(x => x.toLowerCase() === objectKey)!
+        if (idKey === undefined) {
+            return defaultValue
+        }
+        return data[idKey]
+    }
 }
