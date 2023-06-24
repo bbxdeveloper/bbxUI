@@ -253,15 +253,15 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
                     data: newData,
                   } as TreeGridNode<ExtendedStockData>
                   const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
+                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex].data.location = newRow.data.location;
+                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex].data.locationID = newRow.data.locationID;
                   this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable(newRow.data.id);
                   this.simpleToastrService.show(
                     Constants.MSG_SAVE_SUCCESFUL,
                     Constants.TITLE_INFO,
                     Constants.TOASTR_SUCCESS_5_SEC
                   );
-                  this.dbDataTable.flatDesignForm.SetFormStateToDefault();
+                  this.RefreshTable(newRow.data.id);
                   this.isLoading = false;
                   this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 }
@@ -347,7 +347,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       unitPrice1: new FormControl(undefined, []),
       unitPrice2: new FormControl(undefined, []),
       latestSupplyPrice: new FormControl(undefined, []),
-      isStock: new FormControl(true, []),
       minStock: new FormControl(undefined, []),
       ordUnit: new FormControl(undefined, []),
       productFee: new FormControl(undefined, []),
@@ -356,7 +355,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       ean: new FormControl(undefined, []),
       vatRateCode: new FormControl(undefined, []),
       noDiscount: new FormControl(false, []),
-      warehouse: new FormControl(undefined, []),
       realQty: new FormControl(0, []),
       avgCost: new FormControl(0, []),
       latestIn: new FormControl(0, []),
