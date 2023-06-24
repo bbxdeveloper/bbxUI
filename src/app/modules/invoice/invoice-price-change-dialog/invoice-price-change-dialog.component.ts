@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -42,6 +42,9 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   @Input()
   public wasOpen: boolean = false
+
+  @ViewChild('newUnitPrice1')
+  private newUnitPrice1!: ElementRef
 
   private requestSubscription: Subscription|undefined
 
@@ -132,7 +135,14 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
         switchMap(this.createFormValues.bind(this))
       )
       .subscribe({
-        next: prices => this.productPriceChangeForm.patchValue(prices),
+        next: prices => {
+          this.productPriceChangeForm.patchValue(prices);
+
+          const input = this.newUnitPrice1.nativeElement
+          const position = input.value.indexOf('.')
+          input.selectionStart = position
+          input.selectionEnd = position
+        },
         error: error => {
           this.commonService.HandleError(error)
           this.isLoading = false
@@ -190,6 +200,13 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   private setNewPrice(oldPrice: number, changeRatePercent: number): number {
     const newPrice = oldPrice === 0 ? this.newPrice : oldPrice * changeRatePercent
     return HelperFunctions.Round(newPrice)
+  }
+
+  public fixCursorPosition(event: FocusEvent) {
+    const input = event.target as HTMLInputElement
+    const position = input.value.indexOf('.')
+    input.selectionStart = position
+    input.selectionEnd = position
   }
 
   public moveToButtons(event: Event): void {

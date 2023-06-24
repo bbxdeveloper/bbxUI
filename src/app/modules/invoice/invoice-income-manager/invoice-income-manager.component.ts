@@ -620,8 +620,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.RecalcNetAndVat();
     }
 
-    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice) {
+    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice && changedData.unitPrice !== changedData.previousUnitPrice) {
+      changedData.previousUnitPrice = changedData.unitPrice
+
       this.suggestPriceChange(this.dbData[index].data)
+
+      changedData.Save()
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
@@ -1218,7 +1222,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
 
-  @HostListener('keydown.f9', ['$event'])
+  @HostListener('window:keydown.f9', ['$event'])
   public onF9(event: Event): void {
     console.log("keydown.f9: ", event);
     if (!this.kbS.IsCurrentNavigatableTable() || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
