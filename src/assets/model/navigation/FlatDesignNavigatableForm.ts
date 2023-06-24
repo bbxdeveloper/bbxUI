@@ -98,7 +98,6 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
 
     CloseReadonlySideBar(wasReadonly: boolean): void {
         if (wasReadonly) {
-            console.log("READONLY EXIT")
             const dt = this.FillObjectWithForm();
             this.grid.ExitFromForm({
                 data: { id: HelperFunctions.GetFieldValueFromGeneric(dt) },
@@ -107,7 +106,6 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 needSaveConfirmationOnExit: false
             } as IUpdateRequest);
         } else {
-            console.log("NOT READONLY EXIT")
             this.ActionExit()
         }
         setTimeout(() => {
