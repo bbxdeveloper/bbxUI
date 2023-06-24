@@ -25,24 +25,26 @@
                 </nb-form-field>
             </div>
 
-            <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Kód</label>                
-                        <input nbInput type="text" formControlName="productCode" #codeInput [dropSpecialCharacters]="false"
-                            oninput="this.value = this.value.toUpperCase()" (focus)="moveCursor(codeInput)"
-                            mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" [showMaskTyped]="true"
-                            [patterns]="customPatterns" readonly required>
-                    </div>
-                </nb-form-field>
-                
-                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div-2">
-                        <label class="multicol-label-col-2">Megnevezés</label>
-                        <input nbInput type="text" formControlName="description" readonly>
-                    </div>
-                </nb-form-field>
-            </div>
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Termékkód</label>
+                    <input nbInput type="text" formControlName="productCode" readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Terméknév</label>
+                    <input nbInput type="text" formControlName="description" readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Csoport</label>
+                    <input nbInput type="text" formControlName="productGroup" readonly>
+                </div>
+            </nb-form-field>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
@@ -100,24 +102,30 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Áfakód</label>
+                        <label class="multicol-label-col-1">Áfakód?</label>
                         <input nbInput type="text" formControlName="vatRateCode" readonly>
                     </div>
                 </nb-form-field>
-                
-                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div-2">
-                        <label class="multicol-label-col-2">Raktár</label>
-                        <input nbInput type="text" formControlName="warehouse" readonly>
+            
+                <div class="bbx-fd-form-field-50 bbx-fd-form-field-wrapper-div-row">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-50 checkbox-wrapper"
+                        (keydown.enter)="currentForm.HandleFormEnter($event)">
+                        <label class="label-checkbox">Aktív?</label>
+                        <input class="bbx-fd-checkbox" type="checkbox" formControlName="active" readonly>
                     </div>
-                </nb-form-field>
+                    
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-49 checkbox-wrapper"
+                        (keydown.enter)="currentForm.HandleFormEnter($event)">
+                        <label class="label-checkbox">Eng.tilt?</label>
+                        <input class="bbx-fd-checkbox" type="checkbox" formControlName="noDiscount" readonly>
+                    </div>
+                </div>
             </div>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Minimum készlet</label>
-
                         <input nbInput type="text" formControlName="minStock" [inputMask]="numberInputMask"
                             placeholder="0.00" readonly>
                     </div>
@@ -126,7 +134,6 @@
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Rendelési egység</label>
-
                         <input nbInput type="text" formControlName="ordUnit"
                             [inputMask]="numberInputMask" placeholder="0.00" readonly>
                     </div>
@@ -136,16 +143,14 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">vtsz</label>
-
+                        <label class="multicol-label-col-1">VTSZ</label>
                         <input nbInput type="text" formControlName="vtsz" mask="9*" readonly>
                     </div>
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormLastEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label class="multicol-label-col-2">ean</label>
-
+                        <label class="multicol-label-col-2">EAN</label>
                         <input nbInput type="text" formControlName="ean" mask="9{1000}" readonly>
                     </div>
                 </nb-form-field>
@@ -185,29 +190,6 @@
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="location" label="Elhelyezés"
                 [data$]="locationsComboData$" [lastFormField]="true" [isReadonly]="isReadonly"></app-bbx-combo-box>
-
-            <div class="bbx-fd-form-field-wrapper-div-row">
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-40 checkbox-wrapper"
-                    (keydown.enter)="currentForm.HandleFormEnter($event)">
-                    <label class="label-checkbox">Készletes?</label>
-            
-                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="isStock" readonly>
-                </div>
-            
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
-                    (keydown.enter)="currentForm.HandleFormEnter($event)">
-                    <label class="label-checkbox">Aktív?</label>
-            
-                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="active" readonly>
-                </div>
-            
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
-                    (keydown.enter)="currentForm.HandleFormEnter($event)">
-                    <label class="label-checkbox">Eng.tilt?</label>
-            
-                    <input class="bbx-fd-checkbox" type="checkbox" formControlName="noDiscount" readonly>
-                </div>
-            </div>
         </form>
     </nb-card-body>
 </nb-card>
