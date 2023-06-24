@@ -168,3 +168,26 @@ $colSizeLimit: 80;
  label.multicol-label-col-2 {
      min-width: 145px !important;
  }
+
+div.triple-input-column {
+    display: grid;
+    grid-template-columns: 36% 32% 32%;
+
+    margin-top: 2px;
+
+    nb-form-field.triple-input-column-form-field {
+        div.triple-input-column-form-field-inner-div {
+            display: flex;
+            column-gap: 20px;
+
+            label.triple-input-column-form-field-label.triple-input-column-first {
+                min-width: 185px;
+            }
+
+            label.triple-input-column-form-field-label.triple-input-column-second,
+            label.triple-input-column-form-field-label.triple-input-column-third {
+                min-width: 130px;
+            }
+        }
+    }
+}
