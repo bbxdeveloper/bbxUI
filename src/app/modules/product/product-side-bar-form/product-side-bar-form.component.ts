@@ -122,7 +122,9 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
       next: newValue => {
         if (newValue.endsWith('-')) {
-          newValue = newValue.slice(0, -1)
+          this.currentForm?.form.controls['productCode'].setValue(newValue.slice(0, -1))
+
+          return
         }
 
         let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
