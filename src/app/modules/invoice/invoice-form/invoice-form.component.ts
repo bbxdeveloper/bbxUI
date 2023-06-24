@@ -11,6 +11,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { InvoiceFormData } from './InvoiceFormData';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 
 @Component({
   selector: 'app-invoice-form',
@@ -20,6 +21,9 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 export class InvoiceFormComponent implements OnInit, IInlineManager {
   @Input()
   public editDisabled!: boolean
+
+  @Input()
+  public mode!: InvoiceBehaviorMode
 
   @Input()
   public set invoiceFormData(invoiceFormData: InvoiceFormData|undefined) {

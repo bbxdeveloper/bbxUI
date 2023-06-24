@@ -12,7 +12,7 @@
 
     <app-invoice-customer-form right [customer]="buyerData" title="VEVŐ"></app-invoice-customer-form>
 
-    <app-invoice-form #invoiceForm middle [editDisabled]="editDisabled" [invoiceFormData]="invoiceFormData"></app-invoice-form>
+    <app-invoice-form #invoiceForm middle [editDisabled]="editDisabled" [invoiceFormData]="invoiceFormData" [mode]="mode"></app-invoice-form>
 
     <div bottom>
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
