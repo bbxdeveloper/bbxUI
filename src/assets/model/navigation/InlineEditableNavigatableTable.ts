@@ -186,6 +186,16 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.ResetEdit();
     }
 
+    ClickByObjectKey(objectKey: string, timeout: number = 200): void {
+        setTimeout(() => {
+            const filteredCols = this.colDefs.filter(x => !this.colsToIgnore.includes(x.objectKey))
+            const nextIndex = filteredCols.findIndex(x => x.objectKey.toLowerCase() === objectKey)
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+            this.kbS.SelectElementByCoordinate(nextIndex, this.kbS.p.y)
+            this.kbS.ClickCurrentElement()
+        }, timeout);
+    }
+
     SetCreatorRow(): void {
         if (this.data.length === 0 || (this.data.length > 0 && !this.data[this.data.length - 1].data.IsUnfinished())) {
             this.productCreatorRow = this.GenerateCreatorRow;

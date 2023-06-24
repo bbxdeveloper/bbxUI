@@ -434,6 +434,8 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
             )
           }, 0);
           this.dbData[index].data.Restore()
+
+          this.dbDataTable.ClickByObjectKey('quantity')
         }
       }
     }

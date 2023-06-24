@@ -440,6 +440,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         )
       }, 0);
       this.dbData[index].data.Restore()
+
+      this.dbDataTable.ClickByObjectKey('quantity')
     }
   }
 
