@@ -4,10 +4,19 @@
         <app-bbx-combo-box-invoice class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="paymentMethod" label="Fizetési mód"
             [data$]="paymentMethodOptions$" [simpleMode]="true" [readonly]="editDisabled"></app-bbx-combo-box-invoice>
 
+        <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" *ngIf="mode.Incoming">
+            <label>Eredeti bizonylatszám</label>
+            <input nbInput type="text" formControlName="customerInvoiceNumber" required="true"
+                class="{{tileCssClass}}" [readonly]="editDisabled" id="m01">
+
+            <app-form-control-error [form]="outInvFormNav" controlName="customerInvoiceNumber">
+            </app-form-control-error>
+        </nb-form-field>
+
         <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
             <label>Teljesítési időpont</label>
-            <input nbInput type="datetime" formControlName='invoiceDeliveryDate' required="true"
-                class="{{tileCssClass}}" [readonly]="editDisabled" id="m01" mask="0000-00-00"
+            <input nbInput type="datetime" formControlName="invoiceDeliveryDate" required="true"
+                class="{{tileCssClass}}" [readonly]="editDisabled" id="m02" mask="0000-00-00"
                 [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
             <app-form-control-error [form]="outInvFormNav"
@@ -17,8 +26,8 @@
 
         <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
             <label>Számla keltezése</label>
-            <input nbInput type="datetime" formControlName='invoiceIssueDate' required="true"
-                class="{{tileCssClass}}" [readonly]="editDisabled" id="m02" mask="0000-00-00"
+            <input nbInput type="datetime" formControlName="invoiceIssueDate" required="true"
+                class="{{tileCssClass}}" [readonly]="editDisabled" id="m03" mask="0000-00-00"
                 [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
             <app-form-control-error [form]="outInvFormNav"
@@ -28,8 +37,8 @@
 
         <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
             <label>Fizetési határidő</label>
-            <input nbInput type="datetime" formControlName='paymentDate' required="true"
-                class="{{tileCssClass}}" [readonly]="editDisabled" id="m03" mask="0000-00-00"
+            <input nbInput type="datetime" formControlName="paymentDate" required="true"
+                class="{{tileCssClass}}" [readonly]="editDisabled" id="m04" mask="0000-00-00"
                 [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
             <app-form-control-error [form]="outInvFormNav" controlName="paymentDate"
@@ -40,15 +49,15 @@
 
         <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
             <label>Számla sorszáma</label>
-            <input nbInput type="text" formControlName='invoiceOrdinal' readonly
-                placeholder="Számla sorszáma" id="m04">
+            <input nbInput type="text" formControlName="invoiceOrdinal" readonly
+                placeholder="Számla sorszáma" id="m05">
         </nb-form-field>
 
         <nb-form-field class="last-field" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
             <div class="notice">
                 <label>Egyéb adatok</label>
-                <input nbInput type="text" formControlName='notice' [readonly]="editDisabled"
-                    class="{{tileCssClass}}" placeholder="Egyéb adatok" id="m11">
+                <input nbInput type="text" formControlName="notice" [readonly]="editDisabled"
+                    class="{{tileCssClass}}" placeholder="Egyéb adatok" id="m06">
             </div>
         </nb-form-field>
     </form>

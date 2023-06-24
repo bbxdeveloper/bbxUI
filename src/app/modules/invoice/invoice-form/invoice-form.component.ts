@@ -11,6 +11,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { InvoiceFormData } from './InvoiceFormData';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 
 @Component({
   selector: 'app-invoice-form',
@@ -22,15 +23,18 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
   public editDisabled!: boolean
 
   @Input()
+  public mode!: InvoiceBehaviorMode
+
+  @Input()
   public set invoiceFormData(invoiceFormData: InvoiceFormData|undefined) {
     if (!invoiceFormData) {
       return
     }
-
     const paymentMethod = this.paymentMethods.find(x => x.value === invoiceFormData.paymentMethod)?.text ?? 'Átutalás'
 
     const controls = this.outInvForm.controls
     controls['paymentMethod'].setValue(paymentMethod)
+    controls['customerInvoiceNumber'].setValue(invoiceFormData.customerInvoiceNumber)
     controls['invoiceDeliveryDate'].setValue(invoiceFormData.invoiceDeliveryDate)
     controls['invoiceIssueDate'].setValue(invoiceFormData.invoiceIssueDate)
     controls['paymentDate'].setValue(invoiceFormData.paymentDate)
@@ -43,6 +47,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod'].value)?.value
     const formData = {
       paymentMethod: paymentMethod,
+      customerInvoiceNumber: controls['customerInvoiceNumber'].value,
       invoiceDeliveryDate: controls['invoiceDeliveryDate'].value,
       invoiceIssueDate: controls['invoiceIssueDate'].value,
       paymentDate: controls['paymentDate'].value,
@@ -91,6 +96,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
   ) {
     this.outInvForm = new FormGroup({
       paymentMethod: new FormControl('', [Validators.required]),
+      customerInvoiceNumber: new FormControl('', [Validators.required]),
       invoiceDeliveryDate: new FormControl('', [
         Validators.required,
         this.validateInvoiceDeliveryDate.bind(this),
