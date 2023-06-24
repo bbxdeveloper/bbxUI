@@ -5,4 +5,5 @@ export interface InvoiceFormData {
     paymentDate: string,
     invoiceOrdinal: string, // in post response
     notice: string,
+    customerInvoiceNumber: string,
 }

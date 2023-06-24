@@ -245,6 +245,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.invoiceFormData = {
       paymentMethod: invoice.paymentMethod,
       paymentDate: invoice.paymentDate,
+      customerInvoiceNumber: invoice.customerInvoiceNumber,
       invoiceDeliveryDate: invoice.invoiceDeliveryDate,
       invoiceIssueDate: invoice.invoiceIssueDate,
       notice: invoice.notice,
@@ -353,11 +354,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.notice = this.invoiceForm!.invoiceFormData!.notice;
 
-    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceForm!.invoiceFormData!.invoiceDeliveryDate
-    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceForm!.invoiceFormData!.invoiceIssueDate
-    this.outGoingInvoiceData.paymentDate = this.invoiceForm!.invoiceFormData!.paymentDate
+    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceForm.invoiceFormData!.invoiceDeliveryDate
+    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceForm.invoiceFormData!.invoiceIssueDate
+    this.outGoingInvoiceData.paymentDate = this.invoiceForm.invoiceFormData!.paymentDate
 
-    this.outGoingInvoiceData.paymentMethod = this.invoiceForm!.invoiceFormData!.paymentMethod
+    this.outGoingInvoiceData.customerInvoiceNumber = this.invoiceForm.invoiceFormData!.customerInvoiceNumber
+    this.outGoingInvoiceData.paymentMethod = this.invoiceForm.invoiceFormData!.paymentMethod
 
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? ""
 
@@ -381,7 +383,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.invoiceCorrection = true
 
-    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm!.invoiceFormData!.paymentMethod)
+    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm.invoiceFormData!.paymentMethod)
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
