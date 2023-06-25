@@ -35,7 +35,7 @@ import { ProductService } from '../../product/services/product.service';
 import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -432,12 +432,16 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
-    if (filterData) {
+    if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
       this.filterForm.patchValue(filterData)
 
-      this.Refresh()
+      this.productInputFilterString = filterData.ProductSearch ?? ''
+
+      await this.getProductAsync()
+
+      this.Refresh(this.getInputParams)
     }
 
     this.fS.pushCommands(this.commands);
@@ -623,6 +627,27 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         }
       },
     });
+  }
+
+  private async getProductAsync(): Promise<void> {
+    try {
+      this.isLoading = true
+
+      const request = this.getProductGetParams
+      const res = await firstValueFrom(this.seC.GetAll(request))
+
+      if (!!res && res.data !== undefined && res.data.length > 0) {
+        this.productFilter = res.data[0];
+        this.cachedProductName = res.data[0].description;
+        this.SetProductFormFields(res.data[0]);
+      } else {
+        this.SetProductFormFields(undefined);
+      }
+    } catch (error) {
+      this.cs.HandleError(error);
+    } finally {
+      this.isLoading = false
+    }
   }
 
   ChooseDataForTableRow(rowIndex: number): void { }
