@@ -645,6 +645,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         )
       }, 0);
       this.dbData[index].data.Restore()
+
+      this.dbDataTable.ClickByObjectKey('quantity')
     }
   }
 

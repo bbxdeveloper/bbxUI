@@ -613,6 +613,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         )
       }, 0);
       this.dbData[index].data.Restore()
+
+      this.dbDataTable.ClickByObjectKey('quantity')
     }
   }
 
