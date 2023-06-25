@@ -1111,7 +1111,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
             }
           });
         } else {
-          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
         }
       },
       error: (err) => {
