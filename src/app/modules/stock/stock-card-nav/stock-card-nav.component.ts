@@ -40,6 +40,9 @@ import { BaseManagerComponent } from '../../shared/base-manager/base-manager.com
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { LoggerService } from 'src/app/services/logger.service';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { FilterForm } from './FitlerForm';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -245,6 +248,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     return this.kbS.IsCurrentNavigatable(this.dbDataTable);
   }
 
+  private localStorageKey: string
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -252,7 +257,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private stockCardService: StockCardService,
@@ -260,14 +264,15 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     private route: ActivatedRoute,
     cs: CommonService,
     sts: StatusService,
-    private router: Router,
-    private infrastructureService: InfrastructureService,
-    private utS: PrintAndDownloadService,
     private wareHouseApi: WareHouseService,
     private khs: KeyboardHelperService,
-    loggerService: LoggerService
+    loggerService: LoggerService,
+    tokenService: TokenStorageService,
+    private readonly localStorage: LocalStorageService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
+
+    this.localStorageKey = 'stock-card-nav.' + tokenService.user?.id ?? 'everyone'
 
     this.refreshComboboxData();
 
@@ -280,10 +285,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.Setup();
   }
 
-  InitFormDefaultValues(): void {
-    // this.filterForm.controls['WarehouseID'].setValue(undefined);
-  }
-
   private Setup(): void {
     this.dbData = [];
 
@@ -291,7 +292,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.dbDataTableForm = new FormGroup({});
 
-    //debugger
     this.productCodeFromPath = this.route.snapshot.queryParams['productCode'];
     this.wareHouseFromPathString = this.route.snapshot.queryParams['wareHouse'];
     this.navigatedFromStock = !!this.productCodeFromPath && !!this.wareHouseIdFromPath;
@@ -306,7 +306,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       InvoiceNumber: new FormControl(undefined, [])
     });
 
-    this.InitFormDefaultValues();
+    this.filterForm.valueChanges.subscribe(newValue => this.localStorage.put(this.localStorageKey, newValue as FilterForm))
 
     this.filterFormNav = new FlatDesignNoTableNavigatableForm(
       this.filterForm,
@@ -387,7 +387,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         }
       }
     });
-    
+
   }
 
   override Refresh(params?: GetStockCardsParamsModel): void {
@@ -433,6 +433,13 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   }
 
   ngOnInit(): void {
+    const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
+    if (filterData) {
+      this.filterForm.patchValue(filterData)
+
+      this.Refresh()
+    }
+
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
@@ -462,9 +469,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
-  private RefreshAll(params?: GetStockCardsParamsModel): void {
-    this.Refresh(params);
-  }
 
   MoveToSaveButtons(event: any): void {
     if (this.isEditModeOff) {
