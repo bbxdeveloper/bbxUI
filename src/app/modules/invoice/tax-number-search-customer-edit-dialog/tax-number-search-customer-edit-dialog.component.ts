@@ -26,9 +26,9 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SystemService } from '../../system/services/system.service';
 import { CustomerMisc } from '../../customer/models/CustomerMisc';
 import { CountryCode, OfflineCountryCodes } from '../../customer/models/CountryCode';
-import { OfflineUnitPriceTypes, UnitPriceType, UnitPriceTypes } from '../../customer/models/UnitPriceType';
+import { OfflineUnitPriceTypes, UnitPriceType } from '../../customer/models/UnitPriceType';
 import { InvoiceService } from '../services/invoice.service';
-import { OfflinePaymentMethods, PaymentMethod, PaymentMethods } from '../models/PaymentMethod';
+import { OfflinePaymentMethods, PaymentMethod } from '../models/PaymentMethod';
 
 @Component({
   selector: 'app-tax-number-search-customer-edit-dialog',

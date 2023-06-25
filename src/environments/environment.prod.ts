@@ -19,7 +19,7 @@ export const environment = {
   navigationSelectLog: false,
   utilityLogs: false,
   getterSetterLogs: false,
-  managerComponentLogs: true,
+  managerComponentLogs: false,
   invoiceSaveDialogLogs: false,
   inlineEditableTableMatrixGenerationLog: false,
   inlineEditableTableNavigatableFormLog: false,

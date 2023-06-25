@@ -30,4 +30,5 @@ export interface IUpdateRequest<T = any> {
     data: T
     rowIndex: number
     needConfirmation?: boolean
+    needSaveConfirmationOnExit?: boolean
 }

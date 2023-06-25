@@ -226,6 +226,13 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
 
+      if (this.mode.incoming) {
+        const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
+        if (unitPrice) {
+          unitPrice.label = this.mode.unitPriceColumnTitle
+        }
+      }
+
       this.InitialSetup()
       this.isPageReady = true;
     })
@@ -645,6 +652,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         )
       }, 0);
       this.dbData[index].data.Restore()
+
+      this.dbDataTable.ClickByObjectKey('quantity')
     }
   }
 
@@ -1131,6 +1140,14 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   private generateWorkNumbers(): void {
+    let _workNumbers = this.dbData.filter(x => !!x.data.workNumber)
+      .map(x => x.data.workNumber)
+
+    if (_workNumbers.find(x => !HelperFunctions.isEmptyOrSpaces(x)) === undefined ||
+        HelperFunctions.isEmptyOrSpaces(this.workNumbers.join(''))) {
+        return
+    }
+
     const workNumbersAsString = () => 'M.Sz.: ' + this.workNumbers.join(', ')
 
     const noticeControl = this.outInvForm.get('notice')
@@ -1141,10 +1158,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       .substring(existingWorkNumbers.length)
       .trim()
 
-    let workNumbers = this.dbData.filter(x => !!x.data.workNumber)
-      .map(x => x.data.workNumber)
-
-    this.workNumbers = [...new Set(workNumbers)]
+    this.workNumbers = [...new Set(_workNumbers)]
 
     const notice = this.workNumbers.length > 0
       ? workNumbersAsString() + ' ' + otherNotes
@@ -1317,7 +1331,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
 
     const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
 
@@ -1375,7 +1389,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
             }
           });
         } else {
-          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
         }
       },
       error: (err) => {

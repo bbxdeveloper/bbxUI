@@ -12,6 +12,7 @@ import { ProductGroupService } from '../../product-group/services/product-group.
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { ProductService } from '../services/product.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-product-side-bar-form',
@@ -120,17 +121,38 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
   override SetupForms(): void {
     this.currentForm?.form.controls['productCode'].valueChanges.subscribe({
-      next: newValue => {
-        let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
-        if (!!newValue && newValue.length >= 3 &&
-            (currentProductGroup === undefined || currentProductGroup.length === 0)) {
-              let defaultProductGroup = this._productGroups
-                .find(x => x.productGroupCode === newValue.substring(0,3))?.productGroupDescription ?? BlankComboBoxValue;
-              if (defaultProductGroup.length > 0) {
-                this.currentForm?.form.controls['productGroup'].setValue(defaultProductGroup);
-              }
+      next: this.onProductCodeValueChanges()
+    })
+  }
+
+  private onProductCodeValueChanges() {
+    let previousValue = ''
+
+    return (newValue: string) => {
+      if (HelperFunctions.isEmptyOrSpaces(newValue)) {
+        return
+      }
+
+      const delta = newValue.length - previousValue.length
+      if ((delta === 2 || delta === 3) && newValue.endsWith('-')) {
+        this.currentForm?.form.controls['productCode'].setValue(newValue.slice(0, -1))
+
+        return
+      }
+
+      let currentProductGroup = this.currentForm?.form.controls['productGroup'].value;
+      if (!!newValue && newValue.length >= 3 &&
+        (currentProductGroup === undefined || currentProductGroup.length === 0)) {
+
+        let defaultProductGroup = this._productGroups
+          .find(x => x.productGroupCode === newValue.substring(0,3))?.productGroupDescription ?? BlankComboBoxValue;
+
+        if (defaultProductGroup.length > 0) {
+          this.currentForm?.form.controls['productGroup'].setValue(defaultProductGroup);
         }
       }
-    });
+
+      previousValue = newValue
+    }
   }
 }

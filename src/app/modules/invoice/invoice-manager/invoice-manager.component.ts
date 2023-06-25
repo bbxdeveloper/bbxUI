@@ -664,6 +664,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             )
           }, 0);
           this.dbData[index].data.Restore()
+
+          this.dbDataTable.ClickByObjectKey('quantity')
         }
       }
     }
@@ -884,11 +886,24 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+    let defaultDiscountPercent: number | undefined = undefined
+    if (!this.mode.incoming) {
+      switch (this.mode.invoiceType) {
+        case InvoiceTypes.DNO:
+        case InvoiceTypes.INV: {
+          defaultDiscountPercent = this.customerData.latestDiscountPercent
+          break;
+        }
+        default: {}
+      }
+    }
+
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData,
         customer: this.buyerData,
-        checkCustomerLimit: this.mode.checkCustomerLimit
+        checkCustomerLimit: this.mode.checkCustomerLimit,
+        defaultDiscountPercent: defaultDiscountPercent
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
@@ -988,6 +1003,12 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.kbS.SelectElementByCoordinate(0, index);
         }
       }
+    }
+    else if (!wasInNavigationMode) {
+      setTimeout(() => {
+        this.kbS.setEditMode(KeyboardModes.EDIT)
+        this.kbS.ClickCurrentElement()
+      }, 200)
     }
 
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -1244,7 +1265,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }
           });
         } else {
-          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
         }
       },
       error: (err) => {

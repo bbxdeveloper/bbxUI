@@ -19,4 +19,5 @@ export interface CreateCustomerRequest {
     paymentDays: number,
     defPaymentMethod: string,
     email?: string,
+    latestDiscountPercent?: number,
 }

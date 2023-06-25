@@ -37,12 +37,10 @@ import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/ass
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { InvoiceTypes } from '../models/InvoiceTypes';
-import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoicePriceChangeDialogComponent } from '../invoice-price-change-dialog/invoice-price-change-dialog.component';
 import { ProductPriceChange } from '../models/ProductPriceChange';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
@@ -124,7 +122,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       colWidth: "80px", textAlign: "right"
     },
     {
-      label: 'Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
+      label: 'Besz.Ár', objectKey: 'unitPrice', colKey: 'unitPrice',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
     },
@@ -622,8 +620,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       this.RecalcNetAndVat();
     }
 
-    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice) {
+    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice && changedData.unitPrice !== changedData.previousUnitPrice) {
+      changedData.previousUnitPrice = changedData.unitPrice
+
       this.suggestPriceChange(this.dbData[index].data)
+
+      changedData.Save()
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
@@ -643,6 +645,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         )
       }, 0);
       this.dbData[index].data.Restore()
+
+      this.dbDataTable.ClickByObjectKey('quantity')
     }
   }
 
@@ -960,6 +964,13 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         }
       }
     }
+    else if (!wasInNavigationMode) {
+      setTimeout(() => {
+        this.kbS.setEditMode(KeyboardModes.EDIT)
+        this.kbS.ClickCurrentElement()
+      }, 200)
+    }
+
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
@@ -1154,7 +1165,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
 
     const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
 
@@ -1204,7 +1215,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             }
           });
         } else {
-          this.simpleToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
         }
       },
       error: (err) => {
@@ -1220,18 +1231,26 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
 
-  @HostListener('keydown.f9', ['$event'])
+  @HostListener('window:keydown.f9', ['$event'])
   public onF9(event: Event): void {
+    console.log("keydown.f9: ", event);
     if (!this.kbS.IsCurrentNavigatableTable() || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+      console.log(
+        "keydown.f9 blocked, !this.kbS.IsCurrentNavigatableTable() ", !this.kbS.IsCurrentNavigatableTable(),
+        ", this.khs.IsDialogOpened ", this.khs.IsDialogOpened,
+        ", this.khs.IsKeyboardBlocked ", this.khs.IsKeyboardBlocked);
       return
     }
 
     const regex = /PRODUCT-\d+-(\d+)/
     const match = this.kbS.Here.match(regex)
+    console.log("match: ", match, this.kbS.Here);
     if (match) {
       const rowIndex = parseInt(match[1])
+      console.log("rowIndex: ", rowIndex);
 
       if (rowIndex === this.dbData.length - 1) {
+        console.log("on editor row");
         setTimeout(() => {
           this.bbxToastrService.show(
             Constants.MSG_CANNOT_ON_EDIT_ROW,
@@ -1241,6 +1260,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         }, 0);
       } else {
         this.suggestPriceChange(this.dbData[rowIndex].data)
+        console.log("suggestPriceChange");
       }
     }
   }

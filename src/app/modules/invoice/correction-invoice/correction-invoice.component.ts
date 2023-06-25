@@ -27,14 +27,12 @@ import { TableKeyDownEvent } from '../../shared/inline-editable-table/inline-edi
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InvoiceItemsDialogComponent } from '../invoice-items-dialog/invoice-items-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { NegativeQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceFormComponent } from '../invoice-form/invoice-form.component';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
-import { InvoiceCategory } from '../models/InvoiceCategory';
-import { InvoiceTypes } from '../models/InvoiceTypes';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
@@ -170,6 +168,13 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
+
+      if (this.mode.incoming) {
+        const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
+        if (unitPrice) {
+          unitPrice.label = this.mode.unitPriceColumnTitle
+        }
+      }
     })
   }
 
@@ -240,6 +245,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.invoiceFormData = {
       paymentMethod: invoice.paymentMethod,
       paymentDate: invoice.paymentDate,
+      customerInvoiceNumber: invoice.customerInvoiceNumber,
       invoiceDeliveryDate: invoice.invoiceDeliveryDate,
       invoiceIssueDate: invoice.invoiceIssueDate,
       notice: invoice.notice,
@@ -348,11 +354,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.notice = this.invoiceForm!.invoiceFormData!.notice;
 
-    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceForm!.invoiceFormData!.invoiceDeliveryDate
-    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceForm!.invoiceFormData!.invoiceIssueDate
-    this.outGoingInvoiceData.paymentDate = this.invoiceForm!.invoiceFormData!.paymentDate
+    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceForm.invoiceFormData!.invoiceDeliveryDate
+    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceForm.invoiceFormData!.invoiceIssueDate
+    this.outGoingInvoiceData.paymentDate = this.invoiceForm.invoiceFormData!.paymentDate
 
-    this.outGoingInvoiceData.paymentMethod = this.invoiceForm!.invoiceFormData!.paymentMethod
+    this.outGoingInvoiceData.customerInvoiceNumber = this.invoiceForm.invoiceFormData!.customerInvoiceNumber
+    this.outGoingInvoiceData.paymentMethod = this.invoiceForm.invoiceFormData!.paymentMethod
 
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? ""
 
@@ -376,7 +383,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.outGoingInvoiceData.invoiceCorrection = true
 
-    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm!.invoiceFormData!.paymentMethod)
+    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm.invoiceFormData!.paymentMethod)
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
@@ -433,6 +440,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         )
       }, 0);
       this.dbData[index].data.Restore()
+
+      this.dbDataTable.ClickByObjectKey('quantity')
     }
   }
 

@@ -613,6 +613,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         )
       }, 0);
       this.dbData[index].data.Restore()
+
+      this.dbDataTable.ClickByObjectKey('quantity')
     }
   }
 
@@ -946,6 +948,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       }
       catch (error) {
         this.cs.HandleError(error)
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
       }
       finally {
         this.isSaveInProgress = false
@@ -1051,7 +1054,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
 
     const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
@@ -1108,7 +1111,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
             }
           });
         } else {
-          this.bbxToastrService.show(res.errors!.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
         }
       },
       error: (err) => {

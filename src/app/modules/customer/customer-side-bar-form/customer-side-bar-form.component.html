@@ -145,18 +145,30 @@
 
             <app-form-control-error [form]="currentForm" controlName="warningLimit"></app-form-control-error>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>
-                        Fizetési határidő (nap)
-                    </label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="paymentDays"
-                        [readOnly]="isReadonly" [inputMask]="numberInputMaskInteger"
-                        (click)="currentForm.HandleFormFieldClick($event)">
-                </div>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">
+                            Fizetési határidő (nap)
+                        </label>
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="paymentDays"
+                            [readOnly]="isReadonly" [inputMask]="numberInputMaskInteger"
+                            (click)="currentForm.HandleFormFieldClick($event)">
+                    </div>
 
-                <app-form-control-error [form]="currentForm" controlName="paymentDays"></app-form-control-error>
-            </nb-form-field>
+                    <app-form-control-error [form]="currentForm" controlName="paymentDays"></app-form-control-error>
+                </nb-form-field>
+            
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Legutolsó bizonylatkedvezmény</label>
+            
+                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestDiscountPercent" [inputMask]="numberInputMask"
+                            placeholder="Nincs beállítva" [readonly]="isReadonly"
+                            (click)="currentForm.HandleFormFieldClick($event)">
+                    </div>
+                </nb-form-field>
+            </div>
 
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">

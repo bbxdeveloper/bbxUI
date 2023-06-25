@@ -11,7 +11,7 @@ import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { Actions, DefaultKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
 
 export interface InputFocusChangedEvent {
@@ -213,6 +213,7 @@ export class InlineEditableTableComponent implements OnInit {
       default:
         break;
     }
+    if (environment.inlineEditableTableKeyboardDebug) console.log('IsKeyFunctionKey: ', event.key, GeneralFlatDesignKeySettings)
     if (IsKeyFunctionKey(event.key)) {
       this.EmitKeydownEvent(
         event, row, rowPos, objectKey, colPos, inputId, fInputType,
