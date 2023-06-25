@@ -153,10 +153,10 @@ export class BaseManagerComponent<T> {
 
       if (dataToRecords > -1) {
         data!.needConfirmation = this.dbDataTable.flatDesignForm.defaultConfirmationSettings['ActionPut']
-        if (!this.dbDataTable.flatDesignForm.form.invalid) {
+        if (!this.dbDataTable.flatDesignForm.form.invalid && data?.needSaveConfirmationOnExit) {
           this.ActionPutOnExit(data)
         } else {
-          this.RefreshTable(this.GetIdFromGeneric((data as any).data));
+          this.RefreshTable(HelperFunctions.GetFieldValueFromGeneric((data as any).data));
         }
       } else {
         if (!this.dbDataTable.flatDesignForm.form.invalid) {
@@ -167,7 +167,7 @@ export class BaseManagerComponent<T> {
         }
         if (this.dbDataTable.lastKnownSelectedRow !== undefined && this.dbDataTable.lastKnownSelectedRow.data !== undefined) {
           if (this.dbData.length > 0 && this.CompareDataToRecords((this.dbDataTable.lastKnownSelectedRow as any).data)) {
-            const prevId = this.GetIdFromGeneric((this.dbDataTable.lastKnownSelectedRow as any).data)
+            const prevId = HelperFunctions.GetFieldValueFromGeneric((this.dbDataTable.lastKnownSelectedRow as any).data)
             this.RefreshTable(prevId);
           }
         }
@@ -207,12 +207,6 @@ export class BaseManagerComponent<T> {
     } else {
       return -1
     }
-  }
-
-  GetIdFromGeneric(data?: any): any {
-    const keys = Object.keys(data)
-    const idKey = keys.find(x => x.toLowerCase() === 'id')!
-    return data[idKey]
   }
 
   ActionLock(data?: IUpdateRequest<T>): void {
@@ -349,7 +343,7 @@ export class BaseManagerComponent<T> {
       );
       dialogRef.onClose.subscribe(res => {
         if (!res) {
-          this.RefreshTable(this.GetIdFromGeneric((data as any).data));
+          this.RefreshTable(HelperFunctions.GetFieldValueFromGeneric((data as any).data));
         } else {
           if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
             this.ProcessActionPut(data);
