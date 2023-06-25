@@ -789,6 +789,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         this.dbDataTable?.HandleKey(event);
         break;
       }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event)
+        break
+      }
       default: { }
     }
   }
