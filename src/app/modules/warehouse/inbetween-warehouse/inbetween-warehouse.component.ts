@@ -678,7 +678,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         whsTransferLineNumber: index,
         productCode: data.productCode,
         currAvgCost: data.currAvgCost,
-        quantity: data.quantity,
+        quantity: HelperFunctions.ToInt(data.quantity),
         unitOfMeasure: data.unitOfMeasure
       } as WhsTransferLine))
 
@@ -703,7 +703,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         whsTransferLineNumber: index,
         productCode: data.productCode,
         currAvgCost: data.currAvgCost,
-        quantity: data.quantity,
+        quantity: HelperFunctions.ToInt(data.quantity),
         unitOfMeasure: data.unitOfMeasure
       } as WhsTransferLine))
 
