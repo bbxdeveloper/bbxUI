@@ -683,6 +683,13 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         }
       }
     }
+    else if (!wasInNavigationMode) {
+      setTimeout(() => {
+        this.kbS.setEditMode(KeyboardModes.EDIT)
+        this.kbS.ClickCurrentElement()
+      }, 200)
+    }
+
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
