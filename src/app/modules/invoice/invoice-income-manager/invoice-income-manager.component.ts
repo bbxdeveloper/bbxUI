@@ -1233,12 +1233,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   @HostListener('window:keydown.f9', ['$event'])
   public onF9(event: Event): void {
-    console.log("keydown.f9: ", event);
-    if (!this.kbS.IsCurrentNavigatableTable() || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-      console.log(
-        "keydown.f9 blocked, !this.kbS.IsCurrentNavigatableTable() ", !this.kbS.IsCurrentNavigatableTable(),
-        ", this.khs.IsDialogOpened ", this.khs.IsDialogOpened,
-        ", this.khs.IsKeyboardBlocked ", this.khs.IsKeyboardBlocked);
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
       return
     }
 

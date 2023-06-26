@@ -334,14 +334,6 @@ export class KeyboardNavigationService {
     return this.CurrentNavigatable.constructor.name === potentialNavigatable.constructor.name;
   }
 
-  IsCurrentNavigatableTable(): boolean {
-    return this.CurrentNavigatable.constructor.name.endsWith("Table")
-  }
-
-  IsCurrentNavigatableForm(): boolean {
-    return this.CurrentNavigatable.constructor.name.endsWith("Form")
-  }
-
   MoveCursorBeforeFirstChar(): void {
     // const idString = '#' + this.Here;
     const _input = document.getElementById(this.Here) as HTMLInputElement;
