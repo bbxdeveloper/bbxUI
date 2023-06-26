@@ -1,6 +1,6 @@
 <as-split direction="horizontal">
     <as-split-area [size]="53">
-        <app-hozirontal-split-layout proportion="31" [hideDivider]="true">
+        <app-hozirontal-split-layout [usePixelForProportions]="true" proportion="270" [hideDivider]="true">
             <app-head-line [compact]="true" msg="Partnerenkénti forgalom" title></app-head-line>
 
             <app-customer-invoice-summary-filter-form (refreshClicked)="refreshClicked($event)"
