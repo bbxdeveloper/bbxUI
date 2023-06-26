@@ -303,45 +303,43 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   }
 
   Save(): void {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
     HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_DATA, async () => {
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
-      this.UpdateOutGoingData();
+      this.UpdateOutGoingData()
 
-      console.log('Save: ', this.custDiscountData);
+      console.log('Save: ', this.custDiscountData)
 
       await lastValueFrom(this.custDiscountService.Create(this.custDiscountData))
       .then(d => {
           try {
             if (!!d.data) {
-              console.log('Save response: ', d);
+              console.log('Save response: ', d)
 
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
-              );
+              )
 
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-              this.Reset();
+              this.DelayedReset(200)
             } else {
-              this.cs.HandleError(d.errors);
+              this.DelayedReset(200)
+              this.cs.HandleError(d.errors)
             }
           } catch (error) {
-            this.Reset()
+            this.DelayedReset(200)
             this.cs.HandleError(error)
           }
         })
         .catch(err => {
-          this.cs.HandleError(err);
+          this.cs.HandleError(err)
         })
-        .finally(() => {});
+        .finally(() => {})
 
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      this.sts.pushProcessStatus(Constants.BlankProcessStatus)
     });
   }
 
