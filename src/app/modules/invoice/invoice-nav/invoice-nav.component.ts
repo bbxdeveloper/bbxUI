@@ -471,11 +471,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       false
     );
     this.dbDataTable.PushFooterCommandList();
-    // this.dbDataTable.NewPageSelected.subscribe({
-    //   next: () => {
-    //     this.Refresh(this.getInputParams);
-    //   },
-    // });
+    this.dbDataTable.NewPageSelected.subscribe({
+      next: () => {
+        this.Refresh();
+      },
+    });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
     this.dbDataTable!.OuterJump = true;
