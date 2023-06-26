@@ -17,26 +17,22 @@ import { BaseNoFormManagerComponent } from '../../shared/base-no-form-manager/ba
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Customer } from '../../customer/models/Customer';
-import { CustomerService } from '../../customer/services/customer.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, KeyBindings, GetFooterCommandListFromKeySettings, InvRowNavKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { Router } from '@angular/router';
-import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { OneTextInputDialogComponent } from '../../shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
-import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
-import { InvRow } from '../models/InvRow';
-import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
-import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { InvCtrlAbsent } from '../../stock/models/InvCtrlAbsent';
 import { StockService } from '../../stock/services/stock.service';
 import { GetAllInvCtrlAbsentParamsModel } from '../../stock/models/GetAllInvCtrlAbsentParamsModel';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { FilterForm } from './FilterForm';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-inv-ctrl-absent',
@@ -46,6 +42,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAbsent> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
 
+  private localStorageKey: string
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -202,9 +199,13 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     cs: CommonService,
     sts: StatusService,
     private printAndDownLoadService: PrintAndDownloadService,
-    private khs: KeyboardHelperService
+    private khs: KeyboardHelperService,
+    private readonly localStorage: LocalStorageService,
+    tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts);
+
+    this.localStorageKey = 'inv-ctrl-absent.' + tokenService.user?.id ?? 'everyone'
 
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'invrow-table';
@@ -221,8 +222,6 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     return parseInt(p + '');
   }
 
-  InitFormDefaultValues(): void { }
-
   private Setup(): void {
     this.dbData = [];
 
@@ -236,7 +235,9 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       searchString: new FormControl(undefined, [])
     });
 
-    this.InitFormDefaultValues();
+    this.filterForm.valueChanges.subscribe(newValue => {
+      this.localStorage.put(this.localStorageKey, newValue as FilterForm)
+    })
 
     this.filterFormNav = new FlatDesignNoTableNavigatableForm(
       this.filterForm,
@@ -376,6 +377,11 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
   async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
+    const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
+    if (filterData) {
+      this.filterForm.patchValue(filterData)
+    }
+
     await this.Refresh();
   }
   ngAfterViewInit(): void {
