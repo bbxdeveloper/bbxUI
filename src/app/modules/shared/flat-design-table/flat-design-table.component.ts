@@ -5,6 +5,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
+import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
@@ -35,6 +36,7 @@ export class FlatDesignTableComponent implements OnInit {
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
 
+  latestSort?: NbSortRequest
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
@@ -47,13 +49,38 @@ export class FlatDesignTableComponent implements OnInit {
   }
 
   changeSort(sortRequest: NbSortRequest): void {
-    this.dbDataDataSrc.sort(sortRequest);
-    this.sortColumn = sortRequest.column;
-    this.sortDirection = sortRequest.direction;
+    this.dbDataDataSrc.sort(sortRequest)
+
+    this.sortColumn = sortRequest.column
+    this.sortDirection = sortRequest.direction
+
+    this.latestSort = sortRequest
+
+    this.dbDataTable?.data.sort(this.sortComparator.bind(this))
 
     setTimeout(() => {
       this.dbDataTable?.GenerateAndSetNavMatrices(false, undefined, true);
     }, 50);
+  }
+
+  sortComparator(
+    na: TreeGridNode<any>,
+    nb: TreeGridNode<any>,
+  ): number {
+    const key = this.latestSort!.column;
+    const a = na.data[key];
+    const b = nb.data[key];
+
+    let res = 0;
+
+    if (a > b) {
+      res = 1
+    }
+    if (a < b) {
+      res = -1
+    }
+
+    return this.latestSort!.direction === NbSortDirection.ASCENDING ? res : res * -1;
   }
 
   getDirection(column: string): NbSortDirection {

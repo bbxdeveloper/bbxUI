@@ -206,12 +206,6 @@ export class InlineTableNavigatableForm implements INavigatable {
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
 
-        if (preventEvent) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            event.stopPropagation();
-        }
-
         const ad = (event.target as any).getAttribute("aria-activedescendant");
         if (this.kbS.isEditModeActivated &&
             ad === null &&
