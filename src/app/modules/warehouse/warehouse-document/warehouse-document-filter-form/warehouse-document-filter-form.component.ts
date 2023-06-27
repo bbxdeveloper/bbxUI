@@ -12,7 +12,7 @@ import { WareHouse } from 'src/app/modules/warehouse/models/WareHouse';
 import { WareHouseService } from 'src/app/modules/warehouse/services/ware-house.service';
 import { WarehouseDocumentFilterFormData } from './WarehouseDocumentFilterFormData';
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/FlatDesignNavigatableForm';
-import { WhsTransferStatus } from '../../models/whs/WhsTransferStatus';
+import { OfflineWhsTransferStatus, WhsTransferStatus } from '../../models/whs/WhsTransferStatus';
 import { WhsTransferService } from '../../services/whs-transfer.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -157,6 +157,13 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
       if (response !== undefined) {
         this.statuses = response;
         this.statuses$.next(this.statuses.map(x => x.text));
+
+        const filter = this.localStorage.get<WarehouseDocumentFilterFormData>(this.localStorageKey)
+        const savedStatus = filter !== undefined && !HelperFunctions.isEmptyOrSpaces(filter.Status)
+        if (!savedStatus && HelperFunctions.isEmptyOrSpaces(this.filterFormNav?.form.controls['Status'].value) && this.statuses.length > 0) {
+          const tmp = this.statuses.find(x => x.text === OfflineWhsTransferStatus.Ready.text)
+          this.filterFormNav?.form.controls['Status'].setValue(tmp !== undefined ? tmp.text : this.statuses[0].text)
+        }
       }
     }
     catch (error) {
@@ -246,6 +253,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     const filter = this.localStorage.get<WarehouseDocumentFilterFormData>(this.localStorageKey)
 
     if (filter) {
+      console.trace('localStorage: ', filter)
       this.filterForm.patchValue(filter)
 
       this.Refresh()
