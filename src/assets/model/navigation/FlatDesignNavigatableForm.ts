@@ -104,13 +104,13 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 rowIndex: this.DataRowIndex,
                 needConfirmation: false,
                 needSaveConfirmationOnExit: false
-            } as IUpdateRequest);
+            } as IUpdateRequest)
         } else {
             this.ActionExit()
         }
         setTimeout(() => {
             this.sidebarService.collapse()
-        }, 200);
+        }, 200)
     }
 
     override ActionExit(data?: IUpdateRequest<T>): void {
