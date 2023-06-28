@@ -120,6 +120,12 @@ export class InlineTableNavigatableForm implements INavigatable {
         } else {
             // For example in case if we just moved onto a confirmation button in the next nav-matrix,
             // we don't want to automatically press it until the user directly presses enter after selecting it.
+            if ($('#' + this.kbS.Here).is('td')) {
+                if (HelperFunctions.IsEmptyEditableTable(this.kbS.GetCurrentNavigatable)) {
+                    this.kbS.ClickCurrentElement(true);
+                    this.kbS.setEditMode(KeyboardModes.EDIT);
+                }
+            }
             if ($('#' + this.kbS.Here).is(':input')) {
                 this.kbS.ClickCurrentElement(true);
                 this.kbS.setEditMode(KeyboardModes.EDIT);
