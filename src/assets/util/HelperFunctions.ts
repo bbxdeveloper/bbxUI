@@ -472,4 +472,12 @@ export module HelperFunctions {
         }
         return data[idKey]
     }
+
+    export function IsEmptyEditableTable(focusedTable?: any): boolean {
+        if (!focusedTable) {
+            return false
+        }
+        const hasData = Object.keys(focusedTable).includes('data')
+        return focusedTable.constructor.name.toLowerCase().includes('editable') && hasData && focusedTable.data.length === 1
+    }
 }
