@@ -4,7 +4,7 @@
  * @example createMask({ onBeforeWrite: onNegateKeepCaretPosition() })
  */
 export function onNegateKeepCaretPosition(): (event: KeyboardEvent, buffer: string[], caretPos: number, opts: Inputmask.Options) => Inputmask.CommandObject {
-    let lastCaretPos = 0
+    let lastCaretPos = -1
 
     const doNothing = {} as Inputmask.CommandObject
 
@@ -18,6 +18,13 @@ export function onNegateKeepCaretPosition(): (event: KeyboardEvent, buffer: stri
             lastCaretPos = caretPos
 
             return doNothing
+        }
+
+        if (lastCaretPos === -1) {
+            const index = buffer.indexOf('.') + 1
+            if (index !== -1) {
+                lastCaretPos = index
+            }
         }
 
         return {
