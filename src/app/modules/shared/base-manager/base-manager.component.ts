@@ -155,13 +155,22 @@ export class BaseManagerComponent<T> {
         data!.needConfirmation = this.dbDataTable.flatDesignForm.defaultConfirmationSettings['ActionPut']
         if (!this.dbDataTable.flatDesignForm.form.invalid && data?.needSaveConfirmationOnExit) {
           this.ActionPutOnExit(data)
+          return
         } else {
           this.RefreshTable(HelperFunctions.GetFieldValueFromGeneric((data as any).data));
+          return
         }
       } else {
         if (!this.dbDataTable.flatDesignForm.form.invalid) {
-          data!.needConfirmation = this.dbDataTable.flatDesignForm.defaultConfirmationSettings['ActionNew']
-          this.ActionNewOnExit(data)
+          if (!data?.needSaveConfirmationOnExit) {
+            const prevId = HelperFunctions.GetFieldValueFromGeneric((this.dbDataTable.lastKnownSelectedRow as any).data)
+            this.RefreshTable(prevId);
+            return
+          } else {
+            data!.needConfirmation = this.dbDataTable.flatDesignForm.defaultConfirmationSettings['ActionNew']
+            this.ActionNewOnExit(data)
+            return
+          }
         } else {
           this.ExitWithNewOrEmptyData()
         }
@@ -169,6 +178,7 @@ export class BaseManagerComponent<T> {
           if (this.dbData.length > 0 && this.CompareDataToRecords((this.dbDataTable.lastKnownSelectedRow as any).data)) {
             const prevId = HelperFunctions.GetFieldValueFromGeneric((this.dbDataTable.lastKnownSelectedRow as any).data)
             this.RefreshTable(prevId);
+            return
           }
         }
       }
