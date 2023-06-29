@@ -570,7 +570,11 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       .every(x => x.data.isSaveable())
 
     if (!isTableValid) {
-      this.bbxToastrService.showError(Constants.MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD)
+      if (this.dbData.length < 2) {
+        this.bbxToastrService.showError(Constants.MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD)
+      } else {
+        this.bbxToastrService.showError(Constants.MSG_ERROR_WRONG_QUANTITY_ONE_OR_MORE)
+      }
       return
     }
 
