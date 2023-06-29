@@ -34,7 +34,7 @@ import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
-import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
 
 @Component({
@@ -450,9 +450,10 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
       context: {
-        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
+        searchString: this.filterForm.controls['searchString'].value ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        defaultSearchModeForEnteredFilter: SearchMode.SEARCH_NAME_CODE
       }
     });
     dialogRef.onClose.subscribe(async (res: Product) => {
