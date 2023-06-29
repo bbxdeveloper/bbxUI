@@ -24,9 +24,11 @@ const NavMap: string[][] = [
   ['active-prod-search', 'show-all'] // , 'show-less'
 ];
 
-const SEARCH_NAME_CODE = 0
-const SEARCH_NAME = 1
-const SEARCH_CODE = 2
+export enum SearchMode {
+  SEARCH_NAME_CODE = 0,
+  SEARCH_NAME = 1,
+  SEARCH_CODE = 2
+}
 
 @Component({
   selector: 'app-product-select-table-dialog',
@@ -35,7 +37,7 @@ const SEARCH_CODE = 2
 })
 export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
-  currentChooserValue: any = SEARCH_NAME_CODE;
+  currentChooserValue: SearchMode = SearchMode.SEARCH_NAME_CODE;
 
   inputForm!: FormGroup;
   formNav!: NavigatableForm;
@@ -49,6 +51,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
   @Input() exchangeRate: number = 1;
   @Input() currency: string = CurrencyCodes.HUF;
+  @Input() defaultSearchModeForEnteredFilter: SearchMode = SearchMode.SEARCH_CODE
 
   get srcString(): string {
     return (this.searchString ?? '').trim();
@@ -59,9 +62,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       SearchString: this.srcString,
       PageSize: '10',
       PageNumber: '1',
-      OrderBy: this.currentChooserValue == SEARCH_NAME ? 'Description' : 'ProductCode',
-      FilterByName: this.currentChooserValue == SEARCH_NAME || this.currentChooserValue == SEARCH_NAME_CODE,
-      FilterByCode: this.currentChooserValue == SEARCH_CODE || this.currentChooserValue == SEARCH_NAME_CODE,
+      OrderBy: this.currentChooserValue == SearchMode.SEARCH_NAME ? 'Description' : 'ProductCode',
+      FilterByName: this.currentChooserValue == SearchMode.SEARCH_NAME || this.currentChooserValue == SearchMode.SEARCH_NAME_CODE,
+      FilterByCode: this.currentChooserValue == SearchMode.SEARCH_CODE || this.currentChooserValue == SearchMode.SEARCH_NAME_CODE,
     };
   }
 
@@ -69,9 +72,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     return {
       SearchString: this.srcString,
       PageSize: '999999',
-      OrderBy: this.currentChooserValue == SEARCH_NAME ? 'Description' : 'ProductCode',
-      FilterByName: this.currentChooserValue == SEARCH_NAME || this.currentChooserValue == SEARCH_NAME_CODE,
-      FilterByCode: this.currentChooserValue == SEARCH_CODE || this.currentChooserValue == SEARCH_NAME_CODE,
+      OrderBy: this.currentChooserValue == SearchMode.SEARCH_NAME ? 'Description' : 'ProductCode',
+      FilterByName: this.currentChooserValue == SearchMode.SEARCH_NAME || this.currentChooserValue == SearchMode.SEARCH_NAME_CODE,
+      FilterByCode: this.currentChooserValue == SearchMode.SEARCH_CODE || this.currentChooserValue == SearchMode.SEARCH_NAME_CODE,
     };
   }
 
@@ -131,7 +134,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
   override ngOnInit(): void {
     if (!HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-      this.inputForm.controls['chooser'].setValue(SEARCH_CODE);
+      this.inputForm.controls['chooser'].setValue(this.defaultSearchModeForEnteredFilter);
     }
     this.Refresh(this.getInputParams);
   }
@@ -140,9 +143,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   ngAfterContentInit(): void {
     $('*[type=radio]').addClass(TileCssClass);
 
-    $('*[type=radio]')[SEARCH_NAME_CODE].id = 'radio-0';
-    $('*[type=radio]')[SEARCH_NAME].id = 'radio-1';
-    $('*[type=radio]')[SEARCH_CODE].id = 'radio-2';
+    $('*[type=radio]')[SearchMode.SEARCH_NAME_CODE].id = 'radio-0';
+    $('*[type=radio]')[SearchMode.SEARCH_NAME].id = 'radio-1';
+    $('*[type=radio]')[SearchMode.SEARCH_CODE].id = 'radio-2';
 
     this.kbS.SetWidgetNavigatable(this);
     this.kbS.SelectFirstTile();
