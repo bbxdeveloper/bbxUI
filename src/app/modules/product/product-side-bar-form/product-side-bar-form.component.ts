@@ -66,13 +66,6 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     this.currentForm?.AfterViewInitSetup();
   }
 
-  public fixCursorPosition(event: FocusEvent) {
-    const input = event.target as HTMLInputElement
-    const position = input.value.indexOf('.')
-    input.selectionStart = position
-    input.selectionEnd = position
-  }
-
   private refreshComboboxData(): void {
     // ProductGroups
     this.productGroupApi.GetAll({ PageSize: '99999' }).subscribe({

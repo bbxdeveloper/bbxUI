@@ -15,6 +15,8 @@ import { ProductPriceChange } from '../models/ProductPriceChange';
 import { Product } from '../../product/models/Product';
 import { createMask } from '@ngneat/input-mask';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { onNegateKeepCaretPosition } from 'src/assets/util/input/onNegateKeepCaretPosition';
+import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
 
 type PriceChangeFormValues = {
   productCode: string
@@ -56,13 +58,16 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   public TileCssClass = TileCssClass
 
-  numberInputMask: any = createMask({
+  public fixCursorPosition = fixCursorPosition
+
+  numberInputMask = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
     digits: 2,
     digitsOptional: false,
     prefix: '',
     placeholder: '0.0',
+    onBeforeWrite: onNegateKeepCaretPosition()
   });
 
   public formId = 'product-price-change-form-dialog'
@@ -113,6 +118,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     this.navigateable.GenerateAndSetNavMatrices(true)
     this.keyboardService.SelectFirstTile()
     this.keyboardService.Jump(AttachDirection.UP, true)
+
+    this.newUnitPrice1.nativeElement.focus()
   }
 
   public ngOnDestroy(): void {
@@ -200,13 +207,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   private setNewPrice(oldPrice: number, changeRatePercent: number): number {
     const newPrice = oldPrice === 0 ? this.newPrice : oldPrice * changeRatePercent
     return HelperFunctions.Round(newPrice)
-  }
-
-  public fixCursorPosition(event: FocusEvent) {
-    const input = event.target as HTMLInputElement
-    const position = input.value.indexOf('.')
-    input.selectionStart = position
-    input.selectionEnd = position
   }
 
   public moveToButtons(event: Event): void {

@@ -1,13 +1,14 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { createMask } from '@ngneat/input-mask';
 import { BehaviorSubject } from 'rxjs';
-import { JumpPosPriority, KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { JumpPosPriority, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { FormSubject } from 'src/app/services/side-bar-form.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
-import { JumpDestination } from 'src/assets/model/navigation/Navigatable';
 import { Constants } from 'src/assets/util/Constants';
-import { OfferNavKeySettings, Actions, KeyBindings, DefaultKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings } from 'src/assets/util/KeyBindings';
+import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
+import { onNegateKeepCaretPosition } from 'src/assets/util/input/onNegateKeepCaretPosition';
 
 /**
  * Alaposztály oldalmenüs formokhoz
@@ -30,6 +31,8 @@ export class BaseSideBarFormComponent {
 
   blankOptionText: string = BlankComboBoxValue;
 
+  fixCursorPosition = fixCursorPosition
+
   numberInputMask = createMask({
     alias: 'numeric',
     groupSeparator: ' ',
@@ -37,6 +40,7 @@ export class BaseSideBarFormComponent {
     digitsOptional: false,
     prefix: '',
     placeholder: '0',
+    onBeforeWrite: onNegateKeepCaretPosition()
   });
 
   numberInputMaskInteger = createMask({
