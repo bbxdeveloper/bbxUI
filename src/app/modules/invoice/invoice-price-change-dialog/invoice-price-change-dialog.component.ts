@@ -17,6 +17,7 @@ import { createMask } from '@ngneat/input-mask';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { onNegateKeepCaretPosition } from 'src/assets/util/input/onNegateKeepCaretPosition';
 import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
+import { LoggerService } from 'src/app/services/logger.service';
 
 type PriceChangeFormValues = {
   productCode: string
@@ -82,6 +83,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     private readonly cdref: ChangeDetectorRef,
     private readonly commonService: CommonService,
     private readonly productService: ProductService,
+    private readonly loggerService: LoggerService
   ) {
     super()
 
@@ -139,6 +141,12 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.isLoading = true
 
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:ngOnInit] productCode: ${this.productCode}
+      newPrice: ${this.newPrice},
+      priceChange: ${JSON.stringify(this.priceChange)}`
+    )
+
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
         switchMap(this.createFormValues.bind(this))
@@ -164,7 +172,16 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     let newUnitPrice1
     let newUnitPrice2
 
-    if (this.wasOpen && this.priceChange !== undefined) {
+    let newChange = this.priceChange && this.priceChange.newUnitPrice1 !== this.newPrice && this.priceChange.newUnitPrice2 !== this.newPrice
+
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:createFormValues] productCode: ${product.productCode}
+      unitPrice1: ${product.unitPrice1}, unitPrice2: ${product.unitPrice2}
+      newChange: ${newChange}
+      priceChange: ${JSON.stringify(this.priceChange)}`
+    )
+
+    if (!newChange && this.wasOpen && this.priceChange !== undefined) {
       newUnitPrice1 = this.priceChange.newUnitPrice1
       newUnitPrice2 = this.priceChange.newUnitPrice2
     }
@@ -174,6 +191,11 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       newUnitPrice1 = unitPrice1
       newUnitPrice2 = unitPrice2
     }
+
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:createFormValues] productCode: ${product.productCode}
+      newUnitPrice1: ${newUnitPrice1}, newUnitPrice2: ${newUnitPrice2}`
+    )
 
     return of({
       productCode: product.productCode,
@@ -203,10 +225,20 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const newPrice1 = this.setNewPrice(product.unitPrice1!, changeRatePercent)
     const newPrice2 = this.setNewPrice(product.unitPrice2!, changeRatePercent)
 
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:calculateNewPrices] productCode: ${product.productCode}
+      latestSupplyPrice: ${latestSupplyPrice}, changeRatePercent: ${changeRatePercent}
+      newPrice1: ${newPrice1}, newPrice2: ${newPrice2}`
+    )
+
     return [newPrice1, newPrice2]
   }
 
   private setNewPrice(oldPrice: number, changeRatePercent: number): number {
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:setNewPrice] productCode: ${this.productCode}
+      oldPrice: ${oldPrice}, changeRatePercent: ${changeRatePercent}, newPrice: ${this.newPrice}`
+    )
     const newPrice = oldPrice === 0 ? this.newPrice : oldPrice * changeRatePercent
     return HelperFunctions.Round(newPrice)
   }
@@ -223,6 +255,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       this.keyboardService.Jump(AttachDirection.DOWN, false)
       this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
     }
+
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:moveToButtons] productCode: ${this.productCode}`
+    )
   }
 
   public changePrice(): void {
@@ -233,16 +269,28 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       newUnitPrice2: HelperFunctions.ToFloat(controls['newUnitPrice2'].value)
     } as ProductPriceChange
 
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:changePrice] productCode: ${this.productCode}
+      priceChange: ${JSON.stringify(this.priceChange)}`
+    )
+
     this.dialogRef.close(priceChange)
   }
 
   public close(): void {
     const controls = this.productPriceChangeForm.controls
 
-    const priceChange = {
-      newUnitPrice1: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice1'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice1'].value),
-      newUnitPrice2: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice2'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice2'].value)
-    } as ProductPriceChange
+    // const priceChange = {
+    //   newUnitPrice1: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice1'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice1'].value),
+    //   newUnitPrice2: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice2'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice2'].value)
+    // } as ProductPriceChange
+
+    const priceChange = undefined
+
+    this.loggerService.info(
+      `[InvoicePriceChangeDialogComponent:close] productCode: ${this.productCode}
+      priceChange: ${JSON.stringify(this.priceChange)}`
+    )
 
     this.dialogRef.close(priceChange)
   }

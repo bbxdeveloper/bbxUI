@@ -46,6 +46,7 @@ import { ProductPriceChange } from '../models/ProductPriceChange';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -215,6 +216,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     private readonly tokenService: TokenStorageService,
     private readonly bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
+    private readonly loggerService: LoggerService
   ) {
     super(dialogService, kbS, fS, cs, sts, sidebarService, khs, router);
     this.preventF12 = true
@@ -984,6 +986,12 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
       } as ProductPriceChange
     }
 
+    this.loggerService.info(
+      `[InvoiceIncomeManagerComponent:suggestPriceChange] productCode: ${invoiceLine.productCode}
+      wasOpen: ${invoiceLine.unitPriceChanged}, newPrice: ${invoiceLine.unitPrice}
+      priceChange: ${JSON.stringify(priceChange)}`
+    )
+
     const dialog = this.dialogService.open(InvoicePriceChangeDialogComponent, {
       context: {
         productCode: invoiceLine.productCode,
@@ -996,9 +1004,17 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
       this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
-      invoiceLine.unitPriceChanged = true
-      invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
-      invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
+      this.loggerService.info(
+        `[InvoiceIncomeManagerComponent:suggestPriceChange:onClose] productCode: ${invoiceLine.productCode}
+        unitPriceChanged (before set): ${invoiceLine.unitPriceChanged}
+        priceChange: ${JSON.stringify(priceChange)}`
+      )
+
+      if (priceChange) {
+        invoiceLine.unitPriceChanged = true
+        invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
+        invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
+      }
     })
   }
 
