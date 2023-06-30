@@ -222,6 +222,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     this.Setup();
   }
 
+  override GetRecordName(data: ExtendedStockData): string | number | undefined {
+    return data.productCode
+  }
+
   override ProcessActionPut(data?: IUpdateRequest<ExtendedStockData>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
 

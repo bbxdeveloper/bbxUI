@@ -30,8 +30,6 @@ import { FinalizeWhsTransferRequest } from '../../models/whs/FinalizeWhsTransfer
 import { ConfirmationDialogComponent } from 'src/app/modules/shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoggerService } from 'src/app/services/logger.service';
 
-export const TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
-
 @Component({
   selector: 'app-warehouse-document-manager',
   templateUrl: './warehouse-document-manager.component.html',
@@ -207,6 +205,10 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.Setup();
   }
 
+  override GetRecordName(data: WhsTransferFull): string | number | undefined {
+    return data.whsTransferNumber
+  }
+
   private Setup(): void {
     this.dbData = [];
 
@@ -258,54 +260,58 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
   }
 
   override ActionDelete(data?: IUpdateRequest<WhsTransferFull>): void {
-    console.log("ActionDelete: ", data);
     if (data?.needConfirmation) {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: `Törölhető a ${data.data.whsTransferNumber} raktárközi átadás bizonylat ?` } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.WAREHOUSEDOCUMENT_MSG_DELETE_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ProcessActionDelete(data);
+          this.ProcessActionDelete(data)
         }
-      });
+      })
     } else {
-      this.ProcessActionDelete(data);
+      this.ProcessActionDelete(data)
     }
   }
 
   override ProcessActionDelete(data?: IUpdateRequest<WhsTransferFull>): void {
-    const id = data?.data?.id;
-    console.log('ActionDelete: ', id);
+    const id = data?.data?.id
     if (id !== undefined) {
-      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
+      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING])
       this.whsService
         .Delete(HelperFunctions.ToInt(id))
         .subscribe({
           next: (d) => {
             if (d.succeeded && !!d.data) {
-              const di = this.dbData.findIndex((x) => x.data.id === id);
-              this.dbData.splice(di, 1);
+              const di = this.dbData.findIndex((x) => x.data.id === id)
+              this.dbData.splice(di, 1)
               this.simpleToastrService.show(
                 Constants.MSG_DELETE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.HandleGridSelectionAfterDelete(di);
+              )
+              this.HandleGridSelectionAfterDelete(di)
               this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus)
             } else {
               this.simpleToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR_5_SEC
-              );
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              )
+              this.isLoading = false
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus)
             }
           },
           error: (err) => { this.HandleError(err); },
-        });
+        })
     }
   }
 
@@ -325,9 +331,12 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       }
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(SingleDateDialogComponent, {
         context: {
-          title: TITLE_FINALIZE_DATE,
+          title: HelperFunctions.isEmptyOrSpaces(recordName) ?
+            Constants.WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE : HelperFunctions.StringFormat(Constants.WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM, recordName),
           minDate: data.data.transferDate,
           defaultDate: HelperFunctions.GetDateString(0,0,0)
         }

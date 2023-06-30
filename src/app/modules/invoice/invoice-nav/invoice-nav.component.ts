@@ -389,6 +389,10 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.Setup();
   }
 
+  override GetRecordName(data: Invoice): string | number | undefined {
+    return data.invoiceNumber
+  }
+
   validateInvoiceIssueDateFrom(control: AbstractControl): any {
     if (this.invoiceIssueDateToValue === undefined) {
       return null;

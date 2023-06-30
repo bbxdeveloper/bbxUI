@@ -167,6 +167,10 @@ export class InvCtrlPeriodManagerComponent
     this.Setup();
   }
 
+  override GetRecordName(data: InvCtrlPeriod): string | number | undefined {
+    return `${data.warehouse} - ${data.dateFrom} - ${data.dateTo}`
+  }
+
   private ConvertCombosForGet(data: InvCtrlPeriod): InvCtrlPeriod {
     if (!!!data.warehouse) {
       let warehouse = this.wareHouses.find(x => x.id === data.warehouseID);
