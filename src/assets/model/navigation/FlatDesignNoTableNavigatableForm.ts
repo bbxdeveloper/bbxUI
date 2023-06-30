@@ -1,10 +1,8 @@
-import { prepareEventListenerParameters } from "@angular/compiler/src/render3/view/template";
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
-import { SideBarFormService } from "src/app/services/side-bar-form.service";
 import { Constants } from "src/assets/util/Constants";
 import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
@@ -16,11 +14,13 @@ import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableTable } from "./FlatDesignNavigatableTable";
 import { FlatDesignNoFormNavigatableTable } from "./FlatDesignNoFormNavigatableTable";
 import { BlankComboBoxValue } from "./Nav";
-import { INavigatable, AttachDirection, TileCssClass, TileCssColClass, NavMatrixOrientation } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, NavMatrixOrientation, NavigatableType } from "./Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
     Matrix: string[][] = [[]];
+
+    NavigatableType = NavigatableType.form
 
     LastX?: number | undefined;
     LastY?: number | undefined;

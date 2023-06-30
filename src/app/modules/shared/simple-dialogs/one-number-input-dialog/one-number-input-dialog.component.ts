@@ -6,7 +6,7 @@ import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keybo
 import { DateIntervalDialogResponse } from "src/assets/model/DateIntervalDialogResponse";
 import { IInlineManager } from "src/assets/model/IInlineManager";
 import { NavigatableForm } from "src/assets/model/navigation/Nav";
-import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
+import { TileCssClass, AttachDirection, NavigatableType } from "src/assets/model/navigation/Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
@@ -31,7 +31,8 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
   @Input() limitValue: boolean = false;
   @Input() minValue: number = 1;
   @Input() maxValue: number = 99;
-  
+
+  override NavigatableType = NavigatableType.dialog
 
   closedManually = false;
 

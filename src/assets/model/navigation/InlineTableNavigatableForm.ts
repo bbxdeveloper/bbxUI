@@ -2,15 +2,17 @@ import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
 import { Constants } from "src/assets/util/Constants";
-import { Actions, DefaultKeySettings, KeyBindings, OfferEditorKeySettings } from "src/assets/util/KeyBindings";
+import { KeyBindings, OfferEditorKeySettings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { IInlineManager } from "../IInlineManager";
 import { BlankComboBoxValue } from "./Nav";
-import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, NavigatableType } from "./Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class InlineTableNavigatableForm implements INavigatable {
     Matrix: string[][] = [[]];
+
+    NavigatableType = NavigatableType.form
 
     LastX?: number | undefined;
     LastY?: number | undefined;

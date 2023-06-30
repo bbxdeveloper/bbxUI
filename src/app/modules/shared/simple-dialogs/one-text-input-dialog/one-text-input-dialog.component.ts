@@ -5,7 +5,7 @@ import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keybo
 import { DateIntervalDialogResponse } from "src/assets/model/DateIntervalDialogResponse";
 import { IInlineManager } from "src/assets/model/IInlineManager";
 import { NavigatableForm } from "src/assets/model/navigation/Nav";
-import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
+import { TileCssClass, AttachDirection, NavigatableType } from "src/assets/model/navigation/Navigatable";
 import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
 @Component({
@@ -18,6 +18,8 @@ export class OneTextInputDialogComponent extends BaseNavigatableComponentCompone
   @Input() inputLabel: string = "";
   @Input() defaultValue: any = "";
   @Input() isReadonly: any = false;
+
+  override NavigatableType = NavigatableType.dialog
   
   closedManually = false;
 

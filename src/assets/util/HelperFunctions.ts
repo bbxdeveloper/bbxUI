@@ -12,6 +12,7 @@ import { ConfirmationDialogComponent } from "src/app/modules/shared/simple-dialo
 import { CalculatorPopoverComponent } from "src/app/modules/shared/calculator-popover/calculator-popover.component";
 import { FormGroup } from "@angular/forms";
 import { OneButtonConfirmationDialogComponent } from "src/app/modules/shared/simple-dialogs/one-button-confirmation-dialog/one-button-confirmation-dialog.component";
+import { NavigatableType } from "../model/navigation/Navigatable";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -478,6 +479,6 @@ export module HelperFunctions {
             return false
         }
         const hasData = Object.keys(focusedTable).includes('data')
-        return focusedTable.constructor.name.toLowerCase().includes('editable') && hasData && focusedTable.data.length === 1
+        return focusedTable.NavigatableType === NavigatableType.inline_editable_table && hasData && focusedTable.data.length === 1
     }
 }

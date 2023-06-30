@@ -14,10 +14,12 @@ import { SimplePaginator } from "../SimplePaginator";
 import { TreeGridNode } from "../TreeGridNode";
 import { IUpdatable, IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableForm } from "./FlatDesignNavigatableForm";
-import { INavigatable, AttachDirection, TileCssClass, JumpDestination } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, JumpDestination, NavigatableType } from "./Navigatable";
 
 export class FlatDesignNavigatableTable<T> extends SimplePaginator implements INavigatable, IUpdatable<T> {
     Matrix: string[][] = [[]];
+
+    NavigatableType = NavigatableType.table
 
     LastX?: number | undefined;
     LastY?: number | undefined;

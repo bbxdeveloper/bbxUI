@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PreferredSelectionMethod } from 'src/app/services/keyboard-navigation.service';
 import { INavigatable } from 'src/assets/model/navigation/Nav';
+import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 
 @Component({
   selector: 'app-base-navigatable-component',
@@ -15,6 +16,8 @@ export class BaseNavigatableComponentComponent implements OnInit, INavigatable {
   public set Matrix(value: string[][]) {
     this._Matrix = value;
   }
+
+  NavigatableType = NavigatableType.other
 
   LastX?: number;
   LastY?: number;

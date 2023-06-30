@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
+import { AttachDirection, NavigatableType, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { NbDialogRef } from '@nebular/theme';
 import { InvoiceLine } from '../models/InvoiceLine';
@@ -47,6 +47,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   @ViewChild('newUnitPrice1')
   private newUnitPrice1!: ElementRef
+
+  override NavigatableType = NavigatableType.dialog
 
   private requestSubscription: Subscription|undefined
 

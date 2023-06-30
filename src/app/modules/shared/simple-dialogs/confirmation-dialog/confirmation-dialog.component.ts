@@ -2,6 +2,7 @@ import { Component, AfterContentInit, OnDestroy, Input } from "@angular/core";
 import { NbDialogRef } from "@nebular/theme";
 import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
+import { NavigatableType } from "src/assets/model/navigation/Navigatable";
 
 @Component({
   selector: 'app-confirmation-dialog',
@@ -11,6 +12,8 @@ import { BaseNavigatableComponentComponent } from "../../base-navigatable-compon
 export class ConfirmationDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy {
   @Input() msg: string = "";
   closedManually = false;
+
+  override NavigatableType = NavigatableType.dialog
 
   constructor(
     protected dialogRef: NbDialogRef<ConfirmationDialogComponent>,

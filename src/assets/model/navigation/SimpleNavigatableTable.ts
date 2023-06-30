@@ -11,11 +11,13 @@ import { IEditable } from "../IEditable";
 import { IInlineManager } from "../IInlineManager";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
-import { INavigatable, AttachDirection, TileCssClass, JumpDestination } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, JumpDestination, NavigatableType } from "./Navigatable";
 import { SelectedCell } from "./SelectedCell";
 
 export class SimpleNavigatableTable<T = any> implements INavigatable {
     Matrix: string[][] = [[]];
+
+    NavigatableType = NavigatableType.table
 
     LastX?: number | undefined;
     LastY?: number | undefined;
