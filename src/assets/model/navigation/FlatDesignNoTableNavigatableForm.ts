@@ -108,24 +108,6 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         }
 
         this.SetFormStateToDefault();
-
-        console.log("[ctor FlatDesignNavigatableForm] Params in order (without services): ", f, data, attachDirection, formId, colDefs); // TODO: only for debug
-
-        this.sidebarService.onCollapse().subscribe({
-            next: value => {
-                if (!!this.LeftNeighbour || !!this.RightNeighbour || !!this.DownNeighbour || !!this.UpNeighbour) {
-                    if (!this.kbS.IsCurrentNavigatable(this)) {
-                        this.kbS.SetCurrentNavigatable(this);
-                    }
-                    this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
-                    this.grid?.PushFooterCommandList();
-                }
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            },
-            complete: () => {
-                this.kbS.isEditModeLocked = false;
-            }
-        });
     }
 
     FillForm(data: any, skip: string[] = []) {
