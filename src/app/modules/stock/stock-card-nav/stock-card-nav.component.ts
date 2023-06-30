@@ -453,7 +453,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
     this.AddSearchButtonToFormMatrix();
-    console.log(this.filterFormNav.Matrix);
+    
+    this.kbS.SetCurrentNavigatable(this.filterFormNav);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.ReadonlySideForm = true;
