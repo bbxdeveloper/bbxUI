@@ -2,7 +2,7 @@ import { Component, AfterViewInit, OnDestroy, Input, ChangeDetectorRef } from "@
 import { NbDialogRef } from "@nebular/theme";
 import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { DateIntervalDialogResponse } from "src/assets/model/DateIntervalDialogResponse";
-import { TileCssClass } from "src/assets/model/navigation/Navigatable";
+import { NavigatableType, TileCssClass } from "src/assets/model/navigation/Navigatable";
 import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
 @Component({
@@ -13,6 +13,8 @@ import { BaseNavigatableComponentComponent } from "../../base-navigatable-compon
 export class IframeViewerDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
   @Input() title: string = "";
   @Input() srcDoc: string = "";
+
+  override NavigatableType = NavigatableType.dialog
 
   closedManually = false;
 

@@ -4,6 +4,7 @@ import { BaseNavigatableComponentComponent } from '../base-navigatable-component
 import { createMask } from '@ngneat/input-mask';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 
 @Component({
   selector: 'app-calculator-popover',
@@ -27,6 +28,8 @@ export class CalculatorPopoverComponent extends BaseNavigatableComponentComponen
   @Output('resultChange') resultChanged: EventEmitter<number> = new EventEmitter<number>()
 
   @Output() popoverClose: EventEmitter<any> = new EventEmitter<any>()
+
+  override NavigatableType = NavigatableType.dialog
 
   calcSymbol: string = '?'
   

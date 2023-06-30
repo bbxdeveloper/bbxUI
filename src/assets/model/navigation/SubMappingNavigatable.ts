@@ -1,5 +1,5 @@
 import { PreferredSelectionMethod } from "src/app/services/keyboard-navigation.service";
-import { INavigatable } from "./Navigatable";
+import { INavigatable, NavigatableType } from "./Navigatable";
 
 /**
  * Almenük és más, a fő navigációs mátrix alá rendelt elemek
@@ -18,6 +18,8 @@ export class SubMappingNavigatable implements INavigatable {
     DownNeighbour?: INavigatable | undefined;
     UpNeighbour?: INavigatable | undefined;
     TileSelectionMethod: PreferredSelectionMethod = PreferredSelectionMethod.focus;
+
+    NavigatableType = NavigatableType.submapping
 
     IsSubMapping: boolean = true;
 

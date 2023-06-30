@@ -5,7 +5,7 @@ import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keybo
 import { DateIntervalDialogResponse } from "src/assets/model/DateIntervalDialogResponse";
 import { IInlineManager } from "src/assets/model/IInlineManager";
 import { NavigatableForm } from "src/assets/model/navigation/Nav";
-import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
+import { TileCssClass, AttachDirection, NavigatableType } from "src/assets/model/navigation/Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 import { validDate } from "src/assets/model/Validators";
@@ -24,6 +24,8 @@ export class SingleDateDialogComponent extends BaseNavigatableComponentComponent
   @Input() minDate?: string
   @Input() defaultDate?: string
   @Input() maxDate?: string
+
+  override NavigatableType = NavigatableType.dialog
 
   get _minDate(): Date | undefined {
     return !HelperFunctions.IsDateStringValid(this.minDate) ? undefined : new Date(this.minDate!);

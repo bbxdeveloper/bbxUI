@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { AttachDirection, INavigatable, TileCssClass } from 'src/assets/model/navigation/Navigatable';
+import { AttachDirection, INavigatable, NavigatableType, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { InvoiceService } from '../services/invoice.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
@@ -24,6 +24,8 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
   public get isEditModeOff(): boolean {
     return !this.keyboardService.isEditModeActivated
   }
+
+  override NavigatableType = NavigatableType.dialog
 
   public TileCssClass = TileCssClass
 

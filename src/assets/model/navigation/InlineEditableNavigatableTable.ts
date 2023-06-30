@@ -5,18 +5,20 @@ import { FORMATTED_NUMBER_COL_TYPES } from "src/app/modules/shared/flat-design-t
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { Constants } from "src/assets/util/Constants";
-import { Actions, DefaultKeySettings } from "src/assets/util/KeyBindings";
+import { DefaultKeySettings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { IEditable } from "../IEditable";
 import { IInlineManager } from "../IInlineManager";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
-import { INavigatable, AttachDirection, TileCssClass } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, NavigatableType } from "./Navigatable";
 
 
 export class InlineEditableNavigatableTable<T extends IEditable> implements INavigatable {
     Matrix: string[][] = [[]];
+
+    NavigatableType = NavigatableType.inline_editable_table
 
     LastX?: number | undefined;
     LastY?: number | undefined;

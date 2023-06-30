@@ -11,7 +11,7 @@ import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keybo
 import { StatusService } from 'src/app/services/status.service';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { BlankComboBoxValue } from 'src/assets/model/navigation/Nav';
-import { TileCssClass, TileCssColClass, AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { TileCssClass, TileCssColClass, AttachDirection, NavigatableType } from 'src/assets/model/navigation/Navigatable';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
@@ -37,6 +37,8 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
+
+  override NavigatableType = NavigatableType.dialog
 
   public get saveIsDisabled(): boolean {
     if (this._form !== undefined && this._form.form !== undefined) {

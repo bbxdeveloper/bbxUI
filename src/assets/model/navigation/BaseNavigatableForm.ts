@@ -10,7 +10,7 @@ import { TreeGridNode } from "../TreeGridNode";
 import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { IFunctionHandler } from "./IFunctionHandler";
 import { BlankComboBoxValue } from "./Nav";
-import { INavigatable, AttachDirection, TileCssClass, TileCssColClass, JumpDestination } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, TileCssColClass, JumpDestination, NavigatableType } from "./Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigatable, IUpdater<T> {
@@ -18,6 +18,8 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
 
     IsMultiColMatrixGenEnabled: boolean = false
     JumpPosPriority: JumpPosPriority = JumpPosPriority.first
+
+    NavigatableType = NavigatableType.form
 
     LastX?: number | undefined;
     LastY?: number | undefined;
