@@ -544,12 +544,6 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       return;
     }
     switch (event.key) {
-      case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-        break;
-      }
       case this.KeySetting[Actions.Print].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
@@ -596,7 +590,9 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
+
         this.dbDataTable?.HandleKey(event);
+
         break;
       }
       case this.KeySetting[Actions.Refresh].KeyCode: {
