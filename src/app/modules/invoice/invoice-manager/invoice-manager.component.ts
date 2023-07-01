@@ -667,6 +667,10 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
           this.dbDataTable.ClickByObjectKey('quantity')
         }
+
+        if (col === 'unitPrice') {
+          changedData.Save()
+        }
       }
     }
   }
