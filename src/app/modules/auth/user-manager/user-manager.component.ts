@@ -170,6 +170,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     this.Setup();
   }
 
+  override GetRecordName(data: User): string | number | undefined {
+    return data.loginName
+  }
+
   override ActionNew(data?: IUpdateRequest<User>): void {
     console.log("ActionNew: ", data);
 

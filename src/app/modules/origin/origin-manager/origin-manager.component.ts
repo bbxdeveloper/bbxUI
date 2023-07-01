@@ -113,6 +113,10 @@ export class OriginManagerComponent
     this.Setup();
   }
 
+  override GetRecordName(data: Origin): string | number | undefined {
+    return data.originCode
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<Origin>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {

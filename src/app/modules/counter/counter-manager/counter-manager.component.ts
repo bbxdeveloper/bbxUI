@@ -176,6 +176,10 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     this.Setup();
   }
 
+  override GetRecordName(data: Counter): string | number | undefined {
+    return data.counterCode
+  }
+
   private ConvertCombosForPost(data: Counter): Counter {
     if (data.warehouse !== undefined && this.wareHouses.length > 0)
       data.warehouse = WareHouseDescriptionToCode(

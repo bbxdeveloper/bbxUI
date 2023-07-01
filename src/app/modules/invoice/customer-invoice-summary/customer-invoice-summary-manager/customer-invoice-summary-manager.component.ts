@@ -164,6 +164,10 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     this.Setup();
   }
 
+  override GetRecordName(data: CustomerInvoiceSummary): string | number | undefined {
+    return data.customerName
+  }
+
   private Setup(): void {
     this.dbData = [];
 

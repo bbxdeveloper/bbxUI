@@ -106,6 +106,10 @@ export class ProductGroupManagerComponent
     this.Setup();
   }
 
+  override GetRecordName(data: ProductGroup): string | number | undefined {
+    return data.productGroupCode
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<ProductGroup>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {

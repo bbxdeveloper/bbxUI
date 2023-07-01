@@ -112,16 +112,31 @@ export class BaseManagerComponent<T> {
     this.dbDataTable.flatDesignForm.SetFormStateToDefault();
   }
 
+  /**
+   * Returns an obvious name for the record to use in confirmation message.
+   * @param data 
+   * @returns 
+   */
+  GetRecordName(data: any): string | number | undefined {
+    return ''
+  }
+
   ActionExit(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionExit.name}: ${JSON.stringify(data)}`)
 
     if (!data?.needConfirmation) {
-      this.ProcessActionExit(data);
+      this.ProcessActionExit(data)
     } else {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (!res) {
           this.dbDataTable.SetFormReadonly(false)
@@ -129,18 +144,18 @@ export class BaseManagerComponent<T> {
           this.kbS.ClickCurrentElement()
         } else {
           if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-            this.ProcessActionExit(data);
+            this.ProcessActionExit(data)
           } else {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } })
             dialogRef.onClose.subscribe(res => {
               if (res) {
-                this.clearSearch();
+                this.clearSearch()
               }
-              this.ProcessActionExit(data);
-            });
+              this.ProcessActionExit(data)
+            })
           }
         }
-      });
+      })
     }
   }
   ProcessActionExit(data?: IUpdateRequest<T>): void {
@@ -177,12 +192,12 @@ export class BaseManagerComponent<T> {
         if (this.dbDataTable.lastKnownSelectedRow !== undefined && this.dbDataTable.lastKnownSelectedRow.data !== undefined) {
           if (this.dbData.length > 0 && this.CompareDataToRecords((this.dbDataTable.lastKnownSelectedRow as any).data)) {
             const prevId = HelperFunctions.GetFieldValueFromGeneric((this.dbDataTable.lastKnownSelectedRow as any).data)
-            this.RefreshTable(prevId);
+            this.RefreshTable(prevId)
             return
           }
         }
       }
-    }, 300);
+    }, 300)
   }
   ExitWithNewOrEmptyData(): void {
     if (this.dbData.length === 0 && !this.dbDataTable.includeSearchInNavigationMatrix) {
@@ -223,17 +238,23 @@ export class BaseManagerComponent<T> {
     this.loggerService.info(`${this.ActionLock.name}: ${JSON.stringify(data)}`)
     
     if (!data?.needConfirmation) {
-      this.ProcessActionLock(data);
+      this.ProcessActionLock(data)
     } else {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_LOCK } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_LOCK : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_LOCK_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ProcessActionLock(data);
+          this.ProcessActionLock(data)
         }
-      });
+      })
     }
   }
   ProcessActionLock(data?: IUpdateRequest<T>): void {}
@@ -242,12 +263,18 @@ export class BaseManagerComponent<T> {
     this.loggerService.info(`${this.ActionNew.name}: ${JSON.stringify(data)}`)
 
     if (!data?.needConfirmation) {
-      this.ProcessActionNew(data);
+      this.ProcessActionNew(data)
     } else {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (!res) {
           this.dbDataTable.SetFormReadonly(false)
@@ -255,48 +282,54 @@ export class BaseManagerComponent<T> {
           this.kbS.ClickCurrentElement()
         } else {
           if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-            this.ProcessActionNew(data);
+            this.ProcessActionNew(data)
           } else {
             const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
             dialogRef.onClose.subscribe(res => {
               if (res) {
-                this.clearSearch();
+                this.clearSearch()
               }
-              this.ProcessActionNew(data);
+              this.ProcessActionNew(data)
             });
           }
         }
-      });
+      })
     }
   }
   ActionNewOnExit(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionNewOnExit.name}: ${JSON.stringify(data)}`)
 
     if (!data?.needConfirmation) {
-      this.ProcessActionNew(data);
+      this.ProcessActionNew(data)
     } else {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (!res) {
           this.ExitWithNewOrEmptyData()
           this.dbDataTableForm.reset()
         } else {
           if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-            this.ProcessActionNew(data);
+            this.ProcessActionNew(data)
           } else {
             const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
             dialogRef.onClose.subscribe(res => {
               if (res) {
-                this.clearSearch();
+                this.clearSearch()
               }
-              this.ProcessActionNew(data);
-            });
+              this.ProcessActionNew(data)
+            })
           }
         }
-      });
+      })
     }
   }
   ProcessActionNew(data?: IUpdateRequest<T>): void { }
@@ -304,22 +337,28 @@ export class BaseManagerComponent<T> {
   ActionReset(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionReset.name}: ${JSON.stringify(data)}`)
 
-    this.ProcessActionReset(data);
+    this.ProcessActionReset(data)
   }
   ProcessActionReset(data?: IUpdateRequest<T>): void {
-    this.dbDataTable.ResetForm();
+    this.dbDataTable.ResetForm()
   }
 
   ActionPut(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionPut.name}: ${JSON.stringify(data)}`)
     
     if (!data?.needConfirmation) {
-      this.ProcessActionPut(data);
+      this.ProcessActionPut(data)
     } else {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (!res) {
           this.dbDataTable.SetFormReadonly(false)
@@ -327,47 +366,53 @@ export class BaseManagerComponent<T> {
           this.kbS.ClickCurrentElement()
         } else {
           if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-            this.ProcessActionPut(data);
+            this.ProcessActionPut(data)
           } else {
             const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
             dialogRef.onClose.subscribe(res => {
               if (res) {
-                this.clearSearch();
+                this.clearSearch()
               }
-              this.ProcessActionPut(data);
-            });
+              this.ProcessActionPut(data)
+            })
           }
         }
-      });
+      })
     }
   }
   ActionPutOnExit(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionPutOnExit.name}: ${JSON.stringify(data)}`)
     
     if (!data?.needConfirmation) {
-      this.ProcessActionPut(data);
+      this.ProcessActionPut(data)
     } else {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (!res) {
           this.RefreshTable(HelperFunctions.GetFieldValueFromGeneric((data as any).data));
         } else {
           if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-            this.ProcessActionPut(data);
+            this.ProcessActionPut(data)
           } else {
             const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
             dialogRef.onClose.subscribe(res => {
               if (res) {
-                this.clearSearch();
+                this.clearSearch()
               }
-              this.ProcessActionPut(data);
-            });
+              this.ProcessActionPut(data)
+            })
           }
         }
-      });
+      })
     }
   }
   ProcessActionPut(data?: IUpdateRequest<T>): void { }
@@ -376,17 +421,23 @@ export class BaseManagerComponent<T> {
     this.loggerService.info(`${this.ActionDelete.name}: ${JSON.stringify(data)}`)
     
     if (!data?.needConfirmation) {
-      this.ProcessActionDelete(data);
+      this.ProcessActionDelete(data)
     } else {
+      const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_DELETE } }
-      );
+        {
+          context: {
+            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+              Constants.MSG_CONFIRMATION_DELETE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, recordName)
+          }
+        }
+      )
       dialogRef.onClose.subscribe(res => {
         if (res) {
-          this.ProcessActionDelete(data);
+          this.ProcessActionDelete(data)
         }
-      });
+      })
     }
   }
   ProcessActionDelete(data?: IUpdateRequest<T>): void { }

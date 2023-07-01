@@ -112,6 +112,10 @@ export class LocationManagerComponent
     this.Setup();
   }
 
+  override GetRecordName(data: Location): string | number | undefined {
+    return data.locationCode
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<Location>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {

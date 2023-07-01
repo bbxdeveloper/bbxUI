@@ -285,6 +285,10 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.Setup();
   }
 
+  override GetRecordName(data: StockCard): string | number | undefined {
+    return data.productCode
+  }
+
   private Setup(): void {
     this.dbData = [];
 

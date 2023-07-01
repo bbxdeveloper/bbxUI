@@ -58,8 +58,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '200px',
-      textAlign: 'center',
+      colWidth: '400px',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
@@ -69,7 +69,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       defaultValue: '',
       type: 'string',
       mask: '',
-      colWidth: '30%',
+      colWidth: '100%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -81,7 +81,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'string',
       fRequired: true,
       mask: '',
-      colWidth: '35%',
+      colWidth: '130px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -93,7 +93,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'string',
       fRequired: true,
       mask: '',
-      colWidth: '35%',
+      colWidth: '130px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -211,6 +211,10 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     this.dbDataTableEditId = 'user-cell-edit-input';
     this.kbS.ResetToRoot();
     this.Setup();
+  }
+
+  override GetRecordName(data: Product): string | number | undefined {
+    return data.productCode
   }
 
   private ConvertCombosForPost(data: Product): Product {

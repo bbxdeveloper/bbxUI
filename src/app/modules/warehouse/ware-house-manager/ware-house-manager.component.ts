@@ -106,6 +106,10 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.Setup();
   }
 
+  override GetRecordName(data: WareHouse): string | number | undefined {
+    return data.warehouseCode
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<WareHouse>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
