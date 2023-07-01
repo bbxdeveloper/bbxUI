@@ -555,6 +555,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               Constants.TOASTR_ERROR
             );
             this.dbDataTable.data[rowPos].data.Restore('productCode');
+            this.kbS.ClickCurrentElement()
           }
         },
         error: err => {
