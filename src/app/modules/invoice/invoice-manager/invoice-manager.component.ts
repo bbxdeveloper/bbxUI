@@ -585,6 +585,7 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }, 200);
           } else {
             this.dbDataTable.data[rowPos].data.Restore('productCode');
+            this.kbS.ClickCurrentElement()
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
