@@ -6,11 +6,14 @@ export const TileCssColClass: string = 'navmatrix-tile-col';
 export enum AttachDirection { DOWN = -1, LEFT = -2, RIGHT = 2, UP = 1 };
 export enum JumpDestination { LOWER_LEFT, LOWER_RIGHT, UPPER_LEFT, UPPER_RIGHT };
 export enum NavMatrixOrientation { NORMAL, ONLY_HORIZONTAL, ONLY_VERTICAL };
+export enum NavigatableType { form, table, inline_editable_table, submapping, menu, dialog, page, other }
 
 // Interfaces
 
 export interface INavigatable {
     Matrix: string[][];
+
+    NavigatableType: NavigatableType
 
     IsMultiColMatrixGenEnabled?: boolean;
 
@@ -62,6 +65,7 @@ export class NullNavigatable implements INavigatable {
     RightNeighbour?: INavigatable | undefined;
     DownNeighbour?: INavigatable | undefined;
     UpNeighbour?: INavigatable | undefined;
+    NavigatableType = NavigatableType.other
 
     // Here it throws an error if we want to initialize it via
     // PreferredSelectionMethod.focus

@@ -9,6 +9,7 @@ import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNaviga
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
+import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 
 @Component({
   selector: 'app-select-table-dialog',
@@ -20,6 +21,8 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   @Input() searchString: string = '';
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
+
+  override NavigatableType = NavigatableType.dialog
 
   shouldCloseOnEscape = true;
 

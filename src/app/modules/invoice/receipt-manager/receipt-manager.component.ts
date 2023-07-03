@@ -357,6 +357,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }, 200);
           } else {
             this.dbDataTable.data[rowPos].data.Restore('productCode');
+            this.kbS.ClickCurrentElement()
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
@@ -436,6 +437,10 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
           this.dbData[index].data.Restore()
 
           this.dbDataTable.ClickByObjectKey('quantity')
+        }
+
+        if (col === 'unitPrice' && index !== null && index !== undefined) {
+          changedData.Save()
         }
       }
     }

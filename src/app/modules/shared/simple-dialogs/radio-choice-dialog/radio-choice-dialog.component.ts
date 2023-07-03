@@ -4,7 +4,7 @@ import { NbDialogRef } from "@nebular/theme";
 import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { IInlineManager } from "src/assets/model/IInlineManager";
 import { NavigatableForm } from "src/assets/model/navigation/Nav";
-import { TileCssClass, AttachDirection } from "src/assets/model/navigation/Navigatable";
+import { TileCssClass, AttachDirection, NavigatableType } from "src/assets/model/navigation/Navigatable";
 import { SimpleDialogResponse } from "src/assets/model/SimpleDialogResponse";
 import { BaseNavigatableComponentComponent } from "../../base-navigatable-component/base-navigatable-component.component";
 
@@ -24,6 +24,8 @@ export class RadioChoiceDialogComponent extends BaseNavigatableComponentComponen
 
   @Input() optionLabel1: any = 'Option 1';
   @Input() optionLabel2: any = 'Option 2';
+
+  override NavigatableType = NavigatableType.dialog
 
   closedManually = false;
 

@@ -313,6 +313,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.Setup();
   }
 
+  override GetRecordName(data: Customer): string | number | undefined {
+    return data.customerName
+  }
+
   SetAllColumns(): string[] {
     if (this.bbxSidebarService.sideBarOpened) {
       this.AllColumns.next(this.allColumnsWithOpenedSideBar);

@@ -8,6 +8,7 @@ export module Constants {
     export const MSG_ERROR_DATE_OUT_OF_RANGE: string = 'A dátum a megadott értékhatáron kívülre esik.'
     export const MSG_ERROR_INVALID_FORM: string = 'Az űrlap hibásan van kitöltve.'
     export const MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD = 'Legalább egy érvényesen megadott tétel szükséges a mentéshez.'
+    export const MSG_ERROR_WRONG_QUANTITY_ONE_OR_MORE = 'Egy vagy több tétel mezői hibásan (például: rossz mennyisség) vannak kitöltve.'
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'
@@ -17,7 +18,9 @@ export module Constants {
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
     export const MSG_CONFIRMATION_DELETE_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem törlésését?";
     export const MSG_CONFIRMATION_LOCK: string = "Biztosan végre szeretné hajtani a zárást?";
+    export const MSG_CONFIRMATION_LOCK_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem zárását?";
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
+    export const MSG_CONFIRMATION_SAVE_PARAM: string = "El szeretné menteni a(z) {0} elemet vagy annak változásait?";
     export const MSG_CONFIRMATION_SAVE_DATA: string = "Adatok mentése?";
     export const MSG_CONFIRMATION_SAVE_INVOICE: string = "Menthető a bizonylat?";
     export const MSG_CONFIRMATION_DELETE_OFFER: string = "Biztosan törölni szeretné az ajánlatot?";
@@ -27,6 +30,10 @@ export module Constants {
     export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
     export const MSG_CANNOT_ON_EDIT_ROW: string = "A kijelölt sor új elemek felvételére alkalmas! A kért művelet nem végezhető el rajta.";
     export const MSG_WHS_ONLY_READY_CAN_BE_FINALIZED = "Csak 'Elkészült' státuszban lévő raktárközi bizonylatokat lehet véglegesíteni!"
+
+    export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
+    export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM = 'Véglegesítés dátuma a(z) {0} elemre'
+    export const WAREHOUSEDOCUMENT_MSG_DELETE_PARAM = 'Törölhető a {0} raktárközi átadás bizonylat?'
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';

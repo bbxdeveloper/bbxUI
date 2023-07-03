@@ -50,7 +50,7 @@
                         <label class="multicol-label-col-1">Környezetvédelmi termékdíj</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="productFee"
-                            [inputMask]="numberInputMask" placeholder="valami"
+                            [inputMask]="numberInputMask" placeholder="0.00"
                             [readonly]="isReadonly"
                             (focus)="fixCursorPosition($event)"
                             (click)="currentForm.HandleFormFieldClick($event)">
@@ -64,6 +64,7 @@
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
                         [inputMask]="numberInputMask" placeholder="0.00"
                         [readonly]="isReadonly"
+                        (focus)="fixCursorPosition($event)"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -85,6 +86,7 @@
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="unitPrice1"
                             [readonly]="isReadonly"
                             [inputMask]="numberInputMask" placeholder="0.00"
+                            (focus)="fixCursorPosition($event)"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -96,6 +98,7 @@
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
                         [readonly]="isReadonly"
                         [inputMask]="numberInputMask" placeholder="0.00"
+                        (focus)="fixCursorPosition($event)"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -142,6 +145,7 @@
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="minStock"
                             [readonly]="isReadonly"
                             [inputMask]="numberInputMask" placeholder="0.00"
+                            (focus)="fixCursorPosition($event)"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
@@ -153,6 +157,7 @@
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
                         [readonly]="isReadonly"
                         [inputMask]="numberInputMask" placeholder="0.00"
+                        (focus)="fixCursorPosition($event)"
                         (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>

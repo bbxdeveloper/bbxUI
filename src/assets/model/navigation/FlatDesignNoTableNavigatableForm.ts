@@ -1,10 +1,8 @@
-import { prepareEventListenerParameters } from "@angular/compiler/src/render3/view/template";
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
 import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
-import { SideBarFormService } from "src/app/services/side-bar-form.service";
 import { Constants } from "src/assets/util/Constants";
 import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
@@ -16,11 +14,13 @@ import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
 import { FlatDesignNavigatableTable } from "./FlatDesignNavigatableTable";
 import { FlatDesignNoFormNavigatableTable } from "./FlatDesignNoFormNavigatableTable";
 import { BlankComboBoxValue } from "./Nav";
-import { INavigatable, AttachDirection, TileCssClass, TileCssColClass, NavMatrixOrientation } from "./Navigatable";
+import { INavigatable, AttachDirection, TileCssClass, NavMatrixOrientation, NavigatableType } from "./Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, IUpdater<T> {
     Matrix: string[][] = [[]];
+
+    NavigatableType = NavigatableType.form
 
     LastX?: number | undefined;
     LastY?: number | undefined;
@@ -108,24 +108,6 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
         }
 
         this.SetFormStateToDefault();
-
-        console.log("[ctor FlatDesignNavigatableForm] Params in order (without services): ", f, data, attachDirection, formId, colDefs); // TODO: only for debug
-
-        this.sidebarService.onCollapse().subscribe({
-            next: value => {
-                if (!!this.LeftNeighbour || !!this.RightNeighbour || !!this.DownNeighbour || !!this.UpNeighbour) {
-                    if (!this.kbS.IsCurrentNavigatable(this)) {
-                        this.kbS.SetCurrentNavigatable(this);
-                    }
-                    this.Detach(this.PreviousXOnGrid, this.PreviousYOnGrid);
-                    this.grid?.PushFooterCommandList();
-                }
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            },
-            complete: () => {
-                this.kbS.isEditModeLocked = false;
-            }
-        });
     }
 
     FillForm(data: any, skip: string[] = []) {

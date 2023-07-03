@@ -555,6 +555,7 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               Constants.TOASTR_ERROR
             );
             this.dbDataTable.data[rowPos].data.Restore('productCode');
+            this.kbS.ClickCurrentElement()
           }
         },
         error: err => {
@@ -615,6 +616,10 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
         this.dbData[index].data = tmp;
 
         this.dbDataDataSrc.setData(this.dbData);
+
+        if (col === 'unitPrice' && index !== null && index !== undefined) {
+          changedData.Save()
+        }
       }
 
       this.RecalcNetAndVat();

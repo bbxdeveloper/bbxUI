@@ -32,7 +32,7 @@ import { StockCardService } from '../services/stock-card.service';
 import { Product } from '../../product/models/Product';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { ProductService } from '../../product/services/product.service';
-import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Subscription, firstValueFrom } from 'rxjs';
@@ -285,6 +285,10 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.Setup();
   }
 
+  override GetRecordName(data: StockCard): string | number | undefined {
+    return data.productCode
+  }
+
   private Setup(): void {
     this.dbData = [];
 
@@ -453,7 +457,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
     this.AddSearchButtonToFormMatrix();
-    console.log(this.filterFormNav.Matrix);
+    
+    this.kbS.SetCurrentNavigatable(this.filterFormNav);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
     this.dbDataTable.ReadonlySideForm = true;
@@ -661,7 +666,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       context: {
         searchString: this.productInputFilterString,
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        defaultSearchModeForEnteredFilter: SearchMode.SEARCH_NAME_CODE
       }
     });
     dialogRef.onClose.subscribe((res: Product) => {

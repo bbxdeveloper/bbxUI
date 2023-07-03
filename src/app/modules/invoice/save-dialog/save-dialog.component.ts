@@ -19,6 +19,7 @@ import { LoggerService } from 'src/app/services/logger.service';
 import { InvoiceService } from '../services/invoice.service';
 import { CommonService } from 'src/app/services/common.service';
 import { Customer } from '../../customer/models/Customer';
+import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -50,6 +51,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   @Input() checkCustomerLimit: boolean = false
   @Input() customer?: Customer
+
+  override NavigatableType = NavigatableType.dialog
 
   get OutGoingDelivery(): boolean {
     return !this.forceDisableOutgoingDelivery && this.data && this.data?.invoiceType == InvoiceTypes.DNO;

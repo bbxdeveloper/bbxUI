@@ -22,7 +22,8 @@
             </label>
             <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
             <div (keydown.enter)="navigateable.HandleFormEnter($event)">
-                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1" #newUnitPrice1>
+                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1"
+                    (focus)="fixCursorPosition($event)" #newUnitPrice1>
             </div>
 
             <label>
@@ -30,7 +31,8 @@
             </label>
             <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
             <div (keydown.enter)="moveToButtons($event)">
-                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2" (focus)="fixCursorPosition($event)">
+                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2"
+                    (focus)="fixCursorPosition($event)">
             </div>
         </form>
     </nb-card-body>
