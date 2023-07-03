@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -8,7 +8,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { validDate } from 'src/assets/model/Validators';
 import moment from 'moment';
-import { BehaviorSubject, firstValueFrom, lastValueFrom, map, tap } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, map, tap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -241,6 +241,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         for (let i = 0; i < whsTransfer.whsTransferLines.length; i++) {
           const inbetweenProduct = await this.WhsTransferLinesToInbetweenWarehouseProducts(whsTransfer.whsTransferLines[i])
           if (inbetweenProduct !== undefined) {
+            inbetweenProduct.Save()
+
             _data.push({ data: inbetweenProduct })
           }
         }
