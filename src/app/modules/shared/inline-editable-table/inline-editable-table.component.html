@@ -23,16 +23,16 @@
                         <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                             *nbTreeGridCellDef="let row; let rowPos = index"
                             [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
-                            (keydown)="HandleGridKeydown($event, row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
-                            (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, true, $event, currentNavigatable)"
+                            (keydown)="HandleGridKeydown($event, row, rowPos, it.objectKey, colPos, InputId, it.fInputType, isEditModeOn, true, currentNavigatable)"
+                            (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, InputId, it.fInputType, true, $event, currentNavigatable)"
                             [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                             [style.text-align]="it.textAlign" id="{{'PRODUCT-' + colPos + '-' + rowPos}}"
                             [ngSwitch]="it.fInputType">
                             <ng-container *ngIf="!it.fReadonly">
                                 <ng-container *ngSwitchCase="'code-field'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
                                         [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                                         oninput="this.value = this.value.toUpperCase()"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
@@ -47,12 +47,12 @@
 
                                 <ng-container *ngSwitchCase="'formatted-number'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        autocomplete="off" nbInput type="text" [name]="InputId"
                                         [nbPopover]="calculator" nbPopoverTrigger="noop" nbPopoverPlacement="top"
                                         (keydown.F4)="openCalculator($event)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="numberInputMask"
                                         placeholder="0.00" class="input-table-cell" [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
@@ -70,9 +70,9 @@
 
                                 <ng-container *ngSwitchCase="'formatted-number-single'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
-                                        nbInput type="text" name="PRODUCT-EDIT" (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        nbInput type="text" [name]="InputId" (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMaskSingle" placeholder="0.0"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="numberInputMaskSingle" placeholder="0.0"
                                         class="input-table-cell" [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
@@ -86,10 +86,10 @@
 
                                 <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
+                                        autocomplete="off" nbInput type="text" [name]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="it.inputMask"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="it.inputMask"
                                         [placeholder]="it.placeHolder" class="input-table-cell" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         [style.text-align]="it.textAlign" />
 
@@ -104,11 +104,11 @@
                                 <ng-container *ngSwitchCase="'unitprice-checkbox'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         ngClass="unitprice-ch"
-                                        autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
+                                        autocomplete="off" type="checkbox" [name]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
+                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, InputId, it.fInputType, isEditModeOn, true, currentNavigatable)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
@@ -118,11 +118,11 @@
 
                                 <ng-container *ngSwitchCase="'checkbox'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" type="checkbox" name="PRODUCT-EDIT"
+                                        autocomplete="off" type="checkbox" [name]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, 'PRODUCT-EDIT', it.fInputType, isEditModeOn, true, currentNavigatable)"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
+                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, InputId, it.fInputType, isEditModeOn, true, currentNavigatable)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
@@ -133,10 +133,10 @@
                                 <ng-container *ngSwitchCase="'bbx-checkbox'">
                                     <app-bbx-char-checkbox [charChecked]="it.checkboxTrue!" [charUnChecked]="it.checkboxFalse!"
                                         *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autoComplete="off" type="checkbox" name="PRODUCT-EDIT" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        autoComplete="off" type="checkbox" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" class="input-table-cell"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" class="input-table-cell"
                                         [style.text-align]="it.textAlign"></app-bbx-char-checkbox>
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ row.data[it.objectKey] ? it.checkboxTrue! : it.checkboxFalse! }}
@@ -145,10 +145,10 @@
 
                                 <ng-container *ngSwitchCase="'formatted-number-2'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        autocomplete="off" nbInput type="text" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [inputMask]="numberInputMask"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="numberInputMask"
                                         placeholder="0.00000" oninput="$event.target.setSelectionRange(0, 1)"
                                         class="input-table-cell" [style.text-align]="it.textAlign" />
 
@@ -160,8 +160,8 @@
 
                                 <ng-container *ngSwitchCase="'formatted-number-integer'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" name="PRODUCT-EDIT"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        autocomplete="off" nbInput type="text" [name]="InputId"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [inputMask]="numberInputMaskInteger" placeholder="0" class="input-table-cell"
@@ -174,10 +174,10 @@
 
                                 <ng-container *ngSwitchDefault="">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput [type]="it.type" name="PRODUCT-EDIT" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" id="PRODUCT-EDIT" [mask]="it.mask"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
                                         [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                                         class="input-table-cell" [style.text-align]="it.textAlign" />
 
