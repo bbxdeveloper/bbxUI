@@ -36,7 +36,7 @@ import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-n
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
-import { TableKeyDownEvent, isTableKeyDownEvent, EditedCellId, SelectFirstCharClass } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, EditedCellId, SelectFirstCharClass, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { GetCustDiscountByCustomerParamsModel } from '../models/GetCustDiscountByCustomerParamsModel';
 import { Router } from '@angular/router';
 
@@ -608,12 +608,12 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               return;
             }
           }
+          MoveTableInputCursorToBeginning()
           this.bbxToastrService.show(
             Constants.MSG_NO_PRODUCT_GROUP_FOUND,
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
           );
-          this.dbDataTable.data[rowPos].data.Restore('productGroupCode');
         },
         error: () => {
           this.dbDataTable.data[rowPos].data.Restore('productGroupCode');
