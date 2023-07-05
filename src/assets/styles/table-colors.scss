@@ -1,0 +1,74 @@
+.card-table-header {
+    th {
+        background: #1112A0; // rgb(35, 35, 75);
+    }
+}
+
+.card-table-wrapper {
+    tr:nth-child(even) {
+        background-color: #091b83;
+
+        &.error {
+            background-color: #b51414 !important;
+        }
+
+        th,
+        td {
+            &.table-cell-edited {
+                background-color: #5f4981 !important;
+
+                .input-table-cell {
+                    color: #ffffff;
+                }
+            }
+        }
+    }
+    
+    tr:nth-child(odd) {
+        background-color: #13138f;
+
+        &.error {
+            background-color: #6d0e0e !important;
+        }
+
+        th,
+        td {
+            &.table-cell-edited {
+                background-color: #3b3b63 !important;
+
+                .input-table-cell {
+                    color: #ffffff;
+                }
+            }
+        }
+    }
+
+    th {
+        background: rgb(35, 35, 75);
+    }
+
+    .td-focusable:focus {
+        background: darkblue;
+    }
+
+    tr:last-child {
+        background-color: #391f63 !important;
+
+        th,
+        td {
+            &.table-cell-edited {
+                background-color: rgb(75, 75, 121) !important;
+
+                .input-table-cell {
+                    color: #ffffff;
+                }
+            }
+        }
+    }
+}
+
+// Iframe
+
+iframe.iframe-table-cell {
+    background-color: #604889;
+}
