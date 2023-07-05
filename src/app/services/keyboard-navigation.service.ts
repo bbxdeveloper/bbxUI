@@ -334,26 +334,6 @@ export class KeyboardNavigationService {
     return this.CurrentNavigatable.constructor.name === potentialNavigatable.constructor.name;
   }
 
-  MoveCursorBeforeFirstChar(): void {
-    // const idString = '#' + this.Here;
-    const _input = document.getElementById(this.Here) as HTMLInputElement;
-    if (!!_input && _input.type === "text") {
-      window.setTimeout(function () {
-        const tempVal = _input.value;
-        _input.value = 'cursor';
-        _input.setSelectionRange(0, 0);
-        _input.value = tempVal;
-        // const txtVal = ((row.data as any)[col] as string);
-        // console.log('txtVal: ', txtVal);
-        // if (!!txtVal) {
-        //   _input.setSelectionRange(txtVal.length, txtVal.length);
-        // } else {
-        //   //
-        // }
-      }, 0);
-    }
-  }
-
   private LogGeneralStats(): void {
     if (!environment.navigationMiscLog) {
       return;

@@ -35,7 +35,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
-import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { MoveTableInputCursorToBeginning, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import moment from 'moment';
 import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
 import { CreateIccRequest } from '../models/CreateIccRequest';
@@ -487,12 +487,12 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
             _product = product;
             await this.HandleProductSelection(_product, rowPos, false)
           } else {
+            MoveTableInputCursorToBeginning()
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
-            this.dbDataTable.data[rowPos].data.Restore('productCode');
           }
         },
         error: () => {

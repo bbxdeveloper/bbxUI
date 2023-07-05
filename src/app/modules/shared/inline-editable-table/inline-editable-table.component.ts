@@ -40,8 +40,26 @@ export function isTableKeyDownEvent(event: TableKeyDownEvent | Event): event is 
   return (event as TableKeyDownEvent).Row !== undefined;
 }
 
+/**
+ * ID of active input HTML element in table cell.
+ * This is used for all table cell inputs.
+ */
 export const EditedCellId = 'PRODUCT-EDIT';
+
 export const SelectFirstCharClass = 'select-first-char';
+
+/**
+ * Use with @see InlineEditableTableComponent to set cursor to the very beginning of input.
+ * @param timeout 
+ */
+export function MoveTableInputCursorToBeginning(timeout: number = 200): void {
+  // const id = this.kbS.Here // Don't use for selection! It's the navigational ID of the cell itself, not the input.
+  setTimeout(function () {
+    document!.getElementById(EditedCellId)!.focus();
+    (document.getElementById(EditedCellId) as any)!.setSelectionRange(0, 0)
+    }, timeout
+  )
+}
 
 @Component({
   selector: 'app-inline-editable-table',
@@ -70,6 +88,11 @@ export class InlineEditableTableComponent implements OnInit {
   @Output() tableKeyDown: EventEmitter<TableKeyDownEvent> = new EventEmitter();
 
   @Input() parent: any = undefined;
+
+  /**
+   * Proxy for @see EditedCellId to use it in the HTML.
+   */
+  get InputId(): string { return EditedCellId }
 
   get currentNavigatable(): INavigatable | undefined {
     return this.kbs.GetCurrentNavigatable
@@ -156,14 +179,6 @@ export class InlineEditableTableComponent implements OnInit {
   CheckBoxKeyUp(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
                     inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
     if (environment.inlineEditableTableKeyboardDebug) console.log(this.CheckBoxKeyUp.name, event)
-    // if (event.code === 'Space') {
-    //   HelperFunctions.StopEvent(event)
-    //   $('#' + inputId).prop("checked", !$('#' + inputId).prop("checked"));
-    //   setTimeout(() => {
-    //     this.kbs.SetPositionById(inputId!)
-    //     this.kbs.SelectCurrentElement()
-    //   }, 200);
-    // }
   }
 
   HandleGridKeydown(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
@@ -204,9 +219,9 @@ export class InlineEditableTableComponent implements OnInit {
 
       case KeyBindings.Enter:
         if (colPos === 0) {
-          this.HandleGridCodeFieldEnter(event, row, rowPos, objectKey, colPos, 'PRODUCT-EDIT', fInputType);
+          this.HandleGridCodeFieldEnter(event, row, rowPos, objectKey, colPos, EditedCellId, fInputType);
         } else {
-          this.HandleGridEnter(row, rowPos, objectKey, colPos, 'PRODUCT-EDIT', fInputType, this.isEditModeOn, true, this.currentNavigatable);
+          this.HandleGridEnter(row, rowPos, objectKey, colPos, EditedCellId, fInputType, this.isEditModeOn, true, this.currentNavigatable);
         }
         return;
 

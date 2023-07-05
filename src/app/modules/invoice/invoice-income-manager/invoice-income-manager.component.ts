@@ -38,7 +38,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InvoicePriceChangeDialogComponent } from '../invoice-price-change-dialog/invoice-price-change-dialog.component';
@@ -549,17 +549,16 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
               this.kbS.ClickCurrentElement();
             }, 200);
           } else {
+            this.kbS.ClickCurrentElement()
+            MoveTableInputCursorToBeginning()
             this.bbxToastrService.show(
               Constants.MSG_NO_PRODUCT_FOUND,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
-            this.dbDataTable.data[rowPos].data.Restore('productCode');
-            this.kbS.ClickCurrentElement()
           }
         },
         error: err => {
-          this.dbDataTable.data[rowPos].data.Restore('productCode');
           this.cs.HandleError(err);
         },
         complete: () => {

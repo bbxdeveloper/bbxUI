@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -8,7 +8,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { validDate } from 'src/assets/model/Validators';
 import moment from 'moment';
-import { BehaviorSubject, firstValueFrom, lastValueFrom, map, tap } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, map, tap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Actions, GetFooterCommandListFromKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { NbDialogService, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { MoveTableInputCursorToBeginning, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -241,6 +241,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         for (let i = 0; i < whsTransfer.whsTransferLines.length; i++) {
           const inbetweenProduct = await this.WhsTransferLinesToInbetweenWarehouseProducts(whsTransfer.whsTransferLines[i])
           if (inbetweenProduct !== undefined) {
+            inbetweenProduct.Save()
+
             _data.push({ data: inbetweenProduct })
           }
         }
@@ -449,6 +451,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       .subscribe({
         next: async product => {
           if (!product?.id) {
+            MoveTableInputCursorToBeginning()
             this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
             return
           }
