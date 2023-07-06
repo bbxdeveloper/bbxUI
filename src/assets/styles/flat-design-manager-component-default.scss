@@ -31,16 +31,12 @@ $td-height: 30px;
     }
 
     tr:nth-child(even) {
-        background-color: #493668;
-
         th,
         td {
             height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
-
-                background-color: #5f4981 !important;
 
                 .input-table-cell {
                     width: 100%;
@@ -61,7 +57,6 @@ $td-height: 30px;
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
@@ -80,16 +75,12 @@ $td-height: 30px;
     }
 
     tr:nth-child(odd) {
-        background-color: #323258;
-
         th,
         td {
             height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
-
-                background-color: #3b3b63 !important;
 
                 .input-table-cell {
                     width: 100%;
@@ -110,7 +101,6 @@ $td-height: 30px;
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
@@ -129,14 +119,9 @@ $td-height: 30px;
     }
 
     th {
-        background: rgb(35, 35, 75);
         text-align: center;
         font-weight: bold;
         font-variant: small-caps;
-    }
-
-    .td-focusable:focus {
-        background: darkblue;
     }
 }
 
@@ -324,7 +309,6 @@ nb-card-header {
 
 iframe.iframe-table-cell {
     height: 30px;
-    background-color: #604889;
     max-height: 100px;
     max-width: 100%;
     min-width: 100%;

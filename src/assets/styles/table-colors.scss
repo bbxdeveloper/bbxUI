@@ -1,0 +1,95 @@
+$header-cell-bg-color: #1112A0;
+
+$edit-row-bg-color: #391f63;
+$even-row-bg-color: #091b83;
+$odd-row-bg-color: #13138f;
+
+$edited-row-bg-color-last-row: #111a51;
+$edited-row-bg-color-odd-row: #111a51;
+$edited-row-bg-color-even-row: #0c133f;
+
+$even-row-error-bg-color: #b51414;
+$odd-row-error-bg-color: #6d0e0e;
+
+$text-color: #ffffff;
+
+$iframe-table-cell-color: #7143bf;
+
+$table-cell-focus-color: darkblue;
+
+.card-table-header {
+    th {
+        background: $header-cell-bg-color;
+    }
+}
+
+.table-inline-editable {
+    tr:last-child {
+        background-color: $edit-row-bg-color !important;
+
+        th,
+        td {
+            &.table-cell-edited {
+                background-color: $edited-row-bg-color-last-row !important;
+
+                .input-table-cell {
+                    color: $text-color;
+                }
+            }
+        }
+    }
+}
+
+.card-table-wrapper {
+    tr:nth-child(even) {
+        background-color: $even-row-bg-color;
+
+        &.error {
+            background-color: $even-row-error-bg-color !important;
+        }
+
+        th,
+        td {
+            &.table-cell-edited {
+                background-color: $edited-row-bg-color-even-row !important;
+
+                .input-table-cell {
+                    color: $text-color;
+                }
+            }
+        }
+    }
+    
+    tr:nth-child(odd) {
+        background-color: $odd-row-bg-color;
+
+        &.error {
+            background-color: $odd-row-error-bg-color !important;
+        }
+
+        th,
+        td {
+            &.table-cell-edited {
+                background-color: $edited-row-bg-color-odd-row !important;
+
+                .input-table-cell {
+                    color: $text-color;
+                }
+            }
+        }
+    }
+
+    th {
+        background: $header-cell-bg-color;
+    }
+
+    .td-focusable:focus {
+        background: $table-cell-focus-color;
+    }
+}
+
+// Iframe
+
+iframe.iframe-table-cell {
+    background-color: $iframe-table-cell-color;
+}

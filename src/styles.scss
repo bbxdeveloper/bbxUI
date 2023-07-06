@@ -149,10 +149,6 @@ td {
   align-items: end !important;
 }
 
-.as-split-gutter {
-  background-color: #1d4a70 !important;
-}
-
 // Selected element
 
 .current-keyboard-nav-selected {
@@ -181,14 +177,6 @@ input[type="radio"].current-keyboard-nav-selected {
   outline: 3px dotted $selected-border-color !important;
 }
 
-tr.parent-of-current-keyboard-nav-selected {
-  background: darkblue !important;
-}
-
-input:read-only {
-  background-color: #401740 !important; // #161632 #16162c
-}
-
 // Fix width %, align... styles for overwriting framework built-in or other styles
 // Do not move these rules from the global stylesheet
 
@@ -214,4 +202,40 @@ $widthManipulatorMax: 100;
 
 input.text-center {
   text-align: center !important;
+}
+
+/*
+    COLORS
+    Find Nebular cosmic theme overrides in: themes.scss
+*/
+
+//// Misc
+.as-split-gutter {
+  background-color: #1112A0 !important;
+}
+
+//// Table
+tr.parent-of-current-keyboard-nav-selected {
+  background: rgb(22, 22, 134) !important;
+}
+
+//// Angular Editor component
+.angular-editor-toolbar {
+  background-color: #101089 !important;
+
+  button {
+    background-color: #0f0fb9 !important;
+    color: white;
+  }
+
+  // This won't work!
+  // .angular-editor-wrapper {
+  //   .angular-editor-placeholder {
+  //     color: #e1d7eb !important;
+  //   }
+  // }
+}
+// Need to define it outside
+.angular-editor-placeholder {
+  color: #e1d7eb !important;
 }

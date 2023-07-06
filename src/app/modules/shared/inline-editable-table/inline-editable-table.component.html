@@ -13,7 +13,7 @@
                 </ng-container>
             </table>
 
-            <table class="card-table-wrapper-closed-form card-table-wrapper" [ngClass]="getTableClasses()" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
+            <table class="card-table-wrapper-closed-form card-table-wrapper table-inline-editable" [ngClass]="getTableClasses()" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
                 (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)" [id]="dbDataTableId">
 
                 <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [class.error]="isRowInErrorState(row)"></tr>

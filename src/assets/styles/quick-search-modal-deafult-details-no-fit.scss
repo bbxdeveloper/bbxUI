@@ -1,4 +1,5 @@
 @import 'common-styles';
+@import 'table-colors';
 
 .modal-product-active {
     border: 4px yellow double;
@@ -134,7 +135,6 @@
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
@@ -144,7 +144,6 @@
 
         th {
             text-align: center;
-            background: rgb(35, 35, 75);
         }
     }
 
@@ -186,16 +185,11 @@
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
                 }
             }
-        }
-
-        .td-focusable:focus {
-            background: darkblue;
         }
 
         th {
