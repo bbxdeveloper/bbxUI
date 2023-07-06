@@ -61,9 +61,12 @@ $nb-themes: nb-register-theme((
   shadow: 0 0.5rem 1rem 0 #5a2977,
 
   // DEFAULT --actions-icon-color: --text-hint-color: var(--color-basic-600);
-  actions-icon-color: --color-basic-200
+  actions-icon-color: --color-basic-200,
 
   // --actions-disabled-icon-color: var(--text-disabled-color); --text-disabled-color: var(--color-basic-transparent-600);
   // --actions-disabled-text-color: var(--text-disabled-color); --text-disabled-color: var(--color-basic-transparent-600);
 
+  toastr-danger-background-color: #81223b,
+  toastr-icon-danger-background-color: #01032b
+  
 ), cosmic, cosmic);
