@@ -27,7 +27,7 @@ describe('Partnerek', () => {
   })
 
 
-  
+
   it('Partnerek Létrehozása', () => {
     cy.contains(' Partnerek ').click()
     cy.wait(2000)
@@ -35,7 +35,21 @@ describe('Partnerek', () => {
 
   
 
-  it('Partnerek Ellenőrzése', () => {
+  it('Partnerek Létrehozása Ellenőrzése', () => {
+    cy.contains(' Partnerek ').click()
+    cy.wait(2000)
+  })
+
+
+  
+  it('Partnerek Szerkesztése', () => {
+    cy.contains(' Partnerek ').click()
+    cy.wait(2000)
+  })
+
+  
+
+  it('Partnerek Szerkesztése Ellenőrzése', () => {
     cy.contains(' Partnerek ').click()
     cy.wait(2000)
   })
@@ -49,7 +63,7 @@ describe('Partnerek', () => {
 
 
 
-  it('Partnerek Ellenőrzése', () => {
+  it('Partnerek Törlése Ellenőrzése', () => {
     cy.contains(' Partnerek ').click()
     cy.wait(2000)
   })
