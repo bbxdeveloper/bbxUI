@@ -43,32 +43,32 @@ describe('Partnerek', () => {
 
     cy.get('[id="active-prod-search"]').type('{alt}', { release: false }) // this should keep alt pressed
     cy.get('[id="active-prod-search"]').trigger('keydown', 
-      {
-        "key": "F4",
-        "keyCode": 115,
-        "which": 115,
-        "code": "F4",
-        "location": 0,
-        "altKey": false,
-        "ctrlKey": false,
-        "metaKey": false,
-        "shiftKey": false,
-        "repeat": false
-      }
+    {
+      "key": "F3",
+      "keyCode": 114,
+      "which": 114,
+      "code": "F3",
+      "location": 0,
+      "altKey": false,
+      "ctrlKey": false,
+      "metaKey": false,
+      "shiftKey": false,
+      "repeat": false
+     }
       //ezzel lehet meglesni https://www.toptal.com/developers/keycode
      )
     cy.get('[id="active-prod-search"]').type('{alt}', { release: true }) // this should switch alt to release
 
     Name = generate_random_string(8);
     BankNumber = generate_random_number(26)
-    //CountryVATNumber = generate_random_number(13)
+    CountryVATNumber = generate_random_number(8) + '226'
     //ForeignVATNumber = generate_random_number(10)
     Address = generate_random_string(8);
     Remarks = generate_random_string(20);
     Email = generate_random_string(6) + '@' + generate_random_string(6) + '.' + generate_random_string(3);
     cy.get('[ng-reflect-name="customerName"]').type(Name).type('{enter}'
      + BankNumber + '{enter}'
-     //+ CountryVATNumber 
+     + CountryVATNumber 
      + '{enter}'
      //+ ForeignVATNumber 
      + '{enter}'
