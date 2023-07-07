@@ -85,6 +85,18 @@ describe('Partnerek', () => {
      + '{enter}'
      + '{enter}')
 
+    //  Mentés ellenőrzése
+     cy.wait(2000)
+     cy.get('.title.subtitle').should('have.text', 'Információ')
+     cy.get('.message').should('have.text', 'Sikeres mentés!')
+
+    //  Adatok visszanézése
+    cy.get('[formcontrolname="customerName"]').should('have.value', Name)
+    cy.get('[ng-reflect-name="customerBankAccountNumber"]').should('have.value', BankNumber)
+    cy.get('[formcontrolname="taxpayerNumber"]').should('have.value', CountryVATNumber)
+    cy.get('[formcontrolname="additionalAddressDetail"]').should('have.value', Address)
+    cy.get('[formcontrolname="comment"]').should('have.value', Remarks)
+    cy.get('[formcontrolname="email"]').should('have.value', Email)
   })
 
 
@@ -102,7 +114,7 @@ describe('Partnerek', () => {
     var retVal = ''
 
     for(var i = 0; i < number_length; i++){
-      retVal += Math.floor((Math.random() * 10) + 1)
+      retVal += Math.floor((Math.random() * 9) + 1)
     }
 
     return retVal
