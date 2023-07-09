@@ -84,6 +84,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceType = InvoiceTypes.NOT_DEFINED
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.title = 'Árfelülvizsg.'
+    result.partnerLock = this.partnerLock
     return result
   }
 
