@@ -7,13 +7,9 @@ import { environment } from 'src/environments/environment';
 export class PartnerLockService {
   private readonly baseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Customer'
 
-  private readonly http: HttpClient
-
   private customerId: string|number|undefined
 
-  constructor(http: HttpClient) {
-    this.http = http
-  }
+  constructor(private readonly http: HttpClient) {}
 
   public lockCustomer(customerId: number|string): Promise<unknown> {
     this.customerId = customerId
@@ -23,7 +19,7 @@ export class PartnerLockService {
     return firstValueFrom(request)
   }
 
-  public unlockCustomer(asBeacon: boolean = false): Promise<unknown> {
+  public unlockCustomer(): Promise<unknown> {
     if (!this.customerId) {
       return Promise.resolve()
     }
