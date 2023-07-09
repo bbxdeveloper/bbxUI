@@ -106,6 +106,7 @@ export class InvoiceBehaviorFactoryService {
     result.incoming = false
     result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
     result.title = 'Javítószámla'
+    result.partnerLock = this.partnerLock
     return result
   }
 
