@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { NegativeQuantityValidator, NotZeroQuantityValidator, PositiveQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
 
 @Injectable()
 export class InvoiceBehaviorFactoryService {
 
-  constructor() { }
+  constructor(
+    private readonly partnerLock: PartnerLockService
+  ) { }
 
   public create(path: string): InvoiceBehaviorMode {
     let mode
@@ -177,6 +180,7 @@ export class InvoiceBehaviorFactoryService {
     result.isSummaryInvoice = false
     result.title = 'Szállító vissz.'
     result.invoiceCorrection = true
+    result.partnerLock = this.partnerLock
     return result
   }
 
