@@ -47,12 +47,13 @@ import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-fact
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import moment from 'moment';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
 
 @Component({
   selector: 'app-invoice-manager',
   templateUrl: './invoice-manager.component.html',
   styleUrls: ['./invoice-manager.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
