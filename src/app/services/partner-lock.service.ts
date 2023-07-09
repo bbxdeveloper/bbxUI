@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
-export class PartnerLockService implements OnDestroy {
+export class PartnerLockService {
   private readonly baseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Customer'
 
   private readonly http: HttpClient
@@ -13,10 +13,6 @@ export class PartnerLockService implements OnDestroy {
 
   constructor(http: HttpClient) {
     this.http = http
-  }
-
-  public ngOnDestroy(): void {
-    this.unlockCustomer()
   }
 
   public lockCustomer(customerId: number|string): Promise<unknown> {
