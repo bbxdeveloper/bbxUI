@@ -169,6 +169,7 @@ export class InvoiceBehaviorFactoryService {
     result.isSummaryInvoice = true
     result.title = 'Be. Gyűjtőszámla'
     result.unitPriceColumnTitle = 'Besz.Ár'
+    result.partnerLock = this.partnerLock
     return result
   }
 
