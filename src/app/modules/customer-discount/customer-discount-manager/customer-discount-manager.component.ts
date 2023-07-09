@@ -15,7 +15,6 @@ import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, CustDiscountKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CustomerDialogTableSettings, ProductGroupDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -36,8 +35,7 @@ import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-n
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
-import { TableKeyDownEvent, isTableKeyDownEvent, EditedCellId, SelectFirstCharClass, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { GetCustDiscountByCustomerParamsModel } from '../models/GetCustDiscountByCustomerParamsModel';
+import { TableKeyDownEvent, isTableKeyDownEvent, SelectFirstCharClass, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { Router } from '@angular/router';
 
 @Component({
@@ -220,6 +218,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         Constants.TOASTR_ERROR
       );
     } else {
+      if (this.isLoading) {
+        return
+      }
+
       await this.refresh();
     }
   }
