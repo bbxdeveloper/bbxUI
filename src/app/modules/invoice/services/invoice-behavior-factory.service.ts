@@ -199,6 +199,7 @@ export class InvoiceBehaviorFactoryService {
     result.title = 'Be. Szállító vissz.'
     result.invoiceCorrection = true
     result.unitPriceColumnTitle = 'Besz.Ár'
+    result.partnerLock = this.partnerLock
     return result
   }
 }
