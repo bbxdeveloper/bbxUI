@@ -96,6 +96,7 @@ export class InvoiceBehaviorFactoryService {
     result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
     result.title = 'Bejövő javítószámla'
     result.unitPriceColumnTitle = 'Besz.Ár'
+    result.partnerLock = this.partnerLock
     return result
   }
 
