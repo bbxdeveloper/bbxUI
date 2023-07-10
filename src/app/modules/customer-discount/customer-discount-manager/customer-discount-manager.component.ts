@@ -37,11 +37,13 @@ import { ProductGroupSelectTableDialogComponent } from '../product-group-select-
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
 import { TableKeyDownEvent, isTableKeyDownEvent, SelectFirstCharClass, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { Router } from '@angular/router';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
 
 @Component({
   selector: 'app-customer-discount-manager',
   templateUrl: './customer-discount-manager.component.html',
-  styleUrls: ['./customer-discount-manager.component.scss']
+  styleUrls: ['./customer-discount-manager.component.scss'],
+  providers: [PartnerLockService]
 })
 export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent<CustDiscount> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -145,6 +147,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     khs: KeyboardHelperService,
     private productGroupService: ProductGroupService,
     private custDiscountService: CustomerDiscountService,
+    private readonly partnerLock: PartnerLockService,
     router: Router
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
@@ -254,6 +257,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
     await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id !== undefined ? this.buyerData?.id : -1 }))
     .then(res => {
+      this.partnerLock.lockCustomer(this.buyerData.id)
+        .catch(this.cs.HandleError.bind(this.cs))
+
       // Products
       this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
 
@@ -287,6 +293,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.partnerLock.unlockCustomer()
+      .catch(this.cs.HandleError.bind(this.cs))
   }
 
   private UpdateOutGoingData() {
@@ -319,6 +328,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           try {
             if (!!d.data) {
               console.log('Save response: ', d)
+
+              this.partnerLock.unlockCustomer()
+                .catch(this.cs.HandleError.bind(this.cs))
 
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
