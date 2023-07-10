@@ -40,7 +40,8 @@ $nb-themes: nb-register-theme((
   // Used for backgrounds
   color-basic-800:#3940C2,
   color-basic-900:#1C25BA,
-  color-basic-1000:#000AB1,
+  // Layout background
+  color-basic-1000:#4148b7,
   color-basic-1100:#00089A,
 
   input-basic-background-color: #00078a,
@@ -67,6 +68,51 @@ $nb-themes: nb-register-theme((
   // --actions-disabled-text-color: var(--text-disabled-color); --text-disabled-color: var(--color-basic-transparent-600);
 
   toastr-danger-background-color: #81223b,
-  toastr-icon-danger-background-color: #01032b
+  toastr-icon-danger-background-color: #01032b,
+
+  // Custom variables
+
+  color-split-gutter-background: #1112A0,
+  parent-of-current-keyboard-nav-selected-background: rgb(22, 22, 134),
+
+  angular-editor-toolbar-background: #101089,
+  angular-editor-button-background: #0f0fb9,
+  angular-editor-button-text: white,
+  angular-editor-placeholder: #e1d7eb,
   
-), cosmic, cosmic);
+), cosmic-light, cosmic);
+
+$nb-themes: nb-register-theme((
+
+  // add your variables here like:
+
+  // color-primary-100: #f2f6ff,
+  // color-primary-200: #d9e4ff,
+  // color-primary-300: #a6c1ff,
+  // color-primary-400: #598bff,
+  // color-primary-500: #3366ff,
+  // color-primary-600: #274bdb,
+  // color-primary-700: #1a34b8,
+  // color-primary-800: #102694,
+  // color-primary-900: #091c7a,
+
+  sidebar-width: 350px,
+
+  spinner-basic-background-color: rgba(0, 0, 0, 0),
+
+  tree-grid-cell-padding: 0rem 0.5rem,
+
+  select-min-width: 100px,
+  select-max-width: 100px,
+
+  // Custom variables
+
+  color-split-gutter-background: #1d4a70,
+  parent-of-current-keyboard-nav-selected-background: darkblue,
+
+  angular-editor-toolbar-background: #f5f5f5,
+  angular-editor-button-background: white,
+  angular-editor-button-text: black,
+  angular-editor-placeholder: rgb(108, 117, 125),
+
+), cosmic-custom, cosmic);

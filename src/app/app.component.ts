@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { Component, HostListener, OnInit } from '@angular/core';
-import { NbSidebarService } from '@nebular/theme';
+import { NbSidebarService, NbThemeService } from '@nebular/theme';
 import { Title } from '@angular/platform-browser';
 import { environment } from 'src/environments/environment';
 import packageJson from '../../package.json';
@@ -19,7 +19,8 @@ export class AppComponent implements OnInit {
   devVersion: boolean = false;
   buildType: string = 'unknown';
 
-  constructor(private sidebarService: NbSidebarService, private title: Title, private status: StatusService) { }
+  constructor(private sidebarService: NbSidebarService, private title: Title, private status: StatusService,
+    private themeService: NbThemeService) { }
 
   ngOnInit() {
     setTimeout(() => {
@@ -34,6 +35,8 @@ export class AppComponent implements OnInit {
     this.buildType = environment.buildType;
 
     this.title.setTitle('BBX v' + this.version);
+
+    this.themeService.changeTheme(environment.theme)
   }
 
   @HostListener('document:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {

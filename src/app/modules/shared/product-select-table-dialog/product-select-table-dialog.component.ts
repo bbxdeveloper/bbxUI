@@ -18,6 +18,7 @@ import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { environment } from 'src/environments/environment';
 
 const NavMap: string[][] = [
   ['radio-0', 'radio-1', 'radio-2'],

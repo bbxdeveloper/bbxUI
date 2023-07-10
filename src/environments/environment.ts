@@ -32,6 +32,8 @@ export const environment = {
   offerLineLog: false,
 
   InvSaveDlgLogs: true,
+
+  theme: 'cosmic-custom'
 };
 
 /*

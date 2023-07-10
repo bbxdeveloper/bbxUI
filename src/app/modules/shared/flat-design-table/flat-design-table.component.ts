@@ -11,6 +11,7 @@ import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { environment } from 'src/environments/environment';
 
 export const FORMATTED_NUMBER_COL_TYPES = [
   'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
@@ -35,6 +36,10 @@ export class FlatDesignTableComponent implements OnInit {
   
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
+
+  get themeClass(): string {
+    return `theme-${environment.theme}`
+  }
 
   latestSort?: NbSortRequest
   sortColumn: string = '';
