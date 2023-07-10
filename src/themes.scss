@@ -74,6 +74,11 @@ $nb-themes: nb-register-theme((
 
   color-split-gutter-background: #1112A0,
   parent-of-current-keyboard-nav-selected-background: rgb(22, 22, 134),
+
+  angular-editor-toolbar-background: #101089,
+  angular-editor-button-background: #0f0fb9,
+  angular-editor-button-text: white,
+  angular-editor-placeholder: #e1d7eb,
   
 ), cosmic-light, cosmic);
 
@@ -104,5 +109,10 @@ $nb-themes: nb-register-theme((
 
   color-split-gutter-background: #1d4a70,
   parent-of-current-keyboard-nav-selected-background: darkblue,
+
+  angular-editor-toolbar-background: #f5f5f5,
+  angular-editor-button-background: white,
+  angular-editor-button-text: black,
+  angular-editor-placeholder: rgb(108, 117, 125),
 
 ), cosmic-custom, cosmic);

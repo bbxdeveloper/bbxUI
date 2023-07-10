@@ -221,11 +221,11 @@ tr.parent-of-current-keyboard-nav-selected {
 
 //// Angular Editor component
 .angular-editor-toolbar {
-  background-color: #101089 !important;
+  background-color: nb-theme(angular-editor-toolbar-background) !important;
 
   button {
-    background-color: #0f0fb9 !important;
-    color: white;
+    background-color: nb-theme(angular-editor-button-background) !important;
+    color: nb-theme(angular-editor-button-text);
   }
 
   // This won't work!
@@ -237,5 +237,5 @@ tr.parent-of-current-keyboard-nav-selected {
 }
 // Need to define it outside
 .angular-editor-placeholder {
-  color: #e1d7eb !important;
+  color: nb-theme(angular-editor-placeholder) !important;
 }
