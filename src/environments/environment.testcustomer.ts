@@ -28,4 +28,6 @@ export const environment = {
     offerLineLog: false,
 
     InvSaveDlgLogs: false,
+
+    theme: 'cosmic-light'
 };

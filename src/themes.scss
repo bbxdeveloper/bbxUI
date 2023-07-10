@@ -40,7 +40,8 @@ $nb-themes: nb-register-theme((
   // Used for backgrounds
   color-basic-800:#3940C2,
   color-basic-900:#1C25BA,
-  color-basic-1000:#000AB1,
+  // Layout background
+  color-basic-1000:#4148b7,
   color-basic-1100:#00089A,
 
   input-basic-background-color: #00078a,
@@ -69,4 +70,29 @@ $nb-themes: nb-register-theme((
   toastr-danger-background-color: #81223b,
   toastr-icon-danger-background-color: #01032b
   
-), cosmic, cosmic);
+), cosmic-light, cosmic);
+
+$nb-themes: nb-register-theme((
+
+  // add your variables here like:
+
+  // color-primary-100: #f2f6ff,
+  // color-primary-200: #d9e4ff,
+  // color-primary-300: #a6c1ff,
+  // color-primary-400: #598bff,
+  // color-primary-500: #3366ff,
+  // color-primary-600: #274bdb,
+  // color-primary-700: #1a34b8,
+  // color-primary-800: #102694,
+  // color-primary-900: #091c7a,
+
+  sidebar-width: 350px,
+
+  spinner-basic-background-color: rgba(0, 0, 0, 0),
+
+  tree-grid-cell-padding: 0rem 0.5rem,
+
+  select-min-width: 100px,
+  select-max-width: 100px,
+
+), cosmic-custom, cosmic);

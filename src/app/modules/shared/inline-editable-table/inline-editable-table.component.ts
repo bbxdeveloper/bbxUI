@@ -89,6 +89,10 @@ export class InlineEditableTableComponent implements OnInit {
 
   @Input() parent: any = undefined;
 
+  get themeClass(): string {
+    return `theme-${environment.theme}`
+  }
+
   /**
    * Proxy for @see EditedCellId to use it in the HTML.
    */
