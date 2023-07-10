@@ -68,7 +68,12 @@ $nb-themes: nb-register-theme((
   // --actions-disabled-text-color: var(--text-disabled-color); --text-disabled-color: var(--color-basic-transparent-600);
 
   toastr-danger-background-color: #81223b,
-  toastr-icon-danger-background-color: #01032b
+  toastr-icon-danger-background-color: #01032b,
+
+  // Custom variables
+
+  color-split-gutter-background: #1112A0,
+  parent-of-current-keyboard-nav-selected-background: rgb(22, 22, 134),
   
 ), cosmic-light, cosmic);
 
@@ -94,5 +99,10 @@ $nb-themes: nb-register-theme((
 
   select-min-width: 100px,
   select-max-width: 100px,
+
+  // Custom variables
+
+  color-split-gutter-background: #1d4a70,
+  parent-of-current-keyboard-nav-selected-background: darkblue,
 
 ), cosmic-custom, cosmic);

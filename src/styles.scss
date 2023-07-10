@@ -211,12 +211,12 @@ input.text-center {
 
 //// Misc
 .as-split-gutter {
-  background-color: #1112A0 !important;
+  background-color: nb-theme(color-split-gutter-background) !important;
 }
 
 //// Table
 tr.parent-of-current-keyboard-nav-selected {
-  background: rgb(22, 22, 134) !important;
+  background: nb-theme(parent-of-current-keyboard-nav-selected-background) !important;
 }
 
 //// Angular Editor component
