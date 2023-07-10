@@ -33,7 +33,9 @@ export const environment = {
 
   InvSaveDlgLogs: true,
 
-  theme: 'cosmic-custom'
+  theme: 'cosmic-custom',
+
+  userManualsLink: 'https://drive.google.com/drive/folders/1wzrCpPJK6gEcTVbINSETUDt8J7_X8IIg?usp=sharing'
 };
 
 /*
