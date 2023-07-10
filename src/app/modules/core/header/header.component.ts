@@ -4,7 +4,7 @@ import { NbDialogService, NbIconConfig, NbPopoverDirective, NbToastrService } fr
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
-import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
 import * as $ from 'jquery';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
@@ -211,6 +211,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     }
 
     switch (event.key) {
+      case DefaultKeySettings[Actions.Help].KeyCode: {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        
+        this.goToUserManuals()
+        break;
+      }
       case KeyBindings.up: {
         if (!this.keyboardService.isEditModeActivated) {
           event.preventDefault();
@@ -265,6 +273,12 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         this.router.navigate([link])
       }, 50)
     }
+  }
+
+  goToUserManuals(event?: any): void {
+    if (event)
+      event.preventDefault()
+    window.open(environment.userManualsLink, "_blank")
   }
 
   quit(event: any): void {
