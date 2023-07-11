@@ -6,7 +6,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
+import { BaseNavigatableComponentComponent } from '../../base-navigatable-component/base-navigatable-component.component';
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 import { environment } from 'src/environments/environment';
 

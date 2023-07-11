@@ -8,7 +8,7 @@ import { InputMaskModule } from '@ngneat/input-mask';
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
-import { ProductSelectTableDialogComponent } from '../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 import { SaveDialogComponent } from './save-dialog/save-dialog.component';
 import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';

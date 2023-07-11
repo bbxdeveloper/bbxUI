@@ -13,11 +13,11 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
-import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
-import { Product } from '../../product/models/Product';
-import { ProductService } from '../../product/services/product.service';
+import { GetProductsParamListModel } from '../../../product/models/GetProductsParamListModel';
+import { Product } from '../../../product/models/Product';
+import { ProductService } from '../../../product/services/product.service';
 import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
-import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { CurrencyCodes } from '../../../system/models/CurrencyCode';
 import { environment } from 'src/environments/environment';
 
 const NavMap: string[][] = [

@@ -12,7 +12,7 @@ import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all'] // , 'show-less'

@@ -21,7 +21,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { Customer } from '../../customer/models/Customer';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-table.component';
-import { CreateNewProductDialogComponent } from '../create-new-product-dialog/create-new-product-dialog.component';
+import { CreateNewProductDialogComponent } from '../dialogs/create-new-product-dialog/create-new-product-dialog.component';
 import { Product } from '../../product/models/Product';
 import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
 import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
