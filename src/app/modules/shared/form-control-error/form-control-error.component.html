@@ -1,10 +1,10 @@
 <div *ngIf="!!form && !!controlName && form.CanShowFormErrors(controlName) && formGroupMode"
-    class="alert alert-danger">
+    class="alert-error alert-danger">
     <div>
         {{ formGroupMessage }}
     </div>
 </div>
-<div *ngIf="!!form && !!controlName && form.CanShowFormErrors(controlName) && !formGroupMode" class="alert alert-danger">
+<div *ngIf="!!form && !!controlName && form.CanShowFormErrors(controlName) && !formGroupMode" class="alert-error alert-danger">
     <div *ngIf="form?.IsErrorApparent(controlName, 'required')">
         {{ GetErrorMessage(ValidationMessage.ErrorRequired) }}
     </div>
