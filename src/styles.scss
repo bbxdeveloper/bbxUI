@@ -239,3 +239,7 @@ tr.parent-of-current-keyboard-nav-selected {
 .angular-editor-placeholder {
   color: nb-theme(angular-editor-placeholder) !important;
 }
+
+.alert-error {
+  color: nb-theme(form-error-message-color);
+}
