@@ -22,8 +22,6 @@ nb-card.simple {
         border-radius: 10px;
         border: 3px double #aeabcd;
 
-        background: #323258;
-
         .title {
             text-align: center;
             font-weight: bold;
@@ -62,7 +60,7 @@ nb-card.normal {
         border-radius: 10px;
         border: 3px double #aeabcd;
 
-        background: #323258;
+        background: #1112A0;
 
         .title {
             text-align: center;
@@ -75,5 +73,17 @@ nb-card.normal {
                 background: transparent !important;
             }
         }
+    }
+}
+
+.theme-cosmic-light {
+    nb-card-body {
+        background: #1112A0;
+    }
+}
+
+.theme-cosmic-custom {
+    nb-card-body{
+        background: #323258;
     }
 }

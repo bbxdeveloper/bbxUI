@@ -46,12 +46,13 @@ import { ProductPriceChange } from '../models/ProductPriceChange';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
   templateUrl: './invoice-income-manager.component.html',
   styleUrls: ['./invoice-income-manager.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;

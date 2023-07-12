@@ -1,15 +1,14 @@
-import { AfterContentInit, AfterViewChecked, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { NbDialogRef, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { Subscription } from 'rxjs';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { IEditable } from 'src/assets/model/IEditable';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-select-table-dialog',
@@ -46,6 +45,10 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   private uid = 0;
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
+
+  get themeClass(): string {
+    return `theme-${environment.theme}`
+  }
 
   constructor(
     protected dialogRef: NbDialogRef<SelectTableDialogComponent<T>>,

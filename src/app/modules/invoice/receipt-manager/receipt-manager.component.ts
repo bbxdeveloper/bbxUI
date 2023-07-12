@@ -38,12 +38,13 @@ import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
 
 @Component({
   selector: 'app-receipt-manager',
   templateUrl: './receipt-manager.component.html',
   styleUrls: ['./receipt-manager.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;

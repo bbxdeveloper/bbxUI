@@ -1,11 +1,11 @@
-<nb-card *ngIf="InProgress && IsSimpleStatusMessage" class="simple">
+<nb-card *ngIf="InProgress && IsSimpleStatusMessage" class="simple {{themeClass}}">
     <nb-card-body>
         <div class="title">{{_actualStatus.title}}</div>
         <div class="spinner" [nbSpinner]="true" nbSpinnerStatus="primary"></div> <!--  [nbSpinnerMessage]="_actualStatus.msg" -->
         <!-- <nb-progress-bar [value]="_actualStatus.value" status="primary" size="giant"></nb-progress-bar> -->
     </nb-card-body>
 </nb-card>
-<nb-card *ngIf="InProgress && !IsSimpleStatusMessage" class="normal">
+<nb-card *ngIf="InProgress && !IsSimpleStatusMessage" class="normal {{themeClass}}">
     <nb-card-body>
         <div class="title">{{_actualStatus.title}}</div>
         <div class="spinner" [nbSpinner]="true" nbSpinnerStatus="primary" [nbSpinnerMessage]="_actualStatus.msg"></div>

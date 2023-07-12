@@ -36,12 +36,13 @@ import { InvoiceService } from '../services/invoice.service';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
 
 @Component({
   selector: 'app-correction-invoice',
   templateUrl: './correction-invoice.component.html',
   styleUrls: ['./correction-invoice.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, OnDestroy, AfterViewInit, IInlineManager {
   public senderData: Customer
@@ -242,6 +243,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       comment: invoice.CustomerComment,
     } as Customer
 
+    if (this.mode.partnerLock) {
+      this.mode.partnerLock.lockCustomer(this.buyerData.id)
+        .catch(this.cs.HandleError.bind(this.cs))
+    }
+
     this.invoiceFormData = {
       paymentMethod: invoice.paymentMethod,
       paymentDate: invoice.paymentDate,
@@ -259,6 +265,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public ngOnDestroy(): void {
     this.kbS.Detach()
+
+    if (this.mode.partnerLock) {
+      this.mode.partnerLock.unlockCustomer()
+        .catch(this.cs.HandleError.bind(this.cs))
+    }
   }
 
   public inlineInputFocusChanged(event: any): void {
@@ -482,6 +493,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         const request = this.UpdateOutGoingData()
 
         var response = await this.invoiceService.createOutgoingAsync(request)
+
+        if (this.mode.partnerLock) {
+          this.mode.partnerLock.unlockCustomer()
+            .catch(this.cs.HandleError.bind(this.cs))
+        }
 
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
 

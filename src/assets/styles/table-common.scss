@@ -1,3 +1,5 @@
+@import 'table-colors';
+
 // Layout, Card, footer
 
 nb-card {
@@ -64,7 +66,6 @@ nb-card-body {
 
                 font-size: 1.1rem !important;
 
-                color: #ffffff;
                 font-family: Open Sans, sans-serif;
                 font-weight: 400;
                 line-height: 1.25rem;
@@ -74,7 +75,6 @@ nb-card-body {
 
     th {
         text-align: center;
-        background: rgb(35, 35, 75);
         padding: 0px;
         margin: 0px;
     }

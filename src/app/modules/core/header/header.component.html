@@ -26,7 +26,19 @@
         </nb-card>
     </ng-template>
 
-    <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig" disabled></nb-action>
+    <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"
+            nbPopoverTrigger="focus" [disabled]="InProgress"
+        nbPopoverPlacement="bottom" [nbPopover]="sub_sett" data-sub="header-sett-sub-1">
+    </nb-action>
+    <ng-template #sub_sett let-data>
+        <nb-card class="card-submenu-wrapper">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-sett-sub-1" [disabled]="InProgress" (click)="goToUserManuals($event)">
+                    Kézikönyvek
+                </button>
+            </nb-card-body>
+        </nb-card>
+    </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-base" class="cl-header-menu" tabIndex="4" nbPopoverTrigger="focus"
         data-sub="header-base-sub-1,header-base-sub-2,header-base-sub-3,header-base-sub-4,header-base-sub-5,header-base-sub-6,header-base-sub-7,header-base-sub-8"

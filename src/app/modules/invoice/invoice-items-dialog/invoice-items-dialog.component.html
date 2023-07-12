@@ -1,10 +1,10 @@
-<nb-card class="modal-product-active invoice-items-dialog">
-    <nb-card-header class="modal-product-active-header">
+<nb-card class="modal-product-active invoice-items-dialog {{themeClass}}">
+    <nb-card-header class="modal-product-active-header {{themeClass}}">
         <span>Tételek</span>
     </nb-card-header>
-    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
+    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body {{themeClass}}">
 
-        <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
+        <table class="card-table-header {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
@@ -16,7 +16,7 @@
             </ng-container>
         </table>
 
-        <table class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
+        <table class="table-active-product card-table-wrapper {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
@@ -28,9 +28,7 @@
                         (dblclick)="selectRow($event, row)"
                         [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
-                        <!-- <div>
-                            {{ row.data[it.objectKey] }}
-                        </div> -->
+                        
                         <ng-container>
                             <ng-container *ngSwitchCase="'code-field'">
                                 <div>

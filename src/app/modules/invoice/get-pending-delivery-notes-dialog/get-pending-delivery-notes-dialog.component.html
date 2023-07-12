@@ -1,8 +1,8 @@
-<nb-card class="modal-product-active get-pendign-delivery-notes-dialog">
-    <nb-card-header class="modal-product-active-header">
+<nb-card class="modal-product-active get-pendign-delivery-notes-dialog {{themeClass}}">
+    <nb-card-header class="modal-product-active-header {{themeClass}}">
         <span>Függőben lévő szállítólevelek</span>
     </nb-card-header>
-    <nb-card-body class="modal-product-active-body">
+    <nb-card-body class="modal-product-active-body {{themeClass}}">
 
         <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
@@ -16,7 +16,7 @@
             </ng-container>
         </table>
 
-        <table class="table-active-product card-table-wrapper" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
+        <table class="table-active-product card-table-wrapper {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
@@ -28,10 +28,7 @@
                         [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
                         [style.text-align]="it.textAlign"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
-                        <!-- <div>
-                            {{ row.data[it.objectKey] }}
-                            ng-container
-                        </div> -->
+                        
                         <ng-container>
                             <ng-container *ngSwitchCase="'code-field'">
                                 <div>

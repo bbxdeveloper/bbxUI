@@ -1,10 +1,10 @@
-<nb-card class="modal-product-active">
-    <nb-card-header class="modal-product-active-header">
+<nb-card class="modal-product-active {{themeClass}}">
+    <nb-card-header class="modal-product-active-header {{themeClass}}">
         <span>Számlaszámok</span>
     </nb-card-header>
-    <nb-card-body class="modal-product-active-body">
+    <nb-card-body class="modal-product-active-body {{themeClass}}">
 
-        <table class="card-table-header" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth style="width: 100%">
+        <table class="card-table-header {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth style="width: 100%">
             <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
@@ -18,7 +18,7 @@
 
 
         <div class="display-flex items-start h-260px">
-            <table class="table-active-product card-table-wrapper display-table" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" style="height: unset !important; margin: unset">
+            <table class="table-active-product card-table-wrapper display-table {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" style="height: unset !important; margin: unset">
                 <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" style="height: 25px"></tr>
                 <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                     <ng-container [ngSwitch]="it.type">

@@ -13,7 +13,7 @@
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber"
                         [readonly]="isEditModeOff" [disabled]="isLoading" (click)="navigateable.HandleFormFieldClick($event)" required>
 
-                    <div *ngIf="invoiceNumber?.errors?.['missingInvoice']" class="error">
+                    <div *ngIf="invoiceNumber?.errors?.['missingInvoice']" class="alert-error">
                         <ng-container *ngIf="isIncomingCorrectionInvoice; else missingOutcoming">
                             Nincs ilyen bejövő számla.
                         </ng-container>
@@ -23,11 +23,11 @@
                         </ng-template>
                     </div>
 
-                    <div *ngIf="invoiceNumber?.errors?.['itsNotOutcoming']" class="error">
+                    <div *ngIf="invoiceNumber?.errors?.['itsNotOutcoming']" class="alert-error">
                         Csak kimenő számla adható meg.
                     </div>
 
-                    <div *ngIf="invoiceNumber?.errors?.['itsNotIncoming']" class="error">
+                    <div *ngIf="invoiceNumber?.errors?.['itsNotIncoming']" class="alert-error">
                         Csak bejövő számla adható meg.
                     </div>
                 </div>

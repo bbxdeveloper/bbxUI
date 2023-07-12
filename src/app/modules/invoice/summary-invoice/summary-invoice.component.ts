@@ -48,12 +48,13 @@ import { InvoiceStatisticsService } from '../services/invoice-statistics.service
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
 
 @Component({
   selector: 'app-summary-invoice',
   templateUrl: './summary-invoice.component.html',
   styleUrls: ['./summary-invoice.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -812,6 +813,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.originalCustomerID = customer.id
 
+      if (this.mode.partnerLock) {
+        this.mode.partnerLock.lockCustomer(this.originalCustomerID)
+          .catch(this.cs.HandleError.bind(this.cs))
+      }
+
       if (this.mode.useCustomersPaymentMethod) {
         this.outInvForm.controls['paymentMethod'].setValue(customer.defPaymentMethodX)
       }
@@ -826,6 +832,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    if (this.mode.partnerLock) {
+      this.mode.partnerLock.unlockCustomer()
+        .catch(this.cs.HandleError.bind(this.cs))
+    }
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -951,6 +962,11 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
               if (!!d.data) {
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+              }
+
+              if (this.mode.partnerLock) {
+                this.mode.partnerLock.unlockCustomer()
+                  .catch(this.cs.HandleError.bind(this.cs))
               }
 
               this.simpleToastrService.show(
