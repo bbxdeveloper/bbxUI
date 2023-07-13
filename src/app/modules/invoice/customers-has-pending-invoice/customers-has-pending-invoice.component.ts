@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary'
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';

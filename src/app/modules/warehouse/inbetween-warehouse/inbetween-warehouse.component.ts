@@ -25,7 +25,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { Product } from '../../product/models/Product';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';

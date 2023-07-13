@@ -34,7 +34,7 @@ import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
-import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
 
 @Component({
