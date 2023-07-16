@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { NegativeQuantityValidator, NotZeroQuantityValidator, PositiveQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
-import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Injectable()
 export class InvoiceBehaviorFactoryService {
 
   constructor(
-    private readonly partnerLock: PartnerLockService
+    private readonly partnerLock: PartnerLockHandlerService
   ) { }
 
   public create(path: string): InvoiceBehaviorMode {

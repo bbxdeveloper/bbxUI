@@ -1,7 +1,7 @@
 import { ValidationMessage } from "src/assets/util/ValidationMessages";
 import { InvoiceCategory } from "./InvoiceCategory";
 import { InvoiceTypes } from "./InvoiceTypes";
-import { PartnerLockService } from "src/app/services/partner-lock.service";
+import { IPartnerLock } from "src/app/services/IPartnerLock";
 
 export class InvoiceBehaviorMode {
     public invoiceCategory!: InvoiceCategory
@@ -13,7 +13,7 @@ export class InvoiceBehaviorMode {
     public invoiceCorrection: boolean = false
     public useCustomersPaymentMethod: boolean = false
     public unitPriceColumnTitle: string = ''
-    public partnerLock: PartnerLockService|undefined
+    public partnerLock: IPartnerLock|undefined
 
     public checkCustomerLimit: boolean = false
 
