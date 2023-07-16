@@ -794,7 +794,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           searchString: this.customerInputFilterString,
           allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
           colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
-          incoming: this.mode.incoming
+          incoming: this.mode.incoming,
+          partnerLock: this.mode.partnerLock
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -814,10 +815,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.originalCustomerID = customer.id
 
-      if (this.mode.partnerLock) {
-        this.mode.partnerLock.lockCustomer(this.originalCustomerID)
-      }
-
       if (this.mode.useCustomersPaymentMethod) {
         this.outInvForm.controls['paymentMethod'].setValue(customer.defPaymentMethodX)
       }
@@ -833,9 +830,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     console.log("Detach");
     this.kbS.Detach();
 
-    if (this.mode.partnerLock) {
-      this.mode.partnerLock.unlockCustomer()
-    }
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -963,9 +958,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
               }
 
-              if (this.mode.partnerLock) {
-                this.mode.partnerLock.unlockCustomer()
-              }
+              this.mode.partnerLock?.unlockCustomer()
 
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
