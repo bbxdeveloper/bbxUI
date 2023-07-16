@@ -372,6 +372,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       paymentDays: Number(customer.paymentDays),
       defPaymentMethod: defPaymentMethod,
       latestDiscountPercent: HelperFunctions.ToOptionalInt(customer.latestDiscountPercent),
+      email: customer.email
     } as CreateCustomerRequest;
     return res;
   }
