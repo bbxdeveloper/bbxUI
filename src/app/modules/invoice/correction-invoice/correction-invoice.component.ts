@@ -212,7 +212,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.dialogService
       .open(CorrectionInvoiceSelectionDialogComponent, {
         context: {
-          isIncomingCorrectionInvoice: this.isIncomingCorrectionInvoice
+          isIncomingCorrectionInvoice: this.isIncomingCorrectionInvoice,
+          partnerLock: this.mode.partnerLock
         }
       })
       .onClose.subscribe(this.onCorrentionInvoiceSelectionDialogClosed.bind(this))
@@ -244,10 +245,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       comment: invoice.CustomerComment,
     } as Customer
 
-    if (this.mode.partnerLock) {
-      this.mode.partnerLock.lockCustomer(this.buyerData.id)
-    }
-
     this.invoiceFormData = {
       paymentMethod: invoice.paymentMethod,
       paymentDate: invoice.paymentDate,
@@ -266,9 +263,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   public ngOnDestroy(): void {
     this.kbS.Detach()
 
-    if (this.mode.partnerLock) {
-      this.mode.partnerLock.unlockCustomer()
-    }
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   public inlineInputFocusChanged(event: any): void {
@@ -493,9 +488,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
         var response = await this.invoiceService.createOutgoingAsync(request)
 
-        if (this.mode.partnerLock) {
-          this.mode.partnerLock.unlockCustomer()
-        }
+        this.mode.partnerLock?.unlockCustomer()
 
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
 
