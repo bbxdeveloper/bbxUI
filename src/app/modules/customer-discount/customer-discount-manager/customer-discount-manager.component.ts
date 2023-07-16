@@ -256,10 +256,15 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
     this.isLoading = true;
 
-    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id !== undefined ? this.buyerData?.id : -1 }))
-    .then(res => {
-      this.partnerLock.lockCustomer(this.buyerData.id)
+    const lockResult = await this.partnerLock.lockCustomer(this.buyerData.id) as any
 
+    if (!lockResult?.succeeded) {
+      this.isLoading = false
+      return
+    }
+
+    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id !== undefined ? this.buyerData?.id : -1 }))
+    .then(async res => {
       // Products
       this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
 

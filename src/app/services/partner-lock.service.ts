@@ -13,17 +13,22 @@ export class PartnerLockService implements IPartnerLock {
   constructor(private readonly http: HttpClient) {}
 
   public lockCustomer(customerId: number|string): Promise<unknown> {
-    this.customerId = customerId
-
     const request = this.http.post(this.baseUrl + '/lock', { customerId })
 
     return firstValueFrom(request)
+      .then(value => {
+        this.customerId = customerId
+
+        return value
+      })
   }
 
   public unlockCustomer(): Promise<unknown> {
     if (!this.customerId) {
       return Promise.resolve()
     }
+
+    this.customerId = undefined
 
     const request = this.http.post(this.baseUrl + '/unlock', { customerId: this.customerId })
 

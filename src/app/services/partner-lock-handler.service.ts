@@ -18,13 +18,15 @@ export class PartnerLockHandlerService implements IPartnerLock {
       .catch(this.lockErrorHandler.bind(this))
   }
 
-  private lockErrorHandler(error: any): void {
+  private lockErrorHandler(error: any): Promise<unknown> {
     if (error.status === 423) {
       this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_LOCKED)
     }
     else {
       this.commonService.HandleError(error)
     }
+
+    return error.error
   }
 
   public unlockCustomer(): Promise<unknown> {
