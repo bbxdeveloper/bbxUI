@@ -751,7 +751,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       const dialog = this.dialogService.open(GetPendingDeliveryNotesDialogComponent, {
         context: {
           allColumns: GetPendingDeliveryNotesDialogTableSettings.AllColumns,
-          colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
+          colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs,
+          partnerLock: this.mode.partnerLock
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -784,8 +785,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       controls['comment'].setValue(response.CustomerComment)
 
       this.buyerData.id = response.customerID
-
-      this.mode.partnerLock?.lockCustomer(response.customerID)
 
       controls = this.outInvForm.controls
       controls['invoiceDeliveryDate'].setValue(response.invoiceDeliveryDate)
@@ -825,9 +824,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     console.log("Detach");
     this.kbS.Detach();
 
-    if (this.mode.partnerLock) {
-      this.mode.partnerLock.unlockCustomer()
-    }
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -934,9 +931,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         this.sts.pushProcessStatus(Constants.BlankProcessStatus)
 
-        if (this.mode.partnerLock) {
-          this.mode.partnerLock.unlockCustomer()
-        }
+        this.mode.partnerLock?.unlockCustomer()
 
         this.simpleToastrService.show(
           Constants.MSG_SAVE_SUCCESFUL,
