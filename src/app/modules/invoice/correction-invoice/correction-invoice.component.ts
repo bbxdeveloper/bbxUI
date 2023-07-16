@@ -37,12 +37,13 @@ import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/pr
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-correction-invoice',
   templateUrl: './correction-invoice.component.html',
   styleUrls: ['./correction-invoice.component.scss'],
-  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, OnDestroy, AfterViewInit, IInlineManager {
   public senderData: Customer
@@ -245,7 +246,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     if (this.mode.partnerLock) {
       this.mode.partnerLock.lockCustomer(this.buyerData.id)
-        .catch(this.cs.HandleError.bind(this.cs))
     }
 
     this.invoiceFormData = {
@@ -268,7 +268,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     if (this.mode.partnerLock) {
       this.mode.partnerLock.unlockCustomer()
-        .catch(this.cs.HandleError.bind(this.cs))
     }
   }
 
@@ -496,7 +495,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
         if (this.mode.partnerLock) {
           this.mode.partnerLock.unlockCustomer()
-            .catch(this.cs.HandleError.bind(this.cs))
         }
 
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)

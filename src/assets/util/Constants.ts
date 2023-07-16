@@ -35,6 +35,7 @@ export module Constants {
     export const MSG_ERROR_NO_PRODUCT_SELECTED = "Nincs kiválasztott termék!"
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE = "Nincs elérhető készletinformáció ehhez a termékhez!"
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE = "Nincs elérhető készletinformáció ehhez a termékhez erre a raktárra!"
+    export const MSG_ERROR_CUSTOMER_LOCKED = 'Partner adatait más munkahelyen használják.'
 
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM = 'Véglegesítés dátuma a(z) {0} elemre'

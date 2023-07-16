@@ -49,12 +49,13 @@ import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-fact
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-summary-invoice',
   templateUrl: './summary-invoice.component.html',
   styleUrls: ['./summary-invoice.component.scss'],
-  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -815,7 +816,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       if (this.mode.partnerLock) {
         this.mode.partnerLock.lockCustomer(this.originalCustomerID)
-          .catch(this.cs.HandleError.bind(this.cs))
       }
 
       if (this.mode.useCustomersPaymentMethod) {
@@ -835,7 +835,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     if (this.mode.partnerLock) {
       this.mode.partnerLock.unlockCustomer()
-        .catch(this.cs.HandleError.bind(this.cs))
     }
   }
 
@@ -966,7 +965,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
               if (this.mode.partnerLock) {
                 this.mode.partnerLock.unlockCustomer()
-                  .catch(this.cs.HandleError.bind(this.cs))
               }
 
               this.simpleToastrService.show(
