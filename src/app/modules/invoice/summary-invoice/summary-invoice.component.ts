@@ -229,7 +229,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.mode = behaviorFactory.create(params[0].path)
 
       if (this.mode.incoming) {
-        debugger
         const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
         if (unitPrice) {
           unitPrice.label = this.mode.unitPriceColumnTitle
