@@ -368,6 +368,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
             if (inbetween) {
               this.dbData[index].data = inbetween;
+              this.dbData[index].data.Save('productCode')
               this.dbDataDataSrc.setData(this.dbData);
             }
           }
