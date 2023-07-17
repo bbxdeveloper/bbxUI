@@ -1251,7 +1251,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
+    if (!p.noDiscount && !this.mode.incoming) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
         const discountedPrice = p.unitPrice2! * discountForPrice;
