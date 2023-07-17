@@ -3,8 +3,12 @@ import { HelperFunctions } from "src/assets/util/HelperFunctions"
 import { MementoObject } from "src/assets/model/MementoObject"
 import { Product } from "src/app/modules/product/models/Product"
 import { ProductStock } from "src/app/modules/stock/models/ProductStock"
+import { JsonIgnore } from "src/assets/model/navigation/DynamicObject"
 
 export class InbetweenWarehouseProduct extends MementoObject implements IEditable {
+    @JsonIgnore
+    public override DeafultFieldList: string[] = ['productCode'];
+
     private _productID: number|undefined
     public get productID(): number|undefined {
         return this._productID
@@ -52,8 +56,9 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
         return HelperFunctions.Round2(this.quantity * this.currAvgCost, 1)
     }
 
-    private constructor() {
-        super()
+    constructor(requiredFields?: string[]) {
+        super();
+        this.SaveDefault();
     }
 
     public static makeEmpty(): InbetweenWarehouseProduct {
