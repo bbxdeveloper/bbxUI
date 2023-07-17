@@ -229,6 +229,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.mode = behaviorFactory.create(params[0].path)
 
       if (this.mode.incoming) {
+        debugger
         const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
         if (unitPrice) {
           unitPrice.label = this.mode.unitPriceColumnTitle
@@ -1251,7 +1252,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
+    debugger
+    if (!p.noDiscount && !this.mode.incoming) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
         const discountedPrice = p.unitPrice2! * discountForPrice;

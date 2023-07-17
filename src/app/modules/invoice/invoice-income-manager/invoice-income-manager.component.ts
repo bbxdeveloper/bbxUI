@@ -1055,74 +1055,36 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   RefreshData(): void { }
 
-  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
-    let discount: number | undefined = undefined;
-
-    if (this.buyerData === undefined || this.buyerData.id === undefined) {
-      this.bbxToastrService.show(
-        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return discount;
-    }
-
-    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-      .then(discounts => {
-        if (discounts) {
-          const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-          discount = res !== undefined ? (res / 100.0) : undefined;
-        }
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => { })
-    return discount;
-  }
-
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    const res = new InvoiceLine(this.requiredCols);
+    const res = new InvoiceLine(this.requiredCols)
 
-    res.productCode = p.productCode!;
+    res.productCode = p.productCode!
 
-    res.productDescription = p.description ?? '';
+    res.productDescription = p.description ?? ''
 
-    res.quantity = 0;
+    res.quantity = 0
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-'
 
     res.latestSupplyPrice = p.latestSupplyPrice
 
-    res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
-      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
-      if (discountForPrice !== undefined) {
-        const discountedPrice = p.latestSupplyPrice! * discountForPrice;
-        res.unitPrice = p.latestSupplyPrice! - discountedPrice;
-        res.custDiscounted = true;
-      } else {
-        res.unitPrice = p.latestSupplyPrice!;
-      }
-    } else {
-      res.unitPrice = p.latestSupplyPrice!;
-    }
+    res.unitPrice = p.latestSupplyPrice!
 
     res.newUnitPrice1 = p.unitPrice1
     res.newUnitPrice2 = p.unitPrice2
 
-    res.vatRateCode = p.vatRateCode;
+    res.vatRateCode = p.vatRateCode
 
-    res.vatRate = p.vatPercentage ?? 1;
+    res.vatRate = p.vatPercentage ?? 1
 
-    res.ReCalc();
+    res.ReCalc()
 
-    res.unitOfMeasure = p.unitOfMeasure;
-    res.unitOfMeasureX = p.unitOfMeasureX;
+    res.unitOfMeasure = p.unitOfMeasure
+    res.unitOfMeasureX = p.unitOfMeasureX
 
-    console.log('ProductToInvoiceLine res: ', res);
+    console.log('ProductToInvoiceLine res: ', res)
 
-    return res;
+    return res
   }
 
   IsNumber(val: string): boolean {
