@@ -20,6 +20,9 @@ import { InvoiceService } from '../services/invoice.service';
 import { CommonService } from 'src/app/services/common.service';
 import { Customer } from '../../customer/models/Customer';
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
+import { UserService } from '../../auth/services/user.service';
+import { LoginNameAndPwdRequest } from '../../auth/models/LoginNameAndPwdRequest';
+import { StatusService } from 'src/app/services/status.service';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -121,12 +124,14 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     private loggerService: LoggerService,
     private invoiceService: InvoiceService,
     private cs: CommonService,
-    private dialogService: NbDialogService
+    private dialogService: NbDialogService,
+    private userService: UserService,
+    private statusService: StatusService,
+    private commonService: CommonService
   ) {
-    super();
-    this.Setup();
-
-    this.sumForm = new FormGroup({});
+    super()
+    this.Setup()
+    this.sumForm = new FormGroup({})
   }
 
   MoveToSaveButtons(event: any): void {
@@ -308,6 +313,10 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   ngAfterContentInit(): void {
+    this.sumForm.addControl('username', new FormControl(undefined, [Validators.required]));
+    this.sumForm.addControl('password', new FormControl(undefined, [Validators.required]));
+    this.sumForm.addControl('loginName', new FormControl(undefined, [Validators.required]));
+
     this.prepareVatRateCodes();
 
     if (this.defaultDiscountPercent !== undefined) {
@@ -387,17 +396,51 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.customerLimitsChecked = true
   }
 
-  close(answer: boolean) {
-    if (this.OutGoingDelivery) {
-      this.data.workNumber = this.sumForm.controls['workNumber'].value;
-      this.data.priceReview = this.sumForm.controls['priceReview'].value;
-    }
-    this.closedManually = true;
-    this.kBs.RemoveWidgetNavigatable();
-    this.dialogRef.close(answer ? this.data : undefined);
-  }
-
   logi(msg: string): void {
     this.loggerService.info(msg, logTag)
+  }
+
+  close(answer: boolean) {
+    if (answer) {
+      this.processUserDataAndClose()
+    } else {
+      this.handleClose(answer)
+    }
+  }
+
+  processUserDataAndClose(): void {
+    this.statusService.waitForLoad(true)
+
+    this.userService.CheckLoginNameAndPwd({
+      LoginName: this.sumForm.controls['username'].value,
+      Password: this.sumForm.controls['password'].value
+    } as LoginNameAndPwdRequest).subscribe({
+      next: res => {
+        if (res && Object.keys(res).includes('id') && res.id > 0) {
+          this.data.userID = res.id
+
+          this.statusService.waitForLoad(false)
+          
+          this.handleClose(true)
+        } else {
+          this.statusService.waitForLoad(false)
+          this.commonService.ShowErrorMessage((res as any).Message)
+        }
+      },
+      error: err => {
+        this.statusService.waitForLoad(false)
+        this.commonService.HandleError(err)
+      }
+    })
+  }
+
+  private handleClose(answer: boolean): void {
+    if (this.OutGoingDelivery) {
+      this.data.workNumber = this.sumForm.controls['workNumber'].value
+      this.data.priceReview = this.sumForm.controls['priceReview'].value
+    }
+    this.closedManually = true
+    this.kBs.RemoveWidgetNavigatable()
+    this.dialogRef.close(answer ? this.data : undefined)
   }
 }

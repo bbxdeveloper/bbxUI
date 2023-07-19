@@ -12,19 +12,9 @@ import { GetUserParamListModel } from '../models/GetUserParamListModel';
 import { CreateUserResponse } from '../models/CreateUserResponse';
 import { UpdateUserResponse } from '../models/UpdateUserResponse';
 import { DeleteUserResponse } from '../models/DeleteUserResponse';
-
-const MOCK_USERS = {
-  "pageNumber": 1,
-  "pageSize": 10,
-  "recordsFiltered": 2,
-  "recordsTotal": 2,
-  "succeeded": true,
-  "data": [
-    new User(2, "string", "string", "a@mmm", "string", true),
-    new User(3, "AAstring", "string", "a@mmm", "string", true),
-    new User(4, "inactive", "string", "a@mmm", "string", false),
-  ]
-} as GetUsersResponse;
+import { LoginNameAndPwdRequest } from '../models/LoginNameAndPwdRequest';
+import { LoginNameAndPwdResponse } from '../models/LoginNameAndPwdResponse';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Injectable({
   providedIn: 'root'
@@ -34,53 +24,18 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  // GetUsers(): Observable<GetUserResponse> {
-  //   return of(MOCK_USERS);
-  // }
+  CheckLoginNameAndPwd(params?: LoginNameAndPwdRequest): Observable<LoginNameAndPwdResponse> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    return this.http.get<LoginNameAndPwdResponse>(this.BaseUrl + '/loginnameandpwd' + (!!params ? ('?' + queryParams) : ''));
+  }
 
   GetAll(params?: GetUsersParamListModel): Observable<GetUsersResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
-
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetUsersParamListModel] != undefined && params[key as keyof GetUsersParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetUsersParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetUsersParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // console.log(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : '')); // TODO: only for debug
-
-    // Get
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
     return this.http.get<GetUsersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
   Get(params?: GetUserParamListModel): Observable<User> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
-
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetUserParamListModel] != undefined && params[key as keyof GetUserParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetUserParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetUserParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
     return this.http.get<User>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
