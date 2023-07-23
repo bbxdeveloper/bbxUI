@@ -69,12 +69,10 @@
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Megjegyzés</label>
-                    <input nbInput type="text" formControlName="notice" readonly>
-                </div>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-inner-div">
+                <label>Megjegyzés</label>
+                <iframe [srcdoc]="currentForm.form.get('notice')?.value ?? '' | htmlStringSanitizer"></iframe>
+            </div>
         </form>
     </nb-card-body>
 </nb-card>
