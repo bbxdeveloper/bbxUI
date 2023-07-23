@@ -779,6 +779,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopPropagation();
         event.preventDefault();
 
+        if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
+
         this.loggerService.info(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
