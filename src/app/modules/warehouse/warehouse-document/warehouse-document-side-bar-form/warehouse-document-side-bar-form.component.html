@@ -42,28 +42,32 @@
 
                 <nb-form-field class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div">
-                        <label class="multicol-label-col-2">Státusz</label>
-                        <input nbInput type="text" formControlName="whsTransferStatusX" readonly>
+                        <label class="multicol-label-col-2">Bevételezés dátuma</label>
+                        <input nbInput type="datetime" formControlName="transferDateIn" readonly mask="0000-00-00">
                     </div>
                 </nb-form-field>
             </div>
 
-            <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Érték</label>
-                        <input nbInput type="text" formControlName="whsTransferAmount" [inputMask]="numberInputMask"
-                            placeholder="0.00" readonly>
-                    </div>
-                </nb-form-field>
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Státusz</label>
+                    <input nbInput type="text" formControlName="whsTransferStatusX" readonly>
+                </div>
+            </nb-form-field>
 
-                <nb-form-field class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div-2">
-                        <label class="multicol-label-col-2">Felhasználó</label>
-                        <input nbInput type="text" formControlName="user" readonly>
-                    </div>
-                </nb-form-field>
-            </div>
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Mennyiség</label>
+                    <input nbInput type="text" formControlName="whsTransferAmount" readonly>
+                </div>
+            </nb-form-field>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Felhasználó</label>
+                    <input nbInput type="text" formControlName="user" readonly>
+                </div>
+            </nb-form-field>
 
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
