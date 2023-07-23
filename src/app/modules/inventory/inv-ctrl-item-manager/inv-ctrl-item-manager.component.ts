@@ -544,12 +544,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
 
     const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('productCode')
-    if (previousValue && changedData?.productCode === previousValue) {
-      this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+    if (changedData?.productCode === previousValue) {
       return
     }
 
