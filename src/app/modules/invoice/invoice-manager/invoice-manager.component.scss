@@ -2,20 +2,6 @@
 
 $td-height: 30px;
 
-label.single_label {
-    align-self: center;
-    color: #3ed820;
-    font-weight: bold;
-    font-size: 20px;
-}
-
-nb-form-field {
-    margin: 10px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
-
 .div-wrapper-input {
     display: flex;
 
@@ -53,12 +39,6 @@ nb-card {
         margin-top: 10px;
         margin-bottom: 10px;
     }
-}
-
-nb-form-field {
-    margin: 0px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 nb-card-header {
@@ -132,27 +112,39 @@ nb-card-header {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    column-gap: 10px;
 
-    .last-field {
-        margin: unset;
-        max-width: unset;
-        flex-basis: 100%;
+    label.single_label {
+        align-self: center;
+        color: #3ed820;
+        font-weight: bold;
+        font-size: 20px;
+        margin-right: 10px;
+    }
 
-        .notice {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+    nb-form-field {
+        width: 180px;
 
-            label {
-                white-space: nowrap;
-            }
+        &:last-child {
+            margin: unset;
+            max-width: unset;
+            flex-basis: 100%;
 
-            input {
-                max-width: unset;
+            .notice {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                label {
+                    white-space: nowrap;
+                }
+
+                input {
+                    max-width: unset;
+                }
             }
         }
     }
-
 }
 
 
