@@ -17,7 +17,6 @@ import { BlankProductGroup, ProductGroup } from '../models/ProductGroup';
 import { ProductGroupService } from '../services/product-group.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { GetProductGroupParamListModel } from '../models/GetProductGroupParamListModel';
 import { StatusService } from 'src/app/services/status.service';
 import { Actions } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -418,6 +417,10 @@ export class ProductGroupManagerComponent
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+
+        if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
