@@ -33,28 +33,28 @@
                     Szállítólevél
                 </label>
 
-                <nb-form-field >
+                <nb-form-field>
                     <label>Teljesítési időpont</label>
                     <input nbInput type="datetime" formControlName="invoiceDeliveryDate" required="true"
                         class="{{TileCssClass}}" readonly id="m01" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
-                <nb-form-field >
+                <nb-form-field>
                     <label>Számla keltezése</label>
                     <input nbInput type="datetime" formControlName="invoiceIssueDate" required="true"
                         class="{{TileCssClass}}" readonly id="m02" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
-                <nb-form-field >
+                <nb-form-field>
                     <label>Fizetési határidő</label>
                     <input nbInput type="datetime" formControlName="paymentDate" required="true"
                         class="{{TileCssClass}}" readonly id="m03" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
                 </nb-form-field>
 
-                <nb-form-field >
+                <nb-form-field>
                     <label>
                         Bizonylat sorszáma
                     </label>
@@ -62,7 +62,7 @@
                         placeholder="Bizonylat sorszáma" id="m04">
                 </nb-form-field>
 
-                <nb-form-field class="last-field">
+                <nb-form-field>
                     <div class="notice">
                         <label>Egyéb adatok</label>
                         <input nbInput type="text" formControlName='notice' readonly
