@@ -220,6 +220,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       fromWarehouse: new FormControl(undefined, []),
       toWarehouse: new FormControl(undefined, []),
       transferDate: new FormControl(undefined, []),
+      transferDateIn: new FormControl(undefined, []),
       whsTransferStatusX: new FormControl(undefined, []),
       whsTransferAmount: new FormControl(undefined, []),
       user: new FormControl(undefined, []),
