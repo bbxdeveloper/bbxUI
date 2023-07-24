@@ -1,1 +1,10 @@
 @import 'side-bar-form-default';
+
+iframe {
+    width: 100%;
+    margin-top: 2px;
+}
+
+.bbx-fd-form-field-wrapper-div-row {
+    column-gap: 10px !important;
+}

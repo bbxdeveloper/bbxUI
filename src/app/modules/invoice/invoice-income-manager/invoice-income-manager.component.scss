@@ -1,20 +1,6 @@
-@import 'invoice-common';
+@use 'invoice-common';
 
 $td-height: 30px;
-
-label.single_label {
-    align-self: center;
-    color: #3ed820;
-    font-weight: bold;
-    font-size: 20px;
-}
-
-nb-form-field {
-    margin: 10px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
 
 .div-wrapper-input {
     display: flex;
@@ -53,12 +39,6 @@ nb-card {
         margin-top: 10px;
         margin-bottom: 10px;
     }
-}
-
-nb-form-field {
-    margin: 0px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 nb-card-header {
@@ -286,46 +266,5 @@ table.table-statistics-net-vat-gross {
     td {
         min-width: 300px;
         text-align: left;
-    }
-}
-
-form.form-with-rows {
-    display: flex;
-    align-items: flex-start;
-    grid-column-gap: 10px;
-    column-gap: 10px;
-    row-gap: 10px;
-    flex-direction: column;
-
-    .form-row {
-        display: flex;
-        justify-content: flex-start;
-        column-gap: 25px;
-    }
-
-    .last-field {
-        margin: unset;
-        max-width: unset;
-        flex-basis: 100%;
-        width: 100%;
-
-        .notice {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            label {
-                white-space: nowrap;
-            }
-
-            input {
-                max-width: unset;
-            }
-        }
-    }
-
-    .form-row-screen-wide {
-        @extend .form-row;
-        min-width: 95vw;
     }
 }

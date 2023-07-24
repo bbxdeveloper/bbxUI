@@ -28,10 +28,9 @@ export class PartnerLockService implements IPartnerLock {
       return Promise.resolve()
     }
 
-    this.customerId = undefined
-
     const request = this.http.post(this.baseUrl + '/unlock', { id: this.customerId })
 
     return firstValueFrom(request)
+      .then(x => this.customerId = undefined)
   }
 }

@@ -20,7 +20,7 @@ export class WarehouseDocumentSideBarFormComponent extends BaseSideBarFormCompon
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
-  
+
   public override KeySetting: Constants.KeySettingsDct = WarehouseDocumentsKeySettings;
 
   customPatterns = Constants.ProductCodePatterns;
