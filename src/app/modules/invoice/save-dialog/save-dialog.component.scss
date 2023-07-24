@@ -8,6 +8,8 @@ input.right {
 form {
     overflow-y: hidden;
     height: auto !important;
+    row-gap: 5px;
+    margin-top: 0px;
 }
 
 .modal-product-active {
@@ -286,7 +288,9 @@ form {
 
 div.triple-input-column {
     display: grid;
-    grid-template-columns: 60% 20% 20%;
+
+    grid-template-columns: 54% 22% 22%;
+    column-gap: 1%;
 
     margin-top: 2px;
 
