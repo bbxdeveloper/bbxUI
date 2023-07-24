@@ -286,7 +286,7 @@ form {
 
 div.triple-input-column {
     display: grid;
-    grid-template-columns: 50% 25% 25%;
+    grid-template-columns: 60% 20% 20%;
 
     margin-top: 2px;
 
@@ -297,6 +297,10 @@ div.triple-input-column {
 
             label.triple-input-column-form-field-label.triple-input-column-first {
                 min-width: 185px;
+            }
+
+            input.triple-input-column-first {
+                max-width: none !important;
             }
 
             label.triple-input-column-form-field-label.triple-input-column-second,

@@ -23,6 +23,7 @@ import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 import { UserService } from '../../auth/services/user.service';
 import { LoginNameAndPwdRequest } from '../../auth/models/LoginNameAndPwdRequest';
 import { StatusService } from 'src/app/services/status.service';
+import { Constants } from 'src/assets/util/Constants';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -54,6 +55,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   @Input() checkCustomerLimit: boolean = false
   @Input() customer?: Customer
+
+  loggedIn: boolean = false
 
   override NavigatableType = NavigatableType.dialog
 
@@ -143,6 +146,14 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       event.stopPropagation();
       this.kBs.Jump(AttachDirection.DOWN, false);
       this.kBs.setEditMode(KeyboardModes.NAVIGATION);
+    }
+  }
+
+  UserDataFocusOut(event: any): void {
+    const username = this.sumForm.controls['username'].value
+    const password = this.sumForm.controls['password'].value
+    if (!HelperFunctions.isEmptyOrSpaces(username) && !HelperFunctions.isEmptyOrSpaces(password)) {
+      this.authenticate()
     }
   }
 
@@ -401,14 +412,15 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   close(answer: boolean) {
-    if (answer) {
-      this.processUserDataAndClose()
-    } else {
-      this.handleClose(answer)
+    if (answer && !this.loggedIn) {
+      this.commonService.ShowErrorMessage(Constants.MSG_ERROR_USERDATA_NEEDED)
+      return
     }
+
+    this.handleClose(answer)
   }
 
-  processUserDataAndClose(): void {
+  authenticate(): void {
     this.statusService.waitForLoad(true)
 
     this.userService.CheckLoginNameAndPwd({
@@ -421,7 +433,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
           this.statusService.waitForLoad(false)
           
-          this.handleClose(true)
+          this.sumForm.controls['loginName'].setValue(res.name)
+
+          this.loggedIn = true
         } else {
           this.statusService.waitForLoad(false)
           this.commonService.ShowErrorMessage((res as any).Message)

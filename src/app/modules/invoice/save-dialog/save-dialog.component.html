@@ -4,30 +4,6 @@
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!sumForm" [formGroup]="sumForm" #formDirective="ngForm" id="invoiceSaveForm">
-            <div class="triple-input-column">
-                <nb-form-field class="triple-input-column-form-field" (keydown.enter)="formNav.HandleFormEnter($event)">
-                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-first">
-                        <label class="triple-input-column-form-field-label triple-input-column-first">Bizonylatot kiállítja</label>
-                        <input class="triple-input-column-form-field-input triple-input-column-first {{TileCssClass}}"
-                        placeholder="Felhasználónév" nbInput type="text" formControlName="username">
-                    </div>
-                </nb-form-field>
-
-                <nb-form-field class="triple-input-column-form-field" (keydown.enter)="formNav.HandleFormEnter($event)">
-                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-second">
-                        <input class="triple-input-column-form-field-input triple-input-column-second {{TileCssClass}}"
-                        placeholder="Jelszó" nbInput type="password" formControlName="password">
-                    </div>
-                </nb-form-field>
-
-                <nb-form-field class="triple-input-column-form-field" (keydown.enter)="formNav.HandleFormEnter($event)">
-                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-third">
-                        <input class="triple-input-column-form-field-input triple-input-column-third {{TileCssClass}}"
-                        placeholder="Név" nbInput type="text" formControlName="loginName">
-                    </div>
-                </nb-form-field>
-            </div>
-
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Összes nettó:</label>
@@ -45,7 +21,7 @@
                     </div>
                 </nb-form-field>
 
-                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="MoveToSaveButtons($event)" *ngIf="!this.OutGoingDelivery && this.isDiscountVisible">
+                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="!this.OutGoingDelivery && this.isDiscountVisible">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Kedvezmény %:</label>
                         <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
@@ -54,7 +30,7 @@
                     </div>
                 </nb-form-field>
 
-                <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)">
                     <div [ngClass]="!this.isDiscountVisible ? 'bbx-fd-form-field-inner-div': 'bbx-fd-form-field-inner-div-2'">
                         <label>Kedvezmény értéke:</label>
                         <input nbInput type="text" formControlName='invoiceDiscountValue'
@@ -111,6 +87,32 @@
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="priceReview"
                         [readonly]="isEditModeOff" (click)="formNav.HandleFormFieldClick($event)">
                 </div>
+            </div>
+
+            <div class="triple-input-column">
+                <nb-form-field class="triple-input-column-form-field" (keydown.enter)="formNav.HandleFormEnter($event)">
+                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-first">
+                        <label class="triple-input-column-form-field-label triple-input-column-first">Bizonylatot kiállítja</label>
+                        <input class="triple-input-column-form-field-input triple-input-column-first {{TileCssClass}}"
+                        (focusout)="UserDataFocusOut($event)"
+                        placeholder="Felhasználónév" nbInput type="text" formControlName="username">
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="triple-input-column-form-field" (keydown.enter)="MoveToSaveButtons($event)">
+                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-second">
+                        <input class="triple-input-column-form-field-input triple-input-column-second {{TileCssClass}}"
+                        (focusout)="UserDataFocusOut($event)"
+                        placeholder="Jelszó" nbInput type="password" formControlName="password">
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="triple-input-column-form-field">
+                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-third">
+                        <input class="triple-input-column-form-field-input triple-input-column-third"
+                        placeholder="Név" nbInput type="text" formControlName="loginName" readonly>
+                    </div>
+                </nb-form-field>
             </div>
         </form>
     </nb-card-body>
