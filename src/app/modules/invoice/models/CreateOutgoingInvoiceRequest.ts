@@ -34,6 +34,8 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
     invoiceCorrection: boolean = false
     originalInvoiceID: number|undefined
 
+    userID: number = -1
+
     @JsonIgnore
     get isDelivery(): boolean {
         switch (this.invoiceType) {
