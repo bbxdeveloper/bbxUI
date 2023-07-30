@@ -15,7 +15,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
@@ -30,12 +30,11 @@ import { lastValueFrom, Subscription } from 'rxjs';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { StockService } from '../../stock/services/stock.service';
 import { GetStockRecordParamsModel } from '../../stock/models/GetStockRecordParamsModel';
-import { GetAllInvCtrlItemRecordsParamListModel } from '../models/GetAllInvCtrlItemRecordsParamListModel';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
-import { MoveTableInputCursorToBeginning, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import moment from 'moment';
 import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
 import { CreateIccRequest } from '../models/CreateIccRequest';
@@ -487,12 +486,8 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
             _product = product;
             await this.HandleProductSelection(_product, rowPos, false)
           } else {
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
+            selectProcutCodeInTableInput()
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
         },
         error: () => {
