@@ -36,7 +36,7 @@ import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { InputFocusChangedEvent, isTableKeyDownEvent, TableKeyDownEvent, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent, isTableKeyDownEvent, TableKeyDownEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { lastValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
@@ -665,12 +665,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             }
           } else {
             this.kbS.ClickCurrentElement()
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
+            selectProcutCodeInTableInput()
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
 
           this.RecalcNetAndVat();

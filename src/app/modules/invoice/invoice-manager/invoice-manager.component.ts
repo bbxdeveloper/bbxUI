@@ -39,7 +39,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
@@ -587,12 +587,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }, 200);
           } else {
             this.kbS.ClickCurrentElement()
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
+            selectProcutCodeInTableInput()
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
         },
         error: err => {

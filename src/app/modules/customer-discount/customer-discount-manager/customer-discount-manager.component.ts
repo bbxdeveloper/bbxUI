@@ -35,7 +35,7 @@ import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-n
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
-import { TableKeyDownEvent, isTableKeyDownEvent, SelectFirstCharClass, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, SelectFirstCharClass, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { Router } from '@angular/router';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
@@ -625,12 +625,8 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               return;
             }
           }
-          MoveTableInputCursorToBeginning()
-          this.bbxToastrService.show(
-            Constants.MSG_NO_PRODUCT_GROUP_FOUND,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+          selectProcutCodeInTableInput()
+          this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_GROUP_FOUND);
         },
         error: () => {
           this.dbDataTable.data[rowPos].data.Restore('productGroupCode');

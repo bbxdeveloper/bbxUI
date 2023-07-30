@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Actions, GetFooterCommandListFromKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { NbDialogService, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { MoveTableInputCursorToBeginning, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -452,7 +452,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       .subscribe({
         next: async product => {
           if (!product?.id) {
-            MoveTableInputCursorToBeginning()
+            selectProcutCodeInTableInput()
             this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
             return
           }
