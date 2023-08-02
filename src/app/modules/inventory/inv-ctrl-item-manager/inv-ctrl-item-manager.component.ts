@@ -416,19 +416,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (count > 1 || (count === 1 && res.productCode !== row.data.productCode)) {
       this.dbDataTable.editedRow!.data.productCode = "";
       this.kbS.ClickCurrentElement();
-      this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_PRODUCT_ALREADY_THERE);
       this.isLoading = false;
       return;
-    } else if (checkIfCodeEqual && res.productCode === row.data.productCode) {
-      this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+    }
+
+    if (checkIfCodeEqual && res.productCode === row.data.productCode) {
       this.isLoading = false;
       return;
     }
