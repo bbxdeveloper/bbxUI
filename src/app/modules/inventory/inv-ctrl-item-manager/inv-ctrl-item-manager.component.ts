@@ -480,7 +480,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     return;
   }
 
-  async HandleProductChoose(res: Product, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {
+  async HandleProductChoose(res: Product|undefined, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
@@ -490,6 +490,13 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         if (index !== -1) {
           this.kbS.SelectElementByCoordinate(0, index);
         }
+      }
+    }
+    else {
+      const product = this.dbDataTable.data[rowIndex].data
+      const previousProductCode = product.GetSavedFieldValue('productCode')
+      if (product.productCode !== product.GetSavedFieldValue('productCode')) {
+        product.productCode = previousProductCode
       }
     }
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -509,7 +516,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe(async (res: Product) => {
+    dialogRef.onClose.subscribe(async (res: Product|undefined) => {
       console.log("ChooseDataForTableRow Selected item: ", res);
       await this.HandleProductChoose(res, wasInNavigationMode, rowIndex);
     });
@@ -689,7 +696,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable) && !!this.dbDataTable.GetEditedRow()) {
       switch (event.key) {
         case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
-          debugger;
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(event);
             return;
