@@ -414,6 +414,13 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         }
       }
     }
+    else {
+      const product = this.dbDataTable.data[rowIndex].data
+      const previousProductCode = product.GetSavedFieldValue('productCode')
+      if (product.productCode !== product.GetSavedFieldValue('productCode')) {
+        product.productCode = previousProductCode
+      }
+    }
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
