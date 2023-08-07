@@ -164,7 +164,6 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
 
     let _data = new ExtendedStockData()
     const productStocks = await this.stockService.getProductStock(this.product.id)
-    debugger
 
     if (!productStocks || productStocks.length == 0) {
       this.bbxToastrService.show(
