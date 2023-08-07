@@ -1,3 +1,5 @@
+@use 'invoice-common';
+
 nb-card {
     background: none;
     border: none;
@@ -6,32 +8,4 @@ nb-card {
 
 .form-col-2 {
     padding: 8px 24px;
-}
-
-.form-horizontal {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-
-    column-gap: 10px;
-
-    .last-field {
-        margin: unset;
-        max-width: unset;
-        flex-basis: 100%;
-
-        .notice {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            label {
-                white-space: nowrap;
-            }
-
-            input {
-                max-width: unset;
-            }
-        }
-    }
 }

@@ -49,12 +49,13 @@ import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-fact
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-summary-invoice',
   templateUrl: './summary-invoice.component.html',
   styleUrls: ['./summary-invoice.component.scss'],
-  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -793,7 +794,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           searchString: this.customerInputFilterString,
           allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
           colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
-          incoming: this.mode.incoming
+          incoming: this.mode.incoming,
+          partnerLock: this.mode.partnerLock
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -813,11 +815,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.originalCustomerID = customer.id
 
-      if (this.mode.partnerLock) {
-        this.mode.partnerLock.lockCustomer(this.originalCustomerID)
-          .catch(this.cs.HandleError.bind(this.cs))
-      }
-
       if (this.mode.useCustomersPaymentMethod) {
         this.outInvForm.controls['paymentMethod'].setValue(customer.defPaymentMethodX)
       }
@@ -833,10 +830,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     console.log("Detach");
     this.kbS.Detach();
 
-    if (this.mode.partnerLock) {
-      this.mode.partnerLock.unlockCustomer()
-        .catch(this.cs.HandleError.bind(this.cs))
-    }
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -964,10 +958,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
               }
 
-              if (this.mode.partnerLock) {
-                this.mode.partnerLock.unlockCustomer()
-                  .catch(this.cs.HandleError.bind(this.cs))
-              }
+              this.mode.partnerLock?.unlockCustomer()
 
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
@@ -1260,7 +1251,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
+    if (!p.noDiscount && !this.mode.incoming) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
         const discountedPrice = p.unitPrice2! * discountForPrice;

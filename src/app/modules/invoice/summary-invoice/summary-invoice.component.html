@@ -91,12 +91,12 @@
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
-                    <label>Számla sorszáma</label>
+                    <label>Bizonylat sorszáma</label>
                     <input nbInput type="text" formControlName='invoiceOrdinal' readonly
-                        placeholder="Számla sorszáma" id="m04">
+                        placeholder="Bizonylat sorszáma" id="m04">
                 </nb-form-field>
 
-                <nb-form-field class="last-field" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <div class="notice">
                         <label>Egyéb adatok</label>
                         <input nbInput type="text" formControlName='notice' [readonly]="editDisabled"
@@ -117,7 +117,7 @@
     (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
 </app-inline-editable-table>
 <div class="table-statistics-net-vat-gross">
-    <div>Szállítólevél száma: {{SelectedRowProperty('invoiceNumber')}}</div>
+    <div>Bizonylat száma: {{SelectedRowProperty('invoiceNumber')}}</div>
     <div>Munkaszám: {{SelectedRowProperty('workNumber')}}</div>
     <div>Tételek nettó: {{this.invoiceStatisticsService.SummaryInvoiceInvoiceLineNetSum | number:'1.2':'fr' | replace:',':'.'}}</div>
     <div>Kedv. értéke: {{this.invoiceStatisticsService.SummaryInvoiceInvoiceLineDiscountValueSum | number:'1.2':'fr' | replace:',':'.'}}</div>

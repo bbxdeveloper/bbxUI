@@ -38,7 +38,7 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { InvoicePriceChangeDialogComponent } from '../invoice-price-change-dialog/invoice-price-change-dialog.component';
@@ -47,12 +47,13 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
   templateUrl: './invoice-income-manager.component.html',
   styleUrls: ['./invoice-income-manager.component.scss'],
-  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -551,12 +552,8 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
             }, 200);
           } else {
             this.kbS.ClickCurrentElement()
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
+            selectProcutCodeInTableInput()
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
         },
         error: err => {
@@ -1054,74 +1051,36 @@ export class InvoiceIncomeManagerComponent extends BaseInlineManagerComponent<In
 
   RefreshData(): void { }
 
-  private async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
-    let discount: number | undefined = undefined;
-
-    if (this.buyerData === undefined || this.buyerData.id === undefined) {
-      this.bbxToastrService.show(
-        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return discount;
-    }
-
-    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-      .then(discounts => {
-        if (discounts) {
-          const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-          discount = res !== undefined ? (res / 100.0) : undefined;
-        }
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => { })
-    return discount;
-  }
-
   async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    const res = new InvoiceLine(this.requiredCols);
+    const res = new InvoiceLine(this.requiredCols)
 
-    res.productCode = p.productCode!;
+    res.productCode = p.productCode!
 
-    res.productDescription = p.description ?? '';
+    res.productDescription = p.description ?? ''
 
-    res.quantity = 0;
+    res.quantity = 0
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-'
 
     res.latestSupplyPrice = p.latestSupplyPrice
 
-    res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
-      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
-      if (discountForPrice !== undefined) {
-        const discountedPrice = p.latestSupplyPrice! * discountForPrice;
-        res.unitPrice = p.latestSupplyPrice! - discountedPrice;
-        res.custDiscounted = true;
-      } else {
-        res.unitPrice = p.latestSupplyPrice!;
-      }
-    } else {
-      res.unitPrice = p.latestSupplyPrice!;
-    }
+    res.unitPrice = p.latestSupplyPrice!
 
     res.newUnitPrice1 = p.unitPrice1
     res.newUnitPrice2 = p.unitPrice2
 
-    res.vatRateCode = p.vatRateCode;
+    res.vatRateCode = p.vatRateCode
 
-    res.vatRate = p.vatPercentage ?? 1;
+    res.vatRate = p.vatPercentage ?? 1
 
-    res.ReCalc();
+    res.ReCalc()
 
-    res.unitOfMeasure = p.unitOfMeasure;
-    res.unitOfMeasureX = p.unitOfMeasureX;
+    res.unitOfMeasure = p.unitOfMeasure
+    res.unitOfMeasureX = p.unitOfMeasureX
 
-    console.log('ProductToInvoiceLine res: ', res);
+    console.log('ProductToInvoiceLine res: ', res)
 
-    return res;
+    return res
   }
 
   IsNumber(val: string): boolean {

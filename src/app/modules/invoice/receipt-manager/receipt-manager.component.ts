@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -33,18 +33,19 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-receipt-manager',
   templateUrl: './receipt-manager.component.html',
   styleUrls: ['./receipt-manager.component.scss'],
-  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -159,7 +160,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private readonly activatedRoute: ActivatedRoute,
     router: Router,
     private readonly bbxToasterService: BbxToastrService,
-    private readonly behaviorFactory: InvoiceBehaviorFactoryService,
+    behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
   ) {
     super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
@@ -358,12 +359,8 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }, 200);
           } else {
             this.kbS.ClickCurrentElement()
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
+            selectProcutCodeInTableInput()
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
         },
         error: err => {

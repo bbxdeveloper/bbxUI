@@ -13,6 +13,16 @@ export class CommonService {
 
   constructor(private bbxToastrService: BbxToastrService, private loggerService: LoggerService, private simpleToastrService: NbToastrService,) { }
 
+  ShowErrorMessage(err: string): void {
+    setTimeout(() => {
+      this.bbxToastrService.show(
+        err,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      )
+    }, 0)
+  }
+
   HandleError(err: any, preMessage: string = "", toastrWaitForKey: boolean = true): void {
     console.log(err);
 

@@ -37,9 +37,9 @@ import { CustomerDialogTableSettings, ProductDialogTableSettings } from 'src/ass
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
@@ -48,12 +48,13 @@ import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import moment from 'moment';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-invoice-manager',
   templateUrl: './invoice-manager.component.html',
   styleUrls: ['./invoice-manager.component.scss'],
-  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -586,12 +587,8 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
             }, 200);
           } else {
             this.kbS.ClickCurrentElement()
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
+            selectProcutCodeInTableInput()
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
         },
         error: err => {
