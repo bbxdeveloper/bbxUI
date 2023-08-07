@@ -175,7 +175,7 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
       const warehouseID = wareHouse.id
       const productStock = productStocks.find(x => x.warehouseID === warehouseID)
 
-      if (!productStock || (productStock.id !== undefined && productStock.id !== 0)) {
+      if (!productStock || !(productStock.id !== undefined && productStock.id !== 0)) {
         this.bbxToastrService.show(
           Constants.MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE,
           Constants.TITLE_ERROR,
