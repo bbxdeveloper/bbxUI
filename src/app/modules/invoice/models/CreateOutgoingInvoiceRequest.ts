@@ -65,6 +65,18 @@ export class OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<Invoic
     @JsonIgnore
     "lineGrossAmount": number; // netamount + vatamount (sum invoicelines)
 
+    /**
+     * Save dialog cache
+     */
+    @JsonIgnore
+    loginName?: string = undefined
+
+    /**
+     * Save dialog cache
+     */
+    @JsonIgnore
+    username?: string = undefined
+
     constructor(init?: Partial<OutGoingInvoiceFullData>) {
         super()
         if (init) {

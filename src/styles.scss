@@ -243,3 +243,10 @@ tr.parent-of-current-keyboard-nav-selected {
 .alert-error {
   color: nb-theme(form-error-message-color);
 }
+
+// Input
+
+.mask-password {
+  -webkit-text-security: disc !important;
+  -moz-text-security: disc !important;
+}
