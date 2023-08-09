@@ -17,16 +17,12 @@ import { BaseNoFormManagerComponent } from '../../shared/base-no-form-manager/ba
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Customer } from '../../customer/models/Customer';
-import { CustomerService } from '../../customer/services/customer.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, KeyBindings, GetFooterCommandListFromKeySettings, InvRowNavKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { Router } from '@angular/router';
-import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { OneTextInputDialogComponent } from '../../shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
-import { BehaviorSubject, last, lastValueFrom, Subscription } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { InvRow } from '../models/InvRow';
 import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
@@ -67,7 +63,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     'productCode',
     'product',
     'oRealQty',
-    'nRealQty'
+    'nRealQty',
+    'oRealAmount',
+    'nRealAmount',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -117,7 +115,31 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       colWidth: '130px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
-    }
+    },
+    {
+      label: 'Rkt. ért.',
+      objectKey: 'oRealAmount',
+      colKey: 'oRealAmount',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Lelt. ért.',
+      objectKey: 'nRealAmount',
+      colKey: 'nRealAmount',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
   ];
 
   get CustomerId(): number | undefined {
@@ -175,7 +197,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private inventoryService: InventoryService,
@@ -307,6 +328,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     res.product = x.product;
     res.nRealQty = x.nRealQty;
     res.oRealQty = x.oRealQty;
+    res.oRealAmount = x.oRealAmount
+    res.nRealAmount = x.nRealAmount
 
     return res;
   }
@@ -317,26 +340,23 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     this.isLoading = true;
     await lastValueFrom(this.inventoryCtrlItemService.GetAll(params))
       .then(d => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: this.GetInvRowFromInvCtrlPeriod(x), uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, this.isPageReady);
-          if (!!d.data && d.data.length > 0) {
-            this.JumpToFirstCellAndNav();
-          }
-        } else {
-          this.bbxToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+        if (!d.succeeded || !d.data) {
+          this.bbxToastrService.showError(d.errors!.join('\n'));
+          return
+        }
+
+        console.log('GetProducts response: ', d); // TODO: only for debug
+        if (!!d) {
+          const tempData = d.data.map((x) => {
+            return { data: this.GetInvRowFromInvCtrlPeriod(x), uid: this.nextUid() };
+          });
+          this.dbData = tempData;
+          this.dbDataDataSrc.setData(this.dbData);
+          this.dbDataTable.SetPaginatorData(d);
+        }
+        this.RefreshTable(undefined, this.isPageReady);
+        if (!!d.data && d.data.length > 0) {
+          this.JumpToFirstCellAndNav();
         }
       })
       .catch(err => {
