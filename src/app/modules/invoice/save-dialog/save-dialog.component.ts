@@ -149,9 +149,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     }
   }
 
-  UserDataFocusOut(event: any): void {
-    const username = this.sumForm.controls['username'].value
-    const password = this.sumForm.controls['password'].value
+  UserDataFocusOut(event?: any): void {
+    const username = this.sumForm.controls['input_p'].value
+    const password = this.sumForm.controls['input_n'].value
     if (!HelperFunctions.isEmptyOrSpaces(username) && !HelperFunctions.isEmptyOrSpaces(password)) {
       this.authenticate()
     }
@@ -324,9 +324,26 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   ngAfterContentInit(): void {
-    this.sumForm.addControl('username', new FormControl(undefined, [Validators.required]));
-    this.sumForm.addControl('password', new FormControl(undefined, [Validators.required]));
-    this.sumForm.addControl('loginName', new FormControl(undefined, [Validators.required]));
+    this.sumForm.addControl('input_n', new FormControl(this.data.username, [Validators.required]));
+    this.sumForm.addControl('input_p', new FormControl(undefined, [Validators.required]));
+    this.sumForm.addControl('loginName', new FormControl(this.data.loginName, [Validators.required]));
+
+    this.sumForm.controls['input_n'].valueChanges.subscribe({
+      next: newValue => {
+        if (this.data.loginName !== newValue) {
+          this.loggedIn = false
+        }
+        this.data.loginName = newValue
+      }
+    })
+    this.sumForm.controls['loginName'].valueChanges.subscribe({
+      next: newValue => {
+        if (this.data.username !== newValue) {
+          this.loggedIn = false
+        }
+        this.data.username = newValue
+      }
+    })
 
     this.prepareVatRateCodes();
 
@@ -403,6 +420,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   async FocusSaveButton(): Promise<void> {
+    this.UserDataFocusOut()
     await this.checkCustomerLimits()
     this.customerLimitsChecked = true
   }
@@ -424,8 +442,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.statusService.waitForLoad(true)
 
     this.userService.CheckLoginNameAndPwd({
-      LoginName: this.sumForm.controls['username'].value,
-      Password: this.sumForm.controls['password'].value
+      LoginName: this.sumForm.controls['input_n'].value,
+      Password: this.sumForm.controls['input_p'].value
     } as LoginNameAndPwdRequest).subscribe({
       next: res => {
         if (res && Object.keys(res).includes('id') && res.id > 0) {

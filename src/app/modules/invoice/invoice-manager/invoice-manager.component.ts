@@ -842,6 +842,9 @@ export class InvoiceManagerComponent extends BaseInlineManagerComponent<InvoiceL
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
 
+    this.outGoingInvoiceData.loginName = this.tokenService.user?.name
+    this.outGoingInvoiceData.username = this.tokenService.user?.loginName
+
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
   }
 

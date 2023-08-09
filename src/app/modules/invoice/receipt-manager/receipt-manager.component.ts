@@ -565,6 +565,9 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceType = this.mode.invoiceType;
     this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
+    this.outGoingInvoiceData.loginName = this.tokenService.user?.name
+    this.outGoingInvoiceData.username = this.tokenService.user?.loginName
+
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData);
   }
 
