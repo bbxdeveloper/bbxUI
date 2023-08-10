@@ -1,6 +1,6 @@
-import { Component, Input, OnInit, Output, EventEmitter, HostListener, AfterViewInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
-import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -10,7 +10,7 @@ import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/Fl
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/Nav';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
+import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
 
 export const FORMATTED_NUMBER_COL_TYPES = [
@@ -33,7 +33,9 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
-  
+  @Input() isRowInSuccess: (row: any) => boolean = (row: any) => false
+  @Input() isRowInWarning: (row: any) => boolean = (row: any) => false
+
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
 

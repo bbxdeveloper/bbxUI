@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -402,8 +402,12 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
-  private RefreshAll(params?: GetAllInvCtrlItemsParamListModel): void {
-    this.Refresh(params);
+  public isRowInSuccess(row: TreeGridNode<InvRow>): boolean {
+    return row.data.oRealQty < row.data.nRealQty
+  }
+
+  public isRowInWarning(row: TreeGridNode<InvRow>): boolean {
+    return row.data.oRealQty > row.data.nRealQty
   }
 
   MoveToSaveButtons(event: any): void {

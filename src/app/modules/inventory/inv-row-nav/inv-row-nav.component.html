@@ -47,6 +47,7 @@
     <nb-card-body>
         <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="470" [wide]="true" [allColumns]="allColumns"
             [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
+            [isRowInSuccess]="isRowInSuccess" [isRowInWarning]="isRowInWarning"
             [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
         </app-flat-design-table>

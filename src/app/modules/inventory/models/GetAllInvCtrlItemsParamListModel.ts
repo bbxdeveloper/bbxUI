@@ -4,4 +4,5 @@ export interface GetAllInvCtrlItemsParamListModel {
     OrderBy?: string;
     PageSize?: number;
     PageNumber?: number;
+    ShowDeficit?: boolean;
 }
