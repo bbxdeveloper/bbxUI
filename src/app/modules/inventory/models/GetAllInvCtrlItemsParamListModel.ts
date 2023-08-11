@@ -5,4 +5,7 @@ export interface GetAllInvCtrlItemsParamListModel {
     PageSize?: number;
     PageNumber?: number;
     ShowDeficit?: boolean;
+    DateFrom?: Date;
+    DateTo?: Date;
+    ID?: number;
 }

@@ -50,16 +50,15 @@ label {
     flex-direction: row;
 }
 
-// form {
-//     display: contents !important;
-// }
-
 form {
-    /* display: contents !important; */
     display: flex;
     align-items: flex-end;
     column-gap: 10px;
     flex-direction: row;
+
+    nb-radio-group {
+        display: flex;
+    }
 }
 
 .bbx-radiogroup {

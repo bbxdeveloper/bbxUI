@@ -164,12 +164,24 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   }
 
   override get getInputParams(): GetAllInvCtrlItemsParamListModel {
+    let showDeficit = null
+    switch(this.filterForm.controls['showDeficit'].value) {
+      case 'true':
+        showDeficit = true
+        break
+      case 'false':
+        showDeficit = false
+        break
+      default:
+        showDeficit = undefined
+    }
 
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
-      SearchString: this.filterForm.controls['searchString'].value
+      SearchString: this.filterForm.controls['searchString'].value,
+      ShowDeficit: showDeficit
     };
   }
 
@@ -231,7 +243,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
     this.filterForm = new FormGroup({
       invCtrlPeriod: new FormControl(undefined, [Validators.required]),
-      searchString: new FormControl(undefined, [])
+      searchString: new FormControl(undefined, []),
+      showDeficit: new FormControl(undefined, []),
     });
 
     this.InitFormDefaultValues();
