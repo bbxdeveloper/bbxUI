@@ -16,13 +16,13 @@
                         (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                 </nb-form-field>
                 <nb-radio-group formControlName="showDeficit">
-                    <nb-radio class="{{TileCssClass}}" value="true" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                    <nb-radio value="true" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         Hiány
                     </nb-radio>
-                    <nb-radio class="{{TileCssClass}}" value="false" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                    <nb-radio value="false" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         Többlet
                     </nb-radio>
-                    <nb-radio class="{{TileCssClass}}" value="null" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                    <nb-radio value="null" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         Mind
                     </nb-radio>
                 </nb-radio-group>

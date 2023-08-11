@@ -244,7 +244,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     this.filterForm = new FormGroup({
       invCtrlPeriod: new FormControl(undefined, [Validators.required]),
       searchString: new FormControl(undefined, []),
-      showDeficit: new FormControl(undefined, []),
+      showDeficit: new FormControl('null', []),
     });
 
     this.InitFormDefaultValues();
@@ -392,6 +392,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     console.log("[ngAfterViewInit]");
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    document.querySelectorAll('*[type="radio"]')
+      .forEach(element => element.classList.add(TileCssClass))
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
     this.AddSearchButtonToFormMatrix();
