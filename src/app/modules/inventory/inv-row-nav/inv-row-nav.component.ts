@@ -202,6 +202,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
   isPageReady: boolean = false;
 
+  public oRealAmountSum = 0
+  public nRealAmountSum = 0
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -360,14 +363,21 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
         console.log('GetProducts response: ', d); // TODO: only for debug
         if (!!d) {
-          const tempData = d.data.map((x) => {
+          this.oRealAmountSum = 0
+          this.nRealAmountSum = 0
+
+          this.dbData = d.data.map((x) => {
+            this.oRealAmountSum += x.oRealAmount
+            this.nRealAmountSum += x.nRealAmount
+
             return { data: this.GetInvRowFromInvCtrlPeriod(x), uid: this.nextUid() };
           });
-          this.dbData = tempData;
           this.dbDataDataSrc.setData(this.dbData);
           this.dbDataTable.SetPaginatorData(d);
         }
+
         this.RefreshTable(undefined, this.isPageReady);
+
         if (!!d.data && d.data.length > 0) {
           this.JumpToFirstCellAndNav();
         }

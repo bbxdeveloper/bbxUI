@@ -61,6 +61,18 @@ form {
     }
 }
 
+.form-row-flex {
+    justify-content: space-between;
+    align-items: center;
+
+    > div {
+        display: flex;
+        flex-direction: row;
+        column-gap: 25px;
+        margin-right: 25px;
+    }
+}
+
 .bbx-radiogroup {
     display: flex;
     flex-direction: row;

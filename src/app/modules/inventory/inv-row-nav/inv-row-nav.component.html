@@ -37,8 +37,12 @@
                 [disabled]="!!filterForm && filterForm.invalid"
                     status="primary" tabindex="-1">Keresés</button>
 
-                <app-form-control-error [form]="filterFormNav" label="leltári időszak" controlName="invCtrlPeriod">
-                </app-form-control-error>
+                <app-form-control-error [form]="filterFormNav" label="leltári időszak" controlName="invCtrlPeriod"></app-form-control-error>
+
+                <div>
+                    <div>Raktárkészlet érték összesen: {{oRealAmountSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+                    <div>Leltárkészlet érték összesen: {{nRealAmountSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+                </div>
             </div>
         </nb-card-footer>
     </nb-card>
