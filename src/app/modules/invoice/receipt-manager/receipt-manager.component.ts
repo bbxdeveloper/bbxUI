@@ -40,6 +40,8 @@ import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
+import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { BbxProductCodeInputModule } from '../../shared/custom-inputs/bbx-product-code-input/bbx-product-code-input.product-manager';
 
 @Component({
   selector: 'app-receipt-manager',
@@ -162,6 +164,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     private readonly bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
+    private productCodeManagerService: ProductCodeManagerServiceService
   ) {
     super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
     this.preventF12 = true
@@ -669,6 +672,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
+  // TODO for BbxProductCodeInputComponent: move into ProductCodeManager?
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
@@ -700,22 +704,14 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    console.log("Selecting InvoiceLine from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
-      context: {
-        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
-        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: this.outGoingInvoiceData.exchangeRate ?? 1
-      }
-    });
-    dialogRef.onClose.subscribe(async (res: Product) => {
-      console.log("Selected item: ", res);
-      await this.HandleProductChoose(res, wasInNavigationMode);
-    });
+    this.productCodeManagerService.chooseProductTrigger.next({
+      dbDataTable: this.dbDataTable,
+      rowIndex: rowIndex,
+      wasInNavigationMode: wasInNavigationMode,
+      //handleProductChooseOverrideCallback: this.HandleProductChoose.bind(this),
+      productToInvoiceLine: this.ProductToInvoiceLine.bind(this),
+      outGoingInvoiceData: this.outGoingInvoiceData
+    } as BbxProductCodeInputModule.ChooseReceiptProductRequest)
   }
 
   RefreshData(): void { }
@@ -796,6 +792,7 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
             return;
           }
           _event.preventDefault();
+          // TODO for BbxProductCodeInputComponent: move into ProductCodeManager?
           this.CreateProduct(event.RowPos, product => {
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });

@@ -13,6 +13,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
+import { BbxProductCodeInputModule } from '../custom-inputs/bbx-product-code-input/bbx-product-code-input.product-manager';
 
 export interface InputFocusChangedEvent {
     Event: any,
@@ -70,6 +71,8 @@ export function selectProcutCodeInTableInput(timeout: number = 200): void {
 })
 export class InlineEditableTableComponent implements OnInit {
   @ViewChild(NbPopoverDirective) popover?: NbPopoverDirective;
+
+  @Input() productManagerType: BbxProductCodeInputModule.ProductManagerType = BbxProductCodeInputModule.ProductManagerType.NOT_DEFINED
 
   @Input() dbDataTable?: InlineEditableNavigatableTable<any>;
   @Input() allColumns: string[] = [];
@@ -166,6 +169,7 @@ export class InlineEditableTableComponent implements OnInit {
     this.dbDataTable?.HandleGridMovement(event, row, rowPos, col, colPos, upward);
   }
 
+  // TODO for BbxProductCodeInputComponent: check if can be moved into BbxProductCodeInputComponent at least partially
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridCodeFieldEnter.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {

@@ -17,6 +17,7 @@
 
     <div bottom>
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
+            [productManagerType]="mode.productManagerType"
             [dbDataDataSrc]="dbDataDataSrc" [wide]="false" [heightMargin]="740" [confirmRowDelete]="true"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
             (inputFocusChanged)="inlineInputFocusChanged($event)" (focusInTable)="focusOnTable(true)"

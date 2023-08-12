@@ -2,6 +2,7 @@ import { ValidationMessage } from "src/assets/util/ValidationMessages";
 import { InvoiceCategory } from "./InvoiceCategory";
 import { InvoiceTypes } from "./InvoiceTypes";
 import { IPartnerLock } from "src/app/services/IPartnerLock";
+import { BbxProductCodeInputModule } from "../../shared/custom-inputs/bbx-product-code-input/bbx-product-code-input.product-manager";
 
 export class InvoiceBehaviorMode {
     public invoiceCategory!: InvoiceCategory
@@ -20,6 +21,8 @@ export class InvoiceBehaviorMode {
     public quantityValidators: IQuantityValidator[] = []
 
     public title: string = ''
+
+    productManagerType: BbxProductCodeInputModule.ProductManagerType = BbxProductCodeInputModule.ProductManagerType.NOT_DEFINED
 
     get Delivery(): boolean {
         return this.invoiceType == InvoiceTypes.DNI || this.invoiceType == InvoiceTypes.DNO;

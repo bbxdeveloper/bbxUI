@@ -3,6 +3,7 @@ import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { NegativeQuantityValidator, NotZeroQuantityValidator, PositiveQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
+import { BbxProductCodeInputModule } from '../../shared/custom-inputs/bbx-product-code-input/bbx-product-code-input.product-manager';
 
 @Injectable()
 export class InvoiceBehaviorFactoryService {
@@ -144,6 +145,7 @@ export class InvoiceBehaviorFactoryService {
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.isSummaryInvoice = true
     result.title = 'Blokk'
+    result.productManagerType = BbxProductCodeInputModule.ProductManagerType.BLK
     return result
   }
 

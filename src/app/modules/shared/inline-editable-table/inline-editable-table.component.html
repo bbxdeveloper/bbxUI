@@ -49,6 +49,7 @@
                                     <app-bbx-product-code-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         class="product-code-input"
                                         [name]="InputId"
+                                        [productManagerType]="productManagerType"
                                         [(ngModel)]="row.data[it.objectKey]" [id]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
