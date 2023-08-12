@@ -47,6 +47,7 @@ import { HozirontalSplitLayoutComponent } from './layouts/hozirontal-split-layou
 import { VerticalSplitLayoutComponent } from './layouts/vertical-split-layout/vertical-split-layout.component';
 import { SingleDateDialogComponent } from './simple-dialogs/single-date-dialog/single-date-dialog.component';
 import { ProductStockInformationDialogComponent } from './dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxProductCodeInputComponent } from './custom-inputs/bbx-product-code-input/bbx-product-code-input.component';
 
 
 @NgModule({
@@ -91,7 +92,8 @@ import { ProductStockInformationDialogComponent } from './dialogs/product-stock-
     HozirontalSplitLayoutComponent,
     VerticalSplitLayoutComponent,
     SingleDateDialogComponent,
-    ProductStockInformationDialogComponent
+    ProductStockInformationDialogComponent,
+    BbxProductCodeInputComponent
   ],
   imports: [
     CommonModule,
@@ -162,6 +164,7 @@ import { ProductStockInformationDialogComponent } from './dialogs/product-stock-
     HozirontalSplitLayoutComponent,
     VerticalSplitLayoutComponent,
     SingleDateDialogComponent,
+    BbxProductCodeInputComponent
   ],
   providers: [
     ConfirmationDialogComponent

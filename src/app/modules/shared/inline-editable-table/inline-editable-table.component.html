@@ -29,7 +29,8 @@
                             [style.text-align]="it.textAlign" id="{{'PRODUCT-' + colPos + '-' + rowPos}}"
                             [ngSwitch]="it.fInputType">
                             <ng-container *ngIf="!it.fReadonly">
-                                <ng-container *ngSwitchCase="'code-field'">
+                                <!-- TODO for BbxProductCodeInputComponent: remove after dev, but don't remove yet, can be useful for comparing -->
+                                <!-- <ng-container *ngSwitchCase="'code-field'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput [type]="it.type" [name]="InputId"
                                         [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
@@ -39,6 +40,21 @@
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
                                         class="input-table-cell select-first-char"
                                         [style.text-align]="it.textAlign" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container> -->
+                                <ng-container *ngSwitchCase="'code-field'">
+                                    <app-bbx-product-code-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        class="product-code-input"
+                                        [name]="InputId"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
+                                        [input_class]="'input-table-cell select-first-char'"
+                                        [style_text_align]="it.textAlign" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false">
+                                    </app-bbx-product-code-input>
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
