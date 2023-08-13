@@ -32,6 +32,7 @@ import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
+import { CsvExport } from '../models/CsvExport';
 
 @Component({
   selector: 'app-inv-row-nav',
@@ -163,25 +164,24 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     return this.filterForm.controls['invCtrlPeriod'].value;
   }
 
-  override get getInputParams(): GetAllInvCtrlItemsParamListModel {
-    let showDeficit = null
+  get showDeficit(): boolean|undefined {
     switch(this.filterForm.controls['showDeficit'].value) {
       case 'true':
-        showDeficit = true
-        break
+        return true
       case 'false':
-        showDeficit = false
-        break
+        return false
       default:
-        showDeficit = undefined
+        return undefined
     }
+  }
 
+  override get getInputParams(): GetAllInvCtrlItemsParamListModel {
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
       SearchString: this.filterForm.controls['searchString'].value,
-      ShowDeficit: showDeficit
+      ShowDeficit: this.showDeficit
     };
   }
 
@@ -459,6 +459,22 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
   RecalcNetAndVat(): void { }
 
+  private async csvExport(): Promise<void> {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return
+    }
+
+    this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
+
+    this.printAndDownLoadService.download_csv({
+      report_params: {
+        InvCtrlPeriodID: Number(this.SelectedInvCtrlPeriod?.id),
+        SearchString: this.filterForm.controls['searchString'].value ?? '',
+        ShowDeficit: this.showDeficit,
+      } as CsvExport
+    } as Constants.Dct, this.inventoryCtrlItemService.csvExport.bind(this.inventoryCtrlItemService))
+  }
+
   HandleFunctionKey(event: Event | KeyBindings): void {
     const val = event instanceof Event ? (event as KeyboardEvent).code : event;
     console.log(`[HandleFunctionKey]: ${val}`);
@@ -528,7 +544,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }
     switch (event.key) {
       case this.KeySetting[Actions.Search].KeyCode:
-      case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
       case this.KeySetting[Actions.Create].KeyCode:
@@ -542,6 +557,11 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         event.stopImmediatePropagation();
         event.stopPropagation();
         this.HandleFunctionKey(event);
+        break;
+      case this.KeySetting[Actions.CSV].KeyCode:
+        HelperFunctions.StopEvent(event)
+
+        this.csvExport()
         break;
     }
   }

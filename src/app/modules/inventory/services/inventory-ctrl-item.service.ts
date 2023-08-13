@@ -83,4 +83,17 @@ export class InventoryCtrlItemService {
 
     return firstValueFrom(response)
   }
+
+  public csvExport(params: Constants.Dct): Observable<any> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('charset', 'utf8')
+      .set('accept', 'text/csv')
+
+    return this.http.get(
+      `${this.BaseUrl}/csv?${queryParams}`,
+      { responseType: 'blob', headers: headers, observe: 'response' })
+  }
 }
