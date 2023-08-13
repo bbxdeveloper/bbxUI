@@ -337,19 +337,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       });
   }
 
-  private GetInvRowFromInvCtrlPeriod(x: InvCtrlItemForGet): InvRow {
-    let res = new InvRow();
-
-    res.productCode = x.productCode
-    res.product = x.product;
-    res.nRealQty = x.nRealQty;
-    res.oRealQty = x.oRealQty;
-    res.oRealAmount = x.oRealAmount
-    res.nRealAmount = x.nRealAmount
-
-    return res;
-  }
-
   override async Refresh(params?: GetAllInvCtrlItemsParamListModel, jumpToFirstTableCell: boolean = false): Promise<void> {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.refreshComboboxData();
@@ -370,7 +357,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
             this.oRealAmountSum += x.oRealAmount
             this.nRealAmountSum += x.nRealAmount
 
-            return { data: this.GetInvRowFromInvCtrlPeriod(x), uid: this.nextUid() };
+            return { data: InvRow.fromInvCtrlItemForGet(x), uid: this.nextUid() };
           });
           this.dbDataDataSrc.setData(this.dbData);
           this.dbDataTable.SetPaginatorData(d);
@@ -426,14 +413,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
   private AddSearchButtonToFormMatrix(): void {
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
-  }
-
-  public isRowInSuccess(row: TreeGridNode<InvRow>): boolean {
-    return row.data.oRealQty < row.data.nRealQty
-  }
-
-  public isRowInWarning(row: TreeGridNode<InvRow>): boolean {
-    return row.data.oRealQty > row.data.nRealQty
   }
 
   MoveToSaveButtons(event: any): void {

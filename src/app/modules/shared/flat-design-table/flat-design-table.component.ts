@@ -12,6 +12,8 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
+import { isIStatusProvider } from '../IStatusProvider';
+import { Status } from "../Status";
 
 export const FORMATTED_NUMBER_COL_TYPES = [
   'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
@@ -33,8 +35,6 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
-  @Input() isRowInSuccess: (row: any) => boolean = (row: any) => false
-  @Input() isRowInWarning: (row: any) => boolean = (row: any) => false
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -115,5 +115,17 @@ export class FlatDesignTableComponent implements OnInit {
     }
     classes += this.sideBarService.sideBarOpened ? ' card-table-wrapper-opened-form' : ' card-table-wrapper-closed-form';
     return classes;
+  }
+
+  private getStatus(row: TreeGridNode<any>): Status {
+    return isIStatusProvider(row.data) ? row.data.getStatus() : Status.None
+  }
+
+  public isRowSuccess(row: TreeGridNode<any>): boolean {
+    return this.getStatus(row) === Status.Success
+  }
+
+  public isRowWarning(row: TreeGridNode<any>): boolean {
+    return this.getStatus(row) === Status.Warning
   }
 }
