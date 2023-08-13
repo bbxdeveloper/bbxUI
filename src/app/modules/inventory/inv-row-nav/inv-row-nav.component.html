@@ -8,26 +8,27 @@
 <div class="filter-div">
     <nb-card class="filter-card">
         <nb-card-body class="filter-card-body">
-            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
+            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
-                <div class="form-row">
-                    <table class="customer-search-row">
-                        <tr>
-                            <td>
-                                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
-                                    <label>Keresés</label>
-                                    <input nbInput type="text" formControlName='searchString' class="{{TileCssClass}}"
-                                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
-                                </nb-form-field>
-                            </td>
-                            <td>
-                                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="filterFormNav"
-                                    [needBlankOption]="false" [simpleMode]="true" class="block-width-of-500px"
-                                    formFieldName="invCtrlPeriod" label="Leltári időszak" [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                    <label>Keresés</label>
+                    <input nbInput type="text" formControlName='searchString' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
+                </nb-form-field>
+                <nb-radio-group formControlName="showDeficit">
+                    <nb-radio value="true" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                        Hiány
+                    </nb-radio>
+                    <nb-radio value="false" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                        Többlet
+                    </nb-radio>
+                    <nb-radio value="null" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                        Mind
+                    </nb-radio>
+                </nb-radio-group>
+                <app-bbx-combo-box [labelAboveField]="true" [needErrorMsg]="false" [currentForm]="filterFormNav"
+                    [needBlankOption]="false" [simpleMode]="true" class="block-width-of-500px"
+                    formFieldName="invCtrlPeriod" label="Leltári időszak" [data$]="invCtrlPeriodComboData$"></app-bbx-combo-box>
             </form>
         </nb-card-body>
         <nb-card-footer class="offer-footer">
@@ -36,8 +37,12 @@
                 [disabled]="!!filterForm && filterForm.invalid"
                     status="primary" tabindex="-1">Keresés</button>
 
-                <app-form-control-error [form]="filterFormNav" label="leltári időszak" controlName="invCtrlPeriod">
-                </app-form-control-error>
+                <app-form-control-error [form]="filterFormNav" label="leltári időszak" controlName="invCtrlPeriod"></app-form-control-error>
+
+                <div>
+                    <div>Raktárkészlet érték összesen: {{oRealAmountSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+                    <div>Leltárkészlet érték összesen: {{nRealAmountSum | number:'1.2':'fr' | replace:',':'.'}}</div>
+                </div>
             </div>
         </nb-card-footer>
     </nb-card>
