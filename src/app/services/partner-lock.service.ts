@@ -33,4 +33,10 @@ export class PartnerLockService implements IPartnerLock {
     return firstValueFrom(request)
       .then(x => this.customerId = undefined)
   }
+
+  public async switchCustomer(customerId: string|number): Promise<unknown> {
+    await this.unlockCustomer()
+
+    return this.lockCustomer(customerId)
+  }
 }
