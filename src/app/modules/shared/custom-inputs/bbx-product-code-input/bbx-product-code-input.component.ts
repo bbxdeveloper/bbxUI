@@ -3,7 +3,6 @@ import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR
 import { noop } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
 import { Constants } from 'src/assets/util/Constants';
-import { BbxProductCodeInputModule } from './bbx-product-code-input.product-manager';
 import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 
 @Component({
@@ -40,10 +39,6 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
   
   touched: boolean = false
 
-  @Input() productManagerType: BbxProductCodeInputModule.ProductManagerType = BbxProductCodeInputModule.ProductManagerType.NOT_DEFINED
-
-  @Input() productSelectionEnabled: boolean = true
-
   // Output
 
   @Output()
@@ -76,28 +71,14 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
     }
   }
 
-  // Products
-
-  private productManager?: BbxProductCodeInputModule.ProductManager
-
   // ctor
 
-  constructor(private logger: LoggerService, private productCodeManagerService: ProductCodeManagerServiceService) { }
+  constructor(private logger: LoggerService) { }
 
   // Lifecycle-hooks
 
   ngOnInit(): void {
     this.log(`[BbxProductCodeInputComponent] ngOnInit`)
-    this.productManager = this.productCodeManagerService.CreateProductManager(this.productManagerType)
-    if (this.productSelectionEnabled) {
-      this.productCodeManagerService.chooseProductTrigger.subscribe({
-        next: request => {
-          if (request) {
-            this.productManager?.ProcessChooseProductRequest(request)
-          }
-        }
-      })
-    }
   }
 
   // Handling events

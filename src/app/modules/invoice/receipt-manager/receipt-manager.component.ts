@@ -40,8 +40,7 @@ import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
-import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { BbxProductCodeInputModule } from '../../shared/custom-inputs/bbx-product-code-input/bbx-product-code-input.product-manager';
+import { CodeFieldChangeRequest, ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 
 @Component({
   selector: 'app-receipt-manager',
@@ -340,7 +339,18 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
         this.kbS.ClickCurrentElement();
       }, 50);
     } else {
-      this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
+      this.productCodeManagerService.TableCodeFieldChanged({
+        dbDataTable: this.dbDataTable,
+        productToGridProductConversionCallback: this.ProductToInvoiceLine,
+        changedData: row.data,
+        index: rowPos,
+        row: row,
+        rowPos: rowPos,
+        objectKey: objectKey,
+        colPos: colPos,
+        inputId: inputId,
+        fInputType: fInputType,
+      } as CodeFieldChangeRequest)
     }
   }
 
@@ -672,7 +682,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     });
   }
 
-  // TODO for BbxProductCodeInputComponent: move into ProductCodeManager?
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
@@ -704,14 +713,15 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    this.productCodeManagerService.chooseProductTrigger.next({
+    this.productCodeManagerService.ChooseDataForTableRow({
       dbDataTable: this.dbDataTable,
       rowIndex: rowIndex,
       wasInNavigationMode: wasInNavigationMode,
-      //handleProductChooseOverrideCallback: this.HandleProductChoose.bind(this),
       productToInvoiceLine: this.ProductToInvoiceLine.bind(this),
-      outGoingInvoiceData: this.outGoingInvoiceData
-    } as BbxProductCodeInputModule.ChooseReceiptProductRequest)
+      data: this.outGoingInvoiceData
+    } as ChooseProductRequest).subscribe({
+      next: (selectedProduct: Product) => this.HandleProductChoose(selectedProduct, wasInNavigationMode)
+    });
   }
 
   RefreshData(): void { }
@@ -792,7 +802,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
             return;
           }
           _event.preventDefault();
-          // TODO for BbxProductCodeInputComponent: move into ProductCodeManager?
           this.CreateProduct(event.RowPos, product => {
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });
