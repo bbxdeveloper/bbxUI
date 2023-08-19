@@ -58,7 +58,7 @@
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Mennyiség</label>
-                    <input nbInput type="text" formControlName="whsTransferAmount" readonly>
+                    <input nbInput [inputMask]="numberInputMask" type="text" formControlName="whsTransferAmount" readonly>
                 </div>
             </nb-form-field>
 
