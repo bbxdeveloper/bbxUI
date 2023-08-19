@@ -209,7 +209,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
         var discountedPrice = HelperFunctions.ToFloat(this.sumForm.controls['discountedInvoiceNetAmount'].value)
         var customerUnpaidAmount = await this.invoiceService.GetCustomerUnpaidAmount({ CustomerID: this.data.customerID })
         var sum = discountedPrice + customerUnpaidAmount
-        
+
         if (sum > maxLimit) {
           HelperFunctions.confirmOneButtonAsync(
             this.dialogService,
@@ -321,6 +321,12 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     // gross, linecount
     this.sumForm.controls['lineGrossAmount'].setValue(discountedGross);
     this.sumForm.controls['invoiceLinesCount'].setValue(this.data.invoiceLines.length);
+  }
+
+  public onInput_nBlur() {
+    if (this.sumForm.controls['input_n'].value !== this.data.username) {
+      this.sumForm.controls['loginName'].setValue('')
+    }
   }
 
   ngAfterContentInit(): void {
@@ -450,7 +456,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
           this.data.userID = res.id
 
           this.statusService.waitForLoad(false)
-          
+
           this.sumForm.controls['loginName'].setValue(res.name)
 
           this.loggedIn = true

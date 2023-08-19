@@ -256,7 +256,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
     this.isLoading = true;
 
-    const lockResult = await this.partnerLock.lockCustomer(this.buyerData.id) as any
+    const lockResult = await this.partnerLock.switchCustomer(this.buyerData.id) as any
 
     if (!lockResult?.succeeded) {
       this.isLoading = false

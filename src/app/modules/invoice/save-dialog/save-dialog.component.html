@@ -94,7 +94,7 @@
                     <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-first">
                         <label class="triple-input-column-form-field-label triple-input-column-first">Bizonylatot kiállítja</label>
                         <input class="triple-input-column-form-field-input triple-input-column-first {{TileCssClass}}" autocomplete="false"
-                        placeholder="Felhasználónév" nbInput type="text" formControlName="input_n">
+                        placeholder="Felhasználónév" nbInput type="text" formControlName="input_n" (blur)="onInput_nBlur()">
                     </div>
                 </nb-form-field>
 
@@ -102,7 +102,7 @@
                     <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-second">
                         <input class="triple-input-column-form-field-input mask-password triple-input-column-second {{TileCssClass}}" autocomplete="false"
                         placeholder="Jelszó" nbInput type="text" formControlName="input_p">
-                    </div> 
+                    </div>
                 </nb-form-field>
 
                 <nb-form-field class="triple-input-column-form-field">

@@ -13,21 +13,23 @@ export interface InvCtrlItemForPost {
 }
 
 export interface InvCtrlItemForGet {
-    "invCtrlType": string;
-    "invCtrlTypeX": string;
-    "id": number;
-    "warehouseID": number;
-    "warehouse": string;
-    "invCtlPeriodID": number;
-    "invCtlPeriod"?: any;
-    "productID": number;
-    "productCode": string;
-    "product": string;
-    "invCtrlDate": string;
-    "oRealQty": number;
-    "nRealQty": number;
-    "avgCost": number;
-    "userID": number;
+    invCtrlType: string;
+    invCtrlTypeX: string;
+    id: number;
+    warehouseID: number;
+    warehouse: string;
+    invCtlPeriodID: number;
+    invCtlPeriod?: any;
+    productID: number;
+    productCode: string;
+    product: string;
+    invCtrlDate: string;
+    oRealQty: number;
+    nRealQty: number;
+    avgCost: number;
+    userID: number;
+    oRealAmount: number;
+    nRealAmount: number;
 }
 
 export class InvCtrlItemLine extends MementoObject implements IEditable, InvCtrlItemForPost {
