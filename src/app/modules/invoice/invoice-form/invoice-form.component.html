@@ -5,7 +5,7 @@
             [data$]="paymentMethodOptions$" [simpleMode]="true" [readonly]="editDisabled"></app-bbx-combo-box-invoice>
 
         <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" *ngIf="mode.Incoming">
-            <label>Eredeti bizonylatszám</label>
+            <label>Partner bizonylatszám</label>
             <input nbInput type="text" formControlName="customerInvoiceNumber" required="true"
                 class="{{tileCssClass}}" [readonly]="editDisabled" id="m01">
 
