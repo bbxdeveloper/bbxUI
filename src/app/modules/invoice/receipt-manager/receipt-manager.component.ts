@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { of } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -10,37 +10,33 @@ import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
-import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
-import { PaymentMethod } from '../models/PaymentMethod';
-import { ProductSelectTableDialogComponent } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { ProductService } from '../../product/services/product.service';
-import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, ReceiptKeySettings } from 'src/assets/util/KeyBindings';
-import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, ReceiptKeySettings } from 'src/assets/util/KeyBindings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
-import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
-import { CodeFieldChangeRequest, ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 
 @Component({
   selector: 'app-receipt-manager',
@@ -48,23 +44,8 @@ import { CodeFieldChangeRequest, ChooseProductRequest, ProductCodeManagerService
   styleUrls: ['./receipt-manager.component.scss'],
   providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
-export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
+export class ReceiptManagerComponent extends BaseInvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  TileCssClass = TileCssClass;
-
-  senderData!: Customer;
-
-  buyersData: Customer[] = [];
-  filteredBuyerOptions$: Observable<string[]> = of([]);
-
-  paymentMethods: PaymentMethod[] = [];
-  _paymentMethods: string[] = [];
-  paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-
-  outGoingInvoiceData!: OutGoingInvoiceFullData;
-
-  isPageReady = false;
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
   requiredCols: string[] = ['productCode', 'quantity', 'unitPrice'];
@@ -117,86 +98,53 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     },
   ]
 
-  sortColumn: string = '';
-  sortDirection: NbSortDirection = NbSortDirection.NONE;
+  override outInvFormId: string = "outgoing-invoice-form";
+  override buyerFormId: string = "buyer-form";
 
-  exporterForm!: FormGroup;
-
-  outInvForm!: FormGroup;
-  outInvFormId: string = "outgoing-invoice-form";
-  outInvFormNav!: InlineTableNavigatableForm;
-
-  buyerForm!: FormGroup;
-  buyerFormId: string = "buyer-form";
-  buyerFormNav!: InlineTableNavigatableForm;
-
-  private tabIndex = 10000;
-  get NextTabIndex() { return this.tabIndex++; }
-
-  get editDisabled() {
-    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
-  }
-
-  public KeySetting: Constants.KeySettingsDct = ReceiptKeySettings;
+  override KeySetting: Constants.KeySettingsDct = ReceiptKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
-
-  public mode!: InvoiceBehaviorMode
 
   constructor(
     @Optional() dialogService: NbDialogService,
     footerService: FooterService,
-    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private readonly invoiceService: InvoiceService,
-    private readonly customerService: CustomerService,
-    private readonly cdref: ChangeDetectorRef,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
+    invoiceService: InvoiceService,
+    customerService: CustomerService,
+    cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private readonly simpleToastrService: NbToastrService,
-    private readonly bbxToastrService: BbxToastrService,
+    simpleToastrService: NbToastrService,
+    bbxToastrService: BbxToastrService,
     cs: CommonService,
     statusService: StatusService,
-    private readonly productService: ProductService,
-    private readonly status: StatusService,
+    productService: ProductService,
+    status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private readonly activatedRoute: ActivatedRoute,
+    activatedRoute: ActivatedRoute,
     router: Router,
-    private readonly bbxToasterService: BbxToastrService,
+    bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
-    private readonly tokenService: TokenStorageService,
-    private productCodeManagerService: ProductCodeManagerServiceService
+    tokenService: TokenStorageService,
+    productCodeManagerService: ProductCodeManagerServiceService,
+    printAndDownLoadService: PrintAndDownloadService,
   ) {
-    super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
+    super(dialogService, footerService, dataSourceBuilder, invoiceService,
+          customerService, cdref, kbS, simpleToastrService, bbxToastrService,
+          cs, statusService, productService, status, sideBarService, khs,
+          activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
+          productCodeManagerService, printAndDownLoadService)
     this.preventF12 = true
-    this.InitialSetup();
+    this.InitialSetup()
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
-
-      this.InitialSetup();
-      this.isPageReady = true;
+      this.path = params[0].path
+      this.InitialSetup()
+      this.isPageReady = true
     })
-    this.isPageReady = true;
+    this.isPageReady = true
   }
 
   ChooseDataForCustomerForm(): void {}
-
-  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
-    if (!event.Focused) {
-      this.dbData.forEach(x => x.data.ReCalc());
-      this.RecalcNetAndVat();
-    }
-
-    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
-      if (event.Focused) {
-        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      } else {
-        let k = this.KeySetting;
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      }
-    }
-  }
 
   private InitialSetup(): void {
     this.dbDataTableId = "invoice-inline-table-invoice-line";
@@ -296,164 +244,6 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
     let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value)
     const wrong = !!!deliveryDate
     return wrong ? { wrongDate: { value: control.value } } : null
-  }
-
-  RecalcNetAndVat(): void {
-    this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
-
-    this.outGoingInvoiceData.invoiceNetAmount =
-      this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.lineNetAmount))
-        .reduce((sum, current) => sum + current, 0);
-
-    this.outGoingInvoiceData.invoiceVatAmount =
-      this.outGoingInvoiceData.invoiceLines
-        .map(x => HelperFunctions.ToFloat(x.lineVatAmount))
-        .reduce((sum, current) => sum + current, 0);
-
-    let _paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
-      HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
-
-    this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
-
-    if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
-    } else {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
-    }
-
-    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
-    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
-  }
-
-  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!event) {
-      this.bbxToastrService.close();
-      event.stopPropagation();
-    }
-    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
-    if (this.editDisabled) {
-      this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
-      setTimeout(() => {
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.kbS.ClickCurrentElement();
-      }, 50);
-    } else {
-      this.productCodeManagerService.TableCodeFieldChanged({
-        dbDataTable: this.dbDataTable,
-        productToGridProductConversionCallback: this.ProductToInvoiceLine,
-        changedData: row.data,
-        index: rowPos,
-        row: row,
-        rowPos: rowPos,
-        objectKey: objectKey,
-        colPos: colPos,
-        inputId: inputId,
-        fInputType: fInputType,
-      } as CodeFieldChangeRequest)
-    }
-  }
-
-  private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: async product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-          if (!!product && !!product?.productCode) {
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
-            currentRow?.data.Save('productCode');
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 200);
-          } else {
-            this.kbS.ClickCurrentElement()
-            selectProcutCodeInTableInput()
-            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
-          }
-        },
-        error: err => {
-          this.cs.HandleError(err);
-        },
-        complete: () => {
-          this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
-    }
-  }
-
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    if (!!changedData && !!changedData.productCode) {
-      if ((!!col && col === 'productCode') || col === undefined) {
-        this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-          next: product => {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-            if (index !== undefined) {
-              let tmp = this.dbData[index].data;
-
-              tmp.productDescription = product.description ?? '';
-
-              product.vatPercentage = product.vatPercentage === 0 ? 0.27 : product.vatPercentage;
-              tmp.vatRate = product.vatPercentage ?? 1;
-              product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-              tmp.vatRateCode = product.vatRateCode;
-
-              tmp.ReCalc();
-
-              this.dbData[index].data = tmp;
-
-              this.dbDataDataSrc.setData(this.dbData);
-            }
-
-            this.RecalcNetAndVat();
-          },
-          error: err => {
-            this.RecalcNetAndVat();
-          }
-        });
-      } else {
-        if (index !== undefined) {
-          let tmp = this.dbData[index].data;
-
-          tmp.ReCalc();
-
-          this.dbData[index].data = tmp;
-
-          this.dbDataDataSrc.setData(this.dbData);
-        }
-
-        if (col === 'quantity' && index !== null && index !== undefined) {
-          const validationResult = this.mode.validateQuantity(changedData.quantity)
-
-          if (!validationResult) {
-            changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
-            changedData.Save()
-            return
-          }
-
-          setTimeout(() => {
-            this.bbxToasterService.show(
-              validationResult,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            )
-          }, 0);
-          this.dbData[index].data.Restore()
-
-          this.dbDataTable.ClickByObjectKey('quantity')
-        }
-
-        if (col === 'unitPrice' && index !== null && index !== undefined) {
-          changedData.Save()
-        }
-      }
-    }
   }
 
   refresh(): void {
@@ -718,15 +508,16 @@ export class ReceiptManagerComponent extends BaseInlineManagerComponent<InvoiceL
       rowIndex: rowIndex,
       wasInNavigationMode: wasInNavigationMode,
       productToInvoiceLine: this.ProductToInvoiceLine.bind(this),
-      data: this.outGoingInvoiceData
+      data: this.outGoingInvoiceData,
+      path: this.path
     } as ChooseProductRequest).subscribe({
       next: (selectedProduct: Product) => this.HandleProductChoose(selectedProduct, wasInNavigationMode)
-    });
+    })
   }
 
   RefreshData(): void { }
 
-  async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
+  override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;

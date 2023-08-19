@@ -33,8 +33,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./base-inline-manager.component.scss'],
 })
 export class BaseInlineManagerComponent<T extends IEditable> {
-  // Invoice related
-
+  // Invoice
+  // TODO: BaseInvoiceManagerComponent
   protected InvoiceType: string = InvoiceTypes.NOT_DEFINED;
   protected InvoiceCategory: string = InvoiceCategory.NOT_DEFINED
   DeliveryPaymentMethod: string = 'OTHER';
@@ -43,6 +43,8 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   // General
+
+  path: string = ''
 
   /**
    * Prevent devtools
