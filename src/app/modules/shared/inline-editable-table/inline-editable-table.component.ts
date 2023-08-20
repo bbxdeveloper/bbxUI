@@ -166,6 +166,7 @@ export class InlineEditableTableComponent implements OnInit {
     this.dbDataTable?.HandleGridMovement(event, row, rowPos, col, colPos, upward);
   }
 
+  // TODO for BbxProductCodeInputComponent: check if can be moved into BbxProductCodeInputComponent at least partially
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridCodeFieldEnter.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {

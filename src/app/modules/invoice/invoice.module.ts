@@ -32,6 +32,7 @@ import { InvoicePriceChangeDialogComponent } from './invoice-price-change-dialog
 import { CustomerInvoiceSummaryFilterFormComponent } from './customer-invoice-summary/customer-invoice-summary-filter-form/customer-invoice-summary-filter-form.component';
 import { CustomerInvoiceSummaryManagerComponent } from './customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
 import { CustomerInvoiceSummarySideBarFormComponent } from './customer-invoice-summary/customer-invoice-summary-side-bar-form/customer-invoice-summary-side-bar-form.component';
+import { BaseInvoiceManagerComponent } from './base-invoice-manager/base-invoice-manager.component';
 
 
 
@@ -60,6 +61,7 @@ import { CustomerInvoiceSummarySideBarFormComponent } from './customer-invoice-s
     CustomerInvoiceSummaryFilterFormComponent,
     CustomerInvoiceSummaryManagerComponent,
     CustomerInvoiceSummarySideBarFormComponent,
+    BaseInvoiceManagerComponent,
   ],
   imports: [
     CommonModule,

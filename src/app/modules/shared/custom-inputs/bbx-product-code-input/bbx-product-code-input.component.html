@@ -1,0 +1,11 @@
+<input autocomplete="off" type="text"
+    class="bbx-product-code-input-inner"
+    nbInput
+    [name]="name"
+    [id]="id" [(ngModel)]="value"
+    [class]="input_class"
+    [style.text-align]="style_text_align"
+    [mask]="mask" [patterns]="maskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+    (blur)="proxyBlur($event)" (focus)="proxyFocus($event)"
+    oninput="this.value = this.value.toUpperCase()"
+    [disabled]="disabled" [required]="required" [readonly]="readonly" />

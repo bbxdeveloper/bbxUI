@@ -966,12 +966,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     });
   }
 
-  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    console.log("Selecting InvoiceLine from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-  }
-
   // Invoked when user presses F2 on the search field
   ChooseDataForCustomerForm(): void {
     console.log("Selecting Customer from avaiable data.");
@@ -1132,6 +1126,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       },
     });
   }
+  
+  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void { }
 
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
