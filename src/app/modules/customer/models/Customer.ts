@@ -24,6 +24,7 @@ export interface Customer {
     additionalAddressDetail: string;
     isOwnData: boolean;
     countryCode: string,
+    countryCodeX: string,
     Region?: any,
     taxpayerId: string;
     countyCode: string;

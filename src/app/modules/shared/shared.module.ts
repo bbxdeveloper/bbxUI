@@ -48,6 +48,7 @@ import { VerticalSplitLayoutComponent } from './layouts/vertical-split-layout/ve
 import { SingleDateDialogComponent } from './simple-dialogs/single-date-dialog/single-date-dialog.component';
 import { ProductStockInformationDialogComponent } from './dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxProductCodeInputComponent } from './custom-inputs/bbx-product-code-input/bbx-product-code-input.component';
+import { EditCustomerDialogComponent } from './edit-customer-dialog/edit-customer-dialog.component';
 
 
 @NgModule({
@@ -93,7 +94,8 @@ import { BbxProductCodeInputComponent } from './custom-inputs/bbx-product-code-i
     VerticalSplitLayoutComponent,
     SingleDateDialogComponent,
     ProductStockInformationDialogComponent,
-    BbxProductCodeInputComponent
+    BbxProductCodeInputComponent,
+    EditCustomerDialogComponent
   ],
   imports: [
     CommonModule,
