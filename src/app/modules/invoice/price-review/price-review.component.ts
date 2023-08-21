@@ -198,6 +198,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   private invoiceId: number = -1
   public mode!: InvoiceBehaviorMode
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -827,6 +835,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.kbS.Detach();
 
     this.mode.partnerLock?.unlockCustomer()
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {

@@ -165,6 +165,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     footerService: FooterService,
@@ -227,13 +235,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   private InitialSetup(): void {
-    this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
-      this.buyerData = customer
-      this.cachedCustomerName = customer.customerName;
-      this.buyerFormNav.FillForm(customer, ['customerSearch']);
-      this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
-      this.searchByTaxtNumber = false;
-    })
+
 
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
@@ -615,6 +617,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
