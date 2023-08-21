@@ -22,22 +22,22 @@ export class EditCustomerDialogManagerService {
     private readonly statusService: StatusService,
   ) { }
 
-  public open(customer: Customer|undefined) {
-    const canOpen = !EditCustomerDialogComponent.opened && customer
+  public open(customerId: number|undefined) {
+    const canOpen = !EditCustomerDialogComponent.opened && customerId
     if (!canOpen) {
       return
     }
 
     const userConfig = {
       context: {
-        customer
+        customerId
       }
     }
 
     this.dialogService.open(EditCustomerDialogComponent, userConfig)
       .onClose.subscribe(refresh => {
         if (refresh) {
-          this.refreshCustomer(customer!.id)
+          this.refreshCustomer(customerId!)
         }
       })
   }

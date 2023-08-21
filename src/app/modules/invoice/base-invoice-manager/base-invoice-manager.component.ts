@@ -33,6 +33,7 @@ import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -104,7 +105,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     behaviorFactory: InvoiceBehaviorFactoryService,
     protected readonly tokenService: TokenStorageService,
     protected productCodeManagerService: ProductCodeManagerServiceService,
-    protected printAndDownLoadService: PrintAndDownloadService
+    protected printAndDownLoadService: PrintAndDownloadService,
+    protected readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
   }
@@ -290,6 +292,12 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
           changedData.Save()
         }
       }
+    }
+  }
+
+  protected editCustomer(): void {
+    if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
+      this.editCustomerDialog.open(this.customerData?.id)
     }
   }
 }

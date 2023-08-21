@@ -5,10 +5,10 @@ import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keybo
 import { AttachDirection, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Navigatable';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { CustomerMisc } from '../../customer/models/CustomerMisc';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin, tap } from 'rxjs';
 import { CustomerService } from '../../customer/services/customer.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { CountryCode, OfflineCountryCodes } from '../../customer/models/CountryCode';
+import { CountryCode } from '../../customer/models/CountryCode';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -16,6 +16,7 @@ import { SystemService } from '../../system/services/system.service';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { Customer } from '../../customer/models/Customer';
 import { NbDialogRef, NbDialogService } from '@nebular/theme';
+import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 
 @Component({
   selector: 'app-edit-customer-dialog',
@@ -33,7 +34,10 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
   }
 
   @Input()
-  public customer: Customer|undefined
+  public customerId: number|undefined
+
+  private customer: Customer|undefined
+  private isCustomerPrivatePerson = false
 
   get isHuCountryCodeSet(): boolean {
     const countryCode = this.formNav?.form.controls['countryCode']?.value ?? '';
@@ -102,37 +106,40 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
 
   override ngOnInit(): void {
     this.statusService.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-    this.customerService.GetAllCountryCodes()
+    const countryCodesRequest = this.customerService.GetAllCountryCodes()
+
+    const customerRequestParams = {
+      ID: this.customerId
+    } as GetCustomerParamListModel
+    const customerRequest = this.customerService.Get(customerRequestParams)
+
+    forkJoin([countryCodesRequest, customerRequest])
       .pipe(
-        tap(() => this.statusService.pushProcessStatus(Constants.BlankProcessStatus))
-      )
-      .subscribe(data => {
-        this._countryCodes = data;
-        this.countryCodes = data?.map(x => x.text) ?? [];
-        this.countryCodeComboData$.next(this.countryCodes);
+        tap(() => this.statusService.pushProcessStatus(Constants.BlankProcessStatus)),
+        tap(responses => {
+          this._countryCodes = responses[0]
+          this.countryCodes = responses[0].map(x => x.text) ?? [];
+          this.countryCodeComboData$.next(this.countryCodes);
+        }),
+        tap(responses => {
+          this.customer = responses[1]
+          this.isCustomerPrivatePerson = responses[1].customerVatStatus === 'PRIVATE_PERSON'
 
-        const countryCode = this.formNav?.form.controls['countryCode']
-        if (HelperFunctions.isEmptyOrSpaces(countryCode.value) && this.countryCodes.length > 0) {
-          const tmp = this.countryCodes.find(x => x === OfflineCountryCodes.Hu.text) ?? this.countryCodes[0]
-          countryCode.setValue(tmp)
-        }
-        if (!this.customer) {
-          return
-        }
-
-        this.customerForm.patchValue({
-          id: this.customer.id,
-          customerName: this.customer.customerName,
-          customerBankAccountNumber: this.customer.customerBankAccountNumber,
-          taxpayerNumber: this.customer.taxpayerNumber,
-          thirdStateTaxId: this.customer.thirdStateTaxId,
-          postalCode: this.customer.postalCode,
-          countryCode: this._countryCodes.find(x => x.value === this.customer?.countryCode)?.text,
-          city: this.customer.city,
-          additionalAddressDetail: this.customer.additionalAddressDetail,
-          privatePerson: this.customer.privatePerson,
+          this.customerForm.patchValue({
+            id: this.customer.id,
+            customerName: this.customer.customerName,
+            customerBankAccountNumber: this.customer.customerBankAccountNumber,
+            taxpayerNumber: this.customer.taxpayerNumber,
+            thirdStateTaxId: this.customer.thirdStateTaxId,
+            postalCode: this.customer.postalCode,
+            countryCode: this._countryCodes.find(x => x.value === this.customer?.countryCode)?.text,
+            city: this.customer.city,
+            additionalAddressDetail: this.customer.additionalAddressDetail,
+            privatePerson: this.isCustomerPrivatePerson,
+          })
         })
-      })
+      )
+      .subscribe()
   }
 
   ngAfterViewInit(): void {
@@ -160,18 +167,14 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
   }
 
   public ok(): void {
-    if (!this.customerForm.dirty) {
-      this.dialogRef.close(false)
-    }
-
     const isPrivatePerson = this.customerForm.controls['privatePerson'].value
 
     let msg: string|undefined
-    if (this.customer?.privatePerson && !isPrivatePerson) {
+    if (this.isCustomerPrivatePerson && !isPrivatePerson) {
       msg = 'A partnert áfaalanyra módosítjuk?'
     }
 
-    if (!this.customer?.privatePerson && isPrivatePerson) {
+    if (!this.isCustomerPrivatePerson && isPrivatePerson) {
       msg = 'A partnert magánszemélyre módosítjuk?'
     }
 
