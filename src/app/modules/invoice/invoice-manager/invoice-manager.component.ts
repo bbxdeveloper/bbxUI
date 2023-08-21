@@ -46,7 +46,7 @@ import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { EditCustomerDialogComponent } from '../../shared/edit-customer-dialog/edit-customer-dialog.component';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -188,7 +188,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
-    private custDiscountService: CustomerDiscountService
+    private custDiscountService: CustomerDiscountService,
+    private readonly editCustomerDialog: EditCustomerDialogManagerService
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
@@ -225,6 +226,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   private InitialSetup(): void {
+    this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+      this.buyerData = customer
+      this.cachedCustomerName = customer.customerName;
+      this.buyerFormNav.FillForm(customer, ['customerSearch']);
+      this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+      this.searchByTaxtNumber = false;
+    })
+
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 
@@ -1003,40 +1012,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     });
   }
 
-  private refreshCustomer(): void  {
-    const request = {
-      ID: this.customerData.id,
-      PageSize: '1',
-      OrderBy: 'customerName'
-    } as GetCustomersParamListModel
-
-    this.isLoading = true
-    this.customerService.GetAll(request)
-      .subscribe({
-        next: res => {
-          if (!res.succeeded) {
-            this.cs.HandleError(res.errors)
-            return
-          }
-
-          if (res.data && res.data.length > 0) {
-            this.buyerData = res.data[0]
-            this.cachedCustomerName = res.data[0].customerName;
-            this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
-            this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
-            this.searchByTaxtNumber = false;
-          }
-        },
-        error: err => {
-          this.isLoading = false
-          this.cs.HandleError(err)
-        },
-        complete: () => {
-          this.isLoading = false
-        }
-      })
-  }
-
   private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
@@ -1206,27 +1181,13 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           break;
         }
         case this.KeySetting[Actions.Edit].KeyCode: {
-          const canOpenDialog = this.customerData?.id &&
-            this.kbS.IsCurrentNavigatable(this.buyerFormNav) &&
-            !EditCustomerDialogComponent.opened
-
-          if (!canOpenDialog) {
-            break;
-          }
-
           HelperFunctions.StopEvent(event)
 
-          const dialog = this.dialogService.open(EditCustomerDialogComponent, {
-            context: {
-              customer: this.customerData
-            }
-          })
+          if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
+            const customer = this.customerData?.id ? this.customerData : undefined
 
-          dialog.onClose.subscribe(refresh => {
-            if (refresh) {
-              this.refreshCustomer()
-            }
-          })
+            this.editCustomerDialog.open(customer)
+          }
           break;
         }
       }

@@ -58,8 +58,6 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
   TileCssClass = TileCssClass
   TileCssColClass = TileCssColClass
 
-  public isReadonly = false
-
   constructor(
     private readonly keyboardService: KeyboardNavigationService,
     private readonly cdref: ChangeDetectorRef,
