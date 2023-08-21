@@ -295,9 +295,10 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  protected editCustomer(): void {
+  protected editCustomer(customer: Customer|undefined = undefined): void {
+    const customerData = customer ? customer : this.customerData
     if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
-      this.editCustomerDialog.open(this.customerData?.id)
+      this.editCustomerDialog.open(customerData?.id)
     }
   }
 }

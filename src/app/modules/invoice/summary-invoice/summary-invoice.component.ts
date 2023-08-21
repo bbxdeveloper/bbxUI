@@ -165,6 +165,14 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   private originalCustomerID: number = -1
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     footerService: FooterService,
@@ -763,6 +771,8 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.kbS.Detach();
 
     this.mode.partnerLock?.unlockCustomer()
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -1420,7 +1430,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         case this.KeySetting[Actions.Edit].KeyCode: {
           HelperFunctions.StopEvent(event)
 
-          this.editCustomer()
+          this.editCustomer(this.buyerData)
 
           break;
         }
