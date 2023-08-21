@@ -189,13 +189,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
     private custDiscountService: CustomerDiscountService,
-    private readonly editCustomerDialog: EditCustomerDialogManagerService
+    editCustomerDialog: EditCustomerDialogManagerService
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
       activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService)
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+
     this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
@@ -1183,11 +1184,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         case this.KeySetting[Actions.Edit].KeyCode: {
           HelperFunctions.StopEvent(event)
 
-          if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
-            const customer = this.customerData?.id ? this.customerData : undefined
+          this.editCustomer()
 
-            this.editCustomerDialog.open(customer)
-          }
           break;
         }
       }

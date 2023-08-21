@@ -37,6 +37,7 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-receipt-manager',
@@ -127,12 +128,13 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
+    editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
           customerService, cdref, kbS, simpleToastrService, bbxToastrService,
           cs, statusService, productService, status, sideBarService, khs,
           activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
-          productCodeManagerService, printAndDownLoadService)
+          productCodeManagerService, printAndDownLoadService, editCustomerDialog)
     this.preventF12 = true
     this.InitialSetup()
     this.activatedRoute.url.subscribe(params => {

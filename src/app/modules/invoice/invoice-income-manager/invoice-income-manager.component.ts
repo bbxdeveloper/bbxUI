@@ -45,6 +45,7 @@ import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -188,12 +189,14 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
+    editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
       activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService)
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+
     this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
