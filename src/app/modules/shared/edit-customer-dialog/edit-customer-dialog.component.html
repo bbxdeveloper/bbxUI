@@ -25,9 +25,8 @@
                 <app-form-control-error [form]="formNav" label="név" controlName="customerName"></app-form-control-error>
             </nb-form-field>
 
-            <!-- <app-customer-bank-account-number-input *ngIf="formNav" [onFormUpdate]="onFormUpdate"
-                [currentForm]="formNav" formFieldName="customerBankAccountNumber" label="Bankszámla" [readonlyMode]="isReadonly">
-            </app-customer-bank-account-number-input> -->
+            <app-customer-bank-account-number-input [currentForm]="formNav" formFieldName="customerBankAccountNumber" label="Bankszámla" [readonlyMode]="isReadonly">
+            </app-customer-bank-account-number-input>
 
             <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">

@@ -1227,6 +1227,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
               this.refreshCustomer()
             }
           })
+          break;
         }
       }
     }
