@@ -1,6 +1,6 @@
 <nb-form-field (keydown.enter)="currentForm?.HandleFormEnter($event)" [formGroup]="currentForm!.form">
     <div class="bbx-fd-form-field-inner-div">
-        <label>{{label}}</label>
+        <label *ngIf="label.length > 0">{{label}}</label>
 
         <input class="{{TileCssClass}}" nbInput type="text" [formControlName]="formFieldName"
             [mask]="bankAccountMask | async" (keydown)="checkBankAccountKeydownValue($event)"
