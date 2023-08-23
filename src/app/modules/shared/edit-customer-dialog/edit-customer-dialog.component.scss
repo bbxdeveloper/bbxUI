@@ -3,9 +3,20 @@
 }
 
 #customer-edit-form-id {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    column-gap: 10px;
+    row-gap: 5px;
+    align-items: center;
+
+    .whole-input {
+        grid-column-start: 2;
+        grid-column-end: 5;
+    }
+
+    .justify-self-end {
+        justify-self: end;
+    }
 }
 
 #confirm-dialog-button-no {
