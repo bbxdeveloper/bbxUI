@@ -1428,10 +1428,16 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
           break;
         }
         case this.KeySetting[Actions.Edit].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
           HelperFunctions.StopEvent(event)
 
           this.editCustomer(this.buyerData)
-
           break;
         }
       }
