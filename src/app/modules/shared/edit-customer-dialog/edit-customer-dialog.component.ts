@@ -191,6 +191,10 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
       return
     }
 
+    if (!this.customerForm.valid) {
+      return
+    }
+
     const request = { ...this.customer, ...this.customerForm.value } as Customer
     request.countryCodeX = request.countryCode
     request.countryCode = this._countryCodes.find(x => x.text === request.countryCode)?.value ?? ''
