@@ -81,6 +81,16 @@
                 <app-form-control-error [form]="formNav" label="város" controlName="city"></app-form-control-error>
             </nb-form-field>
 
+            <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Cím*</label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="additionalAddressDetail"
+                        (click)="formNav.HandleFormFieldClick($event)" required>
+                </div>
+                <app-form-control-error [form]="formNav" controlName="additionalAddressDetail"></app-form-control-error>
+            </nb-form-field>
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33" (keydown.enter)="moveToButtons($event)">
                     <label class="label-checkbox">Magánszemély</label>
