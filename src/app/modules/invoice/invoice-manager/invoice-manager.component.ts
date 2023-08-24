@@ -1186,6 +1186,10 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           break;
         }
         case this.KeySetting[Actions.Edit].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+
           HelperFunctions.StopEvent(event)
 
           this.editCustomer()
