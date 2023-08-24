@@ -166,6 +166,14 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     }
   }
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     footerService: FooterService,
@@ -667,6 +675,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
   public ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -1191,6 +1201,21 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
           }
           event.preventDefault();
           this.CreateCustomer(event);
+          break;
+        }
+        case this.KeySetting[Actions.Lock].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          HelperFunctions.StopEvent(event)
+
+          if (this.kbS.IsCurrentNavigatable(this.activeFormNav)) {
+            this.editCustomerDialog.open(this.buyerData?.id)
+          }
           break;
         }
       }

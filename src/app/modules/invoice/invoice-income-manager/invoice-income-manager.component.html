@@ -25,7 +25,8 @@
                             (focusin)="onFormSearchFocused($event, 'customerSearch')"
                             (focusout)="onFormSearchBlurred($event, 'customerSearch')"
                             (keydown.F2)="HandleKeyDown($event, true)"
-                            (keydown.F3)="HandleKeyDown($event, true)">
+                            (keydown.F3)="HandleKeyDown($event, true)"
+                            (keydown.F4)="HandleKeyDown($event, true)">
                             <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                 (click)="activeFormNav.HandleFormFieldClick($event)" maxlength="80"
                                 (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="isEditModeOff"
