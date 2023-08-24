@@ -9,7 +9,7 @@ export const environment = {
   apiVersion: "/v1/",
 
   buildType: 'non production - local dev',
-  
+
   debug: false,
 
   flatDesignFormDebug: false,
@@ -32,6 +32,8 @@ export const environment = {
   offerLineLog: false,
 
   InvSaveDlgLogs: true,
+
+  partnerLock: false,
 
   theme: 'cosmic-custom',
 

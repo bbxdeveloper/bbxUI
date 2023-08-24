@@ -13,6 +13,10 @@ export class PartnerLockService implements IPartnerLock {
   constructor(private readonly http: HttpClient) {}
 
   public lockCustomer(customerId: number|string): Promise<unknown> {
+    if (!this.shouldRun()) {
+      return Promise.resolve({ succeeded: true })
+    }
+
     const request = this.http.post(this.baseUrl + '/lock', { id: customerId })
 
     return firstValueFrom(request)
@@ -24,6 +28,10 @@ export class PartnerLockService implements IPartnerLock {
   }
 
   public unlockCustomer(): Promise<unknown> {
+    if (!this.shouldRun()) {
+      return Promise.resolve()
+    }
+
     if (!this.customerId) {
       return Promise.resolve()
     }
@@ -38,5 +46,13 @@ export class PartnerLockService implements IPartnerLock {
     await this.unlockCustomer()
 
     return this.lockCustomer(customerId)
+  }
+
+  private shouldRun(): boolean {
+    if (environment.production) {
+      return true
+    }
+
+    return environment.partnerLock
   }
 }
