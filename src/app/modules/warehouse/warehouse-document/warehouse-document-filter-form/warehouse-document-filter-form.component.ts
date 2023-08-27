@@ -11,7 +11,6 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { WareHouse } from 'src/app/modules/warehouse/models/WareHouse';
 import { WareHouseService } from 'src/app/modules/warehouse/services/ware-house.service';
 import { WarehouseDocumentFilterFormData } from './WarehouseDocumentFilterFormData';
-import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/FlatDesignNavigatableForm';
 import { OfflineWhsTransferStatus, WhsTransferStatus } from '../../models/whs/WhsTransferStatus';
 import { WhsTransferService } from '../../services/whs-transfer.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
