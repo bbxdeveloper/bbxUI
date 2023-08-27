@@ -449,7 +449,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               return;
             }
 
-            const unitPriceType = this.isOfferEditor ? 
+            const unitPriceType = this.isOfferEditor ?
               (this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit):
               undefined
 
