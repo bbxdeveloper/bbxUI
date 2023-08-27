@@ -28,7 +28,7 @@
                         (dblclick)="selectRow($event, row)"
                         [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
-                        
+
                         <ng-container>
                             <ng-container *ngSwitchCase="'code-field'">
                                 <div>
@@ -92,7 +92,5 @@
                 </ng-container>
             </ng-container>
         </table>
-
-        <div class="msg">{{responseMessage}}</div>
     </nb-card-body>
 </nb-card>
