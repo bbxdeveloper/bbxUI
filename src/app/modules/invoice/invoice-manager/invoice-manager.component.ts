@@ -235,8 +235,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   private InitialSetup(): void {
-
-
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 

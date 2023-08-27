@@ -537,7 +537,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
 
           HelperFunctions.StopEvent(event)
 
-          // this.editCustomer()
           if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
             this.editCustomerDialog.open(this.buyerData?.id)
           }
