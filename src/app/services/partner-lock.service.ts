@@ -53,6 +53,6 @@ export class PartnerLockService implements IPartnerLock {
       return true
     }
 
-    return environment.partnerLock
+    return (environment as any).partnerLock
   }
 }
