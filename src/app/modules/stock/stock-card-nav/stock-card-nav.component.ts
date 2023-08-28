@@ -32,7 +32,7 @@ import { StockCardService } from '../services/stock-card.service';
 import { Product } from '../../product/models/Product';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { ProductService } from '../../product/services/product.service';
-import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Subscription, firstValueFrom } from 'rxjs';

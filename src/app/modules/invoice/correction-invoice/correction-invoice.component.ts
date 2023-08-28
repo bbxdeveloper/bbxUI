@@ -1,11 +1,11 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { CorrectionInvoiceSelectionDialogComponent } from '../correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { Invoice } from '../models/Invoice';
 import { Customer } from '../../customer/models/Customer';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InvoiceLine } from '../models/InvoiceLine';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { CommonService } from 'src/app/services/common.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -21,11 +21,9 @@ import { Constants } from 'src/assets/util/Constants';
 import { Actions, CorrectionInvoiceKeySettings, GetFooterCommandListFromKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { GetUpdatedKeySettings } from 'src/assets/util/KeyBindings';
-import { InvoiceItemsDialogTableSettings } from 'src/assets/model/TableSettings';
 import { isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { InvoiceItemsDialogComponent } from '../invoice-items-dialog/invoice-items-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { InvoiceFormData } from '../invoice-form/InvoiceFormData';
@@ -36,12 +34,15 @@ import { InvoiceService } from '../services/invoice.service';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
+import { ChooseSummaryInvoiceProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 
 @Component({
   selector: 'app-correction-invoice',
   templateUrl: './correction-invoice.component.html',
   styleUrls: ['./correction-invoice.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, OnDestroy, AfterViewInit, IInlineManager {
   public senderData: Customer
@@ -133,6 +134,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly activatedRoute: ActivatedRoute,
     behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
+    private readonly productCodeManagerServiceService: ProductCodeManagerServiceService
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
     this.preventF12 = true
@@ -168,6 +170,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
+      this.path = params[0].path
 
       if (this.mode.incoming) {
         const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
@@ -210,7 +213,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.dialogService
       .open(CorrectionInvoiceSelectionDialogComponent, {
         context: {
-          isIncomingCorrectionInvoice: this.isIncomingCorrectionInvoice
+          isIncomingCorrectionInvoice: this.isIncomingCorrectionInvoice,
+          partnerLock: this.mode.partnerLock
         }
       })
       .onClose.subscribe(this.onCorrentionInvoiceSelectionDialogClosed.bind(this))
@@ -259,6 +263,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public ngOnDestroy(): void {
     this.kbS.Detach()
+
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   public inlineInputFocusChanged(event: any): void {
@@ -281,21 +287,14 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const event = new EventEmitter<InvoiceLine[]>(false)
-
-    event.subscribe(this.fillTableWithInvoiceLine.bind(this))
-
-    this.dialogService.open(InvoiceItemsDialogComponent, {
-      context: {
-        invoiceId: this.outGoingInvoiceData.originalInvoiceID,
-        checkedLineItems: this.dbData.map(x => x.data),
-        allColumns: InvoiceItemsDialogTableSettings.AllColumns,
-        colDefs: InvoiceItemsDialogTableSettings.ColDefs,
-        selectedItemsChanged: event
-      }
-    })
+    this.productCodeManagerServiceService.ChooseDataForTableRow({
+      dbDataTable: this.dbDataTable,
+      rowIndex: rowIndex,
+      wasInNavigationMode: wasInNavigationMode,
+      fillTableWithDataCallback: this.fillTableWithInvoiceLine.bind(this),
+      data: this.outGoingInvoiceData,
+      path: this.path,
+    } as ChooseSummaryInvoiceProductRequest)
   }
 
   private fillTableWithInvoiceLine(notes: InvoiceLine[]): void {
@@ -384,6 +383,9 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.invoiceCorrection = true
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm.invoiceFormData!.paymentMethod)
+
+    this.outGoingInvoiceData.loginName = this.tokenService.user?.name
+    this.outGoingInvoiceData.username = this.tokenService.user?.loginName
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
@@ -482,6 +484,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         const request = this.UpdateOutGoingData()
 
         var response = await this.invoiceService.createOutgoingAsync(request)
+
+        this.mode.partnerLock?.unlockCustomer()
 
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
 

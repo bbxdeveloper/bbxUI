@@ -50,15 +50,17 @@ export const SelectFirstCharClass = 'select-first-char';
 
 /**
  * Use with @see InlineEditableTableComponent to set cursor to the very beginning of input.
- * @param timeout 
+ * @param timeout
  */
-export function MoveTableInputCursorToBeginning(timeout: number = 200): void {
-  // const id = this.kbS.Here // Don't use for selection! It's the navigational ID of the cell itself, not the input.
+export function selectProcutCodeInTableInput(timeout: number = 200): void {
   setTimeout(function () {
-    document!.getElementById(EditedCellId)!.focus();
-    (document.getElementById(EditedCellId) as any)!.setSelectionRange(0, 0)
-    }, timeout
-  )
+    const input = document.getElementById(EditedCellId) as HTMLInputElement
+
+    input?.focus()
+
+    const value = input.value.replace(/_+/, '')
+    input.setSelectionRange(0, value.length)
+  }, timeout)
 }
 
 @Component({
@@ -88,6 +90,10 @@ export class InlineEditableTableComponent implements OnInit {
   @Output() tableKeyDown: EventEmitter<TableKeyDownEvent> = new EventEmitter();
 
   @Input() parent: any = undefined;
+
+  get themeClass(): string {
+    return `theme-${environment.theme}`
+  }
 
   /**
    * Proxy for @see EditedCellId to use it in the HTML.
@@ -160,6 +166,7 @@ export class InlineEditableTableComponent implements OnInit {
     this.dbDataTable?.HandleGridMovement(event, row, rowPos, col, colPos, upward);
   }
 
+  // TODO for BbxProductCodeInputComponent: check if can be moved into BbxProductCodeInputComponent at least partially
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridCodeFieldEnter.name, event)
     if (!this.khs.ShouldContinueWithEvent(event)) {

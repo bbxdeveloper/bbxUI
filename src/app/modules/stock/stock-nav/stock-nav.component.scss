@@ -42,12 +42,20 @@ label {
     @extend .label-type-1;
 }
 
+.table-card-body {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 .filter-card-body {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-wrap: nowrap;
     flex-direction: row;
+
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
 // form {

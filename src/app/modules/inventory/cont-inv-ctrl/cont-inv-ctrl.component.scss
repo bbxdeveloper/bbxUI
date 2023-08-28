@@ -1,3 +1,4 @@
+@import 'table-colors';
 @import 'common-styles';
 
 $td-height: 30px;
@@ -46,12 +47,7 @@ nb-card {
         flex-flow: wrap;
     }
 
-    tr:nth-child(even) {
-        background-color: #493668 !important;
-    }
-
     th {
-        background: rgb(35, 35, 75);
         text-align: center;
         font-weight: bold;
         font-variant: small-caps;
@@ -63,16 +59,12 @@ nb-card {
     }
 
     tr:nth-child(even) {
-        background-color: #493668 !important;
-
         th,
         td {
             height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
-
-                background-color: #5f4981 !important;
 
                 .input-table-cell {
                     width: 100%;
@@ -93,7 +85,6 @@ nb-card {
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
@@ -112,16 +103,12 @@ nb-card {
     }
 
     tr:nth-child(odd) {
-        background-color: #323258 !important;
-
         th,
         td {
             height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
-
-                background-color: #3b3b63 !important;
 
                 .input-table-cell {
                     width: 100%;
@@ -142,7 +129,6 @@ nb-card {
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
@@ -161,27 +147,18 @@ nb-card {
     }
 
     th {
-        background: rgb(35, 35, 75);
         text-align: center;
         font-weight: bold;
         font-variant: small-caps;
     }
 
-    .td-focusable:focus {
-        background: darkblue;
-    }
-
     tr:last-child {
-        background-color: #524469 !important;
-
         th,
         td {
             height: $td-height;
 
             &.table-cell-edited {
                 padding: 0px;
-
-                background-color: rgb(75, 75, 121) !important;
 
                 .input-table-cell {
                     width: 100%;
@@ -201,7 +178,6 @@ nb-card {
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;

@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Actions, GetFooterCommandListFromKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { NbDialogService, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { MoveTableInputCursorToBeginning, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -25,7 +25,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { Product } from '../../product/models/Product';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
@@ -368,6 +368,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
             if (inbetween) {
               this.dbData[index].data = inbetween;
+              this.dbData[index].data.Save('productCode')
               this.dbDataDataSrc.setData(this.dbData);
             }
           }
@@ -451,7 +452,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       .subscribe({
         next: async product => {
           if (!product?.id) {
-            MoveTableInputCursorToBeginning()
+            selectProcutCodeInTableInput()
             this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
             return
           }

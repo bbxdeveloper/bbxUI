@@ -4,7 +4,7 @@ import { InvCtrlPeriodManagerComponent } from './inv-ctrl-period-manager/inv-ctr
 import { InvCtrlPeriodSideBarFormComponent } from './inv-ctrl-period-side-bar-form/inv-ctrl-period-side-bar-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
-import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbContextMenuModule, NbActionsModule, NbPopoverModule, NbMenuModule, NbTagModule, NbCheckboxModule, NbTooltipModule, NbAutocompleteModule } from '@nebular/theme';
+import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabsetModule, NbButtonGroupModule, NbProgressBarModule, NbSpinnerModule, NbDatepickerModule, NbFormFieldModule, NbInputModule, NbContextMenuModule, NbActionsModule, NbPopoverModule, NbMenuModule, NbTagModule, NbCheckboxModule, NbTooltipModule, NbAutocompleteModule, NbRadioModule } from '@nebular/theme';
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
@@ -39,6 +39,7 @@ import { ContInvCtrlComponent } from './cont-inv-ctrl/cont-inv-ctrl.component';
     NbDatepickerModule,
     NbFormFieldModule,
     NbInputModule,
+    NbRadioModule,
     NgxMaskModule.forChild(),
     NbContextMenuModule,
     NbActionsModule,

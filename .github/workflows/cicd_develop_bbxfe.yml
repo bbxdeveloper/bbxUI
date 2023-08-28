@@ -12,12 +12,12 @@ env:
 on:
   pull_request: 
     branches: [ develop ]
-#    types: [ closed ]
+    types: [ closed ]
   workflow_dispatch:
 
 jobs:
   build:
-#    if: ${{ github.event.pull_request.merged }}
+    if: ${{ github.event.pull_request.merged }}
     name: Build bbxUI Angular project
     runs-on: ubuntu-latest
 
@@ -33,9 +33,9 @@ jobs:
       - name: Install dependencies
         run: npm install
         
-      - name: Versioning
-        run: npm version minor && npm publish && npm version patch 
-        #&& git push --tags && git push origin master
+#      - name: Versioning
+#        run: npm version minor && npm publish && npm version patch 
+#        #&& git push --tags && git push origin master
         
       - name: Build
         run: npm run build-prod
@@ -55,7 +55,7 @@ jobs:
           path: dist
 
   deploy:
-#    if: ${{ github.event.pull_request.merged }}
+    if: ${{ github.event.pull_request.merged }}
     name: Deploy to Azure
     runs-on: ubuntu-latest
     needs: build

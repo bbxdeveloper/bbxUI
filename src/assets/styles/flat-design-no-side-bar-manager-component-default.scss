@@ -1,3 +1,4 @@
+@import 'table-colors';
 @import 'common-styles';
 
 nb-form-field {
@@ -67,7 +68,6 @@ nb-card {
 
                 font-size: 1.1rem !important;
 
-                color: #ffffff;
                 font-family: Open Sans, sans-serif;
                 font-weight: 400;
                 line-height: 1.25rem;
@@ -77,7 +77,6 @@ nb-card {
 
     th {
         text-align: center;
-        background: rgb(35, 35, 75);
         padding: 0px;
         margin: 0px;
     }
@@ -100,7 +99,6 @@ nb-card {
     }
 
     tr:nth-child(even) {
-        background-color: #493668;
 
         th,
         td {
@@ -108,8 +106,6 @@ nb-card {
 
             &.table-cell-edited {
                 padding: 0px;
-
-                background-color: #5f4981 !important;
 
                 .input-table-cell {
                     width: 100%;
@@ -130,7 +126,6 @@ nb-card {
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
@@ -149,16 +144,12 @@ nb-card {
     }
 
     tr:nth-child(odd) {
-        background-color: #323258;
-
         th,
         td {
             height: 50px;
 
             &.table-cell-edited {
                 padding: 0px;
-
-                background-color: #3b3b63 !important;
 
                 .input-table-cell {
                     width: 100%;
@@ -179,7 +170,6 @@ nb-card {
 
                     font-size: 1.1rem !important;
 
-                    color: #ffffff;
                     font-family: Open Sans, sans-serif;
                     font-weight: 400;
                     line-height: 1.25rem;
@@ -198,14 +188,9 @@ nb-card {
     }
 
     th {
-        background: rgb(35, 35, 75);
         text-align: center;
         font-weight: bold;
         font-variant: small-caps;
-    }
-
-    .td-focusable:focus {
-        background: darkblue;
     }
 }
 

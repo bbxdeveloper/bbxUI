@@ -372,6 +372,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       paymentDays: Number(customer.paymentDays),
       defPaymentMethod: defPaymentMethod,
       latestDiscountPercent: HelperFunctions.ToOptionalInt(customer.latestDiscountPercent),
+      email: customer.email
     } as CreateCustomerRequest;
     return res;
   }
@@ -777,6 +778,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+
+        if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
 
         this.loggerService.info(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);

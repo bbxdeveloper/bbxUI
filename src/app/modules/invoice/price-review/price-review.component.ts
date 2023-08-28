@@ -49,12 +49,14 @@ import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-price-review',
   templateUrl: './price-review.component.html',
   styleUrls: ['./price-review.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -749,7 +751,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       const dialog = this.dialogService.open(GetPendingDeliveryNotesDialogComponent, {
         context: {
           allColumns: GetPendingDeliveryNotesDialogTableSettings.AllColumns,
-          colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
+          colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs,
+          partnerLock: this.mode.partnerLock
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -820,6 +823,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -850,6 +855,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+
+    this.outGoingInvoiceData.loginName = this.tokenService.user?.name
+    this.outGoingInvoiceData.username = this.tokenService.user?.loginName
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
@@ -926,6 +934,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         this.sts.pushProcessStatus(Constants.BlankProcessStatus)
 
+        this.mode.partnerLock?.unlockCustomer()
+
         this.simpleToastrService.show(
           Constants.MSG_SAVE_SUCCESFUL,
           Constants.TITLE_INFO,
@@ -954,12 +964,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         this.isSaveInProgress = false
       }
     });
-  }
-
-  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    console.log("Selecting InvoiceLine from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
   }
 
   // Invoked when user presses F2 on the search field
@@ -1122,6 +1126,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       },
     });
   }
+  
+  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void { }
 
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////

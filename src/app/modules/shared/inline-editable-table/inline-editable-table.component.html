@@ -1,7 +1,7 @@
 <nb-card [nbSpinner]="isLoading">
     <nb-card-body>
-        <form *ngIf="!!dbDataTable">
-            <table class="card-table-wrapper-closed-form card-table-header min-height-51" [ngClass]="getTableClasses()" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth>
+        <form *ngIf="!!dbDataTable" class="{{themeClass}}">
+            <table class="card-table-wrapper-closed-form card-table-header min-height-51 {{themeClass}}" [ngClass]="getTableClasses()" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth>
                 <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
                 <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                     <ng-container [ngSwitch]="it.type">
@@ -13,7 +13,7 @@
                 </ng-container>
             </table>
 
-            <table class="card-table-wrapper-closed-form card-table-wrapper" [ngClass]="getTableClasses()" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
+            <table class="card-table-wrapper-closed-form card-table-wrapper table-inline-editable {{themeClass}}" [ngClass]="getTableClasses()" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
                 (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)" [id]="dbDataTableId">
 
                 <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [class.error]="isRowInErrorState(row)"></tr>
@@ -30,15 +30,15 @@
                             [ngSwitch]="it.fInputType">
                             <ng-container *ngIf="!it.fReadonly">
                                 <ng-container *ngSwitchCase="'code-field'">
-                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId"
-                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
-                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                                        oninput="this.value = this.value.toUpperCase()"
+                                    <app-bbx-product-code-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        class="product-code-input"
+                                        [name]="InputId"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
-                                        class="input-table-cell select-first-char"
-                                        [style.text-align]="it.textAlign" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false" />
+                                        [input_class]="'input-table-cell select-first-char'"
+                                        [style_text_align]="it.textAlign" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false">
+                                    </app-bbx-product-code-input>
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}

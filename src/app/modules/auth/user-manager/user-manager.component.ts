@@ -14,7 +14,6 @@ import { UpdateUserRequest } from '../models/UpdateUserRequest';
 import { DeleteUserRequest } from '../models/DeleteUserRequest';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
-import { CreateUserResponseDataToUser } from '../models/CreateUserResponse';
 import { UpdateUserResponseDataToUser } from '../models/UpdateUserResponse';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
@@ -659,6 +658,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+
+        if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);

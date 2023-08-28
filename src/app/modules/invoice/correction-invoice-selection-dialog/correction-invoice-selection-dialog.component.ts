@@ -14,6 +14,7 @@ import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, Subscription, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
+import { IPartnerLock } from 'src/app/services/IPartnerLock';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -43,6 +44,9 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
   @Input()
   public isIncomingCorrectionInvoice: boolean = false
+
+  @Input()
+  public partnerLock: IPartnerLock|undefined
 
   private invoiceQuery: Subscription
 
@@ -167,8 +171,22 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     }
   }
 
-  public select(): void {
-    this.dialogRef.close(this.selectedInvoice)
+  public async select(): Promise<void> {
+    const canClose = await this.canClose()
+
+    if (canClose) {
+      this.dialogRef.close(this.selectedInvoice)
+    }
+  }
+
+  private async canClose(): Promise<boolean> {
+    if (!this.partnerLock || !this.selectedInvoice) {
+      return false
+    }
+
+    const result = await this.partnerLock.lockCustomer(this.selectedInvoice.customerID) as any
+
+    return result?.succeeded
   }
 
   public close(): void {

@@ -50,16 +50,27 @@ label {
     flex-direction: row;
 }
 
-// form {
-//     display: contents !important;
-// }
-
 form {
-    /* display: contents !important; */
     display: flex;
     align-items: flex-end;
     column-gap: 10px;
     flex-direction: row;
+
+    nb-radio-group {
+        display: flex;
+    }
+}
+
+.form-row-flex {
+    justify-content: space-between;
+    align-items: center;
+
+    > div {
+        display: flex;
+        flex-direction: row;
+        column-gap: 25px;
+        margin-right: 25px;
+    }
 }
 
 .bbx-radiogroup {

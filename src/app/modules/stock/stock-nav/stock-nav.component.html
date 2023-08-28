@@ -1,6 +1,6 @@
 <as-split direction="horizontal">
     <as-split-area [size]="50">
-        <app-head-line msg="Készlet"></app-head-line>
+        <app-head-line [compact]="true" msg="Készlet"></app-head-line>
         
         <div class="filter-div">
             <nb-card class="filter-card">
@@ -42,14 +42,13 @@
         </div>
         
         <nb-card>
-            <nb-card-body>
-                <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="600" [wide]="true" [allColumns]="allColumns"
+            <nb-card-body class="table-card-body">
+                <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="408" [wide]="true" [allColumns]="allColumns"
                     [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable"
                     [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
                     (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
                 </app-flat-design-table>
             </nb-card-body>
-            <nb-card-footer></nb-card-footer>
         </nb-card>
         
         <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>

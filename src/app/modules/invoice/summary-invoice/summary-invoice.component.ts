@@ -1,7 +1,7 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
+import { of, startWith, map, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -10,7 +10,7 @@ import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
+import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
@@ -18,11 +18,9 @@ import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
-import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
-import { PaymentMethod } from '../models/PaymentMethod';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { ProductService } from '../../product/services/product.service';
@@ -32,54 +30,41 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings, PendingDeliveryNotesTableSettings } from 'src/assets/model/TableSettings';
+import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { TableKeyDownEvent, isTableKeyDownEvent, InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
-import { PendingDeliveryNotesSelectDialogComponent } from '../pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 import { InvoiceStatisticsService } from '../services/invoice-statistics.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
-import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
+import { ChooseSummaryInvoiceProductRequest, CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 
 @Component({
   selector: 'app-summary-invoice',
   templateUrl: './summary-invoice.component.html',
   styleUrls: ['./summary-invoice.component.scss'],
-  providers: [InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
-export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
+export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  buyerData!: Customer;
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
-  TileCssClass = TileCssClass;
-  TileCssColClass = TileCssColClass;
-
   cachedCustomerName?: string;
 
-  senderData!: Customer;
-  buyerData!: Customer;
-
-  buyersData: Customer[] = [];
-  filteredBuyerOptions$: Observable<string[]> = of([]);
-
-  paymentMethods: PaymentMethod[] = [];
-  _paymentMethods: string[] = [];
-  paymentMethodOptions$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
-
-  outGoingInvoiceData!: OutGoingInvoiceFullData;
-
   customerInputFilterString: string = '';
-
-  isPageReady = false;
 
   _searchByTaxtNumber: boolean = false;
   get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
@@ -142,28 +127,12 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     },
   ]
 
-  sortColumn: string = '';
-  sortDirection: NbSortDirection = NbSortDirection.NONE;
-
-  exporterForm!: FormGroup;
-
   workNumbers: string[] = []
 
-  outInvForm!: FormGroup;
-  outInvFormId: string = "outgoing-invoice-form";
-  outInvFormNav!: InlineTableNavigatableForm;
+  override outInvFormId: string = "outgoing-invoice-form";
   outInvFormNav$: BehaviorSubject<InlineTableNavigatableForm[]> = new BehaviorSubject<InlineTableNavigatableForm[]>([]);
 
-  buyerForm!: FormGroup;
-  buyerFormId: string = "buyer-form";
-  buyerFormNav!: InlineTableNavigatableForm;
-
-  private tabIndex = 10000;
-  get NextTabIndex() { return this.tabIndex++; }
-
-  get editDisabled() {
-    return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
-  }
+  override buyerFormId: string = "buyer-form";
 
   get invoiceIssueDateValue(): Date | undefined {
     if (!!!this.outInvForm) {
@@ -183,7 +152,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
-  public KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
+  override KeySetting: Constants.KeySettingsDct = SummaryInvoiceKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   formKeyRows: any = {
@@ -195,36 +164,41 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
   private originalCustomerID: number = -1
 
-  public mode!: InvoiceBehaviorMode
-
   constructor(
     @Optional() dialogService: NbDialogService,
-    fS: FooterService,
-    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
-    private readonly seInv: InvoiceService,
-    private readonly seC: CustomerService,
-    private readonly cdref: ChangeDetectorRef,
+    footerService: FooterService,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
+    invoiceService: InvoiceService,
+    customerService: CustomerService,
+    cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
-    private readonly simpleToastrService: NbToastrService,
-    private readonly bbxToastrService: BbxToastrService,
+    simpleToastrService: NbToastrService,
+    bbxToastrService: BbxToastrService,
     cs: CommonService,
-    sts: StatusService,
-    private readonly productService: ProductService,
-    private readonly printAndDownLoadService: PrintAndDownloadService,
-    private readonly status: StatusService,
+    statusService: StatusService,
+    productService: ProductService,
+    status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    private readonly activatedRoute: ActivatedRoute,
+    activatedRoute: ActivatedRoute,
     router: Router,
-    private readonly custDiscountService: CustomerDiscountService,
-    public invoiceStatisticsService: InvoiceStatisticsService,
+    bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
-    private readonly tokenService: TokenStorageService,
+    tokenService: TokenStorageService,
+    productCodeManagerService: ProductCodeManagerServiceService,
+    printAndDownLoadService: PrintAndDownloadService,
+    protected readonly custDiscountService: CustomerDiscountService,
+    public readonly invoiceStatisticsService: InvoiceStatisticsService,
   ) {
-    super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router)
+    super(dialogService, footerService, dataSourceBuilder, invoiceService,
+      customerService, cdref, kbS, simpleToastrService, bbxToastrService,
+      cs, statusService, productService, status, sideBarService, khs,
+      activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
+      productCodeManagerService, printAndDownLoadService)
     this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
+      this.path = params[0].path
 
       if (this.mode.incoming) {
         const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
@@ -236,25 +210,6 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       this.InitialSetup()
       this.isPageReady = true;
     })
-  }
-
-  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
-    if (!event.Focused) {
-      this.dbData.forEach(x => x.data.ReCalc());
-      this.RecalcNetAndVat();
-    }
-
-    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
-      if (event.Focused) {
-        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      } else {
-        let k = this.KeySetting;
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      }
-    }
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -501,7 +456,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
   }
 
-  RecalcNetAndVat(): void {
+  override RecalcNetAndVat(): void {
     this.invoiceStatisticsService.InvoiceLines = this.dbData;
 
     this.outGoingInvoiceData.invoiceLines = this.dbData.filter(x => !x.data.IsUnfinished()).map(x => x.data);
@@ -533,7 +488,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
-  public HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  override HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
@@ -547,48 +502,25 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
     } else {
-      this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
+      //this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
+      this.productCodeManagerService.TableCodeFieldChanged({
+        dbDataTable: this.dbDataTable,
+        productToGridProductConversionCallback: this.ProductToInvoiceLine.bind(this),
+        changedData: row.data,
+        index: rowPos,
+        row: row,
+        rowPos: rowPos,
+        objectKey: objectKey,
+        colPos: colPos,
+        inputId: inputId,
+        fInputType: fInputType,
+        path: this.path,
+        onComplete: this.RecalcNetAndVat.bind(this)
+      } as CodeFieldChangeRequest)
     }
   }
 
-  private TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: async product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-          if (!!product && !!product?.productCode) {
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
-            currentRow?.data.Save('productCode');
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 200);
-          } else {
-            this.dbDataTable.data[rowPos].data.Restore('productCode');
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-          }
-        },
-        error: err => {
-          this.dbDataTable.data[rowPos].data.Restore('productCode');
-          this.cs.HandleError(err);
-        },
-        complete: () => {
-          this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
-    }
-  }
-
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+  override TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
     if (!changedData && !changedData.productCode) {
       return
     }
@@ -658,7 +590,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   refresh(): void {
-    const tempPaymentSubscription = this.seInv.GetTemporaryPaymentMethod().subscribe({
+    const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
         console.log('[GetTemporaryPaymentMethod]: ', d);
         this.paymentMethods = d;
@@ -669,7 +601,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         }
       }
     });
-    this.seInv.GetPaymentMethods().subscribe({
+    this.invoiceService.GetPaymentMethods().subscribe({
       next: d => {
         if (!!tempPaymentSubscription && !tempPaymentSubscription.closed) {
           tempPaymentSubscription.unsubscribe();
@@ -688,7 +620,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       complete: () => { },
     })
 
-    this.seC.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
+    this.customerService.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
@@ -706,7 +638,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        this.seC.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
+        this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
             // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
@@ -792,7 +724,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
           searchString: this.customerInputFilterString,
           allColumns: PendingDeliveryInvoiceSummaryDialogTableSettings.AllColumns,
           colDefs: PendingDeliveryInvoiceSummaryDialogTableSettings.ColDefs,
-          incoming: this.mode.incoming
+          incoming: this.mode.incoming,
+          partnerLock: this.mode.partnerLock
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -808,7 +741,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     }
 
     try {
-      const customer = await lastValueFrom(this.seC.Get({ ID: x.customerID }))
+      const customer = await lastValueFrom(this.customerService.Get({ ID: x.customerID }))
 
       this.originalCustomerID = customer.id
 
@@ -826,6 +759,8 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -867,6 +802,9 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.outGoingInvoiceData.invoiceCorrection = this.mode.invoiceCorrection
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+
+    this.outGoingInvoiceData.loginName = this.tokenService.user?.name
+    this.outGoingInvoiceData.username = this.tokenService.user?.loginName
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
@@ -942,16 +880,17 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
       const request = this.UpdateOutGoingData();
 
       this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-      this.seInv.CreateOutgoing(request).subscribe({
+      this.invoiceService.CreateOutgoing(request).subscribe({
         next: async d => {
           try {
-            //this.isSilentLoading = false;
             if (!!d.data) {
               console.log('Save response: ', d);
 
               if (!!d.data) {
                 this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
               }
+
+              this.mode.partnerLock?.unlockCustomer()
 
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
@@ -972,7 +911,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                 MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                 MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                Obs: this.seInv.GetReport.bind(this.seInv),
+                Obs: this.invoiceService.GetReport.bind(this.invoiceService),
                 Reset: this.DelayedReset.bind(this),
                 ReportParams: {
                   "id": d.data?.id,
@@ -1026,32 +965,18 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    console.log("Selecting InvoiceLine from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const event = new EventEmitter<PendingDeliveryNoteItem[]>()
-
-    event.subscribe(this.fillTableWithPendingNotes.bind(this))
-
-    const checkedNotes = this.dbData.map(x => {
-      const data = {
-        relDeliveryNoteInvoiceLineID: x.data.relDeliveryNoteInvoiceLineID,
-        quantity: x.data.quantity
-      } as PendingDeliveryNoteItem
-      return data
-    })
-
-    this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
-      context: {
-        allColumns: PendingDeliveryNotesTableSettings.AllColumns,
-        colDefs: PendingDeliveryNotesTableSettings.ColDefs,
-        checkedNotes: checkedNotes,
-        customerID: this.originalCustomerID,
-        selectedNotes: event,
-        mode: this.mode
-      }
-    });
+    this.productCodeManagerService.ChooseDataForTableRow({
+      dbDataTable: this.dbDataTable,
+      dbData: this.dbData,
+      rowIndex: rowIndex,
+      wasInNavigationMode: wasInNavigationMode,
+      productToInvoiceLine: this.ProductToInvoiceLine.bind(this),
+      data: this.outGoingInvoiceData,
+      path: this.path,
+      mode: this.mode,
+      originalCustomerID: this.originalCustomerID,
+      fillTableWithDataCallback: this.fillTableWithPendingNotes.bind(this)
+    } as ChooseSummaryInvoiceProductRequest);
   }
 
   private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): InvoiceLine {
@@ -1233,7 +1158,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     return discount;
   }
 
-  async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
+  override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
@@ -1244,7 +1169,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
-    if (!p.noDiscount) {
+    if (!p.noDiscount && !this.mode.incoming) {
       const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
         const discountedPrice = p.unitPrice2! * discountForPrice;
@@ -1284,7 +1209,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     this.customerInputFilterString = event.target.value ?? '';
     this.isLoading = true;
 
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
       next: res => {
@@ -1333,7 +1258,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
     data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
 
-    const countryCodes = await lastValueFrom(this.seC.GetAllCountryCodes());
+    const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
     if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
       data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
@@ -1360,7 +1285,7 @@ export class SummaryInvoiceComponent extends BaseInlineManagerComponent<InvoiceL
 
     this.isLoading = true;
 
-    this.seC.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
       next: async res => {
         if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);

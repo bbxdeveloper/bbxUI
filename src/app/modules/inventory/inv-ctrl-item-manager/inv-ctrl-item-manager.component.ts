@@ -16,7 +16,7 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
@@ -39,7 +39,7 @@ import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
-import { MoveTableInputCursorToBeginning, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -416,19 +416,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (count > 1 || (count === 1 && res.productCode !== row.data.productCode)) {
       this.dbDataTable.editedRow!.data.productCode = "";
       this.kbS.ClickCurrentElement();
-      this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_PRODUCT_ALREADY_THERE);
       this.isLoading = false;
       return;
-    } else if (checkIfCodeEqual && res.productCode === row.data.productCode) {
-      this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+    }
+
+    if (checkIfCodeEqual && res.productCode === row.data.productCode) {
       this.isLoading = false;
       return;
     }
@@ -544,12 +537,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
 
     const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('productCode')
-    if (previousValue && changedData?.productCode === previousValue) {
-      this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+    if (changedData?.productCode === previousValue) {
       return
     }
 
@@ -564,12 +552,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
             _product = product;
             await this.HandleProductSelection(_product, rowPos, false)
           } else {
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
+            selectProcutCodeInTableInput()
+            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
         },
         error: () => {

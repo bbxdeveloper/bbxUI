@@ -1,4 +1,5 @@
 import { Product } from "../../product/models/Product";
+import { ProductStock } from "./ProductStock";
 
 export class Stock {
     "id": number;
@@ -51,7 +52,10 @@ export class ExtendedStockData implements Stock, Product {
     "exhangedUnitPrice1"?: number;
     "exhangedUnitPrice2"?: number;
 
-    constructor(s: Stock) {
+    constructor(s?: Stock | ProductStock) {
+        if (s === undefined) {
+            return
+        }
         const stock = s as any;
         Object.keys(stock).forEach((key: string) => {
             (this as any)[key] = stock[key];

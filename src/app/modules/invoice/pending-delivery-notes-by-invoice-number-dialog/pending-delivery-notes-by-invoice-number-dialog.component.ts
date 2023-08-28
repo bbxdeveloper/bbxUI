@@ -5,7 +5,7 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
 
 @Component({

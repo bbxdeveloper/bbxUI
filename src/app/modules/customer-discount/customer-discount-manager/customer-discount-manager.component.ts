@@ -15,7 +15,6 @@ import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, CustDiscountKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CustomerDialogTableSettings, ProductGroupDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -36,14 +35,16 @@ import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-n
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { ProductGroupSelectTableDialogComponent } from '../product-group-select-table-dialog/product-group-select-table-dialog.component';
 import { GetProductGroupsParamListModel } from '../../product-group/models/GetProductGroupsParamListModel';
-import { TableKeyDownEvent, isTableKeyDownEvent, EditedCellId, SelectFirstCharClass, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { GetCustDiscountByCustomerParamsModel } from '../models/GetCustDiscountByCustomerParamsModel';
+import { TableKeyDownEvent, isTableKeyDownEvent, SelectFirstCharClass, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { Router } from '@angular/router';
+import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Component({
   selector: 'app-customer-discount-manager',
   templateUrl: './customer-discount-manager.component.html',
-  styleUrls: ['./customer-discount-manager.component.scss']
+  styleUrls: ['./customer-discount-manager.component.scss'],
+  providers: [PartnerLockHandlerService, PartnerLockService]
 })
 export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent<CustDiscount> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -147,6 +148,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     khs: KeyboardHelperService,
     private productGroupService: ProductGroupService,
     private custDiscountService: CustomerDiscountService,
+    private readonly partnerLock: PartnerLockHandlerService,
     router: Router
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
@@ -220,6 +222,10 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         Constants.TOASTR_ERROR
       );
     } else {
+      if (this.isLoading) {
+        return
+      }
+
       await this.refresh();
     }
   }
@@ -250,8 +256,15 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
     this.isLoading = true;
 
+    const lockResult = await this.partnerLock.switchCustomer(this.buyerData.id) as any
+
+    if (!lockResult?.succeeded) {
+      this.isLoading = false
+      return
+    }
+
     await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id !== undefined ? this.buyerData?.id : -1 }))
-    .then(res => {
+    .then(async res => {
       // Products
       this.dbData = res.map(item => ({ data: CustDiscountFromCustDiscountForGet(item) } as TreeGridNode<CustDiscount>));
 
@@ -285,6 +298,8 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.partnerLock.unlockCustomer()
   }
 
   private UpdateOutGoingData() {
@@ -317,6 +332,8 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
           try {
             if (!!d.data) {
               console.log('Save response: ', d)
+
+              this.partnerLock.unlockCustomer()
 
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
@@ -608,12 +625,8 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               return;
             }
           }
-          MoveTableInputCursorToBeginning()
-          this.bbxToastrService.show(
-            Constants.MSG_NO_PRODUCT_GROUP_FOUND,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+          selectProcutCodeInTableInput()
+          this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_GROUP_FOUND);
         },
         error: () => {
           this.dbDataTable.data[rowPos].data.Restore('productGroupCode');

@@ -30,7 +30,6 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { authInterceptorProviders } from 'src/assets/util/auth.interceptor';
 import { CustomerDiscountModule } from './modules/customer-discount/customer-discount.module';
 import { LocationModule } from './modules/location/location.module';
-import { SummaryInvoiceComponent } from './modules/invoice/summary-invoice/summary-invoice.component';
 
 registerLocaleData(localeFr, 'fr');
 
@@ -56,7 +55,7 @@ const maskConfig: Partial<IConfig> = {
     NbMenuModule.forRoot(),
     NbDialogModule.forRoot(),
     NbSidebarModule.forRoot(),
-    NbThemeModule.forRoot({ name: 'cosmic' }),
+    NbThemeModule.forRoot({ name: 'cosmic-light' }), // environment.theme works as well
     NbToastrModule.forRoot(),
     NbDatepickerModule.forRoot(),
     NbSidebarModule.forRoot(),

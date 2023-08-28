@@ -1,14 +1,7 @@
-@import 'invoice-common';
+@use 'invoice-common';
 
 .form-col-2 {
     padding: 8px 24px;
-}
-
-label.single_label {
-    align-self: center;
-    color: #3ed820;
-    font-weight: bold;
-    font-size: 20px;
 }
 
 .div-wrapper-input {
@@ -109,34 +102,6 @@ nb-card-header {
     @media (max-height: 1000px) {
         nb-card-body {
             padding: 0.2rem 0.8rem !important;
-        }
-    }
-}
-
-.form-horizontal {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    column-gap: 20px;
-
-    .last-field {
-        margin: unset;
-        max-width: unset;
-        flex-basis: 100%;
-
-        .notice {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            label {
-                white-space: nowrap;
-            }
-
-            input {
-                max-width: unset;
-            }
         }
     }
 }

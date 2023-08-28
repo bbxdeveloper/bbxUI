@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { StatusService } from 'src/app/services/status.service';
 import { ProcessStatus } from 'src/assets/model/ProcessStatus';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-status-and-spinner',
@@ -11,6 +12,10 @@ export class StatusAndSpinnerComponent {
   public _actualStatus: ProcessStatus;
   public get InProgress() { return this.sts.InProgress; }
   IsSimpleStatusMessage: boolean = true;
+
+  get themeClass(): string {
+    return `theme-${environment.theme}`
+  }
 
   constructor(private sts: StatusService) {
     this._actualStatus = {} as ProcessStatus;

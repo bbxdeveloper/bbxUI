@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { NegativeQuantityValidator, NotZeroQuantityValidator, PositiveQuantityValidator, InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 
 @Injectable()
 export class InvoiceBehaviorFactoryService {
 
-  constructor() { }
+  constructor(
+    private readonly partnerLock: PartnerLockHandlerService
+  ) { }
 
   public create(path: string): InvoiceBehaviorMode {
     let mode
@@ -81,6 +84,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceType = InvoiceTypes.NOT_DEFINED
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.title = 'Árfelülvizsg.'
+    result.partnerLock = this.partnerLock
     return result
   }
 
@@ -92,6 +96,7 @@ export class InvoiceBehaviorFactoryService {
     result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
     result.title = 'Bejövő javítószámla'
     result.unitPriceColumnTitle = 'Besz.Ár'
+    result.partnerLock = this.partnerLock
     return result
   }
 
@@ -102,6 +107,7 @@ export class InvoiceBehaviorFactoryService {
     result.incoming = false
     result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
     result.title = 'Javítószámla'
+    result.partnerLock = this.partnerLock
     return result
   }
 
@@ -151,6 +157,7 @@ export class InvoiceBehaviorFactoryService {
     result.checkCustomerLimit = true
     result.title = 'Gyűjtőszámla'
     result.useCustomersPaymentMethod = true
+    result.partnerLock = this.partnerLock
     return result
   }
 
@@ -163,6 +170,7 @@ export class InvoiceBehaviorFactoryService {
     result.isSummaryInvoice = true
     result.title = 'Be. Gyűjtőszámla'
     result.unitPriceColumnTitle = 'Besz.Ár'
+    result.partnerLock = this.partnerLock
     return result
   }
 
@@ -177,6 +185,7 @@ export class InvoiceBehaviorFactoryService {
     result.isSummaryInvoice = false
     result.title = 'Szállító vissz.'
     result.invoiceCorrection = true
+    result.partnerLock = this.partnerLock
     return result
   }
 
@@ -192,6 +201,7 @@ export class InvoiceBehaviorFactoryService {
     result.title = 'Be. Szállító vissz.'
     result.invoiceCorrection = true
     result.unitPriceColumnTitle = 'Besz.Ár'
+    result.partnerLock = this.partnerLock
     return result
   }
 }

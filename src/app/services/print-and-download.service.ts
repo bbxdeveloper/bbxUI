@@ -62,7 +62,7 @@ export class PrintAndDownloadService {
     private bbxToastrService: BbxToastrService,
     private toastrService: NbToastrService,
     private cs: CommonService) { }
-  
+
   public async printPreview(request: PrintDialogRequest): Promise<void> {
     let commandEndedSubscription = this.CommandEnded.subscribe({
       next: cmdEnded => {
@@ -88,7 +88,7 @@ export class PrintAndDownloadService {
         );
       }
     });
-    
+
     if (request.ReportParams[KEY_COPIES] !== undefined) {
       request.ReportParams[KEY_COPIES] = HelperFunctions.ToInt(request.ReportParams[KEY_COPIES]);
     }
@@ -97,7 +97,7 @@ export class PrintAndDownloadService {
 
   public async printAfterConfirm(request: PrintDialogRequest): Promise<void> {
     HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_PRINT, async () => {
-      
+
       let commandEndedSubscription = this.CommandEnded.subscribe({
         next: cmdEnded => {
           console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
@@ -136,7 +136,7 @@ export class PrintAndDownloadService {
       );
     });
   }
-  
+
   public async openPrintDialog(request: PrintDialogRequest): Promise<void> {
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
@@ -167,7 +167,7 @@ export class PrintAndDownloadService {
       await request.Reset()
       this.cs.HandleError(error)
     }
-    
+
     dialogRef?.onClose.subscribe({
       next: async res => {
         console.log("OneTextInputDialogComponent: ", res);
@@ -176,12 +176,12 @@ export class PrintAndDownloadService {
             next: async cmdEnded => {
               try {
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
-  
+
                 if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
                   commandEndedSubscription?.unsubscribe();
 
                   request.Reset();
-  
+
                   this.simpleToastrService.show(
                     request.MsgFinish,
                     Constants.TITLE_INFO,
@@ -197,7 +197,7 @@ export class PrintAndDownloadService {
               }
             },
             error: async cmdEnded => {
-              try {                
+              try {
                 console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
                 commandEndedSubscription?.unsubscribe();
 
