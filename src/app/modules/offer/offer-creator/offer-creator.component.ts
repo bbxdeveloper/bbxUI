@@ -12,7 +12,6 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from '
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
@@ -37,6 +36,7 @@ import { lastValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { ChooseCreateOfferProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-offer-creator',
@@ -57,6 +57,13 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     }
     return this.buyerForm?.controls['isBrutto'].value
   }
+
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.SetCustomerFormFields(customer)
+    this.searchByTaxtNumber = false;
+  })
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -80,7 +87,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     khs: KeyboardHelperService,
     custDiscountService: CustomerDiscountService,
     systemService: SystemService,
-    productCodeManagerServiceService: ProductCodeManagerServiceService
+    productCodeManagerServiceService: ProductCodeManagerServiceService,
+    private readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
@@ -98,7 +106,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
-    this.buyerData = {} as Customer;
 
     this.offerData = {
       customerID: -1,
@@ -250,6 +257,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): void {
@@ -519,6 +528,19 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           }
           event.preventDefault();
           this.SwitchUnitPriceAll();
+          break;
+        }
+        case this.KeySetting[Actions.Edit].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+
+          HelperFunctions.StopEvent(event)
+
+          if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
+            this.editCustomerDialog.open(this.buyerData?.id)
+          }
+
           break;
         }
       }

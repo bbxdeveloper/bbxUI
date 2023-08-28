@@ -14,7 +14,8 @@
                                     (focusin)="onFormSearchFocused($event, 'customerSearch')"
                                     (focusout)="onFormSearchBlurred($event, 'customerSearch')"
                                     (keydown.F2)="HandleKeyDown($event, true)"
-                                    (keydown.F3)="HandleKeyDown($event, true)">
+                                    (keydown.F3)="HandleKeyDown($event, true)"
+                                    (keydown.F4)="HandleKeyDown($event, true)">
                                     <label>Ügyfél keresés</label>
                                     <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
                                         maxlength="80"
@@ -85,7 +86,7 @@
                             <td>
                                 <div class="checkbox-field" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
                                     <label class="label-checkbox">Bruttó árak</label>
-                                
+
                                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isBrutto"
                                         [readonly]="isEditModeOff" (click)="buyerFormNav.HandleFormFieldClick($event)">
                                 </div>

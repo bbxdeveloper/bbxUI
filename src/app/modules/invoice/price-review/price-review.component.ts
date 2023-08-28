@@ -51,6 +51,7 @@ import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-fact
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-price-review',
@@ -197,6 +198,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   private invoiceId: number = -1
   public mode!: InvoiceBehaviorMode
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -218,7 +227,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     private readonly tokenService: TokenStorageService,
     private readonly bbxToasterService: BbxToastrService,
     router: Router,
-    behaviorFactory: InvoiceBehaviorFactoryService
+    behaviorFactory: InvoiceBehaviorFactoryService,
+    private readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -825,6 +835,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.kbS.Detach();
 
     this.mode.partnerLock?.unlockCustomer()
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -1126,7 +1138,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       },
     });
   }
-  
+
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void { }
 
   /////////////////////////////////////////////
@@ -1193,6 +1205,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       invoiceLine.priceReview = false
 
       invoiceLine.Save()
+    }
+  }
+
+  protected editCustomer(): void {
+    if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
+      this.editCustomerDialog.open(this.buyerData?.id)
     }
   }
 
@@ -1264,6 +1282,13 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           }
           event.preventDefault();
           this.CreateCustomer(event);
+          break;
+        }
+        case this.KeySetting[Actions.Edit].KeyCode: {
+          HelperFunctions.StopEvent(event)
+
+          this.editCustomer()
+
           break;
         }
       }

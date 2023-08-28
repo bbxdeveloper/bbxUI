@@ -48,6 +48,7 @@ import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { ChooseSummaryInvoiceProductRequest, CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -164,6 +165,14 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   private originalCustomerID: number = -1
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     footerService: FooterService,
@@ -189,12 +198,13 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     printAndDownLoadService: PrintAndDownloadService,
     protected readonly custDiscountService: CustomerDiscountService,
     public readonly invoiceStatisticsService: InvoiceStatisticsService,
+    editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
       activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService)
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
     this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
@@ -761,6 +771,8 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.kbS.Detach();
 
     this.mode.partnerLock?.unlockCustomer()
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -1413,6 +1425,19 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
           }
           event.preventDefault();
           this.CreateCustomer(event);
+          break;
+        }
+        case this.KeySetting[Actions.Edit].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          HelperFunctions.StopEvent(event)
+
+          this.editCustomer(this.buyerData)
           break;
         }
       }

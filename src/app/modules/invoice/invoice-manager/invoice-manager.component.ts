@@ -46,6 +46,7 @@ import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -164,6 +165,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     footerService: FooterService,
@@ -187,13 +196,15 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
-    private custDiscountService: CustomerDiscountService
+    private custDiscountService: CustomerDiscountService,
+    editCustomerDialog: EditCustomerDialogManagerService
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
       activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService)
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+
     this.preventF12 = true
     this.InitialSetup();
     this.activatedRoute.url.subscribe(params => {
@@ -604,6 +615,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -992,7 +1005,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         }
       },
       error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
+        this.cs.HandleError(err);
+        this.isLoading = false;
         this.searchByTaxtNumber = false;
       },
       complete: () => {
@@ -1169,8 +1183,18 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           this.CreateCustomer(event);
           break;
         }
+        case this.KeySetting[Actions.Edit].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+
+          HelperFunctions.StopEvent(event)
+
+          this.editCustomer()
+
+          break;
+        }
       }
     }
   }
-
 }
