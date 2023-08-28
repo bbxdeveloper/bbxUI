@@ -5,7 +5,7 @@ export const environment = {
   apiVersion: "/v1/",
 
   buildType: 'production - dev test',
-  
+
   debug: false,
 
   flatDesignFormDebug: false,
@@ -28,6 +28,8 @@ export const environment = {
   offerLineLog: false,
 
   InvSaveDlgLogs: false,
+
+  partnerLock: false,
 
   theme: 'cosmic-light',
 
