@@ -1,5 +1,5 @@
 // @import 'side-bar-form-dialog';
-@import 'flat-design-no-side-bar-manager-component-default';
+@use 'flat-design-no-side-bar-manager-component-default';
 
 $label-w-min: 185px;
 
@@ -79,24 +79,19 @@ nb-card-body {
 
 form {
     display: grid;
-    grid-template-rows: 50% 50%;
-    grid-template-columns: 50% 50%;
-    justify-items: start;
-}
-
-.double-row {
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-    flex-wrap: nowrap;
-}
-
-.double-column {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: flex-end;
-    justify-content: space-evenly;
-    margin-top: 20px;
+    grid-template-rows: repeat(2, 60px);
+    grid-template-columns: repeat(4, 300px);
     column-gap: 15px;
+    row-gap: 15px;
+    justify-items: stretch;
+    align-items: end;
+
+    nb-form-field {
+        margin: unset;
+    }
+
+    button {
+        justify-self: start;
+        align-self: end;
+    }
 }
