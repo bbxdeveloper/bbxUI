@@ -46,7 +46,30 @@ describe('template spec', () => {
 
      cy.get('[id="active-prod-search"]').click().type('Csaba partnere')
      cy.wait(1000)
-     cy.get('[role="gridcell"]').contains(' Csaba Partnere (Kártya) ').dblclick()
+     cy.get('[id="active-prod-search"]').click().type('{downArrow}{enter}')
+     cy.wait(300)
+     cy.get('[ng-reflect-name="paymentMethod"]').should('have.value','Kártya')
+
+
+     var notice = (Math.random() + 1).toString(36).substring(7);
+
+     cy.get('[ng-reflect-name="notice"]').click().type(notice)
+     cy.get('[ng-reflect-name="notice"]').click().type('{enter}')
+     cy.get('[id="invoice-inline-table-invoice-line"]').click().trigger('keydown',
+     {
+      "key": "F2",
+      "keyCode": 113,
+      "which": 113,
+      "code": "F2",
+      "location": 0,
+      "altKey": false,
+      "ctrlKey": false,
+      "metaKey": false,
+      "shiftKey": false,
+      "repeat": false
+     })
+     cy.wait(1000)
+     cy.get('[ng-reflect-name="searchString"]').click().type('CSA-BA01')
   })
 
 
