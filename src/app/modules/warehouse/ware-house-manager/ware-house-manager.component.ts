@@ -417,6 +417,10 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         event.stopPropagation();
         event.preventDefault();
 
+        if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
+
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;

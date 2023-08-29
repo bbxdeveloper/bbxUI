@@ -12,36 +12,31 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from '
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { todaysDate, validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { Customer } from '../../customer/models/Customer';
-import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { ProductService } from '../../product/services/product.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { ProductSelectTableDialogComponent } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { OfferLine, OfferLineForPost } from '../models/OfferLine';
 import { OfferService } from '../services/offer.service';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, OfferCreatorKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, OfferCreatorKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
-import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { GetOfferParamsModel } from '../models/GetOfferParamsModel';
 import { BaseOfferEditorComponent } from '../base-offer-editor/base-offer-editor.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { InputFocusChangedEvent, isTableKeyDownEvent, TableKeyDownEvent, MoveTableInputCursorToBeginning } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { isTableKeyDownEvent, TableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { lastValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
+import { ChooseCreateOfferProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-offer-creator',
@@ -54,7 +49,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   override KeySetting: Constants.KeySettingsDct = OfferCreatorKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
-  offerData!: CreateOfferRequest;
+  override offerData!: CreateOfferRequest;
 
   get IsBrutto(): boolean {
     if (HelperFunctions.isEmptyOrSpaces(this.buyerForm?.controls['isBrutto']?.value)) {
@@ -62,6 +57,13 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     }
     return this.buyerForm?.controls['isBrutto'].value
   }
+
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.SetCustomerFormFields(customer)
+    this.searchByTaxtNumber = false;
+  })
 
   constructor(
     @Optional() dialogService: NbDialogService,
@@ -84,58 +86,19 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     sidebarService: BbxSidebarService,
     khs: KeyboardHelperService,
     custDiscountService: CustomerDiscountService,
-    systemService: SystemService
+    systemService: SystemService,
+    productCodeManagerServiceService: ProductCodeManagerServiceService,
+    private readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
       seC, cdref, kbS, bbxToastrService, simpleToastrService, cs,
       sts, productService, printAndDownLoadService, router, vatRateService, route, sidebarService, khs, custDiscountService,
-      systemService
+      systemService, productCodeManagerServiceService
     );
     this.isLoading = false;
     this.InitialSetup();
     this.isOfferEditor = false
-  }
-
-  public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
-    this.dbData[event.RowPos].data.ReCalc(
-      event.FieldDescriptor.objectKey === "unitPrice",
-      this.SelectedCurrency?.value ?? CurrencyCodes.HUF,
-      this.offerData.exchangeRate ?? 1
-    );
-
-    if (event?.FieldDescriptor?.keySettingsRow && event?.FieldDescriptor?.keyAction) {
-      if (event.Focused) {
-        let k = GetUpdatedKeySettings(this.KeySetting, event.FieldDescriptor.keySettingsRow, event.FieldDescriptor.keyAction);
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      } else {
-        let k = this.KeySetting;
-        this.commands = GetFooterCommandListFromKeySettings(k);
-        this.fS.pushCommands(this.commands);
-      }
-    }
-  }
-
-  override RecalcNetAndVat(): void {
-    console.log("RecalcNetAndVat: ", this.dbData, this.dbData.filter(x => !x.data.IsUnfinished()), this.dbData[0].data.UnitPriceVal);
-
-    this.offerData.offerNetAmount =
-      HelperFunctions.Round(this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => HelperFunctions.ToFloat(x.data.UnitPriceVal))
-        .reduce((sum, current) => sum + current, 0));
-
-    console.log("RecalcNetAndVat after: ", this.offerData.offerNetAmount);
-
-    this.offerData.offerGrossAmount =
-      HelperFunctions.Round(this.dbData.filter(x => !x.data.IsUnfinished())
-        .map(x => (HelperFunctions.ToFloat(x.data.UnitGrossVal)))
-        .reduce((sum, current) => sum + current, 0));
-
-    if (this.SelectedCurrency?.value != CurrencyCodes.HUF) {
-      this.offerData.offerNetAmount = HelperFunctions.Round2(this.offerData.offerNetAmount, 1);
-      this.offerData.offerGrossAmount = HelperFunctions.Round2(this.offerData.offerGrossAmount, 1);
-    }
   }
 
   override InitialSetup(): void {
@@ -143,7 +106,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
-    this.buyerData = {} as Customer;
 
     this.offerData = {
       customerID: -1,
@@ -295,6 +257,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): void {
@@ -412,283 +376,21 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
-  async HandleProductChoose(product: Product, rowPos: number): Promise<void> {
-    if (!product) {
-      return
-    }
-
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-
-    if (this.dbDataTable.data[rowPos].data.productID === product.id) {
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-      this.dbDataTable.MoveNextInTable();
-      setTimeout(() => {
-        this.kbS.setEditMode(KeyboardModes.EDIT);
-        this.kbS.ClickCurrentElement();
-      }, 500);
-      return;
-    }
-
-    const unitPriceType = this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit
-
-    await lastValueFrom(this.vatRateService.GetAll({} as GetVatRatesParamListModel))
-      .then(async d => {
-        if (!d.data) {
-          this.cs.HandleError(d.errors);
-
-          let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-            data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-          });
-          currentRow?.data.Save('productCode');
-
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.MoveNextInTable();
-          setTimeout(() => {
-            this.kbS.setEditMode(KeyboardModes.EDIT);
-            this.kbS.ClickCurrentElement();
-          }, 500);
-        }
-
-        console.log('Vatrates: ', d.data);
-
-        let vatRateFromProduct = d.data!.find(x => x.vatRateCode === product.vatRateCode);
-
-        if (vatRateFromProduct === undefined) {
-          this.bbxToastrService.show(
-            `Áfa a kiválasztott termékben található áfakódhoz (${product.vatRateCode}) nem található.`,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
-        }
-
-        if (!product.noDiscount) {
-          await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-            .then(data => {
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-              });
-              currentRow?.data.Save('productCode');
-              const _d = this.dbData[rowPos].data;
-              this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-            })
-            .catch(err => {
-              this.cs.HandleError(d.errors);
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-              });
-              currentRow?.data.Save('productCode');
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-            })
-            .finally(() => { });
-        } else {
-          let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-            data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-          });
-          currentRow?.data.Save('productCode');
-          const _d = this.dbData[rowPos].data;
-          this.dbData[rowPos].data.discount = 0;
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          this.dbDataTable.MoveNextInTable();
-          setTimeout(() => {
-            this.kbS.setEditMode(KeyboardModes.EDIT);
-            this.kbS.ClickCurrentElement();
-          }, 500);
-        }
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-
-        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-          data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-        });
-        currentRow?.data.Save('productCode');
-
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.dbDataTable.MoveNextInTable();
-        setTimeout(() => {
-          this.kbS.setEditMode(KeyboardModes.EDIT);
-          this.kbS.ClickCurrentElement();
-        }, 500);
-      })
-      .finally(() => {});
-
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-  }
-
   override ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    console.log("Selecting InvoiceLine from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    this.offerData.exchangeRate = HelperFunctions.ToFloat(this.buyerForm.controls['exchangeRate'].value ?? 1);
-
-    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
-      context: {
-        searchString: this.dbDataTable.editedRow?.data.productCode ?? '',
-        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
-        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: this.offerData.exchangeRate,
-        currency: this.SelectedCurrency?.value ?? CurrencyCodes.HUF
+    this.productCodeManagerService.ChooseDataForTableRow({
+      dbDataTable: this.dbDataTable,
+      rowIndex: rowIndex,
+      wasInNavigationMode: wasInNavigationMode,
+      data: this.offerData,
+      path: this.path,
+      SelectedCurrency: this.SelectedCurrency,
+      buyerForm: this.buyerForm
+    } as ChooseCreateOfferProductRequest).subscribe({
+      next: async (res: Product) => {
+        console.log("Selected item: ", res);
+        await this.HandleProductChoose(res, rowIndex);
       }
     });
-    dialogRef.onClose.subscribe(async (res: Product) => {
-      console.log("Selected item: ", res);
-      await this.HandleProductChoose(res, rowIndex);
-    });
-  }
-
-  override FillFormWithFirstAvailableCustomer(event: any): void {
-    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
-    }
-
-    this.customerInputFilterString = event.target.value ?? '';
-
-    if (this.customerInputFilterString.replace(' ', '') === '') {
-      this.buyerData = { id: -1 } as Customer;
-      this.SetCustomerFormFields(undefined);
-      return;
-    }
-
-    this.isLoading = true;
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.seC.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
-    } as GetCustomersParamListModel).subscribe({
-      next: res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.buyerData = res.data[0];
-          this.cachedCustomerName = res.data[0].customerName;
-          this.SetCustomerFormFields(res.data[0]);
-          this.searchByTaxtNumber = false;
-
-          // this.SwitchUnitPriceAll()
-        } else {
-          if (this.customerInputFilterString.length >= 8 &&
-            this.IsNumber(this.customerInputFilterString)) {
-            this.searchByTaxtNumber = true;
-          } else {
-            this.searchByTaxtNumber = false;
-          }
-          this.SetCustomerFormFields(undefined);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-        this.searchByTaxtNumber = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  override TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: async product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-          if (!!product && !!product?.productCode) {
-            if (row.data.productID === product.id) {
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-              return;
-            }
-
-            const unitPriceType = this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit
-
-            if (!product.noDiscount) {
-              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-                .then(data => {
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-                  });
-                  currentRow?.data.Save('productCode');
-                  const _d = this.dbData[rowPos].data;
-                  this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 200);
-                })
-                .catch(err => {
-                  this.cs.HandleError(err);
-
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-                  });
-                  currentRow?.data.Save('productCode');
-
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
-                })
-                .finally(() => {
-
-                });
-            } else {
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-              });
-              currentRow?.data.Save('productCode');
-
-              const _d = this.dbData[rowPos].data;
-              this.dbData[rowPos].data.discount = 0;
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 200);
-            }
-          } else {
-            this.kbS.ClickCurrentElement()
-            MoveTableInputCursorToBeginning()
-            this.bbxToastrService.show(
-              Constants.MSG_NO_PRODUCT_FOUND,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            );
-          }
-
-          this.RecalcNetAndVat();
-        },
-        error: err => {
-          this.dbDataTable.data[rowPos].data.Restore('productCode');
-          this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        },
-        complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
-    }
-  }
-
-  selectIntPart(event: any): void {
-    HelperFunctions.SelectBeginningById(event.target.id);
   }
 
   /////////////////////////////////////////////
@@ -826,6 +528,19 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           }
           event.preventDefault();
           this.SwitchUnitPriceAll();
+          break;
+        }
+        case this.KeySetting[Actions.Edit].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+
+          HelperFunctions.StopEvent(event)
+
+          if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
+            this.editCustomerDialog.open(this.buyerData?.id)
+          }
+
           break;
         }
       }

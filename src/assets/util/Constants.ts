@@ -10,6 +10,8 @@ export module Constants {
     export const MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD = 'Legalább egy érvényesen megadott tétel szükséges a mentéshez.'
     export const MSG_ERROR_WRONG_QUANTITY_ONE_OR_MORE = 'Egy vagy több tétel mezői hibásan (például: rossz mennyisség) vannak kitöltve.'
 
+    export const MSG_ERROR_USERDATA_NEEDED = 'A mentés előtt érvényes bejelentkezési adatok megadása szükséges!'
+
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'
 
@@ -30,6 +32,12 @@ export module Constants {
     export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
     export const MSG_CANNOT_ON_EDIT_ROW: string = "A kijelölt sor új elemek felvételére alkalmas! A kért művelet nem végezhető el rajta.";
     export const MSG_WHS_ONLY_READY_CAN_BE_FINALIZED = "Csak 'Elkészült' státuszban lévő raktárközi bizonylatokat lehet véglegesíteni!"
+
+    export const MSG_ERROR_NO_WAREHOUSE_SELECTED = "Nincs kiválasztott raktár. A művelethez bejelentkezés szükséges!"
+    export const MSG_ERROR_NO_PRODUCT_SELECTED = "Nincs kiválasztott termék!"
+    export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE = "Nincs elérhető készletinformáció ehhez a termékhez!"
+    export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE = "Nincs elérhető készletinformáció ehhez a termékhez erre a raktárra!"
+    export const MSG_ERROR_CUSTOMER_LOCKED = 'Partner adatait más munkahelyen használják.'
 
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM = 'Véglegesítés dátuma a(z) {0} elemre'

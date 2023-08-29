@@ -8,7 +8,7 @@ import { InputMaskModule } from '@ngneat/input-mask';
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
-import { ProductSelectTableDialogComponent } from '../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from '../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 import { SaveDialogComponent } from './save-dialog/save-dialog.component';
 import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
@@ -32,6 +32,7 @@ import { InvoicePriceChangeDialogComponent } from './invoice-price-change-dialog
 import { CustomerInvoiceSummaryFilterFormComponent } from './customer-invoice-summary/customer-invoice-summary-filter-form/customer-invoice-summary-filter-form.component';
 import { CustomerInvoiceSummaryManagerComponent } from './customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
 import { CustomerInvoiceSummarySideBarFormComponent } from './customer-invoice-summary/customer-invoice-summary-side-bar-form/customer-invoice-summary-side-bar-form.component';
+import { BaseInvoiceManagerComponent } from './base-invoice-manager/base-invoice-manager.component';
 
 
 
@@ -60,6 +61,7 @@ import { CustomerInvoiceSummarySideBarFormComponent } from './customer-invoice-s
     CustomerInvoiceSummaryFilterFormComponent,
     CustomerInvoiceSummaryManagerComponent,
     CustomerInvoiceSummarySideBarFormComponent,
+    BaseInvoiceManagerComponent,
   ],
   imports: [
     CommonModule,

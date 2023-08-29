@@ -1,11 +1,12 @@
-import { AfterViewInit, Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FlatDesignNavigatableForm } from 'src/assets/model/navigation/FlatDesignNavigatableForm';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Navigatable';
 import { CustomerMisc } from '../../customer/models/CustomerMisc';
+import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 
 @Component({
   selector: 'app-customer-bank-account-number-input',
@@ -13,7 +14,7 @@ import { CustomerMisc } from '../../customer/models/CustomerMisc';
   styleUrls: ['./customer-bank-account-number-input.component.scss']
 })
 export class CustomerBankAccountNumberInputComponent implements OnInit, AfterViewInit {
-  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm
+  @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm
   @Input() formFieldName: string = ''
   @Input() label: string = ''
   @Input() readonlyMode: boolean = false
@@ -84,7 +85,7 @@ export class CustomerBankAccountNumberInputComponent implements OnInit, AfterVie
 
     var nextMask = CustomerMisc.DefaultPattern
 
-    if (this.checkIfIbanStarted(typed)) {      
+    if (this.checkIfIbanStarted(typed)) {
       nextMask = CustomerMisc.IbanPattern
     }
 

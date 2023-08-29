@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';

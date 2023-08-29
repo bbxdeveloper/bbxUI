@@ -291,9 +291,7 @@ export class LocationManagerComponent
       next: (d) => {
         if (d.succeeded && !!d.data) {
           if (!!d) {
-            this.dbData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
+            this.dbData = []
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
@@ -321,9 +319,7 @@ export class LocationManagerComponent
       .then(d => {
         if (d.succeeded && !!d.data) {
           if (!!d) {
-            this.dbData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
+            this.dbData = [];
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
@@ -424,6 +420,10 @@ export class LocationManagerComponent
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+
+        if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);

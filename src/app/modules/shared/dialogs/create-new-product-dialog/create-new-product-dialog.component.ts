@@ -15,17 +15,17 @@ import { TileCssClass, TileCssColClass, AttachDirection, NavigatableType } from 
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { Origin } from '../../origin/models/Origin';
-import { OriginService } from '../../origin/services/origin.service';
-import { ProductGroup } from '../../product-group/models/ProductGroup';
-import { ProductGroupService } from '../../product-group/services/product-group.service';
-import { CreateProductRequest } from '../../product/models/CreateProductRequest';
-import { Product } from '../../product/models/Product';
-import { UnitOfMeasure } from '../../product/models/UnitOfMeasure';
-import { ProductService } from '../../product/services/product.service';
-import { VatRate } from '../../vat-rate/models/VatRate';
-import { VatRateService } from '../../vat-rate/services/vat-rate.service';
-import { BaseNavigatableComponentComponent } from '../base-navigatable-component/base-navigatable-component.component';
+import { Origin } from '../../../origin/models/Origin';
+import { OriginService } from '../../../origin/services/origin.service';
+import { ProductGroup } from '../../../product-group/models/ProductGroup';
+import { ProductGroupService } from '../../../product-group/services/product-group.service';
+import { CreateProductRequest } from '../../../product/models/CreateProductRequest';
+import { Product } from '../../../product/models/Product';
+import { UnitOfMeasure } from '../../../product/models/UnitOfMeasure';
+import { ProductService } from '../../../product/services/product.service';
+import { VatRate } from '../../../vat-rate/models/VatRate';
+import { VatRateService } from '../../../vat-rate/services/vat-rate.service';
+import { BaseNavigatableComponentComponent } from '../../base-navigatable-component/base-navigatable-component.component';
 
 
 @Component({

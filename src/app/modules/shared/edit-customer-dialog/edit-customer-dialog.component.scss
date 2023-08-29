@@ -1,0 +1,33 @@
+.customer-edit-modal {
+    width: 820px;
+}
+
+#customer-edit-form-id {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 2fr;
+    column-gap: 10px;
+    row-gap: 5px;
+    align-items: center;
+
+    .whole-input {
+        grid-column-start: 2;
+        grid-column-end: 5;
+    }
+
+    .justify-self-end {
+        justify-self: end;
+    }
+}
+
+#confirm-dialog-button-no {
+    margin-left: 25px;
+}
+
+nb-form-field {
+    display: block;
+    max-width: unset !important;
+
+    input {
+        max-width: unset !important;
+    }
+}

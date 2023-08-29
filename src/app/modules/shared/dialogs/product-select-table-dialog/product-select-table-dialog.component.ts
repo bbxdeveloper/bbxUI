@@ -1,6 +1,6 @@
 import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { JumpPosPriority, KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -13,12 +13,13 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
-import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
-import { Product } from '../../product/models/Product';
-import { ProductService } from '../../product/services/product.service';
+import { GetProductsParamListModel } from '../../../product/models/GetProductsParamListModel';
+import { Product } from '../../../product/models/Product';
+import { ProductService } from '../../../product/services/product.service';
 import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
-import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { CurrencyCodes } from '../../../system/models/CurrencyCode';
 import { environment } from 'src/environments/environment';
+import { ProductStockInformationDialogComponent } from '../product-stock-information-dialog/product-stock-information-dialog.component';
 
 const NavMap: string[][] = [
   ['radio-0', 'radio-1', 'radio-2'],
@@ -53,6 +54,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   @Input() exchangeRate: number = 1;
   @Input() currency: string = CurrencyCodes.HUF;
   @Input() defaultSearchModeForEnteredFilter: SearchMode = SearchMode.SEARCH_CODE
+
+  detailsDialogOpened: boolean = false
 
   get srcString(): string {
     return (this.searchString ?? '').trim();
@@ -92,6 +95,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
     private productService: ProductService,
     private cdrf: ChangeDetectorRef,
+    private dialogService: NbDialogService
   ) {
     super(dialogRef, kbS, dataSourceBuilder);
 
@@ -275,6 +279,23 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
   }
 
+  openProductStockInformationDialog(event: any, row: TreeGridNode<Product>): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.detailsDialogOpened = true
+
+    const dialogRef = this.dialogService.open(ProductStockInformationDialogComponent, {
+      context: {
+        product: row.data
+      }
+    });
+    dialogRef.onClose.subscribe(async (res: Product) => {
+      setTimeout(() => {
+        this.detailsDialogOpened = false
+      }, 500);
+    })
+  }
+
   @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.code === 'Tab') {
       event.preventDefault()
@@ -284,12 +305,18 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     }
     switch (event.key) {
       case KeyBindings.exit: {
-        if (this.shouldCloseOnEscape) {
-          event.preventDefault();
-          // Closing dialog
-          this.close(undefined);
+        if (this.detailsDialogOpened) {
+          event.preventDefault()
+          event.stopImmediatePropagation()
+          event.stopPropagation()
+          return
         }
-        break;
+        if (this.shouldCloseOnEscape) {
+          event.preventDefault()
+          // Closing dialog
+          this.close(undefined)
+        }
+        break
       }
       default: { }
     }

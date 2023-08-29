@@ -20,6 +20,10 @@ import { InvoiceService } from '../services/invoice.service';
 import { CommonService } from 'src/app/services/common.service';
 import { Customer } from '../../customer/models/Customer';
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
+import { UserService } from '../../auth/services/user.service';
+import { LoginNameAndPwdRequest } from '../../auth/models/LoginNameAndPwdRequest';
+import { StatusService } from 'src/app/services/status.service';
+import { Constants } from 'src/assets/util/Constants';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -51,6 +55,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
   @Input() checkCustomerLimit: boolean = false
   @Input() customer?: Customer
+
+  loggedIn: boolean = false
 
   override NavigatableType = NavigatableType.dialog
 
@@ -121,12 +127,14 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     private loggerService: LoggerService,
     private invoiceService: InvoiceService,
     private cs: CommonService,
-    private dialogService: NbDialogService
+    private dialogService: NbDialogService,
+    private userService: UserService,
+    private statusService: StatusService,
+    private commonService: CommonService
   ) {
-    super();
-    this.Setup();
-
-    this.sumForm = new FormGroup({});
+    super()
+    this.Setup()
+    this.sumForm = new FormGroup({})
   }
 
   MoveToSaveButtons(event: any): void {
@@ -138,6 +146,14 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       event.stopPropagation();
       this.kBs.Jump(AttachDirection.DOWN, false);
       this.kBs.setEditMode(KeyboardModes.NAVIGATION);
+    }
+  }
+
+  UserDataFocusOut(event?: any): void {
+    const username = this.sumForm.controls['input_p'].value
+    const password = this.sumForm.controls['input_n'].value
+    if (!HelperFunctions.isEmptyOrSpaces(username) && !HelperFunctions.isEmptyOrSpaces(password)) {
+      this.authenticate()
     }
   }
 
@@ -193,7 +209,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
         var discountedPrice = HelperFunctions.ToFloat(this.sumForm.controls['discountedInvoiceNetAmount'].value)
         var customerUnpaidAmount = await this.invoiceService.GetCustomerUnpaidAmount({ CustomerID: this.data.customerID })
         var sum = discountedPrice + customerUnpaidAmount
-        
+
         if (sum > maxLimit) {
           HelperFunctions.confirmOneButtonAsync(
             this.dialogService,
@@ -307,7 +323,34 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.sumForm.controls['invoiceLinesCount'].setValue(this.data.invoiceLines.length);
   }
 
+  public onInput_nBlur() {
+    if (this.sumForm.controls['input_n'].value !== this.data.username) {
+      this.sumForm.controls['loginName'].setValue('')
+    }
+  }
+
   ngAfterContentInit(): void {
+    this.sumForm.addControl('input_n', new FormControl(this.data.username, [Validators.required]));
+    this.sumForm.addControl('input_p', new FormControl(undefined, [Validators.required]));
+    this.sumForm.addControl('loginName', new FormControl(this.data.loginName, [Validators.required]));
+
+    this.sumForm.controls['input_n'].valueChanges.subscribe({
+      next: newValue => {
+        if (this.data.loginName !== newValue) {
+          this.loggedIn = false
+        }
+        this.data.loginName = newValue
+      }
+    })
+    this.sumForm.controls['loginName'].valueChanges.subscribe({
+      next: newValue => {
+        if (this.data.username !== newValue) {
+          this.loggedIn = false
+        }
+        this.data.username = newValue
+      }
+    })
+
     this.prepareVatRateCodes();
 
     if (this.defaultDiscountPercent !== undefined) {
@@ -383,21 +426,59 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   async FocusSaveButton(): Promise<void> {
+    this.UserDataFocusOut()
     await this.checkCustomerLimits()
     this.customerLimitsChecked = true
   }
 
-  close(answer: boolean) {
-    if (this.OutGoingDelivery) {
-      this.data.workNumber = this.sumForm.controls['workNumber'].value;
-      this.data.priceReview = this.sumForm.controls['priceReview'].value;
-    }
-    this.closedManually = true;
-    this.kBs.RemoveWidgetNavigatable();
-    this.dialogRef.close(answer ? this.data : undefined);
-  }
-
   logi(msg: string): void {
     this.loggerService.info(msg, logTag)
+  }
+
+  close(answer: boolean) {
+    if (answer && !this.loggedIn) {
+      this.commonService.ShowErrorMessage(Constants.MSG_ERROR_USERDATA_NEEDED)
+      return
+    }
+
+    this.handleClose(answer)
+  }
+
+  authenticate(): void {
+    this.statusService.waitForLoad(true)
+
+    this.userService.CheckLoginNameAndPwd({
+      LoginName: this.sumForm.controls['input_n'].value,
+      Password: this.sumForm.controls['input_p'].value
+    } as LoginNameAndPwdRequest).subscribe({
+      next: res => {
+        if (res && Object.keys(res).includes('id') && res.id > 0) {
+          this.data.userID = res.id
+
+          this.statusService.waitForLoad(false)
+
+          this.sumForm.controls['loginName'].setValue(res.name)
+
+          this.loggedIn = true
+        } else {
+          this.statusService.waitForLoad(false)
+          this.commonService.ShowErrorMessage((res as any).Message)
+        }
+      },
+      error: err => {
+        this.statusService.waitForLoad(false)
+        this.commonService.HandleError(err)
+      }
+    })
+  }
+
+  private handleClose(answer: boolean): void {
+    if (this.OutGoingDelivery) {
+      this.data.workNumber = this.sumForm.controls['workNumber'].value
+      this.data.priceReview = this.sumForm.controls['priceReview'].value
+    }
+    this.closedManually = true
+    this.kBs.RemoveWidgetNavigatable()
+    this.dialogRef.close(answer ? this.data : undefined)
   }
 }

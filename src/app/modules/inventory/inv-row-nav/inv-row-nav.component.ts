@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -17,16 +17,12 @@ import { BaseNoFormManagerComponent } from '../../shared/base-no-form-manager/ba
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Customer } from '../../customer/models/Customer';
-import { CustomerService } from '../../customer/services/customer.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, KeyBindings, GetFooterCommandListFromKeySettings, InvRowNavKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { Router } from '@angular/router';
-import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { OneTextInputDialogComponent } from '../../shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
-import { BehaviorSubject, last, lastValueFrom, Subscription } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { InvRow } from '../models/InvRow';
 import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsParamListModel';
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
@@ -34,8 +30,9 @@ import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
 import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
-import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
+import { CsvExport } from '../models/CsvExport';
 
 @Component({
   selector: 'app-inv-row-nav',
@@ -67,7 +64,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     'productCode',
     'product',
     'oRealQty',
-    'nRealQty'
+    'nRealQty',
+    'oRealAmount',
+    'nRealAmount',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -117,7 +116,31 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       colWidth: '130px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
-    }
+    },
+    {
+      label: 'Rkt. ért.',
+      objectKey: 'oRealAmount',
+      colKey: 'oRealAmount',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Lelt. ért.',
+      objectKey: 'nRealAmount',
+      colKey: 'nRealAmount',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
   ];
 
   get CustomerId(): number | undefined {
@@ -141,13 +164,24 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     return this.filterForm.controls['invCtrlPeriod'].value;
   }
 
-  override get getInputParams(): GetAllInvCtrlItemsParamListModel {
+  get showDeficit(): boolean|undefined {
+    switch(this.filterForm.controls['showDeficit'].value) {
+      case 'true':
+        return true
+      case 'false':
+        return false
+      default:
+        return undefined
+    }
+  }
 
+  override get getInputParams(): GetAllInvCtrlItemsParamListModel {
     return {
       PageNumber: this.dbDataTable.currentPage,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
-      SearchString: this.filterForm.controls['searchString'].value
+      SearchString: this.filterForm.controls['searchString'].value,
+      ShowDeficit: this.showDeficit
     };
   }
 
@@ -168,6 +202,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
   isPageReady: boolean = false;
 
+  public oRealAmountSum = 0
+  public nRealAmountSum = 0
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -175,7 +212,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private inventoryService: InventoryService,
@@ -210,7 +246,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
     this.filterForm = new FormGroup({
       invCtrlPeriod: new FormControl(undefined, [Validators.required]),
-      searchString: new FormControl(undefined, [])
+      searchString: new FormControl(undefined, []),
+      showDeficit: new FormControl('null', []),
     });
 
     this.InitFormDefaultValues();
@@ -300,43 +337,36 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       });
   }
 
-  private GetInvRowFromInvCtrlPeriod(x: InvCtrlItemForGet): InvRow {
-    let res = new InvRow();
-
-    res.productCode = x.productCode
-    res.product = x.product;
-    res.nRealQty = x.nRealQty;
-    res.oRealQty = x.oRealQty;
-
-    return res;
-  }
-
   override async Refresh(params?: GetAllInvCtrlItemsParamListModel, jumpToFirstTableCell: boolean = false): Promise<void> {
     console.log('Refreshing: ', params); // TODO: only for debug
     this.refreshComboboxData();
     this.isLoading = true;
     await lastValueFrom(this.inventoryCtrlItemService.GetAll(params))
       .then(d => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: this.GetInvRowFromInvCtrlPeriod(x), uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, this.isPageReady);
-          if (!!d.data && d.data.length > 0) {
-            this.JumpToFirstCellAndNav();
-          }
-        } else {
-          this.bbxToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+        if (!d.succeeded || !d.data) {
+          this.bbxToastrService.showError(d.errors!.join('\n'));
+          return
+        }
+
+        console.log('GetProducts response: ', d); // TODO: only for debug
+        if (!!d) {
+          this.oRealAmountSum = 0
+          this.nRealAmountSum = 0
+
+          this.dbData = d.data.map((x) => {
+            this.oRealAmountSum += x.oRealAmount
+            this.nRealAmountSum += x.nRealAmount
+
+            return { data: InvRow.fromInvCtrlItemForGet(x), uid: this.nextUid() };
+          });
+          this.dbDataDataSrc.setData(this.dbData);
+          this.dbDataTable.SetPaginatorData(d);
+        }
+
+        this.RefreshTable(undefined, this.isPageReady);
+
+        if (!!d.data && d.data.length > 0) {
+          this.JumpToFirstCellAndNav();
         }
       })
       .catch(err => {
@@ -360,6 +390,9 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+    document.querySelectorAll('*[type="radio"]')
+      .forEach(element => element.classList.add(TileCssClass))
+
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
     this.AddSearchButtonToFormMatrix();
     console.log(this.filterFormNav.Matrix);
@@ -380,10 +413,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
   private AddSearchButtonToFormMatrix(): void {
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
-  }
-
-  private RefreshAll(params?: GetAllInvCtrlItemsParamListModel): void {
-    this.Refresh(params);
   }
 
   MoveToSaveButtons(event: any): void {
@@ -408,6 +437,22 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   RefreshData(): void { }
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
   RecalcNetAndVat(): void { }
+
+  private async csvExport(): Promise<void> {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return
+    }
+
+    this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
+
+    this.printAndDownLoadService.download_csv({
+      report_params: {
+        InvCtrlPeriodID: Number(this.SelectedInvCtrlPeriod?.id),
+        SearchString: this.filterForm.controls['searchString'].value ?? '',
+        ShowDeficit: this.showDeficit,
+      } as CsvExport
+    } as Constants.Dct, this.inventoryCtrlItemService.csvExport.bind(this.inventoryCtrlItemService))
+  }
 
   HandleFunctionKey(event: Event | KeyBindings): void {
     const val = event instanceof Event ? (event as KeyboardEvent).code : event;
@@ -478,7 +523,6 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }
     switch (event.key) {
       case this.KeySetting[Actions.Search].KeyCode:
-      case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
       case this.KeySetting[Actions.Create].KeyCode:
@@ -492,6 +536,11 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
         event.stopImmediatePropagation();
         event.stopPropagation();
         this.HandleFunctionKey(event);
+        break;
+      case this.KeySetting[Actions.CSV].KeyCode:
+        HelperFunctions.StopEvent(event)
+
+        this.csvExport()
         break;
     }
   }

@@ -18,7 +18,7 @@ import { FormControlErrorComponent } from './form-control-error/form-control-err
 import { InputMaskModule } from '@ngneat/input-mask';
 import { RemoveWhitespacesPipe } from './pipes/remove-whitespaces.pipe';
 import { BaseInlineManagerComponent } from './base-inline-manager/base-inline-manager.component';
-import { SelectTableDialogComponent } from './select-table-dialog/select-table-dialog.component';
+import { SelectTableDialogComponent } from './dialogs/select-table-dialog/select-table-dialog.component';
 import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-manager.component';
 import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
 import { BbxTwoRowComboBoxComponent } from './bbx-two-row-combo-box/bbx-two-row-combo-box.component';
@@ -31,11 +31,11 @@ import { HtmlStringSanitizerPipe } from './pipes/html-string-sanitizer.pipe';
 import { IframeViewerDialogComponent } from './simple-dialogs/iframe-viewer-dialog/iframe-viewer-dialog.component';
 import { InlineEditableTableComponent } from './inline-editable-table/inline-editable-table.component';
 import { OneButtonMessageDialogComponent } from './simple-dialogs/one-button-message-dialog/one-button-message-dialog.component';
-import { CreateNewProductDialogComponent } from './create-new-product-dialog/create-new-product-dialog.component';
+import { CreateNewProductDialogComponent } from './dialogs/create-new-product-dialog/create-new-product-dialog.component';
 import { BbxCharCheckboxComponent } from './bbx-char-checkbox/bbx-char-checkbox.component';
 import { RadioChoiceDialogComponent } from './simple-dialogs/radio-choice-dialog/radio-choice-dialog.component';
 import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-box-invoice.component';
-import { ProductSelectTableDialogComponent } from './product-select-table-dialog/product-select-table-dialog.component';
+import { ProductSelectTableDialogComponent } from './dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerBankAccountNumberInputComponent } from './customer-bank-account-number-input/customer-bank-account-number-input.component';
 import { CalculatorPopoverComponent } from './calculator-popover/calculator-popover.component';
 import { InvoiceLayoutComponent } from './layouts/invoice-layout/invoice-layout.component';
@@ -46,6 +46,9 @@ import { OneButtonConfirmationDialogComponent } from './simple-dialogs/one-butto
 import { HozirontalSplitLayoutComponent } from './layouts/hozirontal-split-layout/hozirontal-split-layout.component';
 import { VerticalSplitLayoutComponent } from './layouts/vertical-split-layout/vertical-split-layout.component';
 import { SingleDateDialogComponent } from './simple-dialogs/single-date-dialog/single-date-dialog.component';
+import { ProductStockInformationDialogComponent } from './dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxProductCodeInputComponent } from './custom-inputs/bbx-product-code-input/bbx-product-code-input.component';
+import { EditCustomerDialogComponent } from './edit-customer-dialog/edit-customer-dialog.component';
 
 
 @NgModule({
@@ -89,7 +92,10 @@ import { SingleDateDialogComponent } from './simple-dialogs/single-date-dialog/s
     OneButtonConfirmationDialogComponent,
     HozirontalSplitLayoutComponent,
     VerticalSplitLayoutComponent,
-    SingleDateDialogComponent
+    SingleDateDialogComponent,
+    ProductStockInformationDialogComponent,
+    BbxProductCodeInputComponent,
+    EditCustomerDialogComponent
   ],
   imports: [
     CommonModule,
@@ -160,6 +166,7 @@ import { SingleDateDialogComponent } from './simple-dialogs/single-date-dialog/s
     HozirontalSplitLayoutComponent,
     VerticalSplitLayoutComponent,
     SingleDateDialogComponent,
+    BbxProductCodeInputComponent
   ],
   providers: [
     ConfirmationDialogComponent

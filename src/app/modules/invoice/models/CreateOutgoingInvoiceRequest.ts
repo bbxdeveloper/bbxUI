@@ -34,6 +34,8 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
     invoiceCorrection: boolean = false
     originalInvoiceID: number|undefined
 
+    userID: number = -1
+
     @JsonIgnore
     get isDelivery(): boolean {
         switch (this.invoiceType) {
@@ -62,6 +64,18 @@ export class OutGoingInvoiceFullData extends CreateOutgoingInvoiceRequest<Invoic
 
     @JsonIgnore
     "lineGrossAmount": number; // netamount + vatamount (sum invoicelines)
+
+    /**
+     * Save dialog cache
+     */
+    @JsonIgnore
+    loginName?: string = undefined
+
+    /**
+     * Save dialog cache
+     */
+    @JsonIgnore
+    username?: string = undefined
 
     constructor(init?: Partial<OutGoingInvoiceFullData>) {
         super()

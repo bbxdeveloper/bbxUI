@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary'
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -11,6 +11,7 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { IPartnerLock } from 'src/app/services/IPartnerLock';
 
 @Component({
   selector: 'app-customers-has-pending-invoice',
@@ -20,6 +21,7 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 export class CustomersHasPendingInvoiceComponent extends SelectTableDialogComponent<PendingDeliveryInvoiceSummary> implements OnInit {
   @Input() public customerID!: number
   @Input() public incoming: boolean = false
+  @Input() public partnerLock: IPartnerLock|undefined
 
   public isLoaded = false
   public override isLoading = false
@@ -128,6 +130,29 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
       this.kbS.SetPositionById("header-income")
       this.kbS.SelectCurrentElement()
     }, 700);
+  }
+
+  override async selectRow(event: any, row: TreeGridNode<PendingDeliveryInvoiceSummary>): Promise<void> {
+    if (!!event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+
+    const canClose = await this.canClose(row)
+
+    if (canClose) {
+      this.close(row.data);
+    }
+  }
+
+  private async canClose(row: TreeGridNode<PendingDeliveryInvoiceSummary>): Promise<boolean> {
+    if (!this.partnerLock) {
+      return true
+    }
+
+    const result = await this.partnerLock.lockCustomer(row.data.customerID) as any
+
+    return result?.succeeded
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {

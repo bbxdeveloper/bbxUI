@@ -32,7 +32,7 @@
                 id="m04">
         </nb-form-field>
 
-        <nb-form-field class="last-field" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+        <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
             <div class="notice">
                 <label>Egyéb adatok</label>
                 <input nbInput type="text" formControlName='notice' [readonly]="editDisabled"

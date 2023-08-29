@@ -16,6 +16,7 @@ import { CountryCode } from '../models/CountryCode';
 import { GetCustomerByTaxNumberParams } from '../models/GetCustomerByTaxNumberParams';
 import { GetCustomerByTaxNumberResponse } from '../models/GetCustomerByTaxNumberResponse';
 import { UnitPriceType } from '../models/UnitPriceType';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 // 'id', 'customerName', 'taxpayerNumber'
 const MOCK_DATA: Customer[] = [
@@ -69,67 +70,20 @@ export class CustomerService {
   }
 
   public GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
-
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetCustomersParamListModel] != undefined && params[key as keyof GetCustomersParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetCustomersParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetCustomersParamListModel];
-          }
-          index++;
-        }
-      });
-    }
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
     return this.http.get<GetCustomersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  Get(params?: GetCustomerParamListModel): Observable<Customer> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+  Get(params: GetCustomerParamListModel): Observable<Customer> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetCustomerParamListModel] != undefined && params[key as keyof GetCustomerParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetCustomerParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetCustomerParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
     return this.http.get<Customer>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
   GetByTaxNumber(params?: GetCustomerByTaxNumberParams): Observable<GetCustomerByTaxNumberResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetCustomerByTaxNumberParams] != undefined && params[key as keyof GetCustomerByTaxNumberParams] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetCustomerByTaxNumberParams];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetCustomerByTaxNumberParams];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
     return this.http.get<GetCustomerByTaxNumberResponse>(this.BaseUrl + '/querytaxpayer' + (!!params ? ('?' + queryParams) : ''));
   }
 

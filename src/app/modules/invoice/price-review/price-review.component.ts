@@ -50,12 +50,14 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
+import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
+import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
   selector: 'app-price-review',
   templateUrl: './price-review.component.html',
   styleUrls: ['./price-review.component.scss'],
-  providers: [PartnerLockService, InvoiceBehaviorFactoryService]
+  providers: [PartnerLockHandlerService, PartnerLockService, InvoiceBehaviorFactoryService]
 })
 export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
@@ -196,6 +198,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   private invoiceId: number = -1
   public mode!: InvoiceBehaviorMode
 
+  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+    this.buyerData = customer
+    this.cachedCustomerName = customer.customerName;
+    this.buyerFormNav.FillForm(customer, ['customerSearch']);
+    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
+    this.searchByTaxtNumber = false;
+  })
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -217,7 +227,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     private readonly tokenService: TokenStorageService,
     private readonly bbxToasterService: BbxToastrService,
     router: Router,
-    behaviorFactory: InvoiceBehaviorFactoryService
+    behaviorFactory: InvoiceBehaviorFactoryService,
+    private readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -750,7 +761,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       const dialog = this.dialogService.open(GetPendingDeliveryNotesDialogComponent, {
         context: {
           allColumns: GetPendingDeliveryNotesDialogTableSettings.AllColumns,
-          colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs
+          colDefs: GetPendingDeliveryNotesDialogTableSettings.ColDefs,
+          partnerLock: this.mode.partnerLock
         },
         closeOnEsc: false,
         closeOnBackdropClick: false
@@ -783,9 +795,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       controls['comment'].setValue(response.CustomerComment)
 
       this.buyerData.id = response.customerID
-
-      this.mode.partnerLock?.lockCustomer(response.customerID)
-        .catch(this.cs.HandleError.bind(this.cs))
 
       controls = this.outInvForm.controls
       controls['invoiceDeliveryDate'].setValue(response.invoiceDeliveryDate)
@@ -825,10 +834,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     console.log("Detach");
     this.kbS.Detach();
 
-    if (this.mode.partnerLock) {
-      this.mode.partnerLock.unlockCustomer()
-        .catch(this.cs.HandleError.bind(this.cs))
-    }
+    this.mode.partnerLock?.unlockCustomer()
+
+    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -859,6 +867,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
     console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.outInvForm.controls['paymentMethod'].value);
+
+    this.outGoingInvoiceData.loginName = this.tokenService.user?.name
+    this.outGoingInvoiceData.username = this.tokenService.user?.loginName
 
     return OutGoingInvoiceFullDataToRequest(this.outGoingInvoiceData, false);
   }
@@ -935,10 +946,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         this.sts.pushProcessStatus(Constants.BlankProcessStatus)
 
-        if (this.mode.partnerLock) {
-          this.mode.partnerLock.unlockCustomer()
-            .catch(this.cs.HandleError.bind(this.cs))
-        }
+        this.mode.partnerLock?.unlockCustomer()
 
         this.simpleToastrService.show(
           Constants.MSG_SAVE_SUCCESFUL,
@@ -968,12 +976,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         this.isSaveInProgress = false
       }
     });
-  }
-
-  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
-    console.log("Selecting InvoiceLine from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
   }
 
   // Invoked when user presses F2 on the search field
@@ -1137,6 +1139,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     });
   }
 
+  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void { }
+
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
@@ -1201,6 +1205,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       invoiceLine.priceReview = false
 
       invoiceLine.Save()
+    }
+  }
+
+  protected editCustomer(): void {
+    if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
+      this.editCustomerDialog.open(this.buyerData?.id)
     }
   }
 
@@ -1272,6 +1282,13 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           }
           event.preventDefault();
           this.CreateCustomer(event);
+          break;
+        }
+        case this.KeySetting[Actions.Edit].KeyCode: {
+          HelperFunctions.StopEvent(event)
+
+          this.editCustomer()
+
           break;
         }
       }

@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
-import { SelectTableDialogComponent } from '../../shared/select-table-dialog/select-table-dialog.component';
+import { ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
+import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
@@ -11,6 +11,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { Router } from '@angular/router';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { IPartnerLock } from 'src/app/services/IPartnerLock';
 
 @Component({
   selector: 'app-get-pending-delivery-notes-dialog',
@@ -20,6 +21,8 @@ import { KeyBindings } from 'src/assets/util/KeyBindings';
 export class GetPendingDeliveryNotesDialogComponent extends SelectTableDialogComponent<PendingDeliveryNote> implements OnInit {
   public isLoaded = false
   public override isLoading = false
+
+  @Input() public partnerLock: IPartnerLock|undefined
 
   constructor(
     private readonly kns: KeyboardNavigationService,
@@ -98,13 +101,25 @@ export class GetPendingDeliveryNotesDialogComponent extends SelectTableDialogCom
   /**
    * Enter esetén ez hívódik meg, a "@HostListener('keydown.enter', ['$event'])"
    * nem működne.
-   * @param event
-   * @param row
    */
-  override selectRow(event: any, row: TreeGridNode<PendingDeliveryNote>): void {
+  override async selectRow(event: any, row: TreeGridNode<PendingDeliveryNote>): Promise<void> {
     HelperFunctions.StopEvent(event);
 
-    this.close(row.data);
+    const canClose = await this.canClose(row)
+
+    if (canClose) {
+      this.close(row.data);
+    }
+  }
+
+  private async canClose(row: TreeGridNode<PendingDeliveryNote>): Promise<boolean> {
+    if (!this.partnerLock) {
+      return true
+    }
+
+    const result = await this.partnerLock.lockCustomer(row.data.customerID) as any
+
+    return result?.succeeded
   }
 
   public GetDateString(val: string): string {

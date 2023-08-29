@@ -202,12 +202,12 @@ export let InvoiceManagerKeySettings: Constants.KeySettingsDct = {
     Help: { KeyCode: KeyBindings.F1, KeyLabel: KeyBindings.F1, FunctionLabel: 'Súgó', KeyType: Constants.KeyTypes.Fn },
     Search: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     Create: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner / termék felvitel', KeyType: Constants.KeyTypes.Unset },
+    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Szerkesztés', KeyType: Constants.KeyTypes.Fn },
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Fn },
     Delete: { KeyCode: KeyBindings.F8, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
     CloseAndSave: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Combo },
 
     // Unset:
-    Edit: { KeyCode: KeyBindings.F9, KeyLabel: KeyBindings.F9, FunctionLabel: 'Árváltozás', KeyType: Constants.KeyTypes.Unset },
     Reset: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Visszaállítás', KeyType: Constants.KeyTypes.Unset },
     Save: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },
     ToggleForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Tétellap', KeyType: Constants.KeyTypes.Unset },
@@ -226,6 +226,8 @@ export let InvoiceIncomeManagerKeySettings: Constants.KeySettingsDct = {
     Help: { KeyCode: KeyBindings.F1, KeyLabel: KeyBindings.F1, FunctionLabel: 'Súgó', KeyType: Constants.KeyTypes.Fn },
     Search: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     Create: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner / termék felvitel', KeyType: Constants.KeyTypes.Unset },
+    // itt a lock van használva mert az Edit már foglalt
+    Lock: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Partner szerkesztése', KeyType: Constants.KeyTypes.Fn },
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Fn },
     Delete: { KeyCode: KeyBindings.F8, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
     Edit: { KeyCode: KeyBindings.F9, KeyLabel: KeyBindings.F9, FunctionLabel: 'Árváltozás', KeyType: Constants.KeyTypes.Fn },
@@ -243,19 +245,18 @@ export let InvoiceIncomeManagerKeySettings: Constants.KeySettingsDct = {
     Email: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Email', KeyType: Constants.KeyTypes.Unset },
     Details: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },
     EscapeEditor1: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },
-    Lock: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Zárolás', KeyType: Constants.KeyTypes.Unset },
 };
 
 export let SummaryInvoiceKeySettings: Constants.KeySettingsDct = {
     Help: { KeyCode: KeyBindings.F1, KeyLabel: KeyBindings.F1, FunctionLabel: 'Súgó', KeyType: Constants.KeyTypes.Fn },
     Search: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     Create: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner felvitel', KeyType: Constants.KeyTypes.Fn },
+    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Partner szerkesztés', KeyType: Constants.KeyTypes.Fn },
     Delete: { KeyCode: KeyBindings.F8, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
     CloseAndSave: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Combo },
 
     // Unset:
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Unset },
-    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Szerkesztés', KeyType: Constants.KeyTypes.Unset },
     Reset: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Visszaállítás', KeyType: Constants.KeyTypes.Unset },
     Save: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },
     ToggleForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Tétellap', KeyType: Constants.KeyTypes.Unset },
@@ -348,10 +349,10 @@ export let InvRowNavKeySettings: Constants.KeySettingsDct = {
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Fn },
     Delete: { KeyCode: KeyBindings.F8, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Unset },
     Print: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Nyomtatás', KeyType: Constants.KeyTypes.Fn },
+    CSV: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'CSV', KeyType: Constants.KeyTypes.Fn },
 
     // Unset
     Create: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Új felvitel', KeyType: Constants.KeyTypes.Unset },
-    CSV: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'CSV', KeyType: Constants.KeyTypes.Unset },
     Email: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Email', KeyType: Constants.KeyTypes.Unset },
     Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Szerkesztés', KeyType: Constants.KeyTypes.Unset },
     Details: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Megjegyzés megtekintése', KeyType: Constants.KeyTypes.Unset },
@@ -418,6 +419,7 @@ export let OfferCreatorKeySettings: Constants.KeySettingsDct = {
     Help: { KeyCode: KeyBindings.F1, KeyLabel: KeyBindings.F1, FunctionLabel: 'Súgó', KeyType: Constants.KeyTypes.Fn },
     Search: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Fn },
     Create: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Partner / termék felvitel', KeyType: Constants.KeyTypes.Unset },
+    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Partner szerkesztés', KeyType: Constants.KeyTypes.Fn },
     Refresh: { KeyCode: KeyBindings.F5, KeyLabel: KeyBindings.F5, FunctionLabel: 'Frissítés', KeyType: Constants.KeyTypes.Fn },
     ToggleAllDiscounts: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Kedvezmény mutatás összesre', KeyType: Constants.KeyTypes.Fn },
     SetGlobalDiscount: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Kedvezmény összesre', KeyType: Constants.KeyTypes.Fn },
@@ -431,7 +433,6 @@ export let OfferCreatorKeySettings: Constants.KeySettingsDct = {
     Print: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: 'Nyomtatás', KeyType: Constants.KeyTypes.Unset },
     CSV: { KeyCode: KeyBindings.F11, KeyLabel: KeyBindings.F11, FunctionLabel: 'CSV', KeyType: Constants.KeyTypes.Unset },
     Email: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: 'Email', KeyType: Constants.KeyTypes.Unset },
-    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Keresés', KeyType: Constants.KeyTypes.Unset },
     Reset: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: 'Visszaállítás', KeyType: Constants.KeyTypes.Unset },
     Save: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },
     Details: { KeyCode: KeyBindings.F7, KeyLabel: KeyBindings.F7, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Unset },
@@ -584,6 +585,7 @@ export let WarehouseDocumentsKeySettings: Constants.KeySettingsDct = {
 
 export const PricePreviewKeySettings: Constants.KeySettingsDct = {
     Help: { KeyCode: KeyBindings.F1, KeyLabel: KeyBindings.F1, FunctionLabel: 'Súgó', KeyType: Constants.KeyTypes.Fn },
+    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: 'Szerkesztés', KeyType: Constants.KeyTypes.Fn },
     Delete: { KeyCode: KeyBindings.F8, KeyLabel: KeyBindings.F8, FunctionLabel: 'Törlés', KeyType: Constants.KeyTypes.Fn },
     Refresh: { KeyCode: KeyBindings.F9, KeyLabel: KeyBindings.F9, FunctionLabel: 'Árak frissítése', KeyType: Constants.KeyTypes.Fn},
     CloseAndSave: { KeyCode: KeyBindings.CtrlEnter, KeyLabel: KeyBindings.CtrlEnter, FunctionLabel: 'Mentés', KeyType: Constants.KeyTypes.Fn },
@@ -591,7 +593,6 @@ export const PricePreviewKeySettings: Constants.KeySettingsDct = {
     // Unset
     Search: { KeyCode: KeyBindings.F2, KeyLabel: KeyBindings.F2, FunctionLabel: '', KeyType: Constants.KeyTypes.Unset },
     Create: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: '', KeyType: Constants.KeyTypes.Unset },
-    Edit: { KeyCode: KeyBindings.F4, KeyLabel: KeyBindings.F4, FunctionLabel: '', KeyType: Constants.KeyTypes.Unset },
     Reset: { KeyCode: KeyBindings.F6, KeyLabel: KeyBindings.F6, FunctionLabel: '', KeyType: Constants.KeyTypes.Unset },
     ToggleForm: { KeyCode: KeyBindings.F12, KeyLabel: KeyBindings.F12, FunctionLabel: '', KeyType: Constants.KeyTypes.Unset },
     EscapeEditor1: { KeyCode: KeyBindings.F10, KeyLabel: KeyBindings.F10, FunctionLabel: '', KeyType: Constants.KeyTypes.Unset },

@@ -124,3 +124,42 @@ form.invoice-customer-form-search {
     font-size: 1.5rem !important;
     margin-top: 5px;
 }
+
+.form-horizontal {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 10px;
+
+    label.single_label {
+        align-self: center;
+        color: #3ed820;
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    nb-form-field {
+        width: 180px;
+
+        &:last-child {
+            margin: unset;
+            max-width: unset;
+            flex-basis: 100%;
+
+            .notice {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                label {
+                    white-space: nowrap;
+                }
+
+                input {
+                    max-width: unset;
+                }
+            }
+        }
+    }
+}
