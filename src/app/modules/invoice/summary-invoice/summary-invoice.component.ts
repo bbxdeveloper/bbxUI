@@ -957,7 +957,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
-        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) });
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
         currentRow?.data.Save('productCode');
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.dbDataTable.MoveNextInTable();

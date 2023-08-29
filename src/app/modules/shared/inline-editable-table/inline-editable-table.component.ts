@@ -87,6 +87,10 @@ export class InlineEditableTableComponent implements OnInit {
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
   @Output() inputFocusChanged: EventEmitter<InputFocusChangedEvent> = new EventEmitter();
+
+  /**
+   * Esemény billentyűleütés jelzéséhez.
+   */
   @Output() tableKeyDown: EventEmitter<TableKeyDownEvent> = new EventEmitter();
 
   @Input() parent: any = undefined;
@@ -123,6 +127,8 @@ export class InlineEditableTableComponent implements OnInit {
               private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
               private bbxToastrService: BbxToastrService, private khs: KeyboardHelperService) {}
 
+  ngOnInit(): void { }
+
   focusOnTable(focusIn: boolean): void {
     if (focusIn) {
       this.focusInTable.emit('focusInTable');
@@ -141,64 +147,49 @@ export class InlineEditableTableComponent implements OnInit {
     return classes;
   }
 
-  ngOnInit(): void {
-  }
-
   SelectFirstChar(classStr: string, cursorAfterLastChar: boolean = false, value?: string): void {
     setTimeout(() => {
       HelperFunctions.SelectBeginningByClass(classStr, 0, cursorAfterLastChar, value);
     }, 100);
   }
 
-  HandleGridEscape(event: Event, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
-    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridEscape.name, event)
-    if (!this.khs.ShouldContinueWithEvent(event)) {
-      return;
-    }
-    this.dbDataTable?.HandleGridEscape(row, rowPos, col, colPos);
-  }
-
-  HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, upward: boolean): void {
-    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridMovement.name, event)
-    if (!this.khs.ShouldContinueWithEvent(event)) {
-      return;
-    }
-    this.dbDataTable?.HandleGridMovement(event, row, rowPos, col, colPos, upward);
-  }
-
-  // TODO for BbxProductCodeInputComponent: check if can be moved into BbxProductCodeInputComponent at least partially
-  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridCodeFieldEnter.name, event)
-    if (!this.khs.ShouldContinueWithEvent(event)) {
-      return;
-    }
-    this.parent?.HandleGridCodeFieldEnter(event, row, rowPos, objectKey, colPos, inputId, fInputType);
-  }
-
-  HandleGridEnter(row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
-    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridEnter.name, event)
-    if (!this.khs.ShouldContinueWithEvent(event)) {
-      return;
-    }
-    this.dbDataTable?.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable);
-  }
-
-  CheckBoxKeyUp(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
-                    inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
-    if (environment.inlineEditableTableKeyboardDebug) console.log(this.CheckBoxKeyUp.name, event)
-  }
-
+  /**
+   * Táblázaton történő billentyűleütés kezelése.
+   * Többi kezelő függvény innen hívódik.
+   * @param event 
+   * @param row 
+   * @param rowPos 
+   * @param objectKey 
+   * @param colPos 
+   * @param inputId 
+   * @param fInputType 
+   * @param fromEditMode 
+   * @param fromClickMethod 
+   * @param navigatable 
+   * @returns 
+   */
   HandleGridKeydown(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
                     inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
-    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridKeydown.name, event)
+    /**
+     * VISSZATÉRÉS FÜGGVÉNYBŐL
+     */
+    if (environment.inlineEditableTableKeyboardDebug) {
+      console.log(this.HandleGridKeydown.name, event)
+    }
     if (!this.khs.ShouldContinueWithEvent(event)) {
       return;
     }
+    /**
+     * SPACE KEZELÉSE
+     */
     if (event.code === 'Space' && this.kbs.IsElementCheckbox(inputId)) {
       HelperFunctions.StopEvent(event)
       $('#' + inputId).prop("checked", !$('#' + inputId).prop("checked"));
       row.data[objectKey] = $('#' + inputId).prop("checked");
     }
+    /**
+     * CTRL+ENTER KOMBINÁCIÓ KEZELÉSE
+     */
     if (event.ctrlKey && event.key == KeyBindings.Enter && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -211,6 +202,9 @@ export class InlineEditableTableComponent implements OnInit {
 
       return;
     }
+    /**
+     * EGYÉB BILLENTYŰK LEKEZELÉSE
+     */
     switch ((event as KeyboardEvent).key) {
       case KeyBindings.up:
       case KeyBindings.down:
@@ -235,7 +229,12 @@ export class InlineEditableTableComponent implements OnInit {
       default:
         break;
     }
-    if (environment.inlineEditableTableKeyboardDebug) console.log('IsKeyFunctionKey: ', event.key, GeneralFlatDesignKeySettings)
+    /**
+     * EmitKeydownEvent
+     */
+    if (environment.inlineEditableTableKeyboardDebug) {
+      console.log('IsKeyFunctionKey: ', event.key, GeneralFlatDesignKeySettings)
+    }
     if (IsKeyFunctionKey(event.key)) {
       this.EmitKeydownEvent(
         event, row, rowPos, objectKey, colPos, inputId, fInputType,
@@ -272,6 +271,40 @@ export class InlineEditableTableComponent implements OnInit {
     this.inputFocusChanged.emit({ Event: event, Row: row, RowPos: rowPos, FieldDescriptor: col, ColPos: colPos, Focused: focused } as InputFocusChangedEvent);
   }
 
+  private HandleGridEscape(event: Event, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridEscape.name, event)
+    if (!this.khs.ShouldContinueWithEvent(event)) {
+      return;
+    }
+    this.dbDataTable?.HandleGridEscape(row, rowPos, col, colPos);
+  }
+
+  private HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, upward: boolean): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridMovement.name, event)
+    if (!this.khs.ShouldContinueWithEvent(event)) {
+      return;
+    }
+    this.dbDataTable?.HandleGridMovement(event, row, rowPos, col, colPos, upward);
+  }
+
+  private HandleGridCodeFieldEnter(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridCodeFieldEnter.name, event)
+    if (!this.khs.ShouldContinueWithEvent(event)) {
+      return;
+    }
+    this.parent?.HandleGridCodeFieldEnter(event, row, rowPos, objectKey, colPos, inputId, fInputType);
+  }
+
+  private HandleGridEnter(row: TreeGridNode<any>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
+    if (environment.inlineEditableTableKeyboardDebug) console.log(this.HandleGridEnter.name, event)
+    if (!this.khs.ShouldContinueWithEvent(event)) {
+      return;
+    }
+    this.dbDataTable?.HandleGridEnter(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable);
+  }
+
+  //#region CALCULATOR
+
   public openCalculator(event: any): void {
     HelperFunctions.StopEvent(event)
     if (!this.popover?.isShown) {
@@ -285,6 +318,10 @@ export class InlineEditableTableComponent implements OnInit {
     this.popover?.hide()
     this.kbs.ClickCurrentElement()
   }
+
+  //#endregion CALCULATOR
+
+  //#region HostListener
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
@@ -306,4 +343,5 @@ export class InlineEditableTableComponent implements OnInit {
     }
   }
 
+  //#endregion HostListener
 }

@@ -199,7 +199,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) });
+            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) }, ['productCode']);
             currentRow?.data.Save('productCode');
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
             this.dbDataTable.MoveNextInTable();
