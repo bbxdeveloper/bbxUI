@@ -272,7 +272,20 @@ export class ProductCodeManagerServiceService {
     }
   }
 
+  private MoveNextFromCodeField(request: CodeFieldChangeRequest): void {
+    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+    request.dbDataTable.MoveNextInTable();
+    setTimeout(() => {
+      this.keyboardService.setEditMode(KeyboardModes.EDIT);
+      this.keyboardService.ClickCurrentElement();
+    }, 200);
+  }
+
   private GeneralTableCodeFieldChanged(request: CodeFieldChangeRequest): void {
+    if (!request.dbDataTable.data[request.rowPos].data.Changed('productCode', true)) {
+      this.MoveNextFromCodeField(request)
+      return
+    }
     if (!!request.changedData && !!request.changedData.productCode && request.changedData.productCode.length > 0) {
       this.statusService.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING])
       this.productService.GetProductByCode({ ProductCode: request.changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -280,14 +293,9 @@ export class ProductCodeManagerServiceService {
           console.log('[TableRowDataChanged]: ', request.changedData, ' | Product: ', product)
 
           if (!!product && !!product?.productCode) {
-            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) })
+            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) }, ['productCode'])
             currentRow?.data.Save('productCode')
-            this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
-            request.dbDataTable.MoveNextInTable()
-            setTimeout(() => {
-              this.keyboardService.setEditMode(KeyboardModes.EDIT)
-              this.keyboardService.ClickCurrentElement()
-            }, 200)
+            this.MoveNextFromCodeField(request)
           } else {
             this.keyboardService.ClickCurrentElement()
             selectProcutCodeInTableInput()
@@ -308,6 +316,10 @@ export class ProductCodeManagerServiceService {
   }
 
   private SummaryInvoiceTableCodeFieldChanged(request: CodeFieldChangeRequest): void {
+    if (!request.dbDataTable.data[request.rowPos].data.Changed('productCode', true)) {
+      this.MoveNextFromCodeField(request)
+      return
+    }
     if (!!request.changedData && !!request.changedData.productCode && request.changedData.productCode.length > 0) {
       this.statusService.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: request.changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -315,14 +327,9 @@ export class ProductCodeManagerServiceService {
           console.log('[TableRowDataChanged]: ', request.changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) });
+            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) }, ['productCode']);
             currentRow?.data.Save('productCode');
-            this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-            request.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.keyboardService.setEditMode(KeyboardModes.EDIT);
-              this.keyboardService.ClickCurrentElement();
-            }, 200);
+            this.MoveNextFromCodeField(request)
           } else {
             request.dbDataTable.data[request.rowPos].data.Restore('productCode');
             this.bbxToastrService.show(

@@ -38,9 +38,8 @@ import { SendEmailRequest } from '../../infrastructure/models/Email';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
-import { OneTextInputDialogComponent } from '../../shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
-import { todaysDate, validDate } from 'src/assets/model/Validators';
+import { validDate } from 'src/assets/model/Validators';
 import { firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -919,7 +918,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   DownLoadCSV(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y - 1].data.id;
+      const id = this.dbData[this.kbS.p.y].data.id;
 
       this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD]);
       this.printAndDownLoadService.download_csv(
@@ -936,9 +935,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   async SendEmail() {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const selectedData = this.dbData[this.kbS.p.y - 1].data;
+      const selectedData = this.dbData[this.kbS.p.y].data;
       const selectedColumnIndex = this.kbS.p.x;
-      const id = selectedData.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -952,11 +950,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       }
 
       if (!offerCustomer) {
-        this.bbxToastrService.show(
-          Constants.MSG_CUSTOMER_MISSING_OFFER_NAV,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        );
+        this.bbxToastrService.showError(Constants.MSG_CUSTOMER_MISSING_OFFER_NAV);
         return;
       }
 
@@ -1049,7 +1043,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   ViewNotice(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y - 1].data.id;
+      const id = this.dbData[this.kbS.p.y].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -1069,14 +1063,14 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y - 1].data.id;
+      const id = this.dbData[this.kbS.p.y].data.id;
       this.router.navigate(['product/offers-edit', id, {}]);
     }
   }
 
   Delete(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y - 1].data.id;
+      const id = this.dbData[this.kbS.p.y].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -1113,8 +1107,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   protected GeneratePrintParams(): OfferPrintParams {
     return {
-      rowIndex: this.kbS.p.y - 1,
-      id: this.dbData[this.kbS.p.y - 1].data.id,
+      rowIndex: this.kbS.p.y,
+      id: this.dbData[this.kbS.p.y].data.id,
       dbData: this.dbData,
       dbDataTable: this.dbDataTable,
     } as OfferPrintParams;
@@ -1122,8 +1116,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   Print(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const rowIndex = this.kbS.p.y - 1;
-      const id = this.dbData[this.kbS.p.y - 1].data.id;
+      const id = this.dbData[this.kbS.p.y].data.id;
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -1143,10 +1136,6 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
-  private async GetOffer(id: number): Promise<Offer> {
-    const offerRes = lastValueFrom(this.offerService.Get({ ID: id, FullData: true }));
-    return offerRes;
-  }
 
   private async GetCustomer(id: number): Promise<Customer> {
     const customerRes = lastValueFrom(this.customerService.Get({ ID: id }));

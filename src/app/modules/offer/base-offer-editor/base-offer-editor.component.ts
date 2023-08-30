@@ -431,7 +431,20 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     const d = this.dbData[rowPos]?.data;
   }
 
+  private MoveNextFromCodeField(delayInMs: number = 200): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.dbDataTable.MoveNextInTable();
+    setTimeout(() => {
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+      this.kbS.ClickCurrentElement();
+    }, delayInMs);
+  }
+
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (!this.dbDataTable.data[rowPos].data.Changed('productCode', true)) {
+      this.MoveNextFromCodeField()
+      return
+    }
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -458,31 +471,22 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
                 .then(data => {
                   let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                     data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-                  });
+                  }, ['productCode']);
                   currentRow?.data.Save('productCode');
                   const _d = this.dbData[rowPos].data;
                   this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 200);
+
+                  this.MoveNextFromCodeField()
                 })
                 .catch(err => {
                   this.cs.HandleError(err);
 
                   let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                     data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-                  });
+                  }, ['productCode']);
                   currentRow?.data.Save('productCode');
 
-                  this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                  this.dbDataTable.MoveNextInTable();
-                  setTimeout(() => {
-                    this.kbS.setEditMode(KeyboardModes.EDIT);
-                    this.kbS.ClickCurrentElement();
-                  }, 500);
+                  this.MoveNextFromCodeField(500)
                 })
                 .finally(() => {
 
@@ -490,17 +494,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             } else {
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                 data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-              });
+              }, ['productCode']);
               currentRow?.data.Save('productCode');
 
               const _d = this.dbData[rowPos].data;
               this.dbData[rowPos].data.discount = 0;
-              this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 200);
+
+              this.MoveNextFromCodeField()
             }
           } else {
             this.kbS.ClickCurrentElement()
@@ -551,7 +551,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
           let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
             data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-          });
+          }, ['productCode']);
           currentRow?.data.Save('productCode');
 
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -579,7 +579,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             .then(data => {
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                 data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-              });
+              }, ['productCode']);
 
               currentRow?.data.Save('productCode');
 
@@ -598,7 +598,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                 data: OfferLine.FromProduct(
                   product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-              });
+              }, ['productCode']);
               currentRow?.data.Save('productCode');
 
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -612,7 +612,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         } else {
           let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
             data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-          });
+          }, ['productCode']);
           currentRow?.data.Save('productCode');
           const _d = this.dbData[rowPos].data;
           this.dbData[rowPos].data.discount = 0;
@@ -629,7 +629,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
         let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
           data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-        });
+        }, ['productCode']);
         currentRow?.data.Save('productCode');
 
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);

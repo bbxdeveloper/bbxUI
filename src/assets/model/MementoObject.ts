@@ -93,4 +93,25 @@ export class MementoObject<T = any> extends DynamicObject {
         }
         return undefined
     }
+
+    /**
+     * Checks if valuse saved under key 'key' differs from current field value.
+     * @param key Key for @see FieldMemory
+     * @param caseInsensitiveValue Case insensitive check, also handles all field values as strings.
+     * @param otherValue
+     * @returns True, false if changed or not; null if 'key' does not exis
+     */
+    public Changed(key: string, caseInsensitiveValue: boolean = false, otherValue: any = undefined): boolean | null {
+        if (key && Object.keys(this.t).includes(key)) {
+            if (otherValue === undefined) {
+                otherValue = this.t[key]
+            }
+            if (caseInsensitiveValue) {
+                return (this.FieldMemory[key] + '').toLowerCase() !== (otherValue + '').toLowerCase()
+            } else {
+                return this.FieldMemory[key] !== otherValue
+            }
+        }
+        return null
+    }
 }
