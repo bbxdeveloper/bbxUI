@@ -311,7 +311,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING])
       if (!wasInNavigationMode) {
-        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: res })
+        let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: res }, ['productCode'])
         currentRow?.data.Save('productCode')
         this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         this.dbDataTable.MoveNextInTable()
@@ -462,7 +462,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
             return
           }
 
-          let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: inbetween })
+          let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: inbetween }, ['productCode'])
 
           currentRow?.data.Save('productCode');
 

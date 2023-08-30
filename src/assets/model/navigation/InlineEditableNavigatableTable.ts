@@ -218,11 +218,30 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         return this.editedRow;
     }
 
-    FillCurrentlyEditedRow(newRowData: TreeGridNode<T>): TreeGridNode<T> | undefined {
+    /**
+     * Fills currently edited row with new row data.
+     * @param newRowData 
+     * @param checkForChange Don't overwrite currently edited row data if the checked field values are the same.
+     * @returns 
+     */
+    FillCurrentlyEditedRow(newRowData: TreeGridNode<T>, checkForChange: string[] = [], checkForChangeCaseInsensitive: boolean = false): TreeGridNode<T> | undefined {
         if (!!newRowData && !!this.editedRow) {
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-            this.data[this.editedRowPos!] = newRowData;
+            debugger
+            const rowData = this.data[this.editedRowPos!]?.data as any
+            if (!rowData || checkForChange.length === 0) {
+                this.data[this.editedRowPos!] = newRowData;
+            } else {
+                for (let i = 0; i < checkForChange.length; i++) {
+                    var key = checkForChange[i]
+                    if (rowData.Changed(key, checkForChangeCaseInsensitive, (newRowData.data as any)[key])) {
+                        this.data[this.editedRowPos!] = newRowData;
+                        break
+                    }
+                }
+            }
+
             var currentRow = this.data[this.editedRowPos!];
 
             this.SetCreatorRow();

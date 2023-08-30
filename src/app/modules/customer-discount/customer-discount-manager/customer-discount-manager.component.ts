@@ -414,7 +414,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     changedData.productGroup = res.productGroupDescription;
     changedData.productGroupID = res.id;
 
-    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: changedData }, ['productGroupCode']);
     currentRow?.data.Save('productGroupCode');
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
@@ -612,7 +612,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
                 changedData.productGroup = productGroup.productGroupDescription;
                 changedData.productGroupID = productGroup.id;
 
-                let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: changedData });
+                let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: changedData }, ['productGroupCode']);
                 currentRow?.data.Save('productGroupCode');
 
                 this.kbS.setEditMode(KeyboardModes.NAVIGATION);

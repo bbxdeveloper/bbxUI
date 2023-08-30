@@ -386,7 +386,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       }
     }
 
-    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, 0, realQty) });
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: InvCtrlItemLine.FromProduct(res, 0, 0, price, 0, realQty) }, ['productCode']);
     currentRow?.data.Save('productCode');
 
     console.log("after HandleProductSelectionFromDialog: ", this.dbDataTable.data[rowIndex]);

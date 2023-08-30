@@ -107,7 +107,6 @@
                                         autocomplete="off" type="checkbox" [name]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, InputId, it.fInputType, isEditModeOn, true, currentNavigatable)"
                                         [(ngModel)]="row.data[it.objectKey]" [id]="InputId" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
 
@@ -121,7 +120,6 @@
                                         autocomplete="off" type="checkbox" [name]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        (keyup)="CheckBoxKeyUp($event, row, rowPos, it.objectKey, colPos, InputId, it.fInputType, isEditModeOn, true, currentNavigatable)"
                                         [(ngModel)]="row.data[it.objectKey]" [id]="InputId" class="input-table-cell"
                                         [style.text-align]="it.textAlign" />
 
