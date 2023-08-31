@@ -1,5 +1,7 @@
 export default {
   component: {
+    viewportWidth: 1920,
+    viewportHeight: 1080,
     devServer: {
       framework: "angular",
       bundler: "webpack",

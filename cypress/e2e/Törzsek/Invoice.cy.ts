@@ -26,6 +26,12 @@ describe('template spec', () => {
     cy.wait(300)
     cy.contains(' Számla ').click()
     cy.wait(300)
+
+    cy.viewport(1920, 1080)
+    Cypress.config('viewportWidth', 1920)
+    cy.wrap(Cypress.config('viewportWidth')).should('eq', 1920)   // passing
+    Cypress.config('viewportHeight', 1080)
+    cy.wrap(Cypress.config('viewportHeight')).should('eq', 1080)   // passing
   })
 
 
@@ -53,9 +59,8 @@ describe('template spec', () => {
 
      var notice = (Math.random() + 1).toString(36).substring(7);
 
-     cy.get('[ng-reflect-name="notice"]').click().type(notice)
-     cy.get('[ng-reflect-name="notice"]').click().type('{enter}')
-     cy.get('[id="invoice-inline-table-invoice-line"]').click().trigger('keydown',
+     cy.get('[ng-reflect-name="notice"]').type(notice + '{enter}')
+     cy.get('[id="invoice-inline-table-invoice-line"]').trigger('keydown',
      {
       "key": "F2",
       "keyCode": 113,
@@ -70,6 +75,10 @@ describe('template spec', () => {
      })
      cy.wait(1000)
      cy.get('[ng-reflect-name="searchString"]').click().type('CSA-BA01')
+     cy.wait(1000)
+     cy.get('[ng-reflect-name="searchString"]').click().type('{downArrow}{enter}')
+     cy.wait(500)
+     cy.get('[ng-reflect-name="PRODUCT-EDIT"]').type('10')
   })
 
 
