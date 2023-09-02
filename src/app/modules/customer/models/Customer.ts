@@ -52,6 +52,10 @@ export interface Customer {
     latestDiscountPercent?: number
 }
 
+export function isCustomerPrivatePerson(customer: Customer): boolean {
+    return customer.customerVatStatus === 'PRIVATE_PERSON'
+}
+
 export function BlankCustomer(): Customer {
     return {
         id: 0,

@@ -218,39 +218,6 @@ input, label, th, td {
     }
 }
 
-.customer-search-row {
-    display: block;
-
-    tr {
-        display: grid;
-        align-items: center;
-        grid-template-columns: 35% 15% 50%;
-        min-width: 100%;
-
-        td {
-            input {
-                min-width: 50% !important;
-            }
-
-            .card-header-row-txt {
-                text-align: left;
-                margin-left: 10px;
-
-                font-size: xx-large;
-                text-transform: uppercase;
-                font-weight: 600;
-            }
-        }
-    }
-
-    .btn-hide {
-        visibility: hidden;
-    }
-    .btn-show {
-        visibility: visible;
-    }
-}
-
 .card-header-top-margin {
   margin-top: 10px;
   margin-bottom: 5px;
@@ -268,4 +235,13 @@ table.table-statistics-net-vat-gross {
         min-width: 300px;
         text-align: left;
     }
+}
+
+.px-24 {
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
 }

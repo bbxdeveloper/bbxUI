@@ -15,7 +15,6 @@ form.invoice-customer-form {
     nb-form-field {
         min-width: fit-content !important;
         max-width: 1000px;
-        margin: 0;
 
         &.area-row-1 {
             grid-area: row_1 !important;
@@ -37,6 +36,11 @@ form.invoice-customer-form {
         }
         &.area-row-7 {
             grid-area: row_7 !important;
+        }
+
+        .private-person {
+            color: white;
+            background-color: red;
         }
 
         div {
@@ -68,7 +72,6 @@ form.invoice-customer-form-search {
         "row_7 row_7";
 
     min-width: fit-content;
-    margin: 0 24px;
 
     .area-row-0 {
         grid-area: row_0 !important;
@@ -116,6 +119,40 @@ form.invoice-customer-form-search {
             max-width: 1000px;
             overflow-x: hidden;
         }
+    }
+}
+
+.customer-search-row {
+    display: block;
+    height: 45.6px;
+
+    tr {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 35% 15% 50%;
+        min-width: 100%;
+
+        td {
+            input {
+                min-width: 50% !important;
+            }
+
+            .card-header-row-txt {
+                text-align: left;
+                margin-left: 10px;
+
+                font-size: xx-large;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+        }
+    }
+
+    .btn-hide {
+        visibility: hidden;
+    }
+    .btn-show {
+        visibility: visible;
     }
 }
 
