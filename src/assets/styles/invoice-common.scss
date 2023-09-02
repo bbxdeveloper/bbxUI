@@ -59,69 +59,6 @@ form.invoice-customer-form {
     }
 }
 
-form.invoice-customer-form-search {
-    display: grid;
-    justify-content: stretch;
-    grid-template-areas:
-        "row_0 row_0"
-        "row_1 row_1"
-        "row_2 row_2"
-        "row_3 row_3"
-        "row_4 row_4"
-        "row_5 row_6"
-        "row_7 row_7";
-
-    min-width: fit-content;
-
-    .area-row-0 {
-        grid-area: row_0 !important;
-        margin-bottom: 10px;
-        height: 45px;
-    }
-
-    nb-form-field {
-        min-width: fit-content !important;
-        max-width: 1000px;
-        margin: 0;
-
-        &.area-row-1 {
-            grid-area: row_1 !important;
-        }
-        &.area-row-2 {
-            grid-area: row_2 !important;
-        }
-        &.area-row-3 {
-            grid-area: row_3 !important;
-        }
-        &.area-row-4 {
-            grid-area: row_4 !important;
-        }
-        &.area-row-5 {
-            grid-area: row_5 !important;
-        }
-        &.area-row-6 {
-            grid-area: row_6 !important;
-        }
-        &.area-row-7 {
-            grid-area: row_7 !important;
-        }
-
-        div {
-            display: flex;
-            align-items: center;
-            label {
-                min-width: 130px;
-                margin-left: 15px;
-            }
-        }
-
-        input {
-            max-width: 1000px;
-            overflow-x: hidden;
-        }
-    }
-}
-
 .customer-search-row {
     display: block;
     height: 45.6px;
