@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { of, startWith, map, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
+import { of, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -168,8 +168,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
     this.buyerData = customer
     this.cachedCustomerName = customer.customerName;
-    this.buyerFormNav.FillForm(customer, ['customerSearch']);
-    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
     this.searchByTaxtNumber = false;
   })
 
@@ -315,20 +313,9 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       this.outInvForm.reset(undefined);
     }
 
-    if (this.buyerForm === undefined) {
-      this.buyerForm = new FormGroup({
-        customerSearch: new FormControl('', []),
-        customerName: new FormControl('', [Validators.required]),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.buyerForm.reset(undefined);
-    }
+    this.buyerForm = new FormGroup({
+      customerSearch: new FormControl('', []),
+    });
 
     this.buyerFormNav = new InlineTableNavigatableForm(
       this.buyerForm,
@@ -636,13 +623,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         this.buyersData = d.data!;
         this.buyerFormNav.Setup(this.buyersData);
         console.log('Buyers: ', d);
-
-        // Set filters
-        this.filteredBuyerOptions$ = this.buyerForm.controls['customerName'].valueChanges
-          .pipe(
-            startWith(''),
-            map((filterString: any) => this.filterBuyers(filterString)),
-          );
 
         // Products
         this.dbData = [];
@@ -1120,8 +1100,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.buyerFormNav.FillForm(res);
-        this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
         if (this.mode.useCustomersPaymentMethod) {
           this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
@@ -1228,8 +1206,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
-          this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
 
           if (this.mode.useCustomersPaymentMethod) {
@@ -1251,7 +1227,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
             this.searchByTaxtNumber = false;
           }
           this.buyerFormNav.FillForm({}, ['customerSearch']);
-          this.buyerForm.controls['zipCodeCity'].setValue(undefined);
         }
       },
       error: (err) => {
@@ -1282,9 +1257,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   override SetDataForForm(data: any): void {
     if (!!data) {
       this.buyerData = { ...data as Customer };
-      data.zipCodeCity = data.postalCode + ' ' + data.city;
-
-      this.buyerFormNav.FillForm(data);
 
       this.kbS.SetCurrentNavigatable(this.outInvFormNav);
       this.kbS.SelectFirstTile();

@@ -206,39 +206,6 @@ input, label, th, td {
     font-size: 1.1rem;
 }
 
-.customer-search-row {
-    display: block;
-
-    tr {
-        display: grid;
-        align-items: center;
-        grid-template-columns: 35% 15% 50%;
-        min-width: 100%;
-
-        td {
-            input {
-                min-width: 50% !important;
-            }
-
-            .card-header-row-txt {
-                text-align: left;
-                margin-left: 10px;
-
-                font-size: xx-large;
-                text-transform: uppercase;
-                font-weight: 600;
-            }
-        }
-    }
-
-    .btn-hide {
-        visibility: hidden;
-    }
-    .btn-show {
-        visibility: visible;
-    }
-}
-
 .card-header-top-margin {
   margin-top: 10px;
   margin-bottom: 5px;
