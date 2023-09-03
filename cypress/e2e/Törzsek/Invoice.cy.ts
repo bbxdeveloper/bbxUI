@@ -79,6 +79,20 @@ describe('template spec', () => {
      cy.get('[ng-reflect-name="searchString"]').click().type('{downArrow}{enter}')
      cy.wait(500)
      cy.get('[ng-reflect-name="PRODUCT-EDIT"]').type('10')
+     cy.get('[ng-reflect-name="PRODUCT-EDIT"]').type('{ctrl}{enter}')
+     cy.wait(300)
+     cy.get('[ng-reflect-name="invoiceDiscountPercent"]').type('10')
+
+     cy.get('[formcontrolname="loginName"]').should('have.value', 'Kormos Krisztián')
+
+     cy.get('[ng-reflect-name="input_p"]').type('kk')
+     cy.wait(300)
+     cy.get('[id="confirm-dialog-button-yes"]').click()
+     cy.wait(3000)
+
+     cy.get('[id="confirm-dialog-button-no"]').click()
+
+
   })
 
 
