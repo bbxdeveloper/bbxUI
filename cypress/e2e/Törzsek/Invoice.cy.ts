@@ -87,15 +87,27 @@ describe('template spec', () => {
 
      cy.get('[ng-reflect-name="input_p"]').type('kk')
      cy.wait(300)
-     cy.get('[id="confirm-dialog-button-yes"]').click()
-     cy.wait(3000)
+     cy.get('[id="confirm-dialog-button-yes"]').click().type('{enter}')
+     cy.wait(5000)
 
-     cy.get('[id="confirm-dialog-button-no"]').click()
+     cy.get('.title.subtitle').should('have.text', 'Információ')
+     cy.get('.message').should('have.text', 'Sikeres mentés!')
 
 
+     cy.get('[ng-reflect-name="answer"]').click().type('{enter}{rightArrow}{enter}')
+     cy.wait(300)
+
+    //  cy.wait(5000)
+
+    //  cy.get('[id="date-interval-dialog-button-no"').click()
+
+    //Toast validation
+    cy.get('.title.subtitle').should('have.text', 'Információ')
+    cy.get('.message').should(($input) => {
+    const val = $input.val()
+    expect(val).to.contain('számla nyomtatása nem történt meg.')
   })
-
-
+  })
 
 
 })
