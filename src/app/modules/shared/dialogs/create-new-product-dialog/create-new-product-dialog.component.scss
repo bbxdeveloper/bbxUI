@@ -1,10 +1,14 @@
-@import 'side-bar-form-dialog';
+@use 'side-bar-form-dialog';
 
 .modal-product-active {
     border: 4px yellow double;
 
     min-width: 700px;
-    max-height: 700px;
+
+    form {
+        overflow: unset;
+        margin: unset;
+    }
 
     button {
         margin-right: 25px;
