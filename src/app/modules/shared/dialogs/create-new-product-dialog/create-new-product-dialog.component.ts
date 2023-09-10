@@ -1,7 +1,6 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
-import { createMask } from '@ngneat/input-mask';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -26,6 +25,8 @@ import { ProductService } from '../../../product/services/product.service';
 import { VatRate } from '../../../vat-rate/models/VatRate';
 import { VatRateService } from '../../../vat-rate/services/vat-rate.service';
 import { BaseNavigatableComponentComponent } from '../../base-navigatable-component/base-navigatable-component.component';
+import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
+import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
 
 
 @Component({
@@ -33,7 +34,7 @@ import { BaseNavigatableComponentComponent } from '../../base-navigatable-compon
   templateUrl: './create-new-product-dialog.component.html',
   styleUrls: ['./create-new-product-dialog.component.scss']
 })
-export class CreateNewProductDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
+export class CreateNewProductDialogComponent extends BaseNavigatableComponentComponent implements OnDestroy, AfterViewInit {
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -45,23 +46,10 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
   };
 
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0',
-  });
+  numberInputMask = NgNeatInputMasks.numberInputMask
+  numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger
 
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '0',
-  });
+  fixCursorPosition = fixCursorPosition
 
   blankOptionText: string = BlankComboBoxValue;
   TileCssClass = TileCssClass;
@@ -144,17 +132,12 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
   }
 
-  override ngOnInit(): void {
-    // this.kbS.SelectFirstTile();
-  }
-  ngAfterContentInit(): void {}
   ngOnDestroy(): void {
     if (!this.closedManually) {
       this.kbS.RemoveWidgetNavigatable();
     }
   }
-  ngAfterViewChecked(): void {
-  }
+
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
     this.SetNewForm(this.productForm);

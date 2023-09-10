@@ -39,6 +39,7 @@
                         <label class="multicol-label-col-1">Környezetvédelmi termékdíj</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="productFee"
+                            (focus)="fixCursorPosition($event)"
                             [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isEditModeOff"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
@@ -49,6 +50,7 @@
                         <label class="multicol-label-col-2">Utolsó beszár</label>
 
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
+                            (focus)="fixCursorPosition($event)"
                             [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isEditModeOff"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
@@ -71,6 +73,7 @@
                         <label class="multicol-label-col-1">Listaár</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="unitPrice1"
+                            (focus)="fixCursorPosition($event)"
                             [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
@@ -81,6 +84,7 @@
                         <label class="multicol-label-col-2">Egységár</label>
 
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
+                            (focus)="fixCursorPosition($event)"
                             [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
@@ -124,6 +128,7 @@
                         <label class="multicol-label-col-1">Minimum készlet</label>
 
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="minStock"
+                            (focus)="fixCursorPosition($event)"
                             [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
@@ -134,6 +139,7 @@
                         <label class="multicol-label-col-2">Rendelési egység</label>
 
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit" [readonly]="isEditModeOff"
+                            (focus)="fixCursorPosition($event)"
                             [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
