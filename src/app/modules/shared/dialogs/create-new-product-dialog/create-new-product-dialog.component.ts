@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { createMask } from '@ngneat/input-mask';
@@ -140,7 +140,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
       active: new FormControl(true, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
-      vatRateCode: new FormControl(undefined, []),
+      vatRateCode: new FormControl(undefined, [Validators.required]),
       noDiscount: new FormControl(false, [])
     });
 
@@ -334,6 +334,8 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
         this._vatRates = data?.data ?? [];
         this.vatRates = data?.data?.map(x => x.vatRateDescription) ?? [];
         this.vatRateComboData$.next(this.vatRates);
+
+        this.productForm.controls['vatRateCode'].setValue(data?.data?.find(x => x.vatRateCode === '27%')?.vatRateDescription ?? '')
       }
     });
   }

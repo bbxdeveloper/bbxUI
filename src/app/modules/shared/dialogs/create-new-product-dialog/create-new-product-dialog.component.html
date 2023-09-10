@@ -5,11 +5,11 @@
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!_form" [id]="sumFormId" [formGroup]="_form.form" #formDirective="ngForm"
             (focusout)="_form.HandleFormFocusOut()" (click)="_form.HandleFormClick()">
-        
+
             <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Kód*</label>
-        
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="productCode" #codeInput
                         [dropSpecialCharacters]="false" oninput="this.value = this.value.toUpperCase()"
                         (focus)="moveCursor(codeInput)" mask="AAA-ACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
@@ -18,36 +18,36 @@
                 </div>
                 <app-form-control-error [form]="_form" label="kód" controlName="productCode"></app-form-control-error>
             </nb-form-field>
-        
+
             <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megnevezés*</label>
-        
+
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="description" [readonly]="isEditModeOff"
                         (click)="_form.HandleFormFieldClick($event)">
                 </div>
                 <app-form-control-error [form]="_form" label="megnevezés" controlName="description">
                 </app-form-control-error>
             </nb-form-field>
-        
+
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="_form" formFieldName="productGroup"
                 label="Csoport" [data$]="productGroupComboData$"></app-bbx-combo-box>
-        
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Környezetvédelmi termékdíj</label>
-        
+
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="productFee"
                             [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isEditModeOff"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
-        
+
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Utolsó beszár</label>
-        
+
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
                             [inputMask]="numberInputMask" placeholder="0.00" [readonly]="isEditModeOff"
                             (click)="_form.HandleFormFieldClick($event)">
@@ -58,28 +58,28 @@
             </app-form-control-error>
             <app-form-control-error [form]="_form" label="utolsó beszár" controlName="latestSupplyPrice">
             </app-form-control-error>
-        
+
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="_form" formFieldName="origin"
                 label="Származási hely" [data$]="originsComboData$"></app-bbx-combo-box>
-        
+
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="_form" formFieldName="unitOfMeasure"
                 label="Me.e.*" [data$]="uomComboData$"></app-bbx-combo-box>
-        
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Listaár</label>
-        
+
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="unitPrice1"
                             [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
-        
+
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Egységár</label>
-        
+
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
                             [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
@@ -88,23 +88,23 @@
             </div>
             <app-form-control-error [form]="_form" label="listaár" controlName="unitPrice1"></app-form-control-error>
             <app-form-control-error [form]="_form" label="egységár" controlName="unitPrice2"></app-form-control-error>
-        
-            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="_form" formFieldName="vatRateCode" label="Áfakód"
+
+            <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="_form" formFieldName="vatRateCode" label="Áfakód*"
                 [data$]="vatRateComboData$"></app-bbx-combo-box>
-        
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-55 checkbox-wrapper"
                     (keydown.enter)="_form.HandleFormEnter($event)">
                     <label class="label-checkbox">Készletes?</label>
-        
+
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}} {{TileCssColClass}}" type="checkbox"
                         formControlName="isStock" [readonly]="isEditModeOff" (click)="_form.HandleFormFieldClick($event)">
                 </div>
-        
+
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
                     (keydown.enter)="_form.HandleFormEnter($event)">
                     <label class="label-checkbox">Aktív?</label>
-        
+
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="active"
                         [readonly]="isEditModeOff" (click)="_form.HandleFormFieldClick($event)">
                 </div>
@@ -112,27 +112,27 @@
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
                     (keydown.enter)="_form.HandleFormEnter($event)">
                     <label class="label-checkbox">Eng.tilt?</label>
-                
+
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="noDiscount"
                         [readonly]="isEditModeOff" (click)="_form.HandleFormFieldClick($event)">
                 </div>
             </div>
-        
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Minimum készlet</label>
-        
+
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="minStock"
                             [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
-        
+
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Rendelési egység</label>
-        
+
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit" [readonly]="isEditModeOff"
                             [inputMask]="numberInputMask" placeholder="0.00"
                             (click)="_form.HandleFormFieldClick($event)">
@@ -143,21 +143,21 @@
             </app-form-control-error>
             <app-form-control-error [form]="_form" label="rendelési egység" controlName="ordUnit">
             </app-form-control-error>
-        
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">vtsz*</label>
-        
+
                         <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="vtsz" mask="9*"
                             [readonly]="isEditModeOff" (click)="_form.HandleFormFieldClick($event)">
                     </div>
                 </nb-form-field>
-        
+
                 <nb-form-field (keydown.enter)="MoveToSaveButtons($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
-                        <label class="multicol-label-col-2">ean</label>
-        
+                        <label class="multicol-label-col-2">EAN</label>
+
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="ean" mask="9{1000}"
                             [readonly]="isEditModeOff" (click)="_form.HandleFormFieldClick($event)">
                     </div>
@@ -165,7 +165,7 @@
             </div>
             <app-form-control-error [form]="_form" label="vtsz" controlName="vtsz"></app-form-control-error>
             <app-form-control-error [form]="_form" label="ean" controlName="ean"></app-form-control-error>
-        
+
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
