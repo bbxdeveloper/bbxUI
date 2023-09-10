@@ -40,14 +40,6 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
 
   override NavigatableType = NavigatableType.dialog
 
-  public get saveIsDisabled(): boolean {
-    if (this._form !== undefined && this._form.form !== undefined) {
-      return this._form.form.invalid;
-    } else {
-      return true;
-    }
-  }
-
   customPatterns: any = {
     A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') },
     C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
@@ -246,6 +238,12 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
   }
 
   Save(): void {
+    if (!this.productForm || this.productForm.invalid) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_INVALID_FORM)
+
+      return
+    }
+
     const createRequest = this.ToCreateRequest(this._form!.FillObjectWithForm() as Product);
 
     this.isLoading = true;
