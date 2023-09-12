@@ -49,6 +49,7 @@ import { SingleDateDialogComponent } from './simple-dialogs/single-date-dialog/s
 import { ProductStockInformationDialogComponent } from './dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxProductCodeInputComponent } from './custom-inputs/bbx-product-code-input/bbx-product-code-input.component';
 import { EditCustomerDialogComponent } from './edit-customer-dialog/edit-customer-dialog.component';
+import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-numeric-input.component';
 
 
 @NgModule({
@@ -95,7 +96,8 @@ import { EditCustomerDialogComponent } from './edit-customer-dialog/edit-custome
     SingleDateDialogComponent,
     ProductStockInformationDialogComponent,
     BbxProductCodeInputComponent,
-    EditCustomerDialogComponent
+    EditCustomerDialogComponent,
+    BbxNumericInputComponent
   ],
   imports: [
     CommonModule,
