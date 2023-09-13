@@ -1,7 +1,6 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef, NbDialogService } from '@nebular/theme';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { KeyboardModes } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, NavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
@@ -25,10 +24,6 @@ import { LoginNameAndPwdRequest } from '../../auth/models/LoginNameAndPwdRequest
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
 
-const NavMap: string[][] = [
-  ['active-prod-search', 'show-all', 'show-less']
-];
-
 interface VatRateRow { Id: string, Value: number };
 
 const logTag: string = 'InvSaveDlgLogs'
@@ -41,7 +36,7 @@ const logTag: string = 'InvSaveDlgLogs'
 /**
  * Save and summary dialog for invoices and deliveries
  */
-export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
+export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, AfterContentInit, OnDestroy, OnInit {
   @Input() data!: OutGoingInvoiceFullData;
 
   @Input() InvoiceType: string = "";
@@ -389,35 +384,19 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   ngAfterViewInit(): void {
     this.kBs.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
-    if (this.doSelectFormField()) {
-      this.formNav.OuterJump = false
-      this.OuterJump = false
 
-      this.kBs.SetCurrentNavigatable(this);
+    this.kBs.SelectFirstTile();
+    this.kBs.setEditMode(KeyboardModes.EDIT);
 
-      this.kBs.SelectFirstTile();
-      this.kBs.setEditMode(KeyboardModes.NAVIGATION);
-    } else {
-      this.kBs.SelectFirstTile();
-      this.kBs.setEditMode(KeyboardModes.EDIT);
-
-      setTimeout(() => {
-        HelperFunctions.SelectBeginningByClass('discount-input', 10);
-      }, 100);
-    }
-  }
-
-  private doSelectFormField(): boolean {
-    return this.data.invoiceCategory === InvoiceCategory.AGGREGATE || !this.isDiscountVisible || this.isDiscountDisabled
+    setTimeout(() => {
+      HelperFunctions.SelectBeginningByClass('discount-input', 10);
+    }, 100);
   }
 
   ngOnDestroy(): void {
     if (!this.closedManually) {
       this.kBs.RemoveWidgetNavigatable();
     }
-  }
-
-  ngAfterViewChecked(): void {
   }
 
   RefreshCalc(): void {
