@@ -710,10 +710,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   ngAfterViewInit(): void {
-    this.AfterViewInitSetup();
-  }
-
-  private AfterViewInitSetup(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.buyerFormNav.GenerateAndSetNavMatrices(true);
@@ -766,8 +762,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       this.invoiceId = response.id
 
-      let controls = this.buyerForm.controls
-
       this.buyerData = {
         id: response.customerID,
         customerName: response.customerName,
@@ -777,10 +771,11 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         customerBankAccountNumber: response.customerBankAccountNumber,
         taxpayerNumber: response.customerTaxpayerNumber,
         thirdStateTaxId: response.customerThirdStateTaxId,
-        comment: response.CustomerComment
+        comment: response.CustomerComment,
+        customerVatStatus: response.customerVatStatus,
       } as Customer
 
-      controls = this.outInvForm.controls
+      const controls = this.outInvForm.controls
       controls['invoiceDeliveryDate'].setValue(response.invoiceDeliveryDate)
       controls['invoiceIssueDate'].setValue(response.invoiceIssueDate)
       controls['invoiceNumber'].setValue(response.invoiceNumber)
@@ -791,7 +786,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
-      // vatPercentage is missing from the model but we get it from the bakend
+      // vatPercentage is missing from the model but we get it from the backend
       // we have vatRate
       this.dbData.forEach(x => {
         x.data.vatRate = (x.data as any).vatPercentage;
