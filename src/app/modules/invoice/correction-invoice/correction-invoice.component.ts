@@ -244,6 +244,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       taxpayerNumber: invoice.customerTaxpayerNumber,
       thirdStateTaxId: invoice.customerThirdStateTaxId,
       comment: invoice.CustomerComment,
+      customerVatStatus: invoice.customerVatStatus,
     } as Customer
 
     this.invoiceFormData = {
