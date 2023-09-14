@@ -230,7 +230,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       taxpayerNumber: invoice.supplierTaxpayerNumber,
       thirdStateTaxId: invoice.supplierThirdStateTaxId,
       comment: invoice.supplierComment,
-      // customerVatStatus: invoice.supplierVatStatus,
+      customerVatStatus: invoice.supplierVatStatus,
     } as Customer
 
     this.buyerData = {

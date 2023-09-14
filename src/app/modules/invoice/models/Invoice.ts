@@ -19,6 +19,7 @@ export interface Invoice {
     supplierAdditionalAddressDetail: string,
     supplierComment: string,
     supplierThirdStateTaxId?: string,
+    supplierVatStatus: string,
     customerID: number,
     customerName: string,
     customerBankAccountNumber: string,
