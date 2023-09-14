@@ -58,7 +58,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public invoiceFormData!: InvoiceFormData
 
-  private readonly isIncomingCorrectionInvoice: boolean
+  public readonly isIncomingCorrectionInvoice: boolean
 
   override colsToIgnore: string[] = ["lineDescription", "unitOfMeasureX", 'unitPrice', 'rowNetPrice', 'rowGrossPriceRounded']
   private requiredCols: string[] = ['productCode', 'quantity']
@@ -182,8 +182,6 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   public ngAfterViewInit(): void {
-    console.log(this)
-
     this.invoiceForm.outInvFormNav.GenerateAndSetNavMatrices(true)
 
     this.dbDataTable = new InlineEditableNavigatableTable(
@@ -232,6 +230,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       taxpayerNumber: invoice.supplierTaxpayerNumber,
       thirdStateTaxId: invoice.supplierThirdStateTaxId,
       comment: invoice.supplierComment,
+      // customerVatStatus: invoice.supplierVatStatus,
     } as Customer
 
     this.buyerData = {
