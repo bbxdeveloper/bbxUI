@@ -177,7 +177,7 @@
         <table class="customer-search-row area-row-0 mb-10">
             <tr>
                 <td>
-                    <form class="invoice-customer-form-search" [formGroup]="buyerForm" #formDirective="ngForm"
+                    <form [formGroup]="buyerForm" #formDirective="ngForm"
                         (keydown.escape)="buyerFormNav.HandleFormEscape()" [id]="buyerFormId">
                         <nb-form-field class="search-row-nb-form-field" *ngIf="mode.isSummaryInvoice"
                             (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
