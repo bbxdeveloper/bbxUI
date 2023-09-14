@@ -81,7 +81,9 @@ $nb-themes: nb-register-theme((
   angular-editor-placeholder: #e1d7eb,
 
   form-error-message-color: #5e171a,
-  
+
+  input-selection-color: rgb(114, 140, 221),
+
 ), cosmic-light, cosmic);
 
 $nb-themes: nb-register-theme((
@@ -118,5 +120,7 @@ $nb-themes: nb-register-theme((
   angular-editor-placeholder: rgb(108, 117, 125),
 
   form-error-message-color: red,
+
+  input-selection-color: rgb(97, 123, 172)
 
 ), cosmic-custom, cosmic);

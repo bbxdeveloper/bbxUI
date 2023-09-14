@@ -58,7 +58,7 @@ export interface ChooseEditOfferProductRequest extends ChooseProductRequest<Offe
 export interface CodeFieldChangeRequest {
   dbDataTable: InlineEditableNavigatableTable<any>
   productToGridProductConversionCallback: any
-  
+
   changedData: any
   index: number
   row: TreeGridNode<InvoiceLine>
@@ -120,7 +120,7 @@ export class ProductCodeManagerServiceService {
     }
     return of(true)
   }
-  
+
   private ChooseDataForGeneralTableRow(request: ChooseProductRequest | any): Observable<any> {
     this.loggerService.info("Selecting InvoiceLine from avaiable data.")
 
@@ -178,7 +178,7 @@ export class ProductCodeManagerServiceService {
     this.dialogService.open(InvoiceItemsDialogComponent, {
       context: {
         invoiceId: request.data.originalInvoiceID,
-        checkedLineItems: request.dbData!.map(x => x.data),
+        checkedLineItems: request.dbData?.map(x => x.data) ?? [],
         allColumns: InvoiceItemsDialogTableSettings.AllColumns,
         colDefs: InvoiceItemsDialogTableSettings.ColDefs,
         selectedItemsChanged: event
