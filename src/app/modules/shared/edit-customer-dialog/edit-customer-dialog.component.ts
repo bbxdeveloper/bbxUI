@@ -14,7 +14,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { StatusService } from 'src/app/services/status.service';
 import { SystemService } from '../../system/services/system.service';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
-import { Customer } from '../../customer/models/Customer';
+import { Customer, isCustomerPrivatePerson } from '../../customer/models/Customer';
 import { NbDialogRef, NbDialogService } from '@nebular/theme';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 
@@ -123,7 +123,7 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
         }),
         tap(responses => {
           this.customer = responses[1]
-          this.isCustomerPrivatePerson = responses[1].customerVatStatus === 'PRIVATE_PERSON'
+          this.isCustomerPrivatePerson = isCustomerPrivatePerson(this.customer)
 
           this.customerForm.patchValue({
             id: this.customer.id,

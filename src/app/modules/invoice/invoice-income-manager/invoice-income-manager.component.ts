@@ -303,20 +303,9 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       this.outInvForm.reset(undefined);
     }
 
-    if (this.activeForm === undefined) {
-      this.activeForm = new FormGroup({
-        customerSearch: new FormControl('', []),
-        customerName: new FormControl('', [Validators.required]),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.activeForm.reset(undefined);
-    }
+    this.activeForm = new FormGroup({
+      customerSearch: new FormControl('', []),
+    });
 
     this.activeFormNav = new InlineTableNavigatableForm(
       this.activeForm,
@@ -578,13 +567,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         this.buyersData = d.data!;
         this.activeFormNav.Setup(this.buyersData);
         console.log('Buyers: ', d);
-
-        // Set filters
-        this.filteredBuyerOptions$ = this.activeForm.controls['customerName'].valueChanges
-          .pipe(
-            startWith(''),
-            map((filterString: any) => this.filterBuyers(filterString)),
-          );
 
         // Products
         this.dbData = [];
@@ -927,8 +909,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.activeFormNav.FillForm(res);
-        this.activeForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
@@ -990,7 +970,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.activeFormNav.FillForm(res.data[0], ['customerSearch']);
-          this.activeForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
         } else {
           if (this.customerInputFilterString.length >= 8 &&
@@ -1000,7 +979,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
             this.searchByTaxtNumber = false;
           }
           this.activeFormNav.FillForm({}, ['customerSearch']);
-          this.activeForm.controls['zipCodeCity'].setValue(undefined);
         }
       },
       error: (err) => {

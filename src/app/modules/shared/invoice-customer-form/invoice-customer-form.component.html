@@ -6,7 +6,7 @@
         <form class="invoice-customer-form" [formGroup]="form" (keydown.enter)="$event.preventDefault()"
             #formDirective="ngForm">
             <nb-form-field class="area-row-1">
-                <input nbInput type="text" formControlName='customerName' required="true" readonly id="l00">
+                <input nbInput type="text" formControlName='customerName' required="true" readonly id="l00" [ngClass]="{'private-person': isPrivatePerson}">
             </nb-form-field>
 
             <nb-form-field class="area-row-2">
