@@ -65,8 +65,8 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   @Input() min: number = Number.MIN_SAFE_INTEGER
   @Input() max: number = Number.MAX_SAFE_INTEGER
 
-  @Input() inputMapk?: any
-  @Input() placeholder: string = ''
+  @Input() inputmask?: any
+  @Input() placeholder?: string
 
   touched: boolean = false
   
@@ -76,20 +76,20 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
 
   get input_mask(): any {
-    if (this.inputMapk === undefined) {
+    if (this.inputmask === undefined) {
       if (this.input_type == "FLOAT") {
         return this.numberInputMask
       } else {
         return this.numberInputMaskInteger
       }
     }
-    return this.inputMapk
+    return this.inputmask
   }
   get input_placeholder(): string {
     if (HelperFunctions.isEmptyOrSpaces(this.placeholder)) {
       return this.input_type == "FLOAT" ? '0.00' : '0'
     }
-    return this.placeholder
+    return this.placeholder!
   }
 
   // Output
@@ -99,6 +99,9 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   @Output()
   public focus = new EventEmitter<any>()
+
+  @Output()
+  public focusOut = new EventEmitter<any>()
 
   @Output()
   public click = new EventEmitter<any>()
@@ -150,6 +153,12 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   proxyFocus(value: any) {
     this.log(`[BbxProductCodeInputComponent] proxyFocus, event: ${JSON.stringify(value)}`)
     this.focus.emit(value)
+  }
+
+  // TODO for BbxProductCodeInputComponent: test
+  proxyFocusOut(value: any) {
+    this.log(`[BbxProductCodeInputComponent] proxyFocusOut, event: ${JSON.stringify(value)}`)
+    this.focusOut.emit(value)
   }
 
   // TODO for BbxProductCodeInputComponent: test

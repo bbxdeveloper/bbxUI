@@ -63,13 +63,15 @@
                                 </ng-container>
 
                                 <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
-                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" [name]="InputId"
+                                    <app-bbx-numeric-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        [(ngModel)]="row.data[it.objectKey]" [name]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="it.inputMask"
-                                        [placeholder]="it.placeHolder" class="input-table-cell" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        [style.text-align]="it.textAlign" />
+                                        [id]="InputId" [inputmask]="it.inputMask" [placeholder]="it.placeHolder"
+                                        input_class="input-table-cell"
+                                        [style_text_align]="it.textAlign"
+                                        [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false">
+                                    </app-bbx-numeric-input>
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{
@@ -80,13 +82,15 @@
                                 </ng-container>
 
                                 <ng-container *ngSwitchCase="'formatted-number-integer'">
-                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" [name]="InputId"
-                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                    <app-bbx-numeric-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        [(ngModel)]="row.data[it.objectKey]" [name]="InputId"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [inputMask]="numberInputMaskInteger" placeholder="0" class="input-table-cell"
-                                        [style.text-align]="it.textAlign" />
+                                        [id]="InputId" [inputmask]="it.inputMask" placeholder="0"
+                                        input_class="input-table-cell"
+                                        [style_text_align]="it.textAlign"
+                                        [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false">
+                                    </app-bbx-numeric-input>
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
