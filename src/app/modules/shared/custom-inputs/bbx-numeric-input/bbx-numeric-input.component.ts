@@ -4,7 +4,7 @@ import { noop } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
 import { Constants } from 'src/assets/util/Constants';
 import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { NbPopoverDirective } from '@nebular/theme';
+import { NbFormFieldControl, NbPopoverDirective } from '@nebular/theme';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -31,6 +31,12 @@ export enum BbxNumericInputType {
       provide: NG_VALIDATORS,
       multi: true,
       useExisting: forwardRef(() => BbxNumericInputComponent)
+    },
+    {
+      // To avoid error "NbFormFieldComponent" must contain [nbInput]
+      // Based on how it's done in material: https://material.angular.io/guide/creating-a-custom-form-field-control
+      // Couldn't find any tutorial for Nebular in this case
+      provide: NbFormFieldControl, useExisting: BbxNumericInputComponent
     }
   ]
 })
@@ -49,7 +55,18 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   @Input() required: boolean = false
   @Input() readonly: boolean = false
 
-  @Input() input_type: BbxNumericInputType = BbxNumericInputType.DEFAULT
+  @Input() input_type: BbxNumericInputType | string = BbxNumericInputType.DEFAULT
+
+  @Input() formCtrlName: string | number | null = null
+  @Input() isFormCtrl: boolean = false
+  @Input() usedForm: any
+  @Input() formCtrlLabel: string = ''
+
+  @Input() min: number = Number.MIN_SAFE_INTEGER
+  @Input() max: number = Number.MAX_SAFE_INTEGER
+
+  @Input() inputMapk?: any
+  @Input() placeholder: string = ''
 
   touched: boolean = false
   
@@ -58,6 +75,23 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
 
+  get input_mask(): any {
+    if (this.inputMapk === undefined) {
+      if (this.input_type == "FLOAT") {
+        return this.numberInputMask
+      } else {
+        return this.numberInputMaskInteger
+      }
+    }
+    return this.inputMapk
+  }
+  get input_placeholder(): string {
+    if (HelperFunctions.isEmptyOrSpaces(this.placeholder)) {
+      return this.input_type == "FLOAT" ? '0.00' : '0'
+    }
+    return this.placeholder
+  }
+
   // Output
 
   @Output()
@@ -65,6 +99,9 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   @Output()
   public focus = new EventEmitter<any>()
+
+  @Output()
+  public click = new EventEmitter<any>()
 
   // Mask
 
@@ -113,6 +150,12 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   proxyFocus(value: any) {
     this.log(`[BbxProductCodeInputComponent] proxyFocus, event: ${JSON.stringify(value)}`)
     this.focus.emit(value)
+  }
+
+  // TODO for BbxProductCodeInputComponent: test
+  proxyClick(value: any) {
+    this.log(`[BbxProductCodeInputComponent] proxyClick, event: ${JSON.stringify(value)}`)
+    this.click.emit(value)
   }
 
   // Misc functions

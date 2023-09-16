@@ -153,13 +153,25 @@
                         <label class="multicol-label-col-1">
                             Fizetési határidő (nap)
                         </label>
+
                         <input class="{{TileCssClass}}" nbInput type="text" formControlName="paymentDays"
-                            [readOnly]="isReadonly" [inputMask]="numberInputMaskInteger"
+                            [readonly]="isReadonly" [inputMask]="numberInputMaskInteger"
                             (click)="currentForm.HandleFormFieldClick($event)">
                     </div>
 
                     <app-form-control-error [form]="currentForm" controlName="paymentDays"></app-form-control-error>
                 </nb-form-field>
+                
+                <!-- <app-bbx-numeric-input
+                            class='bbx-fd-form-field-inner-div-2'
+                            formCtrlName="paymentDays"
+                            formCtrlLabel="Fizetési határidő (nap)"
+                            [usedForm]="currentForm"
+                            [isFormCtrl]="true"
+                            input_class="{{TileCssClass}}"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [readonly]="isReadonly">
+                </app-bbx-numeric-input> -->
 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">

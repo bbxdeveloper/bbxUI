@@ -168,7 +168,8 @@ import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-
     HozirontalSplitLayoutComponent,
     VerticalSplitLayoutComponent,
     SingleDateDialogComponent,
-    BbxProductCodeInputComponent
+    BbxProductCodeInputComponent,
+    BbxNumericInputComponent
   ],
   providers: [
     ConfirmationDialogComponent

@@ -5,12 +5,21 @@
             (keydown.escape)="formNav.HandleFormEscape()">
             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                 <label>{{inputLabel}}</label>
-                <input *ngIf="!limitValue" class="{{TileCssClass}} one-number-input-dialog-input" nbInput type="text" formControlName='answer' required="true"
-                    [inputMask]="numberInputMask" [placeholder]="placeHolder"
-                    (click)="formNav.HandleFormFieldClick($event)">
-                <input *ngIf="limitValue" class="{{TileCssClass}} one-number-input-dialog-input" nbInput type="number" formControlName='answer'
-                    required="true" [min]="minValue" [max]="maxValue"
-                    (click)="formNav.HandleFormFieldClick($event)">
+                <app-bbx-numeric-input *ngIf="!limitValue"
+                    formControlName='answer'[placeholder]="placeHolder"
+                    input_class="{{TileCssClass}} one-number-input-dialog-input"
+                    (click)="formNav.HandleFormFieldClick($event)"
+                    [required]="true">
+                </app-bbx-numeric-input>
+                
+                <app-bbx-numeric-input *ngIf="limitValue"
+                    formControlName='answer'
+                    input_class="{{TileCssClass}} one-number-input-dialog-input"
+                    [min]="minValue" [max]="maxValue"
+                    input_type="INTEGER"
+                    (click)="formNav.HandleFormFieldClick($event)"
+                    [required]="true">
+                </app-bbx-numeric-input>
             </nb-form-field>
             <app-form-control-error *ngIf="limitValue" [form]="formNav" [min]="minValue" [max]="maxValue" [label]="inputLabel"
                 controlName="answer"></app-form-control-error>

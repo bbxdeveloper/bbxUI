@@ -228,7 +228,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         if (!!newRowData && !!this.editedRow) {
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-            debugger
             const rowData = this.data[this.editedRowPos!]?.data as any
             if (!rowData || checkForChange.length === 0) {
                 this.data[this.editedRowPos!] = newRowData;
