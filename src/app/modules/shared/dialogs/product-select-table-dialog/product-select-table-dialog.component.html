@@ -87,13 +87,6 @@
                                 </div>
                             </ng-container>
         
-                            <ng-container *ngSwitchCase="'formatted-number-2'">
-                                <div>
-                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] |
-                                    number:'1.1-5' }}
-                                </div>
-                            </ng-container>
-        
                             <ng-container *ngSwitchCase="'formatted-number-integer'">
                                 <div>
                                     {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}

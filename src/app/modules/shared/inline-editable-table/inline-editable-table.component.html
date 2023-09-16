@@ -45,29 +45,6 @@
                                     </div>
                                 </ng-container>
 
-                                <!-- <ng-container *ngSwitchCase="'formatted-number'">
-                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" [name]="InputId"
-                                        [nbPopover]="calculator" nbPopoverTrigger="noop" nbPopoverPlacement="top"
-                                        (keydown.F4)="openCalculator($event)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
-                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="numberInputMask"
-                                        placeholder="0.00" class="input-table-cell" [style.text-align]="it.textAlign" />
-
-                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{
-                                        it.calc !== undefined ?
-                                        it.calc(row.data) :
-                                        row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.'
-                                        }}
-                                    </div>
-
-                                    <ng-template #calculator>
-                                        <app-calculator-popover [(result)]="row.data[it.objectKey]" (popoverClose)="closeCalculator()"></app-calculator-popover>
-                                    </ng-template>
-                                </ng-container> -->
-
                                 <ng-container *ngSwitchCase="'formatted-number'">
                                     <app-bbx-numeric-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         [(ngModel)]="row.data[it.objectKey]" [name]="InputId"
@@ -81,22 +58,6 @@
                                         it.calc !== undefined ?
                                         it.calc(row.data) :
                                         row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.'
-                                        }}
-                                    </div>
-                                </ng-container>
-
-                                <ng-container *ngSwitchCase="'formatted-number-single'">
-                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)" autocomplete="off"
-                                        nbInput type="text" [name]="InputId" (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
-                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="numberInputMaskSingle" placeholder="0.0"
-                                        class="input-table-cell" [style.text-align]="it.textAlign" />
-
-                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{
-                                        it.calc !== undefined ?
-                                        it.calc(row.data) :
-                                        row.data[it.objectKey] | removeWhitespaces | number:'1.1':'fr' | replace:',':'.'
                                         }}
                                     </div>
                                 </ng-container>
@@ -115,21 +76,6 @@
                                         row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) :
                                         '8.2'):'fr' | replace:',':'.'
                                         }}
-                                    </div>
-                                </ng-container>
-
-                                <ng-container *ngSwitchCase="'formatted-number-2'">
-                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
-                                        autocomplete="off" nbInput type="text" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
-                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
-                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
-                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="numberInputMask"
-                                        placeholder="0.00000" oninput="$event.target.setSelectionRange(0, 1)"
-                                        class="input-table-cell" [style.text-align]="it.textAlign" />
-
-                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
-                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] |
-                                        number:'1.1-5' }}
                                     </div>
                                 </ng-container>
 
