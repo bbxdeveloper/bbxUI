@@ -49,11 +49,15 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Környezetvédelmi termékdíj</label>
 
-                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="productFee"
-                            [inputMask]="numberInputMask" placeholder="0.00"
-                            [readonly]="isReadonly"
+                        <app-bbx-numeric-input
+                            formControlName='productFee'
+                            class="display-contents"
+                            input_class="{{TileCssClass}} {{TileCssColClass}}"
                             (focus)="fixCursorPosition($event)"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
 
@@ -61,11 +65,15 @@
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Utolsó beszár</label>
 
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestSupplyPrice"
-                        [inputMask]="numberInputMask" placeholder="0.00"
-                        [readonly]="isReadonly"
-                        (focus)="fixCursorPosition($event)"
-                        (click)="currentForm.HandleFormFieldClick($event)">
+                        <app-bbx-numeric-input
+                            formControlName='latestSupplyPrice'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (focus)="fixCursorPosition($event)"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
             </div>
@@ -83,11 +91,15 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Listaár</label>
 
-                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="unitPrice1"
-                            [readonly]="isReadonly"
-                            [inputMask]="numberInputMask" placeholder="0.00"
+                        <app-bbx-numeric-input
+                            formControlName='unitPrice1'
+                            class="display-contents"
+                            input_class="{{TileCssClass}} {{TileCssColClass}}"
                             (focus)="fixCursorPosition($event)"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
 
@@ -95,11 +107,15 @@
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Egységár</label>
 
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="unitPrice2"
-                        [readonly]="isReadonly"
-                        [inputMask]="numberInputMask" placeholder="0.00"
-                        (focus)="fixCursorPosition($event)"
-                        (click)="currentForm.HandleFormFieldClick($event)">
+                        <app-bbx-numeric-input
+                            formControlName='unitPrice2'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (focus)="fixCursorPosition($event)"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
             </div>
@@ -142,11 +158,15 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Minimum készlet</label>
 
-                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="minStock"
-                            [readonly]="isReadonly"
-                            [inputMask]="numberInputMask" placeholder="0.00"
+                        <app-bbx-numeric-input
+                            formControlName='minStock'
+                            class="display-contents"
+                            input_class="{{TileCssClass}} {{TileCssColClass}}"
                             (focus)="fixCursorPosition($event)"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
 
@@ -154,11 +174,15 @@
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Rendelési egység</label>
 
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="ordUnit"
-                        [readonly]="isReadonly"
-                        [inputMask]="numberInputMask" placeholder="0.00"
-                        (focus)="fixCursorPosition($event)"
-                        (click)="currentForm.HandleFormFieldClick($event)">
+                        <app-bbx-numeric-input
+                            formControlName='ordUnit'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (focus)="fixCursorPosition($event)"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
             </div>
