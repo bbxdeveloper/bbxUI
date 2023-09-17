@@ -10,6 +10,7 @@
                 (focusout)="proxyFocusOut($event)"
                 (click)="proxyClick($event)"
                 [(ngModel)]="value"
+                [readOnly]="readonly"
                 [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
                 [class]="input_class" class="bbx-numeric-input-inner"
                 [style.text-align]="style_text_align" />
@@ -26,6 +27,7 @@
         (focusout)="proxyFocusOut($event)"
         (click)="proxyClick($event)"
         [(ngModel)]="value"
+        [readOnly]="readonly"
         [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
         [class]="input_class" class="bbx-numeric-input-inner"
         [style.text-align]="style_text_align" />
