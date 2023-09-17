@@ -57,20 +57,29 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Számláló*</label>
 
-                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="currentNumber"
-                        [readonly]="isReadonly"
-                            [inputMask]="numberInputMaskInteger" (click)="currentForm.HandleFormFieldClick($event)">
+                        <app-bbx-numeric-input
+                            formControlName='currentNumber'
+                            class="display-contents"
+                            input_class="{{TileCssClass}} {{TileCssColClass}}"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMaskInteger" placeholder="Nincs beállítva"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
                 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Számláló számjegyek száma*</label>
-                        
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="numbepartLength"
-                        [inputMask]="numberInputMaskInteger"
-                        [readonly]="isReadonly"
-                        (click)="currentForm.HandleFormFieldClick($event)">
+
+                        <app-bbx-numeric-input
+                            formControlName='numbepartLength'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMaskInteger" placeholder="Nincs beállítva"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
             </div>
