@@ -1,4 +1,4 @@
-@import 'invoice-common';
+@use 'invoice-common';
 
 .card-header-top-margin {
   margin-top: 10px;
@@ -12,23 +12,10 @@ label.single_label {
     font-size: 20px;
 }
 
-nb-form-field {
-    margin: 10px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
-
 nb-card {
     background: none;
     border: none;
     margin: 0px;
-}
-
-nb-form-field {
-    margin: 0px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 nb-card-header {

@@ -1,0 +1,37 @@
+<form class="invoice-customer-form" [formGroup]="customerForm" ngForm>
+    <nb-form-field class="area-row-1">
+        <input nbInput type="text" formControlName='customerName' required="true" placeholder="Név"
+            readonly id="r01" [ngClass]="{'private-person': isPrivatePerson}">
+    </nb-form-field>
+
+    <nb-form-field class="area-row-2">
+        <input nbInput type="text" formControlName='zipCodeCity'
+            placeholder="Irányítószám és Város" readonly id="r01">
+    </nb-form-field>
+
+    <nb-form-field class="area-row-3">
+        <input nbInput type="text" formControlName='additionalAddressDetail'
+            placeholder="Utca, házszám" readonly id="r02">
+    </nb-form-field>
+
+    <nb-form-field class="area-row-4">
+        <input nbInput type="text" formControlName='customerBankAccountNumber'
+            placeholder="Számlaszám" readonly id="r03">
+    </nb-form-field>
+
+    <nb-form-field class="area-row-5">
+        <input nbInput type="text" formControlName='taxpayerNumber'
+            placeholder="Adószám" readonly id="r04">
+    </nb-form-field>
+    <nb-form-field class="area-row-6">
+        <div>
+            <label>EUR adósz.:</label>
+            <input nbInput type="text" formControlName='thirdStateTaxId' placeholder="Adószám" readonly id="r04">
+        </div>
+    </nb-form-field>
+
+    <nb-form-field class="area-row-7">
+        <input nbInput type="text" formControlName='comment' placeholder="Megjegyzés"
+            readonly id="r05">
+    </nb-form-field>
+</form>

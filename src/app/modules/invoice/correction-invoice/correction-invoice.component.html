@@ -8,9 +8,9 @@
         <label class="customer-label">Megjegyzés</label>
     </app-invoice-style-label-column>
 
-    <app-invoice-customer-form left [customer]="senderData" title="SZÁLLÍTÓ"></app-invoice-customer-form>
+    <app-invoice-customer-form left [customer]="senderData" title="SZÁLLÍTÓ" [markPrivatePerson]="isIncomingCorrectionInvoice"></app-invoice-customer-form>
 
-    <app-invoice-customer-form right [customer]="buyerData" title="VEVŐ"></app-invoice-customer-form>
+    <app-invoice-customer-form right [customer]="buyerData" title="VEVŐ" [markPrivatePerson]="!isIncomingCorrectionInvoice"></app-invoice-customer-form>
 
     <app-invoice-form #invoiceForm middle [editDisabled]="editDisabled" [invoiceFormData]="invoiceFormData" [mode]="mode"></app-invoice-form>
 

@@ -1,7 +1,6 @@
-import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
-import { createMask } from '@ngneat/input-mask';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -26,6 +25,8 @@ import { ProductService } from '../../../product/services/product.service';
 import { VatRate } from '../../../vat-rate/models/VatRate';
 import { VatRateService } from '../../../vat-rate/services/vat-rate.service';
 import { BaseNavigatableComponentComponent } from '../../base-navigatable-component/base-navigatable-component.component';
+import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
+import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
 
 
 @Component({
@@ -33,43 +34,22 @@ import { BaseNavigatableComponentComponent } from '../../base-navigatable-compon
   templateUrl: './create-new-product-dialog.component.html',
   styleUrls: ['./create-new-product-dialog.component.scss']
 })
-export class CreateNewProductDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
+export class CreateNewProductDialogComponent extends BaseNavigatableComponentComponent implements OnDestroy, AfterViewInit {
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
 
   override NavigatableType = NavigatableType.dialog
 
-  public get saveIsDisabled(): boolean {
-    if (this._form !== undefined && this._form.form !== undefined) {
-      return this._form.form.invalid;
-    } else {
-      return true;
-    }
-  }
-
   customPatterns: any = {
     A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') },
     C: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä]') }
   };
 
-  numberInputMask = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 2,
-    digitsOptional: false,
-    prefix: '',
-    placeholder: '0',
-  });
+  numberInputMask = NgNeatInputMasks.numberInputMask
+  numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger
 
-  numberInputMaskInteger = createMask({
-    alias: 'numeric',
-    groupSeparator: ' ',
-    digits: 0,
-    digitsOptional: true,
-    prefix: '',
-    placeholder: '0',
-  });
+  fixCursorPosition = fixCursorPosition
 
   blankOptionText: string = BlankComboBoxValue;
   TileCssClass = TileCssClass;
@@ -140,7 +120,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
       active: new FormControl(true, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
-      vatRateCode: new FormControl(undefined, []),
+      vatRateCode: new FormControl(undefined, [Validators.required]),
       noDiscount: new FormControl(false, [])
     });
 
@@ -152,17 +132,12 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     this.Matrix = [["confirm-dialog-button-yes", "confirm-dialog-button-no"]];
   }
 
-  override ngOnInit(): void {
-    // this.kbS.SelectFirstTile();
-  }
-  ngAfterContentInit(): void {}
   ngOnDestroy(): void {
     if (!this.closedManually) {
       this.kbS.RemoveWidgetNavigatable();
     }
   }
-  ngAfterViewChecked(): void {
-  }
+
   ngAfterViewInit(): void {
     this.kbS.SetWidgetNavigatable(this);
     this.SetNewForm(this.productForm);
@@ -246,6 +221,12 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
   }
 
   Save(): void {
+    if (!this.productForm || this.productForm.invalid) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_INVALID_FORM)
+
+      return
+    }
+
     const createRequest = this.ToCreateRequest(this._form!.FillObjectWithForm() as Product);
 
     this.isLoading = true;
@@ -334,6 +315,8 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
         this._vatRates = data?.data ?? [];
         this.vatRates = data?.data?.map(x => x.vatRateDescription) ?? [];
         this.vatRateComboData$.next(this.vatRates);
+
+        this.productForm.controls['vatRateCode'].setValue(data?.data?.find(x => x.vatRateCode === '27%')?.vatRateDescription ?? '')
       }
     });
   }

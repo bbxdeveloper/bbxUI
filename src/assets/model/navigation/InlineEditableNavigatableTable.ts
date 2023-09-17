@@ -220,9 +220,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     /**
      * Fills currently edited row with new row data.
-     * @param newRowData 
+     * @param newRowData
      * @param checkForChange Don't overwrite currently edited row data if the checked field values are the same.
-     * @returns 
+     * @returns
      */
     FillCurrentlyEditedRow(newRowData: TreeGridNode<T>, checkForChange: string[] = [], checkForChangeCaseInsensitive: boolean = false): TreeGridNode<T> | undefined {
         if (!!newRowData && !!this.editedRow) {
