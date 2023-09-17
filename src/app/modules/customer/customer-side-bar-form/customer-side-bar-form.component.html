@@ -126,23 +126,33 @@
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Figyelmeztetés limit</label>
 
-                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="warningLimit"
-                            [inputMask]="numberInputMask" placeholder="Nincs beállítva" [readonly]="isReadonly"
+                        <app-bbx-numeric-input
+                            formControlName='warningLimit'
+                            class="display-contents"
+                            input_class="{{TileCssClass}} {{TileCssColClass}}"
                             (focus)="fixCursorPosition($event)"
-                            (click)="currentForm.HandleFormFieldClick($event)">
-                        </div>
-                    </nb-form-field>
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="Nincs beállítva"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
+                    </div>
+                </nb-form-field>
 
-                    <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
-                        <div class="bbx-fd-form-field-inner-div-2">
-                            <label class="multicol-label-col-2">Maximális limit</label>
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Maximális limit</label>
 
-                            <input class="{{TileCssClass}}" nbInput type="text" formControlName="maxLimit"
-                                [inputMask]="numberInputMask" placeholder="Nincs beállítva" [readonly]="isReadonly"
-                                (focus)="fixCursorPosition($event)"
-                                (click)="currentForm.HandleFormFieldClick($event)">
-                        </div>
-                    </nb-form-field>
+                        <app-bbx-numeric-input
+                            formControlName='maxLimit'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (focus)="fixCursorPosition($event)"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="Nincs beállítva"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
+                    </div>
+                </nb-form-field>
             </div>
 
             <app-form-control-error [form]="currentForm" controlName="warningLimit"></app-form-control-error>
@@ -154,32 +164,32 @@
                             Fizetési határidő (nap)
                         </label>
 
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="paymentDays"
-                            [readonly]="isReadonly" [inputMask]="numberInputMaskInteger"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                        <app-bbx-numeric-input
+                            formControlName='paymentDays'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMaskInteger"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
 
                     <app-form-control-error [form]="currentForm" controlName="paymentDays"></app-form-control-error>
                 </nb-form-field>
-                
-                <!-- <app-bbx-numeric-input
-                            class='bbx-fd-form-field-inner-div-2'
-                            formCtrlName="paymentDays"
-                            formCtrlLabel="Fizetési határidő (nap)"
-                            [usedForm]="currentForm"
-                            [isFormCtrl]="true"
-                            input_class="{{TileCssClass}}"
-                            (click)="currentForm.HandleFormFieldClick($event)"
-                            [readonly]="isReadonly">
-                </app-bbx-numeric-input> -->
 
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Legutolsó bizonylatkedvezmény</label>
 
-                        <input class="{{TileCssClass}}" nbInput type="text" formControlName="latestDiscountPercent" [inputMask]="numberInputMask"
-                            placeholder="Nincs beállítva" [readonly]="isReadonly"
-                            (click)="currentForm.HandleFormFieldClick($event)">
+                        <app-bbx-numeric-input
+                            formControlName='latestDiscountPercent'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (focus)="fixCursorPosition($event)"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="Nincs beállítva"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
             </div>

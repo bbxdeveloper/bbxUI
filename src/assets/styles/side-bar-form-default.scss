@@ -191,3 +191,9 @@ div.triple-input-column {
         }
     }
 }
+
+// Custom inputs
+
+::ng-deep .bbx-numeric-input-inner {
+    margin-top: 2px;
+}
