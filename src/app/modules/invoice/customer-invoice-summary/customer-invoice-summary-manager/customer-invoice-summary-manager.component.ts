@@ -342,12 +342,6 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       return;
     }
     switch (event.key) {
-      case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-        break;
-      }
       case this.KeySetting[Actions.Print].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
