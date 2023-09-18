@@ -99,10 +99,15 @@
                             <td *ngIf="showExchangeRateInput">
                                 <nb-form-field (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)">
                                     <label>Árfolyam</label>
-                                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="exchangeRate"
-                                        [readonly]="isEditModeOff" [inputMask]="numberInputMask" placeholder="0.00"
+                                    <app-bbx-numeric-input
+                                        formControlName='exchangeRate'
+                                        class="display-contents"
+                                        input_class="{{TileCssClass}}"
+                                        (click)="buyerFormNav.HandleFormFieldClick($event)"
+                                        [inputmask]="numberInputMask" placeholder="0.00"
                                         (focus)="selectIntPart($event)"
-                                        (click)="buyerFormNav.HandleFormFieldClick($event)">
+                                        [readonly]="isEditModeOff">
+                                    </app-bbx-numeric-input>
                                 </nb-form-field>
                             </td>
                             <td>

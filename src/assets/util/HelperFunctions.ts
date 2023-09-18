@@ -13,6 +13,8 @@ import { CalculatorPopoverComponent } from "src/app/modules/shared/calculator-po
 import { FormGroup } from "@angular/forms";
 import { OneButtonConfirmationDialogComponent } from "src/app/modules/shared/simple-dialogs/one-button-confirmation-dialog/one-button-confirmation-dialog.component";
 import { NavigatableType } from "../model/navigation/Navigatable";
+import { OneNumberInputDialogComponent } from "src/app/modules/shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component";
+import { createMask } from "@ngneat/input-mask";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -480,5 +482,32 @@ export module HelperFunctions {
         }
         const hasData = Object.keys(focusedTable).includes('data')
         return focusedTable.NavigatableType === NavigatableType.inline_editable_table && hasData && focusedTable.data.length === 1
+    }
+
+    export function TestOneNumberInputDialog(dialogService: NbDialogService): void {
+        var dialogRef;
+        try {
+        dialogRef = dialogService.open(OneNumberInputDialogComponent, {
+            context: {
+            title: 'Input Test',
+            inputLabel: 'Label',
+            defaultValue: 1,
+            numberInputMask: createMask({
+                alias: 'numeric',
+                groupSeparator: ' ',
+                digits: 0,
+                digitsOptional: false,
+                prefix: '',
+                placeholder: '',
+                min: 1,
+                max: 99
+            }),
+            minValue: 1,
+            maxValue: 99,
+            limitValue: true,
+            placeHolder: ''
+            }
+        });
+        } catch (error) {}
     }
 }

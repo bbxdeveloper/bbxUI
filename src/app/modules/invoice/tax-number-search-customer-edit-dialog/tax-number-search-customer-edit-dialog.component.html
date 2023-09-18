@@ -94,9 +94,14 @@
                     <label>
                         Fizetési határidő (nap)
                     </label>
-                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="paymentDays"
-                        [readOnly]="isEditModeOff" [inputMask]="numberInputMaskInteger"
-                        (click)="currentForm.HandleFormFieldClick($event)">
+                    <app-bbx-numeric-input
+                        formControlName='paymentDays'
+                        class="display-contents"
+                        input_class="{{TileCssClass}} bbx-sidebar-combo"
+                        (click)="currentForm.HandleFormFieldClick($event)"
+                        [inputmask]="numberInputMaskInteger"
+                        [readonly]="isEditModeOff">
+                    </app-bbx-numeric-input>
                 </div>
 
                 <app-form-control-error [form]="currentForm" controlName="paymentDays"></app-form-control-error>

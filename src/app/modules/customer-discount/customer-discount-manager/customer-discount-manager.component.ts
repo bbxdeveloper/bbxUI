@@ -599,7 +599,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
               if (alreadyAdded) {
                 this.dbDataTable.data[rowPos].data.Restore('productGroupCode');
                 HelperFunctions.SelectBeginningByClass(SelectFirstCharClass, 0, true, this.dbDataTable.data[rowPos].data.productGroupCode);
-                // debugger;
                 this.bbxToastrService.show(
                   Constants.MSG_PRODUCT_ALREADY_THERE,
                   Constants.TITLE_ERROR,
