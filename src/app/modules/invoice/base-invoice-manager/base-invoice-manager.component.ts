@@ -50,7 +50,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   customerData!: Customer;
 
   buyersData: Customer[] = [];
-  filteredBuyerOptions$: Observable<string[]> = of([]);
 
   paymentMethods: PaymentMethod[] = [];
   _paymentMethods: string[] = [];

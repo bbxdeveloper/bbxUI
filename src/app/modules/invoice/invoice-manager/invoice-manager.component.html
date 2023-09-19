@@ -60,13 +60,13 @@
 
     <div class="card-col separator-vertical"></div>
 
-    <div class="card-col-1">
-        <form class="invoice-customer-form-search" [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
-            [id]="buyerFormId">
+    <div class="card-col-1 px-24">
 
-            <table class="customer-search-row area-row-0">
-                <tr>
-                    <td>
+        <table class="customer-search-row area-row-0 mb-10">
+            <tr>
+                <td>
+                    <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
+                        [id]="buyerFormId">
                         <nb-form-field class="search-row-nb-form-field"
                             (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
                             (focusin)="onFormSearchFocused($event, 'customerSearch')"
@@ -80,56 +80,23 @@
                                 (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="editDisabled"
                                 placeholder="Keresés" autocomplete="off" id="r00" />
                         </nb-form-field>
-                    </td>
-                    <td>
-                        <button *ngIf="searchByTaxtNumber" [disabled]="isLoading" [disabled]="!editDisabled"
-                                nbButton [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
-                                (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
-                    </td>
-                    <td>
-                        <div class="card-header-row-txt card-header-top-margin">
-                            Vevő
-                        </div>
-                    </td>
-                </tr>
-            </table>
+                    </form>
+                </td>
+                <td>
+                    <button *ngIf="searchByTaxtNumber" [disabled]="isLoading" [disabled]="!editDisabled"
+                            nbButton [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
+                            (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
+                </td>
+                <td>
+                    <div class="card-header-row-txt card-header-top-margin">
+                        Vevő
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-            <nb-form-field class="area-row-1" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                <input nbInput type="text" formControlName='customerName' required="true" placeholder="Név"
-                    readonly id="r01">
-            </nb-form-field>
+        <app-invoice-customer [customer]="buyerData" [markPrivatePerson]="true"></app-invoice-customer>
 
-            <nb-form-field class="area-row-2" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                <input nbInput type="text" formControlName='zipCodeCity'
-                    placeholder="Irányítószám és Város" readonly id="r01">
-            </nb-form-field>
-
-            <nb-form-field class="area-row-3" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                <input nbInput type="text" formControlName='additionalAddressDetail'
-                    placeholder="Utca, házszám" readonly id="r02">
-            </nb-form-field>
-
-            <nb-form-field class="area-row-4" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                <input nbInput type="text" formControlName='customerBankAccountNumber'
-                    placeholder="Számlaszám" readonly id="r03">
-            </nb-form-field>
-
-            <nb-form-field class="area-row-5" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                <input nbInput type="text" formControlName='taxpayerNumber'
-                    placeholder="Adószám" readonly id="r04">
-            </nb-form-field>
-            <nb-form-field class="area-row-6" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                <div>
-                    <label>EUR adósz.:</label>
-                    <input nbInput type="text" formControlName='thirdStateTaxId' placeholder="Adószám" readonly id="r04">
-                </div>
-            </nb-form-field>
-
-            <nb-form-field class="area-row-7" (keydown.enter)="buyerFormNav.HandleFormEnter($event, true)">
-                <input nbInput type="text" formControlName='comment' placeholder="Megjegyzés"
-                    readonly id="r05">
-            </nb-form-field>
-        </form>
     </div>
 </div>
 

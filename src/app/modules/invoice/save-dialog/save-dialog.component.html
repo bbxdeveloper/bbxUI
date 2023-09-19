@@ -11,22 +11,35 @@
                 </div>
             </nb-form-field>
 
+            <!-- KEDVEZMÉNY MEGADÁSA -->
             <div [class.bbx-fd-form-field-wrapper-div-row]="this.isDiscountVisible">
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="this.OutGoingDelivery">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Kedvezmény %:</label>
-                        <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
-                            required="true" [inputMask]="discountInputMask" [placeholder]="discountPercentInputPlaceHolder"
-                            (click)="formNav.HandleFormFieldClick($event)" (focusout)="RefreshCalc()">
+                        <app-bbx-numeric-input
+                            formControlName='invoiceDiscountPercent'
+                            [placeholder]="discountPercentInputPlaceHolder"
+                            input_class="{{TileCssClass}} discount-input"
+                            (click)="formNav.HandleFormFieldClick($event)"
+                            [inputmask]="discountInputMask"
+                            (focusout)="RefreshCalc()"
+                            [required]="true">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
 
                 <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="!this.OutGoingDelivery && this.isDiscountVisible">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label>Kedvezmény %:</label>
-                        <input class="{{TileCssClass}} discount-input" nbInput type="text" formControlName='invoiceDiscountPercent'
-                            required="true" [inputMask]="discountInputMask" [placeholder]="discountPercentInputPlaceHolder"
-                            (click)="formNav.HandleFormFieldClick($event)" (focusout)="RefreshCalc()">
+                        <app-bbx-numeric-input
+                            formControlName='invoiceDiscountPercent'
+                            [placeholder]="discountPercentInputPlaceHolder"
+                            input_class="{{TileCssClass}} discount-input"
+                            (click)="formNav.HandleFormFieldClick($event)"
+                            [inputmask]="discountInputMask"
+                            (focusout)="RefreshCalc()"
+                            [required]="true">
+                        </app-bbx-numeric-input>
                     </div>
                 </nb-form-field>
 
@@ -81,7 +94,7 @@
                 </nb-form-field>
 
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
-                    (keydown.enter)="MoveToSaveButtons($event)">
+                    (keydown.enter)="formNav.HandleFormEnter($event)">
                     <label class="multicol-label-col-2">Ár felülvizsg.?</label>
 
                     <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="priceReview"

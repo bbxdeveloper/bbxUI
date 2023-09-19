@@ -51,6 +51,12 @@ td {
   font-size: 1rem;
 }
 
+textarea::selection,
+input[type="text"]::selection,
+input[type="number"]::selection {
+  background-color: nb-theme(input-selection-color)
+}
+
 .disable-select {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
@@ -249,4 +255,10 @@ tr.parent-of-current-keyboard-nav-selected {
 .mask-password {
   -webkit-text-security: disc !important;
   -moz-text-security: disc !important;
+}
+
+// General, short
+
+.display-contents {
+  display: contents !important;
 }

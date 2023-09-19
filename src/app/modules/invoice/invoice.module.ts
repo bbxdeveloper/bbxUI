@@ -33,6 +33,7 @@ import { CustomerInvoiceSummaryFilterFormComponent } from './customer-invoice-su
 import { CustomerInvoiceSummaryManagerComponent } from './customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
 import { CustomerInvoiceSummarySideBarFormComponent } from './customer-invoice-summary/customer-invoice-summary-side-bar-form/customer-invoice-summary-side-bar-form.component';
 import { BaseInvoiceManagerComponent } from './base-invoice-manager/base-invoice-manager.component';
+import { InvoiceCustomerComponent } from './invoice-customer/invoice-customer.component';
 
 
 
@@ -62,6 +63,7 @@ import { BaseInvoiceManagerComponent } from './base-invoice-manager/base-invoice
     CustomerInvoiceSummaryManagerComponent,
     CustomerInvoiceSummarySideBarFormComponent,
     BaseInvoiceManagerComponent,
+    InvoiceCustomerComponent,
   ],
   imports: [
     CommonModule,

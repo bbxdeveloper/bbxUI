@@ -682,7 +682,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable) && !!this.dbDataTable.GetEditedRow()) {
       switch (event.key) {
         case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
-          debugger;
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(event);
             return;

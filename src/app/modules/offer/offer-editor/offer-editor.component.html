@@ -96,8 +96,12 @@
                             <td>
                                 <nb-form-field>
                                     <label>Árfolyam</label>
-                                    <input nbInput type="text" formControlName="exchangeRate" readonly
-                                        [inputMask]="numberInputMask" placeholder="0.00">
+                                    <app-bbx-numeric-input
+                                        formControlName='exchangeRate'
+                                        class="display-contents"
+                                        [inputmask]="numberInputMask" placeholder="0.00"
+                                        [readonly]="true">
+                                    </app-bbx-numeric-input>
                                 </nb-form-field>
                             </td>
                             <td>

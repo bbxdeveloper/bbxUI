@@ -1,0 +1,38 @@
+
+<!-- FORMCONTROL -->
+
+<ng-container *ngIf="isFormCtrl">
+    <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
+                nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+                [disabled]="disabled" [formControlName]="formCtrlName" [min]="min" [max]="max"
+                (blur)="proxyBlur($event)"
+                (focus)="proxyFocus($event)"
+                (focusout)="proxyFocusOut($event)"
+                (click)="proxyClick($event)"
+                [(ngModel)]="value"
+                [readOnly]="readonly"
+                [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
+                [class]="input_class" class="bbx-numeric-input-inner"
+                [style.text-align]="style_text_align" />
+</ng-container>
+
+<!-- NEM FORMCONTROL -->
+
+<ng-container *ngIf="!isFormCtrl">
+    <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
+        nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+        [disabled]="disabled" [min]="min" [max]="max"
+        (blur)="proxyBlur($event)"
+        (focus)="proxyFocus($event)"
+        (focusout)="proxyFocusOut($event)"
+        (click)="proxyClick($event)"
+        [(ngModel)]="value"
+        [readOnly]="readonly"
+        [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
+        [class]="input_class" class="bbx-numeric-input-inner"
+        [style.text-align]="style_text_align" />
+</ng-container>
+
+<ng-template #calculator>
+    <app-calculator-popover [(result)]="value" (popoverClose)="closeCalculator()"></app-calculator-popover>
+</ng-template>

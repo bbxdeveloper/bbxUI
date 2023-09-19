@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
+import { Observable, of, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -201,8 +201,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
     this.buyerData = customer
     this.cachedCustomerName = customer.customerName;
-    this.buyerFormNav.FillForm(customer, ['customerSearch']);
-    this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
     this.searchByTaxtNumber = false;
   })
 
@@ -322,20 +320,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     this.setupOutInvForm()
 
-    if (this.buyerForm === undefined) {
-      this.buyerForm = new FormGroup({
-        customerSearch: new FormControl('', []),
-        customerName: new FormControl('', [Validators.required]),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.buyerForm.reset(undefined);
-    }
+    this.buyerForm = new FormGroup({
+      customerSearch: new FormControl('', []),
+    });
 
     this.buyerFormNav = new InlineTableNavigatableForm(
       this.buyerForm,
@@ -668,13 +655,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         this.buyerFormNav.Setup(this.buyersData);
         console.log('Buyers: ', d);
 
-        // Set filters
-        this.filteredBuyerOptions$ = this.buyerForm.controls['customerName'].valueChanges
-          .pipe(
-            startWith(''),
-            map((filterString: any) => this.filterBuyers(filterString)),
-          );
-
         // Products
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
@@ -730,10 +710,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   ngAfterViewInit(): void {
-    this.AfterViewInitSetup();
-  }
-
-  private AfterViewInitSetup(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.buyerFormNav.GenerateAndSetNavMatrices(true);
@@ -786,17 +762,20 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       this.invoiceId = response.id
 
-      let controls = this.buyerForm.controls
-      controls['customerName'].setValue(response.customerName)
-      controls['zipCodeCity'].setValue(response.customerPostalCode + " " + response.customerCity)
-      controls['additionalAddressDetail'].setValue(response.customerAdditionalAddressDetail)
-      controls['customerBankAccountNumber'].setValue(response.customerBankAccountNumber)
-      controls['taxpayerNumber'].setValue(response.customerTaxpayerNumber)
-      controls['comment'].setValue(response.CustomerComment)
+      this.buyerData = {
+        id: response.customerID,
+        customerName: response.customerName,
+        postalCode: response.customerPostalCode,
+        city: response.customerCity,
+        additionalAddressDetail: response.customerAdditionalAddressDetail,
+        customerBankAccountNumber: response.customerBankAccountNumber,
+        taxpayerNumber: response.customerTaxpayerNumber,
+        thirdStateTaxId: response.customerThirdStateTaxId,
+        comment: response.CustomerComment,
+        customerVatStatus: response.customerVatStatus,
+      } as Customer
 
-      this.buyerData.id = response.customerID
-
-      controls = this.outInvForm.controls
+      const controls = this.outInvForm.controls
       controls['invoiceDeliveryDate'].setValue(response.invoiceDeliveryDate)
       controls['invoiceIssueDate'].setValue(response.invoiceIssueDate)
       controls['invoiceNumber'].setValue(response.invoiceNumber)
@@ -807,7 +786,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
-      // vatPercentage is missing from the model but we get it from the bakend
+      // vatPercentage is missing from the model but we get it from the backend
       // we have vatRate
       this.dbData.forEach(x => {
         x.data.vatRate = (x.data as any).vatPercentage;
@@ -995,8 +974,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
-        this.buyerFormNav.FillForm(res);
-        this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
 
         this.kbS.SelectFirstTile();
         this.kbS.setEditMode(KeyboardModes.EDIT);
@@ -1034,8 +1011,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
-          this.buyerFormNav.FillForm(res.data[0], ['customerSearch']);
-          this.buyerForm.controls['zipCodeCity'].setValue(this.buyerData.postalCode + " " + this.buyerData.city);
           this.searchByTaxtNumber = false;
 
           if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
@@ -1053,7 +1028,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
             this.searchByTaxtNumber = false;
           }
           this.buyerFormNav.FillForm({}, ['customerSearch']);
-          this.buyerForm.controls['zipCodeCity'].setValue(undefined);
         }
       },
       error: (err) => {
@@ -1084,9 +1058,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   override SetDataForForm(data: any): void {
     if (!!data) {
       this.buyerData = { ...data as Customer };
-      data.zipCodeCity = data.postalCode + ' ' + data.city;
-
-      this.buyerFormNav.FillForm(data);
 
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.EDIT);
