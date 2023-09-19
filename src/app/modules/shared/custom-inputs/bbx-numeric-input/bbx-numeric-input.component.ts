@@ -8,6 +8,7 @@ import { NbFormFieldControl, NbPopoverDirective } from '@nebular/theme';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { fixCursorPosition, fixIntegerCursorPosition } from 'src/assets/util/input/fixCursorPosition';
 
 export enum BbxNumericInputType {
   DEFAULT = 'FLOAT',
@@ -67,6 +68,8 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   @Input() inputmask?: any
   @Input() placeholder?: string
+
+  @Input() useFixCursorPosition: boolean = true
 
   touched: boolean = false
   
@@ -152,6 +155,15 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   // TODO for BbxProductCodeInputComponent: test
   proxyFocus(value: any) {
     this.log(`[BbxProductCodeInputComponent] proxyFocus, event: ${JSON.stringify(value)}`)
+
+    if (this.useFixCursorPosition) {
+      if (this.input_type == 'INTEGER') {
+        fixIntegerCursorPosition(value)
+      } else {
+        fixCursorPosition(value)
+      }
+    }
+    
     this.focus.emit(value)
   }
 

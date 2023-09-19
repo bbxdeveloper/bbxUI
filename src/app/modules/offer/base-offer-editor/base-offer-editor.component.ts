@@ -897,10 +897,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  selectIntPart(event: any): void {
-    HelperFunctions.SelectBeginningById(event.target.id);
-  }
-
   protected async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
