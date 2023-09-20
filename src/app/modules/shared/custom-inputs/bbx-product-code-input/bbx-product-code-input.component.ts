@@ -1,9 +1,8 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewEncapsulation, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, forwardRef } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { noop } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
 import { Constants } from 'src/assets/util/Constants';
-import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 
 @Component({
   selector: 'app-bbx-product-code-input',
@@ -36,7 +35,7 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
   @Input() disabled: boolean = false
   @Input() required: boolean = false
   @Input() readonly: boolean = false
-  
+
   touched: boolean = false
 
   // Output
@@ -53,10 +52,10 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
   mask = Constants.ProductCodeMask;
 
   // Value, callbacks...
-  
+
   private onTouchedCallback: () => void = noop
   private onChangeCallback: (newValue: any) => void = noop
-  
+
   private innerValue: any = ''
 
   get value(): any {
@@ -64,8 +63,19 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
   }
   set value(v: any) {
     this.log(`[BbxProductCodeInputComponent] set value, current value: '${this.value}', new value: '${v}'`)
+    if (!v) {
+      return
+    }
+
     this.markAsTouched()
     if (v !== this.innerValue) {
+      const delta = v.length - this.innerValue.length
+      if (this.innerValue.length > 0 && (delta === 2 || delta === 3)) {
+        if (v.length !== 4) {
+          v = v.slice(0, -1)
+        }
+      }
+
       this.innerValue = v
       this.onChangeCallback(v)
     }
@@ -138,7 +148,7 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
     return null
   }
   registerOnValidatorChange?(fn: () => void): void {
-    
+
   }
 
   // Product code handling, selecting products...
