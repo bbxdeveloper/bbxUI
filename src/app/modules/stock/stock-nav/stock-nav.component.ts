@@ -67,7 +67,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   // Unit of measure
-  unitOfMeasure: UnitOfMeasure[] = []
+  unitOfMeasures: UnitOfMeasure[] = []
 
   override allColumns = [
     'productCode',
@@ -240,7 +240,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
       this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
 
-      data.data.unitOfMeasure = this.unitOfMeasure.find(x => x.text === data.data.unitOfMeasure)?.value
+      data.data.unitOfMeasure = this.unitOfMeasures.find(x => x.text === data.data.unitOfMeasure)?.value
 
       data.data.id = parseInt(data.data.id + '');
       this.stockService.UpdateLocation(updateRequest).subscribe({
@@ -428,7 +428,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     // UnitOfMeasures
     if (requests[2]) {
-      this.unitOfMeasure = requests[2]
+      this.unitOfMeasures = requests[2]
     }
   }
 
