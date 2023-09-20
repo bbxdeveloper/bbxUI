@@ -690,14 +690,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
       );
       return;
     }
-    // if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-    //   this.bbxToastrService.show(
-    //     `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-    //     Constants.TITLE_ERROR,
-    //     Constants.TOASTR_ERROR
-    //   );
-    //   return;
-    // }
+
     const _dbData = this.dbData.slice(0, this.dbData.length - 1);
     this.productGroupService.GetAll(this.ProductGroupGetAllParams).subscribe({
       next: (data) => {

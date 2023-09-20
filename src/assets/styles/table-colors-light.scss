@@ -59,7 +59,7 @@ $table-cell-focus-color: darkblue;
             }
         }
     }
-    
+
     tr:nth-child(odd) {
         background-color: $odd-row-bg-color;
 
@@ -81,10 +81,6 @@ $table-cell-focus-color: darkblue;
 
     th {
         background: $header-cell-bg-color;
-    }
-
-    .td-focusable:focus {
-        background: $table-cell-focus-color;
     }
 }
 
