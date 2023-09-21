@@ -96,7 +96,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
   ) {
     this.outInvForm = new FormGroup({
       paymentMethod: new FormControl('', [Validators.required]),
-      customerInvoiceNumber: new FormControl('', [Validators.required]),
+      customerInvoiceNumber: new FormControl('', [this.customerInvoiceNumberRequired.bind(this)]),
       invoiceDeliveryDate: new FormControl('', [
         Validators.required,
         this.validateInvoiceDeliveryDate.bind(this),
@@ -149,6 +149,15 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
 
     const wrong = deliveryDate?.isAfter(issueDate, "day")
     return wrong ? { wrongDate: { value: control.value } } : null;
+  }
+
+  private customerInvoiceNumberRequired(control: AbstractControl): any {
+    const incoming = this.mode?.Incoming ?? false
+    if (!incoming) {
+      return null
+    }
+
+    return control.value && control.value !== '' ? null : { required: { value: control.value } }
   }
 
   private validateInvoiceIssueDate(control: AbstractControl): any {
