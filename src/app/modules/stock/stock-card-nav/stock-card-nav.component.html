@@ -1,21 +1,21 @@
 <as-split direction="horizontal">
     <as-split-area [size]="50">
         <app-head-line msg="Készletkarton"></app-head-line>
-        
+
         <div class="filter-div">
             <nb-card class="filter-card">
                 <nb-card-body class="filter-card-body">
                     <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
                         (keydown.escape)="filterFormNav.HandleFormEscape()">
                         <div class="form-row">
-        
+
                             <table class="customer-search-row">
                                 <tr>
                                     <td>
-                                        <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                                            formFieldName="WarehouseID" [autoFillFirstAvailableValue]="true" [needBlankOption]="false" class="nav-configuration" label="Raktár"
-                                            [data$]="wareHouseData$">
-                                        </app-bbx-two-row-combo-box>
+                                        <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav"
+                                            formFieldName="WarehouseID" [autoFillFirstAvailableValue]="true" [needBlankOption]="false" label="Raktár"
+                                            [data$]="wareHouseData$" [labelAboveField]="true">
+                                        </app-bbx-combo-box>
                                     </td>
                                     <td>
                                         <nb-form-field class="search-row-nb-form-field"
@@ -43,7 +43,7 @@
                                 </tr>
                             </table>
                         </div>
-        
+
                         <div class="form-row">
                             <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                                 <label>Dátumtól</label>
@@ -54,7 +54,7 @@
                                 <app-form-control-error [form]="filterFormNav" label="dátumtól" controlName="StockCardDateFrom">
                                 </app-form-control-error>
                             </nb-form-field>
-        
+
                             <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                                 <label>Dátumig</label>
                                 <input nbInput type="datetime" formControlName='StockCardDateTo' class="{{TileCssClass}}"
@@ -64,7 +64,7 @@
                                 <app-form-control-error [form]="filterFormNav" label="dátumig" controlName="StockCardDateTo">
                                 </app-form-control-error>
                             </nb-form-field>
-        
+
                             <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                                 <label>Kapcsolt bizonylat</label>
                                 <input nbInput type="text" formControlName='InvoiceNumber' class="{{TileCssClass}}"
@@ -84,12 +84,12 @@
                 </nb-card-footer>
             </nb-card>
         </div>
-        
+
         <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="530" [allColumns]="allColumns" [colDefs]="colDefs"
             [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows"
             [isLoading]="isLoading" (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
         </app-flat-design-table>
-        
+
         <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
     </as-split-area>
     <as-split-area [size]="50" *ngIf="isSideBarOpened">

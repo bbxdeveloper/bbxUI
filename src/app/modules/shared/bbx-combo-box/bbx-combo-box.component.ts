@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
@@ -10,7 +10,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
   templateUrl: './bbx-combo-box.component.html',
   styleUrls: ['./bbx-combo-box.component.scss']
 })
-export class BbxComboBoxComponent implements OnInit, AfterViewInit {
+export class BbxComboBoxComponent implements AfterViewInit {
   @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';
@@ -55,9 +55,6 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
     })
   }
 
-  ngOnInit(): void {
-  }
-
   ngAfterViewInit(): void {
     this.data$.subscribe({
       next: data => {
@@ -93,5 +90,12 @@ export class BbxComboBoxComponent implements OnInit, AfterViewInit {
     }
     const filterValue = value.toLowerCase();
     return this.comboBoxData.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
+  }
+
+  public select(event: FocusEvent): void {
+    const input = event.currentTarget as HTMLInputElement
+
+    input.selectionStart = 0
+    input.selectionEnd = input.value.length
   }
 }
