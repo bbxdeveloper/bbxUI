@@ -8,15 +8,15 @@
                     <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                         (keydown.escape)="filterFormNav.HandleFormEscape()">
 
-                        <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                            formFieldName="InvoiceType" class="nav-configuration" label="Bizonylattípus"
+                        <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav"
+                            formFieldName="InvoiceType" label="Bizonylattípus" [labelAboveField]="true"
                             [data$]="invoiceTypes$">
-                        </app-bbx-two-row-combo-box>
+                        </app-bbx-combo-box>
 
-                        <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                            formFieldName="WarehouseCode" class="nav-configuration" label="Raktár"
+                        <app-bbx-combo-box class="bbx-sidebar-combe nav-configuration" [currentForm]="filterFormNav"
+                            formFieldName="WarehouseCode" label="Raktár" [labelAboveField]="true"
                             [data$]="wareHouseData$">
-                        </app-bbx-two-row-combo-box>
+                        </app-bbx-combo-box>
 
                         <nb-radio-group formControlName="DateFilterChooser" class="bbx-radiogroup">
                             <nb-radio (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"

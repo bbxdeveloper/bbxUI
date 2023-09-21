@@ -4,13 +4,13 @@
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
 
-                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav" formFieldName="FromWarehouseCode"
-                    class="nav-configuration" label="Kiadás raktár" [needBlankOption]="false" [data$]="wareHouseData$" top>
-                </app-bbx-two-row-combo-box>
+                <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav" formFieldName="FromWarehouseCode"
+                    label="Kiadás raktár" [needBlankOption]="false" [data$]="wareHouseData$" [labelAboveField]="true" top>
+                </app-bbx-combo-box>
 
-                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav" formFieldName="ToWarehouseCode"
-                    class="nav-configuration" label="Bevétel raktár" [needBlankOption]="false" [data$]="wareHouseData$" bottom>
-                </app-bbx-two-row-combo-box>
+                <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav" formFieldName="ToWarehouseCode"
+                    label="Bevétel raktár" [needBlankOption]="false" [data$]="wareHouseData$" [labelAboveField]="true" bottom>
+                </app-bbx-combo-box>
 
                 <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" left>
                     <label>Kezdődátum</label>
@@ -30,12 +30,12 @@
                     </app-form-control-error>
                 </nb-form-field>
 
-                <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav" formFieldName="Status"
-                    class="nav-configuration" label="Státusz" [needBlankOption]="false" [data$]="statuses$" left>
-                </app-bbx-two-row-combo-box>
+                <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav" formFieldName="Status"
+                    label="Státusz" [needBlankOption]="false" [data$]="statuses$" [labelAboveField]="true" left>
+                </app-bbx-combo-box>
 
-                    <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
-                        status="primary">Keresés</button>
+                <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
+                    status="primary">Keresés</button>
             </form>
         </nb-card-body>
     </nb-card>

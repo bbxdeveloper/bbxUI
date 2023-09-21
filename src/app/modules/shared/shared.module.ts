@@ -21,7 +21,6 @@ import { BaseInlineManagerComponent } from './base-inline-manager/base-inline-ma
 import { SelectTableDialogComponent } from './dialogs/select-table-dialog/select-table-dialog.component';
 import { BaseNoFormManagerComponent } from './base-no-form-manager/base-no-form-manager.component';
 import { BbxComboBoxComponent } from './bbx-combo-box/bbx-combo-box.component';
-import { BbxTwoRowComboBoxComponent } from './bbx-two-row-combo-box/bbx-two-row-combo-box.component';
 import { DateIntervalDialogComponent } from './simple-dialogs/date-interval-dialog/date-interval-dialog.component';
 import { OneTextInputDialogComponent } from './simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { ToStringPipe } from './pipes/to-string.pipe';
@@ -69,7 +68,6 @@ import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-
     SelectTableDialogComponent,
     BaseNoFormManagerComponent,
     BbxComboBoxComponent,
-    BbxTwoRowComboBoxComponent,
     DateIntervalDialogComponent,
     OneTextInputDialogComponent,
     ToStringPipe,
@@ -147,7 +145,6 @@ import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-
     SelectTableDialogComponent,
     BaseNoFormManagerComponent,
     BbxComboBoxComponent,
-    BbxTwoRowComboBoxComponent,
     ToStringPipe,
     ReplacePipe,
     OneNumberInputDialogComponent,

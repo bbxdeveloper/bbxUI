@@ -7,7 +7,7 @@
                 <div class="triple-column">
                     <div class="checkbox-field" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label class="label-checkbox">Bejövő forgalom</label>
-                    
+
                         <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="Incoming"
                             [readonly]="isEditModeOff" (click)="filterFormNav.HandleFormFieldClick($event)">
                     </div>
@@ -20,7 +20,7 @@
                         <app-form-control-error [form]="filterFormNav" controlName="InvoiceDeliveryDateFrom">
                         </app-form-control-error>
                     </nb-form-field>
-                    
+
                     <nb-form-field class="field-no-wrapper" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" right>
                         <label>Végdátum</label>
                         <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo' class="{{TileCssClass}}"
@@ -67,10 +67,10 @@
                 </div>
 
                 <div class="double-column">
-                    <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                        formFieldName="WarehouseCode" class="nav-configuration" label="Kiadás raktár"
-                        [needBlankOption]="false" [data$]="wareHouseData$" top>
-                    </app-bbx-two-row-combo-box>
+                    <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav"
+                        formFieldName="WarehouseCode" label="Kiadás raktár"
+                        [needBlankOption]="false" [data$]="wareHouseData$" [labelAboveField]="true" top>
+                    </app-bbx-combo-box>
 
                     <div class="form-button" right>
                         <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
