@@ -33,7 +33,6 @@ import { OneButtonMessageDialogComponent } from './simple-dialogs/one-button-mes
 import { CreateNewProductDialogComponent } from './dialogs/create-new-product-dialog/create-new-product-dialog.component';
 import { BbxCharCheckboxComponent } from './bbx-char-checkbox/bbx-char-checkbox.component';
 import { RadioChoiceDialogComponent } from './simple-dialogs/radio-choice-dialog/radio-choice-dialog.component';
-import { BbxComboBoxInvoiceComponent } from './bbx-combo-box-invoice/bbx-combo-box-invoice.component';
 import { ProductSelectTableDialogComponent } from './dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CustomerBankAccountNumberInputComponent } from './customer-bank-account-number-input/customer-bank-account-number-input.component';
 import { CalculatorPopoverComponent } from './calculator-popover/calculator-popover.component';
@@ -80,7 +79,6 @@ import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-
     CreateNewProductDialogComponent,
     BbxCharCheckboxComponent,
     RadioChoiceDialogComponent,
-    BbxComboBoxInvoiceComponent,
     ProductSelectTableDialogComponent,
     CustomerBankAccountNumberInputComponent,
     CalculatorPopoverComponent,
@@ -154,7 +152,6 @@ import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-
     CreateNewProductDialogComponent,
     BbxCharCheckboxComponent,
     RadioChoiceDialogComponent,
-    BbxComboBoxInvoiceComponent,
     ProductSelectTableDialogComponent,
     CustomerBankAccountNumberInputComponent,
     CalculatorPopoverComponent,
