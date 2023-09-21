@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
@@ -10,7 +10,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
   templateUrl: './bbx-two-row-combo-box.component.html',
   styleUrls: ['./bbx-two-row-combo-box.component.scss']
 })
-export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
+export class BbxTwoRowComboBoxComponent implements AfterViewInit {
   @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';
@@ -41,9 +41,6 @@ export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
         this.comboBoxData = data;
       }
     })
-  }
-
-  ngOnInit(): void {
   }
 
   ngAfterViewInit(): void {
@@ -91,4 +88,10 @@ export class BbxTwoRowComboBoxComponent implements OnInit, AfterViewInit {
     }
   }
 
+  public select(event: FocusEvent): void {
+    const input = event.currentTarget as HTMLInputElement
+
+    input.selectionStart = 0
+    input.selectionEnd = input.value.length
+  }
 }

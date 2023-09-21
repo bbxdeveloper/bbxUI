@@ -4,7 +4,7 @@
         <label>{{label}}</label>
 
         <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text"
-            (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="autoComboBoxComplete"
+            (click)="currentForm?.HandleFormFieldClick($event)" (focus)="select($event)" [nbAutocomplete]="autoComboBoxComplete"
             [readonly]="isEditModeOff" autocomplete="off" />
     </div>
     <app-form-control-error [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">

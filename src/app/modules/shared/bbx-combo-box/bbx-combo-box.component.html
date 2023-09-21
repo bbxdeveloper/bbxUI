@@ -5,7 +5,7 @@
             <label *ngIf="label.length > 0">{{label}}</label>
 
             <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text" readonly
-                (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
+                (click)="currentForm?.HandleFormFieldClick($event)" (focus)="select($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
                 readonly autocomplete="off" />
         </div>
         <app-form-control-error *ngIf="needErrorMsg" [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">
@@ -30,7 +30,7 @@
             <label *ngIf="label.length > 0">{{label}}</label>
 
             <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text" [readOnly]="isReadonly"
-                (click)="currentForm?.HandleFormFieldClick($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
+                (click)="currentForm?.HandleFormFieldClick($event)" (focus)="select($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
                 [readonly]="isEditModeOff" autocomplete="off" />
         </div>
         <app-form-control-error *ngIf="needErrorMsg" [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">
