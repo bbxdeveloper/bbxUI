@@ -69,8 +69,7 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
 
     this.markAsTouched()
     if (v !== this.innerValue) {
-      const delta = v.length - this.innerValue.length
-      if (this.innerValue.length > 0 && (delta === 2 || delta === 3)) {
+      if (this.innerValue.length > 0 && v.length - this.innerValue.length === 2) {
         if (v.length !== 4) {
           v = v.slice(0, -1)
         }
