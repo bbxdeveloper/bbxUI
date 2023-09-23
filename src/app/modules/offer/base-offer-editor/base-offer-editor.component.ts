@@ -985,7 +985,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         title: 'Kedvezmény megadása összes sorra',
         inputLabel: 'Kedvezmény %',
         numberInputMask: this.offerDiscountInputMask,
-        placeHolder: '0.00'
+        defaultValue: 0
       }
     });
     dialogRef.onClose.subscribe({

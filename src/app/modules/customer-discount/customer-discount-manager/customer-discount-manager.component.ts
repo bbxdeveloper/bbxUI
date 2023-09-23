@@ -848,7 +848,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         title: 'Kedvezmény megadása összes sorra',
         inputLabel: 'Kedvezmény %',
         numberInputMask: this.offerDiscountInputMask,
-        placeHolder: '0.00'
+        defaultValue: 0
       }
     });
     dialogRef.onClose.subscribe({
