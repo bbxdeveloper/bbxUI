@@ -43,7 +43,6 @@
                             class="display-contents"
                             input_class="{{TileCssClass}} {{TileCssColClass}}"
                             (click)="_form.HandleFormFieldClick($event)"
-                            (focus)="fixCursorPosition($event)"
                             [inputmask]="numberInputMask" placeholder="0.00"
                             [readonly]="isEditModeOff">
                         </app-bbx-numeric-input>
@@ -59,7 +58,6 @@
                             class="display-contents"
                             input_class="{{TileCssClass}}"
                             (click)="_form.HandleFormFieldClick($event)"
-                            (focus)="fixCursorPosition($event)"
                             [inputmask]="numberInputMask" placeholder="0.00"
                             [readonly]="isEditModeOff">
                         </app-bbx-numeric-input>
@@ -86,7 +84,6 @@
                             formControlName='unitPrice1'
                             class="display-contents"
                             input_class="{{TileCssClass}} {{TileCssColClass}}"
-                            (focus)="fixCursorPosition($event)"
                             (click)="_form.HandleFormFieldClick($event)"
                             [inputmask]="numberInputMask" placeholder="0.00"
                             [readonly]="isEditModeOff">
@@ -104,7 +101,6 @@
                             input_class="{{TileCssClass}}"
                             (click)="_form.HandleFormFieldClick($event)"
                             [inputmask]="numberInputMask" placeholder="0.00"
-                            (focus)="fixCursorPosition($event)"
                             [readonly]="isEditModeOff">
                         </app-bbx-numeric-input>
                     </div>
@@ -153,7 +149,6 @@
                             input_class="{{TileCssClass}} {{TileCssColClass}}"
                             (click)="_form.HandleFormFieldClick($event)"
                             [inputmask]="numberInputMask" placeholder="0.00"
-                            (focus)="fixCursorPosition($event)"
                             [readonly]="isEditModeOff">
                         </app-bbx-numeric-input>
                     </div>
@@ -169,7 +164,6 @@
                             input_class="{{TileCssClass}}"
                             (click)="_form.HandleFormFieldClick($event)"
                             [inputmask]="numberInputMask" placeholder="0.00"
-                            (focus)="fixCursorPosition($event)"
                             [readonly]="isEditModeOff">
                         </app-bbx-numeric-input>
                     </div>
