@@ -52,7 +52,7 @@
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [id]="InputId" input_class="input-table-cell" [style_text_align]="it.textAlign" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false">
                                     </app-bbx-numeric-input>
-                                
+
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{
                                         it.calc !== undefined ?
@@ -134,6 +134,19 @@
                                         [style.text-align]="it.textAlign"></app-bbx-char-checkbox>
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ row.data[it.objectKey] ? it.checkboxTrue! : it.checkboxFalse! }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'unique'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="it.inputMask"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
                                     </div>
                                 </ng-container>
 

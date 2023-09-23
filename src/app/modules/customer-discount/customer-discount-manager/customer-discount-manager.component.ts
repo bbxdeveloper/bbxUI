@@ -39,6 +39,7 @@ import { TableKeyDownEvent, isTableKeyDownEvent, SelectFirstCharClass, selectPro
 import { Router } from '@angular/router';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
+import { createMask } from '@ngneat/input-mask';
 
 @Component({
   selector: 'app-customer-discount-manager',
@@ -68,6 +69,12 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     };
   }
 
+  groupCodeMask = createMask({
+    casing: 'upper',
+    regex: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\-]',
+    repeat: 80,
+  })
+
   override colsToIgnore: string[] = ['ProductGroup'];
   override allColumns = [
     'ProductGroupCode',
@@ -77,8 +84,9 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Tcs.kód', objectKey: 'ProductGroupCode', colKey: 'ProductGroupCode',
-      defaultValue: '', type: 'text', mask: Constants.CustDiscountCodeMask, fReadonly: false,
-      colWidth: "200px", textAlign: "left", fInputType: "code-field", cursorAfterLastChar: true
+      defaultValue: '', type: 'text', inputMask: this.groupCodeMask, fReadonly: false,
+      colWidth: "200px", textAlign: "left", fInputType: "unique", cursorAfterLastChar: true,
+      mask: ''
     },
     {
       label: 'Megnevezés', objectKey: 'ProductGroup', colKey: 'ProductGroup',
