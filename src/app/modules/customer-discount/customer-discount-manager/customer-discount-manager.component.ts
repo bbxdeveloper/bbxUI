@@ -85,7 +85,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     {
       label: 'Tcs.kód', objectKey: 'ProductGroupCode', colKey: 'ProductGroupCode',
       defaultValue: '', type: 'text', inputMask: this.groupCodeMask, fReadonly: false,
-      colWidth: "200px", textAlign: "left", fInputType: "unique", cursorAfterLastChar: true,
+      colWidth: "200px", textAlign: "left", fInputType: "uniqueMask", cursorAfterLastChar: true,
       mask: ''
     },
     {

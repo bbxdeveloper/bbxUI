@@ -137,7 +137,7 @@
                                     </div>
                                 </ng-container>
 
-                                <ng-container *ngSwitchCase="'unique'">
+                                <ng-container *ngSwitchCase="'uniqueMask'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
