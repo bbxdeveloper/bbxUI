@@ -12,19 +12,14 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { TileCssClass, AttachDirection, TileCssColClass, NavMatrixOrientation } from 'src/assets/model/navigation/Navigatable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
-import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
-import { BaseNoFormManagerComponent } from '../../shared/base-no-form-manager/base-no-form-manager.component';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
-import { CustomerService } from '../../customer/services/customer.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, StockNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { Router } from '@angular/router';
-import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { GetStocksParamsModel } from '../models/GetStocksParamsModel';
-import { ExtendedStockData, Stock } from '../models/Stock';
+import { ExtendedStockData } from '../models/Stock';
 import { StockService } from '../services/stock.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
@@ -37,12 +32,12 @@ import { ProductService } from '../../product/services/product.service';
 import { Product } from '../../product/models/Product';
 import { lastValueFrom } from 'rxjs';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
-import { UpdateLocationRequest } from '../../location/models/UpdateLocationRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UpdateStockLocationRequest } from '../models/UpdateStockLocationRequest';
 import { LocationService } from '../../location/services/location.service';
 import { Location } from '../../location/models/Location';
 import { LoggerService } from 'src/app/services/logger.service';
+import { UnitOfMeasure } from '../../product/models/UnitOfMeasure';
 
 @Component({
   selector: 'app-stock-nav',
@@ -70,6 +65,9 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   // WareHouse
   wh: WareHouse[] = [];
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+
+  // Unit of measure
+  unitOfMeasures: UnitOfMeasure[] = []
 
   override allColumns = [
     'productCode',
@@ -206,12 +204,9 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private stockService: StockService,
-    private seC: CustomerService,
     cs: CommonService,
     sts: StatusService,
     private router: Router,
-    private infrastructureService: InfrastructureService,
-    private utS: PrintAndDownloadService,
     private wareHouseApi: WareHouseService,
     private khs: KeyboardHelperService,
     private productService: ProductService,
@@ -244,6 +239,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       } as UpdateStockLocationRequest;
 
       this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
+
+      data.data.unitOfMeasure = this.unitOfMeasures.find(x => x.text === data.data.unitOfMeasure)?.value
 
       data.data.id = parseInt(data.data.id + '');
       this.stockService.UpdateLocation(updateRequest).subscribe({
@@ -401,26 +398,38 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   }
 
   private async refreshComboboxData(): Promise<void> {
-    // WareHouse
     this.isLoading = true;
-    await lastValueFrom(this.wareHouseApi.GetAll())
-      .then(data => {
-        this.wh = data?.data ?? [];
-        this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      });
+    const warehousesRequest = lastValueFrom(this.wareHouseApi.GetAll())
+    const locationsRequest = lastValueFrom(this.locationService.GetAll())
+    const unitOfMeasuresRequest = lastValueFrom(this.productService.GetAllUnitOfMeasures())
+
+    const requests = await Promise.all([
+      warehousesRequest,
+      locationsRequest,
+      unitOfMeasuresRequest,
+    ])
+
+    this.isLoading = false
+
+    // WareHouse
+    if (!requests[0].succeeded) {
+      this.cs.HandleError(requests[0].errors)
+    }
+
+    this.wh = requests[0]?.data ?? []
+    this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription))
 
     // Location
-    await lastValueFrom(this.locationService.GetAll())
-      .then(data => {
-        this.locations = data?.data ?? [];
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-      });
+    if (!requests[1].succeeded) {
+      this.cs.HandleError(requests[1].errors)
+    }
+
+    this.locations = requests[1]?.data ?? [];
+
+    // UnitOfMeasures
+    if (requests[2]) {
+      this.unitOfMeasures = requests[2]
+    }
   }
 
   protected async GetProductsData(productIds: number[]): Promise<Product[]> {
@@ -455,13 +464,14 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
         if (d.succeeded && !!d.data) {
           console.log('GetStocks: response: ', d); // TODO: only for debug
           if (!!d) {
-            let tempData = [];
+            const tempData = [];
             const productIds = d.data.map(x => x.productID)
             const products = await this.GetProductsData(productIds)
             for(let i = 0; i < d.data.length; i++) {
               const x = d.data[i];
               const _data = new ExtendedStockData(x);
               _data.FillProductFields(products.find(y => y.id === x.productID)!);
+              _data.unitOfMeasure = _data.unitOfMeasureX
               _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
               // console.dir(_data);
               tempData.push({ data: _data, uid: this.nextUid() });
@@ -527,6 +537,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
               const _data = new ExtendedStockData(x);
               console.log(x.productID)
               _data.FillProductFields(products.find(y => y.id === x.productID)!);
+              _data.unitOfMeasure = _data.unitOfMeasureX
               _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
               tempData.push({ data: _data, uid: this.nextUid() });
             }

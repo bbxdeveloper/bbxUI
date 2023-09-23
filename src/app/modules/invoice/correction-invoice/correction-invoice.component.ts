@@ -435,11 +435,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       }
 
       setTimeout(() => {
-        this.bbxToasterService.show(
-          validationResult,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
+        this.bbxToasterService.showError(validationResult)
       }, 0);
       this.dbData[index].data.Restore()
 
@@ -449,20 +445,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   private Save(): void {
     if (this.invoiceForm.outInvForm.invalid) {
-      this.bbxToasterService.show(
-        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
+      this.bbxToasterService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`)
       return
     }
 
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToasterService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToasterService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       return
     }
 

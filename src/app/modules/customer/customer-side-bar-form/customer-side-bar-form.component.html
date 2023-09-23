@@ -130,7 +130,6 @@
                             formControlName='warningLimit'
                             class="display-contents"
                             input_class="{{TileCssClass}} {{TileCssColClass}}"
-                            (focus)="fixCursorPosition($event)"
                             (click)="currentForm.HandleFormFieldClick($event)"
                             [inputmask]="numberInputMask" placeholder="Nincs beállítva"
                             [readonly]="isReadonly">
@@ -146,7 +145,6 @@
                             formControlName='maxLimit'
                             class="display-contents"
                             input_class="{{TileCssClass}}"
-                            (focus)="fixCursorPosition($event)"
                             (click)="currentForm.HandleFormFieldClick($event)"
                             [inputmask]="numberInputMask" placeholder="Nincs beállítva"
                             [readonly]="isReadonly">

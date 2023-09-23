@@ -160,7 +160,6 @@ export class PrintAndDownloadService {
           minValue: 1,
           maxValue: 99,
           limitValue: true,
-          placeHolder: ''
         }
       });
     } catch (error) {

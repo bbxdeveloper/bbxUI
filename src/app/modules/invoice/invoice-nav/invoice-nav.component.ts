@@ -774,12 +774,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
 
     switch (event.key) {
-      case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-        break;
-      }
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();
