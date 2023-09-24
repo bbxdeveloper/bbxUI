@@ -156,17 +156,17 @@ export class InlineEditableTableComponent implements OnInit {
   /**
    * Táblázaton történő billentyűleütés kezelése.
    * Többi kezelő függvény innen hívódik.
-   * @param event 
-   * @param row 
-   * @param rowPos 
-   * @param objectKey 
-   * @param colPos 
-   * @param inputId 
-   * @param fInputType 
-   * @param fromEditMode 
-   * @param fromClickMethod 
-   * @param navigatable 
-   * @returns 
+   * @param event
+   * @param row
+   * @param rowPos
+   * @param objectKey
+   * @param colPos
+   * @param inputId
+   * @param fInputType
+   * @param fromEditMode
+   * @param fromClickMethod
+   * @param navigatable
+   * @returns
    */
   HandleGridKeydown(event: any, row: TreeGridNode<any>, rowPos: number, objectKey: string, colPos: number,
                     inputId?: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {

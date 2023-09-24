@@ -1,5 +1,5 @@
 /*
     Includes all table-colors variants to make them accessible via one scss.
 */
-@import 'table-colors-light';
-@import 'table-colors-dark';
+@use 'table-colors-light';
+@use 'table-colors-dark';

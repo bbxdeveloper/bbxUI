@@ -88,9 +88,11 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     this.formNav.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
+
     if (this.defaultValue !== undefined) {
       this.formNav.form.controls['answer'].setValue(this.defaultValue)
     }
+
     setTimeout(() => {
       HelperFunctions.SelectBeginningByClass('one-number-input-dialog-input', undefined, undefined, this.defaultValue?.toString())
     }, 100);

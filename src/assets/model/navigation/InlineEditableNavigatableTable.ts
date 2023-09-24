@@ -445,6 +445,11 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, mouseClick: boolean = false, clickEvent?: any, navigatable?: INavigatable): void {
         console.log('[HandleGridClick]: ', row, rowPos, col, colPos, inputId, this.kbs.isEditModeActivated, this.kbS.IsCurrentNavigatable(this), mouseClick);
+
+        if (this.colDefs.find(x => x.colKey === col)?.fReadonly ?? false) {
+            return
+        }
+
         let firstCol = colPos === 0;
 
         const fromEditMode = this.kbs.isEditModeActivated; // && !!this.editedRow && !!this.editedRow?.data;
