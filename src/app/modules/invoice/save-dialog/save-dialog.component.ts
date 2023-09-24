@@ -386,7 +386,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.formNav.GenerateAndSetNavMatrices(true);
 
     if (this.isDiscountDisabled) {
-      // select the username input (input_n)
+      // select the next available input
       this.kBs.SelectElementByCoordinate(0, 1)
     }
     else {
