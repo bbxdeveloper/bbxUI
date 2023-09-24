@@ -30,7 +30,7 @@ import { BaseManagerComponent } from '../../shared/base-manager/base-manager.com
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { ProductService } from '../../product/services/product.service';
 import { Product } from '../../product/models/Product';
-import { lastValueFrom } from 'rxjs';
+import { Subscription, lastValueFrom } from 'rxjs';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { UpdateStockLocationRequest } from '../models/UpdateStockLocationRequest';
@@ -38,6 +38,9 @@ import { LocationService } from '../../location/services/location.service';
 import { Location } from '../../location/models/Location';
 import { LoggerService } from 'src/app/services/logger.service';
 import { UnitOfMeasure } from '../../product/models/UnitOfMeasure';
+import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
+import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 
 @Component({
   selector: 'app-stock-nav',
@@ -292,8 +295,25 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     }
   }
 
-  ChooseDataForTableRow(rowIndex: number): void {
-    throw new Error('Method not implemented.');
+  ChooseDataForTableRow(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
+      context: {
+        searchString: this.filterForm.controls['SearchString'].value ?? '',
+        allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
+        colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
+        defaultSearchModeForEnteredFilter: SearchMode.SEARCH_NAME_CODE
+      }
+    });
+    dialogRef.onClose.subscribe(async (res: Product) => {
+      console.log("ChooseDataForTableRow Selected item: ", res);
+      if (!!res) {
+        this.filterForm.controls['SearchString'].setValue(res.productCode);
+        this.filterForm.controls['ProductName'].setValue(res.description);
+      }
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    });
   }
   ChooseDataForCustomerForm(): void {
     throw new Error('Method not implemented.');
@@ -321,6 +341,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     this.filterForm = new FormGroup({
       WarehouseID: new FormControl(undefined, [Validators.required, notWhiteSpaceOrNull]),
       SearchString: new FormControl(undefined, []),
+      ProductName: new FormControl(undefined, []),
     });
 
     this.InitFormDefaultValues();
@@ -396,6 +417,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     this.isLoading = false;
   }
+
+  //#region Refresh
 
   private async refreshComboboxData(): Promise<void> {
     this.isLoading = true;
@@ -568,6 +591,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       });
   }
 
+  //#endregion Refresh
+
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
     this.ngOnInitDone = true;
@@ -721,4 +746,59 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       default: { }
     }
   }
+
+  //#region Product search input
+
+  private Subscription_FillFormWithFirstAvailableProduct?: Subscription;
+  productInputFilterString: string = '';
+
+  productInputKeydown(event: Event | KeyBindings): void {
+    const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+    switch (val) {
+      // SEARCH
+      case this.KeySetting[Actions.Search].KeyCode:
+        this.ChooseDataForTableRow();
+        break;
+    }
+  }
+
+  FillFormWithFirstAvailableProduct(event: any): void {
+    this.isLoading = true;
+
+    if (!!this.Subscription_FillFormWithFirstAvailableProduct && !this.Subscription_FillFormWithFirstAvailableProduct.closed) {
+      this.Subscription_FillFormWithFirstAvailableProduct.unsubscribe();
+    }
+
+    this.productInputFilterString = event.target.value ?? '';
+
+    if (HelperFunctions.isEmptyOrSpaces(this.productInputFilterString)) {
+      this.filterForm.controls['SearchString'].setValue(undefined);
+      this.filterForm.controls['ProductName'].setValue(undefined);
+      this.isLoading = false;
+      return;
+    }
+
+    this.Subscription_FillFormWithFirstAvailableProduct = this.productService.GetAll({
+      PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString, OrderBy: 'productCode', FilterByCode: true, FilterByName: false
+    } as GetProductsParamListModel).subscribe({
+      next: res => {
+        if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.filterForm.controls['SearchString'].setValue(res.data[0].productCode);
+          this.filterForm.controls['ProductName'].setValue(res.data[0].description);
+        } else {
+          this.filterForm.controls['SearchString'].setValue(undefined);
+          this.filterForm.controls['ProductName'].setValue(undefined);
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  //#endregion Product search input
 }

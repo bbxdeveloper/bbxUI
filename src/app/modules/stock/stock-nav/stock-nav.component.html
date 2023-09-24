@@ -23,8 +23,17 @@
                                             (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                                             <label>Termék</label>
                                             <input formControlName="SearchString" nbInput type="text" class="{{TileCssClass}}"
+                                                (keydown)="productInputKeydown($event)"
+                                                (input)="FillFormWithFirstAvailableProduct($event)"
                                                 (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff"
                                                 maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
+                                        </nb-form-field>
+                                    </td>
+                                    <td>
+                                        <nb-form-field class="search-row-nb-form-field">
+                                            <label>Megnevezés</label>
+                                            <input formControlName="ProductName" nbInput type="text"
+                                                readonly placeholder="Termék megnevezése" autocomplete="off" />
                                         </nb-form-field>
                                     </td>
                                 </tr>
