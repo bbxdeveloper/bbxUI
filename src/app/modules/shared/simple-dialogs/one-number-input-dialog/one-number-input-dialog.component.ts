@@ -32,6 +32,12 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
   @Input() minValue: number = 1;
   @Input() maxValue: number = 99;
 
+  /**
+   * CSS classes for the outmost (not generated) element of the dialog
+   * Useful for eg. set a margin for the whole component
+   */
+  @Input() wrapper_classes: string = ''
+
   override NavigatableType = NavigatableType.dialog
 
   closedManually = false;

@@ -783,7 +783,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await this.printAndDownLoadService.openPrintDialog({
-                  DialogTitle: 'Bizonylat nyomtatása',
+                  DialogTitle: Constants.TITLE_PRINT_INVOICE,
                   DefaultCopies: 1,
                   MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
@@ -793,7 +793,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
                   ReportParams: {
                     "id": d.data?.id,
                     "copies": 1 // Ki lesz töltve dialog alapján
-                  } as Constants.Dct
+                  } as Constants.Dct,
+                  DialogClasses: Constants.INVOICE_PRINT_DIALOG_MARGIN_CLASS
                 } as PrintDialogRequest);
               } else {
                 this.cs.HandleError(d.errors);
