@@ -748,7 +748,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
               await this.printAndDownLoadService.openPrintDialog({
-                DialogTitle: 'Bizonylat nyomtatása',
+                DialogTitle: Constants.TITLE_PRINT_INVOICE,
                 DefaultCopies: 1,
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                 MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
@@ -758,7 +758,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
                 ReportParams: {
                   "id": d.data?.id,
                   "copies": 1 // Ki lesz töltve dialog alapján
-                } as Constants.Dct
+                } as Constants.Dct,
+                DialogClasses: Constants.INVOICE_PRINT_DIALOG_MARGIN_CLASS
               } as PrintDialogRequest);
             } else {
               this.cs.HandleError(d.errors);

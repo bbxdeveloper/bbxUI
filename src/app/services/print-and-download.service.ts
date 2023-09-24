@@ -44,6 +44,11 @@ export class PrintDialogRequest {
   MsgError: string = ''
   MsgCancel: string = ''
   MsgFinish: string = ''
+
+  /**
+   * Only used with @see PrintAndDownloadService.openPrintDialog
+   */
+  DialogClasses: string = ''
 }
 
 @Injectable({
@@ -160,6 +165,7 @@ export class PrintAndDownloadService {
           minValue: 1,
           maxValue: 99,
           limitValue: true,
+          wrapper_classes: request.DialogClasses
         }
       });
     } catch (error) {

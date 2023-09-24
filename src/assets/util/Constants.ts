@@ -49,6 +49,12 @@ export module Constants {
 
     export const TITLE_PRINT_INVOICE = 'Bizonylat nyomtatása'
 
+    /**
+     * Margin for print dialog on invoice pages. Provides enough
+     * margin to make the number of the saved invoice visible.
+     */
+    export const INVOICE_PRINT_DIALOG_MARGIN_CLASS = 'general-margin-top-200'
+
     export const MSG_EMAIL_SUCCESFUL: string = 'Email sikeresen elküldve!'
     export const MSG_CUSTOMER_UPDATE_SUCCESFUL: string = 'Ügyfél sikeresen frissítve!'
     export const MSG_CUSTOMER_UPDATE_FAILED: string = 'Ügyfél frissítése sikertelen!'
