@@ -110,7 +110,7 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
       description: new FormControl(undefined, []),
       productGroup: new FormControl(undefined, []),
       origin: new FormControl(undefined, []),
-      unitOfMeasure: new FormControl(undefined, []),
+      unitOfMeasureX: new FormControl(undefined, []),
       unitPrice1: new FormControl(undefined, []),
       unitPrice2: new FormControl(undefined, []),
       latestSupplyPrice: new FormControl(undefined, []),
