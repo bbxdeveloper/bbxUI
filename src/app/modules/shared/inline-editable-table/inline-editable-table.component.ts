@@ -108,7 +108,7 @@ export class InlineEditableTableComponent implements OnInit {
     return this.kbs.GetCurrentNavigatable
   }
   get isEditModeOn(): boolean {
-    return this.kbs.isEditModeActivated;
+    return !this.kbs.isNavigationModeActivated;
   }
 
   numberInputMask = NgNeatInputMasks.numberInputMask;

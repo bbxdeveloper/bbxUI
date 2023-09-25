@@ -79,6 +79,10 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     return !this.kbS.isEditModeActivated && !this.isLoading && !this.isSaveInProgress;
   }
 
+  get navigationEnabled() {
+    return this.kbS.isNavigationModeActivated && !this.isLoading && !this.isSaveInProgress;
+  }
+
   public KeySetting!: Constants.KeySettingsDct
   override commands: FooterCommandInfo[] = [];
 
@@ -163,7 +167,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
       event.stopPropagation();
     }
     console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.editDisabled);
-    if (this.editDisabled) {
+    if (this.navigationEnabled) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
       setTimeout(() => {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
