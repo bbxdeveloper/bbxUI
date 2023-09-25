@@ -4,128 +4,96 @@
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!sumForm" [formGroup]="sumForm" #formDirective="ngForm" id="invoiceSaveForm">
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Összes nettó:</label>
-                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="invoiceNetAmount">
-                </div>
+            <label>Összes nettó:</label>
+            <nb-form-field class="col-span-3">
+                <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="invoiceNetAmount">
             </nb-form-field>
 
             <!-- KEDVEZMÉNY MEGADÁSA -->
-            <div [class.bbx-fd-form-field-wrapper-div-row]="this.isDiscountVisible">
-                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="this.OutGoingDelivery">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Kedvezmény %:</label>
-                        <app-bbx-numeric-input
-                            formControlName='invoiceDiscountPercent'
-                            [placeholder]="discountPercentInputPlaceHolder"
-                            input_class="{{TileCssClass}} discount-input"
-                            (click)="formNav.HandleFormFieldClick($event)"
-                            [inputmask]="discountInputMask"
-                            (focusout)="RefreshCalc()"
-                            [required]="true">
-                        </app-bbx-numeric-input>
-                    </div>
+            <label *ngIf="this.isDiscountVisible">Kedvezmény %:</label>
+            <div *ngIf="this.isDiscountVisible">
+                <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="this.OutGoingDelivery">
+                    <app-bbx-numeric-input
+                        formControlName='invoiceDiscountPercent'
+                        [placeholder]="discountPercentInputPlaceHolder"
+                        input_class="{{TileCssClass}} discount-input"
+                        (click)="formNav.HandleFormFieldClick($event)"
+                        [inputmask]="discountInputMask"
+                        (focusout)="RefreshCalc()"
+                        [required]="true">
+                    </app-bbx-numeric-input>
                 </nb-form-field>
 
-                <nb-form-field class="bbx-fd-form-field-50" (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="!this.OutGoingDelivery && this.isDiscountVisible">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label>Kedvezmény %:</label>
-                        <app-bbx-numeric-input
-                            formControlName='invoiceDiscountPercent'
-                            [placeholder]="discountPercentInputPlaceHolder"
-                            input_class="{{TileCssClass}} discount-input"
-                            (click)="formNav.HandleFormFieldClick($event)"
-                            [inputmask]="discountInputMask"
-                            (focusout)="RefreshCalc()"
-                            [required]="true">
-                        </app-bbx-numeric-input>
-                    </div>
-                </nb-form-field>
-
-                <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)">
-                    <div [ngClass]="!this.isDiscountVisible ? 'bbx-fd-form-field-inner-div': 'bbx-fd-form-field-inner-div-2'">
-                        <label>Kedvezmény értéke:</label>
-                        <input nbInput type="text" formControlName='invoiceDiscountValue'
-                            required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
-                            (focusout)="RefreshCalc()" readonly>
-                    </div>
+                <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="!this.OutGoingDelivery && this.isDiscountVisible">
+                    <app-bbx-numeric-input
+                        formControlName='invoiceDiscountPercent'
+                        [placeholder]="discountPercentInputPlaceHolder"
+                        input_class="{{TileCssClass}} discount-input"
+                        (click)="formNav.HandleFormFieldClick($event)"
+                        [inputmask]="discountInputMask"
+                        (focusout)="RefreshCalc()"
+                        [required]="true">
+                    </app-bbx-numeric-input>
                 </nb-form-field>
             </div>
 
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Kedvezménnyel csökkentett nettó:</label>
-                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="discountedInvoiceNetAmount">
-                </div>
+            <label>Kedvezmény értéke:</label>
+            <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" [ngClass]="!this.isDiscountVisible ? 'col-span-3': ''">
+                <input nbInput type="text" formControlName='invoiceDiscountValue'
+                    required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
+                    (focusout)="RefreshCalc()" readonly>
             </nb-form-field>
 
-            <nb-form-field *ngFor="let item of vatRateCodes; let rowPos = index">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Összes {{item.Id}} áfa:</label>
-                    <input (focusout)="RefreshCalc()"
-                     [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="{{'vatRateFormControl-' + rowPos}}">
-                </div>
+            <label>Kedvezménnyel csökkentett nettó:</label>
+            <nb-form-field class="col-span-3">
+                <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="discountedInvoiceNetAmount">
             </nb-form-field>
 
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Összes bruttó:</label>
-                    <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="lineGrossAmount">
-                </div>
+            <ng-container *ngFor="let item of vatRateCodes; let rowPos = index">
+                <label>Összes {{item.Id}} áfa:</label>
+                <input (focusout)="RefreshCalc()" class="right col-span-3"
+                    [inputMask]="numberInputMask" nbInput type="text" formControlName="{{'vatRateFormControl-' + rowPos}}">
+            </ng-container>
+
+            <label>Összes bruttó:</label>
+            <nb-form-field class="col-span-3">
+                <input [inputMask]="numberInputMask" class="right" nbInput type="text" formControlName="lineGrossAmount">
             </nb-form-field>
 
-            <nb-form-field>
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Termékek száma:</label>
-                    <input nbInput type="text" formControlName="invoiceLinesCount">
-                </div>
+            <label>Termékek száma:</label>
+            <nb-form-field class="col-span-3">
+                <input nbInput type="text" formControlName="invoiceLinesCount">
             </nb-form-field>
 
-            <div class="bbx-fd-form-field-wrapper-div-row" *ngIf="this.OutGoingDelivery">
-                <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" class="bbx-fd-form-field-75">
-                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Munkaszám</label>
+            <label class="multicol-label-col-1" *ngIf="this.OutGoingDelivery">Munkaszám</label>
+            <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" class="col-span-2" *ngIf="this.OutGoingDelivery">
+                    <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="workNumber"
+                        [readonly]="isEditModeOff"
+                        (click)="formNav.HandleFormFieldClick($event)">
+            </nb-form-field>
 
-                        <input class="{{TileCssClass}} {{TileCssColClass}}" nbInput type="text" formControlName="workNumber"
-                            [readonly]="isEditModeOff"
-                            (click)="formNav.HandleFormFieldClick($event)">
-                    </div>
-                </nb-form-field>
+            <div class="price-preview" (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="this.OutGoingDelivery">
+                <label>Ár felülvizsg.?</label>
 
-                <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-30 checkbox-wrapper"
-                    (keydown.enter)="formNav.HandleFormEnter($event)">
-                    <label class="multicol-label-col-2">Ár felülvizsg.?</label>
-
-                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="priceReview"
-                        [readonly]="isEditModeOff" (click)="formNav.HandleFormFieldClick($event)">
-                </div>
+                <input class="" class="{{TileCssClass}}" type="checkbox" formControlName="priceReview"
+                    [readonly]="isEditModeOff" (click)="formNav.HandleFormFieldClick($event)">
             </div>
 
-            <div class="triple-input-column">
-                <nb-form-field class="triple-input-column-form-field" (keydown.enter)="formNav.HandleFormEnter($event)">
-                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-first">
-                        <label class="triple-input-column-form-field-label triple-input-column-first">Bizonylatot kiállítja</label>
-                        <input class="triple-input-column-form-field-input triple-input-column-first {{TileCssClass}}" autocomplete="false"
-                        placeholder="Felhasználónév" nbInput type="text" formControlName="input_n" (blur)="onInput_nBlur()">
-                    </div>
-                </nb-form-field>
+            <label>Bizonylatot kiállítja</label>
+            <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)">
+                <input class="{{TileCssClass}}" autocomplete="false"
+                    placeholder="Felhasználónév" nbInput type="text" formControlName="input_n" (blur)="onInput_nBlur()">
+            </nb-form-field>
 
-                <nb-form-field class="triple-input-column-form-field" (keydown.enter)="MoveToSaveButtons($event)">
-                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-second">
-                        <input class="triple-input-column-form-field-input mask-password triple-input-column-second {{TileCssClass}}" autocomplete="false"
-                        placeholder="Jelszó" nbInput type="text" formControlName="input_p">
-                    </div>
-                </nb-form-field>
+            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                <input class="mask-password {{TileCssClass}}" autocomplete="false"
+                    placeholder="Jelszó" nbInput type="text" formControlName="input_p">
+            </nb-form-field>
 
-                <nb-form-field class="triple-input-column-form-field">
-                    <div class="triple-input-column-form-field-inner-div triple-input-column-form-field-inner-div-third">
-                        <input class="triple-input-column-form-field-input triple-input-column-third"
-                        (focusout)="UserDataFocusOut($event)" autocomplete="false"
-                        placeholder="Név" nbInput type="text" formControlName="loginName" readonly>
-                    </div>
-                </nb-form-field>
-            </div>
+            <nb-form-field>
+                <input (focusout)="UserDataFocusOut($event)" autocomplete="false"
+                    placeholder="Név" nbInput type="text" formControlName="loginName" readonly>
+            </nb-form-field>
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
