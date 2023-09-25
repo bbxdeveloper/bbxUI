@@ -70,6 +70,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
   }
 
   groupCodeMask = createMask({
+    autoUnmask: true,
     casing: 'upper',
     regex: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\-]',
     repeat: 80,
