@@ -385,7 +385,14 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.kBs.SetWidgetNavigatable(this);
     this.formNav.GenerateAndSetNavMatrices(true);
 
-    this.kBs.SelectFirstTile();
+    if (this.isDiscountDisabled) {
+      // select the next available input
+      this.kBs.SelectElementByCoordinate(0, 1)
+    }
+    else {
+      this.kBs.SelectFirstTile();
+    }
+
     this.kBs.setEditMode(KeyboardModes.EDIT);
 
     setTimeout(() => {
