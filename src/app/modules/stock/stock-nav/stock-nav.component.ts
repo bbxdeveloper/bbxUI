@@ -41,6 +41,7 @@ import { UnitOfMeasure } from '../../product/models/UnitOfMeasure';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
   selector: 'app-stock-nav',
@@ -778,13 +779,18 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       return;
     }
 
-    this.Subscription_FillFormWithFirstAvailableProduct = this.productService.GetAll({
-      PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString, OrderBy: 'productCode', FilterByCode: true, FilterByName: false
-    } as GetProductsParamListModel).subscribe({
+    // All 3-length productCodes ends with a '-' character.
+    if (this.productInputFilterString.length === 3) {
+      this.productInputFilterString += '-'
+    }
+
+    this.Subscription_FillFormWithFirstAvailableProduct = this.productService.GetProductByCode({
+      ProductCode: this.productInputFilterString
+    } as GetProductByCodeRequest).subscribe({
       next: res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.filterForm.controls['SearchString'].setValue(res.data[0].productCode);
-          this.filterForm.controls['ProductName'].setValue(res.data[0].description);
+        if (!!res && Object.keys(res).includes('productCode') && !HelperFunctions.isEmptyOrSpaces(res.productCode)) {
+          this.filterForm.controls['SearchString'].setValue(res.productCode);
+          this.filterForm.controls['ProductName'].setValue(res.description);
         } else {
           this.filterForm.controls['SearchString'].setValue(undefined);
           this.filterForm.controls['ProductName'].setValue(undefined);
