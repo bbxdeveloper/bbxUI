@@ -73,6 +73,10 @@ export class BaseManagerComponent<T> {
       this.bbxSidebarService.collapse();
   }
 
+  protected _isLoading(value: boolean = true): void {
+    this.sts.waitForLoad(value)
+  }
+
   UpdateKeySettingsAndCommand(): void {
     this.commands = GetFooterCommandListFromKeySettings(this.KeySetting)
     this.dbDataTable.KeySetting = this.KeySetting

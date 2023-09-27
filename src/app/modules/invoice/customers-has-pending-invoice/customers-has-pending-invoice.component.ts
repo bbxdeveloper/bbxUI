@@ -12,6 +12,7 @@ import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { IPartnerLock } from 'src/app/services/IPartnerLock';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-customers-has-pending-invoice',
@@ -35,8 +36,9 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
     private readonly tokenService: TokenStorageService,
     cdref: ChangeDetectorRef,
     private router: Router,
+    statusService: StatusService
   ) {
-    super(dialogRef, kns, dataSourceBuilder)
+    super(dialogRef, kns, dataSourceBuilder, statusService)
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 

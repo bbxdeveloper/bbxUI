@@ -17,6 +17,7 @@ import { CustomerService } from '../../customer/services/customer.service';
 import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { ZipInfo } from '../../system/models/ZipInfo';
 import { SystemService } from '../../system/services/system.service';
+import { StatusService } from 'src/app/services/status.service';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all', 'show-less']
@@ -50,9 +51,10 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
     kbS: KeyboardNavigationService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Customer>>,
     private customerService: CustomerService,
-    private systemService: SystemService
+    private systemService: SystemService,
+    statusService: StatusService
   ) {
-    super(dialogRef, kbS, dataSourceBuilder);
+    super(dialogRef, kbS, dataSourceBuilder, statusService);
 
     this.Matrix = NavMap;
 

@@ -20,6 +20,7 @@ import { SelectTableDialogComponent } from '../select-table-dialog/select-table-
 import { CurrencyCodes } from '../../../system/models/CurrencyCode';
 import { environment } from 'src/environments/environment';
 import { ProductStockInformationDialogComponent } from '../product-stock-information-dialog/product-stock-information-dialog.component';
+import { StatusService } from 'src/app/services/status.service';
 
 const NavMap: string[][] = [
   ['radio-0', 'radio-1', 'radio-2'],
@@ -95,9 +96,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
     private productService: ProductService,
     private cdrf: ChangeDetectorRef,
-    private dialogService: NbDialogService
+    private dialogService: NbDialogService,
+    statusService: StatusService
   ) {
-    super(dialogRef, kbS, dataSourceBuilder);
+    super(dialogRef, kbS, dataSourceBuilder, statusService);
 
     this.dbDataTable = new SimpleNavigatableTable<Product>(
       this.dataSourceBuilder, this.kbS, this.cdref, this.dbData, '', AttachDirection.DOWN, this

@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header {{themeClass}}">
         <span>Gyorskeresés</span>
     </nb-card-header>
-    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-bod {{themeClass}}y">
+    <nb-card-body class="modal-product-active-bod {{themeClass}}y">
 
         <label class="search-label" for="search">Keresés:</label>
         <input nbInput id="active-prod-search" class="search-input"
@@ -25,7 +25,7 @@
             </ng-container>
         </table>
 
-        <table [nbSpinner]="isLoading" class="table-active-product card-table-wrapper {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
+        <table [nbSpinner]="showSpinnerOnTable" class="table-active-product card-table-wrapper {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
             <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">

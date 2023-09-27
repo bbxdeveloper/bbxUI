@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, DoCheck } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
 import { ReplaySubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -14,6 +14,7 @@ import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
 import { isIStatusProvider } from '../IStatusProvider';
 import { Status } from "../Status";
+import { StatusService } from 'src/app/services/status.service';
 
 export const FORMATTED_NUMBER_COL_TYPES = [
   'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
@@ -31,10 +32,11 @@ export class FlatDesignTableComponent implements OnInit {
   @Input() dbDataTableId: any;
   @Input() dbDataDataSrc!: NbTreeGridDataSource<any>;
   @Input() trackRows: any;
-  @Input() isLoading: boolean = true;
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
+
+  @Input() isLoading: boolean = false;
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -43,13 +45,17 @@ export class FlatDesignTableComponent implements OnInit {
     return `theme-${environment.theme}`
   }
 
+  get showSpinnerOnTable(): boolean {
+    return this.isLoading && !this.statusService.InProgress;
+  }
+
   latestSort?: NbSortRequest
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService, private khs: KeyboardHelperService) {}
+  constructor(private sideBarService: BbxSidebarService, private statusService: StatusService) {}
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)
