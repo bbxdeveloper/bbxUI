@@ -48,6 +48,8 @@ export module Constants {
     export const TITLE_INFO: string = 'Információ';
 
     export const TITLE_PRINT_INVOICE = 'Bizonylat nyomtatása'
+    export const TITLE_PRINT_QUESTION = 'Nyomtatás indítása?'
+    export const TITLE_PRINT_FINISHED = 'A nyomtatás rendben megtörtént!'
 
     /**
      * Margin for print dialog on invoice pages. Provides enough
