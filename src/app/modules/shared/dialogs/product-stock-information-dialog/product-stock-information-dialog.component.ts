@@ -274,6 +274,18 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    if (!this.kbS.IsWidgetOnTop(this)) {
+      console.error('vissza')
+      event.preventDefault()
+      event.stopPropagation()
+      event.stopImmediatePropagation()
+      return
+    }
+
+    (event as any).valami = 'valami'
+
+    // console.error(event)
+
     if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
       event.preventDefault();
       event.stopImmediatePropagation();

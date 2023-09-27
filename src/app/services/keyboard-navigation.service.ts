@@ -969,6 +969,12 @@ export class KeyboardNavigationService {
     }
   }
 
+  public IsWidgetOnTop(navigatable: INavigatable): boolean {
+    const topItem = this.WidgetStack[this.WidgetStack.length - 1]
+
+    return navigatable.constructor.name === topItem.constructor.name
+  }
+
   public SetWidgetNavigatable(n: INavigatable): void {
     this.loggerService.info(`[SetWidgetNavigatable] Navigatable: ${n.constructor.name}`)
 

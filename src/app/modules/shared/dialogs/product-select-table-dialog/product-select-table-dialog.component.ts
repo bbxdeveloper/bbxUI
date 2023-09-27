@@ -289,6 +289,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
         product: row.data
       }
     });
+
+    debugger
     dialogRef.onClose.subscribe(async (res: Product) => {
       setTimeout(() => {
         this.detailsDialogOpened = false
@@ -297,6 +299,15 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
+    console.error('lool')
+    if (!this.kbS.IsWidgetOnTop(this)) {
+      event.preventDefault()
+      event.stopPropagation()
+      event.stopImmediatePropagation()
+      return
+    }
+
+    console.error('krumpli')
     if (event.code === 'Tab') {
       event.preventDefault()
       this.currentChooserValue = (this.currentChooserValue + 1) % 3
