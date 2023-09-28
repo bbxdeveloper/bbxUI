@@ -43,6 +43,7 @@ import { LoggerService } from 'src/app/services/logger.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FilterForm } from './FitlerForm';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -289,6 +290,21 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     return data.productCode
   }
 
+  private HandlePathParams(): void {
+    this.productCodeFromPath = this.route.snapshot.queryParams['productCode']
+    this.wareHouseFromPathString = this.route.snapshot.queryParams['wareHouse']
+    this.navigatedFromStock = !!this.productCodeFromPath && !!this.wareHouseIdFromPath
+
+    let c = this.filterForm.controls
+
+    c['WarehouseID'].setValue(this.wareHouseFromPathString)
+    c['ProductSearch'].setValue(this.productCodeFromPath)
+
+    if (this.navigatedFromStock) {
+      this.FillFormWithFirstAvailableProduct({target: {value: this.productCodeFromPath}}, true)
+    }
+  }
+
   private Setup(): void {
     this.dbData = [];
 
@@ -296,13 +312,9 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.dbDataTableForm = new FormGroup({});
 
-    this.productCodeFromPath = this.route.snapshot.queryParams['productCode'];
-    this.wareHouseFromPathString = this.route.snapshot.queryParams['wareHouse'];
-    this.navigatedFromStock = !!this.productCodeFromPath && !!this.wareHouseIdFromPath;
-
     this.filterForm = new FormGroup({
       WarehouseID: new FormControl(this.wareHouseIdFromPath, [Validators.required]),
-      ProductSearch: new FormControl(undefined, []),
+      ProductSearch: new FormControl(this.productCodeFromPath ?? undefined, []),
       productCode: new FormControl(this.productCodeFromPath ?? undefined, []),
       productDescription: new FormControl(undefined, []),
       StockCardDateFrom: new FormControl(undefined, []),
@@ -372,12 +384,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
-    // this.RefreshAll(this.getInputParams);
     this.isLoading = false;
-
-    if (this.navigatedFromStock) {
-      this.FillFormWithFirstAvailableProduct({target: {value: this.productCodeFromPath}}, true);
-    }
   }
 
   private refreshComboboxData(): void {
@@ -437,15 +444,21 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   }
 
   async ngOnInit(): Promise<void> {
-    const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
-    if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
-      this.filterForm.patchValue(filterData)
+    this.HandlePathParams()
 
-      this.productInputFilterString = filterData.ProductSearch ?? ''
-
-      await this.getProductAsync()
-
+    if (this.navigatedFromStock) {
+      await this.getProductAsync(true)
       this.Refresh(this.getInputParams)
+    } else {
+      const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
+      if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
+        this.filterForm.patchValue(filterData)
+  
+        this.productInputFilterString = filterData.ProductSearch ?? ''
+  
+        await this.getProductAsync()
+        this.Refresh(this.getInputParams)
+      }
     }
 
     this.fS.pushCommands(this.commands);
@@ -634,19 +647,32 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     });
   }
 
-  private async getProductAsync(): Promise<void> {
+  private async getProductAsync(getExactProductByCode: boolean = false): Promise<void> {
     try {
       this.isLoading = true
 
-      const request = this.getProductGetParams
-      const res = await firstValueFrom(this.seC.GetAll(request))
-
-      if (!!res && res.data !== undefined && res.data.length > 0) {
-        this.productFilter = res.data[0];
-        this.cachedProductName = res.data[0].description;
-        this.SetProductFormFields(res.data[0]);
+      if (!getExactProductByCode) {
+        const request = this.getProductGetParams
+        const res = await firstValueFrom(this.seC.GetAll(request))
+  
+        if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.productFilter = res.data[0];
+          this.cachedProductName = res.data[0].description;
+          this.SetProductFormFields(res.data[0]);
+        } else {
+          this.SetProductFormFields(undefined);
+        }
       } else {
-        this.SetProductFormFields(undefined);
+        const request = { ProductCode: this.filterForm.controls['productCode'].value } as GetProductByCodeRequest
+        const res = await firstValueFrom(this.seC.GetProductByCode(request))
+  
+        if (!!res && Object.keys(res).includes('productCode') && !HelperFunctions.isEmptyOrSpaces(res.productCode)) {
+          this.productFilter = res;
+          this.cachedProductName = res.description;
+          this.SetProductFormFields(res);
+        } else {
+          this.SetProductFormFields(undefined);
+        }
       }
     } catch (error) {
       this.cs.HandleError(error);
