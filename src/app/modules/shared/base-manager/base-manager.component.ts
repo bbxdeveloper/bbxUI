@@ -40,13 +40,13 @@ export class BaseManagerComponent<T> {
   dbDataTable!: FlatDesignNavigatableTable<T>;
 
   tableIsFocused: boolean = false;
-  
+
   isLoading: boolean = true;
-  
+
   get isSideBarOpened(): boolean {
     return this.bbxSidebarService.sideBarOpened;
   }
-  
+
   private uid = 0;
   protected nextUid() {
     ++this.uid;
@@ -59,7 +59,7 @@ export class BaseManagerComponent<T> {
 
   public KeySetting: Constants.KeySettingsDct = GeneralFlatDesignKeySettings;
   public commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
-  
+
   protected Subscription_Refresh?: Subscription;
 
   constructor(
@@ -91,7 +91,7 @@ export class BaseManagerComponent<T> {
     const data = this.dbDataTable?.data[this.kbS.p.y]?.data;
     return (data as any)[objectKey];
   }
-  
+
   HandleError(err: any): void {
     this.cs.HandleError(err, '', false);
     this.isLoading = false;
@@ -114,8 +114,8 @@ export class BaseManagerComponent<T> {
 
   /**
    * Returns an obvious name for the record to use in confirmation message.
-   * @param data 
-   * @returns 
+   * @param data
+   * @returns
    */
   GetRecordName(data: any): string | number | undefined {
     return ''
@@ -214,8 +214,8 @@ export class BaseManagerComponent<T> {
    * -1 = new record
    * 0 = existing record
    * 1 = updated existing record
-   * @param data 
-   * @returns 
+   * @param data
+   * @returns
    */
   CompareDataToRecords(data?: any): number {
     if (data === undefined) {
@@ -226,7 +226,7 @@ export class BaseManagerComponent<T> {
     const idKey = keys.find(x => x.toLowerCase() === 'id')!
 
     const item = this.dbData.find(x => (x.data as any)[idKey] === data[idKey])
-    
+
     if (item !== undefined) {
       return 1
     } else {
@@ -236,7 +236,7 @@ export class BaseManagerComponent<T> {
 
   ActionLock(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionLock.name}: ${JSON.stringify(data)}`)
-    
+
     if (!data?.needConfirmation) {
       this.ProcessActionLock(data)
     } else {
@@ -345,7 +345,7 @@ export class BaseManagerComponent<T> {
 
   ActionPut(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionPut.name}: ${JSON.stringify(data)}`)
-    
+
     if (!data?.needConfirmation) {
       this.ProcessActionPut(data)
     } else {
@@ -382,7 +382,7 @@ export class BaseManagerComponent<T> {
   }
   ActionPutOnExit(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionPutOnExit.name}: ${JSON.stringify(data)}`)
-    
+
     if (!data?.needConfirmation) {
       this.ProcessActionPut(data)
     } else {
@@ -419,7 +419,7 @@ export class BaseManagerComponent<T> {
 
   ActionDelete(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionDelete.name}: ${JSON.stringify(data)}`)
-    
+
     if (!data?.needConfirmation) {
       this.ProcessActionDelete(data)
     } else {
