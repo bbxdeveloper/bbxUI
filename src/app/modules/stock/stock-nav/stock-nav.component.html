@@ -1,30 +1,39 @@
 <as-split direction="horizontal">
     <as-split-area [size]="50">
         <app-head-line [compact]="true" msg="Készlet"></app-head-line>
-        
+
         <div class="filter-div">
             <nb-card class="filter-card">
                 <nb-card-body class="filter-card-body">
                     <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
                         (keydown.escape)="filterFormNav.HandleFormEscape()">
                         <div class="form-row">
-        
+
                             <table class="customer-search-row">
                                 <tr>
                                     <td>
-                                        <app-bbx-two-row-combo-box class="bbx-sidebar-combo" [currentForm]="filterFormNav"
-                                            formFieldName="WarehouseID" class="nav-configuration" label="Raktár"
+                                        <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav"
+                                            formFieldName="WarehouseID" label="Raktár"
                                             [data$]="wareHouseData$" [needBlankOption]="false"
-                                            [autoFillFirstAvailableValue]="true">
-                                        </app-bbx-two-row-combo-box>
+                                            [autoFillFirstAvailableValue]="true" [labelAboveField]="true">
+                                        </app-bbx-combo-box>
                                     </td>
                                     <td>
                                         <nb-form-field class="search-row-nb-form-field"
                                             (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                                             <label>Termék</label>
                                             <input formControlName="SearchString" nbInput type="text" class="{{TileCssClass}}"
+                                                (keydown)="productInputKeydown($event)"
+                                                (input)="FillFormWithFirstAvailableProduct($event)"
                                                 (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff"
                                                 maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
+                                        </nb-form-field>
+                                    </td>
+                                    <td>
+                                        <nb-form-field class="search-row-nb-form-field">
+                                            <label>Megnevezés</label>
+                                            <input formControlName="ProductName" nbInput type="text"
+                                                readonly placeholder="Termék megnevezése" autocomplete="off" />
                                         </nb-form-field>
                                     </td>
                                 </tr>
@@ -40,7 +49,7 @@
                 </nb-card-footer>
             </nb-card>
         </div>
-        
+
         <nb-card>
             <nb-card-body class="table-card-body">
                 <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="408" [wide]="true" [allColumns]="allColumns"
@@ -50,7 +59,7 @@
                 </app-flat-design-table>
             </nb-card-body>
         </nb-card>
-        
+
         <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
     </as-split-area>
     <as-split-area [size]="50" *ngIf="isSideBarOpened">

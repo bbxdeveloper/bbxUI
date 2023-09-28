@@ -262,3 +262,23 @@ tr.parent-of-current-keyboard-nav-selected {
 .display-contents {
   display: contents !important;
 }
+
+// Height margin
+
+$marginMax: 1000;
+$i: 0;
+@while $i < $marginMax {
+  .general-margin-top-#{$i} {
+        margin-top: #{$i}px !important;
+  }
+  .general-margin-left-#{$i} {
+        margin-left: #{$i}px !important;
+  }
+  .general-margin-bottom-#{$i} {
+        margin-bottom: #{$i}px !important;
+  }
+  .general-margin-right-#{$i} {
+        margin-right: #{$i}px !important;
+  }
+  $i: $i + 100
+}

@@ -106,9 +106,9 @@
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
 
                 <label class="single_label bbx-sidebar-combo" *ngIf="mode.Delivery">Szállítólevél</label>
-                <app-bbx-combo-box-invoice *ngIf="!mode.Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav"
+                <app-bbx-combo-box *ngIf="!mode.Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav"
                     formFieldName="paymentMethod" label="Fizetési mód" [data$]="paymentMethodOptions$"
-                    [simpleMode]="true"></app-bbx-combo-box-invoice>
+                    [simpleMode]="true" [labelAboveField]="true"></app-bbx-combo-box>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Partner bizonylatszám</label>

@@ -897,10 +897,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  selectIntPart(event: any): void {
-    HelperFunctions.SelectBeginningById(event.target.id);
-  }
-
   protected async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
 
@@ -989,7 +985,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         title: 'Kedvezmény megadása összes sorra',
         inputLabel: 'Kedvezmény %',
         numberInputMask: this.offerDiscountInputMask,
-        placeHolder: '0.00'
+        defaultValue: 0
       }
     });
     dialogRef.onClose.subscribe({

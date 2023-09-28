@@ -32,6 +32,12 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
   @Input() minValue: number = 1;
   @Input() maxValue: number = 99;
 
+  /**
+   * CSS classes for the outmost (not generated) element of the dialog
+   * Useful for eg. set a margin for the whole component
+   */
+  @Input() wrapper_classes: string = ''
+
   override NavigatableType = NavigatableType.dialog
 
   closedManually = false;
@@ -88,11 +94,13 @@ export class OneNumberInputDialogComponent extends BaseNavigatableComponentCompo
     this.formNav.GenerateAndSetNavMatrices(true);
     this.kbS.SelectFirstTile();
     this.kbS.setEditMode(KeyboardModes.EDIT);
+
     if (this.defaultValue !== undefined) {
       this.formNav.form.controls['answer'].setValue(this.defaultValue)
     }
+
     setTimeout(() => {
-      HelperFunctions.SelectBeginningByClass('one-number-input-dialog-input')
+      HelperFunctions.SelectBeginningByClass('one-number-input-dialog-input', undefined, undefined, this.defaultValue?.toString())
     }, 100);
   }
 

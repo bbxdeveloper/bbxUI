@@ -57,6 +57,9 @@ export class KeyboardNavigationService {
   get isEditModeActivated() {
     return this.currentKeyboardMode === KeyboardModes.EDIT;
   }
+  get isNavigationModeActivated() {
+    return this.currentKeyboardMode === KeyboardModes.NAVIGATION;
+  }
 
   ElementIdSelected: BehaviorSubject<string> = new BehaviorSubject<string>('');
   NavigatableChanged: BehaviorSubject<string> = new BehaviorSubject<string>('');

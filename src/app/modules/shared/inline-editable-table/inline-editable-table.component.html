@@ -22,7 +22,7 @@
                     <ng-container [ngSwitch]="it.type">
                         <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                             *nbTreeGridCellDef="let row; let rowPos = index"
-                            [class.table-cell-edited]="dbDataTable.editedRowPos == rowPos && dbDataTable.editedProperty == it.objectKey"
+                            [class.table-cell-edited]="dbDataTable.isEditingCell(rowPos, it.objectKey)"
                             (keydown)="HandleGridKeydown($event, row, rowPos, it.objectKey, colPos, InputId, it.fInputType, isEditModeOn, true, currentNavigatable)"
                             (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, InputId, it.fInputType, true, $event, currentNavigatable)"
                             [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
@@ -52,7 +52,7 @@
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
                                         [id]="InputId" input_class="input-table-cell" [style_text_align]="it.textAlign" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false">
                                     </app-bbx-numeric-input>
-                                
+
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{
                                         it.calc !== undefined ?
@@ -134,6 +134,19 @@
                                         [style.text-align]="it.textAlign"></app-bbx-char-checkbox>
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ row.data[it.objectKey] ? it.checkboxTrue! : it.checkboxFalse! }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'uniqueMask'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [inputMask]="it.inputMask"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
                                     </div>
                                 </ng-container>
 

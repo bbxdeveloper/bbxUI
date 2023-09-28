@@ -1,4 +1,4 @@
-@import 'table-common';
+@use 'table-common';
 
 $td-height: 30px;
 
@@ -115,7 +115,7 @@ form.form-with-rows {
                     margin: 0px;
                     padding: 0px;
                 }
-                
+
                 .product-code-input > .input-table-cell, .input-table-cell {
                     width: 100% !important;
 

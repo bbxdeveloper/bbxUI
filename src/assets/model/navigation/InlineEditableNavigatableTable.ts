@@ -444,10 +444,13 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, mouseClick: boolean = false, clickEvent?: any, navigatable?: INavigatable): void {
-        console.log('[HandleGridClick]: ', row, rowPos, col, colPos, inputId, this.kbs.isEditModeActivated, this.kbS.IsCurrentNavigatable(this), mouseClick);
+        if (this.colDefs.find(x => x.colKey === col)?.fReadonly ?? false) {
+            return
+        }
+
         let firstCol = colPos === 0;
 
-        const fromEditMode = this.kbs.isEditModeActivated; // && !!this.editedRow && !!this.editedRow?.data;
+        const fromEditMode = !this.kbs.isNavigationModeActivated;
 
         if (firstCol) {
             this.kbs.setEditMode(KeyboardModes.NAVIGATION);
@@ -474,7 +477,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         if (environment.inlineEditableTableKeyboardDebug) console.log(this.constructor.name, this.HandleGridEnter.name)
         switch (this.kbS.currentKeyboardMode) {
             case KeyboardModes.NAVIGATION: {
-                if (colPos == 0) {
+                // Only for first cols of new rows.
+                if (colPos == 0 && rowPos === this.data.length - 1) {
                     this.HandleGridEnterOld(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable)
                 } else {
                     this.Edit(row, rowPos, col);
@@ -491,20 +495,27 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 break
             }
             case KeyboardModes.NAVIGATION_EDIT: {
-                // Cache edited data
-                let tmp: T | undefined = this.editedRow?.data;
-                // Clear edit data
-                this.ResetEdit();
-                // Detect changes in DOM
-                this.cdref!.detectChanges();
-                // Set mode
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-                // Notify the parent component about the datachange
-                this.parentComponent.TableRowDataChanged(tmp, rowPos, col)
-                // Refresh parent
-                this.parentComponent.RecalcNetAndVat()
-                // Refocus current element
-                this.kbs.SelectCurrentElement()
+                if (colPos == 0 && rowPos !== this.data.length - 1) {
+                    // Standard case for ENTER key
+                    this.HandleGridEnterOld(row, rowPos, col, colPos, inputId, fInputType, fromEditMode, fromClickMethod, navigatable)
+                    // Refocus current element
+                    this.kbs.SelectCurrentElement()
+                } else {
+                    // Cache edited data
+                    let tmp: T | undefined = this.editedRow?.data;
+                    // Clear edit data
+                    this.ResetEdit();
+                    // Detect changes in DOM
+                    this.cdref!.detectChanges();
+                    // Set mode
+                    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+                    // Notify the parent component about the datachange
+                    this.parentComponent.TableRowDataChanged(tmp, rowPos, col)
+                    // Refresh parent
+                    this.parentComponent.RecalcNetAndVat()
+                    // Refocus current element
+                    this.kbs.SelectCurrentElement()
+                }
                 break
             }
         }
@@ -512,7 +523,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     private HandleGridEnterOld(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
         // Is there a currently edited row?
-        let wasEditActivatedPreviously = this.kbS.isEditModeActivated && !!this.editedRow;
+        let wasEditActivatedPreviously = !this.kbS.isNavigationModeActivated && !!this.editedRow;
         let firstCol = colPos === 0;
 
         console.log(navigatable);

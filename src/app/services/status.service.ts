@@ -25,7 +25,7 @@ export class StatusService {
   }
 
   public pushProcessStatus(status: ProcessStatus): void {
-    this.loggerService.info(JSON.stringify(status))
+    this.loggerService.info(`[pushProcessStatus] status: ${JSON.stringify(status)}`)
     this._inProgress = status.value !== -1 || !!status.title || !!status.msg;
     this._actualStatus.next(status);
   }

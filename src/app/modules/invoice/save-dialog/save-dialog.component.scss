@@ -1,5 +1,5 @@
-@import 'side-bar-form-default';
-@import 'side-bar-form-dialog';
+@use 'side-bar-form-default';
+@use 'side-bar-form-dialog';
 
 input.right {
     text-align: right;
@@ -9,7 +9,37 @@ form {
     overflow-y: hidden;
     height: auto !important;
     row-gap: 5px;
+    column-gap: 5px;
     margin-top: 0px;
+
+    display: grid;
+    grid-template-columns: 185px 1fr 1fr 1fr;
+    align-content: center;
+
+    .col-span-2 {
+        grid-column: span 2 / span 2;
+    }
+
+    .col-span-3 {
+        grid-column: span 3 / span 3;
+    }
+
+    input {
+        max-width: unset !important;
+        margin: unset !important;
+    }
+
+    label {
+        min-width: unset !important;
+        margin-right: 15px;
+    }
+
+    .price-preview {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 15px;
+    }
 }
 
 .modal-product-active {
