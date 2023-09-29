@@ -287,10 +287,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     const dialogRef = this.dialogService.open(ProductStockInformationDialogComponent, {
       context: {
         product: row.data
-      }
+      },
+      closeOnEsc: false
     });
 
-    debugger
     dialogRef.onClose.subscribe(async (res: Product) => {
       setTimeout(() => {
         this.detailsDialogOpened = false
@@ -316,7 +316,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     }
     switch (event.key) {
       case KeyBindings.exit: {
-        if (this.detailsDialogOpened) {
+        if (!this.detailsDialogOpened) {
           event.preventDefault()
           event.stopImmediatePropagation()
           event.stopPropagation()

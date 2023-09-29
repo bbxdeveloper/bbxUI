@@ -79,7 +79,6 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   }
 
   close(answer?: T) {
-    console.error('valami')
     this.closedManually = true;
     this.kbS.RemoveWidgetNavigatable();
     this.dialogRef.close(answer);
