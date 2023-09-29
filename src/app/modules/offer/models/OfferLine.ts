@@ -74,7 +74,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     }
 
     get exchangedOriginalUnitPrice(): number {
-        return HelperFunctions.Round2(this.originalUnitPrice / this.exchangeRate, 1);
+        return HelperFunctions.Round2(this.originalUnitPrice / this.exchangeRate, 2);
     }
 
     // Custom
@@ -220,6 +220,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         console.log(message, optionalParams);
     }
 
+    ///
     public ReCalc(unitPriceWasUpdated: boolean, currencyCode?: string, exchangeRate?: number): void {
         if (environment.offerLineLog) {
             console.log("....................................................");
