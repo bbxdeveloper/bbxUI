@@ -9,6 +9,7 @@ export function onNegateKeepCaretPosition(): (event: KeyboardEvent, buffer: stri
     const doNothing = {} as Inputmask.CommandObject
 
     return (event: KeyboardEvent, buffer: string[], caretPos: number, opts: Inputmask.Options): Inputmask.CommandObject => {
+        debugger
         if (event.code !== 'NumpadSubtract' && event.code !== 'Slash') {
             return doNothing
         }
