@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header">
         <span>Árváltozás</span>
     </nb-card-header>
-    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
+    <nb-card-body [nbSpinner]="showSpinnerOnTable" class="modal-product-active-body">
         <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
             <label>
                 Termék

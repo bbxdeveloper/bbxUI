@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header {{themeClass}}">
         <span>Gyorskeresés</span>
     </nb-card-header>
-    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body {{themeClass}}">
+    <nb-card-body [nbSpinner]="showSpinnerOnTable" class="modal-product-active-body {{themeClass}}">
 
         <label class="search-label" for="search">Keresés:</label>
         <input nbInput id="active-prod-search" class="search-input" (keyup)="refreshFilter($event)" autocomplete="off">

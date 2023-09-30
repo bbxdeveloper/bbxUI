@@ -84,6 +84,9 @@ $nb-themes: nb-register-theme((
 
   input-selection-color: rgb(114, 140, 221),
 
+  // Loading spinner color. Only for the "simple" spinner, does not apply for the StatusService spinner!
+  spinner-basic-circle-filled-color: #24094b
+
 ), cosmic-light, cosmic);
 
 $nb-themes: nb-register-theme((

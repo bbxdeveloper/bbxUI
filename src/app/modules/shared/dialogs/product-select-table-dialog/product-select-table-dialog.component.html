@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header {{themeClass}}">
         <span>Gyorskeresés</span>
     </nb-card-header>
-    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body {{themeClass}}">
+    <nb-card-body [nbSpinner]="showSpinnerOnTable" class="modal-product-active-body {{themeClass}}">
         <form id="productSearchDialogForm" [formGroup]="formNav.form" #formDirective="ngForm" class="form-with-rows {{themeClass}}" autocomplete="off">
             <div class="form-row">
                 <nb-radio-group formControlName="chooser" class="bbx-radiogroup">

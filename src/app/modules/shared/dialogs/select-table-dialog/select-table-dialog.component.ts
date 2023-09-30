@@ -9,6 +9,7 @@ import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseNavigatableComponentComponent } from '../../base-navigatable-component/base-navigatable-component.component';
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 import { environment } from 'src/environments/environment';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-select-table-dialog',
@@ -38,6 +39,10 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
 
   isLoading: boolean = true;
 
+  get showSpinnerOnTable(): boolean {
+    return this.isLoading && !this.statusService.InProgress;
+  }
+
   get isEditModeOff() {
     return !this.kbS.isEditModeActivated;
   }
@@ -54,6 +59,7 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
     protected dialogRef: NbDialogRef<SelectTableDialogComponent<T>>,
     protected kbS: KeyboardNavigationService,
     protected dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<T>>,
+    protected statusService: StatusService
   ) {
     super();
     this.Setup();

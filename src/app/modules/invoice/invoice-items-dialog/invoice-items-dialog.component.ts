@@ -10,6 +10,7 @@ import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNaviga
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-invoice-items-dialog',
@@ -36,8 +37,9 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
     private readonly invoiceService: InvoiceService,
     private readonly commonService: CommonService,
     cdref: ChangeDetectorRef,
+    statusService: StatusService
   ) {
-    super(dialogRef, keyboardService, dataSourceBuilder)
+    super(dialogRef, keyboardService, dataSourceBuilder, statusService)
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 

@@ -45,6 +45,10 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
     return HelperFunctions.isEmptyOrSpaces(countryCode) || (!!countryDesc && countryCode === countryDesc);
   }
 
+  get showSpinnerOnTable(): boolean {
+    return this.isLoading && !this.statusService.InProgress;
+  }
+
   public isLoading = false
 
   customPatterns: any = CustomerMisc.CustomerNgxMaskPatterns;
@@ -70,7 +74,7 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
     private readonly statusService: StatusService,
     private readonly systemService: SystemService,
     private readonly dialogRef: NbDialogRef<boolean>,
-    private readonly dialogService: NbDialogService,
+    private readonly dialogService: NbDialogService
   ) {
     super()
 

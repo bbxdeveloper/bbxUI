@@ -7,6 +7,7 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-pending-delivery-notes-by-invoice-number-dialog',
@@ -23,9 +24,10 @@ export class PendingDeliveryNotesByInvoiceNumberDialogComponent extends SelectTa
     dialogRef: NbDialogRef<PendingDeliveryNotesByInvoiceNumberDialogComponent>,
     private readonly kns: KeyboardNavigationService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<PendingDeliveryNoteItem>>,
-    cdref: ChangeDetectorRef
+    cdref: ChangeDetectorRef,
+    statusService: StatusService
   ) {
-    super(dialogRef, kns, dataSourceBuilder)
+    super(dialogRef, kns, dataSourceBuilder, statusService)
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 

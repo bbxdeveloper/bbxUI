@@ -17,6 +17,7 @@ import { createMask } from '@ngneat/input-mask';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { onNegateKeepCaretPosition } from 'src/assets/util/input/onNegateKeepCaretPosition';
 import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
+import { StatusService } from 'src/app/services/status.service';
 
 type PriceChangeFormValues = {
   productCode: string
@@ -50,7 +51,11 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   override NavigatableType = NavigatableType.dialog
 
-  private requestSubscription: Subscription|undefined
+  private requestSubscription: Subscription | undefined
+
+  get showSpinnerOnTable(): boolean {
+    return this.isLoading && !this.statusService.InProgress;
+  }
 
   public get isEditModeOff(): boolean {
     return !this.keyboardService.isEditModeActivated
@@ -82,6 +87,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     private readonly cdref: ChangeDetectorRef,
     private readonly commonService: CommonService,
     private readonly productService: ProductService,
+    private readonly statusService: StatusService
   ) {
     super()
 
