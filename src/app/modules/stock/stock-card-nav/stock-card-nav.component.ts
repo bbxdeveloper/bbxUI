@@ -94,7 +94,10 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     'stockCardDate',
     'productCode',
     'product',
-    'customer'
+    'customer',
+    'oRealQty',
+    'xRealQty',
+    'nRealQty',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -183,7 +186,19 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Vált.Valós',
+      label: 'E.Klt.',
+      objectKey: 'oRealQty',
+      colKey: 'oRealQty',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: "120px",
+      textAlign: "right",
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Vált.',
       objectKey: 'xRealQty',
       colKey: 'xRealQty',
       defaultValue: '',
@@ -195,7 +210,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Új ELÁBÉ',
+      label: 'Ú.Klt.',
       objectKey: 'nRealQty',
       colKey: 'nRealQty',
       defaultValue: '',
