@@ -52,6 +52,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     unitVat: number = 0; // unitPrice * vatRate // hidden
     unitGross: number = 0; // unitPrice + unitVat
     showDiscount: boolean = false;
+    noDiscount: boolean = false
     quantity: number = 0;
 
     unitPrice1: number = 0;
@@ -323,6 +324,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
         offerLine.productGroup = product.productGroup;
 
+        offerLine.noDiscount = product.noDiscount
         offerLine.Discount = 0.0;
 
         offerLine.ReCalc(unitPriceWasUpdated, currencyCode, exchangeRate);

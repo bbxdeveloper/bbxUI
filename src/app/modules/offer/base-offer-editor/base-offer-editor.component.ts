@@ -157,6 +157,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       defaultValue: '', type: 'number', mask: "",
       colWidth: "90px", textAlign: "right", fInputType: 'param-padded-formatted-integer',
       calc: x => '1.2',
+      checkIfReadonly: row => row.data.noDiscount,
       inputMask: this.offerDiscountInputMask,
       placeHolder: '0.00'
     },
