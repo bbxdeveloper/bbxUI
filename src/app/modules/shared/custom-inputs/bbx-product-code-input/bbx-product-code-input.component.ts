@@ -101,7 +101,7 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
     if (!this.debug) {
       return
     }
-    this.logger.info(m)
+    this.logger.info(m, 'bbxProductCodeInputComponentLogs')
   }
 
   // TODO for BbxProductCodeInputComponent: Fix control staying "ng-untouched" - inner controls changes to "ng-touched" as it should

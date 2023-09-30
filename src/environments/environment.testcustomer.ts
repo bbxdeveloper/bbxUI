@@ -26,8 +26,10 @@ export const environment = {
     inlineEditableTableKeyboardDebug: true,
 
     offerLineLog: false,
-
     InvSaveDlgLogs: false,
+
+    consoleLogsWrapperLogs: false,
+    bbxProductCodeInputComponentLogs: false,
 
     theme: 'cosmic-light',
 

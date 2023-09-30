@@ -46,6 +46,23 @@ export class LoggerService {
     this.logWith(LogLevel.Trace, msg, environmentFlag)
   }
 
+  /**
+   * 
+   * @param msg 
+   * @param environmentFlag 
+   */
+  console_log(message?: any, ...optionalParams: any[]): void {
+    if (environment.production) {
+      return
+    }
+
+    if (Object.keys(environment).includes('consoleLogsWrapperLogs') && !(environment as any)['consoleLogsWrapperLogs']) {
+      return
+    }
+
+    console.log(message, optionalParams)
+  }
+
   private logWith(level: any, msg: string, environmentFlag: string = ''): void {
     if (environment.production) {
       return
@@ -65,16 +82,16 @@ export class LoggerService {
         return console.log(dateAndMsg)
       case LogLevel.Info:
         logLevel = 'Info'
-        return console.info('%c' + dateAndMsg, 'color: #6495ED')
+        return console.info('ℹ️ %c' + dateAndMsg, 'color: #6495ED')
       case LogLevel.Warn:
         logLevel = 'Warn'
-        return console.warn('%c' + dateAndMsg, 'color: #FF8C00')
+        return console.warn('⚠️ %c' + dateAndMsg, 'color: #6495ED')
       case LogLevel.Error:
         logLevel = 'Error'
-        return console.error('%c' + dateAndMsg, 'color: #DC143C')
+        return console.error('🛑 %c' + dateAndMsg, 'background: #222; color: #bada55')
       case LogLevel.Trace:
         logLevel = 'Trace'
-        return console.trace('%c' + dateAndMsg, 'color: #DC143C')
+        return console.trace('📄 %c' + dateAndMsg, 'color: #6495ED')
       default:
         console.debug(msg)
     }
