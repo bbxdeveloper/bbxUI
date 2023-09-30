@@ -291,7 +291,7 @@ export class LocationManagerComponent
       next: (d) => {
         if (d.succeeded && !!d.data) {
           if (!!d) {
-            this.dbData = []
+            this.dbData = d.data.map(x => ({ data: x, uid: this.nextUid() }))
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
@@ -319,7 +319,7 @@ export class LocationManagerComponent
       .then(d => {
         if (d.succeeded && !!d.data) {
           if (!!d) {
-            this.dbData = [];
+            this.dbData = d.data.map(x => ({ data: x, uid: this.nextUid() }));
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
