@@ -285,7 +285,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         showDiscount: x.data.showDiscount,
         unitOfMeasure: x.data.unitOfMeasure,
         quantity: HelperFunctions.ToFloat(x.data.quantity),
-        originalUnitPrice: HelperFunctions.ToFloat(x.data.originalUnitPrice),
+        originalUnitPrice: HelperFunctions.ToFloat(x.data.exchangedOriginalUnitPrice),
+        originalUnitPriceHUF: HelperFunctions.ToFloat(x.data.originalUnitPriceHUF),
         unitPriceSwitch: x.data.unitPriceSwitch
       } as OfferLineForPost;
     });

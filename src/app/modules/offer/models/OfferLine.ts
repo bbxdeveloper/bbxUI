@@ -19,6 +19,7 @@ export interface OfferLineForPost {
     showDiscount: boolean;
     quantity: number;
     originalUnitPrice: number;
+    originalUnitPriceHUF: number
     unitPriceSwitch: boolean;
 }
 
@@ -46,6 +47,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
     productGroup: string = '';
     lineDescription: string = '';
     originalUnitPrice: number = 0; // readonly
+    originalUnitPriceHUF: number = 0;
     discount: number = 0;
     unitPrice: number = 0;
     vatRateCode: string = '';
@@ -132,7 +134,7 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
 
     // UnitPrice - with applied discount - get set
     set OriginalUnitPrice(val: number) {
-        this.originalUnitPrice = val
+        this.originalUnitPriceHUF = val
         this.unitPrice = val
         this.UnitVat = this.UnitPriceForCalc * this.vatRate;
     }
