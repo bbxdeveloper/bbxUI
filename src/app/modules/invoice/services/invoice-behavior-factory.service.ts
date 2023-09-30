@@ -141,7 +141,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceCategory = InvoiceCategory.NORMAL
     result.invoiceType = InvoiceTypes.BLK
     result.incoming = false
-    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.quantityValidators = [new NotZeroQuantityValidator]
     result.isSummaryInvoice = true
     result.title = 'Blokk'
     return result
