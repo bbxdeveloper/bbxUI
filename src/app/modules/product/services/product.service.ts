@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom, Observable, of } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetProductsParamListModel } from '../models/GetProductsParamListModel';
@@ -59,30 +59,14 @@ export class ProductService {
   }
 
   GetAll(params?: GetProductsParamListModel): Observable<GetProductsResponse> {
-    // Process params
     var queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+
     return this.http.get<GetProductsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
   }
 
   Get(params?: GetProductParamListModel): Observable<Product> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    var queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetProductParamListModel] != undefined && params[key as keyof GetProductParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetProductParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetProductParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
     return this.http.get<Product>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
@@ -99,28 +83,8 @@ export class ProductService {
   }
 
   public GetProductByCode(params: GetProductByCodeRequest): Observable<Product> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    var queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      if (!HelperFunctions.isEmptyOrSpaces(params.ProductCode)) {
-        params.ProductCode = encodeURIComponent(params.ProductCode!);
-      }
-
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetProductByCodeRequest] != undefined && params[key as keyof GetProductByCodeRequest] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetProductByCodeRequest];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetProductByCodeRequest];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
     return this.http.get<Product>(this.BaseUrl + '/productbycode' + (!!params ? ('?' + queryParams) : ''));
   }
 

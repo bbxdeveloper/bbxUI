@@ -599,6 +599,17 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           this.SwitchUnitPriceAll();
           break;
         }
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            _event.preventDefault();
+            _event.stopImmediatePropagation();
+            _event.stopPropagation();
+            return;
+          }
+          const id = this.dbData[this.kbS.p.y].data.productID
+          this.openProductStockInformationDialog(id);
+          return;
+        }
       }
     }
     else {
