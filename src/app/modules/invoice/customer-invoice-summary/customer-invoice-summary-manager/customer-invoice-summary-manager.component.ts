@@ -315,11 +315,11 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     const name = selectedRow?.customerName
 
     this.printAndDownloadService.printAfterConfirm({
-      DialogTitle: 'Bizonylat nyomtatása',
+      DialogTitle: Constants.TITLE_PRINT_QUESTION,
       DefaultCopies: 1,
       MsgError: `A ${name} partnerhez tartozó bizonylat nyomtatása közben hiba történt.`,
       MsgCancel: `A ${name} partnerhez tartozó bizonylat nyomtatása nem történt meg.`,
-      MsgFinish: `A ${name} partnerhez tartozóbizonylat nyomtatása véget ért.`,
+      MsgFinish: Constants.TITLE_PRINT_FINISHED,
       Obs: this.invoiceService.GetReportForCustomerInvoiceSummary.bind(this.invoiceService),
       Reset: () => { },
       ReportParams: {
