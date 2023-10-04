@@ -348,7 +348,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                   DialogTitle: 'Ajánlat Nyomtatása',
                   DefaultCopies: 1,
                   MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
-                  MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
+                  MsgCancel: `Az árajánlat nyomtatása nem történt meg.`,
                   MsgFinish: `Az árajánlat nyomtatása véget ért.`,
                   Obs: this.seInv.GetReport.bind(this.offerService),
                   Reset: this.DelayedReset.bind(this),
