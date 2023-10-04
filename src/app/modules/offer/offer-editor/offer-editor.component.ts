@@ -365,7 +365,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           vatRateID: x.data.vatRateID,
           vatPercentage: x.data.vatPercentage,
           quantity: HelperFunctions.ToFloat(x.data.quantity),
-          originalUnitPrice: HelperFunctions.ToFloat(x.data.originalUnitPrice),
+          originalUnitPrice: HelperFunctions.ToFloat(x.data.exchangedOriginalUnitPrice),
+          originalUnitPriceHUF: HelperFunctions.ToFloat(x.data.originalUnitPriceHUF),
           unitPriceSwitch: x.data.unitPriceSwitch
         } as OfferLineFullData
       }
