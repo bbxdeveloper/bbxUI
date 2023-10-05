@@ -1,9 +1,10 @@
-import { Component, Input, OnInit, Output, EventEmitter, HostListener, Optional, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, HostListener, Optional, ViewChild, DoCheck } from '@angular/core';
 import { NbDialogService, NbPopoverDirective, NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { StatusService } from 'src/app/services/status.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { INavigatable } from 'src/assets/model/navigation/Navigatable';
@@ -77,12 +78,13 @@ export class InlineEditableTableComponent implements OnInit {
   @Input() dbDataTableId: any;
   @Input() dbDataDataSrc!: NbTreeGridDataSource<any>;
   @Input() trackRows: any;
-  @Input() isLoading: boolean = true;
   @Input() showMsgOnNoData: boolean = true;
   @Input() wide: boolean = false;
   @Input() heightMargin: number = -1;
   @Input() confirmRowDelete: boolean = false;
   @Input() isRowInErrorState: (row: any) => boolean = (row: any) => false
+
+  @Input() isLoading: boolean = false;
 
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
@@ -97,6 +99,10 @@ export class InlineEditableTableComponent implements OnInit {
 
   get themeClass(): string {
     return `theme-${environment.theme}`
+  }
+
+  get showSpinnerOnTable(): boolean {
+    return this.isLoading && !this.statusService.InProgress;
   }
 
   /**
@@ -125,7 +131,7 @@ export class InlineEditableTableComponent implements OnInit {
 
   constructor(@Optional() protected dialogService: NbDialogService,
               private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
-              private bbxToastrService: BbxToastrService, private khs: KeyboardHelperService) {}
+              private statusService: StatusService, private khs: KeyboardHelperService) {}
 
   ngOnInit(): void { }
 

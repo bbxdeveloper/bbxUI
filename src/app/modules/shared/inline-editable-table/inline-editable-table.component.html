@@ -1,4 +1,4 @@
-<nb-card [nbSpinner]="isLoading">
+<nb-card [nbSpinner]="showSpinnerOnTable">
     <nb-card-body>
         <form *ngIf="!!dbDataTable" class="{{themeClass}}">
             <table class="card-table-wrapper-closed-form card-table-header min-height-51 {{themeClass}}" [ngClass]="getTableClasses()" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth>

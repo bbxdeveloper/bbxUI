@@ -13,6 +13,7 @@ import { PendingDeliveryNotesByInvoiceNumberDialogComponent } from '../pending-d
 import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/model/TableSettings';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-pending-delivery-notes-select-dialog',
@@ -37,8 +38,9 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     cdref: ChangeDetectorRef,
     private readonly dialogService: NbDialogService,
     private readonly tokenService: TokenStorageService,
+    statusService: StatusService
   ) {
-    super(dialogRef, kns, dataSourceBuilder)
+    super(dialogRef, kns, dataSourceBuilder, statusService)
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 

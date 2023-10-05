@@ -3,7 +3,6 @@
     <app-header [title]="headerTitle"></app-header>
     <span *ngIf="devVersion" class="verion-tag">Build: {{buildType}}, version: {{version}}</span>
   </nb-layout-header>
-  <!-- <nb-sidebar right class="bbx-fd-sidebar"><app-side-bar-form class="bbx-fd-app-sidebar-form"></app-side-bar-form></nb-sidebar> -->
   <nb-layout-column>
     <router-outlet></router-outlet>
   </nb-layout-column>

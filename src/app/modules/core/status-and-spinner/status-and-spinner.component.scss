@@ -32,6 +32,11 @@ nb-card.simple {
             ::ng-deep nb-spinner {
                 background: transparent !important;
             }
+            ::ng-deep .spin-circle {
+                border-width: 0.125em !important;
+                width: 1em !important;
+                height: 1em !important;
+            }
         }
     }
 }
@@ -71,6 +76,11 @@ nb-card.normal {
             min-height: 50px;
             ::ng-deep nb-spinner {
                 background: transparent !important;
+            }
+            ::ng-deep .spin-circle {
+                border-width: 0.125em !important;
+                width: 1em !important;
+                height: 1em !important;
             }
         }
     }

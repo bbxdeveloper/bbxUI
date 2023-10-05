@@ -36,7 +36,7 @@
     </nb-card>
 </div>
 
-<nb-card [nbSpinner]="showSpinnerOnTable" *ngIf="!!dbDataTable">
+<nb-card *ngIf="!!dbDataTable">
     <nb-card-body>
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs"
             [dbDataDataSrc]="dbDataDataSrc" [heightMargin]="640" [dbDataTable]="dbDataTable" [confirmRowDelete]="true"

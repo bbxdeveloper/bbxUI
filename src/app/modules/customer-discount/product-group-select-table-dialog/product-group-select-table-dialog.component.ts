@@ -13,6 +13,7 @@ import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
 import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
+import { StatusService } from 'src/app/services/status.service';
 
 const NavMap: string[][] = [
   ['active-prod-search', 'show-all'] // , 'show-less'
@@ -49,9 +50,10 @@ export class ProductGroupSelectTableDialogComponent extends SelectTableDialogCom
     dialogRef: NbDialogRef<SelectTableDialogComponent<ProductGroup>>,
     kbS: KeyboardNavigationService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<ProductGroup>>,
-    private productGroupService: ProductGroupService
+    private productGroupService: ProductGroupService,
+    statusService: StatusService
   ) {
-    super(dialogRef, kbS, dataSourceBuilder);
+    super(dialogRef, kbS, dataSourceBuilder, statusService);
 
     this.Matrix = NavMap;
 

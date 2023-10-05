@@ -137,7 +137,7 @@
     </nb-card>
 </div>
 
-<nb-card [nbSpinner]="isLoading" *ngIf="!!dbDataTable">
+<nb-card *ngIf="!!dbDataTable">
     <nb-card-body>
         <app-inline-editable-table [parent]="this" [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [confirmRowDelete]="true"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [heightMargin]="580" [trackRows]="trackRows" [isLoading]="isLoading"

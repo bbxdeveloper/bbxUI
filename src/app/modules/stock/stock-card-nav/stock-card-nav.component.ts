@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -12,17 +12,12 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { TileCssClass, AttachDirection, TileCssColClass, NavMatrixOrientation } from 'src/assets/model/navigation/Navigatable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
-import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
-import { BaseNoFormManagerComponent } from '../../shared/base-no-form-manager/base-no-form-manager.component';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
-import { CustomerService } from '../../customer/services/customer.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, StockCardNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { ActivatedRoute, Router } from '@angular/router';
-import { InfrastructureService } from '../../infrastructure/services/infrastructure.service';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
+import { ActivatedRoute } from '@angular/router';
 import { GetStockCardsParamsModel } from '../models/GetStockCardsParamsModel';
 import { StockCard } from '../models/StockCard';
 import { WareHouse } from '../../warehouse/models/WareHouse';
@@ -43,6 +38,7 @@ import { LoggerService } from 'src/app/services/logger.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FilterForm } from './FitlerForm';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -98,7 +94,10 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     'stockCardDate',
     'productCode',
     'product',
-    'customer'
+    'customer',
+    'oRealQty',
+    'xRealQty',
+    'nRealQty',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -187,7 +186,19 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Vált.Valós',
+      label: 'E.Klt.',
+      objectKey: 'oRealQty',
+      colKey: 'oRealQty',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: "120px",
+      textAlign: "right",
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Vált.',
       objectKey: 'xRealQty',
       colKey: 'xRealQty',
       defaultValue: '',
@@ -199,7 +210,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Új ELÁBÉ',
+      label: 'Ú.Klt.',
       objectKey: 'nRealQty',
       colKey: 'nRealQty',
       defaultValue: '',
@@ -274,8 +285,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.localStorageKey = 'stock-card-nav.' + tokenService.user?.id ?? 'everyone'
 
-    this.refreshComboboxData();
-
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'stock-card-table';
     this.dbDataTableEditId = 'stock-card-cell-edit-input';
@@ -289,6 +298,19 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     return data.productCode
   }
 
+  private async HandlePathParams(): Promise<void> {
+    this.productCodeFromPath = this.route.snapshot.queryParams['productCode']
+    this.wareHouseFromPathString = this.route.snapshot.queryParams['wareHouse']
+    this.navigatedFromStock = !!this.productCodeFromPath && !!this.wareHouseFromPathString
+
+    if (this.navigatedFromStock) {
+      let c = this.filterForm.controls
+
+      c['WarehouseID'].setValue(this.wareHouseFromPathString)
+      c['ProductSearch'].setValue(this.productCodeFromPath)
+    }
+  }
+
   private Setup(): void {
     this.dbData = [];
 
@@ -296,21 +318,15 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.dbDataTableForm = new FormGroup({});
 
-    this.productCodeFromPath = this.route.snapshot.queryParams['productCode'];
-    this.wareHouseFromPathString = this.route.snapshot.queryParams['wareHouse'];
-    this.navigatedFromStock = !!this.productCodeFromPath && !!this.wareHouseIdFromPath;
-
     this.filterForm = new FormGroup({
       WarehouseID: new FormControl(this.wareHouseIdFromPath, [Validators.required]),
-      ProductSearch: new FormControl(undefined, []),
+      ProductSearch: new FormControl(this.productCodeFromPath ?? undefined, []),
       productCode: new FormControl(this.productCodeFromPath ?? undefined, []),
       productDescription: new FormControl(undefined, []),
       StockCardDateFrom: new FormControl(undefined, []),
       StockCardDateTo: new FormControl(undefined, []),
       InvoiceNumber: new FormControl(undefined, [])
     });
-
-    this.filterForm.valueChanges.subscribe(newValue => this.localStorage.put(this.localStorageKey, newValue as FilterForm))
 
     this.filterFormNav = new FlatDesignNoTableNavigatableForm(
       this.filterForm,
@@ -372,30 +388,29 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
-    // this.RefreshAll(this.getInputParams);
     this.isLoading = false;
-
-    if (this.navigatedFromStock) {
-      this.FillFormWithFirstAvailableProduct({target: {value: this.productCodeFromPath}}, true);
-    }
   }
 
-  private refreshComboboxData(): void {
-    // WareHouse
-    this.wareHouseApi.GetAll().subscribe({
-      next: data => {
+  private async GetWareHouses(): Promise<void> {
+    try {
+      this.sts.waitForLoad(true)
+      const data = await this.wareHouseApi.GetAllPromise({ PageSize: '1000' });
+      if (data.succeeded && !!data.data) {
         this.wh = data?.data ?? [];
         this.wareHouseData$.next(this.wh.map(x => x.warehouseDescription));
         if (!HelperFunctions.isEmptyOrSpaces(this.wareHouseFromPathString)) {
           this.filterForm.controls['WarehouseID'].setValue(this.wareHouseFromPathString)
         }
+      } else {
+        this.HandleError(data.errors);
       }
-    });
-
+      this.sts.waitForLoad(false)
+    } catch (error) {
+      this.cs.HandleError(error);
+    }
   }
 
   override Refresh(params?: GetStockCardsParamsModel): void {
-    console.log('Refreshing: ', params); // TODO: only for debug
     if (this.filterForm.invalid) {
       this.bbxToastrService.show(
         Constants.MSG_INVALID_FILTER_FORM,
@@ -408,7 +423,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     this.stockCardService.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
-          console.log('GetStockCards: response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: x, uid: this.nextUid() };
@@ -437,22 +451,32 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   }
 
   async ngOnInit(): Promise<void> {
-    const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
-    if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
-      this.filterForm.patchValue(filterData)
+    await this.GetWareHouses()
 
-      this.productInputFilterString = filterData.ProductSearch ?? ''
+    this.filterForm.valueChanges.subscribe(newValue => {
+      this.localStorage.put(this.localStorageKey, newValue as FilterForm)
+    })
 
-      await this.getProductAsync()
+    this.HandlePathParams()
 
+    if (this.navigatedFromStock) {
+      await this.getProductAsync(this.productCodeFromPath)
       this.Refresh(this.getInputParams)
+    } else {
+      const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
+      if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
+        this.filterForm.patchValue(filterData)
+  
+        this.productInputFilterString = filterData.ProductSearch ?? ''
+  
+        await this.getProductAsync()
+        this.Refresh(this.getInputParams)
+      }
     }
 
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
-    console.log("[ngAfterViewInit]");
-
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
@@ -470,7 +494,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     }, 200);
   }
   ngOnDestroy(): void {
-    console.log('Detach');
     this.kbS.Detach();
   }
 
@@ -498,7 +521,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
   HandleFunctionKey(event: Event | KeyBindings): void {
     const val = event instanceof Event ? (event as KeyboardEvent).code : event;
-    console.log(`[HandleFunctionKey]: ${val}`);
     switch (val) {
       // NEW
       case this.KeySetting[Actions.Create].KeyCode:
@@ -569,7 +591,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -578,7 +599,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         event.stopPropagation();
         event.preventDefault();
 
-        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
@@ -634,19 +654,32 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     });
   }
 
-  private async getProductAsync(): Promise<void> {
+  private async getProductAsync(exactProductCode: string = ''): Promise<void> {
     try {
       this.isLoading = true
 
-      const request = this.getProductGetParams
-      const res = await firstValueFrom(this.seC.GetAll(request))
+      if (!HelperFunctions.isEmptyOrSpaces(exactProductCode)) {
+        const request = { ProductCode: exactProductCode } as GetProductByCodeRequest
+        const res = await firstValueFrom(this.seC.GetProductByCode(request))
 
-      if (!!res && res.data !== undefined && res.data.length > 0) {
-        this.productFilter = res.data[0];
-        this.cachedProductName = res.data[0].description;
-        this.SetProductFormFields(res.data[0]);
+        if (!!res && Object.keys(res).includes('productCode') && !HelperFunctions.isEmptyOrSpaces(res.productCode)) {
+          this.productFilter = res;
+          this.cachedProductName = res.description;
+          this.SetProductFormFields(res);
+        } else {
+          this.SetProductFormFields(undefined);
+        }
       } else {
-        this.SetProductFormFields(undefined);
+        const request = this.getProductGetParams
+        const res = await firstValueFrom(this.seC.GetAll(request))
+
+        if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.productFilter = res.data[0];
+          this.cachedProductName = res.data[0].description;
+          this.SetProductFormFields(res.data[0]);
+        } else {
+          this.SetProductFormFields(undefined);
+        }
       }
     } catch (error) {
       this.cs.HandleError(error);
@@ -658,8 +691,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   ChooseDataForTableRow(rowIndex: number): void { }
 
   ChooseDataForCustomerForm(): void {
-    console.log("Selecting Product from avaiable data.");
-
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     const dialogRef = this.dialogService.open(ProductSelectTableDialogComponent, {
@@ -671,7 +702,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       }
     });
     dialogRef.onClose.subscribe((res: Product) => {
-      console.log("Selected item: ", res);
       if (!!res) {
         this.productFilter = res;
         this.SetProductFormFields(res);

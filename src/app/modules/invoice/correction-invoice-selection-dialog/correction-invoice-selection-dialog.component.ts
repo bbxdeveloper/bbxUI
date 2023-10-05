@@ -15,6 +15,7 @@ import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, Subscription, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { IPartnerLock } from 'src/app/services/IPartnerLock';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -42,6 +43,10 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
 
   public selectedInvoice?: Invoice
 
+  get showSpinnerOnTable(): boolean {
+    return this.isLoading && !this.statusService.InProgress;
+  }
+
   @Input()
   public isIncomingCorrectionInvoice: boolean = false
 
@@ -57,6 +62,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     private readonly commonService: CommonService,
     private readonly dialogRef: NbDialogRef<Invoice>,
     private readonly router: Router,
+    private readonly statusService: StatusService
   ) {
     super()
 
