@@ -586,7 +586,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               currentRow?.data.Save('productCode');
 
               const _d = this.dbData[rowPos].data;
-              this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+              this.dbData[rowPos].data.discount = data.find(x => (_d.productGroup?.split("-")[0] ?? '') === x.productGroupCode)?.discount ?? 0;
               this.kbS.setEditMode(KeyboardModes.NAVIGATION);
               this.dbDataTable.MoveNextInTable();
               setTimeout(() => {
@@ -595,7 +595,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               }, 500);
             })
             .catch(err => {
-              this.cs.HandleError(d.errors);
+              this.cs.HandleError(err);
 
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                 data: OfferLine.FromProduct(

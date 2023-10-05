@@ -285,7 +285,8 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         showDiscount: x.data.showDiscount,
         unitOfMeasure: x.data.unitOfMeasure,
         quantity: HelperFunctions.ToFloat(x.data.quantity),
-        originalUnitPrice: HelperFunctions.ToFloat(x.data.originalUnitPrice),
+        originalUnitPrice: HelperFunctions.ToFloat(x.data.exchangedOriginalUnitPrice),
+        originalUnitPriceHUF: HelperFunctions.ToFloat(x.data.originalUnitPriceHUF),
         unitPriceSwitch: x.data.unitPriceSwitch
       } as OfferLineForPost;
     });
@@ -347,7 +348,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                   DialogTitle: 'Ajánlat Nyomtatása',
                   DefaultCopies: 1,
                   MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
-                  MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
+                  MsgCancel: `Az árajánlat nyomtatása nem történt meg.`,
                   MsgFinish: `Az árajánlat nyomtatása véget ért.`,
                   Obs: this.seInv.GetReport.bind(this.offerService),
                   Reset: this.DelayedReset.bind(this),
