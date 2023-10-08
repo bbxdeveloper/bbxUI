@@ -1149,40 +1149,38 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     return discount;
   }
 
-  override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    let res = new InvoiceLine(this.requiredCols);
+  override async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> {
+    const res = new InvoiceLine(this.requiredCols);
 
-    res.productCode = p.productCode!;
+    res.productCode = product.productCode!;
 
-    res.productDescription = p.description ?? '';
+    res.productDescription = product.description ?? '';
 
     res.quantity = 0;
 
-    p.productGroup = !!p.productGroup ? p.productGroup : '-';
-    res.noDiscount = p.noDiscount;
-    if (!p.noDiscount && !this.mode.incoming) {
-      const discountForPrice = await this.GetPartnerDiscountForProduct(p.productGroup.split("-")[0]);
+    product.productGroup = !!product.productGroup ? product.productGroup : '-';
+    res.noDiscount = product.noDiscount;
+    if (!product.noDiscount && !this.mode.incoming) {
+      const discountForPrice = await this.GetPartnerDiscountForProduct(product.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
-        const discountedPrice = p.unitPrice2! * discountForPrice;
-        res.unitPrice = p.unitPrice2! - discountedPrice;
+        const discountedPrice = product.unitPrice2! * discountForPrice;
+        res.unitPrice = product.unitPrice2! - discountedPrice;
         res.custDiscounted = true;
       } else {
-        res.unitPrice = p.unitPrice2!;
+        res.unitPrice = product.unitPrice2!;
       }
     } else {
-      res.unitPrice = p.unitPrice2!;
+      res.unitPrice = product.unitPrice2!;
     }
 
-    res.vatRateCode = p.vatRateCode;
+    res.vatRateCode = product.vatRateCode;
 
-    res.vatRate = p.vatPercentage ?? 1;
+    res.vatRate = product.vatPercentage ?? 1;
 
     res.ReCalc();
 
-    res.unitOfMeasure = p.unitOfMeasure;
-    res.unitOfMeasureX = p.unitOfMeasureX;
-
-    console.log('ProductToInvoiceLine res: ', res);
+    res.unitOfMeasure = product.unitOfMeasure;
+    res.unitOfMeasureX = product.unitOfMeasureX;
 
     return res;
   }
@@ -1358,6 +1356,21 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
           _event.preventDefault();
           this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
           break;
+        }
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
         }
         case KeyBindings.Enter: {
           if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {

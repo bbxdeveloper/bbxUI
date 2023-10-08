@@ -211,6 +211,8 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     this.kbS.SetWidgetNavigatable(this);
     this.SetNewForm(this.productForm);
 
+    this.kbS.SelectFirstTile()
+
     // We can move onto the confirmation buttons from the form.
     this._form!.OuterJump = true;
     // And back to the form.
