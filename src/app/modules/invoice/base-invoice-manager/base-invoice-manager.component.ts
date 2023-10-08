@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { Observable, of, BehaviorSubject, firstValueFrom } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
