@@ -28,7 +28,6 @@ import { GetAllInvCtrlItemsParamListModel } from '../models/GetAllInvCtrlItemsPa
 import { InvCtrlPeriod } from '../models/InvCtrlPeriod';
 import { InventoryService } from '../services/inventory.service';
 import { InventoryCtrlItemService } from '../services/inventory-ctrl-item.service';
-import { InvCtrlItemForGet } from '../models/InvCtrlItem';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
@@ -316,8 +315,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
       .then(data => {
         console.log("[refreshComboboxData]: ", data);
-        this.invCtrlPeriods =
-          data?.data?.filter(x => !x.closed).map(x => {
+        this.invCtrlPeriods = data?.data
+          ?.map(x => {
             let res = x.warehouse + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
             this.invCtrlPeriodValues[res] = x;
             return res;
