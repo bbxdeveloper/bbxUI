@@ -895,7 +895,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   override async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> {
     const res = new InvoiceLine(this.requiredCols);
 
-    res.productID = product.id
     res.productCode = product.productCode!;
 
     res.productDescription = product.description ?? '';
@@ -1123,8 +1122,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           }
           _event.preventDefault()
 
-          const id = this.dbData[this.kbS.p.y].data.productID ?? -1
-          this.openProductStockInformationDialog(id)
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
           break
         }
         case KeyBindings.Enter: {

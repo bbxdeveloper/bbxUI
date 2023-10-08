@@ -306,11 +306,11 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  protected async openProductStockInformationDialog(productId: number): Promise<void> {
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
     this.sts.waitForLoad(true)
 
     try {
-      const product = await firstValueFrom(this.productService.Get({ ID: productId }))
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
       this.sts.waitForLoad(false)
 
