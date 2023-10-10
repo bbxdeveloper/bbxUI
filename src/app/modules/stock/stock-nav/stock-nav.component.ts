@@ -40,7 +40,6 @@ import { LoggerService } from 'src/app/services/logger.service';
 import { UnitOfMeasure } from '../../product/models/UnitOfMeasure';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
-import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
@@ -538,11 +537,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     console.log('Refreshing: ', params); // TODO: only for debug
     if (this.filterForm.invalid) {
-      this.bbxToastrService.show(
-        Constants.MSG_INVALID_FILTER_FORM,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_INVALID_FILTER_FORM);
       return;
     }
 
@@ -550,33 +545,33 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     await lastValueFrom(this.stockService.GetAll(params))
       .then(async d => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetStocks: response: ', d); // TODO: only for debug
-          if (!!d) {
-            let tempData = [];
-            const productIds = d.data.map(x => x.productID)
-            const products = await this.GetProductsData(productIds)
-            for (let i = 0; i < d.data.length; i++) {
-              const x = d.data[i];
-              const _data = new ExtendedStockData(x);
-              console.log(x.productID)
-              _data.FillProductFields(products.find(y => y.id === x.productID)!);
-              _data.unitOfMeasure = _data.unitOfMeasureX
-              _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
-              tempData.push({ data: _data, uid: this.nextUid() });
-            }
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.bbxToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+        if (!d.succeeded || !d.data) {
+          this.bbxToastrService.show(d.errors!.join('\n'));
+          return
         }
+
+        const tempData = [];
+        const productIds = d.data.map(x => x.productID)
+        const products = await this.GetProductsData(productIds)
+
+        for (let i = 0; i < d.data.length; i++) {
+          const _data = new ExtendedStockData(d.data[i]);
+
+          const product = products.find(y => y.id === _data.productID)
+          if (product) {
+            _data.FillProductFields(product);
+            _data.unitOfMeasure = _data.unitOfMeasureX
+            _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
+
+            tempData.push({ data: _data, uid: this.nextUid() });
+          }
+        }
+
+        this.dbData = tempData;
+        this.dbDataDataSrc.setData(this.dbData);
+        this.dbDataTable.SetPaginatorData(d);
+
+        this.RefreshTable(undefined, true);
       })
       .catch(err => {
         this.cs.HandleError(err);
