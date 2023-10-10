@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { Observable, of, startWith, map, Subscription, lastValueFrom, BehaviorSubject } from 'rxjs';
+import { Observable, of, startWith, map, Subscription, lastValueFrom, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -39,12 +39,13 @@ import { SystemService } from '../../system/services/system.service';
 import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/simple-dialogs/radio-choice-dialog/radio-choice-dialog.component';
 import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
-import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { Product } from '../../product/models/Product';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
+import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -156,6 +157,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       defaultValue: '', type: 'number', mask: "",
       colWidth: "90px", textAlign: "right", fInputType: 'param-padded-formatted-integer',
       calc: x => '1.2',
+      checkIfReadonly: row => row.data.noDiscount,
       inputMask: this.offerDiscountInputMask,
       placeHolder: '0.00'
     },
@@ -1100,5 +1102,19 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         }
       }
     });
+  }
+
+  protected async openProductStockInformationDialog(id: any): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    const product = await firstValueFrom(this.productService.Get({ ID: id }))
+
+    this.sts.waitForLoad(false)
+
+    this.dialogService.open(ProductStockInformationDialogComponent, {
+      context: {
+        product: product
+      }
+    })
   }
 }

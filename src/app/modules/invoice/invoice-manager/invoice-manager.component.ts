@@ -893,7 +893,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   override async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> {
-    let res = new InvoiceLine(this.requiredCols);
+    const res = new InvoiceLine(this.requiredCols);
 
     res.productCode = product.productCode!;
 
@@ -933,8 +933,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
-
-    console.log('ProductToInvoiceLine res: ', res);
 
     return res;
   }
@@ -1116,6 +1114,21 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });
           break;
+        }
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
         }
         case KeyBindings.Enter: {
           if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
