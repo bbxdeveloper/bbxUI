@@ -2,6 +2,7 @@ import { NbIconConfig, NbToastrConfig } from "@nebular/theme";
 import { Observable } from "rxjs";
 import { ProcessStatus } from "../model/ProcessStatus";
 import { Actions, KeyBindings } from "./KeyBindings";
+import { createMask } from "@ngneat/input-mask";
 
 export module Constants {
     // Messages
@@ -106,6 +107,31 @@ export module Constants {
     };
     export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCC";
     export const CustDiscountCodeMask = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+
+    export const ProductCodeMaskNew = createMask({
+        autoUnmask: true,
+        casing: 'upper',
+        mask: 'A{3}-C{26}',
+        definitions: {
+            'A': {
+                validator: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}]',
+            },
+            'C': {
+                validator: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\-]',
+            },
+        },
+        // autoUnmask removes the dash (-) but we need it so we have to put it back
+        onUnMask: (maskedValue, unmaskedValue) => {
+            if (unmaskedValue.length === 3) {
+                return unmaskedValue + '-'
+            }
+            else if (unmaskedValue.length >= 4) {
+                return unmaskedValue.slice(0, 3) + '-' + unmaskedValue.slice(3)
+            }
+
+            return unmaskedValue
+        }
+    })
 
     export const SearchInputId = 'active-prod-search'
 
