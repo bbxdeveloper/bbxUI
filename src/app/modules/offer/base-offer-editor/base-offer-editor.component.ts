@@ -469,7 +469,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
               undefined
 
             if (!product.noDiscount) {
-              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id ?? -1 }))
                 .then(data => {
                   let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                     data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
