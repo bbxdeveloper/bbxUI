@@ -149,7 +149,7 @@ export class KeyboardNavigationService {
       id = this.Here;
     }
     const source = $('#' + id);
-    console.log(`id: ${id}, result: ${source.is(':checkbox')}`);
+    //console.log(`id: ${id}, result: ${source.is(':checkbox')}`);
     return source.is(':checkbox');
   }
 
@@ -161,7 +161,7 @@ export class KeyboardNavigationService {
     if (!!!source) {
       return false;
     }
-    console.log(`id: ${id}, result: ${source.is(':checkbox') }`);
+    //console.log(`id: ${id}, result: ${source.is(':checkbox') }`);
     return source.is(':checkbox');
   }
 
@@ -203,7 +203,6 @@ export class KeyboardNavigationService {
     element.parent().addClass(PARENT_OF_SELECTED_ELEMENT_CLASS);
 
     if (element.is(':button') || element.is(':radio')) {
-      console.log("focus");
       element.trigger('focus');
     } else {
       switch (this.CurrentNavigatable.TileSelectionMethod) {

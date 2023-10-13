@@ -30,7 +30,7 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
   @Input() input_class: any
   @Input() style_text_align: any
 
-  @Input() debug: boolean = true
+  debug: boolean = false
 
   @Input() disabled: boolean = false
   @Input() required: boolean = false
