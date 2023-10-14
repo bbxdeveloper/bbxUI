@@ -7,6 +7,7 @@ import { TileCssClass } from 'src/assets/model/navigation/Nav';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
+import { Constants } from 'src/assets/util/Constants';
 
 @Component({
   selector: 'app-counter-side-bar-form',
@@ -20,10 +21,7 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
     return KeyBindings;
   }
 
-  customPatterns = {
-    A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') }
-  };
+  suffixPattern = Constants.CounterSuffixMaskPattern
 
   // WareHouse
   wareHouses: string[] = [];
