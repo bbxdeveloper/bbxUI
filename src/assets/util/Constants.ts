@@ -132,9 +132,13 @@ export module Constants {
             return unmaskedValue
         }
     })
-    export const CounterSuffixMaskPattern = {
-        A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\/]') }
-    }
+
+    // This won't work! Characters like '/' will appear as empty string at validator checks!
+    // export const CounterSuffixMaskPattern = {
+    //     A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\/]') }
+    // }
+    // For custom required check
+    export const ConuterSuffixCharacters = 'a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}/-'
 
     export const SearchInputId = 'active-prod-search'
 

@@ -21,8 +21,6 @@ export class CounterSideBarFormComponent extends BaseSideBarFormComponent implem
     return KeyBindings;
   }
 
-  suffixPattern = Constants.CounterSuffixMaskPattern
-
   // WareHouse
   wareHouses: string[] = [];
   wareHouseComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
