@@ -788,7 +788,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
           this.filterForm.controls['SearchString'].setValue(res.productCode);
           this.filterForm.controls['ProductName'].setValue(res.description);
         } else {
-          this.filterForm.controls['SearchString'].setValue(undefined);
           this.filterForm.controls['ProductName'].setValue(undefined);
         }
       },
