@@ -48,6 +48,8 @@ import { ProductStockInformationDialogComponent } from './dialogs/product-stock-
 import { BbxProductCodeInputComponent } from './custom-inputs/bbx-product-code-input/bbx-product-code-input.component';
 import { EditCustomerDialogComponent } from './edit-customer-dialog/edit-customer-dialog.component';
 import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-numeric-input.component';
+import { AuthFieldsComponent } from './auth/auth-form/auth-fields.component';
+import { ConfirmationWithAuthDialogComponent } from './simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
 
 
 @NgModule({
@@ -93,7 +95,9 @@ import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-
     ProductStockInformationDialogComponent,
     BbxProductCodeInputComponent,
     EditCustomerDialogComponent,
-    BbxNumericInputComponent
+    BbxNumericInputComponent,
+    AuthFieldsComponent,
+    ConfirmationWithAuthDialogComponent
   ],
   imports: [
     CommonModule,
@@ -163,7 +167,9 @@ import { BbxNumericInputComponent } from './custom-inputs/bbx-numeric-input/bbx-
     VerticalSplitLayoutComponent,
     SingleDateDialogComponent,
     BbxProductCodeInputComponent,
-    BbxNumericInputComponent
+    BbxNumericInputComponent,
+    AuthFieldsComponent,
+    ConfirmationWithAuthDialogComponent
   ],
   providers: [
     ConfirmationDialogComponent

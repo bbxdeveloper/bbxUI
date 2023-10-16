@@ -474,7 +474,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     HandleGridEnter(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
-        if (environment.inlineEditableTableKeyboardDebug) console.log(this.constructor.name, this.HandleGridEnter.name)
+        if (environment.inlineEditableTableKeyboardDebug) {
+            console.log(this.constructor.name, this.HandleGridEnter.name)
+        }
         switch (this.kbS.currentKeyboardMode) {
             case KeyboardModes.NAVIGATION: {
                 // Only for first cols of new rows.
@@ -526,7 +528,10 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         let wasEditActivatedPreviously = !this.kbS.isNavigationModeActivated && !!this.editedRow;
         let firstCol = colPos === 0;
 
-        console.log(navigatable);
+        if (environment.inlineEditableTableKeyboardDebug) {
+            console.log(navigatable);
+        }
+
         if ((navigatable !== undefined && (this !== navigatable))) {
             this.repairMode = true;
         }
@@ -536,16 +541,18 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         // Stats
-        console.log(
-            `            ==========[HandleGridEnter]========
-            wasEditActivatedPreviously: ${wasEditActivatedPreviously}, IS EDIT MODE: ${this.kbS.isEditModeActivated},
-            ROW: ${row}, EDITEDROW: ${this.editedRow}, ROWPOS: ${rowPos}, COL: ${col}, COLPOS: ${colPos},
-            INPUT ID: ${inputId}, F INPUT TYPE: ${fInputType}, IS UNFINISHED: ${row.data.IsUnfinished()}
-            --------------
-            repair: ${this.repairMode}, fromEditMode: ${fromEditMode}, fromClickMethod: ${fromClickMethod}, this.kbs.isEditModeActivated: ${this.kbs.isEditModeActivated}
-            first column: ${colPos === 0}, mechanical click: ${this.mechanicalClick}
-            ===================================`
-        );
+        if (environment.inlineEditableTableKeyboardDebug) {
+            console.log(
+                `            ==========[HandleGridEnter]========
+                wasEditActivatedPreviously: ${wasEditActivatedPreviously}, IS EDIT MODE: ${this.kbS.isEditModeActivated},
+                ROW: ${row}, EDITEDROW: ${this.editedRow}, ROWPOS: ${rowPos}, COL: ${col}, COLPOS: ${colPos},
+                INPUT ID: ${inputId}, F INPUT TYPE: ${fInputType}, IS UNFINISHED: ${row.data.IsUnfinished()}
+                --------------
+                repair: ${this.repairMode}, fromEditMode: ${fromEditMode}, fromClickMethod: ${fromClickMethod}, this.kbs.isEditModeActivated: ${this.kbs.isEditModeActivated}
+                first column: ${colPos === 0}, mechanical click: ${this.mechanicalClick}
+                ===================================`
+            );
+        }
 
 
         // Cache edited data
@@ -653,8 +660,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 }
 
                 this.PushFooterCommandList();
-
-                console.log((this.data[rowPos].data as any)[col]);
             }, 10);
         }
 
@@ -670,7 +675,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             if (!!_input && _input.type === "text") {
                 window.setTimeout(function () {
                     const txtVal = $(_input).val() + '';
-                    console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
                     if (!!txtVal) {
                         const l = txtVal.split('.')[0].length;
                         _input.setSelectionRange(0, l);
@@ -684,7 +688,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             if (!!_input && _input.type === "text") {
                 window.setTimeout(function () {
                     const txtVal = ((row.data as any)[col] as string);
-                    console.log('txtVal: ', txtVal);
                     if (!!txtVal) {
                         _input.setSelectionRange(txtVal.length, txtVal.length);
                     } else {
@@ -729,8 +732,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
             }
 
-            // console.log("Calling TableRowDataChanged: ", this.editedRow.data, rowPos);
-
             this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
         } else {
             // Entering edit mode
@@ -743,7 +744,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 if (!!_input && _input.type === "text") {
                     window.setTimeout(function () {
                         const txtVal = $(_input).val() + '';
-                        console.log('txtVal: ', txtVal, 'fInputType: ', fInputType);
                         if (!!txtVal) {
                             const l = txtVal.split('.')[0].length;
                             _input.setSelectionRange(0, l);
@@ -757,7 +757,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 if (!!_input && _input.type === "text") {
                     window.setTimeout(function () {
                         const txtVal = ((row.data as any)[col] as string);
-                        console.log('txtVal: ', txtVal);
                         if (!!txtVal) {
                             _input.setSelectionRange(txtVal.length, txtVal.length);
                         } else {
@@ -769,12 +768,12 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         this.PushFooterCommandList();
-
-        console.log((this.data[rowPos].data as any)[col]);
     }
 
     HandleGridEnter1(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string): void {
-        console.log('[HandleGridEnter]: colpos:', colPos, 'maximum colpos: ', this.Matrix[0].length - 1, row, this.editedRow, rowPos, col, inputId, fInputType, row.data.IsUnfinished());
+        if (environment.inlineEditableTableKeyboardDebug) {
+            console.log('[HandleGridEnter]: colpos:', colPos, 'maximum colpos: ', this.Matrix[0].length - 1, row, this.editedRow, rowPos, col, inputId, fInputType, row.data.IsUnfinished());
+        }
 
         if (this.kbS.isEditModeActivated) {
             this.kbs.setEditMode(KeyboardModes.NAVIGATION);
@@ -799,8 +798,6 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             }
             this.GenerateAndSetNavMatrices(false);
         }
-
-        console.log((this.data[rowPos].data as any)[col]);
 
         this.parentComponent.RecalcNetAndVat();
     }

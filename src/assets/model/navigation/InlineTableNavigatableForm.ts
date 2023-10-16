@@ -169,7 +169,9 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
-        console.log('[HandleFormShiftEnter]: ', event, jumpPrevious, toggleEditMode, preventEventInAnyCase);
+        if (environment.inlineEditableTableNavigatableFormLog) {
+            console.log('[HandleFormShiftEnter]: ', event, jumpPrevious, toggleEditMode, preventEventInAnyCase);
+        }
 
         if (preventEventInAnyCase) {
             event.preventDefault();
@@ -212,7 +214,9 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
-        console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        if (environment.inlineEditableTableNavigatableFormLog) {
+            console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        }
 
         const ad = (event.target as any).getAttribute("aria-activedescendant");
         if (this.kbS.isEditModeActivated &&
@@ -280,7 +284,7 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.inlineEditableTableNavigatableFormLog) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 
