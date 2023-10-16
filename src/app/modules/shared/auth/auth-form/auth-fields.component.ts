@@ -38,7 +38,20 @@ export class AuthFieldsComponent extends BaseNavigatableComponentComponent imple
   @Input() loginName: string = ''
   userID: number = -1
   
-  loggedIn: boolean = false
+  private _loggedIn: boolean = false
+  get loggedIn(): boolean { return this._loggedIn }
+  set loggedIn(value: boolean) {
+    let prevValue = this.loggedIn
+    this._loggedIn = value
+    if (prevValue != this.loggedIn) {
+      this.authChange.emit({
+        userID: this.userID,
+        loginName: this.formNav.form.controls['loginName'].value,
+        userName: this.formNav.form.controls['input_n'].value,
+        loggedIn: this.loggedIn
+      } as AuthChangeEventArgs)
+    }
+  }
   
   @Output() authChange: EventEmitter<AuthChangeEventArgs> = new EventEmitter<AuthChangeEventArgs>()
   @Output() ready: EventEmitter<any> = new EventEmitter<any>()
@@ -131,13 +144,6 @@ export class AuthFieldsComponent extends BaseNavigatableComponentComponent imple
           this.formNav.form.controls['loginName'].setValue(res.name)
 
           this.loggedIn = true
-
-          this.authChange.emit({
-            userID: this.userID,
-            loginName: this.formNav.form.controls['loginName'].value,
-            userName: this.formNav.form.controls['input_n'].value,
-            loggedIn: this.loggedIn
-          } as AuthChangeEventArgs)
         } else {
           this.statusService.waitForLoad(false)
           this.commonService.ShowErrorMessage((res as any).Message)
