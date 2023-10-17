@@ -1,5 +1,5 @@
 export interface CreateIccRequest {
-    warehouseCode: string
+    warehouseID: number
     productID: number
     invCtrlDate: string
     nRealQty: number

@@ -38,10 +38,10 @@
             </div>
 
             <label>Kedvezmény értéke:</label>
-            <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" [ngClass]="!this.isDiscountVisible ? 'col-span-3': ''">
+            <nb-form-field [ngClass]="!this.isDiscountVisible ? 'col-span-3': ''">
                 <input nbInput type="text" formControlName='invoiceDiscountValue'
                     required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
-                    (focusout)="RefreshCalc()" readonly>
+                    readonly>
             </nb-form-field>
 
             <label>Kedvezménnyel csökkentett nettó:</label>
@@ -51,7 +51,7 @@
 
             <ng-container *ngFor="let item of vatRateCodes; let rowPos = index">
                 <label>Összes {{item.Id}} áfa:</label>
-                <input (focusout)="RefreshCalc()" class="right col-span-3"
+                <input class="right col-span-3"
                     [inputMask]="numberInputMask" nbInput type="text" formControlName="{{'vatRateFormControl-' + rowPos}}">
             </ng-container>
 
@@ -79,21 +79,12 @@
                     [readonly]="isEditModeOff" (click)="formNav.HandleFormFieldClick($event)">
             </div>
 
-            <label>Bizonylatot kiállítja</label>
-            <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)">
-                <input class="{{TileCssClass}}" autocomplete="false"
-                    placeholder="Felhasználónév" nbInput type="text" formControlName="input_n" (blur)="onInput_nBlur()">
-            </nb-form-field>
-
-            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
-                <input class="mask-password {{TileCssClass}}" autocomplete="false"
-                    placeholder="Jelszó" nbInput type="text" formControlName="input_p">
-            </nb-form-field>
-
-            <nb-form-field>
-                <input (focusout)="UserDataFocusOut($event)" autocomplete="false"
-                    placeholder="Név" nbInput type="text" formControlName="loginName" readonly>
-            </nb-form-field>
+            <!-- AUTH -->
+            <app-auth-fields [userName]="data.username ?? ''" [loginName]="data.loginName ?? ''"
+                            [formNav]="formNav" style="display: none;"
+                            (authChange)="handleAuthChange($event)"
+                            (ready)="handleAuthComponentReady($event)">
+            </app-auth-fields>
         </form>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">

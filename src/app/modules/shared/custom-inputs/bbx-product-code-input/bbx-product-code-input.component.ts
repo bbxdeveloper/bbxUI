@@ -1,9 +1,8 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewEncapsulation, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, forwardRef } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { noop } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
 import { Constants } from 'src/assets/util/Constants';
-import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 
 @Component({
   selector: 'app-bbx-product-code-input',
@@ -31,12 +30,12 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
   @Input() input_class: any
   @Input() style_text_align: any
 
-  @Input() debug: boolean = true
+  debug: boolean = false
 
   @Input() disabled: boolean = false
   @Input() required: boolean = false
   @Input() readonly: boolean = false
-  
+
   touched: boolean = false
 
   // Output
@@ -48,15 +47,13 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
   public focus = new EventEmitter<any>()
 
   // Mask
-
-  maskPatterns = Constants.ProductCodePatterns;
-  mask = Constants.ProductCodeMask;
+  mask = Constants.ProductCodeMaskNew;
 
   // Value, callbacks...
-  
+
   private onTouchedCallback: () => void = noop
   private onChangeCallback: (newValue: any) => void = noop
-  
+
   private innerValue: any = ''
 
   get value(): any {
@@ -138,7 +135,7 @@ export class BbxProductCodeInputComponent implements OnInit, ControlValueAccesso
     return null
   }
   registerOnValidatorChange?(fn: () => void): void {
-    
+
   }
 
   // Product code handling, selecting products...
