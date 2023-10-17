@@ -163,10 +163,8 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
-      if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-        $('#active-prod-search').val(this.tokenService.getValue(LAST_PRODUCT_SEARCH_STRING_KEY))
-      } else {
-        $('#active-prod-search').val(this.searchString)
+      $('#active-prod-search').val(this.searchString)
+      if (!HelperFunctions.isEmptyOrSpaces(this.searchString)) {
         this.tokenService.setValue(LAST_PRODUCT_SEARCH_STRING_KEY, this.searchString)
       }
       this.clickCurrentRadio()
@@ -322,6 +320,22 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     })
   }
 
+  private SetSearch(newSearchString: string): void {
+    if (newSearchString === this.inputForm.controls['searchString'].value) {
+      return
+    }
+
+    this.inputForm.controls['searchString'].setValue(newSearchString)
+    
+    if (this.searchString.length !== 0 && newSearchString.length === 0) {
+      this.searchString = newSearchString
+      this.Refresh(this.getInputParams)
+    } else {
+      this.searchString = newSearchString
+      this.Search(this.searchString)
+    }
+  }
+
   @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.code === 'Tab') {
       event.preventDefault()
@@ -342,6 +356,13 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
           // Closing dialog
           this.close(undefined)
         }
+        break
+      }
+      case KeyBindings.F10: {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        event.stopPropagation()
+        this.SetSearch(this.tokenService.getValue(LAST_PRODUCT_SEARCH_STRING_KEY))
         break
       }
       default: { }
