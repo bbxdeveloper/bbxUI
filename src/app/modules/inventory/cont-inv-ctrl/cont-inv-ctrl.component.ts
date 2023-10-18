@@ -271,7 +271,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
             warehouseID: this.tokenService.wareHouse?.id,
             productID: x.data.productID,
             nRealQty: parseInt(x.data.nRealQty.toString()),
-            invCtrlDate: moment().format('YYYY-MM-DD').toString(),
+            invCtrlDate: moment(this.invCtrlDate).format('YYYY-MM-DD').toString(),
             userID: res.value!
           } as CreateIccRequest))
           .filter(x => x.productID !== -1)
