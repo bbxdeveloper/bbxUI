@@ -636,8 +636,14 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                     this.cdref!.detectChanges();
 
                     if (!this.repairMode) {
+                        const moveCount = this.nextAvailableInDistance(col, row)
+
                         // Move to the next cell and enter edit mode in it
-                        let newX = this.MoveNextInTable();
+                        let newX = 1
+                        for (let i = 0; i < moveCount; i++) {
+                            newX = this.MoveNextInTable();
+                        }
+
                         if (newX < colPos) {
                             this.isUnfinishedRowDeletable = false;
                         }
@@ -664,6 +670,34 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         this.parentComponent.RecalcNetAndVat();
+    }
+
+    private nextAvailableInDistance(currentColumn: string, currentRow: TreeGridNode<T>): number {
+        const availableColumns = this.allColumns.filter(x => !this.colsToIgnore.includes(x))
+        const currentIndex = availableColumns.indexOf(currentColumn)
+
+        let step = 0
+        let distance = 1
+
+        do {
+            step++
+            const columnDefinition = this.colDefs.find(x => x.colKey === availableColumns[currentIndex + step])
+
+            if (!columnDefinition) {
+                break
+            }
+
+            if (columnDefinition.checkIfReadonly !== undefined) {
+                if (columnDefinition.checkIfReadonly(currentRow)) {
+                    distance++
+                }
+            }
+            else {
+                break
+            }
+        } while (true)
+
+        return distance
     }
 
     private SelectInputChar(inputId: string, fInputType: string, row: any, col: any): void {
