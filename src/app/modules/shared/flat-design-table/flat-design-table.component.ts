@@ -1,9 +1,7 @@
-import { Component, Input, OnInit, Output, EventEmitter, DoCheck } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
 import { ReplaySubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
@@ -24,8 +22,18 @@ export const FORMATTED_NUMBER_COL_TYPES = [
   templateUrl: './flat-design-table.component.html',
   styleUrls: ['./flat-design-table.component.scss']
 })
-export class FlatDesignTableComponent implements OnInit {
-  @Input() dbDataTable?: FlatDesignNavigatableTable<any> | FlatDesignNoFormNavigatableTable<any>;
+export class FlatDesignTableComponent implements OnInit, AfterViewChecked {
+  private observer: IntersectionObserver | undefined
+
+  private _dbDataTable?: FlatDesignNavigatableTable<any> | FlatDesignNoFormNavigatableTable<any>;
+  @Input() set dbDataTable(value: FlatDesignNavigatableTable<any> | FlatDesignNoFormNavigatableTable<any> | undefined) {
+    this._dbDataTable = value
+  }
+
+  get dbDataTable() {
+    return this._dbDataTable
+  }
+
   @Input() allColumns: string[] = [];
   @Input() allColumnsAsync: ReplaySubject<string[]> = new ReplaySubject<string[]>();
   @Input() colDefs: ModelFieldDescriptor[] = [];
@@ -54,6 +62,8 @@ export class FlatDesignTableComponent implements OnInit {
   sortDirection: NbSortDirection = NbSortDirection.NONE;
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
+
+  private pageUpOrPageDownPressed = false
 
   constructor(private sideBarService: BbxSidebarService, private statusService: StatusService) {}
 
@@ -103,7 +113,68 @@ export class FlatDesignTableComponent implements OnInit {
     return NbSortDirection.NONE;
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
+
+  private lastLenth = 0
+  ngAfterViewChecked(): void {
+    if (!this._dbDataTable) {
+      return
+    }
+
+    if (this._dbDataTable.data.length === 0) {
+      return
+    }
+
+    if (this._dbDataTable.data.length === this.lastLenth) {
+      return
+    }
+
+    this.lastLenth = this._dbDataTable.data.length
+
+    const root = document.querySelector('#' + this.dbDataTableId)
+    const options = {
+      root: root,
+      threshold: 1,
+      trackVisibility: true,
+      delay: 500
+    }
+
+    // const debouncedFunc = debounce(, 75)
+    const debouncedFunc = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+      if (!this.pageUpOrPageDownPressed) {
+        return
+      }
+
+      const entry = entries.find(x => x.isIntersecting)
+      entries.forEach(x => x.target.classList.remove('current-keyboard-nav-selected'))
+
+      if (entry) {
+
+        entry.target.classList.add('current-keyboard-nav-selected')
+      }
+
+      this.pageUpOrPageDownPressed = false
+    }
+
+    this.observer = new IntersectionObserver(debouncedFunc, options)
+
+    // root?.querySelectorAll('tr').forEach(x => this.observer?.observe(x))
+    for (let i = 0; i < this._dbDataTable.data.length; i++) {
+      const target = root?.querySelector(`[data-index="row-${i}"]`)
+
+      if (target) {
+        console.log('hozzáadva')
+        this.observer.observe(target)
+      }
+    }
+  }
+
+  valami(event: any) {
+    if (event.key === 'PageDown' || event.key === 'PageUp') {
+      this.pageUpOrPageDownPressed = true
+    }
+  }
 
   focusOnTable(focusIn: boolean): void {
     if (focusIn) {

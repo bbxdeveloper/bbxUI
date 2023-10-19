@@ -26,7 +26,8 @@
             <table class="card-table-wrapper {{themeClass}}" id="table_body"
                 [ngClass]="getTableClasses()" [id]="dbDataTableId" [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows"
                  *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
-                 equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
+                 equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)"
+                 (keydown)="valami($event)">
                 <ng-container *ngIf="allColumns.length > 0">
                     <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [class.success]="isRowSuccess(row)" [class.warning]="isRowWarning(row)"></tr>
                 </ng-container>
@@ -38,6 +39,7 @@
                         <ng-container *ngSwitchCase="'string'">
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
                                 *nbTreeGridCellDef="let row; let rowPos = index"
+                                [attr.data-index]="'row-' + rowPos"
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
