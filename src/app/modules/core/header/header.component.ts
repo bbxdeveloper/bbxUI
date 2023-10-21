@@ -319,13 +319,6 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
             Constants.TITLE_INFO,
             Constants.TOASTR_SUCCESS_5_SEC
           );
-
-          setTimeout(() => {
-            this.GenerateAndSetNavMatrices();
-            this.keyboardService.SelectFirstTile();
-            this.isLoading = false;
-            this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-          }, 200);
         } else {
           this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
           this.isLoading = false;
@@ -337,6 +330,13 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
       }
       finally {
+        setTimeout(() => {
+          this.GenerateAndSetNavMatrices();
+          this.keyboardService.SelectFirstTile();
+          this.isLoading = false;
+          this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+        }, 200);
+
         this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
       }
     } else {
