@@ -47,6 +47,7 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
+import { PaymentMethods } from '../models/PaymentMethod';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -274,53 +275,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.exporterForm.reset(undefined);
     }
 
-    if (this.outInvForm === undefined) {
-      this.outInvForm = new FormGroup({
-        paymentMethod: new FormControl('', [Validators.required]),
-        invoiceDeliveryDate: new FormControl('', [
-          Validators.required,
-          this.validateInvoiceDeliveryDate.bind(this),
-          validDate
-        ]),
-        invoiceIssueDate: new FormControl('', [
-          Validators.required,
-          this.validateInvoiceIssueDate.bind(this),
-          validDate
-        ]),
-        paymentDate: new FormControl('', [
-          Validators.required,
-          this.validatePaymentDate.bind(this),
-          validDate
-        ]),
-        invoiceOrdinal: new FormControl('', []), // in post response
-        notice: new FormControl('', []),
-      });
-    } else {
-      this.outInvForm.reset(undefined);
-    }
-
-    this.outInvForm.controls['paymentMethod'].valueChanges.subscribe(value => {
-      if (this.mode?.invoiceType !== InvoiceTypes.INV) {
-        return
-      }
-
-      const paymentMethod = this.paymentMethods.find(x => x.text === value)
-      if (!paymentMethod) {
-        return
-      }
-
-      const controls = this.outInvForm.controls
-      if (paymentMethod.value === 'CASH' || paymentMethod.value === 'CARD') {
-        controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
-      }
-
-      if (paymentMethod.value === 'TRANSFER') {
-        const invoiceIssueDate = moment(controls['invoiceIssueDate'].value)
-        invoiceIssueDate.add(this.buyerData?.paymentDays ?? 0, 'days')
-
-        controls['paymentDate'].setValue(invoiceIssueDate.format('YYYY-MM-DD'))
-      }
-    })
+    this.setupOutInvForm()
 
     this.buyerForm = new FormGroup({
       customerSearch: new FormControl('', []),
@@ -336,18 +291,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this
     );
 
-    this.outInvFormNav = new InlineTableNavigatableForm(
-      this.outInvForm,
-      this.kbS,
-      this.cdref,
-      [this.outGoingInvoiceData],
-      this.outInvFormId,
-      AttachDirection.DOWN,
-      this
-    );
-
     this.buyerFormNav!.OuterJump = true;
-    this.outInvFormNav!.OuterJump = true;
 
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
@@ -368,20 +312,103 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     // Refresh data
     this.refresh();
 
-    this.outInvForm.controls["paymentMethod"].valueChanges.subscribe({
+  }
+
+  private setupOutInvForm(): void {
+    this.outInvForm = new FormGroup({
+      paymentMethod: new FormControl('', [Validators.required]),
+      invoiceDeliveryDate: new FormControl('', [
+        Validators.required,
+        this.validateInvoiceDeliveryDate.bind(this),
+        validDate
+      ]),
+      invoiceIssueDate: new FormControl('', [
+        Validators.required,
+        this.validateInvoiceIssueDate.bind(this),
+        validDate
+      ]),
+      paymentDate: new FormControl('', [
+        Validators.required,
+        this.validatePaymentDate.bind(this),
+        validDate
+      ]),
+      invoiceOrdinal: new FormControl('', []), // in post response
+      notice: new FormControl('', []),
+    });
+
+    const controls = this.outInvForm.controls
+    controls["paymentMethod"].valueChanges.subscribe({
       next: v => {
         this.RecalcNetAndVat();
       }
     });
-    this.outInvForm.controls["invoiceDeliveryDate"].valueChanges.subscribe({
+
+    controls["invoiceDeliveryDate"].valueChanges.subscribe({
       next: v => {
-        if (this.mode && !this.mode.incoming && this.mode.invoiceType === InvoiceTypes.INV && this.mode.invoiceCategory === InvoiceCategory.NORMAL) {
+        const shouldSetPaymentDate = () => {
+          const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod']?.value ?? '')?.value
+
+          return this.mode &&
+            !this.mode.incoming &&
+            this.mode.invoiceType === InvoiceTypes.INV &&
+            this.mode.invoiceCategory === InvoiceCategory.NORMAL &&
+            paymentMethod !== PaymentMethods.Cash
+        }
+
+        if (shouldSetPaymentDate()) {
           this.outInvForm.controls['paymentDate'].setValue(
             HelperFunctions.AddToDate(v, this.buyerData.paymentDays, 0, 0)
           )
         }
       }
     });
+
+    controls['paymentMethod'].valueChanges.subscribe(value => {
+      if (this.mode?.invoiceType !== InvoiceTypes.INV) {
+        return
+      }
+
+      const paymentMethod = this.paymentMethods.find(x => x.text === value)
+      if (!paymentMethod) {
+        return
+      }
+
+      if (paymentMethod.value === 'CASH' || paymentMethod.value === 'CARD') {
+        controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
+      }
+
+      if (paymentMethod.value === 'TRANSFER') {
+        const invoiceIssueDate = moment(controls['invoiceIssueDate'].value)
+        invoiceIssueDate.add(this.buyerData?.paymentDays ?? 0, 'days')
+
+        controls['paymentDate'].setValue(invoiceIssueDate.format('YYYY-MM-DD'))
+      }
+    })
+
+    controls['invoiceIssueDate'].valueChanges.subscribe(value => {
+      if (this.mode?.invoiceType !== InvoiceTypes.INV) {
+        return
+      }
+
+      const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod'].value)?.value
+      if (!paymentMethod || paymentMethod !== PaymentMethods.Cash) {
+        console.error('lolka')
+        return
+      }
+
+      controls['paymentDate'].setValue(value)
+    })
+
+    this.outInvFormNav = new InlineTableNavigatableForm(
+      this.outInvForm,
+      this.kbS,
+      this.cdref,
+      [this.outGoingInvoiceData],
+      this.outInvFormId,
+      AttachDirection.DOWN,
+      this
+    );
+    this.outInvFormNav!.OuterJump = true;
   }
 
   changeSort(sortRequest: NbSortRequest): void {
@@ -426,7 +453,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
-  // paymentDate
   validatePaymentDate(control: AbstractControl): any {
     if (this.invoiceIssueDateValue === undefined) {
       return null;
@@ -436,6 +462,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toString());
 
     const wrong = paymentDate?.isBefore(issueDate, "day");
+    console.error('paymentDate wrong: ' + control.value)
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
