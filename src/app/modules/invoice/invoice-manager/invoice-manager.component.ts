@@ -166,6 +166,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
+  isPaymentDateInNavigation = true
+
   private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
     this.buyerData = customer
     this.cachedCustomerName = customer.customerName;
@@ -358,29 +360,45 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }
     });
 
-    controls['paymentMethod'].valueChanges.subscribe(value => {
-      this.RecalcNetAndVat();
+    controls['paymentMethod'].valueChanges
+      .pipe(
+        pairwise() // Get the previous value
+      )
+      .subscribe(([prevValue, value]) => {
+        this.RecalcNetAndVat();
 
-      if (this.mode?.invoiceType !== InvoiceTypes.INV) {
-        return
-      }
+        if (this.mode?.invoiceType !== InvoiceTypes.INV) {
+          return
+        }
 
-      const paymentMethod = this.paymentMethods.find(x => x.text === value)
-      if (!paymentMethod) {
-        return
-      }
+        const paymentMethod = this.paymentMethods.find(x => x.text === value)
+        if (!paymentMethod) {
+          return
+        }
 
-      if (paymentMethod.value === PaymentMethods.Cash || paymentMethod.value === PaymentMethods.Card) {
-        controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
-      }
+        if (paymentMethod.value === PaymentMethods.Cash || paymentMethod.value === PaymentMethods.Card) {
+          controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
+        }
 
-      if (paymentMethod.value === PaymentMethods.Transfer) {
-        const invoiceIssueDate = moment(controls['invoiceIssueDate'].value)
-        invoiceIssueDate.add(this.buyerData?.paymentDays ?? 0, 'days')
+        const prevPaymentMethod = this.paymentMethods.find(x => x.text === prevValue)
+        if (prevPaymentMethod?.value !== PaymentMethods.Cash && paymentMethod.value === PaymentMethods.Cash) {
+          this.isPaymentDateInNavigation = false
 
-        controls['paymentDate'].setValue(invoiceIssueDate.format('YYYY-MM-DD'))
-      }
-    })
+          setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(true), 100)
+        }
+        else if (prevPaymentMethod?.value === PaymentMethods.Cash && paymentMethod.value !== PaymentMethods.Cash) {
+          this.isPaymentDateInNavigation = true
+
+          setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(true), 100)
+        }
+
+        if (paymentMethod.value === PaymentMethods.Transfer) {
+          const invoiceIssueDate = moment(controls['invoiceIssueDate'].value)
+          invoiceIssueDate.add(this.buyerData?.paymentDays ?? 0, 'days')
+
+          controls['paymentDate'].setValue(invoiceIssueDate.format('YYYY-MM-DD'))
+        }
+      })
 
     controls['invoiceIssueDate'].valueChanges.subscribe(value => {
       if (this.mode?.invoiceType !== InvoiceTypes.INV) {
@@ -458,7 +476,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toString());
 
     const wrong = paymentDate?.isBefore(issueDate, "day");
-    console.error('paymentDate wrong: ' + control.value)
     return wrong ? { wrongDate: { value: control.value } } : null;
   }
 

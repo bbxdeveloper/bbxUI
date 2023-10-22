@@ -137,7 +137,7 @@
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Fizetési határidő</label>
                     <input nbInput type="datetime" formControlName='paymentDate' required="true"
-                        class="{{TileCssClass}}" [readonly]="editDisabled" id="m03" mask="0000-00-00"
+                        [ngClass]="isPaymentDateInNavigation ? TileCssClass : ''" [readonly]="editDisabled" id="m03" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
                     <app-form-control-error [form]="outInvFormNav" controlName="paymentDate"
