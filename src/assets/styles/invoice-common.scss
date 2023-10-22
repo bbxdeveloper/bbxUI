@@ -116,6 +116,10 @@ form.invoice-customer-form {
     nb-form-field {
         width: 180px;
 
+        &.wider {
+            width: 270px;
+        }
+
         &:last-child {
             margin: unset;
             max-width: unset;
