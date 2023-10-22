@@ -364,7 +364,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       .pipe(
         pairwise() // Get the previous value
       )
-      .subscribe(([prevValue, value]) => {
+      .subscribe(([prevValue, value]: [string, string]) => {
         this.RecalcNetAndVat();
 
         if (this.mode?.invoiceType !== InvoiceTypes.INV) {
@@ -384,12 +384,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         if (prevPaymentMethod?.value !== PaymentMethods.Cash && paymentMethod.value === PaymentMethods.Cash) {
           this.isPaymentDateInNavigation = false
 
-          setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(true), 100)
+          setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(false), 100)
         }
         else if (prevPaymentMethod?.value === PaymentMethods.Cash && paymentMethod.value !== PaymentMethods.Cash) {
           this.isPaymentDateInNavigation = true
 
-          setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(true), 100)
+          setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(false), 100)
         }
 
         if (paymentMethod.value === PaymentMethods.Transfer) {
