@@ -337,11 +337,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     });
 
     const controls = this.outInvForm.controls
-    controls["paymentMethod"].valueChanges.subscribe({
-      next: v => {
-        this.RecalcNetAndVat();
-      }
-    });
 
     controls["invoiceDeliveryDate"].valueChanges.subscribe({
       next: v => {
@@ -364,6 +359,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     });
 
     controls['paymentMethod'].valueChanges.subscribe(value => {
+      this.RecalcNetAndVat();
+
       if (this.mode?.invoiceType !== InvoiceTypes.INV) {
         return
       }
@@ -373,11 +370,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         return
       }
 
-      if (paymentMethod.value === 'CASH' || paymentMethod.value === 'CARD') {
+      if (paymentMethod.value === PaymentMethods.Cash || paymentMethod.value === PaymentMethods.Card) {
         controls['paymentDate'].setValue(controls['invoiceIssueDate'].value)
       }
 
-      if (paymentMethod.value === 'TRANSFER') {
+      if (paymentMethod.value === PaymentMethods.Transfer) {
         const invoiceIssueDate = moment(controls['invoiceIssueDate'].value)
         invoiceIssueDate.add(this.buyerData?.paymentDays ?? 0, 'days')
 
@@ -392,7 +389,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
       const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod'].value)?.value
       if (!paymentMethod || paymentMethod !== PaymentMethods.Cash) {
-        console.error('lolka')
         return
       }
 
