@@ -252,7 +252,6 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     const filter = this.localStorage.get<WarehouseDocumentFilterFormData>(this.localStorageKey)
 
     if (filter) {
-      console.trace('localStorage: ', filter)
       this.filterForm.patchValue(filter)
 
       this.Refresh()

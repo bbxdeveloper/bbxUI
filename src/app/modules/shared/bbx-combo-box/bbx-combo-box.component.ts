@@ -88,7 +88,7 @@ export class BbxComboBoxComponent implements AfterViewInit {
     if (value === undefined) {
       return this.comboBoxData;
     }
-    const filterValue = value.toLowerCase();
+    const filterValue = value?.toLowerCase();
     return this.comboBoxData.filter(optionValue => optionValue === this.blankOptionText || optionValue.toLowerCase().includes(filterValue));
   }
 

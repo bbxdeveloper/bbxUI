@@ -1,9 +1,7 @@
-import { Component, Input, OnInit, Output, EventEmitter, DoCheck } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource } from '@nebular/theme';
 import { ReplaySubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
@@ -15,6 +13,8 @@ import { environment } from 'src/environments/environment';
 import { isIStatusProvider } from '../IStatusProvider';
 import { Status } from "../Status";
 import { StatusService } from 'src/app/services/status.service';
+import { CommonService } from 'src/app/services/common.service';
+import { HtmlStringSanitizerPipe } from '../pipes/html-string-sanitizer.pipe';
 
 export const FORMATTED_NUMBER_COL_TYPES = [
   'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
@@ -22,7 +22,10 @@ export const FORMATTED_NUMBER_COL_TYPES = [
 @Component({
   selector: 'app-flat-design-table',
   templateUrl: './flat-design-table.component.html',
-  styleUrls: ['./flat-design-table.component.scss']
+  styleUrls: ['./flat-design-table.component.scss'],
+  providers: [
+    HtmlStringSanitizerPipe
+  ]
 })
 export class FlatDesignTableComponent implements OnInit {
   @Input() dbDataTable?: FlatDesignNavigatableTable<any> | FlatDesignNoFormNavigatableTable<any>;
@@ -55,7 +58,10 @@ export class FlatDesignTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(private sideBarService: BbxSidebarService, private statusService: StatusService) {}
+  constructor(
+    private sideBarService: BbxSidebarService,
+    private statusService: StatusService,
+    private commonService: CommonService) {}
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)

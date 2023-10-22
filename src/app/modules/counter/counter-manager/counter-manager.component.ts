@@ -416,8 +416,6 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       return null
     }
 
-    console.trace(controlValue, numberPartLengthsNumber)
-
     const wrong = controlValue.length > numberPartLengthsNumber!
     return wrong ? { maxLength: { value: control.value } } : null
   }
