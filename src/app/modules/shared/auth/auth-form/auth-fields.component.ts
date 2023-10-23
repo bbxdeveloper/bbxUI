@@ -1,16 +1,16 @@
-import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef, ViewEncapsulation } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, Output, ViewChild, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { AttachDirection, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Navigatable';
 import { BaseNavigatableComponentComponent } from '../../base-navigatable-component/base-navigatable-component.component';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { UserService } from 'src/app/modules/auth/services/user.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { LoggerService } from 'src/app/services/logger.service';
 import { StatusService } from 'src/app/services/status.service';
 import { LoginNameAndPwdRequest } from 'src/app/modules/auth/models/LoginNameAndPwdRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { Constants } from 'src/assets/util/Constants';
 
 export class AuthChangeEventArgs {
   userName: string = ''
@@ -37,7 +37,7 @@ export class AuthFieldsComponent extends BaseNavigatableComponentComponent imple
   @Input() userName: string = ''
   @Input() loginName: string = ''
   userID: number = -1
-  
+
   private _loggedIn: boolean = false
   get loggedIn(): boolean { return this._loggedIn }
   set loggedIn(value: boolean) {
@@ -52,13 +52,14 @@ export class AuthFieldsComponent extends BaseNavigatableComponentComponent imple
       } as AuthChangeEventArgs)
     }
   }
-  
+
   @Output() authChange: EventEmitter<AuthChangeEventArgs> = new EventEmitter<AuthChangeEventArgs>()
   @Output() ready: EventEmitter<any> = new EventEmitter<any>()
 
   constructor(private viewContainerRef: ViewContainerRef,
     private kBs: KeyboardNavigationService,
     private userService: UserService,
+    private bbxToastrService: BbxToastrService,
     private statusService: StatusService,
     private commonService: CommonService) {
     super()
@@ -158,8 +159,13 @@ export class AuthFieldsComponent extends BaseNavigatableComponentComponent imple
         }
       },
       error: err => {
+        if (err.status === 401) {
+          this.bbxToastrService.showError(Constants.MSG_INVALID_CREDENTIALS)
+        } else {
+          this.commonService.HandleError(err)
+        }
+
         this.statusService.waitForLoad(false)
-        this.commonService.HandleError(err)
 
         this.authChange.emit({
           userID: this.userID,

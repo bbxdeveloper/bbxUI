@@ -33,6 +33,7 @@ export module Constants {
     export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
     export const MSG_CANNOT_ON_EDIT_ROW: string = "A kijelölt sor új elemek felvételére alkalmas! A kért művelet nem végezhető el rajta.";
     export const MSG_WHS_ONLY_READY_CAN_BE_FINALIZED = "Csak 'Elkészült' státuszban lévő raktárközi bizonylatokat lehet véglegesíteni!"
+    export const MSG_INVALID_CREDENTIALS: string = 'Helytelen felhasználónév vagy jelszó.'
 
     export const MSG_ERROR_NO_WAREHOUSE_SELECTED = "Nincs kiválasztott raktár. A művelethez bejelentkezés szükséges!"
     export const MSG_ERROR_NO_PRODUCT_SELECTED = "Nincs kiválasztott termék!"
