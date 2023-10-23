@@ -216,7 +216,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const latestSupplyPrice = HelperFunctions.ToFloat(product.latestSupplyPrice)
 
     if (latestSupplyPrice === 0) {
-      changeRatePercent = this.newPrice
+      return [this.newPrice, this.newPrice]
     }
     else if (this.newPrice > latestSupplyPrice) {
       const priceDelta = this.newPrice - latestSupplyPrice
