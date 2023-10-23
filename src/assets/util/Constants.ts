@@ -92,6 +92,8 @@ export module Constants {
 
     export const MSG_PRINT_ONLY_WHEN_ROW_SELECTED = "Csak aktívan kijelölt rekord mellett lehet nyomtatni!"
 
+    export const MSG_ERROR_WAREHOUSE_DOCUMENT_FINALIZE_DIFFERENT_WAREHOUSES = "Csak aktuális raktárba irányuló raktárközi átadsás véglegesíthető!"
+
     export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
         { duration: 0, status: 'primary' };
     export const TOASTR_ERROR: Partial<NbToastrConfig> =

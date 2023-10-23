@@ -547,6 +547,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.flatDesignForm.SetClean();
 
         setTimeout(() => {
+            debugger
             if (openSideBar) {
                 this.sidebarService.expand();
             }

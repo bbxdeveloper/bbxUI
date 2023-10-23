@@ -2,9 +2,12 @@ button {
     margin-right: 25px;
 }
 
-iframe {
+.innerhtml {
+    border: 1px solid black;
     margin-top: 10px;
     margin-bottom: 10px;
     background-color: #2c1e45;
+    min-width: 300px;
+    min-height: 150px;
     resize: both;
 }
