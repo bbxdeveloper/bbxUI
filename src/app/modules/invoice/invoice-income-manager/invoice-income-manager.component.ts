@@ -1070,23 +1070,15 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
     const regex = /PRODUCT-\d+-(\d+)/
     const match = this.kbS.Here.match(regex)
-    console.log("match: ", match, this.kbS.Here);
     if (match) {
       const rowIndex = parseInt(match[1])
-      console.log("rowIndex: ", rowIndex);
 
       if (rowIndex === this.dbData.length - 1) {
-        console.log("on editor row");
         setTimeout(() => {
-          this.bbxToastrService.show(
-            Constants.MSG_CANNOT_ON_EDIT_ROW,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+          this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW);
         }, 0);
       } else {
         this.suggestPriceChange(this.dbData[rowIndex].data)
-        console.log("suggestPriceChange");
       }
     }
   }
