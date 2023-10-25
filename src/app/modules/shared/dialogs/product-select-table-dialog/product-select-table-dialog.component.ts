@@ -20,6 +20,10 @@ import { SelectTableDialogComponent } from '../select-table-dialog/select-table-
 import { CurrencyCodes } from '../../../system/models/CurrencyCode';
 import { environment } from 'src/environments/environment';
 import { ProductStockInformationDialogComponent } from '../product-stock-information-dialog/product-stock-information-dialog.component';
+import { StatusService } from 'src/app/services/status.service';
+import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
+
+const LAST_PRODUCT_SEARCH_STRING_KEY = 'last-product-search-string'
 
 const NavMap: string[][] = [
   ['radio-0', 'radio-1', 'radio-2'],
@@ -95,9 +99,11 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
     private productService: ProductService,
     private cdrf: ChangeDetectorRef,
-    private dialogService: NbDialogService
+    private dialogService: NbDialogService,
+    statusService: StatusService,
+    private tokenService: TokenStorageService
   ) {
-    super(dialogRef, kbS, dataSourceBuilder);
+    super(dialogRef, kbS, dataSourceBuilder, statusService);
 
     this.dbDataTable = new SimpleNavigatableTable<Product>(
       this.dataSourceBuilder, this.kbS, this.cdref, this.dbData, '', AttachDirection.DOWN, this
@@ -157,7 +163,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
-      $('#active-prod-search').val(this.searchString);
+      $('#active-prod-search').val(this.searchString)
+      if (!HelperFunctions.isEmptyOrSpaces(this.searchString)) {
+        this.tokenService.setValue(LAST_PRODUCT_SEARCH_STRING_KEY, this.searchString)
+      }
       this.clickCurrentRadio()
       this.isLoaded = true;
     }
@@ -173,17 +182,32 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     $(`#radio-${this.currentChooserValue}`).trigger('click')
   }
 
+  MoveToSaveButtons(event: any): void {
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    event.stopPropagation()
+    this.kbS.Jump(AttachDirection.DOWN, false)
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+  }
+
   override refreshFilter(event: any): void {
-    if ((event.key.length > 1 && event.key.toLowerCase() !== 'backspace') || event.ctrlKey || event.key == KeyBindings.F2 || IsKeyFunctionKey(event.key)) {
-      return;
+    if (event.key == KeyBindings.Enter) {
+      this.MoveToSaveButtons(event)
+      return
     }
 
+    if ((event.key.length > 1 && event.key.toLowerCase() !== 'backspace') || event.ctrlKey || event.key == KeyBindings.F2 || IsKeyFunctionKey(event.key)) {
+      return
+    }
+
+    this.tokenService.setValue(LAST_PRODUCT_SEARCH_STRING_KEY, event.target.value)
+
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
-      this.searchString = event.target.value;
-      this.Refresh(this.getInputParams);
+      this.searchString = event.target.value
+      this.Refresh(this.getInputParams)
     } else {
-      this.searchString = event.target.value;
-      this.Search(this.searchString);
+      this.searchString = event.target.value
+      this.Search(this.searchString)
     }
   }
 
@@ -296,6 +320,22 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     })
   }
 
+  private SetSearch(newSearchString: string): void {
+    if (newSearchString === this.inputForm.controls['searchString'].value) {
+      return
+    }
+
+    this.inputForm.controls['searchString'].setValue(newSearchString)
+    
+    if (this.searchString.length !== 0 && newSearchString.length === 0) {
+      this.searchString = newSearchString
+      this.Refresh(this.getInputParams)
+    } else {
+      this.searchString = newSearchString
+      this.Search(this.searchString)
+    }
+  }
+
   @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.code === 'Tab') {
       event.preventDefault()
@@ -316,6 +356,13 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
           // Closing dialog
           this.close(undefined)
         }
+        break
+      }
+      case KeyBindings.F10: {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        event.stopPropagation()
+        this.SetSearch(this.tokenService.getValue(LAST_PRODUCT_SEARCH_STRING_KEY))
         break
       }
       default: { }

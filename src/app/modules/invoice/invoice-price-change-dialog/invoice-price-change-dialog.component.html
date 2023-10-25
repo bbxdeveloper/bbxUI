@@ -2,7 +2,7 @@
     <nb-card-header class="modal-product-active-header">
         <span>Árváltozás</span>
     </nb-card-header>
-    <nb-card-body [nbSpinner]="isLoading" class="modal-product-active-body">
+    <nb-card-body [nbSpinner]="showSpinnerOnTable" class="modal-product-active-body">
         <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
             <label>
                 Termék
@@ -24,6 +24,10 @@
             <div (keydown.enter)="navigateable.HandleFormEnter($event)">
                 <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1"
                     (focus)="fixCursorPosition($event)" #newUnitPrice1>
+
+                <div *ngIf="newUnitPrice1Control?.errors?.['notGreatherThanNewPrice']" class="alert-error">
+                    A megadott ár alacsonyabb, mint a beszerzési ár.
+                </div>
             </div>
 
             <label>
@@ -33,6 +37,10 @@
             <div (keydown.enter)="moveToButtons($event)">
                 <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2"
                     (focus)="fixCursorPosition($event)">
+
+                <div *ngIf="newUnitPrice2Control?.errors?.['notGreatherThanNewPrice']" class="alert-error">
+                    A megadott ár alacsonyabb, mint a beszerzési ár.
+                </div>
             </div>
         </form>
     </nb-card-body>

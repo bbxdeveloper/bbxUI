@@ -24,14 +24,14 @@ export const environment = {
   utilityLogs: false,
   getterSetterLogs: false,
   managerComponentLogs: false,
-  invoiceSaveDialogLogs: true,
+  invoiceSaveDialogLogs: false,
   inlineEditableTableMatrixGenerationLog: false,
   inlineEditableTableNavigatableFormLog: false,
-  inlineEditableTableKeyboardDebug: true,
+  inlineEditableTableKeyboardDebug: false,
 
   offerLineLog: false,
 
-  InvSaveDlgLogs: true,
+  InvSaveDlgLogs: false,
 
   partnerLock: false,
 

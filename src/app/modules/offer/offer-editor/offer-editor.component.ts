@@ -365,7 +365,8 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           vatRateID: x.data.vatRateID,
           vatPercentage: x.data.vatPercentage,
           quantity: HelperFunctions.ToFloat(x.data.quantity),
-          originalUnitPrice: HelperFunctions.ToFloat(x.data.originalUnitPrice),
+          originalUnitPrice: HelperFunctions.ToFloat(x.data.exchangedOriginalUnitPrice),
+          originalUnitPriceHUF: HelperFunctions.ToFloat(x.data.originalUnitPriceHUF),
           unitPriceSwitch: x.data.unitPriceSwitch
         } as OfferLineFullData
       }
@@ -384,7 +385,6 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
     console.log('Save: ', this.offerData);
 
-    this.isLoading = true;
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     const dialogRef = this.dialogService.open(OfferUpdateDialogComponent, {
@@ -413,7 +413,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
         if (selectedSaveOption !== OfferUtil.EditSaveModes.SAVE_NEW_VERSION) {
           this.offerService.Update(this.offerData).subscribe({
-            next: d => {
+            next: async d => {
               if (!!d.data) {
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                 console.log('Save response: ', d);
@@ -423,6 +423,12 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                   Constants.TITLE_INFO,
                   Constants.TOASTR_SUCCESS_5_SEC
                 );
+
+                if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITH_VERSIONING) {
+                  await this.print(d.data?.id, this.ExitToNav.bind(this))
+
+                  return
+                }
 
                 this.ExitToNav();
               } else {
@@ -466,19 +472,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                   // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
                   this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-                  await this.printAndDownLoadService.openPrintDialog({
-                    DialogTitle: 'Ajánlat Nyomtatása',
-                    DefaultCopies: 1,
-                    MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
-                    MsgCancel: `Az árajánlat nyomtatása közben hiba történt.`,
-                    MsgFinish: `Az árajánlat nyomtatása véget ért.`,
-                    Obs: this.seInv.GetReport.bind(this.offerService),
-                    Reset: this.DelayedReset.bind(this),
-                    ReportParams: {
-                      "id": d.data?.id,
-                      "copies": 1 // Ki lesz töltve dialog alapján
-                    } as Constants.Dct
-                  } as PrintDialogRequest);
+                  await this.print(d.data?.id, this.DelayedReset.bind(this))
                 } else {
                   this.cs.HandleError(d.errors);
                   this.isLoading = false;
@@ -506,6 +500,22 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
 
       }
     });
+  }
+
+  private async print(id: number, reset: () => void): Promise<void> {
+    await this.printAndDownLoadService.openPrintDialog({
+      DialogTitle: 'Ajánlat Nyomtatása',
+      DefaultCopies: 1,
+      MsgError: `Az árajánlat nyomtatása közben hiba történt.`,
+      MsgCancel: `Az árajánlat nyomtatása new történt meg.`,
+      MsgFinish: `Az árajánlat nyomtatása véget ért.`,
+      Obs: this.seInv.GetReport.bind(this.offerService),
+      Reset: reset,
+      ReportParams: {
+        "id": id,
+        "copies": 1 // Ki lesz töltve dialog alapján
+      } as Constants.Dct
+    } as PrintDialogRequest);
   }
 
   override ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
@@ -598,6 +608,17 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           _event.preventDefault();
           this.SwitchUnitPriceAll();
           break;
+        }
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            _event.preventDefault();
+            _event.stopImmediatePropagation();
+            _event.stopPropagation();
+            return;
+          }
+          const id = this.dbData[this.kbS.p.y].data.productID
+          this.openProductStockInformationDialog(id);
+          return;
         }
       }
     }

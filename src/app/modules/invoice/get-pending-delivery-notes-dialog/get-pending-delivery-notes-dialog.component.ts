@@ -12,6 +12,7 @@ import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { Router } from '@angular/router';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 import { IPartnerLock } from 'src/app/services/IPartnerLock';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-get-pending-delivery-notes-dialog',
@@ -32,8 +33,9 @@ export class GetPendingDeliveryNotesDialogComponent extends SelectTableDialogCom
     private readonly cs: CommonService,
     cdref: ChangeDetectorRef,
     private router: Router,
+    statusService: StatusService
   ) {
-    super(dialogRef, kns, dataSourceBuilder)
+    super(dialogRef, kns, dataSourceBuilder, statusService)
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 

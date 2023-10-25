@@ -40,7 +40,7 @@ import { LoggerService } from 'src/app/services/logger.service';
 import { UnitOfMeasure } from '../../product/models/UnitOfMeasure';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
-import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
   selector: 'app-stock-nav',
@@ -537,11 +537,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     console.log('Refreshing: ', params); // TODO: only for debug
     if (this.filterForm.invalid) {
-      this.bbxToastrService.show(
-        Constants.MSG_INVALID_FILTER_FORM,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_INVALID_FILTER_FORM);
       return;
     }
 
@@ -549,33 +545,33 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     await lastValueFrom(this.stockService.GetAll(params))
       .then(async d => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetStocks: response: ', d); // TODO: only for debug
-          if (!!d) {
-            let tempData = [];
-            const productIds = d.data.map(x => x.productID)
-            const products = await this.GetProductsData(productIds)
-            for (let i = 0; i < d.data.length; i++) {
-              const x = d.data[i];
-              const _data = new ExtendedStockData(x);
-              console.log(x.productID)
-              _data.FillProductFields(products.find(y => y.id === x.productID)!);
-              _data.unitOfMeasure = _data.unitOfMeasureX
-              _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
-              tempData.push({ data: _data, uid: this.nextUid() });
-            }
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.bbxToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+        if (!d.succeeded || !d.data) {
+          this.bbxToastrService.show(d.errors!.join('\n'));
+          return
         }
+
+        const tempData = [];
+        const productIds = d.data.map(x => x.productID)
+        const products = await this.GetProductsData(productIds)
+
+        for (let i = 0; i < d.data.length; i++) {
+          const _data = new ExtendedStockData(d.data[i]);
+
+          const product = products.find(y => y.id === _data.productID)
+          if (product) {
+            _data.FillProductFields(product);
+            _data.unitOfMeasure = _data.unitOfMeasureX
+            _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
+
+            tempData.push({ data: _data, uid: this.nextUid() });
+          }
+        }
+
+        this.dbData = tempData;
+        this.dbDataDataSrc.setData(this.dbData);
+        this.dbDataTable.SetPaginatorData(d);
+
+        this.RefreshTable(undefined, true);
       })
       .catch(err => {
         this.cs.HandleError(err);
@@ -653,7 +649,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
   GoToStockCard(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const productCode = this.dbData[this.kbS.p.y - 1].data.productCode;
+      console.log(this.dbData, this.kbS.p.y - 1)
+      const productCode = this.dbData[this.kbS.p.y].data.productCode;
       this.router.navigate(['stock-card/nav'], {
         queryParams: {
           productCode: productCode,
@@ -778,15 +775,19 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       return;
     }
 
-    this.Subscription_FillFormWithFirstAvailableProduct = this.productService.GetAll({
-      PageNumber: '1', PageSize: '1', SearchString: this.productInputFilterString, OrderBy: 'productCode', FilterByCode: true, FilterByName: false
-    } as GetProductsParamListModel).subscribe({
+    // All 3-length productCodes ends with a '-' character.
+    if (this.productInputFilterString.length === 3) {
+      this.productInputFilterString += '-'
+    }
+
+    this.Subscription_FillFormWithFirstAvailableProduct = this.productService.GetProductByCode({
+      ProductCode: this.productInputFilterString
+    } as GetProductByCodeRequest).subscribe({
       next: res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.filterForm.controls['SearchString'].setValue(res.data[0].productCode);
-          this.filterForm.controls['ProductName'].setValue(res.data[0].description);
+        if (!!res && Object.keys(res).includes('productCode') && !HelperFunctions.isEmptyOrSpaces(res.productCode)) {
+          this.filterForm.controls['SearchString'].setValue(res.productCode);
+          this.filterForm.controls['ProductName'].setValue(res.description);
         } else {
-          this.filterForm.controls['SearchString'].setValue(undefined);
           this.filterForm.controls['ProductName'].setValue(undefined);
         }
       },

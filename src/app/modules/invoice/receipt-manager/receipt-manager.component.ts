@@ -36,7 +36,7 @@ import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
+import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 
 @Component({
@@ -445,7 +445,19 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
                 this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
-                this.DelayedReset()
+                await this.printAndDownLoadService.openPrintDialog({
+                  DialogTitle: Constants.TITLE_PRINT_INVOICE,
+                  DefaultCopies: 1,
+                  MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+                  MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+                  MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+                  Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+                  Reset: this.DelayedReset.bind(this),
+                  ReportParams: {
+                    "id": d.data?.id,
+                    "copies": 1 // Ki lesz töltve dialog alapján
+                  } as Constants.Dct
+                } as PrintDialogRequest)
               } else {
                 this.cs.HandleError(d.errors);
                 this.isSaveInProgress = false;
@@ -599,6 +611,21 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });
           break;
+        }
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
         }
         case KeyBindings.Enter: {
           if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {

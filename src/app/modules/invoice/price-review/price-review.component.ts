@@ -52,6 +52,7 @@ import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
+import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 
 @Component({
   selector: 'app-price-review',
@@ -1186,6 +1187,28 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     }
   }
 
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
+
+      this.sts.waitForLoad(false)
+
+      this.dialogService.open(ProductStockInformationDialogComponent, {
+        context: {
+          product: product
+        }
+      })
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (!this.isSaveInProgress && event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
       if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -1214,6 +1237,21 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
           });
           break;
+        }
+        case this.KeySetting[Actions.ToggleForm].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
         }
         case KeyBindings.Enter: {
           if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {

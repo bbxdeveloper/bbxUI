@@ -5,7 +5,6 @@
     [id]="id" [(ngModel)]="value"
     [class]="input_class"
     [style.text-align]="style_text_align"
-    [mask]="mask" [patterns]="maskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+    [inputMask]="mask"
     (blur)="proxyBlur($event)" (focus)="proxyFocus($event)"
-    oninput="this.value = this.value.toUpperCase()"
     [disabled]="disabled" [required]="required" [readonly]="readonly" />

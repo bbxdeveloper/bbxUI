@@ -282,3 +282,11 @@ $i: 0;
   }
   $i: $i + 100
 }
+
+// Spinner
+
+.spin-circle {
+  border-width: 0.25em !important;
+  width: 2em !important;
+  height: 2em !important;
+}

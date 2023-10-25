@@ -64,4 +64,18 @@ export class TokenStorageService {
   signOut(): void {
     window.sessionStorage.clear();
   }
+
+  getValue(key: string): string {
+    if (key !== TOKEN_KEY && key !== USER_KEY && key !== WAREHOUSE_KEY) {
+      return window.sessionStorage.getItem(key) ?? ''
+    }
+    return ''
+  }
+
+  setValue(key: string, value: number | string): void {
+    if (key !== TOKEN_KEY && key !== USER_KEY && key !== WAREHOUSE_KEY) {
+      window.sessionStorage.removeItem(key);
+      window.sessionStorage.setItem(key, value + '');
+    }
+  }
 }

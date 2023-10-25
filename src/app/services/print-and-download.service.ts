@@ -101,7 +101,7 @@ export class PrintAndDownloadService {
   }
 
   public async printAfterConfirm(request: PrintDialogRequest): Promise<void> {
-    HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_PRINT, async () => {
+    HelperFunctions.confirmAsync(this.dialogService, request.DialogTitle, async () => {
 
       let commandEndedSubscription = this.CommandEnded.subscribe({
         next: cmdEnded => {

@@ -39,6 +39,7 @@ import moment from 'moment';
 import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
 import { CreateIccRequest } from '../models/CreateIccRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { ConfirmationWithAuthDialogComponent, ConfirmationWithAuthDialogesponse } from '../../shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
 
 @Component({
   selector: 'app-cont-inv-ctrl',
@@ -253,8 +254,8 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   Save(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
-    confirmDialogRef.onClose.subscribe(async res => {
+    const confirmDialogRef = this.dialogService.open(ConfirmationWithAuthDialogComponent, { context: { title: Constants.MSG_CONFIRMATION_SAVE_DATA } });
+    confirmDialogRef.onClose.subscribe(async (res: ConfirmationWithAuthDialogesponse) => {
       if (!res)
         return
 
@@ -267,11 +268,11 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         const request = this.dbDataTable.data
           .filter(x => !x.data.IsUnfinished())
           .map(x => ({
-            warehouseCode: this.tokenService.wareHouse?.warehouseCode,
+            warehouseID: this.tokenService.wareHouse?.id,
             productID: x.data.productID,
             nRealQty: parseInt(x.data.nRealQty.toString()),
-            invCtrlDate: moment().format('YYYY-MM-DD').toString(),
-            userID: this.tokenService.user?.id
+            invCtrlDate: moment(this.invCtrlDate).format('YYYY-MM-DD').toString(),
+            userID: res.value!
           } as CreateIccRequest))
           .filter(x => x.productID !== -1)
 

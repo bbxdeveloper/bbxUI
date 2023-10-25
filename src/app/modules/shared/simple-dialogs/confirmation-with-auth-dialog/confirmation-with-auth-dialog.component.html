@@ -1,0 +1,41 @@
+<!-- <nb-card>
+    <nb-card-header>{{title}}</nb-card-header>
+    <nb-card-body class="form-col-1">
+        <form id="oneInputForm" [formGroup]="formNav.form" #formDirective="ngForm"
+            (keydown.escape)="formNav.HandleFormEscape()">
+            <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
+                <label>{{inputLabel}}</label>
+                <input *ngIf="!isReadonly" class="{{TileCssClass}}" nbInput type="text" formControlName='answer'
+                    required="true" (click)="formNav.HandleFormFieldClick($event)">
+                <input *ngIf="isReadonly" nbInput type="text" formControlName='answer' required="true" readonly>
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+    <nb-card-footer>
+        <button *ngIf="isReadonly" class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton
+            (click)="close(true)" status="primary" tabindex="-1">Bezárás</button>
+        <button *ngIf="!isReadonly" class="{{TileCssClass}}" id="date-interval-dialog-button-yes" nbButton
+            (click)="close(true)" status="primary" tabindex="-1">Igen</button>
+        <button *ngIf="!isReadonly" class="{{TileCssClass}}" id="date-interval-dialog-button-no" nbButton
+            (click)="close(false)" status="danger" tabindex="-1">Nem</button>
+    </nb-card-footer>
+</nb-card> -->
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>{{title}}</span>
+    </nb-card-header>
+    <nb-card-body class="modal-product-active-body">
+        <form *ngIf="!!inputForm" [formGroup]="inputForm" #formDirective="ngForm" [id]="formId">
+            <app-auth-fields [formNav]="formNav"
+                style="display: none;" (authChange)="handleAuthChange($event)"
+                (ready)="handleAuthComponentReady($event)">
+            </app-auth-fields>
+        </form>
+    </nb-card-body>
+    <nb-card-footer class="modal-product-active-footer">
+        <button nbButton (click)="close(true)" status="primary" tabindex="-1"
+            id="confirm-dialog-button-yes">Igen</button>
+        <button nbButton (click)="close(false)" status="danger" tabindex="-1"
+            id="confirm-dialog-button-no">Nem</button>
+    </nb-card-footer>
+</nb-card>
