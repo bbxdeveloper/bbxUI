@@ -561,7 +561,6 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
     public SetFormReadonly(readonly: boolean): void {
         this.ReadonlySideForm = readonly
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }])
-        console.trace(this.ReadonlyForm)
     }
 
     /**

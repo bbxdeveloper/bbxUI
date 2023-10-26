@@ -4,6 +4,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { BbxToastrService } from './bbx-toastr-service.service';
 import { LoggerService } from './logger.service';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -80,5 +81,9 @@ export class CommonService {
         );
       }
     }
+  }
+
+  IsLightThemeActive(): boolean {
+    return environment.theme.includes('light')
   }
 }
