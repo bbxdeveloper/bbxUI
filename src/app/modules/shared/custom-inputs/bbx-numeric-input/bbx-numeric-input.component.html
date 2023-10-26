@@ -3,7 +3,7 @@
 
 <ng-container *ngIf="isFormCtrl">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
-                nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+                nbPopoverPlacement="top" (keydown.F11)="openCalculator($event)"
                 [disabled]="disabled" [formControlName]="formCtrlName" [min]="min" [max]="max"
                 (blur)="proxyBlur($event)"
                 (focus)="proxyFocus($event)"
@@ -20,7 +20,7 @@
 
 <ng-container *ngIf="!isFormCtrl">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
-        nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+        nbPopoverPlacement="top" (keydown.F11)="openCalculator($event)"
         [disabled]="disabled" [min]="min" [max]="max"
         (blur)="proxyBlur($event)"
         (focus)="proxyFocus($event)"
