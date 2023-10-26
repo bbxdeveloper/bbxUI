@@ -175,7 +175,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
           const input = this.newUnitPrice1.nativeElement
           const position = input.value.indexOf('.')
-          input.selectionStart = position
+          input.selectionStart = 0
           input.selectionEnd = position
         },
         error: error => {
