@@ -426,7 +426,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 return false
             }
 
-            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.toLowerCase())
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
             if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
                 this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
                 return true
@@ -459,7 +459,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
                 return
             }
 
-            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.toLowerCase())
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
             if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
                 this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
             } else {
