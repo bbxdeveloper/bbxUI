@@ -213,6 +213,31 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
+    AutoCorrectSelectCaseInsensitive(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): boolean {
+        const ad = (event.target as any).getAttribute("aria-activedescendant");
+        if (this.kbS.isEditModeActivated &&
+            ad === null &&
+            possibleItems !== undefined && typedValue !== undefined &&
+            (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+
+            if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
+                return false
+            }
+
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
+            if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
+                this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
+                return true
+            } else {
+                return false
+            }
+        }
+        return true
+    }
+
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
         if (environment.inlineEditableTableNavigatableFormLog) {
             console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
@@ -231,7 +256,7 @@ export class InlineTableNavigatableForm implements INavigatable {
                 return
             }
 
-            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.toLowerCase())
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
             if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
                 this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
             } else {

@@ -178,8 +178,8 @@
                                 [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
-                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
-                                    <iframe class="iframe-table-cell" [srcdoc]="row.data[it.objectKey] | htmlStringSanitizer"></iframe>
+                                <div class="innerhtml-table-cell" *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null"
+                                    [innerHtml]="row.data[it.objectKey] | htmlStringSanitizer">
                                 </div>
                             </td>
                         </ng-container>
