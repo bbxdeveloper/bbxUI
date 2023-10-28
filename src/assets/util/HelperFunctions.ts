@@ -346,8 +346,7 @@ export module HelperFunctions {
         return Math.round(val / 5) * 5;
     }
 
-    export function CASHRound(p_num: number): number
-    {
+    export function CASHRound(p_num: number): number {
         if (p_num === 0) {
             return 0;
         }
@@ -357,8 +356,8 @@ export module HelperFunctions {
 
         p_num = Round(p_num);
 
-        var lastDigit = (p_num % 10);
-        var roundNum = 5;
+        const lastDigit = (p_num % 10);
+        let roundNum = 5;
         if (lastDigit >= 8) {
             roundNum = 10;
         }

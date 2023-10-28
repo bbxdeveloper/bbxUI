@@ -19,10 +19,9 @@ import { InvoiceService } from '../services/invoice.service';
 import { CommonService } from 'src/app/services/common.service';
 import { Customer } from '../../customer/models/Customer';
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
-import { UserService } from '../../auth/services/user.service';
-import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
 import { AuthChangeEventArgs } from '../../shared/auth/auth-form/auth-fields.component';
+import { PaymentMethods } from '../models/PaymentMethod';
 
 interface VatRateRow { Id: string, Value: number };
 
@@ -162,7 +161,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       }
     });
     result.forEach(x => {
-      x.Value = HelperFunctions.Round(x.Value);
+      x.Value = this.data.currencyCode === CurrencyCodes.HUF
+        ? HelperFunctions.Round(x.Value)
+        : HelperFunctions.Round2(x.Value, 2)
     });
     this.vatRateCodes = result;
   }
@@ -282,13 +283,21 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
         .map(x => HelperFunctions.ToFloat(x.discountedData!.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
 
+      discountedVatAmount = this.data.currencyCode === CurrencyCodes.HUF
+        ? HelperFunctions.Round(discountedVatAmount)
+        : HelperFunctions.Round2(discountedVatAmount, 2)
+
       discountedGross = discountedInvoiceNetAmount + discountedVatAmount;
     }
 
-    if (this.data.paymentMethod === "CASH" && this.data.currencyCode === CurrencyCodes.HUF) {
-      discountedGross = HelperFunctions.CashRound(discountedGross);
-    } else {
-      discountedGross = HelperFunctions.Round(discountedGross);
+    if (this.data.currencyCode !== CurrencyCodes.HUF) {
+      discountedGross = HelperFunctions.Round2(discountedGross, 2)
+    }
+    else if (this.data.paymentMethod === PaymentMethods.Cash) {
+      discountedGross = HelperFunctions.CASHRound(discountedGross)
+    }
+    else {
+      discountedGross = HelperFunctions.Round(discountedGross)
     }
 
     // rates
