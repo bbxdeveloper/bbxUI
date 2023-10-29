@@ -689,27 +689,15 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     let valid = true;
     if (this.buyerForm.invalid) {
-      this.bbxToastrService.show(
-        `Nincs megadva vevő.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Nincs megadva vevő.`);
       valid = false;
     }
     if (this.outInvForm.invalid) {
-      this.bbxToastrService.show(
-        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`);
       valid = false;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       valid = false;
     }
     if (!valid) {
@@ -905,6 +893,27 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   RefreshData(): void { }
+
+  protected override additionalRowDataChanged(changedData: InvoiceLine, index?: number | undefined, col?: string | undefined): void {
+    if (index === undefined) {
+      return
+    }
+
+    if (col === 'unitPrice') {
+      if (changedData.noDiscount) {
+        const prevPrice = changedData.GetSavedFieldValue('unitPrice')
+
+        if (changedData.unitPrice < prevPrice) {
+          setTimeout(() => this.bbxToasterService.showError(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+          changedData.Restore()
+
+          return
+        }
+      }
+
+      changedData.Save()
+    }
+  }
 
   async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
     let discount: number | undefined = undefined;

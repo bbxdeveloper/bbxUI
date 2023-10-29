@@ -281,21 +281,22 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
           }
 
           setTimeout(() => {
-            this.bbxToastrService.show(
-              validationResult,
-              Constants.TITLE_ERROR,
-              Constants.TOASTR_ERROR
-            )
+            this.bbxToastrService.showError(validationResult)
           }, 0);
           this.dbData[index].data.Restore()
 
           this.dbDataTable.ClickByObjectKey('quantity')
         }
 
-        if (col === 'unitPrice' && index !== null && index !== undefined) {
-          changedData.Save()
-        }
       }
+
+      this.additionalRowDataChanged(changedData, index, col)
+    }
+  }
+
+  protected additionalRowDataChanged(changedData: any, index?: number, col?: string): void {
+    if (col === 'unitPrice' && index !== null && index !== undefined) {
+      changedData.Save()
     }
   }
 

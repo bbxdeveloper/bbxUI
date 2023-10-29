@@ -531,6 +531,27 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
   RefreshData(): void { }
 
+  protected override additionalRowDataChanged(changedData: InvoiceLine, index?: number | undefined, col?: string | undefined): void {
+    if (index === undefined) {
+      return
+    }
+
+    if (col === 'unitPrice') {
+      if (changedData.noDiscount) {
+        const prevPrice = changedData.GetSavedFieldValue('unitPrice')
+
+        if (changedData.unitPrice < prevPrice) {
+          setTimeout(() => this.bbxToasterService.showError(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+          changedData.Restore()
+
+          return
+        }
+      }
+
+      changedData.Save()
+    }
+  }
+
   override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine(this.requiredCols);
 
