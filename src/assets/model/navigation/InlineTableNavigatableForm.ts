@@ -169,7 +169,9 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     HandleFormShiftEnter(event: Event, jumpPrevious: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
-        console.log('[HandleFormShiftEnter]: ', event, jumpPrevious, toggleEditMode, preventEventInAnyCase);
+        if (environment.inlineEditableTableNavigatableFormLog) {
+            console.log('[HandleFormShiftEnter]: ', event, jumpPrevious, toggleEditMode, preventEventInAnyCase);
+        }
 
         if (preventEventInAnyCase) {
             event.preventDefault();
@@ -211,8 +213,35 @@ export class InlineTableNavigatableForm implements INavigatable {
         }
     }
 
+    AutoCorrectSelectCaseInsensitive(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): boolean {
+        const ad = (event.target as any).getAttribute("aria-activedescendant");
+        if (this.kbS.isEditModeActivated &&
+            ad === null &&
+            possibleItems !== undefined && typedValue !== undefined &&
+            (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+
+            if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
+                return false
+            }
+
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
+            if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
+                this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
+                return true
+            } else {
+                return false
+            }
+        }
+        return true
+    }
+
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
-        console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        if (environment.inlineEditableTableNavigatableFormLog) {
+            console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        }
 
         const ad = (event.target as any).getAttribute("aria-activedescendant");
         if (this.kbS.isEditModeActivated &&
@@ -227,7 +256,7 @@ export class InlineTableNavigatableForm implements INavigatable {
                 return
             }
 
-            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.toLowerCase())
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
             if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
                 this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
             } else {
@@ -280,7 +309,7 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.inlineEditableTableNavigatableFormLog) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 

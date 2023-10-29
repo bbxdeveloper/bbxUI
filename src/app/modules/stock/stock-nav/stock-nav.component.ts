@@ -40,8 +40,10 @@ import { LoggerService } from 'src/app/services/logger.service';
 import { UnitOfMeasure } from '../../product/models/UnitOfMeasure';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
-import { GetProductsParamListModel } from '../../product/models/GetProductsParamListModel';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { FilterForm } from './FilterForm';
 
 @Component({
   selector: 'app-stock-nav',
@@ -50,7 +52,6 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 })
 export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
-  ngOnInitDone = false;
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -72,6 +73,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
   // Unit of measure
   unitOfMeasures: UnitOfMeasure[] = []
+
+  private readonly localStorageKey: string
 
   override allColumns = [
     'productCode',
@@ -215,9 +218,14 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     private khs: KeyboardHelperService,
     private productService: ProductService,
     private locationService: LocationService,
-    loggerService: LoggerService
+    loggerService: LoggerService,
+    tokenService: TokenStorageService,
+    private readonly localStorageService: LocalStorageService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
+
+    this.localStorageKey = 'stock-nav.' + tokenService.user?.id ?? 'everyone'
+
     this.Setup();
   }
 
@@ -320,13 +328,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     throw new Error('Method not implemented.');
   }
 
-  InitFormDefaultValues(): void {
-    this.filterForm.controls['WarehouseID'].setValue(undefined);
-  }
-
   private Setup(): void {
-    this.refreshComboboxData();
-
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'stocks-table';
     this.dbDataTableEditId = 'stocks-cell-edit-input';
@@ -339,25 +341,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     this.dbDataTableForm = new FormGroup({});
 
-    this.filterForm = new FormGroup({
-      WarehouseID: new FormControl(undefined, [Validators.required, notWhiteSpaceOrNull]),
-      SearchString: new FormControl(undefined, []),
-      ProductName: new FormControl(undefined, []),
-    });
-
-    this.InitFormDefaultValues();
-
-    this.filterFormNav = new FlatDesignNoTableNavigatableForm(
-      this.filterForm,
-      this.kbS,
-      this.cdref, [], this.filterFormId,
-      AttachDirection.DOWN,
-      this.colDefs,
-      this.bbxSidebarService,
-      this.fS,
-      this.dbDataTable,
-      this
-    );
+    this.setupFilterForm()
 
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
@@ -413,10 +397,31 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
 
-    this.filterFormNav!.OuterJump = true;
     this.dbDataTable!.OuterJump = true;
 
     this.isLoading = false;
+  }
+
+  private setupFilterForm(): void {
+    this.filterForm = new FormGroup({
+      WarehouseID: new FormControl(undefined, [Validators.required, notWhiteSpaceOrNull]),
+      SearchString: new FormControl(undefined, []),
+      ProductName: new FormControl(undefined, []),
+    });
+
+    this.filterFormNav = new FlatDesignNoTableNavigatableForm(
+      this.filterForm,
+      this.kbS,
+      this.cdref, [], this.filterFormId,
+      AttachDirection.DOWN,
+      this.colDefs,
+      this.bbxSidebarService,
+      this.fS,
+      this.dbDataTable,
+      this
+    );
+
+    this.filterFormNav!.OuterJump = true;
   }
 
   //#region Refresh
@@ -473,7 +478,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   }
 
   override Refresh(params?: GetStocksParamsModel): void {
-    console.log('Refreshing: ', params); // TODO: only for debug
     if (this.filterForm.invalid) {
       this.bbxToastrService.show(
         Constants.MSG_INVALID_FILTER_FORM,
@@ -534,15 +538,9 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   }
 
   async RefreshAsync(params?: GetStocksParamsModel): Promise<void> {
-    await this.refreshComboboxData();
-
     console.log('Refreshing: ', params); // TODO: only for debug
     if (this.filterForm.invalid) {
-      this.bbxToastrService.show(
-        Constants.MSG_INVALID_FILTER_FORM,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_INVALID_FILTER_FORM);
       return;
     }
 
@@ -550,33 +548,33 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
     await lastValueFrom(this.stockService.GetAll(params))
       .then(async d => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetStocks: response: ', d); // TODO: only for debug
-          if (!!d) {
-            let tempData = [];
-            const productIds = d.data.map(x => x.productID)
-            const products = await this.GetProductsData(productIds)
-            for (let i = 0; i < d.data.length; i++) {
-              const x = d.data[i];
-              const _data = new ExtendedStockData(x);
-              console.log(x.productID)
-              _data.FillProductFields(products.find(y => y.id === x.productID)!);
-              _data.unitOfMeasure = _data.unitOfMeasureX
-              _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
-              tempData.push({ data: _data, uid: this.nextUid() });
-            }
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.bbxToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+        if (!d.succeeded || !d.data) {
+          this.bbxToastrService.show(d.errors!.join('\n'));
+          return
         }
+
+        const tempData = [];
+        const productIds = d.data.map(x => x.productID)
+        const products = await this.GetProductsData(productIds)
+
+        for (let i = 0; i < d.data.length; i++) {
+          const _data = new ExtendedStockData(d.data[i]);
+
+          const product = products.find(y => y.id === _data.productID)
+          if (product) {
+            _data.FillProductFields(product);
+            _data.unitOfMeasure = _data.unitOfMeasureX
+            _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
+
+            tempData.push({ data: _data, uid: this.nextUid() });
+          }
+        }
+
+        this.dbData = tempData;
+        this.dbDataDataSrc.setData(this.dbData);
+        this.dbDataTable.SetPaginatorData(d);
+
+        this.RefreshTable(undefined, true);
       })
       .catch(err => {
         this.cs.HandleError(err);
@@ -594,29 +592,42 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
   //#endregion Refresh
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
-    this.ngOnInitDone = true;
-  }
-  ngAfterViewInit(): void {
-    if (this.ngOnInitDone) {
-      console.log("[ngAfterViewInit]");
 
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    await this.refreshComboboxData()
 
-      this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
-      this.AddSearchButtonToFormMatrix();
-      console.log(this.filterFormNav.Matrix);
+    this.filterForm.valueChanges.subscribe((value: FilterForm) => {
+      this.localStorageService.put(this.localStorageKey, {
+        WarehouseID: value.WarehouseID,
+        SearchString: value.SearchString,
+      });
+    })
 
-      this.dbDataTable.GenerateAndSetNavMatrices(true);
+    const filter = this.localStorageService.get<FilterForm>(this.localStorageKey)
+    if (filter) {
+      this.filterForm.patchValue(filter)
 
-      setTimeout(() => {
-        this.kbS.SetCurrentNavigatable(this.filterFormNav);
-        this.kbS.SelectFirstTile();
-        this.kbS.setEditMode(KeyboardModes.EDIT);
-      }, 200);
+      await this.RefreshButtonClicked()
     }
   }
+
+  ngAfterViewInit(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+    this.AddSearchButtonToFormMatrix();
+    console.log(this.filterFormNav.Matrix);
+
+    this.dbDataTable.GenerateAndSetNavMatrices(true);
+
+    setTimeout(() => {
+      this.kbS.SetCurrentNavigatable(this.filterFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    }, 200);
+  }
+
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
@@ -793,7 +804,6 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
           this.filterForm.controls['SearchString'].setValue(res.productCode);
           this.filterForm.controls['ProductName'].setValue(res.description);
         } else {
-          this.filterForm.controls['SearchString'].setValue(undefined);
           this.filterForm.controls['ProductName'].setValue(undefined);
         }
       },

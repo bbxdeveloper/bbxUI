@@ -2,6 +2,7 @@ import { NbIconConfig, NbToastrConfig } from "@nebular/theme";
 import { Observable } from "rxjs";
 import { ProcessStatus } from "../model/ProcessStatus";
 import { Actions, KeyBindings } from "./KeyBindings";
+import { createMask } from "@ngneat/input-mask";
 
 export module Constants {
     // Messages
@@ -32,6 +33,7 @@ export module Constants {
     export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
     export const MSG_CANNOT_ON_EDIT_ROW: string = "A kijelölt sor új elemek felvételére alkalmas! A kért művelet nem végezhető el rajta.";
     export const MSG_WHS_ONLY_READY_CAN_BE_FINALIZED = "Csak 'Elkészült' státuszban lévő raktárközi bizonylatokat lehet véglegesíteni!"
+    export const MSG_INVALID_CREDENTIALS: string = 'Helytelen felhasználónév vagy jelszó.'
 
     export const MSG_ERROR_NO_WAREHOUSE_SELECTED = "Nincs kiválasztott raktár. A művelethez bejelentkezés szükséges!"
     export const MSG_ERROR_NO_PRODUCT_SELECTED = "Nincs kiválasztott termék!"
@@ -48,6 +50,7 @@ export module Constants {
     export const TITLE_INFO: string = 'Információ';
 
     export const TITLE_PRINT_INVOICE = 'Bizonylat nyomtatása'
+    export const TITLE_PRINT_INVOICE_2 = 'Számla nyomtatása'
     export const TITLE_PRINT_QUESTION = 'Nyomtatás indítása?'
     export const TITLE_PRINT_FINISHED = 'A nyomtatás rendben megtörtént!'
 
@@ -90,6 +93,8 @@ export module Constants {
 
     export const MSG_PRINT_ONLY_WHEN_ROW_SELECTED = "Csak aktívan kijelölt rekord mellett lehet nyomtatni!"
 
+    export const MSG_ERROR_WAREHOUSE_DOCUMENT_FINALIZE_DIFFERENT_WAREHOUSES = "Csak aktuális raktárba irányuló raktárközi átadsás véglegesíthető!"
+
     export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
         { duration: 0, status: 'primary' };
     export const TOASTR_ERROR: Partial<NbToastrConfig> =
@@ -106,6 +111,38 @@ export module Constants {
     };
     export const ProductCodeMask = "AAA-ACCCCCCCCCCCCCCCCCCCCCCCCC";
     export const CustDiscountCodeMask = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+
+    export const ProductCodeMaskNew = createMask({
+        autoUnmask: true,
+        casing: 'upper',
+        mask: 'A{3}-C{26}',
+        definitions: {
+            'A': {
+                validator: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}]',
+            },
+            'C': {
+                validator: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\-]',
+            },
+        },
+        // autoUnmask removes the dash (-) but we need it so we have to put it back
+        onUnMask: (maskedValue, unmaskedValue) => {
+            if (unmaskedValue.length === 3) {
+                return unmaskedValue + '-'
+            }
+            else if (unmaskedValue.length >= 4) {
+                return unmaskedValue.slice(0, 3) + '-' + unmaskedValue.slice(3)
+            }
+
+            return unmaskedValue
+        }
+    })
+
+    // This won't work! Characters like '/' will appear as empty string at validator checks!
+    // export const CounterSuffixMaskPattern = {
+    //     A: { pattern: new RegExp('[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}\/]') }
+    // }
+    // For custom required check
+    export const ConuterSuffixCharacters = 'a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}/-'
 
     export const SearchInputId = 'active-prod-search'
 

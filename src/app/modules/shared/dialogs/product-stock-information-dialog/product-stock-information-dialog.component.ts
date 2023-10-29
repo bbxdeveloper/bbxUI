@@ -143,21 +143,13 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     const wareHouse = this.tokenService.wareHouse
 
     if (!wareHouse) {
-      this.bbxToastrService.show(
-        Constants.MSG_ERROR_NO_WAREHOUSE_SELECTED,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NO_WAREHOUSE_SELECTED)
       this.sts.waitForLoad(false)
       return
     }
 
     if (!this.product) {
-      this.bbxToastrService.show(
-        Constants.MSG_ERROR_NO_PRODUCT_SELECTED,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NO_PRODUCT_SELECTED)
       this.sts.waitForLoad(false)
       return
     }
@@ -166,21 +158,13 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     const productStocks = await this.stockService.getProductStock(this.product.id)
 
     if (!productStocks || productStocks.length == 0) {
-      this.bbxToastrService.show(
-        Constants.MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE)
     } else {
       const warehouseID = wareHouse.id
       const productStock = productStocks.find(x => x.warehouseID === warehouseID)
 
       if (!productStock || !(productStock.id !== undefined && productStock.id !== 0)) {
-        this.bbxToastrService.show(
-          Constants.MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
+        this.bbxToastrService.showError(Constants.MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE)
       } else {
         _data = new ExtendedStockData(productStock!);
         _data.location = HelperFunctions.isEmptyOrSpaces(_data.location) ? undefined : _data.location?.split('-')[1];
@@ -211,12 +195,16 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     this.kbS.SetWidgetNavigatable(this);
     this.SetNewForm(this.productForm);
 
+    this.kbS.SelectFirstTile()
+
     // We can move onto the confirmation buttons from the form.
     this._form!.OuterJump = true;
     // And back to the form.
     this.OuterJump = true;
 
     await this.loadProductData()
+
+    this.kbS.SelectFirstTile()
   }
 
   private SetNewForm(form?: FormGroup): void {

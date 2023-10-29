@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { of, startWith, map, Subscription, lastValueFrom, pairwise } from 'rxjs';
+import { of, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -1070,23 +1070,15 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
     const regex = /PRODUCT-\d+-(\d+)/
     const match = this.kbS.Here.match(regex)
-    console.log("match: ", match, this.kbS.Here);
     if (match) {
       const rowIndex = parseInt(match[1])
-      console.log("rowIndex: ", rowIndex);
 
       if (rowIndex === this.dbData.length - 1) {
-        console.log("on editor row");
         setTimeout(() => {
-          this.bbxToastrService.show(
-            Constants.MSG_CANNOT_ON_EDIT_ROW,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+          this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW);
         }, 0);
       } else {
         this.suggestPriceChange(this.dbData[rowIndex].data)
-        console.log("suggestPriceChange");
       }
     }
   }
@@ -1140,6 +1132,21 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });
           break;
+        }
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
         }
         case KeyBindings.Enter: {
           if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {

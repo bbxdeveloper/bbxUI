@@ -91,9 +91,8 @@
                     <label>Lezárójel*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="suffix"
-                        [patterns]="customPatterns" mask="A" (click)="currentForm.HandleFormFieldClick($event)"
-                        [readonly]="isReadonly"
-                        required>
+                        (click)="currentForm.HandleFormFieldClick($event)"
+                        [readonly]="isReadonly">
                 </div>
                 <app-form-control-error [form]="currentForm" controlName="suffix"></app-form-control-error>
             </nb-form-field>

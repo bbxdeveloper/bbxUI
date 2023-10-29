@@ -20,9 +20,9 @@ import { CommonService } from 'src/app/services/common.service';
 import { Customer } from '../../customer/models/Customer';
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 import { UserService } from '../../auth/services/user.service';
-import { LoginNameAndPwdRequest } from '../../auth/models/LoginNameAndPwdRequest';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
+import { AuthChangeEventArgs } from '../../shared/auth/auth-form/auth-fields.component';
 
 interface VatRateRow { Id: string, Value: number };
 
@@ -123,8 +123,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     private invoiceService: InvoiceService,
     private cs: CommonService,
     private dialogService: NbDialogService,
-    private userService: UserService,
-    private statusService: StatusService,
     private commonService: CommonService
   ) {
     super()
@@ -141,14 +139,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       event.stopPropagation();
       this.kBs.Jump(AttachDirection.DOWN, false);
       this.kBs.setEditMode(KeyboardModes.NAVIGATION);
-    }
-  }
-
-  UserDataFocusOut(event?: any): void {
-    const username = this.sumForm.controls['input_p'].value
-    const password = this.sumForm.controls['input_n'].value
-    if (!HelperFunctions.isEmptyOrSpaces(username) && !HelperFunctions.isEmptyOrSpaces(password)) {
-      this.authenticate()
     }
   }
 
@@ -318,34 +308,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.sumForm.controls['invoiceLinesCount'].setValue(this.data.invoiceLines.length);
   }
 
-  public onInput_nBlur() {
-    if (this.sumForm.controls['input_n'].value !== this.data.username) {
-      this.sumForm.controls['loginName'].setValue('')
-    }
-  }
-
   ngAfterContentInit(): void {
-    this.sumForm.addControl('input_n', new FormControl(this.data.username, [Validators.required]));
-    this.sumForm.addControl('input_p', new FormControl(undefined, [Validators.required]));
-    this.sumForm.addControl('loginName', new FormControl(this.data.loginName, [Validators.required]));
-
-    this.sumForm.controls['input_n'].valueChanges.subscribe({
-      next: newValue => {
-        if (this.data.loginName !== newValue) {
-          this.loggedIn = false
-        }
-        this.data.loginName = newValue
-      }
-    })
-    this.sumForm.controls['loginName'].valueChanges.subscribe({
-      next: newValue => {
-        if (this.data.username !== newValue) {
-          this.loggedIn = false
-        }
-        this.data.username = newValue
-      }
-    })
-
     this.prepareVatRateCodes();
 
     if (this.defaultDiscountPercent !== undefined) {
@@ -412,7 +375,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   async FocusSaveButton(): Promise<void> {
-    this.UserDataFocusOut()
     await this.checkCustomerLimits()
     this.customerLimitsChecked = true
   }
@@ -430,34 +392,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.handleClose(answer)
   }
 
-  authenticate(): void {
-    this.statusService.waitForLoad(true)
-
-    this.userService.CheckLoginNameAndPwd({
-      LoginName: this.sumForm.controls['input_n'].value,
-      Password: this.sumForm.controls['input_p'].value
-    } as LoginNameAndPwdRequest).subscribe({
-      next: res => {
-        if (res && Object.keys(res).includes('id') && res.id > 0) {
-          this.data.userID = res.id
-
-          this.statusService.waitForLoad(false)
-
-          this.sumForm.controls['loginName'].setValue(res.name)
-
-          this.loggedIn = true
-        } else {
-          this.statusService.waitForLoad(false)
-          this.commonService.ShowErrorMessage((res as any).Message)
-        }
-      },
-      error: err => {
-        this.statusService.waitForLoad(false)
-        this.commonService.HandleError(err)
-      }
-    })
-  }
-
   private handleClose(answer: boolean): void {
     if (this.OutGoingDelivery) {
       this.data.workNumber = this.sumForm.controls['workNumber'].value
@@ -466,5 +400,16 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.closedManually = true
     this.kBs.RemoveWidgetNavigatable()
     this.dialogRef.close(answer ? this.data : undefined)
+  }
+
+  public handleAuthChange(event: AuthChangeEventArgs): void {
+    this.loggedIn = event.loggedIn
+    if (this.loggedIn) {
+      this.data.userID = event.userID
+    }
+  }
+
+  public handleAuthComponentReady(event?: any): void {
+    this.formNav.GenerateAndSetNavMatrices(false)
   }
 }

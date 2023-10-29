@@ -416,10 +416,27 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       return null
     }
 
-    console.trace(controlValue, numberPartLengthsNumber)
-
     const wrong = controlValue.length > numberPartLengthsNumber!
     return wrong ? { maxLength: { value: control.value } } : null
+  }
+
+  /**
+   * Required check is bugged for some characters, so custom required is needed
+   * @param control 
+   * @returns 
+   */
+  private validateRequired(control: AbstractControl): any {
+    if (this.dbDataTableForm === undefined || this.dbDataTableForm.controls === undefined) {
+      return null
+    }
+
+    const controlValue = control.value + ''
+    
+    const wrong = HelperFunctions.isEmptyOrSpaces(controlValue) || !Constants.ConuterSuffixCharacters.includes(controlValue)
+
+    console.log(controlValue, HelperFunctions.isEmptyOrSpaces(controlValue), !Constants.ConuterSuffixCharacters.includes(controlValue), Constants.ConuterSuffixCharacters)
+
+    return wrong ? { required: { value: control.value } } : null
   }
 
   private Setup(): void {
@@ -435,7 +452,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
       prefix: new FormControl('', [Validators.required, Validators.maxLength(80)]),
       currentNumber: new FormControl(0, [Validators.required, this.validateCurrentNumber.bind(this)]),
       numbepartLength: new FormControl(0, [Validators.required, Validators.min(2), Validators.max(10)]),
-      suffix: new FormControl('', [Validators.required]),
+      suffix: new FormControl('', [this.validateRequired.bind(this)]),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(

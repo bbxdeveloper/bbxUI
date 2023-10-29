@@ -31,6 +31,7 @@
 
             <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text" [readOnly]="isReadonly"
                 (click)="currentForm?.HandleFormFieldClick($event)" (focus)="select($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
+                (focusout)="currentForm?.AutoCorrectSelectCaseInsensitive($event, currentDataCount, currentFilteredData, currentTypedData, false, lastFormField, formFieldName)"
                 [readonly]="isEditModeOff" autocomplete="off" />
         </div>
         <app-form-control-error *ngIf="needErrorMsg" [form]="currentForm" [label]="label.toLowerCase()" [controlName]="formFieldName">

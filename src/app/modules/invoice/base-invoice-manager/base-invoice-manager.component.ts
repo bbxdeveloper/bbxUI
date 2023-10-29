@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -34,6 +34,7 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
+import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -302,6 +303,28 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     const customerData = customer ? customer : this.customerData
     if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
       this.editCustomerDialog.open(customerData?.id)
+    }
+  }
+
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
+
+      this.sts.waitForLoad(false)
+
+      this.dialogService.open(ProductStockInformationDialogComponent, {
+        context: {
+          product: product
+        }
+      })
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
     }
   }
 }

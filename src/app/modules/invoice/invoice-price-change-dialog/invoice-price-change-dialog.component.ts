@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, NavigatableType, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
@@ -9,7 +9,7 @@ import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { Observable, Subscription, of, switchMap } from 'rxjs';
+import { Observable, Subscription, of, switchMap, tap } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { ProductPriceChange } from '../models/ProductPriceChange';
 import { Product } from '../../product/models/Product';
@@ -41,13 +41,21 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public newPrice: number = 0
 
   @Input()
-  public priceChange!: ProductPriceChange
+  public priceChange: ProductPriceChange|undefined
 
   @Input()
   public wasOpen: boolean = false
 
   @ViewChild('newUnitPrice1')
   private newUnitPrice1!: ElementRef
+
+  public get newUnitPrice1Control() {
+    return this.productPriceChangeForm.get('newUnitPrice1')
+  }
+
+  public get newUnitPrice2Control() {
+    return this.productPriceChangeForm.get('newUnitPrice2')
+  }
 
   override NavigatableType = NavigatableType.dialog
 
@@ -80,6 +88,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public formId = 'product-price-change-form-dialog'
   public productPriceChangeForm!: FormGroup
   public navigateable: NavigatableForm
+  private enableValidation = false
 
   constructor(
     private readonly dialogRef: NbDialogRef<InvoiceLine>,
@@ -97,9 +106,9 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       productCode: new FormControl(''),
       productDescription: new FormControl(''),
       oldUnitPrice1: new FormControl(0),
-      newUnitPrice1: new FormControl(0),
+      newUnitPrice1: new FormControl(0, [this.greatherThanNewPrice.bind(this)]),
       oldUnitPrice2: new FormControl(0),
-      newUnitPrice2: new FormControl(0),
+      newUnitPrice2: new FormControl(0, [this.greatherThanNewPrice.bind(this)]),
     })
 
     this.navigateable = new NavigatableForm(
@@ -113,6 +122,16 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     )
 
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
+  }
+
+  private greatherThanNewPrice(control: AbstractControl): any {
+    if (!this.enableValidation) {
+      return null
+    }
+
+    const value = HelperFunctions.ToFloat(control.value)
+
+    return value >= this.newPrice ? null : { notGreatherThanNewPrice: { value: true } }
   }
 
   public ngAfterViewInit(): void {
@@ -147,7 +166,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
-        switchMap(this.createFormValues.bind(this))
+        switchMap(this.createFormValues.bind(this)),
+        tap(() => this.enableValidation = true)
       )
       .subscribe({
         next: prices => {
@@ -155,7 +175,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
           const input = this.newUnitPrice1.nativeElement
           const position = input.value.indexOf('.')
-          input.selectionStart = position
+          input.selectionStart = 0
           input.selectionEnd = position
         },
         error: error => {
@@ -196,7 +216,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     const latestSupplyPrice = HelperFunctions.ToFloat(product.latestSupplyPrice)
 
     if (latestSupplyPrice === 0) {
-      changeRatePercent = this.newPrice
+      return [this.newPrice, this.newPrice]
     }
     else if (this.newPrice > latestSupplyPrice) {
       const priceDelta = this.newPrice - latestSupplyPrice
@@ -232,6 +252,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   }
 
   public changePrice(): void {
+    if (this.productPriceChangeForm.invalid) {
+      return
+    }
+
     const controls = this.productPriceChangeForm.controls
 
     const priceChange = {

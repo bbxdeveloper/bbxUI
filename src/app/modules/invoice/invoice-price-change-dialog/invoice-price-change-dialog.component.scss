@@ -22,11 +22,13 @@ form {
     height: auto !important;
 
     display: grid;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr auto auto;
     grid-template-columns: 0.4fr 0.8fr 3.5fr;
 
     row-gap: 8px;
     column-gap: 25px;
+
+    align-items: center;
 
     label {
         width: unset;

@@ -37,6 +37,8 @@ import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-fact
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { ChooseSummaryInvoiceProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { ProductService } from '../../product/services/product.service';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -134,7 +136,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     private readonly activatedRoute: ActivatedRoute,
     behaviorFactory: InvoiceBehaviorFactoryService,
     private readonly tokenService: TokenStorageService,
-    private readonly productCodeManagerServiceService: ProductCodeManagerServiceService
+    private readonly productCodeManagerServiceService: ProductCodeManagerServiceService,
+    private readonly productService: ProductService
   ) {
     super(dialogService, keyboardService, footerService, commonService, statusService, bbxSidebarService, keyboardHelperService, router)
     this.preventF12 = true
@@ -288,6 +291,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     this.productCodeManagerServiceService.ChooseDataForTableRow({
+      dbData: this.dbData,
       dbDataTable: this.dbDataTable,
       rowIndex: rowIndex,
       wasInNavigationMode: wasInNavigationMode,
@@ -516,6 +520,28 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.HandleKeyDown(event);
   }
 
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
+
+      this.sts.waitForLoad(false)
+
+      this.dialogService.open(ProductStockInformationDialogComponent, {
+        context: {
+          product: product
+        }
+      })
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
@@ -543,6 +569,21 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
           _event.preventDefault();
           this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
           break;
+        }
+        case this.KeySettings[Actions.Refresh].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
         }
         case KeyBindings.Enter: {
           if (!this.isSaveInProgress && _event.ctrlKey && _event.key == 'Enter' && this.KeySettings[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {

@@ -307,15 +307,15 @@ nb-card-header {
 
 // Iframe
 
-iframe.iframe-table-cell {
+.innerhtml-table-cell {
     height: 30px;
     max-height: 100px;
     max-width: 100%;
     min-width: 100%;
-    // resize: vertical;
     resize: none;
     border: none;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 // Not table
