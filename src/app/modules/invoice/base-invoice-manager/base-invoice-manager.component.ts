@@ -300,6 +300,14 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
+  public currentLineDiscount(): number|string {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return '-';
+    }
+
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.discount ?? '-';
+  }
+
   protected editCustomer(customer: Customer|undefined = undefined): void {
     const customerData = customer ? customer : this.customerData
     if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {

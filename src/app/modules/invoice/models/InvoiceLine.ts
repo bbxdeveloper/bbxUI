@@ -180,10 +180,10 @@ export class InvoiceLine extends MementoObject implements IEditable {
      * Ignores @see this.discount if @see this.noDiscount is true.
      * @returns InvoiceLinePriceData
      */
-    public GetDiscountedCalcResult(): InvoiceLinePriceData {
+    public GetDiscountedCalcResult(discount: number): InvoiceLinePriceData {
         let result = new InvoiceLinePriceData();
 
-        result.discount = this.noDiscount ? 0 : HelperFunctions.ToFloat(this.discount);
+        result.discount = this.noDiscount ? 0 : HelperFunctions.ToFloat(discount);
 
         result.unitPrice = HelperFunctions.ToFloat(this.unitPrice - this.unitPrice * result.discount);
 

@@ -150,8 +150,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   private prepareVatRateCodes(discount: number = 0): void {
     var result: VatRateRow[] = [];
     this.data.invoiceLines.forEach(x => {
-      x.discount = discount;
-      const priceData = x.GetDiscountedCalcResult();
+      const priceData = x.GetDiscountedCalcResult(discount);
       if (!!x.vatRateCode){
         const resultIndex = result.findIndex(y => y.Id === x.vatRateCode);
         if (result.findIndex(y => y.Id === x.vatRateCode) !== -1) {

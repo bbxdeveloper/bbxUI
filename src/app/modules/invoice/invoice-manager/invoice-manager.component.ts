@@ -973,6 +973,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         const discountedPrice = unitPrice * discountForPrice;
         res.unitPrice = unitPrice - discountedPrice;
         res.custDiscounted = true;
+        res.discount = discountForPrice * 100
       } else {
         res.unitPrice = unitPrice;
       }

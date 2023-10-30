@@ -177,6 +177,7 @@
 </app-inline-editable-table>
 <table class="table-statistics-net-vat-gross">
     <tr>
+        <td>Eng%: {{ currentLineDiscount() }}</td>
         <td>Összes nettó: {{outGoingInvoiceData.invoiceNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
         <td>Összes bruttó: {{outGoingInvoiceData.lineGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
     </tr>
