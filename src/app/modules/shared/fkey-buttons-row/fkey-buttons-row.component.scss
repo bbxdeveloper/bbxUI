@@ -1,5 +1,8 @@
 nb-action {
     @media (max-width: 1749px) {
+
+        padding: 10px !important;
+
         .fkey-key {
             margin-right: 5px;
 
@@ -22,6 +25,9 @@ nb-action {
         }
     }
     @media (min-width: 1750px) {
+        
+        padding: 10px !important;
+        
         .fkey-key {
             margin-right: 15px;
 
