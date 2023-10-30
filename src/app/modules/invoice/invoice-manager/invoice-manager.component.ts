@@ -911,6 +911,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         }
       }
 
+      changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
+        ? HelperFunctions.Round(changedData.unitPrice)
+        : HelperFunctions.Round2(changedData.unitPrice, 2)
+
+      this.RecalcNetAndVat()
+
       changedData.Save()
     }
   }
