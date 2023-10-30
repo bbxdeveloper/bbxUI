@@ -799,7 +799,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
-
         this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event)
         break
