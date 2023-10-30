@@ -256,7 +256,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       return null
     }
 
-    const wrong = warningLimit >= this.maxLimit
+    const wrong = warningLimit > this.maxLimit
     return wrong ? { max: { value: control.value } } : null
   }
 
@@ -281,7 +281,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       return
     }
 
-    error = min >= this.maxLimit
+    error = min > this.maxLimit
       ? { max: { value: min } }
       : null
     minControl.setErrors(error)
@@ -423,7 +423,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
               Constants.TOASTR_SUCCESS_5_SEC
             );
           } else {
-            console.log(d.errors!, d.errors!.join('\n'), d.errors!.join(', '));
             this.simpleToastrService.show(
               d.errors!.join('\n'),
               Constants.TITLE_ERROR,
@@ -800,7 +799,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
-
         this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event)
         break

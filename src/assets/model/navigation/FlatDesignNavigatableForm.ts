@@ -1,9 +1,8 @@
-import { prepareEventListenerParameters } from "@angular/compiler/src/render3/view/template";
 import { ChangeDetectorRef } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { BbxSidebarService } from "src/app/services/bbx-sidebar.service";
 import { FooterService } from "src/app/services/footer.service";
-import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes, MoveRes } from "src/app/services/keyboard-navigation.service";
+import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
 import { Constants } from "src/assets/util/Constants";
 import { Actions, DefaultKeySettings, GetFooterCommandListFromKeySettings as GetFooterCommandListFromKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
@@ -11,11 +10,10 @@ import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
-import { IUpdater, IUpdateRequest } from "../UpdaterInterfaces";
+import { IUpdateRequest } from "../UpdaterInterfaces";
 import { BaseNavigatableForm } from "./BaseNavigatableForm";
 import { FlatDesignNavigatableTable } from "./FlatDesignNavigatableTable";
-import { BlankComboBoxValue } from "./Nav";
-import { INavigatable, AttachDirection, TileCssClass, TileCssColClass } from "./Navigatable";
+import { AttachDirection } from "./Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
@@ -33,6 +31,9 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         'ActionDelete': true,
         'ActionExit': false
     }
+
+    originalData: any = {}
+    blockInputJump: boolean = false
 
     constructor(
         f: FormGroup,
@@ -60,8 +61,6 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         this.colDefs = colDefs;
 
         this.SetFormStateToDefault();
-
-        console.log("[ctor FlatDesignNavigatableForm] Params in order (without services): ", f, data, attachDirection, formId, colDefs); // TODO: only for debug
 
         this.sidebarService.onCollapse().subscribe({
             next: value => {
@@ -145,10 +144,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     }
 
     override ActionReset(data?: IUpdateRequest<T>): void {
-        this.grid.Reset({
-            rowIndex: this.DataRowIndex,
-            needConfirmation: this.defaultConfirmationSettings[this.ActionReset.name]
-        } as IUpdateRequest);
+        this.SetOriginalDataForEdit()
     }
 
     override ActionPut(data?: IUpdateRequest<T>): void {
@@ -177,7 +173,6 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
 
     override HandleFormFieldClick(event: any): void {
         if (this.kbS.IsCurrentNavigatable(this.grid)) {
-            // this.GenerateAndSetNavMatrices(false);
             this.grid.JumpToFlatDesignFormByForm(event.target?.id);
         } else {
             this.kbS.setEditMode(KeyboardModes.EDIT);
@@ -185,17 +180,45 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         }
     }
 
+    /**
+     * Load object into form for edit.
+     * @param row 
+     * @param rowPos 
+     * @param objectKey 
+     */
     public override SetDataForEdit(row: TreeGridNode<any>, rowPos: number, objectKey: string): void {
         if (environment.flatDesignFormDebug) {
             console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
         }
         this.DataRowIndex = rowPos;
         this.DataToEdit = row;
+        // TODO: why is it undefined sometimes?
+        if (row && row?.data) {
+            this.originalData = { ...this.DataToEdit?.data }
+        }
         this.FillFormWithObject(this.DataToEdit?.data);
         this.SetFormStateToDefault();
     }
 
+    /**
+     * Reset edit.
+     */
+    public SetOriginalDataForEdit(): void {
+        // TODO: prevent autocomplete select lists to fire change event
+        // because change event results in JumpToNextInput
+        // , { emitEvent: false, onlySelf: true, emitModelToViewChange: true, emitViewToModelChange: false }
+        this.blockInputJump = true
+        this.FillFormWithObject(this.originalData)
+        setTimeout(() => {
+            this.blockInputJump = false
+        }, 100);
+    }
+
     protected override JumpToNextInput(event?: Event): void {
+        if (this.blockInputJump) {
+            return
+        }
+        
         const moveRes = this.MoveNext();
         // We can't know if we should click the first element if we moved to another navigation-matrix.
         if (!moveRes.jumped) {
@@ -240,7 +263,9 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         switch (val) {
             // NEW
             case this.KeySetting[Actions.Create].KeyCode:
-                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Create].FunctionLabel}, ${Actions[Actions.Create]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Create].FunctionLabel}, ${Actions[Actions.Create]}`);
+                }
                 switch (this.formMode) {
                     case Constants.FormState.new:
                     case Constants.FormState.default:
@@ -253,12 +278,16 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 break;
             // RESET
             case this.KeySetting[Actions.Reset].KeyCode:
-                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Reset].FunctionLabel}, ${Actions[Actions.Reset]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Reset].FunctionLabel}, ${Actions[Actions.Reset]}`);
+                }
                 this.ActionReset();
                 break;
             // SAVE
             case this.KeySetting[Actions.Save].KeyCode:
-                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Save].FunctionLabel}, ${Actions[Actions.Save]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Save].FunctionLabel}, ${Actions[Actions.Save]}`);
+                }
                 switch (this.formMode) {
                     case Constants.FormState.new:
                         this.ActionNew();
@@ -270,12 +299,16 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 break;
             // LOCK
             case this.KeySetting[Actions.Lock].KeyCode:
-                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Lock].FunctionLabel}, ${Actions[Actions.Lock]}`);
+                }
                 this.ActionLock();
                 break;
             // DELETE
             case this.KeySetting[Actions.Delete].KeyCode:
-                console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleFunctionKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
+                }
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         if (this.sidebarService.sideBarOpened) {
@@ -290,28 +323,36 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
     override HandleKey(event: any): void {
         switch (event.key) {
             case this.KeySetting[Actions.Create].KeyCode: {
-                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Create].FunctionLabel}, ${Actions[Actions.Create]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Create].FunctionLabel}, ${Actions[Actions.Create]}`);
+                }
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionNew();
                 break;
             }
             case this.KeySetting[Actions.Reset].KeyCode: {
-                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Reset].FunctionLabel}, ${Actions[Actions.Reset]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Reset].FunctionLabel}, ${Actions[Actions.Reset]}`);
+                }
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionReset();
                 break;
             }
             case this.KeySetting[Actions.Save].KeyCode: {
-                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Save].FunctionLabel}, ${Actions[Actions.Save]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Save].FunctionLabel}, ${Actions[Actions.Save]}`);
+                }
                 event.preventDefault();
                 event.stopPropagation();
                 this.ActionPut();
                 break;
             }
             case this.KeySetting[Actions.Delete].KeyCode: {
-                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.Delete].FunctionLabel}, ${Actions[Actions.Delete]}`);
+                }
                 switch (this.formMode) {
                     case Constants.FormState.default:
                         if (this.sidebarService.sideBarOpened) {
@@ -324,7 +365,9 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
                 break;
             }
             case this.KeySetting[Actions.ToggleForm].KeyCode: {
-                console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
+                if (environment.flatDesignFormDebug) {
+                    console.log(`FlatDesignNavigatableForm - HandleKey - ${this.KeySetting[Actions.ToggleForm].FunctionLabel}, ${Actions[Actions.ToggleForm]}`);
+                }
                 event.preventDefault();
                 this.kbS.isEditModeLocked = true;
                 this.sidebarService.collapse();
