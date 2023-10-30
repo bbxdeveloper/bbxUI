@@ -238,7 +238,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     // calc rate summary + prepare discountedData for lines
     this.prepareVatRateCodes(invoiceDiscountMultiplier);
 
-    // discountedInvoiceNetAmount
     let discountedInvoiceNetAmount = 0
     if (!this.isAggregate) {
       discountedInvoiceNetAmount = this.data.invoiceLines
@@ -294,7 +293,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       discountedGross = HelperFunctions.Round2(discountedGross, 2)
     }
     else if (this.data.paymentMethod === PaymentMethods.Cash) {
-      discountedGross = HelperFunctions.CASHRound(discountedGross)
+      discountedGross = HelperFunctions.CashRound(discountedGross)
     }
     else {
       discountedGross = HelperFunctions.Round(discountedGross)
