@@ -96,6 +96,8 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
         datum.vatRate = (datum as any).vatPercentage
         const checkedNote = this.checkedLineItems.find(x => datum.id === x.id)
 
+        datum.limit = -datum.quantity
+
         if (checkedNote) {
           datum.quantity += parseInt(checkedNote.quantity.toString())
         }
@@ -105,7 +107,6 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
         .filter(x => x.quantity > 0)
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
-      this.dbData.forEach(x => x.data.limit = -x.data.quantity)
       this.dbDataSource.setData(this.dbData)
 
       this.refreshTable()
