@@ -99,7 +99,6 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
         datum.limit = -datum.quantity
 
         if (checkedNote) {
-          console.log("chekced: ", datum.quantity, checkedNote.quantity)
           datum.quantity += parseInt(checkedNote.quantity.toString())
         }
       })
