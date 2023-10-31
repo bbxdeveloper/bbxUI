@@ -58,13 +58,15 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
   public get warehouseDocumentFormData() {
     const controls = this.filterForm.controls
 
-    const fromWareHouse = this.warehouses.find(x => x.warehouseDescription === controls['FromWarehouseCode'].value)?.warehouseCode
-    const toWareHouse = this.warehouses.find(x => x.warehouseDescription === controls['ToWarehouseCode'].value)?.warehouseCode
+    const fromWareHouse = this.warehouses.find(x => x.warehouseDescription === controls['FromWarehouseCode'].value)
+    const toWareHouse = this.warehouses.find(x => x.warehouseDescription === controls['ToWarehouseCode'].value)
     const status = this.statuses.find(x => x.text === controls['Status'].value)?.value
 
     const formData = {
-      FromWarehouseCode: fromWareHouse,
-      ToWarehouseCode: toWareHouse,
+      FromWarehouseCode: fromWareHouse?.warehouseCode,
+      ToWarehouseCode: toWareHouse?.warehouseCode,
+      FromWarehouseId: fromWareHouse?.id ?? -1,
+      ToWarehouseId: toWareHouse?.id ?? -1,
       Status: status,
       FromDate: controls['FromDate'].value,
       ToDate: controls['ToDate'].value
@@ -252,7 +254,6 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     const filter = this.localStorage.get<WarehouseDocumentFilterFormData>(this.localStorageKey)
 
     if (filter) {
-      console.trace('localStorage: ', filter)
       this.filterForm.patchValue(filter)
 
       this.Refresh()

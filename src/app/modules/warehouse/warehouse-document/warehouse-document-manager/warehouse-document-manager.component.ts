@@ -29,6 +29,7 @@ import { Router } from '@angular/router';
 import { FinalizeWhsTransferRequest } from '../../models/whs/FinalizeWhsTransferRequest';
 import { ConfirmationDialogComponent } from 'src/app/modules/shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoggerService } from 'src/app/services/logger.service';
+import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
 
 @Component({
   selector: 'app-warehouse-document-manager',
@@ -195,7 +196,8 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     private router: Router,
     private khs: KeyboardHelperService,
     private printAndDownloadService: PrintAndDownloadService,
-    loggerService: LoggerService
+    loggerService: LoggerService,
+    private tokenService: TokenStorageService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = Constants.SearchInputId;
@@ -324,6 +326,16 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         setTimeout(() => {
           this.simpleToastrService.show(
             Constants.MSG_WHS_ONLY_READY_CAN_BE_FINALIZED,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR_5_SEC
+          );
+        }, 0);
+        return
+      }
+      if (this.filterData.ToWarehouseId === -1 && data.data.toWarehouseID !== this.tokenService.wareHouse?.id) {
+        setTimeout(() => {
+          this.simpleToastrService.show(
+            Constants.MSG_ERROR_WAREHOUSE_DOCUMENT_FINALIZE_DIFFERENT_WAREHOUSES,
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR_5_SEC
           );

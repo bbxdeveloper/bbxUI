@@ -14,6 +14,7 @@ $odd-row-error-bg-color: #6d0e0e;
 $text-color: #ffffff;
 
 $iframe-table-cell-color: #7143bf;
+$iframe-table-cell-text-color: #ffffff;
 
 $table-cell-focus-color: darkblue;
 
@@ -82,10 +83,4 @@ $table-cell-focus-color: darkblue;
     th {
         background: $header-cell-bg-color;
     }
-}
-
-// Iframe
-
-iframe.iframe-table-cell.theme-cosmic-light {
-    background-color: $iframe-table-cell-color;
 }

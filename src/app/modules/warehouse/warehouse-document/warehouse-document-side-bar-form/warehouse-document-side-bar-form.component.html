@@ -57,7 +57,7 @@
 
             <nb-form-field>
                 <div class="bbx-fd-form-field-inner-div">
-                    <label>Mennyiség</label>
+                    <label>Érték</label>
                     <input nbInput [inputMask]="numberInputMask" type="text" formControlName="whsTransferAmount" readonly>
                 </div>
             </nb-form-field>
@@ -71,7 +71,7 @@
 
             <div class="bbx-fd-form-field-inner-div">
                 <label>Megjegyzés</label>
-                <iframe [srcdoc]="currentForm.form.get('notice')?.value ?? '' | htmlStringSanitizer"></iframe>
+                <div class="innerhtml" [innerHtml]="currentForm.form.get('notice')?.value ?? '' | htmlStringSanitizer"></div>
             </div>
         </form>
     </nb-card-body>

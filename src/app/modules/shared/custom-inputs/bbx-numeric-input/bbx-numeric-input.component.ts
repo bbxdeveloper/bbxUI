@@ -1,5 +1,5 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, ViewEncapsulation, forwardRef } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, ViewEncapsulation, forwardRef } from '@angular/core';
+import { AbstractControl, ControlValueAccessor, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { noop } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -60,7 +60,7 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   @Input() formCtrlName: string | number | null = null
   @Input() isFormCtrl: boolean = false
-  @Input() usedForm: any
+  @Input() usedForm?: FormGroup
   @Input() formCtrlLabel: string = ''
 
   @Input() min: number = Number.MIN_SAFE_INTEGER
@@ -72,6 +72,9 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   @Input() useFixCursorPosition: boolean = true
 
   touched: boolean = false
+
+  private _preEscapeValue: any
+  useInputMask: boolean = true
   
   numberInputMask = NgNeatInputMasks.numberInputMask;
   numberInputMaskSingle = NgNeatInputMasks.numberInputMaskSingle;
@@ -126,6 +129,7 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   }
   set value(v: any) {
     this.log(`[BbxProductCodeInputComponent] set value, current value: '${this.value}', new value: '${v}'`)
+    console.log(`[BbxProductCodeInputComponent] set value, current value: '${this.value}', new value: '${v}'`)
     this.markAsTouched()
     if (v !== this.innerValue) {
       this.innerValue = v
@@ -136,7 +140,8 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   // ctor
 
   constructor(private logger: LoggerService,
-              private keyboardService: KeyboardNavigationService) { }
+              private keyboardService: KeyboardNavigationService,
+              private changeRef: ChangeDetectorRef) { }
 
   // Lifecycle-hooks
 
@@ -201,6 +206,7 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   writeValue(obj: any): void {
     this.log(`[BbxProductCodeInputComponent] writeValue: ${obj}`)
+    console.log("WRITE: ", obj)
     this.value = obj
   }
   registerOnChange(fn: any): void {
@@ -241,4 +247,61 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
     this.keyboardService.ClickCurrentElement()
   }
 
+  //#region Key events
+
+  public onDeleteDown(event: any): void {
+    // console.log("onDeleteDown: ", event.target.value, event)
+  }
+
+  public onDeleteUp(event: any): void {
+    // console.log("onDeleteUp: ", event.target.selectionStart, event.target.value, event, event.target)
+    this.writeValue(event.target.value)
+    let selectionStart = event.target.selectionStart
+    setTimeout(() => {
+      event.target.selectionStart = selectionStart
+      event.target.selectionEnd = selectionStart
+    }, 100);
+  }
+
+  public onBackspaceDown(event: any): void {
+    // console.log("onBackspaceDown: ", event.target.value, event)
+  }
+
+  public onBackspaceUp(event: any): void {
+    // console.log("onBackspaceUp: ", event.target.value, event)
+    this.writeValue(event.target.value)
+    let selectionStart = event.target.selectionStart
+    setTimeout(() => {
+      event.target.selectionStart = selectionStart
+      event.target.selectionEnd = selectionStart
+    }, 100);
+  }
+
+  public onEscapeDown(event: any): void {
+    // console.log("onEscapeDown: ", event.target.value, event)    
+    this._preEscapeValue = event.target.value
+    this.id = event.target.id
+    
+    // Switching to non-masked input so view value won't be affected by inputmask bug
+    this.useInputMask = false
+
+    this.changeRef.markForCheck()
+    this.changeRef.detectChanges()
+
+    // Switching back to masked input
+    setTimeout(() => {
+      this.useInputMask = true
+    
+      this.changeRef.markForCheck()
+      this.changeRef.detectChanges()
+    
+      this.keyboardService.SelectCurrentElement()
+    }, 100);
+  }
+
+  public onEscapeUp(event: any): void {
+    // console.log("onEscapeUp: ", this._preEscapeValue, event.target.value, event)
+  }
+
+  //#endregion Key events
 }

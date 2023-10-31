@@ -47,7 +47,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  senderData!: Customer;
+  senderData: Customer|undefined
   customerData!: Customer;
 
   buyersData: Customer[] = [];
@@ -68,8 +68,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
-
-  exporterForm!: FormGroup;
 
   public mode!: InvoiceBehaviorMode
 

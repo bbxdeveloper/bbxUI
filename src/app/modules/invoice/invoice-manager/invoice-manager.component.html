@@ -21,39 +21,7 @@
                 Szállító
             </nb-card-header>
             <nb-card-body class="form-col-1">
-                <form class="invoice-customer-form" [formGroup]="exporterForm" (keydown.enter)="$event.preventDefault()" #formDirective="ngForm">
-                    <nb-form-field class="area-row-1">
-                        <input nbInput type="text" formControlName='customerName' required="true" readonly id="l00">
-                    </nb-form-field>
-
-                    <nb-form-field class="area-row-2">
-                        <input nbInput type="text" formControlName='zipCodeCity' required="true" readonly id="l01">
-                    </nb-form-field>
-
-                    <nb-form-field class="area-row-3">
-                        <input nbInput type="text" formControlName='additionalAddressDetail' required="true" readonly
-                            id="l02">
-                    </nb-form-field>
-
-                    <nb-form-field class="area-row-4">
-                        <input nbInput type="text" formControlName='customerBankAccountNumber' required="true" readonly
-                            id="l03">
-                    </nb-form-field>
-
-                    <nb-form-field class="area-row-5">
-                        <input nbInput type="text" formControlName='taxpayerNumber' required="true" readonly id="l04">
-                    </nb-form-field>
-                    <nb-form-field class="area-row-6">
-                        <div>
-                            <label>EUR adósz.:</label>
-                            <input nbInput type="text" formControlName='thirdStateTaxId' required="true" readonly id="l04">
-                        </div>
-                    </nb-form-field>
-
-                    <nb-form-field class="area-row-7">
-                        <input nbInput type="text" formControlName='comment' required="false" readonly id="l05">
-                    </nb-form-field>
-                </form>
+                <app-invoice-customer [customer]="senderData"></app-invoice-customer>
             </nb-card-body>
         </nb-card>
     </div>

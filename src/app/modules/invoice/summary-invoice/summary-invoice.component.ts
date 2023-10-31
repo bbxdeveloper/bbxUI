@@ -269,20 +269,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
-    if (this.exporterForm === undefined) {
-      this.exporterForm = new FormGroup({
-        customerName: new FormControl('', []),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.exporterForm.reset(undefined);
-    }
-
     if (this.outInvForm === undefined) {
       this.outInvForm = new FormGroup({
         paymentMethod: new FormControl('', [Validators.required]),
@@ -630,17 +616,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
         this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
-            // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
-            console.log('Exporter: ', d);
-            this.exporterForm = new FormGroup({
-              customerName: new FormControl(this.senderData.customerName ?? '', []),
-              zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
-              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
-              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
-              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
-              comment: new FormControl(this.senderData.comment ?? '', []),
-            });
 
             this.table?.renderRows();
             this.RefreshTable();
@@ -652,7 +628,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
           },
           complete: () => {
             this.isLoading = false;
-            // this.Refresh();
           },
         });
       },
@@ -661,7 +636,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
   }
