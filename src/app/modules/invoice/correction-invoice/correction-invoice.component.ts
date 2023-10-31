@@ -291,6 +291,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     this.productCodeManagerServiceService.ChooseDataForTableRow({
+      dbData: this.dbData,
       dbDataTable: this.dbDataTable,
       rowIndex: rowIndex,
       wasInNavigationMode: wasInNavigationMode,

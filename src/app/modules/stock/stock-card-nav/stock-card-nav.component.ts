@@ -238,7 +238,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       StockCardDateFrom: this.filterForm.controls['StockCardDateFrom'].value,
       StockCardDateTo: this.filterForm.controls['StockCardDateTo'].value,
 
-      OrderBy: "productCode",
+      OrderBy: "stockCardDate",
 
       ProductID: productId,
     };
