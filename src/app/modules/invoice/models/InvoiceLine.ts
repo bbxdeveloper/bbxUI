@@ -186,11 +186,10 @@ export class InvoiceLine extends MementoObject implements IEditable {
         result.discount = this.noDiscount ? 0 : HelperFunctions.ToFloat(this.discount);
 
         result.unitPrice = HelperFunctions.ToFloat(this.unitPrice - this.unitPrice * result.discount);
+        result.unitPrice = HelperFunctions.Round2(result.unitPrice, 2);
 
         result.quantity = HelperFunctions.ToFloat(this.quantity);
         result.vatRate = HelperFunctions.ToFloat(this.vatRate);
-
-        result.unitPrice = HelperFunctions.Round2(HelperFunctions.ToFloat(result.unitPrice), 2);
 
         result.lineNetAmount = HelperFunctions.Round2(result.unitPrice * result.quantity, 1);
         result.lineVatAmount = HelperFunctions.Round2(result.lineNetAmount * result.vatRate, 1);
