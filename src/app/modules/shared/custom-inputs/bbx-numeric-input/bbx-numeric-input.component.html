@@ -4,7 +4,7 @@
 <ng-container *ngIf="isFormCtrl">
     <ng-container *ngIf="useInputMask">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
-                nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+                nbPopoverPlacement="top" (keydown.F11)="openCalculator($event)"
                 (keydown.delete)="onDeleteDown($event)" (keyup.delete)="onDeleteUp($event)"
                 (keydown.backspace)="onBackspaceDown($event)" (keyup.backspace)="onBackspaceUp($event)"
                 (keydown.escape)="onEscapeDown($event)" (keyup.escape)="onEscapeUp($event)"
@@ -43,7 +43,7 @@
 <ng-container *ngIf="!isFormCtrl">
     <ng-container *ngIf="useInputMask">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
-        nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+        nbPopoverPlacement="top" (keydown.F11)="openCalculator($event)"
         (keydown.delete)="onDeleteDown($event)" (keyup.delete)="onDeleteUp($event)"
         (keydown.backspace)="onBackspaceDown($event)" (keyup.backspace)="onBackspaceUp($event)"
         (keydown.escape)="onEscapeDown($event)" (keyup.escape)="onEscapeUp($event)"
