@@ -9,7 +9,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class InvoiceCustomerComponent {
   @Input()
-  public set customer(value: Customer) {
+  public set customer(value: Customer|undefined) {
+    if (!value) {
+      return
+    }
+
     const zipCodeCity = value?.postalCode && value?.city
       ? `${value.postalCode} ${value.city}`
       : ''
