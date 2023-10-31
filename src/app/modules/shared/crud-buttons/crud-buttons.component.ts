@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { LoggerService } from 'src/app/services/logger.service';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, DefaultKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
@@ -50,10 +51,10 @@ export class CrudButtonsComponent implements OnInit {
     return KeyBindings;
   }
 
-  constructor() { }
+  constructor(private readonly loggserService: LoggerService) { }
 
   ngOnInit(): void {
-    console.log('KeySetting: ', this.KeySetting);
+    this.loggserService.info('KeySetting: ' + JSON.stringify(this.KeySetting))
   }
 
 }

@@ -154,7 +154,6 @@ export class InvoiceBehaviorFactoryService {
     result.incoming = false
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.isSummaryInvoice = true
-    result.checkCustomerLimit = true
     result.title = 'Gyűjtőszámla'
     result.useCustomersPaymentMethod = true
     result.partnerLock = this.partnerLock

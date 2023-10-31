@@ -2,8 +2,12 @@
 <!-- FORMCONTROL -->
 
 <ng-container *ngIf="isFormCtrl">
+    <ng-container *ngIf="useInputMask">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
                 nbPopoverPlacement="top" (keydown.F11)="openCalculator($event)"
+                (keydown.delete)="onDeleteDown($event)" (keyup.delete)="onDeleteUp($event)"
+                (keydown.backspace)="onBackspaceDown($event)" (keyup.backspace)="onBackspaceUp($event)"
+                (keydown.escape)="onEscapeDown($event)" (keyup.escape)="onEscapeUp($event)"
                 [disabled]="disabled" [formControlName]="formCtrlName" [min]="min" [max]="max"
                 (blur)="proxyBlur($event)"
                 (focus)="proxyFocus($event)"
@@ -14,13 +18,35 @@
                 [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
                 [class]="input_class" class="bbx-numeric-input-inner"
                 [style.text-align]="style_text_align" />
+    </ng-container>
+    <ng-container *ngIf="!useInputMask">
+    <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
+                nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+                (keydown.delete)="onDeleteDown($event)" (keyup.delete)="onDeleteUp($event)"
+                (keydown.backspace)="onBackspaceDown($event)" (keyup.backspace)="onBackspaceUp($event)"
+                (keydown.escape)="onEscapeDown($event)" (keyup.escape)="onEscapeUp($event)"
+                [disabled]="disabled" [formControlName]="formCtrlName" [min]="min" [max]="max"
+                (blur)="proxyBlur($event)"
+                (focus)="proxyFocus($event)"
+                (focusout)="proxyFocusOut($event)"
+                (click)="proxyClick($event)"
+                [(ngModel)]="value"
+                [readOnly]="readonly"
+                [id]="id" [placeholder]="input_placeholder"
+                [class]="input_class" class="bbx-numeric-input-inner"
+                [style.text-align]="style_text_align" />
+    </ng-container>
 </ng-container>
 
 <!-- NEM FORMCONTROL -->
 
 <ng-container *ngIf="!isFormCtrl">
+    <ng-container *ngIf="useInputMask">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
         nbPopoverPlacement="top" (keydown.F11)="openCalculator($event)"
+        (keydown.delete)="onDeleteDown($event)" (keyup.delete)="onDeleteUp($event)"
+        (keydown.backspace)="onBackspaceDown($event)" (keyup.backspace)="onBackspaceUp($event)"
+        (keydown.escape)="onEscapeDown($event)" (keyup.escape)="onEscapeUp($event)"
         [disabled]="disabled" [min]="min" [max]="max"
         (blur)="proxyBlur($event)"
         (focus)="proxyFocus($event)"
@@ -31,6 +57,24 @@
         [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
         [class]="input_class" class="bbx-numeric-input-inner"
         [style.text-align]="style_text_align" />
+    </ng-container>
+    <ng-container *ngIf="!useInputMask">
+    <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
+        nbPopoverPlacement="top" (keydown.F5)="openCalculator($event)"
+        (keydown.delete)="onDeleteDown($event)" (keyup.delete)="onDeleteUp($event)"
+        (keydown.backspace)="onBackspaceDown($event)" (keyup.backspace)="onBackspaceUp($event)"
+        (keydown.escape)="onEscapeDown($event)" (keyup.escape)="onEscapeUp($event)"
+        [disabled]="disabled" [min]="min" [max]="max"
+        (blur)="proxyBlur($event)"
+        (focus)="proxyFocus($event)"
+        (focusout)="proxyFocusOut($event)"
+        (click)="proxyClick($event)"
+        [(ngModel)]="value"
+        [readOnly]="readonly"
+        [id]="id" [placeholder]="input_placeholder"
+        [class]="input_class" class="bbx-numeric-input-inner"
+        [style.text-align]="style_text_align" />
+    </ng-container>
 </ng-container>
 
 <ng-template #calculator>
