@@ -126,8 +126,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     C: { pattern: new RegExp('[a-zA-Z0-9]') }
   };
 
-  passiveForm!: FormGroup;
-
   override outInvFormId: string = "outgoing-invoice-form";
 
   activeForm!: FormGroup;
@@ -260,20 +258,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
-
-    if (this.passiveForm === undefined) {
-      this.passiveForm = new FormGroup({
-        customerName: new FormControl('', []),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.passiveForm.reset(undefined);
-    }
 
     if (this.outInvForm === undefined) {
       this.outInvForm = new FormGroup({
@@ -574,17 +558,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
         this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
-            // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
-            console.log('Exporter: ', d);
-            this.passiveForm = new FormGroup({
-              customerName: new FormControl(this.senderData.customerName ?? '', []),
-              zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
-              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
-              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
-              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber, []),
-                comment: new FormControl(this.senderData.comment ?? '', []),
-            });
 
             this.table?.renderRows();
             this.RefreshTable();
@@ -596,7 +570,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
           },
           complete: () => {
             this.isLoading = false;
-            // this.Refresh();
           },
         });
       },
@@ -605,7 +578,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
   }

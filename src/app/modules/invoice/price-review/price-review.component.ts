@@ -70,7 +70,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   cachedCustomerName?: string;
 
-  senderData!: Customer;
+  senderData: Customer|undefined;
   buyerData!: Customer;
 
   buyersData: Customer[] = [];
@@ -148,8 +148,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
-
-  exporterForm!: FormGroup;
 
   outInvForm!: FormGroup;
   outInvFormId: string = "outgoing-invoice-form";
@@ -282,7 +280,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
-    this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
     this.outGoingInvoiceData = new OutGoingInvoiceFullData({
@@ -304,20 +301,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
-
-    if (this.exporterForm === undefined) {
-      this.exporterForm = new FormGroup({
-        customerName: new FormControl('', []),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.exporterForm.reset(undefined);
-    }
 
     this.setupOutInvForm()
 
@@ -662,17 +645,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
-            // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
-            console.log('Exporter: ', d);
-            this.exporterForm = new FormGroup({
-              customerName: new FormControl(this.senderData.customerName ?? '', []),
-              zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
-              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
-              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
-              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
-              comment: new FormControl(this.senderData.comment ?? '', []),
-            });
 
             this.table?.renderRows();
             this.RefreshTable();
@@ -684,7 +657,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           },
           complete: () => {
             this.isLoading = false;
-            // this.Refresh();
           },
         });
       },
@@ -693,7 +665,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
   }
