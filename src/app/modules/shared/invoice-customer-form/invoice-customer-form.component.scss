@@ -22,6 +22,14 @@ nb-card-header {
     padding: 0px;
 }
 
+nb-form-field {
+  max-width: unset !important;
+
+  input {
+    max-width: unset !important;
+  }
+}
+
 .card-header-txt-center {
   text-align: center;
   font-size: larger;
