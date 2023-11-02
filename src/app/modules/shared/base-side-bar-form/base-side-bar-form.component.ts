@@ -40,7 +40,8 @@ export class BaseSideBarFormComponent {
     digitsOptional: false,
     prefix: '',
     placeholder: '0',
-    onBeforeWrite: onNegateKeepCaretPosition()
+    shiftPositions: false,
+    onBeforeWrite: onNegateKeepCaretPosition(),
   });
 
   numberInputMaskInteger = createMask({
