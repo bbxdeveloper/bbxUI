@@ -290,3 +290,15 @@ $i: 0;
   width: 2em !important;
   height: 2em !important;
 }
+
+// Iframe
+
+.innerhtml-table-cell.innerhtml {
+    color: nb-theme(iframe-table-cell-text-color) !important;
+
+    ul {
+      li {
+        color: nb-theme(iframe-table-cell-text-color) !important;
+      }
+    }
+}

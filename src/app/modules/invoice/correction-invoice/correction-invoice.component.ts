@@ -291,6 +291,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     this.productCodeManagerServiceService.ChooseDataForTableRow({
+      dbData: this.dbData,
       dbDataTable: this.dbDataTable,
       rowIndex: rowIndex,
       wasInNavigationMode: wasInNavigationMode,
@@ -475,6 +476,10 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         const request = this.UpdateOutGoingData()
 
         var response = await this.invoiceService.createOutgoingAsync(request)
+
+        if (!!response.data) {
+          this.invoiceForm.outInvFormNav.form.controls['invoiceOrdinal'].setValue(response.data.invoiceNumber ?? '');
+        }
 
         this.mode.partnerLock?.unlockCustomer()
 

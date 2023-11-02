@@ -73,10 +73,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
     _formMode: Constants.FormState = Constants.FormState.default;
     get formMode(): Constants.FormState { return this._formMode; }
     set formMode(val: Constants.FormState) {
-        // console.log("-------------");
-        // console.log("Old formstate: ", Constants.FormState[this._formMode]);
         this._formMode = val;
-        // console.log("New formstate: ", Constants.FormState[this._formMode]);
     }
 
 
@@ -175,7 +172,9 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         Object.keys(this.form.controls).forEach((x: string) => {
             data[x as keyof T] = this.form.controls[x].value;
             this.form.controls[x].markAsTouched();
-            console.log('FormField value: ', this.form.controls[x].value, 'Data field value: ', data[x as keyof T]);
+            if (environment.flatDesignFormDebug) {
+                console.log('FormField value: ', this.form.controls[x].value, 'Data field value: ', data[x as keyof T]);
+            }
         });
         if (environment.flatDesignFormDebug) {
             console.log("Data from form: ", data);
@@ -183,14 +182,14 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         return data as T;
     }
 
-    FillFormWithObject: (data: any) => void = (data: any) => {
+    FillFormWithObject: (data: any, setValueOptions?: any) => void = (data: any, setValueOptions?: any) => {
         if (!!data) {
             Object.keys(this.form.controls).forEach((x: string) => {
-                this.form.controls[x].setValue(data[x]);
+                this.form.controls[x].setValue(data[x], setValueOptions)
                 if (environment.flatDesignFormDebug) {
                     console.log(`[FillFormWithObject] ${x}, ${data[x]}, ${this.form.controls[x].value}`);
                 }
-            });
+            })
         }
     }
 
@@ -277,21 +276,49 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
     }
 
     HandleAutoCompleteSelect(event: any, key: string): void {
-        console.log('[HandleAutoCompleteSelect]');
+        if (environment.flatDesignFormDebug) {
+            console.log('[HandleAutoCompleteSelect] ', event);
+        }
         // If the table is still the current navigatable and the form is filled
         // this event could be triggered but MUST NOT be handled here because it breaks the flow
         // of navigation.
         if (!this.kbS.IsCurrentNavigatable(this)) {
             return;
         }
-        console.log(`[HandleAutoCompleteSelect] ${event}`);
         if (!this.kbS.isEditModeActivated) {
             this.JumpToNextInput(event);
         }
     }
 
+    AutoCorrectSelectCaseInsensitive(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): boolean {
+        const ad = (event.target as any).getAttribute("aria-activedescendant");
+        if (this.kbS.isEditModeActivated &&
+            ad === null &&
+            possibleItems !== undefined && typedValue !== undefined &&
+            (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+
+            if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
+                return false
+            }
+
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
+            if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
+                this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
+                return true
+            } else {
+                return false
+            }
+        }
+        return true
+    }
+
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
-        console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        if (environment.flatDesignFormDebug) {
+            console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        }
 
         if (preventEvent) {
             event.preventDefault();
@@ -313,7 +340,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
                 return
             }
 
-            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.toLowerCase())
+            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
             if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
                 this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
             } else {
@@ -440,11 +467,6 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
             next.id = TileCssClass + this.formId + '-' + Math.floor(Date.now() * Math.random());
             this.Matrix[currentMatrixIndex].push(next.id);
             previous = next.id;
-
-            // $('#' + next.id).off('enter');
-            // $('#' + next.id).on('enter', (event) => {
-            //     event.stopImmediatePropagation();
-            // });
         }
 
         if (environment.flatDesignFormDebug) {

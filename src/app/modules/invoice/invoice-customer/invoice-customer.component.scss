@@ -1,1 +1,9 @@
 @use 'invoice-common';
+
+nb-form-field {
+    max-width: unset !important;
+
+    input {
+        max-width: unset !important;
+    }
+}

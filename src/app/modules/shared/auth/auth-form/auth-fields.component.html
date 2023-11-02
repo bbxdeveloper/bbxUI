@@ -1,15 +1,15 @@
 <ng-template #template>
-    <label>Bizonylatot kiállítja:</label>
+    <label class="auth-label">Bizonylatot kiállítja:</label>
     <nb-form-field [formGroup]="formNav.form" (click)="formNav.HandleFormFieldClick($event)" (keydown.enter)="formNav.HandleFormEnter($event)">
         <input class="{{TileCssClass}}" autocomplete="false" placeholder="Felhasználónév" nbInput type="text"
             formControlName="input_n">
     </nb-form-field>
-    
+
     <nb-form-field [formGroup]="formNav.form" (click)="formNav.HandleFormFieldClick($event)" (keydown.enter)="JumpToNextMatrix($event)">
         <input class="mask-password {{TileCssClass}}" autocomplete="false" placeholder="Jelszó" nbInput type="text"
             formControlName="input_p" (blur)="onInput_nBlur()">
     </nb-form-field>
-    
+
     <nb-form-field [formGroup]="formNav.form">
         <input autocomplete="false" placeholder="Név" nbInput type="text" formControlName="loginName" readonly>
     </nb-form-field>

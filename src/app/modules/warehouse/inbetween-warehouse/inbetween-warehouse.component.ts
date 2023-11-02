@@ -40,6 +40,7 @@ import { WarehouseInbetweenMode } from '../models/whs/WarehouseInbetweenMode';
 import { WhsTransferLine } from '../models/whs/WhsTransferLine';
 import { InbetweenWarehouseProduct } from '../models/whs/InbetweenWarehouseProduct';
 import { WhsTransferFull, WhsTransferUpdate } from '../models/whs/WhsTransfer';
+import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 
 type WarehouseData = {
   code: string,
@@ -727,6 +728,28 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     } as WhsTransferUpdate
   }
 
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
+
+      this.sts.waitForLoad(false)
+
+      this.dialogService.open(ProductStockInformationDialogComponent, {
+        context: {
+          product: product
+        }
+      })
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
   public override HandleKeyDown(event: Event|TableKeyDownEvent): void {
     if (!isTableKeyDownEvent(event)) {
       return
@@ -750,6 +773,15 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       case this.KeySetting[Actions.Search].KeyCode: {
         this.ChooseDataForTableRow(0, false)
 
+        break
+      }
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        if (this.kbS.p.y === this.dbData.length - 1) {
+          break
+        }
+
+        const productCode = this.dbData[this.kbS.p.y].data.productCode
+        this.openProductStockInformationDialog(productCode)
         break
       }
     }
