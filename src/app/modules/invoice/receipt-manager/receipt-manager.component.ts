@@ -538,14 +538,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
     if (col === 'unitPrice') {
       if (changedData.noDiscount) {
-        const prevPrice = changedData.GetSavedFieldValue('unitPrice')
-
-        if (changedData.unitPrice < prevPrice) {
-          setTimeout(() => this.bbxToasterService.showError(Constants.MSG_ERROR_NO_DISCOUNT), 0)
-          changedData.Restore()
-
-          return
-        }
+        setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
       }
 
       changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
