@@ -223,7 +223,6 @@ export class OfferLine extends MementoObject implements IEditable, OfferLineFull
         console.log(message, optionalParams);
     }
 
-    ///
     public ReCalc(unitPriceWasUpdated: boolean, currencyCode?: string, exchangeRate?: number): void {
         if (environment.offerLineLog) {
             console.log("....................................................");
