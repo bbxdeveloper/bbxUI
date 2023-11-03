@@ -33,5 +33,8 @@ export const environment = {
 
     theme: 'cosmic-light',
 
-    userManualsLink: 'https://drive.google.com/drive/folders/1wzrCpPJK6gEcTVbINSETUDt8J7_X8IIg?usp=sharing'
+    userManualsLink: 'https://drive.google.com/drive/folders/1wzrCpPJK6gEcTVbINSETUDt8J7_X8IIg?usp=sharing',
+
+    inventoryItemManagerAutoSaveEnabled: true,
+    inventoryItemManagerAutoSaveAmount: 10,
 };

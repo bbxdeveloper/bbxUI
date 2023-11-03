@@ -58,7 +58,7 @@ export class BbxComboBoxComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.data$.subscribe({
       next: data => {
-        console.log('[BbxComboBox data$.subscribe next]: ', data);
+        //console.log('[BbxComboBox data$.subscribe next]: ', data);
         this.comboBoxData = [this.blankOptionText].concat(data ?? []);
         this.filteredData$ = of(this.comboBoxData);
         this.currentFilteredData = this.comboBoxData;
@@ -70,7 +70,7 @@ export class BbxComboBoxComponent implements AfterViewInit {
       }
     });
 
-    console.log('[BbxComboBox afterviewinit]: ', this.currentForm);
+   //console.log('[BbxComboBox afterviewinit]: ', this.currentForm);
 
     this.currentForm?.form.controls[this.formFieldName].valueChanges.subscribe({
       next: filterString => {

@@ -50,7 +50,7 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   @Input() input_class: any
   @Input() style_text_align: any
 
-  @Input() debug: boolean = true
+  @Input() debug: boolean = false
 
   @Input() disabled: boolean = false
   @Input() required: boolean = false
@@ -129,7 +129,6 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   }
   set value(v: any) {
     this.log(`[BbxProductCodeInputComponent] set value, current value: '${this.value}', new value: '${v}'`)
-    console.log(`[BbxProductCodeInputComponent] set value, current value: '${this.value}', new value: '${v}'`)
     this.markAsTouched()
     if (v !== this.innerValue) {
       this.innerValue = v
@@ -206,7 +205,6 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   writeValue(obj: any): void {
     this.log(`[BbxProductCodeInputComponent] writeValue: ${obj}`)
-    console.log("WRITE: ", obj)
     this.value = obj
   }
   registerOnChange(fn: any): void {

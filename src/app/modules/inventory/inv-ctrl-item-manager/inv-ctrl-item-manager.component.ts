@@ -40,6 +40,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
 import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -156,6 +157,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
+  //#region AutoSave
+
+  private savedRows: TreeGridNode<InvCtrlItemLine>[] = []
+  private unsavedRows: TreeGridNode<InvCtrlItemLine>[] = []
+  private autoSaveAmount: number = environment.inventoryItemManagerAutoSaveAmount
+  private autoSaveEnabled: boolean = environment.inventoryItemManagerAutoSaveEnabled
+
+  //#endregion AutoSave
+
   constructor(
     @Optional() dialogService: NbDialogService,
     fS: FooterService,
@@ -174,7 +184,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private stockService: StockService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    router: Router
+    router: Router,
+    private statusService: StatusService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -195,8 +206,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (v === undefined || from === undefined || to === undefined) {
       return null;
     }
-
-    console.log("validateInvCtrlDate: ", from, to, v);
 
     let wrong = !v.isBetween(from, to, null, '[]');
 
@@ -255,8 +264,110 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     this.dbDataTable!.OuterJump = true;
 
+    if (this.autoSaveEnabled) {
+      this.dbDataTable.rowAdded.subscribe({
+        next: (info: [any, number]) => this.checkAutoSave(info, Constants.RowChangeTypes.Add),
+        error: e => this.cs.HandleError(e)
+      })
+
+      this.dbDataTable.rowDeleted.subscribe({
+        next: (info: [any, number]) => this.checkAutoSave(info, Constants.RowChangeTypes.Delete),
+        error: e => this.cs.HandleError(e)
+      })
+
+      this.dbDataTable.rowModified.subscribe({
+        next: (info: [any, number]) => this.handleUnsaved(info[0], info[1]),
+        error: e => this.cs.HandleError(e)
+      })
+    }
+
     // Refresh data
     this.refresh();
+  }
+
+  checkAutoSave(rowChangeInfo: [any, number], change: Constants.RowChangeTypes): void {
+    if (rowChangeInfo === undefined || rowChangeInfo[0] === undefined || rowChangeInfo[1] === undefined) {
+      return
+    }
+
+    const row = rowChangeInfo[0]
+    const newLength = rowChangeInfo[1]
+
+    // console.log('\n')
+    // console.log(`checkAutoSave
+    //              \nnewLength: ${newLength}, change: ${change},
+    //              \nthis.savedRows.length: ${this.savedRows.length}, this.unsavedRows.length: ${this.unsavedRows.length}`)
+    // console.log('\n')
+
+    switch (change) {
+      case Constants.RowChangeTypes.Add:
+        this.unsavedRows.push(row)
+        break
+      case Constants.RowChangeTypes.Delete:
+        const savedIndex = this.savedRows.findIndex(x => x.data.productID === row.data.productID)
+        if (savedIndex > -1) {
+          this.savedRows.splice(savedIndex, 1)
+        } else {
+          const unSavedIndex = this.unsavedRows.findIndex(x => x.data.productID === row.data.productID)
+          if (unSavedIndex > -1) {
+            this.unsavedRows.splice(unSavedIndex, 1)
+          }
+        }
+        break
+      case Constants.RowChangeTypes.Modify:
+      default:
+        break
+    }
+
+    const c1 = this.unsavedRows.length % this.autoSaveAmount === 0
+    const c2 = (this.unsavedRows.length - 1) % this.autoSaveAmount === 0
+    if (c1 || c2) {
+      const idForDelete = []
+      for (let i = 0; i < this.unsavedRows.length; i++) {
+        const update = this.dbDataTable.data.find(x => x.data.productID === this.unsavedRows[i].data.productID)
+        if (update) {
+          this.unsavedRows[i] = update
+        } else {
+          idForDelete.push(this.unsavedRows[i].data.productID)
+        }
+      }
+      idForDelete.forEach(y => this.unsavedRows.splice(this.unsavedRows.findIndex(x => x.data.productID === y), 1))
+
+      const c3 = this.unsavedRows.length % this.autoSaveAmount === 0
+      const c4 = (this.unsavedRows.length - 1) % this.autoSaveAmount === 0
+
+      if (c3 || c4) {
+        const unfinished = this.unsavedRows.find(x => x.data.IsUnfinished())
+        if (unfinished === undefined && this.CheckSaveConditionsAndSave(true, this.unsavedRows)) {
+          this.unsavedRows.forEach(x => this.savedRows.push(x))
+          this.unsavedRows = []
+        }
+      }
+    }
+  }
+
+  handleUnsaved(row: TreeGridNode<InvCtrlItemLine>, rowPos: number): void {
+    if (this.unsavedRows.length >= this.autoSaveAmount && rowPos === this.dbDataTable.data.length - 1) {
+      this.checkAutoSave([row, this.dbDataTable.data.length], Constants.RowChangeTypes.Modify)
+    }
+
+    if (!this.autoSaveEnabled || row?.data === undefined || row?.data.IsUnfinished()) {
+      return
+    }
+
+    const index = this.unsavedRows.findIndex(x => x.data.productID === row.data.productID)
+    if (index > -1) {
+      this.unsavedRows[index] = row
+    } else {
+      this.unsavedRows.push(row)
+    }
+
+    console.log("handleUnsaved", this.unsavedRows.length, this.unsavedRows, row)
+
+    const index2 = this.savedRows.findIndex(x => x.data.productID === row.data.productID)
+    if (index2 > -1) {
+      this.savedRows.splice(index2, 1)
+    }
   }
 
   refresh(): void {
@@ -282,9 +393,14 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.kbS.Detach();
   }
 
-  private UpdateOutGoingData(): void {
+  private filterItem(item: any, array: any[]) {
+    return array.find(x => x.data.productID === item.data.productID) !== undefined
+  }
+
+  private UpdateOutGoingData(saveFilter: TreeGridNode<InvCtrlItemLine>[] = []): void {
+    const itemFilter = saveFilter
     this.offerData.items = this.dbDataTable.data
-      .filter((x, index: number) => index !== this.dbDataTable.data.length - 1)
+      .filter((x, index: number) => index !== this.dbDataTable.data.length - 1 && (itemFilter.length === 0 || this.filterItem(x, itemFilter)))
       .map(x => {
         return {
           "warehouseID": this.SelectedWareHouseId,
@@ -297,54 +413,71 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       });
   }
 
-  Save(): void {
+  Save(autoSave: boolean = false, saveFilter: TreeGridNode<InvCtrlItemLine>[] = []): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
-    confirmDialogRef.onClose.subscribe(res => {
-      if (res) {
-        this.UpdateOutGoingData();
+    if (!autoSave) {
+      const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
+      confirmDialogRef.onClose.subscribe(res => {
+        if (res) {
+          this.statusService.waitForLoad(true)
+          this.ProcessSave(autoSave)
+        }
+      })
+    } else {
+      this.statusService.waitForAutoSave(true)
+      this.ProcessSave(autoSave, saveFilter)
+    }
+  }
 
-        console.log('Save: ', this.offerData);
+  ProcessSave(autoSave: boolean = false, saveFilter: TreeGridNode<InvCtrlItemLine>[] = []): void {
+    this.UpdateOutGoingData(saveFilter);
 
-        this.isLoading = true;
+    console.log('Save: ', this.offerData);
 
-        this.invCtrlItemService.Create(this.offerData).subscribe({
-          next: d => {
-            try {
-              if (!!d.data) {
-                console.log('Save response: ', d);
+    this.invCtrlItemService.Create(this.offerData).subscribe({
+      next: d => {
+        try {
+          if (!!d.data) {
+            console.log('Save response: ', d);
 
-                this.simpleToastrService.show(
-                  Constants.MSG_SAVE_SUCCESFUL,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-                this.isLoading = false;
+            this.simpleToastrService.show(
+              Constants.MSG_SAVE_SUCCESFUL,
+              Constants.TITLE_INFO,
+              Constants.TOASTR_SUCCESS_5_SEC
+            );
+            this.statusService.waitForAutoSave(false)
 
-                this.dbDataTable.RemoveEditRow();
-                this.kbS.SelectFirstTile();
-
-                this.Reset();
-              } else {
-                this.cs.HandleError(d.errors);
-                this.isLoading = false;
-              }
-            } catch (error) {
+            if (!autoSave) {
+              this.dbDataTable.RemoveEditRow();
+              this.kbS.SelectFirstTile();
               this.Reset()
-              this.cs.HandleError(error)
+            } else {
+              this.kbS.ClickCurrentElement()
             }
-          },
-          error: err => {
-            this.cs.HandleError(err);
-            this.isLoading = false;
-          },
-          complete: () => {
-            this.isLoading = false;
+
+            if (!autoSave) {
+            }
+          } else {
+            this.statusService.waitForAutoSave(false)
+            this.cs.HandleError(d.errors);
           }
-        });
+        } catch (error) {
+          this.statusService.waitForAutoSave(false)
+          if (!autoSave) {
+            this.Reset()
+          }
+          this.cs.HandleError(error)
+        }
+      },
+      error: err => {
+        this.statusService.waitForAutoSave(false)
+        this.cs.HandleError(err);
+      },
+      complete: () => {
+        this.statusService.waitForAutoSave(false)
       }
-    });
+    })
   }
 
   protected AfterViewInitSetup(): void {
@@ -523,6 +656,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       setTimeout(() => {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.kbS.ClickCurrentElement();
+        this.handleUnsaved(this.dbDataTable.data[rowPos], rowPos)
       }, 50);
     } else {
       this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
@@ -534,10 +668,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
+    console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos])
 
     const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('productCode')
     if (changedData?.productCode === previousValue) {
+      this.handleUnsaved(this.dbDataTable.data[rowPos], rowPos)
       return
     }
 
@@ -562,9 +697,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         },
         complete: async () => {
           this.isLoading = false;
+          this.handleUnsaved(this.dbDataTable.data[rowPos], rowPos)
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
-      });
+      })
+    } else {
+      this.handleUnsaved(this.dbDataTable.data[rowPos], rowPos)
     }
   }
 
@@ -587,7 +725,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       if ((!!col && col === 'productCode') || col === undefined) {
         this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
           next: product => {
-            console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
+            //console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
             if (index !== undefined) {
               let tmp = this.dbData[index].data;
@@ -605,7 +743,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
               this.dbDataDataSrc.setData(this.dbData);
 
-              console.log("after TableRowDataChanged: ", this.dbDataTable.data);
+              //console.log("after TableRowDataChanged: ", this.dbDataTable.data);
             }
 
             this.RecalcNetAndVat();
@@ -638,8 +776,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     });
   }
 
-  CheckSaveConditionsAndSave(): void {
-    this.buyerForm.markAllAsTouched();
+  CheckSaveConditionsAndSave(autoSave: boolean = false, saveFilter: TreeGridNode<InvCtrlItemLine>[] = []): boolean {
+    this.buyerForm.markAllAsTouched()
 
     if (this.buyerForm.invalid) {
       this.bbxToastrService.show(
@@ -647,7 +785,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
-      return;
+      return false
     }
 
     const finishedItems = this.dbData.find(x => !x.data.IsUnfinished())
@@ -657,10 +795,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
-      return;
+      return false
     }
 
-    this.Save();
+    this.Save(autoSave, saveFilter)
+
+    return true
   }
 
   /////////////////////////////////////////////
@@ -678,7 +818,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.CheckSaveConditionsAndSave();
       return;
     }
-    console.log("pfkepfkepfkep ", this.kbS.IsCurrentNavigatable(this.dbDataTable), !!this.dbDataTable.GetEditedRow());
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable) && !!this.dbDataTable.GetEditedRow()) {
       switch (event.key) {
         case this.KeySetting[Actions.EscapeEditor1].KeyCode: {
