@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterContentInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NbDialogRef, NbDialogService } from '@nebular/theme';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -35,7 +35,7 @@ const logTag: string = 'InvSaveDlgLogs'
 /**
  * Save and summary dialog for invoices and deliveries
  */
-export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, AfterContentInit, OnDestroy, OnInit {
+export class SaveDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit {
   @Input() data!: OutGoingInvoiceFullData;
 
   @Input() InvoiceType: string = "";
@@ -149,8 +149,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   private prepareVatRateCodes(discount: number = 0): void {
     var result: VatRateRow[] = [];
     this.data.invoiceLines.forEach(x => {
-      x.discount = discount;
-      const priceData = x.GetDiscountedCalcResult();
+      const priceData = x.GetDiscountedCalcResult(discount);
       if (!!x.vatRateCode){
         const resultIndex = result.findIndex(y => y.Id === x.vatRateCode);
         if (result.findIndex(y => y.Id === x.vatRateCode) !== -1) {
@@ -352,25 +351,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     this.RefreshCalc();
   }
 
-  ngAfterViewInit(): void {
-    this.kBs.SetWidgetNavigatable(this);
-    this.formNav.GenerateAndSetNavMatrices(true);
-
-    if (this.isDiscountDisabled) {
-      // select the next available input
-      this.kBs.SelectElementByCoordinate(0, 1)
-    }
-    else {
-      this.kBs.SelectFirstTile();
-    }
-
-    this.kBs.setEditMode(KeyboardModes.EDIT);
-
-    setTimeout(() => {
-      HelperFunctions.SelectBeginningByClass('discount-input', 10);
-    }, 100);
-  }
-
   ngOnDestroy(): void {
     if (!this.closedManually) {
       this.kBs.RemoveWidgetNavigatable();
@@ -418,6 +398,15 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   public handleAuthComponentReady(event?: any): void {
-    this.formNav.GenerateAndSetNavMatrices(false)
+    this.kBs.SetWidgetNavigatable(this);
+    this.formNav.GenerateAndSetNavMatrices(true);
+
+    this.kBs.SelectFirstTile()
+
+    this.kBs.setEditMode(KeyboardModes.EDIT);
+
+    setTimeout(() => {
+      HelperFunctions.SelectBeginningByClass('discount-input', 10);
+    }, 100);
   }
 }

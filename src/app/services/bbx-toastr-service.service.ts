@@ -61,6 +61,10 @@ export class BbxToastrService {
     this.show(message, Constants.TITLE_ERROR, Constants.TOASTR_ERROR)
   }
 
+  showSuccess(message: any): void {
+    this.show(message, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS)
+  }
+
   close(): void {
     if (this.IsToastrOpened) {
       const tmp = this.toastrRefStack[this.toastrRefStack.length - 1] ?? undefined;
