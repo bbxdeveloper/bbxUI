@@ -350,6 +350,11 @@ export class InlineTableNavigatableForm implements INavigatable {
         for (let i = 0; i < tiles.length; i++) {
             const next = tiles[i];
 
+            const isDisabled = next.attributes.getNamedItem('disabled')
+            if (isDisabled) {
+                continue
+            }
+
             if (environment.inlineEditableTableNavigatableFormLog) {
                 this.LogMatrixGenerationCycle(
                     TileCssClass, tiles.length, next.nodeName, next?.parentElement?.nodeName, next?.parentElement?.parentElement?.nodeName
