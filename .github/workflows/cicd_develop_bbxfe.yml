@@ -12,18 +12,23 @@ env:
 on:
   pull_request: 
     branches: [ develop ]
-    types: [ closed ]
+#    types: [ closed ]
   workflow_dispatch:
 
 jobs:
   build:
-    if: ${{ github.event.pull_request.merged }}
+#    if: ${{ github.event.pull_request.merged }}
     name: Build bbxUI Angular project
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout from repository
         uses: actions/checkout@v3
+
+      - name: Get Short SHA commit number
+        shell: bash
+        run: |
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")"
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
