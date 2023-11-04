@@ -323,7 +323,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   }
 
   private async refreshComboboxData(setIsLoad = false): Promise<void> {
-    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000, OrderBy: 'warehouse' }))
       .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =

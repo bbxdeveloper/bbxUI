@@ -312,7 +312,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     if (setIsLoad) {
       this.isLoading = true;
     }
-    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000, OrderBy: 'warehouse' }))
       .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods = data?.data
