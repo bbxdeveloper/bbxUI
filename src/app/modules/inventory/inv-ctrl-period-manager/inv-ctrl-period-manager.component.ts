@@ -168,7 +168,7 @@ export class InvCtrlPeriodManagerComponent
   }
 
   override GetRecordName(data: InvCtrlPeriod): string | number | undefined {
-    return `${data.warehouse} - ${data.dateFrom} - ${data.dateTo}`
+    return `${data.warehouseID} - ${data.dateFrom} - ${data.dateTo}`
   }
 
   private ConvertCombosForGet(data: InvCtrlPeriod): InvCtrlPeriod {
