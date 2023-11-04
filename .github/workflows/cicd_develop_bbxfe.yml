@@ -8,6 +8,7 @@ env:
   AZURE_STORAGE_KEY: W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==
   CONNECTION_STRING: DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=bbx;AccountKey=W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==;
   PROJECT_NAME: bbx-ui
+  SHA_SHORT_COMMIT_NUMBER: 0
 
 on:
   pull_request: 
@@ -28,7 +29,7 @@ jobs:
       - name: Get Short SHA commit number
         shell: bash
         run: |
-          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")"
+          echo "SHA_SHORT_COMMIT_NUMBER=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -41,6 +42,11 @@ jobs:
 #      - name: Versioning
 #        run: npm version minor && npm publish && npm version patch 
 #        #&& git push --tags && git push origin master
+
+      - name: package.json info
+        id: info
+        uses: jaywcjlove/github-action-package@main
+      - run: echo "version - ${{ steps.info.outputs.version }} - $SHA_SHORT_COMMIT_NUMBER"
         
       - name: Build
         run: npm run build-prod
