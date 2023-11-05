@@ -47,9 +47,6 @@ jobs:
         id: info
         uses: jaywcjlove/github-action-package@main
       - run: echo "version - ${{ steps.info.outputs.version }} - $SHA_SHORT_COMMIT_NUMBER"
-
-      - name: run package
-        run: npm package
         
       - name: Build
         run: npm run build-prod
