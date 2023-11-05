@@ -132,7 +132,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         colDefs: ModelFieldDescriptor[] = []
     ) {
         super();
-        
+
         this.includeSearchInNavigationMatrix = includeSearchInNavigationMatrix
 
         this.formAttachDirection = formAttachDirection;
