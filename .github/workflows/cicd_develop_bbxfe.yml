@@ -49,7 +49,7 @@ jobs:
       - run: echo "version - ${{ steps.info.outputs.version }} - $SHA_SHORT_COMMIT_NUMBER"
 
       - name: run package
-        run: npm run package
+        run: npm package
         
       - name: Build
         run: npm run build-prod
