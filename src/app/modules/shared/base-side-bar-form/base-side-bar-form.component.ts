@@ -20,7 +20,14 @@ import { onNegateKeepCaretPosition } from 'src/assets/util/input/onNegateKeepCar
 })
 export class BaseSideBarFormComponent {
   currentForm?: FlatDesignNavigatableForm;
-  readonlyMode: boolean = false;
+  readonlyMode: boolean = false
+  
+  get editButtonDisabled(): boolean {
+    if (this.currentForm === undefined) {
+      return false
+    }
+    return this.kbS.IsCurrentNavigatable(this.currentForm)
+  }
 
   public onFormUpdate: BehaviorSubject<FormGroup | undefined> = new BehaviorSubject < FormGroup | undefined >(undefined);
 
@@ -40,7 +47,8 @@ export class BaseSideBarFormComponent {
     digitsOptional: false,
     prefix: '',
     placeholder: '0',
-    onBeforeWrite: onNegateKeepCaretPosition()
+    shiftPositions: false,
+    onBeforeWrite: onNegateKeepCaretPosition(),
   });
 
   numberInputMaskInteger = createMask({

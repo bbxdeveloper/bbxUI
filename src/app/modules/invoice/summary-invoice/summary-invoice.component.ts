@@ -29,7 +29,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, MinusDeliveryNoteKeySettings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -49,6 +49,7 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { ChooseSummaryInvoiceProductRequest, CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
+import { InvoiceTypes } from '../models/InvoiceTypes';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -208,6 +209,11 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       this.mode = behaviorFactory.create(params[0].path)
       this.path = params[0].path
 
+      if (this.mode.invoiceType === InvoiceTypes.DNO || this.mode.invoiceType === InvoiceTypes.DNI) {
+        this.KeySetting = MinusDeliveryNoteKeySettings
+        this.commands = GetFooterCommandListFromKeySettings(this.KeySetting)
+      }
+
       if (this.mode.incoming) {
         const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
         if (unitPrice) {
@@ -245,7 +251,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
-    this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
     this.outGoingInvoiceData = new OutGoingInvoiceFullData({
