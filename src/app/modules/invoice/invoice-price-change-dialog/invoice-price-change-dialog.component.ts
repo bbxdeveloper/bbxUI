@@ -215,29 +215,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     let changeRatePercent
     const latestSupplyPrice = HelperFunctions.ToFloat(product.latestSupplyPrice)
 
-    // if (invoiceLine.newUnitPrice1 && invoiceLine.newUnitPrice2) {
-    //   if (invoiceLine.latestSupplyPrice === 0 && !invoiceLine.unitPriceChanged) {
-    //     if (invoiceLine.unitPrice > invoiceLine.newUnitPrice1) {
-    //       invoiceLine.newUnitPrice1 = invoiceLine.unitPrice
-    //     } else {
-    //       invoiceLine.unitPrice = invoiceLine.newUnitPrice1
-    //     }
-    //   }
-
-    //   priceChange = {
-    //     newUnitPrice1: invoiceLine.newUnitPrice1,
-    //     newUnitPrice2: invoiceLine.newUnitPrice2,
-    //   } as ProductPriceChange
-    // }
-
-    // if (product.latestSupplyPrice === 0) {
-    //   if (product.unitPrice > product.newUnitPrice1) {
-    //     product.newUnitPrice1 = product.unitPrice
-    //   } else {
-    //     product.unitPrice = product.newUnitPrice1
-    //   }
-    // }
-
     debugger
 
     if (latestSupplyPrice === 0) {
