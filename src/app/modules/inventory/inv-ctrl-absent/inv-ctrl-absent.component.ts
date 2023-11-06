@@ -65,6 +65,8 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     'productCode',
     'product',
     'avgCost',
+    'realQty',
+    'realQtyValue',
     'latestIn',
     'latestOut'
   ];
@@ -97,6 +99,30 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       label: 'ELÁBÉ',
       objectKey: 'avgCost',
       colKey: 'avgCost',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Rkt. Klt.',
+      objectKey: 'realQty',
+      colKey: 'realQty',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: true,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Rkt. ért.',
+      objectKey: 'realQtyValue',
+      colKey: 'realQtyValue',
       defaultValue: '',
       type: 'formatted-number',
       fRequired: true,
@@ -297,7 +323,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   }
 
   private async refreshComboboxData(setIsLoad = false): Promise<void> {
-    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000, OrderBy: 'warehouse' }))
       .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
@@ -356,12 +382,22 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   }
 
   private GetInvCtrlAbsentFromResponse(x: InvCtrlAbsent): InvCtrlAbsent {
-    let res = x;
+    let res = new InvCtrlAbsent()
 
-    x.latestIn = x.latestIn ?? "";
+    res.id = x.id
+    res.warehouseID = x.warehouseID
+    res.Warehouse = x.Warehouse
+    res.productID = x.productID
+    res.productCode = x.productCode
+    res.product = x.product
+    res.calcQty = x.calcQty
+    res.realQty = x.realQty
+    res.outQty = x.outQty
+    res.avgCost = x.avgCost
+    x.latestIn = x.latestIn ?? ""
     x.LatestOut = x.LatestOut ?? ""
 
-    return res;
+    return res
   }
 
   override async Refresh(params?: GetAllInvCtrlAbsentParamsModel, jumpToFirstTableCell: boolean = false, refreshCombo = true): Promise<void> {

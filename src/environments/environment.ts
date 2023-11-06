@@ -30,8 +30,10 @@ export const environment = {
   inlineEditableTableKeyboardDebug: false,
 
   offerLineLog: false,
-
   InvSaveDlgLogs: false,
+
+  consoleLogsWrapperLogs: false,
+  bbxProductCodeInputComponentLogs: false,
 
   partnerLock: false,
 

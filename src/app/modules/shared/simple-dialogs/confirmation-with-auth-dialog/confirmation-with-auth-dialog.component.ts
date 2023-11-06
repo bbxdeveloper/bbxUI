@@ -9,6 +9,7 @@ import { BaseNavigatableComponentComponent } from "../../base-navigatable-compon
 import { AuthChangeEventArgs } from "../../auth/auth-form/auth-fields.component";
 import { CommonService } from "src/app/services/common.service";
 import { Constants } from "src/assets/util/Constants";
+import { TokenStorageService } from "src/app/modules/auth/services/token-storage.service";
 
 export interface ConfirmationWithAuthDialogesponse {
   answer: boolean,
@@ -34,6 +35,9 @@ export class ConfirmationWithAuthDialogComponent extends BaseNavigatableComponen
   loggedIn: boolean = false
   userID: number = -1
 
+  readonly username: string
+  readonly loginname: string
+
   TileCssClass = TileCssClass;
 
   get isEditModeOff() {
@@ -44,10 +48,14 @@ export class ConfirmationWithAuthDialogComponent extends BaseNavigatableComponen
     private cdrf: ChangeDetectorRef,
     protected dialogRef: NbDialogRef<ConfirmationWithAuthDialogComponent>,
     private kbS: KeyboardNavigationService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    tokenService: TokenStorageService,
   ) {
     super();
     this.Setup();
+
+    this.username = tokenService.user?.loginName ?? ''
+    this.loginname = tokenService.user?.name ?? ''
   }
 
   MoveToSaveButtons(event: any): void {
@@ -119,7 +127,7 @@ export class ConfirmationWithAuthDialogComponent extends BaseNavigatableComponen
     this.formNav.GenerateAndSetNavMatrices(true)
 
     this.kbS.SetCurrentNavigatable(this.formNav)
-    
+
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
     setTimeout(() => {
       this.kbS.ClickCurrentElement();

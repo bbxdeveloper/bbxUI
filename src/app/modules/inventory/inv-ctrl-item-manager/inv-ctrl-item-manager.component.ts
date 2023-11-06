@@ -77,7 +77,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   get getAllPeriodsParams(): GetAllInvCtrlPeriodsParamListModel {
     return {
-      PageSize: 1000
+      PageSize: 1000,
+      OrderBy: 'warehouse'
     } as GetAllInvCtrlPeriodsParamListModel;
   }
 

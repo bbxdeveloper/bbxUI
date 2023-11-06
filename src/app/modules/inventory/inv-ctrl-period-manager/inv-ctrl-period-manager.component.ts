@@ -168,7 +168,12 @@ export class InvCtrlPeriodManagerComponent
   }
 
   override GetRecordName(data: InvCtrlPeriod): string | number | undefined {
-    return `${data.warehouse} - ${data.dateFrom} - ${data.dateTo}`
+    const convertDate = (dateString: string): string => {
+      const date = new Date(dateString)
+      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+    }
+
+    return `${data.warehouseID} - ${convertDate(data.dateFrom)} - ${convertDate(data.dateTo)}`
   }
 
   private ConvertCombosForGet(data: InvCtrlPeriod): InvCtrlPeriod {

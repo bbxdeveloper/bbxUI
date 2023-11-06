@@ -152,9 +152,6 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     this.dbDataTableId = "invoice-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 
-    // Init form and table content - empty
-    this.senderData = {} as Customer;
-
     this.outGoingInvoiceData = new OutGoingInvoiceFullData({
       lineGrossAmount: 0.0,
       invoiceVatAmount: 0.0,
@@ -174,20 +171,6 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
-
-    if (this.exporterForm === undefined) {
-      this.exporterForm = new FormGroup({
-        customerName: new FormControl('', []),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.exporterForm.reset(undefined);
-    }
 
     if (this.outInvForm === undefined) {
       this.outInvForm = new FormGroup({
@@ -275,17 +258,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
         this.dbData = [];
         this.dbDataDataSrc.setData(this.dbData);
 
-        // Exporter form
         this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
-        console.log('Exporter: ', d);
-        this.exporterForm = new FormGroup({
-          customerName: new FormControl(this.senderData.customerName ?? '', []),
-          zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
-          additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
-          customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
-          taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
-          comment: new FormControl(this.senderData.comment ?? '', []),
-        });
 
         this.table?.renderRows();
         this.RefreshTable();
@@ -530,6 +503,26 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   RefreshData(): void { }
+
+  protected override additionalRowDataChanged(changedData: InvoiceLine, index?: number | undefined, col?: string | undefined): void {
+    if (index === undefined) {
+      return
+    }
+
+    if (col === 'unitPrice') {
+      if (changedData.noDiscount) {
+        setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+      }
+
+      changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
+        ? HelperFunctions.Round(changedData.unitPrice)
+        : HelperFunctions.Round2(changedData.unitPrice, 2)
+
+      this.RecalcNetAndVat()
+
+      changedData.Save()
+    }
+  }
 
   override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     let res = new InvoiceLine(this.requiredCols);

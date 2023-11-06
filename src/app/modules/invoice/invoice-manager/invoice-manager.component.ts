@@ -240,7 +240,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
-    this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
     this.outGoingInvoiceData = new OutGoingInvoiceFullData({
@@ -262,20 +261,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
-
-    if (this.exporterForm === undefined) {
-      this.exporterForm = new FormGroup({
-        customerName: new FormControl('', []),
-        zipCodeCity: new FormControl('', []),
-        additionalAddressDetail: new FormControl('', []),
-        customerBankAccountNumber: new FormControl('', []),
-        taxpayerNumber: new FormControl('', []),
-        thirdStateTaxId: new FormControl('', []),
-        comment: new FormControl('', []),
-      });
-    } else {
-      this.exporterForm.reset(undefined);
-    }
 
     this.setupOutInvForm()
 
@@ -557,17 +542,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
         this.customerService.GetAll({ IsOwnData: true, OrderBy: 'customerName' }).subscribe({
           next: d => {
-            // Exporter form
             this.senderData = d.data?.filter(x => x.isOwnData)[0] ?? {} as Customer;
-            console.log('Exporter: ', d);
-            this.exporterForm = new FormGroup({
-              customerName: new FormControl(this.senderData.customerName ?? '', []),
-              zipCodeCity: new FormControl((this.senderData.postalCode ?? '') + ' ' + (this.senderData.city ?? ''), []),
-              additionalAddressDetail: new FormControl(this.senderData.additionalAddressDetail ?? '', []),
-              customerBankAccountNumber: new FormControl(this.senderData.customerBankAccountNumber ?? '', []),
-              taxpayerNumber: new FormControl(this.senderData.taxpayerNumber ?? '', []),
-              comment: new FormControl(this.senderData.comment ?? '', []),
-            });
 
             this.table?.renderRows();
             this.RefreshTable();
@@ -579,7 +554,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           },
           complete: () => {
             this.isLoading = false;
-            // this.Refresh();
           },
         });
       },
@@ -588,7 +562,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       },
       complete: () => {
         this.isLoading = false;
-        // this.Refresh();
       },
     });
   }
@@ -689,27 +662,15 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     let valid = true;
     if (this.buyerForm.invalid) {
-      this.bbxToastrService.show(
-        `Nincs megadva vevő.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Nincs megadva vevő.`);
       valid = false;
     }
     if (this.outInvForm.invalid) {
-      this.bbxToastrService.show(
-        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`);
       valid = false;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       valid = false;
     }
     if (!valid) {
@@ -906,6 +867,26 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
   RefreshData(): void { }
 
+  protected override additionalRowDataChanged(changedData: InvoiceLine, index?: number | undefined, col?: string | undefined): void {
+    if (index === undefined) {
+      return
+    }
+
+    if (col === 'unitPrice') {
+      if (changedData.noDiscount) {
+        setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+      }
+
+      changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
+        ? HelperFunctions.Round(changedData.unitPrice)
+        : HelperFunctions.Round2(changedData.unitPrice, 2)
+
+      this.RecalcNetAndVat()
+
+      changedData.Save()
+    }
+  }
+
   async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
     let discount: number | undefined = undefined;
 
@@ -958,6 +939,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         const discountedPrice = unitPrice * discountForPrice;
         res.unitPrice = unitPrice - discountedPrice;
         res.custDiscounted = true;
+        res.discount = discountForPrice * 100
       } else {
         res.unitPrice = unitPrice;
       }

@@ -101,10 +101,12 @@
                                     <label>Árfolyam</label>
                                     <app-bbx-numeric-input
                                         formControlName='exchangeRate'
+                                        formCtrlName="exchangeRate"
                                         class="display-contents"
                                         input_class="{{TileCssClass}}"
                                         (click)="buyerFormNav.HandleFormFieldClick($event)"
                                         [inputmask]="numberInputMask" placeholder="0.00"
+                                        [usedForm]="buyerForm"
                                         [readonly]="isEditModeOff">
                                     </app-bbx-numeric-input>
                                 </nb-form-field>

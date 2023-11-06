@@ -90,22 +90,23 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
         id: this.invoiceId,
         fullData: true
       } as GetInvoiceRequest
-      const data = await this.invoiceService.Get(request)
+      const response = await this.invoiceService.Get(request)
 
-      data.invoiceLines.forEach(datum => {
+      response.invoiceLines.forEach(datum => {
         datum.vatRate = (datum as any).vatPercentage
         const checkedNote = this.checkedLineItems.find(x => datum.id === x.id)
+
+        datum.limit = -datum.quantity
 
         if (checkedNote) {
           datum.quantity += parseInt(checkedNote.quantity.toString())
         }
       })
 
-      this.dbData = data.invoiceLines
+      this.dbData = response.invoiceLines
         .filter(x => x.quantity > 0)
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
-      this.dbData.forEach(x => x.data.limit = -x.data.quantity)
       this.dbDataSource.setData(this.dbData)
 
       this.refreshTable()

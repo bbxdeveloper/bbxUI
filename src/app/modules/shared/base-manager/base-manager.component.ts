@@ -457,7 +457,7 @@ export class BaseManagerComponent<T> {
         event.stopImmediatePropagation();
         event.stopPropagation();
         if (this.searchInputId !== undefined) {
-          console.log("F2 pressed, focusing search input");
+          this.loggerService.info("F2 pressed, focusing search input");
           $(`#${this.searchInputId}`).trigger('focus');
         }
         break;
