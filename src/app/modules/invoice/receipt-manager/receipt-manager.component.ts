@@ -510,10 +510,6 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
-      if (changedData.noDiscount) {
-        setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
-      }
-
       changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
         ? HelperFunctions.Round(changedData.unitPrice)
         : HelperFunctions.Round2(changedData.unitPrice, 2)
@@ -525,6 +521,10 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
+    if (p.noDiscount) {
+      setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+    }
+
     let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
