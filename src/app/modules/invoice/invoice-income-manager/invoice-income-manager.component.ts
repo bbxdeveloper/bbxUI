@@ -919,7 +919,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     res.unitOfMeasure = p.unitOfMeasure
     res.unitOfMeasureX = p.unitOfMeasureX
 
-    console.log('ProductToInvoiceLine res: ', res)
+    // console.log('ProductToInvoiceLine res: ', res)
 
     return res
   }
