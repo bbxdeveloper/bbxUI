@@ -245,7 +245,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
         if (this.newPrice > product.unitPrice1) {
           return [this.newPrice, this.newPrice]
         } else if (this.newPrice < product.unitPrice1) {
-          this.newPrice = product.unitPrice1
           return [product.unitPrice1, product.unitPrice1]
         }
       }
