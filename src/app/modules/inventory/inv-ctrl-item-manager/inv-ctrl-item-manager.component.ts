@@ -159,8 +159,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   //#region AutoSave
 
-  private savedRows: TreeGridNode<InvCtrlItemLine>[] = []
-  private unsavedRows: TreeGridNode<InvCtrlItemLine>[] = []
+  public unsavedRows: TreeGridNode<InvCtrlItemLine>[] = []
   private autoSaveAmount: number = environment.inventoryItemManagerAutoSaveAmount
   private autoSaveEnabled: boolean = environment.inventoryItemManagerAutoSaveEnabled
 
@@ -265,6 +264,10 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.dbDataTable!.OuterJump = true;
 
     if (this.autoSaveEnabled) {
+      this.dbDataTable.rowDeleted.subscribe({
+        next: (info: [any, number]) => this.checkAutoSave(info, Constants.RowChangeTypes.Delete),
+        error: e => this.cs.HandleError(e)
+      })
       this.dbDataTable.rowModified.subscribe({
         next: (info: [any, number]) => this.handleUnsaved(info[0], info[1]),
         error: e => this.cs.HandleError(e)
@@ -284,16 +287,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           this.unsavedRows.push(row)
           break
         case Constants.RowChangeTypes.Delete:
-          const savedIndex = this.savedRows.findIndex(x => x.data.productID === row.data.productID)
-          if (savedIndex > -1) {
-            this.savedRows.splice(savedIndex, 1)
-          } else {
-            const unSavedIndex = this.unsavedRows.findIndex(x => x.data.productID === row.data.productID)
-            if (unSavedIndex > -1) {
-              this.unsavedRows.splice(unSavedIndex, 1)
-            }
+          const unSavedIndex = this.unsavedRows.findIndex(x => x.data.productID === row.data.productID)
+          if (unSavedIndex > -1) {
+            this.unsavedRows.splice(unSavedIndex, 1)
           }
-          break
+          return
         case Constants.RowChangeTypes.Modify:
         default:
           break
@@ -306,13 +304,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     //              \nthis.savedRows.length: ${this.savedRows.length}, this.unsavedRows.length: ${this.unsavedRows.length}`)
     // console.log('\n')
 
-    const c1 = this.unsavedRows.length % this.autoSaveAmount === 0
-    const c2 = (this.unsavedRows.length - 1) % this.autoSaveAmount === 0
-    if (c1 || c2) {
+    if (this.unsavedRows.length === 0) {
+      return
+    }
+
+    if (this.unsavedRows.length % this.autoSaveAmount === 0) {
       const idForDelete = []
       for (let i = 0; i < this.unsavedRows.length; i++) {
         const update = this.dbDataTable.data.find(x => x.data.productID === this.unsavedRows[i].data.productID)
-        if (update) {
+        if (update !== undefined) {
           this.unsavedRows[i] = update
         } else {
           idForDelete.push(this.unsavedRows[i].data.productID)
@@ -320,13 +320,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       }
       idForDelete.forEach(y => this.unsavedRows.splice(this.unsavedRows.findIndex(x => x.data.productID === y), 1))
 
-      const c3 = this.unsavedRows.length % this.autoSaveAmount === 0
-      const c4 = (this.unsavedRows.length - 1) % this.autoSaveAmount === 0
-
-      if (c3 || c4) {
+      if (this.unsavedRows.length % this.autoSaveAmount === 0) {
         const unfinished = this.unsavedRows.find(x => x.data.IsUnfinished())
         if (unfinished === undefined && this.CheckSaveConditionsAndSave(true, this.unsavedRows)) {
-          this.unsavedRows.forEach(x => this.savedRows.push(x))
           this.unsavedRows = []
         }
       }
@@ -361,13 +357,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.unsavedRows[index] = row
     } else {
       this.unsavedRows.push(row)
-    }
-
-    //console.log("handleUnsaved", this.unsavedRows.length, this.unsavedRows, row)
-
-    const index2 = this.savedRows.findIndex(x => x.data.productID === row.data.productID)
-    if (index2 > -1) {
-      this.savedRows.splice(index2, 1)
     }
   }
 
@@ -421,7 +410,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
       confirmDialogRef.onClose.subscribe(res => {
         if (res) {
-          this.statusService.waitForLoad(true)
+          this.statusService.waitForSave(true)
           this.ProcessSave(autoSave)
         }
       })

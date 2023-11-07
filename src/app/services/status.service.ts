@@ -40,7 +40,7 @@ export class StatusService {
 
   public waitForSave(saving: boolean = true): void {
     if (saving) {
-      this.pushProcessStatus(Constants.LoadDataStatuses[Constants.GeneralSavingPhases.SAVING])
+      this.pushProcessStatus(Constants.GeneralSavingStatuses[Constants.GeneralSavingPhases.SAVING])
     } else {
       this.pushProcessStatus(Constants.BlankProcessStatus)
     }
@@ -48,7 +48,7 @@ export class StatusService {
 
   public waitForAutoSave(saving: boolean = true): void {
     if (saving) {
-      this.pushProcessStatus(Constants.LoadDataStatuses[Constants.GeneralAutoSavingPhases.SAVING])
+      this.pushProcessStatus(Constants.GeneralAutoSavingStatuses[Constants.GeneralAutoSavingPhases.SAVING])
     } else {
       this.pushProcessStatus(Constants.BlankProcessStatus)
     }
