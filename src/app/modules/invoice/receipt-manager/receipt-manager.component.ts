@@ -573,6 +573,9 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey) {
+        return
+      }
       switch (_event.key) {
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {

@@ -1105,6 +1105,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey) {
+        return
+      }
       switch (_event.key) {
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
@@ -1168,6 +1171,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }
     }
     else {
+      if ((event as KeyboardEvent).ctrlKey) {
+        return
+      }
       switch ((event as KeyboardEvent).key) {
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
