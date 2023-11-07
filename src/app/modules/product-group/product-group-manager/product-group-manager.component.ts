@@ -34,7 +34,7 @@ export class ProductGroupManagerComponent
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  override allColumns = ['id', 'productGroupCode', 'productGroupDescription'];
+  override allColumns = ['id', 'productGroupCode', 'productGroupDescription', 'minMargin'];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
@@ -72,6 +72,19 @@ export class ProductGroupManagerComponent
       mask: 'Set in sidebar form.',
       colWidth: '50%',
       textAlign: 'left',
+      navMatrixCssClass: TileCssClass
+    },
+    {
+      label: 'Min árrés',
+      objectKey: 'minMargin',
+      colKey: 'minMargin',
+      defaultValue: '',
+      type: 'formatted-number',
+      fInputType: 'formatted-number',
+      fRequired: false,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
       fLast: true
     },
@@ -109,12 +122,20 @@ export class ProductGroupManagerComponent
     return data.productGroupCode
   }
 
+  private fixFields(data: any): any {
+    data.data.id = parseInt(data.data.id + '')
+    if (data.data.minMargin !== undefined) {
+      data.data.minMargin = parseFloat(data.data.minMargin + '')
+    }
+    return data
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<ProductGroup>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data = this.fixFields(data)
       this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-      this.seInv.Create(data.data).subscribe({
+      this.seInv.Create(data!.data).subscribe({
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             await this.RefreshAsync({
@@ -154,16 +175,16 @@ export class ProductGroupManagerComponent
   override ProcessActionPut(data?: IUpdateRequest<ProductGroup>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data = this.fixFields(data)
       this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
-      this.seInv.Update(data.data).subscribe({
+      this.seInv.Update(data!.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
             const newRow = {
               data: d.data,
             } as TreeGridNode<ProductGroup>;
             const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-            this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
+            this.dbData[newRowIndex !== -1 ? newRowIndex : data!.rowIndex] = newRow;
             this.RefreshTable(newRow.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
@@ -238,6 +259,9 @@ export class ProductGroupManagerComponent
       productGroupDescription: new FormControl(undefined, [
         Validators.required,
       ]),
+      minMargin: new FormControl(undefined, [
+        Validators.min(0)
+      ])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
