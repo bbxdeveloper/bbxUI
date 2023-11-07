@@ -464,7 +464,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 }
             }
         }
-        this.rowModified.next([row, rowPos])
+        this.rowModified.next([undefined, undefined])
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, mouseClick: boolean = false, clickEvent?: any, navigatable?: INavigatable): void {

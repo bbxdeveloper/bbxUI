@@ -265,16 +265,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.dbDataTable!.OuterJump = true;
 
     if (this.autoSaveEnabled) {
-      this.dbDataTable.rowAdded.subscribe({
-        next: (info: [any, number]) => this.checkAutoSave(info, Constants.RowChangeTypes.Add),
-        error: e => this.cs.HandleError(e)
-      })
-
-      this.dbDataTable.rowDeleted.subscribe({
-        next: (info: [any, number]) => this.checkAutoSave(info, Constants.RowChangeTypes.Delete),
-        error: e => this.cs.HandleError(e)
-      })
-
       this.dbDataTable.rowModified.subscribe({
         next: (info: [any, number]) => this.handleUnsaved(info[0], info[1]),
         error: e => this.cs.HandleError(e)
@@ -286,38 +276,35 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   checkAutoSave(rowChangeInfo: [any, number], change: Constants.RowChangeTypes): void {
-    if (rowChangeInfo === undefined || rowChangeInfo[0] === undefined || rowChangeInfo[1] === undefined) {
-      return
+    if (!(rowChangeInfo === undefined || rowChangeInfo[0] === undefined || rowChangeInfo[1] === undefined)) {
+      const row = rowChangeInfo[0]
+      const newLength = rowChangeInfo[1]
+      switch (change) {
+        case Constants.RowChangeTypes.Add:
+          this.unsavedRows.push(row)
+          break
+        case Constants.RowChangeTypes.Delete:
+          const savedIndex = this.savedRows.findIndex(x => x.data.productID === row.data.productID)
+          if (savedIndex > -1) {
+            this.savedRows.splice(savedIndex, 1)
+          } else {
+            const unSavedIndex = this.unsavedRows.findIndex(x => x.data.productID === row.data.productID)
+            if (unSavedIndex > -1) {
+              this.unsavedRows.splice(unSavedIndex, 1)
+            }
+          }
+          break
+        case Constants.RowChangeTypes.Modify:
+        default:
+          break
+      }
     }
-
-    const row = rowChangeInfo[0]
-    const newLength = rowChangeInfo[1]
 
     // console.log('\n')
     // console.log(`checkAutoSave
-    //              \nnewLength: ${newLength}, change: ${change},
+    //              \nchange: ${change},
     //              \nthis.savedRows.length: ${this.savedRows.length}, this.unsavedRows.length: ${this.unsavedRows.length}`)
     // console.log('\n')
-
-    switch (change) {
-      case Constants.RowChangeTypes.Add:
-        this.unsavedRows.push(row)
-        break
-      case Constants.RowChangeTypes.Delete:
-        const savedIndex = this.savedRows.findIndex(x => x.data.productID === row.data.productID)
-        if (savedIndex > -1) {
-          this.savedRows.splice(savedIndex, 1)
-        } else {
-          const unSavedIndex = this.unsavedRows.findIndex(x => x.data.productID === row.data.productID)
-          if (unSavedIndex > -1) {
-            this.unsavedRows.splice(unSavedIndex, 1)
-          }
-        }
-        break
-      case Constants.RowChangeTypes.Modify:
-      default:
-        break
-    }
 
     const c1 = this.unsavedRows.length % this.autoSaveAmount === 0
     const c2 = (this.unsavedRows.length - 1) % this.autoSaveAmount === 0
@@ -347,6 +334,20 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   handleUnsaved(row: TreeGridNode<InvCtrlItemLine>, rowPos: number): void {
+    if (row === undefined) {
+      this.checkAutoSave([undefined, this.dbDataTable.data.length], Constants.RowChangeTypes.Modify)
+    }
+
+    let deletedRows: any[] = []
+    this.unsavedRows.forEach(x => {
+      if (this.dbDataTable.data.findIndex(y => y.data.productID == x.data.productID) === -1) {
+        deletedRows.push(x.data.productID)
+      }
+    })
+    deletedRows.forEach(x => {
+      this.unsavedRows.splice(this.unsavedRows.findIndex(y => y.data.productID === x), 1)
+    })
+
     if (this.unsavedRows.length >= this.autoSaveAmount && rowPos === this.dbDataTable.data.length - 1) {
       this.checkAutoSave([row, this.dbDataTable.data.length], Constants.RowChangeTypes.Modify)
     }
@@ -362,7 +363,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.unsavedRows.push(row)
     }
 
-    console.log("handleUnsaved", this.unsavedRows.length, this.unsavedRows, row)
+    //console.log("handleUnsaved", this.unsavedRows.length, this.unsavedRows, row)
 
     const index2 = this.savedRows.findIndex(x => x.data.productID === row.data.productID)
     if (index2 > -1) {
