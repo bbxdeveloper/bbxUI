@@ -71,6 +71,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   public isLoading = false
 
+  public isProductNoDiscount = false
+
+  public canUnitPrice1Change = true
+
   public TileCssClass = TileCssClass
 
   public fixCursorPosition = fixCursorPosition
@@ -129,6 +133,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       return null
     }
 
+    if (this.isProductNoDiscount) {
+      return null
+    }
+
     const value = HelperFunctions.ToFloat(control.value)
 
     return value >= this.newPrice ? null : { notGreatherThanNewPrice: { value: true } }
@@ -166,6 +174,12 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
+        tap(product => {
+          const productGroupCodes = ['LGR', 'SCH', 'PRO']
+          this.canUnitPrice1Change = !productGroupCodes.includes(product.productGroupCode ?? '')
+
+          this.isProductNoDiscount = product.noDiscount;
+        }),
         switchMap(this.createFormValues.bind(this)),
         tap(() => this.enableValidation = true)
       )
@@ -190,7 +204,11 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     let newUnitPrice1
     let newUnitPrice2
 
-    if (this.wasOpen && this.priceChange !== undefined) {
+    if (product.noDiscount) {
+      newUnitPrice1 = product.unitPrice1
+      newUnitPrice2 = product.unitPrice2
+    }
+    else if (this.wasOpen && this.priceChange !== undefined) {
       newUnitPrice1 = this.priceChange.newUnitPrice1
       newUnitPrice2 = this.priceChange.newUnitPrice2
     }
@@ -219,11 +237,12 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       if (this.newPrice > product.unitPrice1!) {
         return [this.newPrice, this.newPrice]
       } else if (this.newPrice < product.unitPrice1!) {
-        return [product.unitPrice1!, product.unitPrice1!]
+        return [product.unitPrice1!, product.unitPrice2!]
       }
+
       return [this.newPrice, this.newPrice]
     }
-    else if (this.newPrice > latestSupplyPrice) {
+    else if (this.newPrice < latestSupplyPrice || this.newPrice > latestSupplyPrice) {
       const priceDelta = this.newPrice - latestSupplyPrice
       changeRatePercent = priceDelta / latestSupplyPrice + 1
     }

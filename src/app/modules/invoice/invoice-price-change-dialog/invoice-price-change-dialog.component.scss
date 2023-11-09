@@ -17,6 +17,12 @@ input.right {
     text-align: right;
 }
 
+.alert-error  {
+    &.no-unitPrice2-change {
+        text-align: center;
+    }
+}
+
 form {
     overflow-y: hidden;
     height: auto !important;
@@ -39,9 +45,18 @@ form {
         grid-column-start: 2;
     }
 
+    .grid {
+        display: grid !important;
+    }
+
+    .flex {
+        display: flex;
+    }
+
     input,
     div input {
         width: 100%;
+        width: -webkit-fill-available;
         max-width: unset !important;
     }
 }

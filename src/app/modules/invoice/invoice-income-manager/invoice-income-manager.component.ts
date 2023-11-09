@@ -484,7 +484,12 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       this.RecalcNetAndVat();
     }
 
-    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice && changedData.unitPrice !== changedData.previousUnitPrice) {
+    const canSuggestPriceChange = () => {
+      return (changedData.unitPrice < changedData.latestSupplyPrice || changedData.unitPrice > changedData.latestSupplyPrice)
+        && changedData.unitPrice !== changedData.previousUnitPrice;
+    }
+
+    if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange()) {
       changedData.previousUnitPrice = changedData.unitPrice
 
       this.suggestPriceChange(this.dbData[index].data)
