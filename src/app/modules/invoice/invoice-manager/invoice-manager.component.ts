@@ -231,6 +231,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   private async loadOffer(id: number): Promise<void> {
+    this.sts.waitForLoad(true)
+
     const offerData: Offer | void = await lastValueFrom(this.offerService.Get({ ID: id, FullData: true } as GetOfferParamsModel))
       .then(data => {
         return data
@@ -258,7 +260,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0, 0, 0))
         controls['notice'].setValue(`Árajánlat: ${offerData.offerNumberX}`)
 
-        offerData.offerLines.forEach(async (offerLine: OfferLineFullData) => {
+        let invoiceLines: TreeGridNode<InvoiceLine>[] = []
+
+        // offerData.offerLines.forEach won't work with await
+        for (let i = 0; i < offerData.offerLines.length; i++) {
+          const offerLine = offerData.offerLines[i]
+
           const product: Product | void = await lastValueFrom(this.productService.GetProductByCode({ ProductCode: offerLine.productCode } as GetProductByCodeRequest))
             .then(data => {
               return data
@@ -267,21 +274,30 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
               this.cs.HandleError(err)
             })
             .finally(() => { })
-          
+
           if (product) {
-            this.kbS.SetCurrentNavigatable(this.dbDataTable)
-            this.kbS.ClickCurrentElement()
-            this.HandleProductChoose(product, false, (p: TreeGridNode<InvoiceLine>) => {
-              if (p === undefined || p.data === undefined) {
-                return
-              }
-              p.data.quantity = offerLine.quantity
-              p.data.unitPriceDiscounted = offerLine.unitPrice1 * offerLine.discount
-            })
+            let invoiceLine = { data: await this.ProductToInvoiceLine(product) }
+
+            invoiceLine.data.quantity = offerLine.quantity
+            invoiceLine.data.unitPrice = offerLine.unitPrice
+
+            invoiceLine.data.ReCalc()
+
+            invoiceLines.push(invoiceLine)
           }
-        })
+        }
+
+        this.dbDataTable.AddRange(invoiceLines)
+
+        this.RecalcNetAndVat()
+
+        this.kbS.SetCurrentNavigatable(this.outInvFormNav)
+        this.kbS.SelectFirstTile()
+        this.kbS.ClickCurrentElement()
       }
     }
+
+    this.sts.waitForLoad(false)
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -855,15 +871,13 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     });
   }
 
-  async HandleProductChoose(res: Product, wasInNavigationMode: boolean, patch?: (x: any) => void): Promise<void> {
+  async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
       if (!wasInNavigationMode) {
         const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
-        if (patch) {
-          patch(currentRow)
-        }
+
         currentRow?.data.Save('productCode');
 
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
