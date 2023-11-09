@@ -260,7 +260,7 @@ export class ProductGroupManagerComponent
         Validators.required,
       ]),
       minMargin: new FormControl(undefined, [
-        Validators.min(0)
+       Validators.min(0)
       ])
     });
 

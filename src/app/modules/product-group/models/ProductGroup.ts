@@ -16,7 +16,7 @@ export function BlankProductGroup(): ProductGroup {
         createTime: '',
         updateTime: '',
         deleted: false,
-        minMargin: 0
+        minMargin: undefined
     } as ProductGroup;
 }
 
