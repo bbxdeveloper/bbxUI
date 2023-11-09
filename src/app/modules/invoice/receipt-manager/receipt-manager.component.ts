@@ -510,9 +510,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
-      changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
-        ? HelperFunctions.Round(changedData.unitPrice)
-        : HelperFunctions.Round2(changedData.unitPrice, 2)
+      changedData.unitPrice = HelperFunctions.currencyRound(changedData.unitPrice, this.outGoingInvoiceData.currencyCode)
 
       this.RecalcNetAndVat()
 
@@ -536,7 +534,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
     res.custDiscounted = !p.noDiscount
-    res.unitPrice = p.unitPrice2!
+    res.unitPrice = HelperFunctions.currencyRound(p.unitPrice2!, this.outGoingInvoiceData.currencyCode)
 
     res.vatRateCode = p.vatRateCode;
 
