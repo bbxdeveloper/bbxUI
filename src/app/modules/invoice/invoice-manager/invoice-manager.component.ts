@@ -963,9 +963,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
-      changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
-        ? HelperFunctions.Round(changedData.unitPrice)
-        : HelperFunctions.Round2(changedData.unitPrice, 2)
+      changedData.unitPrice = HelperFunctions.currencyRound(changedData.unitPrice, this.outGoingInvoiceData.currencyCode)
 
       this.RecalcNetAndVat()
 
@@ -1036,6 +1034,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     } else {
       res.unitPrice = unitPrice;
     }
+
+    res.unitPrice = HelperFunctions.currencyRound(res.unitPrice, this.outGoingInvoiceData.currencyCode)
 
     res.vatRateCode = product.vatRateCode;
 
