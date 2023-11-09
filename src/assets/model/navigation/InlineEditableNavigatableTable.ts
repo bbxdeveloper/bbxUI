@@ -259,6 +259,27 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         return undefined;
     }
 
+    public AddRange(items: TreeGridNode<T>[], ): void {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+        this.data.splice(this.data.length - 1, 1)
+
+        for (let i = 0; i < items.length; i++) {
+            this.data.push(items[i])
+        }
+        this.dataSource.setData(this.data)
+        this.GenerateAndSetNavMatrices(false)
+
+        this.SetCreatorRow()
+        this.ResetEdit()
+
+        this.GenerateAndSetNavMatrices(false)
+
+        setTimeout(() => {
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        }, 100)
+    }
+
     ResetEdit(): void {
         this.inlineForm = new FormGroup({});
         this.editedProperty = undefined;

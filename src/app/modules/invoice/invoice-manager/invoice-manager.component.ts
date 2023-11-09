@@ -48,6 +48,12 @@ import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoic
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { PaymentMethods } from '../models/PaymentMethod';
+import { OfferService } from '../../offer/services/offer.service';
+import { GetOfferParamsModel } from '../../offer/models/GetOfferParamsModel';
+import { Offer } from '../../offer/models/Offer';
+import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
+import { OfferLineFullData } from '../../offer/models/OfferLine';
+import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -198,7 +204,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
     private custDiscountService: CustomerDiscountService,
-    editCustomerDialog: EditCustomerDialogManagerService
+    editCustomerDialog: EditCustomerDialogManagerService,
+    private offerService: OfferService,
+    private route: ActivatedRoute
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
@@ -213,6 +221,85 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.path = params[0].path
     })
     this.isPageReady = true;
+  }
+
+  private async handlePathParams(): Promise<void> {
+    if (this.route.snapshot.queryParamMap.has('offerId')) {
+      const offerId = parseInt(this.route.snapshot.queryParams['offerId'])
+      await this.loadOffer(offerId)
+    }
+  }
+
+  private async loadOffer(id: number): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    const offerData: Offer | void = await lastValueFrom(this.offerService.Get({ ID: id, FullData: true } as GetOfferParamsModel))
+      .then(data => {
+        return data
+      })
+      .catch(err => {
+        this.cs.HandleError(err)
+      })
+      .finally(() => { })
+
+    if (offerData) {
+      const customer: Customer | void = await lastValueFrom(this.customerService.Get({ ID: offerData.customerID } as GetCustomerParamListModel))
+        .then(data => {
+          return data
+        })
+        .catch(err => {
+          this.cs.HandleError(err)
+        })
+        .finally(() => { })
+
+      if (customer) {
+        this.SetDataForForm(customer)
+  
+        const controls = this.outInvForm.controls
+        controls['paymentMethod'].setValue(customer.defPaymentMethodX)
+        controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0, 0, 0))
+        controls['notice'].setValue(`Árajánlat: ${offerData.offerNumberX}`)
+
+        let invoiceLines: TreeGridNode<InvoiceLine>[] = []
+
+        // offerData.offerLines.forEach won't work with await
+        for (let i = 0; i < offerData.offerLines.length; i++) {
+          const offerLine = offerData.offerLines[i]
+
+          const product: Product | void = await lastValueFrom(this.productService.GetProductByCode({ ProductCode: offerLine.productCode } as GetProductByCodeRequest))
+            .then(data => {
+              return data
+            })
+            .catch(err => {
+              this.cs.HandleError(err)
+            })
+            .finally(() => { })
+
+          if (product) {
+            let invoiceLine = { data: await this.ProductToInvoiceLine(product) }
+
+            invoiceLine.data.quantity = offerLine.quantity
+            invoiceLine.data.unitPrice = offerLine.unitPrice
+
+            invoiceLine.data.ReCalc()
+
+            invoiceLines.push(invoiceLine)
+          }
+        }
+
+        this.dbDataTable.AddRange(invoiceLines)
+        this.dbData = this.dbDataTable.data
+        this.dbDataDataSrc.setData(this.dbData)
+
+        this.RecalcNetAndVat()
+
+        this.kbS.SetCurrentNavigatable(this.outInvFormNav)
+        this.kbS.SelectFirstTile()
+        this.kbS.ClickCurrentElement()
+      }
+    }
+
+    this.sts.waitForLoad(false)
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -580,7 +667,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
-  private AfterViewInitSetup(): void {
+  private async AfterViewInitSetup(): Promise<void> {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.buyerFormNav.GenerateAndSetNavMatrices(true);
@@ -598,6 +685,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.dbDataTable?.PushFooterCommandList();
 
     this.InitFormDefaultValues();
+
+    await this.handlePathParams()
 
     setTimeout(() => {
       this.kbS.SetCurrentNavigatable(this.buyerFormNav);
@@ -790,6 +879,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
       if (!wasInNavigationMode) {
         const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
+
         currentRow?.data.Save('productCode');
 
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);

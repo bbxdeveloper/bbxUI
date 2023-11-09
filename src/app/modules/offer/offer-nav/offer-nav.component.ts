@@ -1142,6 +1142,18 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return customerRes;
   }
 
+  private toInvoice(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y].data.id
+      this.router.navigate(['invoice/invoice', id, {}]);
+      this.router.navigate(['invoice/invoice'], {
+        queryParams: {
+          offerId: id
+        }
+      })
+    }
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) async onFunctionKeyDown(event: KeyboardEvent) {
@@ -1177,6 +1189,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       case this.KeySetting[Actions.Details].KeyCode:
         event.preventDefault();
         this.ViewNotice();
+        return;
+      case this.KeySetting[Actions.ToggleForm].KeyCode:
+        event.preventDefault();
+        this.toInvoice();
         return;
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
