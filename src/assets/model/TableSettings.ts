@@ -294,8 +294,8 @@ export module PendingDeliveryNotesTableSettings {
             type: 'string',
             fRequired: true,
             mask: '',
-            colWidth: '30%',
-            textAlign: 'center',
+            colWidth: '160px',
+            textAlign: 'left',
             navMatrixCssClass: TileCssClass,
         },
         {

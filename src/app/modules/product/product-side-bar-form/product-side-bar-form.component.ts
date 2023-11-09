@@ -55,7 +55,8 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
 
   moveCursor(codeInput: any): void {
     setTimeout(() => {
-      codeInput.setSelectionRange(0, codeInput.value.length);
+      const cursorLocation = codeInput.value.length
+      codeInput.setSelectionRange(cursorLocation, cursorLocation);
     }, 100);
   }
 
