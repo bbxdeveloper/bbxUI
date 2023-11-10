@@ -850,6 +850,10 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
+      if (!priceChange) {
+        return
+      }
+
       this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
       invoiceLine.unitPriceChanged = true
@@ -911,9 +915,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     res.latestSupplyPrice = p.latestSupplyPrice
 
     res.unitPrice = p.latestSupplyPrice!
-
-    res.newUnitPrice1 = p.unitPrice1
-    res.newUnitPrice2 = p.unitPrice2
 
     res.vatRateCode = p.vatRateCode
 
