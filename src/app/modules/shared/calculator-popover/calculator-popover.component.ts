@@ -29,6 +29,12 @@ export class CalculatorPopoverComponent extends BaseNavigatableComponentComponen
 
   @Output() popoverClose: EventEmitter<any> = new EventEmitter<any>()
 
+  /**
+   * True -> closing with ESC, using Enter for multiple operations one after the other
+   * False -> ESC doesn't have a function, the first Enter key will close the calculator after the operation
+   */
+  @Input() multipleOperations: boolean = false
+
   override NavigatableType = NavigatableType.dialog
 
   calcSymbol: string = '?'
@@ -111,6 +117,10 @@ export class CalculatorPopoverComponent extends BaseNavigatableComponentComponen
     this.resultChanged.emit(this.result)
 
     // console.log(`[Calculator calc END] operator: ${this.calcSymbol}, base: ${this.base}, manipulator: ${this.manipulator}, result: ${this.result}`)
+
+    if (!this.multipleOperations) {
+      this.close()
+    }
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
@@ -130,7 +140,7 @@ export class CalculatorPopoverComponent extends BaseNavigatableComponentComponen
     }
     if (event.key == KeyBindings.Enter) {
       this.calc()
-    } else if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+    } else if (this.multipleOperations && event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
       this.close()
     }
   }
