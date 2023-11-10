@@ -6,6 +6,9 @@
         <div *ngIf="!canUnitPrice1Change" class="alert-error no-unitPrice2-change">
             Nincs listaár-változás!
         </div>
+        <div *ngIf="isInsideMinMargin" class="alert-error no-unitPrice2-change">
+            Minimum árrésen belüli ár
+        </div>
 
         <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
             <label>
@@ -17,14 +20,21 @@
             <label class="old-price text-center">
                 Régi ár
             </label>
-            <div class="flex">
-                <label *ngIf="isProductNoDiscount" class="alert-error">
+            <div class="label-row">
+                <label class="alert-error" [style.visibility]="isProductNoDiscount ? 'visible' : 'hidden'">
                     Akciós
                 </label>
 
-                <label class="text-center">
+                <label class="new-price">
                     Új ár
                 </label>
+
+                <div class="min-margin">
+                    <label>
+                        Min. árrés%:
+                    </label>
+                    <input nbInput type="text" formControlName="minMargin" readonly>
+                </div>
             </div>
 
             <label>

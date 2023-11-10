@@ -23,6 +23,26 @@ input.right {
     }
 }
 
+.label-row {
+    display: flex;
+    justify-content: space-between;
+
+    .new-price {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .min-margin {
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+
+        input {
+            width: 80px;
+        }
+    }
+}
+
 form {
     overflow-y: hidden;
     height: auto !important;
@@ -55,8 +75,6 @@ form {
 
     input,
     div input {
-        width: 100%;
-        width: -webkit-fill-available;
         max-width: unset !important;
     }
 }

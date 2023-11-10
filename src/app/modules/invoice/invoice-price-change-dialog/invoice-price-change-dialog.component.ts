@@ -75,6 +75,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   public canUnitPrice1Change = true
 
+  public isInsideMinMargin = false
+
   public TileCssClass = TileCssClass
 
   public fixCursorPosition = fixCursorPosition
@@ -109,6 +111,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     this.productPriceChangeForm = new FormGroup({
       productCode: new FormControl(''),
       productDescription: new FormControl(''),
+      minMargin: new FormControl(0),
       oldUnitPrice1: new FormControl(0),
       newUnitPrice1: new FormControl(0, [this.greatherThanNewPrice.bind(this)]),
       oldUnitPrice2: new FormControl(0),
@@ -180,6 +183,14 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
           this.isProductNoDiscount = product.noDiscount;
         }),
+        tap(product => {
+          if (product.minMargin > 0) {
+            const treshold = this.newPrice / (1 * product.minMargin / 100)
+            if (product.unitPrice1! > treshold || product.unitPrice2! > treshold) {
+              this.isInsideMinMargin = true
+            }
+          }
+        }),
         switchMap(this.createFormValues.bind(this)),
         tap(() => this.enableValidation = true)
       )
@@ -222,6 +233,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     return of({
       productCode: product.productCode,
       productDescription: product.description,
+      minMargin: product.minMargin,
       oldUnitPrice1: product.unitPrice1,
       newUnitPrice1: newUnitPrice1,
       oldUnitPrice2: product.unitPrice2,
@@ -241,6 +253,9 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       }
 
       return [this.newPrice, this.newPrice]
+    }
+    else if (this.isInsideMinMargin) {
+      return [product.unitPrice1!, product.unitPrice2!]
     }
     else if (this.newPrice < latestSupplyPrice || this.newPrice > latestSupplyPrice) {
       const priceDelta = this.newPrice - latestSupplyPrice
