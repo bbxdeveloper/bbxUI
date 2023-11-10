@@ -323,7 +323,11 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
         if (this.invCtrlPeriods.length > 0) {
-          this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+          const currentVal = this.filterForm.controls['invCtrlPeriod'].value
+          const matching = currentVal === undefined || currentVal === null ? undefined : this.invCtrlPeriods.find(x => x === currentVal)
+          if (matching === undefined) {
+            this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+          }
         }
       })
       .catch(err => {
