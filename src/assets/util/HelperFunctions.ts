@@ -15,6 +15,7 @@ import { OneButtonConfirmationDialogComponent } from "src/app/modules/shared/sim
 import { NavigatableType } from "../model/navigation/Navigatable";
 import { OneNumberInputDialogComponent } from "src/app/modules/shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component";
 import { createMask } from "@ngneat/input-mask";
+import { CurrencyCodes } from "src/app/modules/system/models/CurrencyCode";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -259,6 +260,12 @@ export module HelperFunctions {
 
     export function ToOptionalInt(p: any): number | undefined {
         return isEmptyOrSpaces(p) ? undefined : parseInt((p + '').replace(/\s/g, ''));
+    }
+
+    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null): number {
+        return currency === CurrencyCodes.HUF
+            ? Round(value)
+            : Round2(value, 2)
     }
 
     export function Round(p: string | number): number {
