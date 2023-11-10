@@ -40,6 +40,7 @@ import { GetLatestIccRequest } from '../models/GetLatestIccRequest';
 import { CreateIccRequest } from '../models/CreateIccRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { ConfirmationWithAuthDialogComponent, ConfirmationWithAuthDialogesponse } from '../../shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
+import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 
 @Component({
   selector: 'app-cont-inv-ctrl',
@@ -623,6 +624,28 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     this.Save();
   }
 
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
+
+      this.sts.waitForLoad(false)
+
+      this.dialogService.open(ProductStockInformationDialogComponent, {
+        context: {
+          product: product
+        }
+      })
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
@@ -659,6 +682,21 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
