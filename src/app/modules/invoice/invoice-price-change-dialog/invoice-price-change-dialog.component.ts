@@ -155,9 +155,9 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.navigateable.GenerateAndSetNavMatrices(true)
     this.keyboardService.SelectFirstTile()
-    this.keyboardService.Jump(AttachDirection.UP, true)
+    this.keyboardService.Jump(AttachDirection.UP, true);
 
-    this.newUnitPrice1.nativeElement.focus()
+    (this.newUnitPrice1 as any).input.nativeElement.focus()
   }
 
   public ngOnDestroy(): void {
@@ -198,10 +198,12 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
         next: prices => {
           this.productPriceChangeForm.patchValue(prices);
 
-          const input = this.newUnitPrice1.nativeElement
-          const position = input.value.indexOf('.')
-          input.selectionStart = 0
-          input.selectionEnd = position
+          setTimeout(() => {
+            const input = (this.newUnitPrice1 as any).input.nativeElement
+            const position = input.value.indexOf('.')
+            input.selectionStart = 0
+            input.selectionEnd = position
+          }, 50)
         },
         error: error => {
           this.commonService.HandleError(error)

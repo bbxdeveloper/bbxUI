@@ -850,11 +850,11 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+
       if (!priceChange) {
         return
       }
-
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
       invoiceLine.unitPriceChanged = true
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
