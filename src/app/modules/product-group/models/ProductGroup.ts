@@ -4,7 +4,8 @@ export interface ProductGroup {
     "productGroupDescription": string,
     "createTime"?: string,
     "updateTime"?: string,
-    "deleted"?: boolean
+    "deleted"?: boolean,
+    "minMargin"?: number
 }
 
 export function BlankProductGroup(): ProductGroup {
@@ -14,7 +15,8 @@ export function BlankProductGroup(): ProductGroup {
         productGroupDescription: '',
         createTime: '',
         updateTime: '',
-        deleted: false
+        deleted: false,
+        minMargin: undefined
     } as ProductGroup;
 }
 

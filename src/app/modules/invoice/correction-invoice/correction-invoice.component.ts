@@ -549,6 +549,9 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
         case KeyBindings.F3: {
           HelperFunctions.StopEvent(_event);
