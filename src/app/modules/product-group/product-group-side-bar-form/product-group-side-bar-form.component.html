@@ -56,6 +56,27 @@
                     </nb-form-field>
                     <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
                 </ng-container>
+                
+                <ng-container *ngSwitchCase="'formatted-number'">
+                    <nb-form-field
+                        (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
+                        <div class="bbx-fd-form-field-inner-div">
+                            <ng-container [ngSwitch]="it.fInputType">
+                                <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
+                
+                                <app-bbx-numeric-input
+                                    [formControlName]="it.objectKey"
+                                    class="display-contents"
+                                    input_class="{{TileCssClass}}"
+                                    (click)="currentForm.HandleFormFieldClick($event)"
+                                    [inputmask]="numberInputMask" placeholder="0.00"
+                                    [readonly]="isReadonly" [required]="it.fRequired ?? false">
+                                </app-bbx-numeric-input>
+                            </ng-container>
+                        </div>
+                    </nb-form-field>
+                    <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
+                </ng-container>
 
                 <ng-container *ngSwitchCase="'readonly'">
                     <nb-form-field (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
