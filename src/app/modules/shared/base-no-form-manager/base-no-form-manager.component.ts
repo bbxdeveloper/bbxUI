@@ -52,7 +52,7 @@ export class BaseNoFormManagerComponent<T> {
     return this.uid;
   }
 
-  get getInputParams(): any {
+  public getInputParams(override?: Constants.Dct): any {
     return {};
   }
 
@@ -190,7 +190,7 @@ export class BaseNoFormManagerComponent<T> {
   ProcessActionDelete(data?: IUpdateRequest<T>): void { }
 
   ActionRefresh(data?: IUpdateRequest<T>): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
@@ -235,7 +235,7 @@ export class BaseNoFormManagerComponent<T> {
   }
 
   search(): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   Refresh(params?: any): void { }

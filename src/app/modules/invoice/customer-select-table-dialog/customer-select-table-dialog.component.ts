@@ -31,11 +31,11 @@ const NavMap: string[][] = [
 export class CustomerSelectTableDialogComponent extends SelectTableDialogComponent<Customer>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked {
 
-  get getInputParams(): GetCustomersParamListModel {
+  public getInputParams(override?: Constants.Dct): GetCustomersParamListModel {
     return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '10', PageNumber: '1', OrderBy: 'customerName' };
   }
 
-  get getInputParamsForAll(): GetCustomersParamListModel {
+  public getInputParamsForAll(override?: Constants.Dct): GetCustomersParamListModel {
     return { SearchString: this.searchString ?? '', IsOwnData: false, PageSize: '999999', OrderBy: 'customerName' };
   }
 
@@ -66,7 +66,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override ngOnInit(): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
   ngAfterContentInit(): void {
     this.kbS.SetWidgetNavigatable(this);
@@ -94,7 +94,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
       this.searchString = event.target.value;
-      this.Refresh(this.getInputParams);
+      this.Refresh(this.getInputParams());
     } else {
       this.searchString = event.target.value;
       this.Search(this.searchString);
@@ -102,12 +102,12 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override showAll(): void {
-    this.Refresh(this.getInputParamsForAll);
+    this.Refresh(this.getInputParamsForAll());
   }
 
   override showLess(): void {
     this.kbS.SelectFirstTile();
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   RefreshTable(): void {
@@ -206,7 +206,7 @@ export class CustomerSelectTableDialogComponent extends SelectTableDialogCompone
   }
 
   override Search(searchString: string): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   HandleItemChoice(item: SelectedCell): void {

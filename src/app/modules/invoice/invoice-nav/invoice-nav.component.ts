@@ -226,10 +226,10 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     },
   ];
 
-  override get getInputParams(): GetInvoicesParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetInvoicesParamListModel {
     const controls = this.filterForm.controls
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       InvoiceType: this.invoiceTypes.find(x => x.text === controls['InvoiceType'].value)?.value ?? '',
@@ -245,7 +245,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateFrom'].value : null,
       InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateTo'].value : null,
       OrderBy: 'InvoiceNumber'
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+    return params
   }
 
   filterFormId = 'invoices-filter-form';
@@ -476,8 +480,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh();
+      next: (newPageNumber: number) => {
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
@@ -588,11 +592,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.filterFormNav.OuterJump = true;
   }
 
-  override async Refresh(): Promise<void> {
+  override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
     this.isLoading = true;
 
     try {
-      const response = await this.invoiceService.getAllAsync(this.getInputParams)
+      const response = await this.invoiceService.getAllAsync(params ?? this.getInputParams())
 
       if (response && response.succeeded && !!response.data) {
         const tempData = response.data.map((x) => {
@@ -736,7 +740,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
 
         const reportParams = {
-          report_params: this.getInputParams,
+          report_params: this.getInputParams(),
         } as Constants.Dct
 
         this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
