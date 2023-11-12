@@ -83,7 +83,7 @@ export class ProductGroupManagerComponent
       fInputType: 'formatted-number',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '135px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
       fLast: true
