@@ -75,7 +75,7 @@ export class ProductGroupManagerComponent
       navMatrixCssClass: TileCssClass
     },
     {
-      label: 'Min árrés',
+      label: 'Árrésminimum %',
       objectKey: 'minMargin',
       colKey: 'minMargin',
       defaultValue: '',
@@ -83,7 +83,7 @@ export class ProductGroupManagerComponent
       fInputType: 'formatted-number',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '135px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
       fLast: true
