@@ -78,15 +78,18 @@ export class OriginManagerComponent
   ];
 
   idParam?: number;
-  override get getInputParams(): GetOriginsParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetOriginsParamListModel {
     const params = {
-      PageNumber: this.dbDataTable.currentPage + '',
+      PageNumber: 1 + '',
       PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '',
       OrderBy: "originCode",
       ID: this.idParam
-    };
-    this.idParam = undefined;
-    return params;
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    this.idParam = undefined
+    return params
   }
 
   constructor(
@@ -126,7 +129,7 @@ export class OriginManagerComponent
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
-            await this.RefreshAsync(this.getInputParams);
+            await this.RefreshAsync(this.getInputParams());
             setTimeout(() => {
               this.dbDataTable.SelectRowById(d.data!.id);
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -271,13 +274,13 @@ export class OriginManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
     this.bbxSidebarService.collapse();
 
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   override Refresh(params?: GetOriginsParamListModel): void {

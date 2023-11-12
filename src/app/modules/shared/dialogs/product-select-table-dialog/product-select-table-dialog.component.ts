@@ -65,7 +65,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     return (this.searchString ?? '').trim();
   }
 
-  get getInputParams(): GetProductsParamListModel {
+  public getInputParams(override?: Constants.Dct): GetProductsParamListModel {
     return {
       SearchString: this.srcString,
       PageSize: '10',
@@ -76,7 +76,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     };
   }
 
-  get getInputParamsForAll(): GetProductsParamListModel {
+  public getInputParamsForAll(override?: Constants.Dct): GetProductsParamListModel {
     return {
       SearchString: this.srcString,
       PageSize: '999999',
@@ -133,7 +133,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
         const change = this.currentChooserValue !== newValue;
         this.currentChooserValue = newValue;
         if (change) {
-          this.Refresh(this.getInputParams);
+          this.Refresh(this.getInputParams());
         }
       }
     });
@@ -147,7 +147,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     if (!HelperFunctions.isEmptyOrSpaces(this.searchString)) {
       this.inputForm.controls['chooser'].setValue(this.defaultSearchModeForEnteredFilter);
     }
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
   ngAfterViewInit(): void {
   }
@@ -204,7 +204,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
       this.searchString = event.target.value
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     } else {
       this.searchString = event.target.value
       this.Search(this.searchString)
@@ -216,12 +216,12 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override showAll(): void {
-    this.Refresh(this.getInputParamsForAll);
+    this.Refresh(this.getInputParamsForAll());
   }
 
   override showLess(): void {
     this.kbS.SelectFirstTile();
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   RefreshTable(): void {
@@ -296,7 +296,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override Search(searchString: string): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   HandleItemChoice(item: SelectedCell): void {
@@ -329,7 +329,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     
     if (this.searchString.length !== 0 && newSearchString.length === 0) {
       this.searchString = newSearchString
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     } else {
       this.searchString = newSearchString
       this.Search(this.searchString)
@@ -341,7 +341,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       event.preventDefault()
       this.currentChooserValue = (this.currentChooserValue + 1) % 3
       this.clickCurrentRadio()
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     }
     switch (event.key) {
       case KeyBindings.exit: {

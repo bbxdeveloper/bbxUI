@@ -22,7 +22,7 @@ import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemC
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -176,7 +176,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private stockService: StockService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
-    router: Router
+    router: Router,
+    private route: ActivatedRoute
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -375,6 +376,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.kbS.setEditMode(KeyboardModes.EDIT);
 
       this.cdref.detectChanges();
+
+      if (this.route.snapshot.queryParamMap.has('reload')) {
+        this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.ClickCurrentElement()
+      }
     }, 500);
 
     this.buyerForm.controls['invCtrlPeriod'].valueChanges.subscribe({

@@ -145,18 +145,21 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   vats: VatRate[] = [];
 
   idParam?: number;
-  override get getInputParams(): GetProductsParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetProductsParamListModel {
     const params = {
       OrderBy: "ProductCode",
-      PageNumber: this.dbDataTable.currentPage + '',
+      PageNumber: 1 + '',
       PageSize: this.dbDataTable.pageSize,
       SearchString: this.searchString ?? '',
       ID: this.idParam,
       FilterByCode: true,
       FilterByName: true
-    } as GetProductsParamListModel;
-    this.idParam = undefined;
-    return params;
+    } as GetProductsParamListModel
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    this.idParam = undefined
+    return params
   }
 
   get blankProductRow(): () => Product {
@@ -326,7 +329,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           next: async d => {
             if (d.succeeded && !!d.data) {
               this.idParam = d.data.id;
-              await this.RefreshAsync(this.getInputParams);
+              await this.RefreshAsync(this.getInputParams());
               this.dbDataTable.SelectRowById(d.data.id);
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
@@ -564,7 +567,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.flatDesignForm.FillFormWithObject = (data: Product) => {
@@ -586,7 +589,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
 
     this.bbxSidebarService.collapse();
 
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
   }
 
   override Refresh(params?: GetProductsParamListModel): void {

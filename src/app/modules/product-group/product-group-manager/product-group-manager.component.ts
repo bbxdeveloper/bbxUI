@@ -75,7 +75,7 @@ export class ProductGroupManagerComponent
       navMatrixCssClass: TileCssClass
     },
     {
-      label: 'Min árrés',
+      label: 'Árrésminimum %',
       objectKey: 'minMargin',
       colKey: 'minMargin',
       defaultValue: '',
@@ -83,15 +83,24 @@ export class ProductGroupManagerComponent
       fInputType: 'formatted-number',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '135px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
       fLast: true
     },
   ];
 
-  override get getInputParams(): GetProductGroupsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize,SearchString: this.searchString ?? '', OrderBy: 'productGroupCode' };
+  public override getInputParams(override?: Constants.Dct): GetProductGroupsParamListModel {
+    const params = {
+      PageNumber: 1 + '',
+      PageSize: this.dbDataTable.pageSize,
+      SearchString: this.searchString ?? '',
+      OrderBy: 'productGroupCode'
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    return params
   }
 
   constructor(
@@ -139,7 +148,7 @@ export class ProductGroupManagerComponent
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             await this.RefreshAsync({
-              PageNumber: this.dbDataTable.currentPage + '',
+              PageNumber: 1 + '',
               PageSize: this.dbDataTable.pageSize,
               SearchString: this.searchString ?? '',
               OrderBy: 'productGroupCode',
@@ -287,13 +296,13 @@ export class ProductGroupManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
     this.bbxSidebarService.collapse();
 
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   override Refresh(params?: GetProductGroupsParamListModel): void {

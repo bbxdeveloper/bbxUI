@@ -1,7 +1,18 @@
 import { EventEmitter } from "@angular/core";
 
 export class SimplePaginator {
-    currentPage: number = 1;
+    _currentPage: number = 1;
+    get currentPage(): number {
+        return this._currentPage
+    }
+    set currentPage(pageNumber: number) {
+        if (pageNumber > 0) {
+            this._currentPage = pageNumber
+        } else {
+            throw Error(`Invalid page number: ${pageNumber}`)
+        }
+    }
+
     allPages: number = 1;
 
     pageSize: string = '50';
@@ -10,8 +21,8 @@ export class SimplePaginator {
     totalUnfilteredItems: number = 0;
     itemsOnCurrentPage = 0;
 
-    get isFirstPage(): boolean { return this.currentPage === 1; }
-    get isLastPage(): boolean { return this.currentPage === this.allPages }
+    get isFirstPage(): boolean { return this._currentPage === 1; }
+    get isLastPage(): boolean { return this._currentPage === this.allPages }
 
     NewPageSelected: EventEmitter<number> = new EventEmitter<number>();
 
@@ -22,7 +33,7 @@ export class SimplePaginator {
             this.pageSize = '50';
         }
         if (quiet) {
-            this.currentPage = 1;
+            this._currentPage = 1;
         } else {
             this.firstPage();
         }
@@ -40,30 +51,30 @@ export class SimplePaginator {
         this.totalUnfilteredItems = response.recordsTotal;
         this.itemsOnCurrentPage = response?.data?.length ?? 0;
         console.log(
-            `[SetPaginatorData]: pageNumber: ${this.currentPage}, allPages: ${this.allPages}, recordsFiltered: ${response.recordsFiltered}, pageSize: ${response.pageSize}, totalItems: ${this.totalItems}, itemsOnCurrentPage: ${this.itemsOnCurrentPage}` 
+            `[SetPaginatorData]: pageNumber: ${this._currentPage}, allPages: ${this.allPages}, recordsFiltered: ${response.recordsFiltered}, pageSize: ${response.pageSize}, totalItems: ${this.totalItems}, itemsOnCurrentPage: ${this.itemsOnCurrentPage}` 
         );
     }
 
     nextPage(): void {
         if (!this.isLastPage) {
-            this.NewPageSelected.emit(++(this.currentPage));
+            this.NewPageSelected.emit(++(this._currentPage));
         }
     }
 
     previousPage(): void {
         if (!this.isFirstPage) {
-            this.NewPageSelected.emit(--(this.currentPage));
+            this.NewPageSelected.emit(--(this._currentPage));
         }
     }
 
     firstPage(): void {
         this.currentPage = 1;
-        this.NewPageSelected.emit(this.currentPage);
+        this.NewPageSelected.emit(this._currentPage);
     }
 
     lastPage(): void {
         this.currentPage = this.allPages;
-        this.NewPageSelected.emit(this.currentPage);
+        this.NewPageSelected.emit(this._currentPage);
     }
 
     newPageSizeSelected(): void {
@@ -71,6 +82,6 @@ export class SimplePaginator {
     }
 
     refresh(): void {
-        this.NewPageSelected.emit(this.currentPage);
+        this.NewPageSelected.emit(this._currentPage);
     }
 }

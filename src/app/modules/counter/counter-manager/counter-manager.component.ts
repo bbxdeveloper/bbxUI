@@ -145,9 +145,18 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
   wareHouses: WareHouse[] = [];
 
   idParam?: number;
-  override get getInputParams(): GetCountersParamListModel {
-    const params = { ID: this.idParam, OrderBy: "counterCode", PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '' };
-    this.idParam = undefined;
+  public override getInputParams(override?: Constants.Dct): GetCountersParamListModel {
+    const params = {
+      ID: this.idParam,
+      OrderBy: "counterCode",
+      PageNumber: 1 + '',
+      PageSize: this.dbDataTable.pageSize,
+      SearchString: this.searchString ?? ''
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    this.idParam = undefined
     return params;
   }
 
@@ -255,7 +264,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                 next: async newData => {
                   if (!!newData) {
                     this.idParam = d.data.id;
-                    await this.RefreshAsync(this.getInputParams);
+                    await this.RefreshAsync(this.getInputParams());
                     this.dbDataTable.SelectRowById(d.data.id);
                     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
                     this.simpleToastrService.show(
@@ -487,7 +496,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({'PageNumber': newPageNumber}));
       },
     });
     this.dbDataTable.flatDesignForm.FillFormWithObject = (data: Counter) => {
@@ -508,7 +517,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
 
     this.bbxSidebarService.collapse();
 
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
   }
 
   override Refresh(params?: GetCountersParamListModel): void {
