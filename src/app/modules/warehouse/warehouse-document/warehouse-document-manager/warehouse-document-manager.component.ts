@@ -160,7 +160,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
   ];
 
   private filterData: WarehouseDocumentFilterFormData = {} as WarehouseDocumentFilterFormData
-  override get getInputParams(): WhsTransferQueryParams {
+  public override getInputParams(override?: Constants.Dct): WhsTransferQueryParams {
     const params = {
       WhsTransferStatus: this.filterData.Status,
       FromWarehouseCode: this.filterData.FromWarehouseCode,
@@ -253,7 +253,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams());
       },
     });
 
@@ -378,7 +378,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
             Constants.TITLE_INFO,
             Constants.TOASTR_SUCCESS_5_SEC
           );
-          await this.RefreshAsync(this.getInputParams)
+          await this.RefreshAsync(this.getInputParams())
         } else {
           console.log(d.errors!, d.errors?.join('\n'), d.errors?.join(', '))
           this.simpleToastrService.show(
@@ -411,7 +411,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
     this.UpdateKeySettingsAndCommand()
 
-    this.RefreshAll(this.getInputParams)
+    this.RefreshAll(this.getInputParams())
   }
 
   public HideColumn(col: string): void {
@@ -623,7 +623,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
-        this.RefreshAll(this.getInputParams);
+        this.RefreshAll(this.getInputParams());
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {

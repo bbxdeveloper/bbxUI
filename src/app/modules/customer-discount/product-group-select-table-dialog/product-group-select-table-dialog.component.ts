@@ -31,11 +31,11 @@ export class ProductGroupSelectTableDialogComponent extends SelectTableDialogCom
     return (this.searchString ?? '').trim();
   }
 
-  get getInputParams(): GetProductsParamListModel {
+  public getInputParams(override?: Constants.Dct): GetProductsParamListModel {
     return { SearchString: this.srcString, PageSize: '10', PageNumber: '1', OrderBy: 'ProductGroupCode' };
   }
 
-  get getInputParamsForAll(): GetProductsParamListModel {
+  public getInputParamsForAll(override?: Constants.Dct): GetProductsParamListModel {
     return { SearchString: this.srcString, PageSize: '999999', OrderBy: 'ProductGroupCode' };
   }
 
@@ -65,7 +65,7 @@ export class ProductGroupSelectTableDialogComponent extends SelectTableDialogCom
   }
 
   override ngOnInit(): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
   ngAfterContentInit(): void {
     this.kbS.SetWidgetNavigatable(this);
@@ -93,7 +93,7 @@ export class ProductGroupSelectTableDialogComponent extends SelectTableDialogCom
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
       this.searchString = event.target.value;
-      this.Refresh(this.getInputParams);
+      this.Refresh(this.getInputParams());
     } else {
       this.searchString = event.target.value;
       this.Search(this.searchString);
@@ -101,12 +101,12 @@ export class ProductGroupSelectTableDialogComponent extends SelectTableDialogCom
   }
 
   override showAll(): void {
-    this.Refresh(this.getInputParamsForAll);
+    this.Refresh(this.getInputParamsForAll());
   }
 
   override showLess(): void {
     this.kbS.SelectFirstTile();
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   RefreshTable(): void {
@@ -163,7 +163,7 @@ export class ProductGroupSelectTableDialogComponent extends SelectTableDialogCom
   }
 
   override Search(searchString: string): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   HandleItemChoice(item: SelectedCell): void {

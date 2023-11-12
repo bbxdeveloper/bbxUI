@@ -119,7 +119,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
   ];
 
   private filterData: CustomerInvoiceSummaryFilterFormData = {} as CustomerInvoiceSummaryFilterFormData
-  override get getInputParams(): GetCustomerInvoiceSummaryParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetCustomerInvoiceSummaryParamListModel {
     const params = {
       Incoming: this.filterData.Incoming,
       CustomerID: this.filterData.CustomerID,
@@ -127,9 +127,12 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       InvoiceDeliveryDateTo: this.filterData.InvoiceDeliveryDateTo,
       WarehouseCode: this.filterData.WarehouseCode,
       OrderBy: "customerName",
-      PageNumber: HelperFunctions.ToInt(this.dbDataTable.currentPage + ''),
+      PageNumber: 1,
       PageSize: HelperFunctions.ToInt(this.dbDataTable.pageSize)
     } as GetCustomerInvoiceSummaryParamListModel;
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
     return params;
   }
 
@@ -205,7 +208,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
@@ -216,7 +219,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
 
   public refreshClicked(filterData: CustomerInvoiceSummaryFilterFormData | undefined): void {
     this.filterData = filterData ?? {} as CustomerInvoiceSummaryFilterFormData;
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
   }
 
   override Refresh(params?: GetCustomerInvoiceSummaryParamListModel): void {
@@ -311,7 +314,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
   private print(): void {
     const selectedRow = this.dbDataTable.prevSelectedRow?.data
 
-    const params = this.getInputParams
+    const params = this.getInputParams()
     const name = selectedRow?.customerName
 
     this.printAndDownloadService.printAfterConfirm({
@@ -389,7 +392,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
-        this.RefreshAll(this.getInputParams);
+        this.RefreshAll(this.getInputParams());
         break;
       }
       default: { }

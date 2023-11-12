@@ -122,13 +122,16 @@ export class InvCtrlPeriodManagerComponent
   ];
 
   idParam?: number;
-  override get getInputParams(): GetAllInvCtrlPeriodsParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetAllInvCtrlPeriodsParamListModel {
     const params = {
-      PageNumber: HelperFunctions.ToInt(this.dbDataTable.currentPage),
+      PageNumber: 1,
       PageSize: HelperFunctions.ToInt(this.dbDataTable.pageSize),
       SearchString: this.searchString ?? '',
       ID: this.idParam
     };
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
     this.idParam = undefined;
     return params;
   }
@@ -296,7 +299,7 @@ export class InvCtrlPeriodManagerComponent
               if (d.succeeded && !!d.data) {
                 this.idParam = d.data.id;
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                await this.RefreshAsync(this.getInputParams);
+                await this.RefreshAsync(this.getInputParams());
                 this.dbDataTable.SelectRowById(d.data.id);
                 this.simpleToastrService.show(
                   Constants.MSG_SAVE_SUCCESFUL,
@@ -468,14 +471,14 @@ export class InvCtrlPeriodManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.ReadonlyPredicator = this.ReadonlyPredicator;
 
     this.bbxSidebarService.collapse();
 
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
   }
 
   private RefreshAll(params?: GetAllInvCtrlPeriodsParamListModel): void {

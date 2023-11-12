@@ -336,7 +336,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   ProcessActionDelete(data?: IUpdateRequest<T>): void {}
 
   ActionRefresh(data?: IUpdateRequest<T>): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
@@ -399,7 +399,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   search(): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   Refresh(params?: any): void {}
