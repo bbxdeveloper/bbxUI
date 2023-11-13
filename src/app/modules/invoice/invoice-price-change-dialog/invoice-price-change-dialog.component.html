@@ -49,6 +49,7 @@
                     [useFixCursorPosition]="true"
                     [inputmask]="numberInputMask"
                     placeholder="0.00"
+                    [canCloseCalculatorWithEscape]="false"
                     #newUnitPrice1>
                 </app-bbx-numeric-input>
 
@@ -68,7 +69,8 @@
                     input_class="{{TileCssClass}}"
                     [useFixCursorPosition]="true"
                     [inputmask]="numberInputMask"
-                    placeholder="0.00">
+                    placeholder="0.00"
+                    [canCloseCalculatorWithEscape]="false">
                 </app-bbx-numeric-input>
 
                 <div *ngIf="newUnitPrice2Control?.errors?.['notGreatherThanNewPrice']" class="alert-error">

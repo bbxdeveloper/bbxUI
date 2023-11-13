@@ -30,10 +30,11 @@ export class CalculatorPopoverComponent extends BaseNavigatableComponentComponen
   @Output() popoverClose: EventEmitter<any> = new EventEmitter<any>()
 
   /**
-   * True -> closing with ESC, using Enter for multiple operations one after the other
-   * False -> ESC doesn't have a function, the first Enter key will close the calculator after the operation
+   * True -> using Enter for multiple operations one after the other
+   * False -> the first Enter key will close the calculator after the operation
    */
   @Input() multipleOperations: boolean = false
+  @Input() canCloseWithEscape: boolean = true
 
   override NavigatableType = NavigatableType.dialog
 
@@ -140,8 +141,14 @@ export class CalculatorPopoverComponent extends BaseNavigatableComponentComponen
     }
     if (event.key == KeyBindings.Enter) {
       this.calc()
-    } else if (this.multipleOperations && event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
-      this.close()
+    } else if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      if (this.canCloseWithEscape) {
+        this.close()
+      } else {
+        event.preventDefault()
+        event.stopPropagation()
+        event.stopImmediatePropagation()
+      }
     }
   }
 }

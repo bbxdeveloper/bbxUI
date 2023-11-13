@@ -846,7 +846,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         newPrice: invoiceLine.unitPrice,
         priceChange: priceChange,
         wasOpen: invoiceLine.unitPriceChanged,
-      }
+      },
+      closeOnEsc: false
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
