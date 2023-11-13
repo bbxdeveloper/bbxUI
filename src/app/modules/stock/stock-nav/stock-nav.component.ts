@@ -172,17 +172,21 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     }
   ];
 
-  override get getInputParams(): GetStocksParamsModel {
-    let wareHouseId = this.wh.find(x => x.warehouseDescription === this.filterForm.controls['WarehouseID'].value)?.id;
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+  public override getInputParams(override?: Constants.Dct): GetStocksParamsModel {
+    let wareHouseId = this.wh.find(x => x.warehouseDescription === this.filterForm.controls['WarehouseID'].value)?.id
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       WarehouseID: wareHouseId,
       SearchString: this.filterForm.controls['SearchString'].value,
 
       OrderBy: "productCode"
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+    return params
   }
 
   filterFormId = 'stocks-filter-form';
@@ -391,8 +395,8 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: async () => {
-        await this.RefreshAsync(this.getInputParams);
+      next: async (newPageNumber: number) => {
+        await this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
@@ -534,7 +538,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   }
 
   async RefreshButtonClicked(): Promise<void> {
-    await this.RefreshAsync(this.getInputParams);
+    await this.RefreshAsync(this.getInputParams());
   }
 
   async RefreshAsync(params?: GetStocksParamsModel): Promise<void> {

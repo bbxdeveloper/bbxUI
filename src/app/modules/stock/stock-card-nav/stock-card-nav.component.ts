@@ -223,14 +223,14 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     },
   ];
 
-  override get getInputParams(): GetStockCardsParamsModel {
+  public override getInputParams(override?: Constants.Dct): GetStockCardsParamsModel {
     let productId = this.productFilter?.id;
     if (productId !== undefined) {
       productId = HelperFunctions.ToInt(productId);
     }
     let wareHouseId = this.wh.find(x => x.warehouseDescription === this.filterForm.controls['WarehouseID'].value)?.id;
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       WarehouseID: wareHouseId,
@@ -241,7 +241,11 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       OrderBy: "stockCardDate",
 
       ProductID: productId,
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+    return params
   }
 
   filterFormId = 'stock-card-filter-form';
@@ -379,8 +383,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
+      next: (newPageNumber: number) => {
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
@@ -461,7 +465,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     if (this.navigatedFromStock) {
       await this.getProductAsync(this.productCodeFromPath)
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     } else {
       const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
       if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
@@ -470,7 +474,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         this.productInputFilterString = filterData.ProductSearch ?? ''
   
         await this.getProductAsync()
-        this.Refresh(this.getInputParams)
+        this.Refresh(this.getInputParams())
       }
     }
 
@@ -648,7 +652,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       complete: () => {
         this.isLoading = false;
         if (refreashAfter) {
-          this.Refresh(this.getInputParams);
+          this.Refresh(this.getInputParams());
         }
       },
     });

@@ -213,16 +213,19 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   ];
 
   idParam?: number;
-  override get getInputParams(): GetCustomersParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetCustomersParamListModel {
     const params = {
-      PageNumber: this.dbDataTable.currentPage + '',
+      PageNumber: 1 + '',
       PageSize: this.dbDataTable.pageSize,
       SearchString: this.searchString ?? '',
       OrderBy: "customerName",
       ID: this.idParam
-    };
-    this.idParam = undefined;
-    return params;
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    this.idParam = undefined
+    return params
   }
 
   countryCodes: CountryCode[] = [];
@@ -415,7 +418,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            await this.RefreshAsync(this.getInputParams);
+            await this.RefreshAsync(this.getInputParams());
             this.dbDataTable.SelectRowById(d.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
@@ -463,7 +466,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            await this.RefreshAsync(this.getInputParams);
+            await this.RefreshAsync(this.getInputParams());
             this.dbDataTable.SelectRowById(d.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
@@ -589,13 +592,13 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
     this.bbxSidebarService.collapse();
 
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
 
     this.bbxSidebarService.expandEvent.subscribe({
       next: () => {

@@ -179,17 +179,31 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   protected Reset(): void {
-    const currentUrl = this.router.url
+    var currentUrl = this.router.url
+    currentUrl = currentUrl.replace('?reload=true&', '?')
+    currentUrl = currentUrl.replace('?reload=true', '')
+    currentUrl = currentUrl.replace('&reload=true', '')
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate([currentUrl])
+      this.router.navigate([currentUrl], {
+        queryParams: {
+          reload: true
+        }
+      })
     })
   }
 
   protected async DelayedReset(delay: number = 200): Promise<void> {
-    const currentUrl = this.router.url
+    var currentUrl = this.router.url
+    currentUrl = currentUrl.replace('?reload=true&', '?')
+    currentUrl = currentUrl.replace('?reload=true', '')
+    currentUrl = currentUrl.replace('&reload=true', '')
     await this.router.navigateByUrl('/', { skipLocationChange: true }).then(async () => {
       setTimeout(async  () => {
-        await this.router.navigate([currentUrl])
+        await this.router.navigate([currentUrl], {
+          queryParams: {
+            reload: true
+          }
+        })
       }, delay);
     })
   }
@@ -336,7 +350,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   ProcessActionDelete(data?: IUpdateRequest<T>): void {}
 
   ActionRefresh(data?: IUpdateRequest<T>): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
@@ -399,7 +413,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   search(): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   Refresh(params?: any): void {}

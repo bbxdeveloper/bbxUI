@@ -287,7 +287,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           }
         }
 
-        this.dbDataTable.AddRange(invoiceLines)
+        this.dbDataTable.AddRange(invoiceLines, 'productCode')
         this.dbData = this.dbDataTable.data
         this.dbDataDataSrc.setData(this.dbData)
 

@@ -174,14 +174,18 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }
   }
 
-  override get getInputParams(): GetAllInvCtrlItemsParamListModel {
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+  public override getInputParams(override?: Constants.Dct): GetAllInvCtrlItemsParamListModel {
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
       SearchString: this.filterForm.controls['searchString'].value,
       ShowDeficit: this.showDeficit
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+    return params
   }
 
   filterFormId = 'invrow-filter-form';
@@ -284,8 +288,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: async () => {
-        await this.Refresh(this.getInputParams);
+      next: async (newPageNumber: number) => {
+        await this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
@@ -294,7 +298,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   }
 
   public async RefreshAndJumpToTable(): Promise<void> {
-    await this.Refresh(this.getInputParams, true);
+    await this.Refresh(this.getInputParams(), true);
   }
 
   JumpToFirstCellAndNav(): void {
@@ -323,7 +327,11 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
         if (this.invCtrlPeriods.length > 0) {
-          this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+          const currentVal = this.filterForm.controls['invCtrlPeriod'].value
+          const matching = currentVal === undefined || currentVal === null ? undefined : this.invCtrlPeriods.find(x => x === currentVal)
+          if (matching === undefined) {
+            this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+          }
         }
       })
       .catch(err => {
