@@ -484,7 +484,12 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       this.RecalcNetAndVat();
     }
 
-    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice && changedData.unitPrice !== changedData.previousUnitPrice) {
+    const canSuggestPriceChange = () => {
+      return (changedData.unitPrice < changedData.latestSupplyPrice || changedData.unitPrice > changedData.latestSupplyPrice)
+        && changedData.unitPrice !== changedData.previousUnitPrice;
+    }
+
+    if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange()) {
       changedData.previousUnitPrice = changedData.unitPrice
 
       this.suggestPriceChange(this.dbData[index].data)
@@ -847,6 +852,10 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
       this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
+      if (!priceChange) {
+        return
+      }
+
       invoiceLine.unitPriceChanged = true
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
@@ -906,9 +915,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     res.latestSupplyPrice = p.latestSupplyPrice
 
     res.unitPrice = p.latestSupplyPrice!
-
-    res.newUnitPrice1 = p.unitPrice1
-    res.newUnitPrice2 = p.unitPrice2
 
     res.vatRateCode = p.vatRateCode
 

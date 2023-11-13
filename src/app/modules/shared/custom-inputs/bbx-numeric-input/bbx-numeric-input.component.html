@@ -17,7 +17,8 @@
                 [readOnly]="readonly"
                 [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
                 [class]="input_class" class="bbx-numeric-input-inner"
-                [style.text-align]="style_text_align" />
+                [style.text-align]="style_text_align"
+                #input />
     </ng-container>
     <ng-container *ngIf="!useInputMask">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
@@ -34,7 +35,8 @@
                 [readOnly]="readonly"
                 [id]="id" [placeholder]="input_placeholder"
                 [class]="input_class" class="bbx-numeric-input-inner"
-                [style.text-align]="style_text_align" />
+                [style.text-align]="style_text_align"
+                #input />
     </ng-container>
 </ng-container>
 
@@ -56,7 +58,8 @@
         [readOnly]="readonly"
         [id]="id" [inputMask]="input_mask" [placeholder]="input_placeholder"
         [class]="input_class" class="bbx-numeric-input-inner"
-        [style.text-align]="style_text_align" />
+        [style.text-align]="style_text_align"
+        #input />
     </ng-container>
     <ng-container *ngIf="!useInputMask">
     <input autocomplete="off" nbInput type="text" [name]="name" [nbPopover]="calculator" nbPopoverTrigger="noop"
@@ -73,7 +76,8 @@
         [readOnly]="readonly"
         [id]="id" [placeholder]="input_placeholder"
         [class]="input_class" class="bbx-numeric-input-inner"
-        [style.text-align]="style_text_align" />
+        [style.text-align]="style_text_align"
+        #input />
     </ng-container>
 </ng-container>
 

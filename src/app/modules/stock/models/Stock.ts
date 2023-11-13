@@ -51,6 +51,7 @@ export class ExtendedStockData implements Stock, Product {
     "noDiscount": boolean = false;
     "exhangedUnitPrice1"?: number;
     "exhangedUnitPrice2"?: number;
+    minMargin: number = 0
 
     constructor(s?: Stock | ProductStock) {
         if (s === undefined) {

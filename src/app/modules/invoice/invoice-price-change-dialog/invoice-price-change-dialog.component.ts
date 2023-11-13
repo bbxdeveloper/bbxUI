@@ -71,6 +71,13 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   public isLoading = false
 
+  public isProductNoDiscount = false
+
+  public canUnitPrice1Change = true
+
+  public isUnitPrice1InsideMinMargin = false
+  public isUnitPrice2InsideMinMargin = false
+
   public TileCssClass = TileCssClass
 
   public fixCursorPosition = fixCursorPosition
@@ -105,6 +112,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     this.productPriceChangeForm = new FormGroup({
       productCode: new FormControl(''),
       productDescription: new FormControl(''),
+      minMargin: new FormControl(0),
       oldUnitPrice1: new FormControl(0),
       newUnitPrice1: new FormControl(0, [this.greatherThanNewPrice.bind(this)]),
       oldUnitPrice2: new FormControl(0),
@@ -129,6 +137,10 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       return null
     }
 
+    if (this.isProductNoDiscount) {
+      return null
+    }
+
     const value = HelperFunctions.ToFloat(control.value)
 
     return value >= this.newPrice ? null : { notGreatherThanNewPrice: { value: true } }
@@ -144,9 +156,9 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.navigateable.GenerateAndSetNavMatrices(true)
     this.keyboardService.SelectFirstTile()
-    this.keyboardService.Jump(AttachDirection.UP, true)
+    this.keyboardService.Jump(AttachDirection.UP, true);
 
-    this.newUnitPrice1.nativeElement.focus()
+    (this.newUnitPrice1 as any).input.nativeElement.focus()
   }
 
   public ngOnDestroy(): void {
@@ -166,6 +178,13 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
     this.requestSubscription = this.productService.GetProductByCode(request)
       .pipe(
+        tap(product => {
+          const productGroupCodes = ['LGR', 'SCH', 'PRO']
+          this.canUnitPrice1Change = !productGroupCodes.includes(product.productGroupCode ?? '')
+
+          this.isProductNoDiscount = product.noDiscount;
+        }),
+        tap(this.areUnitPricesInsideMinMargin.bind(this)),
         switchMap(this.createFormValues.bind(this)),
         tap(() => this.enableValidation = true)
       )
@@ -173,10 +192,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
         next: prices => {
           this.productPriceChangeForm.patchValue(prices);
 
-          const input = this.newUnitPrice1.nativeElement
-          const position = input.value.indexOf('.')
-          input.selectionStart = 0
-          input.selectionEnd = position
+          setTimeout(this.selectWholeNumberPart.bind(this), 50)
         },
         error: error => {
           this.commonService.HandleError(error)
@@ -186,11 +202,37 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       })
   }
 
+  private areUnitPricesInsideMinMargin(product: Product): void {
+    if (product.minMargin === 0) {
+      return
+    }
+
+    const treshold = this.newPrice * (1 + product.minMargin / 100)
+    if (product.unitPrice1! > treshold) {
+      this.isUnitPrice1InsideMinMargin = true
+    }
+
+    if (product.unitPrice2! > treshold) {
+      this.isUnitPrice2InsideMinMargin = true
+    }
+  }
+
+  private selectWholeNumberPart() {
+    const input = (this.newUnitPrice1 as any).input.nativeElement
+    const position = input.value.indexOf('.')
+    input.selectionStart = 0
+    input.selectionEnd = position
+  }
+
   private createFormValues(product: Product): Observable<PriceChangeFormValues> {
     let newUnitPrice1
     let newUnitPrice2
 
-    if (this.wasOpen && this.priceChange !== undefined) {
+    if (product.noDiscount) {
+      newUnitPrice1 = product.unitPrice1
+      newUnitPrice2 = product.unitPrice2
+    }
+    else if (this.wasOpen && this.priceChange !== undefined) {
       newUnitPrice1 = this.priceChange.newUnitPrice1
       newUnitPrice2 = this.priceChange.newUnitPrice2
     }
@@ -204,6 +246,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     return of({
       productCode: product.productCode,
       productDescription: product.description,
+      minMargin: product.minMargin,
       oldUnitPrice1: product.unitPrice1,
       newUnitPrice1: newUnitPrice1,
       oldUnitPrice2: product.unitPrice2,
@@ -219,11 +262,12 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       if (this.newPrice > product.unitPrice1!) {
         return [this.newPrice, this.newPrice]
       } else if (this.newPrice < product.unitPrice1!) {
-        return [product.unitPrice1!, product.unitPrice1!]
+        return [product.unitPrice1!, product.unitPrice2!]
       }
+
       return [this.newPrice, this.newPrice]
     }
-    else if (this.newPrice > latestSupplyPrice) {
+    else if (this.newPrice < latestSupplyPrice || this.newPrice > latestSupplyPrice) {
       const priceDelta = this.newPrice - latestSupplyPrice
       changeRatePercent = priceDelta / latestSupplyPrice + 1
     }
@@ -231,8 +275,11 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       changeRatePercent = 1
     }
 
-    const newPrice1 = this.setNewPrice(product.unitPrice1!, changeRatePercent)
-    const newPrice2 = this.setNewPrice(product.unitPrice2!, changeRatePercent)
+    let minMarginChangeRate = this.isUnitPrice1InsideMinMargin ? 1 : changeRatePercent
+    const newPrice1 = this.setNewPrice(product.unitPrice1!, minMarginChangeRate)
+
+    minMarginChangeRate = this.isUnitPrice2InsideMinMargin ? 1 : changeRatePercent
+    const newPrice2 = this.setNewPrice(product.unitPrice2!, minMarginChangeRate)
 
     return [newPrice1, newPrice2]
   }

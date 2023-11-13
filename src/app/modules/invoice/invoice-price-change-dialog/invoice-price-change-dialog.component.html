@@ -3,6 +3,13 @@
         <span>Árváltozás</span>
     </nb-card-header>
     <nb-card-body [nbSpinner]="showSpinnerOnTable" class="modal-product-active-body">
+        <div *ngIf="!canUnitPrice1Change" class="alert-error no-unitPrice2-change">
+            Nincs listaár-változás!
+        </div>
+        <div *ngIf="isUnitPrice1InsideMinMargin || isUnitPrice2InsideMinMargin" class="alert-error no-unitPrice2-change">
+            Minimum árrésen belüli ár
+        </div>
+
         <form [id]="formId" [formGroup]="productPriceChangeForm" #formDirective="ngForm">
             <label>
                 Termék
@@ -13,17 +20,37 @@
             <label class="old-price text-center">
                 Régi ár
             </label>
-            <label class=" text-center">
-                Új ár
-            </label>
+            <div class="label-row">
+                <label class="alert-error" [style.visibility]="isProductNoDiscount ? 'visible' : 'hidden'">
+                    Akciós
+                </label>
+
+                <label class="new-price">
+                    Új ár
+                </label>
+
+                <div class="min-margin">
+                    <label>
+                        Min. árrés%:
+                    </label>
+                    <input nbInput type="text" formControlName="minMargin" readonly>
+                </div>
+            </div>
 
             <label>
                 Listaár
             </label>
             <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice1" readonly>
             <div (keydown.enter)="navigateable.HandleFormEnter($event)">
-                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice1"
-                    (focus)="fixCursorPosition($event)" #newUnitPrice1>
+                <app-bbx-numeric-input
+                    formControlName="newUnitPrice1"
+                    class="grid"
+                    input_class="{{TileCssClass}} valami-2"
+                    [useFixCursorPosition]="true"
+                    [inputmask]="numberInputMask"
+                    placeholder="0.00"
+                    #newUnitPrice1>
+                </app-bbx-numeric-input>
 
                 <div *ngIf="newUnitPrice1Control?.errors?.['notGreatherThanNewPrice']" class="alert-error">
                     A megadott ár alacsonyabb, mint a beszerzési ár.
@@ -35,8 +62,14 @@
             </label>
             <input nbInput [inputMask]="numberInputMask" type="text" formControlName="oldUnitPrice2" readonly>
             <div (keydown.enter)="moveToButtons($event)">
-                <input class="{{TileCssClass}} " nbInput [inputMask]="numberInputMask" placeholder="0.00" type="text" formControlName="newUnitPrice2"
-                    (focus)="fixCursorPosition($event)">
+                <app-bbx-numeric-input
+                    formControlName="newUnitPrice2"
+                    class="grid"
+                    input_class="{{TileCssClass}}"
+                    [useFixCursorPosition]="true"
+                    [inputmask]="numberInputMask"
+                    placeholder="0.00">
+                </app-bbx-numeric-input>
 
                 <div *ngIf="newUnitPrice2Control?.errors?.['notGreatherThanNewPrice']" class="alert-error">
                     A megadott ár alacsonyabb, mint a beszerzési ár.
