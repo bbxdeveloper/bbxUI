@@ -75,7 +75,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   public canUnitPrice1Change = true
 
-  public isInsideMinMargin = false
+  public isUnitPrice1InsideMinMargin = false
+  public isUnitPrice2InsideMinMargin = false
 
   public TileCssClass = TileCssClass
 
@@ -183,14 +184,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
           this.isProductNoDiscount = product.noDiscount;
         }),
-        tap(product => {
-          if (product.minMargin > 0) {
-            const treshold = this.newPrice / (1 * product.minMargin / 100)
-            if (product.unitPrice1! > treshold || product.unitPrice2! > treshold) {
-              this.isInsideMinMargin = true
-            }
-          }
-        }),
+        tap(this.areUnitPricesInsideMinMargin.bind(this)),
         switchMap(this.createFormValues.bind(this)),
         tap(() => this.enableValidation = true)
       )
@@ -198,12 +192,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
         next: prices => {
           this.productPriceChangeForm.patchValue(prices);
 
-          setTimeout(() => {
-            const input = (this.newUnitPrice1 as any).input.nativeElement
-            const position = input.value.indexOf('.')
-            input.selectionStart = 0
-            input.selectionEnd = position
-          }, 50)
+          setTimeout(this.selectWholeNumberPart.bind(this), 50)
         },
         error: error => {
           this.commonService.HandleError(error)
@@ -211,6 +200,28 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
         },
         complete: () => this.isLoading = false
       })
+  }
+
+  private areUnitPricesInsideMinMargin(product: Product): void {
+    if (product.minMargin === 0) {
+      return
+    }
+
+    const treshold = this.newPrice * (1 + product.minMargin / 100)
+    if (product.unitPrice1! > treshold) {
+      this.isUnitPrice1InsideMinMargin = true
+    }
+
+    if (product.unitPrice2! > treshold) {
+      this.isUnitPrice2InsideMinMargin = true
+    }
+  }
+
+  private selectWholeNumberPart() {
+    const input = (this.newUnitPrice1 as any).input.nativeElement
+    const position = input.value.indexOf('.')
+    input.selectionStart = 0
+    input.selectionEnd = position
   }
 
   private createFormValues(product: Product): Observable<PriceChangeFormValues> {
@@ -256,9 +267,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
       return [this.newPrice, this.newPrice]
     }
-    else if (this.isInsideMinMargin) {
-      return [product.unitPrice1!, product.unitPrice2!]
-    }
     else if (this.newPrice < latestSupplyPrice || this.newPrice > latestSupplyPrice) {
       const priceDelta = this.newPrice - latestSupplyPrice
       changeRatePercent = priceDelta / latestSupplyPrice + 1
@@ -267,8 +275,11 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       changeRatePercent = 1
     }
 
-    const newPrice1 = this.setNewPrice(product.unitPrice1!, changeRatePercent)
-    const newPrice2 = this.setNewPrice(product.unitPrice2!, changeRatePercent)
+    let minMarginChangeRate = this.isUnitPrice1InsideMinMargin ? 1 : changeRatePercent
+    const newPrice1 = this.setNewPrice(product.unitPrice1!, minMarginChangeRate)
+
+    minMarginChangeRate = this.isUnitPrice2InsideMinMargin ? 1 : changeRatePercent
+    const newPrice2 = this.setNewPrice(product.unitPrice2!, minMarginChangeRate)
 
     return [newPrice1, newPrice2]
   }
