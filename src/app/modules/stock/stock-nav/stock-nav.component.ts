@@ -111,7 +111,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Valós',
+      label: 'Készlet',
       objectKey: 'realQty',
       colKey: 'realQty',
       defaultValue: '',
