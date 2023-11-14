@@ -553,6 +553,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
         return
       }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case KeyBindings.F3: {
           HelperFunctions.StopEvent(_event);
           return;
@@ -604,6 +610,15 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
             return;
           }
           break;
+        }
+      }
+    } else {
+      switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
         }
       }
     }

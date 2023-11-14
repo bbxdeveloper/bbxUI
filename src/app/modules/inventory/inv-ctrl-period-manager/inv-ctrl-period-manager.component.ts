@@ -25,7 +25,7 @@ import { InventoryService } from '../services/inventory.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { DeleteInvCtrlPeriodParamListModel } from '../models/DeleteInvCtrlPeriodParamListModel';
 import { environment } from 'src/environments/environment';
-import { Actions, GetFooterCommandListFromKeySettings, InventoryPeriodsKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, InventoryPeriodsKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodParamListModel';
 import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
@@ -604,6 +604,12 @@ export class InvCtrlPeriodManagerComponent
       return;
     }
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {

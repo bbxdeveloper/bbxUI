@@ -721,6 +721,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           return;
         }
       }
+    } else {
+      switch (event.key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
+      }
     }
     this.HandleKeyDown(event);
   }
