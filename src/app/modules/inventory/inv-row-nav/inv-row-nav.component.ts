@@ -81,7 +81,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Termkéknév',
+      label: 'Terméknév',
       objectKey: 'product',
       colKey: 'product',
       defaultValue: '',
