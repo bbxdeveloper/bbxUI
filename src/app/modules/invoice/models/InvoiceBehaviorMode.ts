@@ -14,6 +14,7 @@ export class InvoiceBehaviorMode {
     public useCustomersPaymentMethod: boolean = false
     public unitPriceColumnTitle: string = ''
     public partnerLock: IPartnerLock|undefined
+    public autoFillCustomerInvoiceNumber: boolean = false
 
     public checkCustomerLimit: boolean = false
 

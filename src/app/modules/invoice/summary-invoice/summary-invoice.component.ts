@@ -1024,6 +1024,10 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
     this.RefreshTable()
 
+    if (this.mode.autoFillCustomerInvoiceNumber) {
+      this.autoFillOrUpdateInvoiceNumber()
+    }
+
     this.UpdateOutGoingData()
 
     if (notes.length === 1) {
@@ -1034,6 +1038,35 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       this.kbS.SelectElement(elementId)
       this.kbS.ClickElement(elementId)
     }
+  }
+
+  private autoFillOrUpdateInvoiceNumber(resetField: boolean = false): void {
+    const invoiceNumberControl = this.outInvForm.controls['customerInvoiceNumber']
+
+    if (resetField) {
+      invoiceNumberControl.setValue(undefined)
+    }
+
+    var customerInvoiceNumberString = invoiceNumberControl.value
+
+    this.dbData.forEach(item => {
+      if (item.data.IsUnfinished()) {
+        return
+      }
+
+      const note = item.data
+      if (customerInvoiceNumberString.includes(note.invoiceNumber)) {
+        return
+      }
+      
+      if (customerInvoiceNumberString.length > 0) {
+        customerInvoiceNumberString += `,${note.invoiceNumber}`
+      } else {
+        customerInvoiceNumberString = note.invoiceNumber ?? ''
+      }
+    })
+
+    invoiceNumberControl.setValue(customerInvoiceNumberString)
   }
 
   private generateWorkNumbers(): void {
