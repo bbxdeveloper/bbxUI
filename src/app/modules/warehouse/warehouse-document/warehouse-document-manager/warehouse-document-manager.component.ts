@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
 import { SingleDateDialogComponent } from 'src/app/modules/shared/simple-dialogs/single-date-dialog/single-date-dialog.component';
@@ -30,6 +30,7 @@ import { FinalizeWhsTransferRequest } from '../../models/whs/FinalizeWhsTransfer
 import { ConfirmationDialogComponent } from 'src/app/modules/shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoggerService } from 'src/app/services/logger.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-warehouse-document-manager',
@@ -182,7 +183,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<WhsTransferFull>>,
     private whsService: WhsTransferService,

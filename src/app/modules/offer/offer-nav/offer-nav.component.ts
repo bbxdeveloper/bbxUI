@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -45,6 +45,7 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { OfferFilter } from '../models/OfferFilter';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 export interface OfferPrintParams {
   rowIndex: number,
@@ -300,7 +301,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   isPageReady: boolean = false;
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Offer>>,
     private cdref: ChangeDetectorRef,

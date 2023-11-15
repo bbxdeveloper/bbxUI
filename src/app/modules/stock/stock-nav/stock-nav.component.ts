@@ -44,6 +44,7 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { FilterForm } from './FilterForm';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-stock-nav',
@@ -205,7 +206,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<ExtendedStockData>>,
     private cdref: ChangeDetectorRef,

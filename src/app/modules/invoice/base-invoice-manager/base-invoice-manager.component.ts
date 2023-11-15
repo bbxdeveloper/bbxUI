@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { of, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -35,6 +35,7 @@ import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/ap
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -86,7 +87,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   override commands: FooterCommandInfo[] = [];
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
     protected readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     protected readonly invoiceService: InvoiceService,

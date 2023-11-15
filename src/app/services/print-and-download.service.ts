@@ -3,7 +3,7 @@ import { BehaviorSubject, lastValueFrom, Observable, of } from 'rxjs';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { StatusService } from './status.service';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 import { InvoiceService } from '../modules/invoice/services/invoice.service';
 import { CommonService } from './common.service';
 import { OfferService } from '../modules/offer/services/offer.service';
@@ -12,6 +12,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { OneTextInputDialogComponent } from '../modules/shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { OneNumberInputDialogComponent } from '../modules/shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component';
 import { createMask } from '@ngneat/input-mask';
+import { BbxDialogServiceService } from './bbx-dialog-service.service';
 
 const REPORT_ENDED =
   { Id: -1, ResultCmdType: Constants.CommandType.PRINT_REPORT } as Constants.CommandDescriptor;
@@ -59,7 +60,7 @@ export class PrintAndDownloadService {
     new BehaviorSubject<Constants.CommandDescriptor | undefined>(undefined);
 
   constructor(
-    @Optional() private dialogService: NbDialogService,
+    @Optional() private dialogService: BbxDialogServiceService,
     private invS: InvoiceService,
     private offerService: OfferService,
     private sts: StatusService,

@@ -1,6 +1,6 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbDialogService, NbSidebarService, NbTreeGridDataSource } from '@nebular/theme';
+import { NbSidebarService, NbTreeGridDataSource } from '@nebular/theme';
 import { Subscription } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -17,6 +17,7 @@ import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, GetFooterCom
 import { ConfirmationDialogComponent } from '../simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoggerService } from 'src/app/services/logger.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-base-manager',
@@ -63,7 +64,7 @@ export class BaseManagerComponent<T> {
   protected Subscription_Refresh?: Subscription;
 
   constructor(
-    @Optional() protected dialogService: NbDialogService,
+    @Optional() protected dialogService: BbxDialogServiceService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected bbxSidebarService: BbxSidebarService,

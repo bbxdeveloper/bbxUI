@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -39,6 +39,7 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FilterForm } from './FitlerForm';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -266,7 +267,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   private localStorageKey: string
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<StockCard>>,
     private cdref: ChangeDetectorRef,

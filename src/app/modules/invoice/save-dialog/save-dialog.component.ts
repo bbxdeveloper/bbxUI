@@ -22,6 +22,7 @@ import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 import { Constants } from 'src/assets/util/Constants';
 import { AuthChangeEventArgs } from '../../shared/auth/auth-form/auth-fields.component';
 import { PaymentMethods } from '../models/PaymentMethod';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 interface VatRateRow { Id: string, Value: number };
 
@@ -121,7 +122,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
     private loggerService: LoggerService,
     private invoiceService: InvoiceService,
     private cs: CommonService,
-    private dialogService: NbDialogService,
+    private dialogService: BbxDialogServiceService,
     private commonService: CommonService
   ) {
     super()
