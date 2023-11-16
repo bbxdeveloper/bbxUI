@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbDialogService, NbIconConfig, NbPopoverDirective, NbToastrService } from '@nebular/theme';
+import { NbIconConfig, NbPopoverDirective, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -19,6 +19,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { CommonService } from 'src/app/services/common.service';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-header',
@@ -83,7 +84,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   }
 
   constructor(
-    private readonly dialogService: NbDialogService,
+    private readonly dialogService: BbxDialogServiceService,
     private readonly keyboardService: KeyboardNavigationService,
     private readonly router: Router,
     private readonly statusService: StatusService,
@@ -182,6 +183,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       event.preventDefault()
       event.stopImmediatePropagation()
       event.stopPropagation()
+
+      this.dialogService.closeAll()
 
       this.goTo('/')
       this.keyboardService.ClickCurrentElement()

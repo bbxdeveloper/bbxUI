@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -30,6 +30,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-customer-manager',
@@ -291,7 +292,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Customer>>,
     private readonly customerService: CustomerService,

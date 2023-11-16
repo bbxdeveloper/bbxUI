@@ -1,6 +1,6 @@
 import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { FormControl, FormGroup } from '@angular/forms';
+import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { JumpPosPriority, KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -18,10 +18,10 @@ import { Product } from '../../../product/models/Product';
 import { ProductService } from '../../../product/services/product.service';
 import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
 import { CurrencyCodes } from '../../../system/models/CurrencyCode';
-import { environment } from 'src/environments/environment';
 import { ProductStockInformationDialogComponent } from '../product-stock-information-dialog/product-stock-information-dialog.component';
 import { StatusService } from 'src/app/services/status.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 const LAST_PRODUCT_SEARCH_STRING_KEY = 'last-product-search-string'
 
@@ -99,7 +99,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
     private productService: ProductService,
     private cdrf: ChangeDetectorRef,
-    private dialogService: NbDialogService,
+    private dialogService: BbxDialogServiceService,
     statusService: StatusService,
     private tokenService: TokenStorageService
   ) {

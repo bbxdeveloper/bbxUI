@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { CorrectionInvoiceSelectionDialogComponent } from '../correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { Invoice } from '../models/Invoice';
 import { Customer } from '../../customer/models/Customer';
@@ -39,6 +39,7 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { ChooseSummaryInvoiceProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { ProductService } from '../../product/services/product.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -120,7 +121,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   public mode!: InvoiceBehaviorMode
 
   constructor(
-    dialogService: NbDialogService,
+    dialogService: BbxDialogServiceService,
     keyboardService: KeyboardNavigationService,
     footerService: FooterService,
     commonService: CommonService,

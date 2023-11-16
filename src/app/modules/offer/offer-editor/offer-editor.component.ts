@@ -38,6 +38,7 @@ import { isTableKeyDownEvent, TableKeyDownEvent } from '../../shared/inline-edit
 import { lastValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { ChooseEditOfferProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-offer-editor',
@@ -62,7 +63,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<OfferLine>>,
     seInv: InvoiceService,

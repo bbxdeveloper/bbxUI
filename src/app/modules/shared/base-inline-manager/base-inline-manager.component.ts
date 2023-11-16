@@ -1,6 +1,6 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
+import { NbTreeGridDataSource } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -26,6 +26,7 @@ import { Product } from '../../product/models/Product';
 import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
 import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
 import { Router } from '@angular/router';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -166,7 +167,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   };
 
   constructor(
-    @Optional() protected dialogService: NbDialogService,
+    @Optional() protected dialogService: BbxDialogServiceService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected cs: CommonService,

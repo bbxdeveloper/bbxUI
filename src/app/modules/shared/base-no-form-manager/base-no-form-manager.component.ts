@@ -1,6 +1,6 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
+import { NbTreeGridDataSource } from '@nebular/theme';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -16,6 +16,7 @@ import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../simple-dialogs/confirmation-dialog/confirmation-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-base-no-form-manager',
@@ -72,7 +73,7 @@ export class BaseNoFormManagerComponent<T> {
   ];
 
   constructor(
-    @Optional() protected dialogService: NbDialogService,
+    @Optional() protected dialogService: BbxDialogServiceService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected sidebarService: BbxSidebarService,

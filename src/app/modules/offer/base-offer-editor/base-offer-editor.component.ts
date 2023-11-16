@@ -46,6 +46,7 @@ import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesPara
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -235,7 +236,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   isOfferEditor: boolean = false
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     protected dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<OfferLine>>,
     protected seInv: InvoiceService,

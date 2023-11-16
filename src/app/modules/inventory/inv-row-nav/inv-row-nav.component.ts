@@ -32,6 +32,7 @@ import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
 import { CsvExport } from '../models/CsvExport';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-inv-row-nav',
@@ -209,7 +210,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   public nRealAmountSum = 0
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvRow>>,
     private cdref: ChangeDetectorRef,
