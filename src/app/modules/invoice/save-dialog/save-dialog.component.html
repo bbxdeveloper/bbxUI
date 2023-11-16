@@ -10,8 +10,8 @@
             </nb-form-field>
 
             <!-- KEDVEZMÉNY MEGADÁSA -->
-            <label *ngIf="this.isDiscountVisible">Kedvezmény %:</label>
-            <div *ngIf="this.isDiscountVisible">
+            <label *ngIf="!this.Incoming && this.isDiscountVisible">Kedvezmény %:</label>
+            <div *ngIf="!this.Incoming && this.isDiscountVisible">
                 <nb-form-field (keydown.enter)="formNav.HandleFormEnter($event)" *ngIf="this.OutGoingDelivery">
                     <app-bbx-numeric-input
                         formControlName='invoiceDiscountPercent'
@@ -37,8 +37,8 @@
                 </nb-form-field>
             </div>
 
-            <label>Kedvezmény értéke:</label>
-            <nb-form-field [ngClass]="!this.isDiscountVisible ? 'col-span-3': ''">
+            <label *ngIf="!this.Incoming">Kedvezmény értéke:</label>
+            <nb-form-field *ngIf="!this.Incoming" [ngClass]="!this.isDiscountVisible ? 'col-span-3': ''">
                 <input nbInput type="text" formControlName='invoiceDiscountValue'
                     required="true" [inputMask]="numberInputMask" [placeholder]="discountInputPlaceHolder"
                     readonly>
