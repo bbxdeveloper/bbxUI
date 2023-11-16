@@ -983,6 +983,12 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     }
     else {
       switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
             return;

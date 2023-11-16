@@ -674,6 +674,21 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
           this.dbDataTable.GetEditedRow()?.data.Restore('productCode');
           return;
         }
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
+      }
+    } else {
+      switch (event.key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
       }
     }
     this.HandleKeyDown(event);

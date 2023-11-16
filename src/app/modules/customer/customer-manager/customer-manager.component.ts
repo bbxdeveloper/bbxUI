@@ -22,7 +22,7 @@ import { CreateCustomerRequest } from '../models/CreateCustomerRequest';
 import { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import { CountryCode } from '../models/CountryCode';
 import { lastValueFrom, ReplaySubject } from 'rxjs';
-import { Actions } from 'src/assets/util/KeyBindings';
+import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { UnitPriceType, UnitPriceTypes } from '../models/UnitPriceType';
 import { FormHelper } from 'src/assets/util/FormHelper';
@@ -730,6 +730,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       return;
     }
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Lock].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

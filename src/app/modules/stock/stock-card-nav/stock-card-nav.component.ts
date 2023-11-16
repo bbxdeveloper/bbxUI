@@ -573,6 +573,12 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     }
 
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Create].KeyCode:
       case this.KeySetting[Actions.Edit].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:

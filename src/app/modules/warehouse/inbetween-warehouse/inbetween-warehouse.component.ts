@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -751,12 +751,31 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }
   }
 
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
+    }
+  }
+
   public override HandleKeyDown(event: Event|TableKeyDownEvent): void {
     if (!isTableKeyDownEvent(event)) {
       return
     }
 
-    switch(event.Event.key) {
+    switch (event.Event.key) {
+      case KeyBindings.F11: {
+        event.Event.stopImmediatePropagation();
+        event.Event.stopPropagation();
+        event.Event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Delete].KeyCode: {
         HelperFunctions.confirm(
           this.dialogService,

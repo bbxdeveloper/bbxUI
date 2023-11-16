@@ -31,7 +31,7 @@ import { VatRate } from '../../vat-rate/models/VatRate';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { lastValueFrom } from 'rxjs';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { Actions } from 'src/assets/util/KeyBindings';
+import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
@@ -732,6 +732,12 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       return;
     }
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Lock].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

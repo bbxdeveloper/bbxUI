@@ -1202,6 +1202,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         return
       }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -1249,6 +1255,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         return
       }
       switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
             return;
