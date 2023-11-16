@@ -120,7 +120,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     private readonly localStorage: LocalStorageService,
     tokenService: TokenStorageService,
   ) {
-    this.localStorageKey = 'warehouse-document-filter.' + tokenService.user?.id + 'everyone'
+    this.localStorageKey = 'warehouse-document-filter.' + tokenService.user?.id ?? 'everyone'
 
     this.filterForm = new FormGroup({
       FromWarehouseCode: new FormControl(undefined, []),
