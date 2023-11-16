@@ -71,6 +71,8 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   @Input() useFixCursorPosition: boolean = true
 
+  @Input() canCloseCalculatorWithEscape: boolean = true
+
   touched: boolean = false
 
   @ViewChild('input')

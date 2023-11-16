@@ -82,5 +82,5 @@
 </ng-container>
 
 <ng-template #calculator>
-    <app-calculator-popover [(result)]="value" (popoverClose)="closeCalculator()"></app-calculator-popover>
+    <app-calculator-popover [canCloseWithEscape]="canCloseCalculatorWithEscape" [(result)]="value" (popoverClose)="closeCalculator()"></app-calculator-popover>
 </ng-template>
