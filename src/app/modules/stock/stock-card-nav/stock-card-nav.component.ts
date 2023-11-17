@@ -99,6 +99,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     'oRealQty',
     'xRealQty',
     'nRealQty',
+    'xRel',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -175,18 +176,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Kapcs.',
-      objectKey: 'xRel',
-      colKey: 'xRel',
-      defaultValue: '',
-      type: 'string',
-      fInputType: 'text',
-      mask: '',
-      colWidth: '120px',
-      textAlign: 'left',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
       label: 'E.Klt.',
       objectKey: 'oRealQty',
       colKey: 'oRealQty',
@@ -219,6 +208,18 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       fRequired: true,
       mask: '',
       colWidth: "120px",
+      textAlign: "right",
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Megjegyzés',
+      objectKey: 'xRel',
+      colKey: 'xRel',
+      defaultValue: '',
+      type: 'string',
+      fRequired: true,
+      mask: '',
+      colWidth: "130px",
       textAlign: "right",
       navMatrixCssClass: TileCssClass,
     },
@@ -471,9 +472,9 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
       if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
         this.filterForm.patchValue(filterData)
-  
+
         this.productInputFilterString = filterData.ProductSearch ?? ''
-  
+
         await this.getProductAsync()
         this.Refresh(this.getInputParams())
       }
@@ -486,7 +487,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
     this.AddSearchButtonToFormMatrix();
-    
+
     this.kbS.SetCurrentNavigatable(this.filterFormNav);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);

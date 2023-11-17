@@ -30,54 +30,12 @@ $td-height: 30px;
         margin-right: auto;
     }
 
+    tr:nth-child(odd),
     tr:nth-child(even) {
         th,
         td {
             height: $td-height;
-
-            &.table-cell-edited {
-                padding: 0px;
-
-                .input-table-cell {
-                    width: 100%;
-
-                    border: none;
-                    background: none;
-                    text-align: left;
-
-                    padding: 0px;
-
-                    @media (max-height: 1000px) {
-                        padding-left: 0px;
-                    }
-                    @media (min-height: 1001px) {
-                        padding-left: 20px;
-                        padding-right: 20px;
-                    }
-
-                    font-size: 1.1rem !important;
-
-                    font-family: Open Sans, sans-serif;
-                    font-weight: 400;
-                    line-height: 1.25rem;
-                }
-
-                div {
-                    @media (max-height: 1000px) {
-                        padding-left: 0px;
-                    }
-                    @media (min-height: 1001px) {
-                        padding-left: 20px;
-                    }
-                }
-            }
-        }
-    }
-
-    tr:nth-child(odd) {
-        th,
-        td {
-            height: $td-height;
+            word-break: break-all;
 
             &.table-cell-edited {
                 padding: 0px;
