@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { of, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -52,8 +52,8 @@ import { OfferService } from '../../offer/services/offer.service';
 import { GetOfferParamsModel } from '../../offer/models/GetOfferParamsModel';
 import { Offer } from '../../offer/models/Offer';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
-import { OfferLineFullData } from '../../offer/models/OfferLine';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -181,7 +181,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   })
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     invoiceService: InvoiceService,
@@ -1199,6 +1199,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         return
       }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -1266,6 +1272,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         return
       }
       switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
             return;

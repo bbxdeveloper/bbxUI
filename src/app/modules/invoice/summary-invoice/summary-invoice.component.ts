@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { of, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -50,6 +50,7 @@ import { ChooseSummaryInvoiceProductRequest, CodeFieldChangeRequest, ProductCode
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -173,7 +174,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   })
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     invoiceService: InvoiceService,
@@ -1024,6 +1025,10 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
     this.RefreshTable()
 
+    if (this.mode.autoFillCustomerInvoiceNumber) {
+      this.autoFillOrUpdateInvoiceNumber()
+    }
+
     this.UpdateOutGoingData()
 
     if (notes.length === 1) {
@@ -1034,6 +1039,35 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       this.kbS.SelectElement(elementId)
       this.kbS.ClickElement(elementId)
     }
+  }
+
+  private autoFillOrUpdateInvoiceNumber(resetField: boolean = false): void {
+    const invoiceNumberControl = this.outInvForm.controls['customerInvoiceNumber']
+
+    if (resetField) {
+      invoiceNumberControl.setValue(undefined)
+    }
+
+    var customerInvoiceNumberString = invoiceNumberControl.value
+
+    this.dbData.forEach(item => {
+      if (item.data.IsUnfinished()) {
+        return
+      }
+
+      const note = item.data
+      if (customerInvoiceNumberString.includes(note.invoiceNumber)) {
+        return
+      }
+      
+      if (customerInvoiceNumberString.length > 0) {
+        customerInvoiceNumberString += `,${note.invoiceNumber}`
+      } else {
+        customerInvoiceNumberString = note.invoiceNumber ?? ''
+      }
+    })
+
+    invoiceNumberControl.setValue(customerInvoiceNumberString)
   }
 
   private generateWorkNumbers(): void {
@@ -1313,6 +1347,12 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         return
       }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case KeyBindings.F3: {
           HelperFunctions.StopEvent(_event);
           return;
@@ -1375,6 +1415,12 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         return
       }
       switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
             return;

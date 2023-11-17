@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { of, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -46,6 +46,7 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -173,7 +174,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
   })
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     invoiceService: InvoiceService,
@@ -484,7 +485,12 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       this.RecalcNetAndVat();
     }
 
-    if (col === 'unitPrice' && index >= 0 && changedData.latestSupplyPrice < changedData.unitPrice && changedData.unitPrice !== changedData.previousUnitPrice) {
+    const canSuggestPriceChange = () => {
+      return (changedData.unitPrice < changedData.latestSupplyPrice || changedData.unitPrice > changedData.latestSupplyPrice)
+        && changedData.unitPrice !== changedData.previousUnitPrice;
+    }
+
+    if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange()) {
       changedData.previousUnitPrice = changedData.unitPrice
 
       this.suggestPriceChange(this.dbData[index].data)
@@ -841,11 +847,16 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         newPrice: invoiceLine.unitPrice,
         priceChange: priceChange,
         wasOpen: invoiceLine.unitPriceChanged,
-      }
+      },
+      closeOnEsc: false
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
       this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+
+      if (!priceChange) {
+        return
+      }
 
       invoiceLine.unitPriceChanged = true
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
@@ -906,9 +917,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     res.latestSupplyPrice = p.latestSupplyPrice
 
     res.unitPrice = p.latestSupplyPrice!
-
-    res.newUnitPrice1 = p.unitPrice1
-    res.newUnitPrice2 = p.unitPrice2
 
     res.vatRateCode = p.vatRateCode
 
@@ -1076,6 +1084,12 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         return
       }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -1144,6 +1158,12 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         return
       }
       switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
             return;

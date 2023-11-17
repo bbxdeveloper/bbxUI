@@ -15,8 +15,9 @@ import { StatusService } from 'src/app/services/status.service';
 import { SystemService } from '../../system/services/system.service';
 import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { Customer, isCustomerPrivatePerson } from '../../customer/models/Customer';
-import { NbDialogRef, NbDialogService } from '@nebular/theme';
+import { NbDialogRef } from '@nebular/theme';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-edit-customer-dialog',
@@ -74,7 +75,7 @@ export class EditCustomerDialogComponent extends BaseNavigatableComponentCompone
     private readonly statusService: StatusService,
     private readonly systemService: SystemService,
     private readonly dialogRef: NbDialogRef<boolean>,
-    private readonly dialogService: NbDialogService
+    private readonly dialogService: BbxDialogServiceService
   ) {
     super()
 

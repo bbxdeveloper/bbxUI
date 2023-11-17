@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -41,6 +41,7 @@ import { CreateIccRequest } from '../models/CreateIccRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { ConfirmationWithAuthDialogComponent, ConfirmationWithAuthDialogesponse } from '../../shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-cont-inv-ctrl',
@@ -146,7 +147,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvCtrlItemLine>>,
     private readonly invCtrlItemService: InventoryCtrlItemService,
@@ -672,6 +673,21 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
           event.preventDefault();
           this.dbDataTable.GetEditedRow()?.data.Restore('productCode');
           return;
+        }
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
+      }
+    } else {
+      switch (event.key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
         }
       }
     }

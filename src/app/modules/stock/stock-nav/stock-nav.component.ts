@@ -44,6 +44,7 @@ import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRe
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { FilterForm } from './FilterForm';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-stock-nav',
@@ -111,7 +112,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Valós',
+      label: 'Készlet',
       objectKey: 'realQty',
       colKey: 'realQty',
       defaultValue: '',
@@ -205,7 +206,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<ExtendedStockData>>,
     private cdref: ChangeDetectorRef,
@@ -709,6 +710,12 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
     }
 
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.CSV].KeyCode:
       case this.KeySetting[Actions.Email].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:

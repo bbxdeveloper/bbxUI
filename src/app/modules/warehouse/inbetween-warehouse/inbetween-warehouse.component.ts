@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { WareHouseService } from '../services/ware-house.service';
@@ -16,7 +16,7 @@ import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, GetFooterCommandListFromKeySettings, InbetweenWarehouseKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { NbDialogService, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
@@ -41,6 +41,7 @@ import { WhsTransferLine } from '../models/whs/WhsTransferLine';
 import { InbetweenWarehouseProduct } from '../models/whs/InbetweenWarehouseProduct';
 import { WhsTransferFull, WhsTransferUpdate } from '../models/whs/WhsTransfer';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 type WarehouseData = {
   code: string,
@@ -147,7 +148,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     footerService: FooterService,
     statusService: StatusService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InbetweenWarehouseProduct>>,
-    dialogService: NbDialogService,
+    dialogService: BbxDialogServiceService,
     sidebarService: BbxSidebarService,
     keyboardHelperService: KeyboardHelperService,
     router: Router
@@ -750,12 +751,31 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }
   }
 
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
+    }
+  }
+
   public override HandleKeyDown(event: Event|TableKeyDownEvent): void {
     if (!isTableKeyDownEvent(event)) {
       return
     }
 
-    switch(event.Event.key) {
+    switch (event.Event.key) {
+      case KeyBindings.F11: {
+        event.Event.stopImmediatePropagation();
+        event.Event.stopPropagation();
+        event.Event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Delete].KeyCode: {
         HelperFunctions.confirm(
           this.dialogService,

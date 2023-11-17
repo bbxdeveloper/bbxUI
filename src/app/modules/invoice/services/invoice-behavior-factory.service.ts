@@ -201,6 +201,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceCorrection = true
     result.unitPriceColumnTitle = 'Besz.Ár'
     result.partnerLock = this.partnerLock
+    result.autoFillCustomerInvoiceNumber = true
     return result
   }
 }

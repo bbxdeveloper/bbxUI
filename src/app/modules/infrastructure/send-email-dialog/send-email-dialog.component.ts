@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy } from '@angular/core';
-import { NbDialogRef, NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -9,8 +9,6 @@ import { EmailAddress, SendEmailRequest } from '../models/Email';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { Constants } from 'src/assets/util/Constants';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { OneTextInputDialogComponent } from '../../shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { OfferPrintParams } from '../../offer/offer-nav/offer-nav.component';
 import { OfferService } from '../../offer/services/offer.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -18,6 +16,7 @@ import { lastValueFrom } from 'rxjs';
 import { Offer } from '../../offer/models/Offer';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-send-email-dialog',
@@ -96,7 +95,7 @@ export class SendEmailDialogComponent extends BaseNavigatableComponentComponent 
     protected dialogRef: NbDialogRef<SendEmailDialogComponent>,
     private kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private dialogService: NbDialogService,
+    private dialogService: BbxDialogServiceService,
     private simpleToastrService: NbToastrService,
     private offerService: OfferService,
     private sts: StatusService,

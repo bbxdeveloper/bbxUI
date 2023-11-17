@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit
 import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
 import { InvoiceService } from '../services/invoice.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { CommonService } from 'src/app/services/common.service';
 import { SimpleNavigatableTable } from 'src/assets/model/navigation/SimpleNavigatableTable';
@@ -14,6 +14,7 @@ import { PendingDeliveryNotesByInvoiceNumberTableSettings } from 'src/assets/mod
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { StatusService } from 'src/app/services/status.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-pending-delivery-notes-select-dialog',
@@ -36,7 +37,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
     private readonly invoiceService: InvoiceService,
     private readonly cs: CommonService,
     cdref: ChangeDetectorRef,
-    private readonly dialogService: NbDialogService,
+    private readonly dialogService: BbxDialogServiceService,
     private readonly tokenService: TokenStorageService,
     statusService: StatusService
   ) {

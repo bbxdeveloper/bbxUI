@@ -24,6 +24,7 @@ import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { CustomerSelectTableDialogComponent } from '../../customer-select-table-dialog/customer-select-table-dialog.component';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-customer-invoice-summary-filter-form',
@@ -120,7 +121,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
     private readonly customerService: CustomerService,
-    private readonly dialogService: NbDialogService,
+    private readonly dialogService: BbxDialogServiceService,
     private readonly bbxToastrService: BbxToastrService,
     private tokenService: TokenStorageService,
     private readonly localStorage: LocalStorageService

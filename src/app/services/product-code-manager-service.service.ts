@@ -1,5 +1,4 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { NbDialogService } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from './keyboard-navigation.service';
 import { LoggerService } from './logger.service';
 import { Observable, of } from 'rxjs';
@@ -25,6 +24,7 @@ import { CurrencyCode, CurrencyCodes } from '../modules/system/models/CurrencyCo
 import { CreateOfferRequest } from '../modules/offer/models/CreateOfferRequest';
 import { Offer } from '../modules/offer/models/Offer';
 import { FormGroup } from '@angular/forms';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 //#region Exports
 
@@ -80,7 +80,7 @@ export interface CodeFieldChangeRequest {
   providedIn: 'root'
 })
 export class ProductCodeManagerServiceService {
-  constructor(private dialogService: NbDialogService,
+  constructor(private dialogService: BbxDialogServiceService,
               private loggerService: LoggerService,
               private keyboardService: KeyboardNavigationService,
               private statusService: StatusService,

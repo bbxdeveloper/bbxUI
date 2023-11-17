@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -24,6 +24,7 @@ import { CustomerInvoiceSummaryFilterFormData } from '../customer-invoice-summar
 import { GetCustomerInvoiceSummaryParamListModel } from '../../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 import { InvoiceService } from '../../services/invoice.service';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-customer-invoice-summary-manager',
@@ -143,7 +144,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<CustomerInvoiceSummary>>,
     private invoiceService: InvoiceService,

@@ -33,6 +33,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FilterForm } from './FilterForm';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-inv-ctrl-absent',
@@ -215,7 +216,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   isPageReady: boolean = false;
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvCtrlAbsent>>,
     private cdref: ChangeDetectorRef,

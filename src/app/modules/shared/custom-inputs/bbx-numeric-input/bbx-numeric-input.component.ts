@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, ViewEncapsulation, forwardRef } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, ViewEncapsulation, forwardRef } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { noop } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
@@ -43,7 +43,7 @@ export enum BbxNumericInputType {
 })
 export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, Validator {
   @ViewChild(NbPopoverDirective) popover?: NbPopoverDirective;
-  
+
   @Input() name: string = ''
   @Input() id: string = ''
 
@@ -71,11 +71,16 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   @Input() useFixCursorPosition: boolean = true
 
+  @Input() canCloseCalculatorWithEscape: boolean = true
+
   touched: boolean = false
+
+  @ViewChild('input')
+  public input: ElementRef|undefined
 
   private _preEscapeValue: any
   useInputMask: boolean = true
-  
+
   numberInputMask = NgNeatInputMasks.numberInputMask;
   numberInputMaskSingle = NgNeatInputMasks.numberInputMaskSingle;
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
@@ -168,7 +173,7 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
         fixCursorPosition(value)
       }
     }
-    
+
     this.focus.emit(value)
   }
 
@@ -278,10 +283,10 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   }
 
   public onEscapeDown(event: any): void {
-    // console.log("onEscapeDown: ", event.target.value, event)    
+    // console.log("onEscapeDown: ", event.target.value, event)
     this._preEscapeValue = event.target.value
     this.id = event.target.id
-    
+
     // Switching to non-masked input so view value won't be affected by inputmask bug
     this.useInputMask = false
 
@@ -291,10 +296,10 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
     // Switching back to masked input
     setTimeout(() => {
       this.useInputMask = true
-    
+
       this.changeRef.markForCheck()
       this.changeRef.detectChanges()
-    
+
       this.keyboardService.SelectCurrentElement()
     }, 100);
   }
