@@ -13,6 +13,7 @@ import { IInlineManager } from "../IInlineManager";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
 import { INavigatable, AttachDirection, TileCssClass, NavigatableType } from "./Navigatable";
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { BehaviorSubject } from "rxjs";
 
 
@@ -274,6 +275,38 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         return undefined;
+    }
+
+    /**
+     * Adding a range of nodes to the grid.
+     * Only recommended for empty tables. Editor-row will be recreated during the process.
+     * Change events won't be fired!
+     * @param items Nodes to add.
+     * @param defaultSaveField For MementoObject, the data call Save with this field during addition.
+     */
+    public AddRange(items: TreeGridNode<T>[], defaultSaveField: string = ''): void {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+        this.data.splice(this.data.length - 1, 1)
+
+        for (let i = 0; i < items.length; i++) {
+            if (!HelperFunctions.isEmptyOrSpaces(defaultSaveField)) {
+                (items[i].data as any).Save(defaultSaveField)
+            }
+
+            this.data.push(items[i])
+        }
+        this.dataSource.setData(this.data)
+        this.GenerateAndSetNavMatrices(false)
+
+        this.SetCreatorRow()
+        this.ResetEdit()
+
+        this.GenerateAndSetNavMatrices(false)
+
+        setTimeout(() => {
+            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        }, 100)
     }
 
     ResetEdit(): void {

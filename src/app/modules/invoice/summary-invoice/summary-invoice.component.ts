@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { of, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -29,7 +29,7 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, MinusDeliveryNoteKeySettings, SummaryInvoiceKeySettings } from 'src/assets/util/KeyBindings';
 import { CustomerDialogTableSettings, PendingDeliveryInvoiceSummaryDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -49,6 +49,8 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { ChooseSummaryInvoiceProductRequest, CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
+import { InvoiceTypes } from '../models/InvoiceTypes';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -172,7 +174,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   })
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     invoiceService: InvoiceService,
@@ -207,6 +209,11 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
       this.path = params[0].path
+
+      if (this.mode.invoiceType === InvoiceTypes.DNO || this.mode.invoiceType === InvoiceTypes.DNI) {
+        this.KeySetting = MinusDeliveryNoteKeySettings
+        this.commands = GetFooterCommandListFromKeySettings(this.KeySetting)
+      }
 
       if (this.mode.incoming) {
         const unitPrice = this.colDefs.find(x => x.objectKey === 'unitPrice')
@@ -245,7 +252,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.cellClass = "PRODUCT";
 
     // Init form and table content - empty
-    this.senderData = {} as Customer;
     this.buyerData = {} as Customer;
 
     this.outGoingInvoiceData = new OutGoingInvoiceFullData({
@@ -1019,6 +1025,10 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
     this.RefreshTable()
 
+    if (this.mode.autoFillCustomerInvoiceNumber) {
+      this.autoFillOrUpdateInvoiceNumber()
+    }
+
     this.UpdateOutGoingData()
 
     if (notes.length === 1) {
@@ -1029,6 +1039,35 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       this.kbS.SelectElement(elementId)
       this.kbS.ClickElement(elementId)
     }
+  }
+
+  private autoFillOrUpdateInvoiceNumber(resetField: boolean = false): void {
+    const invoiceNumberControl = this.outInvForm.controls['customerInvoiceNumber']
+
+    if (resetField) {
+      invoiceNumberControl.setValue(undefined)
+    }
+
+    var customerInvoiceNumberString = invoiceNumberControl.value
+
+    this.dbData.forEach(item => {
+      if (item.data.IsUnfinished()) {
+        return
+      }
+
+      const note = item.data
+      if (customerInvoiceNumberString.includes(note.invoiceNumber)) {
+        return
+      }
+      
+      if (customerInvoiceNumberString.length > 0) {
+        customerInvoiceNumberString += `,${note.invoiceNumber}`
+      } else {
+        customerInvoiceNumberString = note.invoiceNumber ?? ''
+      }
+    })
+
+    invoiceNumberControl.setValue(customerInvoiceNumberString)
   }
 
   private generateWorkNumbers(): void {
@@ -1304,7 +1343,16 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case KeyBindings.F3: {
           HelperFunctions.StopEvent(_event);
           return;
@@ -1362,7 +1410,17 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       }
     }
     else {
+      const _event = event as KeyboardEvent
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
             return;

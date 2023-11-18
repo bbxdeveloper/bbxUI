@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -24,6 +24,7 @@ import { CustomerInvoiceSummaryFilterFormData } from '../customer-invoice-summar
 import { GetCustomerInvoiceSummaryParamListModel } from '../../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 import { InvoiceService } from '../../services/invoice.service';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-customer-invoice-summary-manager',
@@ -119,7 +120,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
   ];
 
   private filterData: CustomerInvoiceSummaryFilterFormData = {} as CustomerInvoiceSummaryFilterFormData
-  override get getInputParams(): GetCustomerInvoiceSummaryParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetCustomerInvoiceSummaryParamListModel {
     const params = {
       Incoming: this.filterData.Incoming,
       CustomerID: this.filterData.CustomerID,
@@ -127,9 +128,12 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
       InvoiceDeliveryDateTo: this.filterData.InvoiceDeliveryDateTo,
       WarehouseCode: this.filterData.WarehouseCode,
       OrderBy: "customerName",
-      PageNumber: HelperFunctions.ToInt(this.dbDataTable.currentPage + ''),
+      PageNumber: 1,
       PageSize: HelperFunctions.ToInt(this.dbDataTable.pageSize)
     } as GetCustomerInvoiceSummaryParamListModel;
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
     return params;
   }
 
@@ -140,7 +144,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<CustomerInvoiceSummary>>,
     private invoiceService: InvoiceService,
@@ -205,7 +209,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
@@ -216,7 +220,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
 
   public refreshClicked(filterData: CustomerInvoiceSummaryFilterFormData | undefined): void {
     this.filterData = filterData ?? {} as CustomerInvoiceSummaryFilterFormData;
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
   }
 
   override Refresh(params?: GetCustomerInvoiceSummaryParamListModel): void {
@@ -311,7 +315,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
   private print(): void {
     const selectedRow = this.dbDataTable.prevSelectedRow?.data
 
-    const params = this.getInputParams
+    const params = this.getInputParams()
     const name = selectedRow?.customerName
 
     this.printAndDownloadService.printAfterConfirm({
@@ -389,7 +393,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
-        this.RefreshAll(this.getInputParams);
+        this.RefreshAll(this.getInputParams());
         break;
       }
       default: { }

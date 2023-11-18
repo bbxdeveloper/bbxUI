@@ -26,7 +26,7 @@
     </nb-card-header>
     <nb-card-body class="modal-product-active-body">
         <form *ngIf="!!inputForm" [formGroup]="inputForm" #formDirective="ngForm" [id]="formId">
-            <app-auth-fields [formNav]="formNav"
+            <app-auth-fields [formNav]="formNav" [userName]="username" [loginName]="loginname"
                 style="display: none;" (authChange)="handleAuthChange($event)"
                 (ready)="handleAuthComponentReady($event)">
             </app-auth-fields>

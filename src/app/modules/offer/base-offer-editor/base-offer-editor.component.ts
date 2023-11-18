@@ -46,6 +46,7 @@ import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesPara
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -164,7 +165,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     {
       label: 'Kd.', objectKey: 'showDiscount', colKey: 'showDiscount',
       defaultValue: '', type: 'checkbox', mask: "",
-      colWidth: "40px", textAlign: "center", fInputType: 'checkbox'
+      colWidth: "40px", textAlign: "center", fInputType: 'checkbox',
+      checkIfReadonly: row => row.data.noDiscount
     },
     {
       label: 'Kedv.ár', objectKey: 'unitPrice', colKey: 'unitPrice',
@@ -234,7 +236,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   isOfferEditor: boolean = false
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     protected dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<OfferLine>>,
     protected seInv: InvoiceService,
@@ -569,11 +571,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         let vatRateFromProduct = d.data!.find(x => x.vatRateCode === product.vatRateCode);
 
         if (vatRateFromProduct === undefined) {
-          this.bbxToastrService.show(
-            `Áfa a kiválasztott termékben található áfakódhoz (${product.vatRateCode}) nem található.`,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+          this.bbxToastrService.showError(`Áfa a kiválasztott termékben található áfakódhoz (${product.vatRateCode}) nem található.`);
         }
 
         if (!product.noDiscount) {
@@ -612,12 +610,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             })
             .finally(() => { });
         } else {
-          let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+          const currentRow = this.dbDataTable.FillCurrentlyEditedRow({
             data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
           }, ['productCode']);
           currentRow?.data.Save('productCode');
-          const _d = this.dbData[rowPos].data;
+
+          this.dbData[rowPos].data.showDiscount = false;
           this.dbData[rowPos].data.discount = 0;
+
           this.kbS.setEditMode(KeyboardModes.NAVIGATION);
           this.dbDataTable.MoveNextInTable();
           setTimeout(() => {

@@ -1,6 +1,6 @@
 import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NbDialogRef, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { FormControl, FormGroup } from '@angular/forms';
+import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { JumpPosPriority, KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -18,10 +18,10 @@ import { Product } from '../../../product/models/Product';
 import { ProductService } from '../../../product/services/product.service';
 import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
 import { CurrencyCodes } from '../../../system/models/CurrencyCode';
-import { environment } from 'src/environments/environment';
 import { ProductStockInformationDialogComponent } from '../product-stock-information-dialog/product-stock-information-dialog.component';
 import { StatusService } from 'src/app/services/status.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 const LAST_PRODUCT_SEARCH_STRING_KEY = 'last-product-search-string'
 
@@ -65,7 +65,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     return (this.searchString ?? '').trim();
   }
 
-  get getInputParams(): GetProductsParamListModel {
+  public getInputParams(override?: Constants.Dct): GetProductsParamListModel {
     return {
       SearchString: this.srcString,
       PageSize: '10',
@@ -76,7 +76,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     };
   }
 
-  get getInputParamsForAll(): GetProductsParamListModel {
+  public getInputParamsForAll(override?: Constants.Dct): GetProductsParamListModel {
     return {
       SearchString: this.srcString,
       PageSize: '999999',
@@ -99,7 +99,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
     private productService: ProductService,
     private cdrf: ChangeDetectorRef,
-    private dialogService: NbDialogService,
+    private dialogService: BbxDialogServiceService,
     statusService: StatusService,
     private tokenService: TokenStorageService
   ) {
@@ -133,7 +133,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
         const change = this.currentChooserValue !== newValue;
         this.currentChooserValue = newValue;
         if (change) {
-          this.Refresh(this.getInputParams);
+          this.Refresh(this.getInputParams());
         }
       }
     });
@@ -147,7 +147,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     if (!HelperFunctions.isEmptyOrSpaces(this.searchString)) {
       this.inputForm.controls['chooser'].setValue(this.defaultSearchModeForEnteredFilter);
     }
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
   ngAfterViewInit(): void {
   }
@@ -204,7 +204,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
       this.searchString = event.target.value
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     } else {
       this.searchString = event.target.value
       this.Search(this.searchString)
@@ -216,12 +216,12 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override showAll(): void {
-    this.Refresh(this.getInputParamsForAll);
+    this.Refresh(this.getInputParamsForAll());
   }
 
   override showLess(): void {
     this.kbS.SelectFirstTile();
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   RefreshTable(): void {
@@ -296,7 +296,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   }
 
   override Search(searchString: string): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   HandleItemChoice(item: SelectedCell): void {
@@ -329,7 +329,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     
     if (this.searchString.length !== 0 && newSearchString.length === 0) {
       this.searchString = newSearchString
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     } else {
       this.searchString = newSearchString
       this.Search(this.searchString)
@@ -341,7 +341,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       event.preventDefault()
       this.currentChooserValue = (this.currentChooserValue + 1) % 3
       this.clickCurrentRadio()
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     }
     switch (event.key) {
       case KeyBindings.exit: {

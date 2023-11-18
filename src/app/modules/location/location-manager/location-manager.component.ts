@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -18,10 +18,11 @@ import { LocationService } from '../services/location.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { StatusService } from 'src/app/services/status.service';
-import { Actions } from 'src/assets/util/KeyBindings';
+import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { lastValueFrom } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-location-manager',
@@ -77,19 +78,22 @@ export class LocationManagerComponent
   ];
 
   idParam?: number;
-  override get getInputParams(): GetLocationsParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetLocationsParamListModel {
     const params = {
-      PageNumber: this.dbDataTable.currentPage + '',
+      PageNumber: 1 + '',
       PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '',
       OrderBy: "locationCode",
       ID: this.idParam
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
     this.idParam = undefined;
     return params;
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Location>>,
     private seInv: LocationService,
@@ -125,7 +129,7 @@ export class LocationManagerComponent
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
-            await this.RefreshAsync(this.getInputParams);
+            await this.RefreshAsync(this.getInputParams());
             setTimeout(() => {
               this.dbDataTable.SelectRowById(d.data!.id);
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -270,13 +274,13 @@ export class LocationManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
     this.bbxSidebarService.collapse();
 
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   override Refresh(params?: GetLocationsParamListModel): void {
@@ -369,6 +373,12 @@ export class LocationManagerComponent
       return;
     }
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Lock].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

@@ -32,6 +32,7 @@ import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { ProductSelectTableDialogComponent, SearchMode } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { Product } from '../../product/models/Product';
 import { CsvExport } from '../models/CsvExport';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-inv-row-nav',
@@ -81,7 +82,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Termkéknév',
+      label: 'Terméknév',
       objectKey: 'product',
       colKey: 'product',
       defaultValue: '',
@@ -174,14 +175,18 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     }
   }
 
-  override get getInputParams(): GetAllInvCtrlItemsParamListModel {
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+  public override getInputParams(override?: Constants.Dct): GetAllInvCtrlItemsParamListModel {
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
       SearchString: this.filterForm.controls['searchString'].value,
       ShowDeficit: this.showDeficit
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+    return params
   }
 
   filterFormId = 'invrow-filter-form';
@@ -205,7 +210,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   public nRealAmountSum = 0
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvRow>>,
     private cdref: ChangeDetectorRef,
@@ -284,8 +289,8 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: async () => {
-        await this.Refresh(this.getInputParams);
+      next: async (newPageNumber: number) => {
+        await this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
@@ -294,7 +299,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   }
 
   public async RefreshAndJumpToTable(): Promise<void> {
-    await this.Refresh(this.getInputParams, true);
+    await this.Refresh(this.getInputParams(), true);
   }
 
   JumpToFirstCellAndNav(): void {
@@ -312,7 +317,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
     if (setIsLoad) {
       this.isLoading = true;
     }
-    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000, OrderBy: 'warehouse' }))
       .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods = data?.data
@@ -323,7 +328,11 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
           }) ?? [];
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
         if (this.invCtrlPeriods.length > 0) {
-          this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+          const currentVal = this.filterForm.controls['invCtrlPeriod'].value
+          const matching = currentVal === undefined || currentVal === null ? undefined : this.invCtrlPeriods.find(x => x === currentVal)
+          if (matching === undefined) {
+            this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
+          }
         }
       })
       .catch(err => {

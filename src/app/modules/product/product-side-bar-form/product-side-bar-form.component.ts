@@ -26,7 +26,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     return KeyBindings;
   }
 
-  customPatterns = Constants.ProductCodePatterns;
+  productCodeMask = Constants.ProductCodeMaskNew
 
   // ProductGroup
   _productGroups: ProductGroup[] = [];
@@ -54,8 +54,9 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   }
 
   moveCursor(codeInput: any): void {
-    setTimeout(function() {
-      codeInput.setSelectionRange(0, 0);
+    setTimeout(() => {
+      const cursorLocation = codeInput.value.length
+      codeInput.setSelectionRange(cursorLocation, cursorLocation);
     }, 100);
   }
 

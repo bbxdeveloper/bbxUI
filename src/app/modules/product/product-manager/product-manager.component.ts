@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -31,8 +31,9 @@ import { VatRate } from '../../vat-rate/models/VatRate';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { lastValueFrom } from 'rxjs';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { Actions } from 'src/assets/util/KeyBindings';
+import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-product-manager',
@@ -145,18 +146,21 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   vats: VatRate[] = [];
 
   idParam?: number;
-  override get getInputParams(): GetProductsParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetProductsParamListModel {
     const params = {
       OrderBy: "ProductCode",
-      PageNumber: this.dbDataTable.currentPage + '',
+      PageNumber: 1 + '',
       PageSize: this.dbDataTable.pageSize,
       SearchString: this.searchString ?? '',
       ID: this.idParam,
       FilterByCode: true,
       FilterByName: true
-    } as GetProductsParamListModel;
-    this.idParam = undefined;
-    return params;
+    } as GetProductsParamListModel
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    this.idParam = undefined
+    return params
   }
 
   get blankProductRow(): () => Product {
@@ -187,7 +191,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
     private seInv: ProductService,
@@ -326,7 +330,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           next: async d => {
             if (d.succeeded && !!d.data) {
               this.idParam = d.data.id;
-              await this.RefreshAsync(this.getInputParams);
+              await this.RefreshAsync(this.getInputParams());
               this.dbDataTable.SelectRowById(d.data.id);
               this.simpleToastrService.show(
                 Constants.MSG_SAVE_SUCCESFUL,
@@ -564,7 +568,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.flatDesignForm.FillFormWithObject = (data: Product) => {
@@ -586,7 +590,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
 
     this.bbxSidebarService.collapse();
 
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
   }
 
   override Refresh(params?: GetProductsParamListModel): void {
@@ -728,6 +732,12 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       return;
     }
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Lock].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

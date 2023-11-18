@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -23,6 +23,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { lastValueFrom } from 'rxjs';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-ware-house-manager',
@@ -76,14 +77,23 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   ];
 
   idParam?: number;
-  override get getInputParams(): GetWareHousesParamListModel {
-    const params = { ID: this.idParam, PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize, SearchString: this.searchString ?? '', OrderBy: 'warehouseCode' };
-    this.idParam = undefined;
-    return params;
+  public override getInputParams(override?: Constants.Dct): GetWareHousesParamListModel {
+    const params = {
+      ID: this.idParam,
+      PageNumber: 1 + '',
+      PageSize: this.dbDataTable.pageSize,
+      SearchString: this.searchString ?? '',
+      OrderBy: 'warehouseCode'
+    }
+    this.idParam = undefined
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    return params
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<WareHouse>>,
     private seInv: WareHouseService,
@@ -119,7 +129,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         next: async d => {
           if (d.succeeded && !!d.data) {
             this.idParam = d.data.id;
-            await this.RefreshAsync(this.getInputParams);
+            await this.RefreshAsync(this.getInputParams());
             this.dbDataTable.SelectRowById(d.data.id);
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             this.simpleToastrService.show(
@@ -262,13 +272,13 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
     this.bbxSidebarService.collapse();
 
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   override Refresh(params?: GetWareHousesParamListModel): void {

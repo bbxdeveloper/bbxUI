@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { NbDialogService } from '@nebular/theme';
 import { EditCustomerDialogComponent } from '../edit-customer-dialog/edit-customer-dialog.component';
 import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
@@ -8,6 +7,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
 import { Subject } from 'rxjs';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,7 @@ export class EditCustomerDialogManagerService {
   public refreshedCustomer = new Subject<Customer>()
 
   constructor(
-    private readonly dialogService: NbDialogService,
+    private readonly dialogService: BbxDialogServiceService,
     private readonly customerService: CustomerService,
     private readonly commonService: CommonService,
     private readonly statusService: StatusService,

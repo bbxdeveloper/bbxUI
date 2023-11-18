@@ -1,6 +1,6 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbDialogService, NbTreeGridDataSource } from '@nebular/theme';
+import { NbTreeGridDataSource } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -26,6 +26,7 @@ import { Product } from '../../product/models/Product';
 import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
 import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
 import { Router } from '@angular/router';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-base-inline-manager',
@@ -166,7 +167,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   };
 
   constructor(
-    @Optional() protected dialogService: NbDialogService,
+    @Optional() protected dialogService: BbxDialogServiceService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected cs: CommonService,
@@ -179,17 +180,31 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   protected Reset(): void {
-    const currentUrl = this.router.url
+    var currentUrl = this.router.url
+    currentUrl = currentUrl.replace('?reload=true&', '?')
+    currentUrl = currentUrl.replace('?reload=true', '')
+    currentUrl = currentUrl.replace('&reload=true', '')
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate([currentUrl])
+      this.router.navigate([currentUrl], {
+        queryParams: {
+          reload: true
+        }
+      })
     })
   }
 
   protected async DelayedReset(delay: number = 200): Promise<void> {
-    const currentUrl = this.router.url
+    var currentUrl = this.router.url
+    currentUrl = currentUrl.replace('?reload=true&', '?')
+    currentUrl = currentUrl.replace('?reload=true', '')
+    currentUrl = currentUrl.replace('&reload=true', '')
     await this.router.navigateByUrl('/', { skipLocationChange: true }).then(async () => {
       setTimeout(async  () => {
-        await this.router.navigate([currentUrl])
+        await this.router.navigate([currentUrl], {
+          queryParams: {
+            reload: true
+          }
+        })
       }, delay);
     })
   }
@@ -336,7 +351,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   ProcessActionDelete(data?: IUpdateRequest<T>): void {}
 
   ActionRefresh(data?: IUpdateRequest<T>): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
@@ -399,7 +414,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   }
 
   search(): void {
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   Refresh(params?: any): void {}

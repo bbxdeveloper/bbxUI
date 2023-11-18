@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
 import { SingleDateDialogComponent } from 'src/app/modules/shared/simple-dialogs/single-date-dialog/single-date-dialog.component';
@@ -30,6 +30,7 @@ import { FinalizeWhsTransferRequest } from '../../models/whs/FinalizeWhsTransfer
 import { ConfirmationDialogComponent } from 'src/app/modules/shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoggerService } from 'src/app/services/logger.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-warehouse-document-manager',
@@ -160,7 +161,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
   ];
 
   private filterData: WarehouseDocumentFilterFormData = {} as WarehouseDocumentFilterFormData
-  override get getInputParams(): WhsTransferQueryParams {
+  public override getInputParams(override?: Constants.Dct): WhsTransferQueryParams {
     const params = {
       WhsTransferStatus: this.filterData.Status,
       FromWarehouseCode: this.filterData.FromWarehouseCode,
@@ -182,7 +183,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<WhsTransferFull>>,
     private whsService: WhsTransferService,
@@ -253,7 +254,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams());
       },
     });
 
@@ -378,7 +379,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
             Constants.TITLE_INFO,
             Constants.TOASTR_SUCCESS_5_SEC
           );
-          await this.RefreshAsync(this.getInputParams)
+          await this.RefreshAsync(this.getInputParams())
         } else {
           console.log(d.errors!, d.errors?.join('\n'), d.errors?.join(', '))
           this.simpleToastrService.show(
@@ -411,7 +412,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
     this.UpdateKeySettingsAndCommand()
 
-    this.RefreshAll(this.getInputParams)
+    this.RefreshAll(this.getInputParams())
   }
 
   public HideColumn(col: string): void {
@@ -623,7 +624,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
-        this.RefreshAll(this.getInputParams);
+        this.RefreshAll(this.getInputParams());
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {

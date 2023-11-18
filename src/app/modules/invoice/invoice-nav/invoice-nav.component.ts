@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional } from '@angular/core';
-import { NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -35,6 +35,7 @@ import { SystemService } from '../../system/services/system.service';
 import { InvoiceType } from '../../system/models/InvoiceType';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -226,10 +227,10 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     },
   ];
 
-  override get getInputParams(): GetInvoicesParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetInvoicesParamListModel {
     const controls = this.filterForm.controls
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       InvoiceType: this.invoiceTypes.find(x => x.text === controls['InvoiceType'].value)?.value ?? '',
@@ -245,7 +246,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateFrom'].value : null,
       InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateTo'].value : null,
       OrderBy: 'InvoiceNumber'
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+    return params
   }
 
   filterFormId = 'invoices-filter-form';
@@ -357,7 +362,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Invoice>>,
     private readonly cdref: ChangeDetectorRef,
@@ -476,8 +481,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh();
+      next: (newPageNumber: number) => {
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
@@ -588,11 +593,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.filterFormNav.OuterJump = true;
   }
 
-  override async Refresh(): Promise<void> {
+  override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
     this.isLoading = true;
 
     try {
-      const response = await this.invoiceService.getAllAsync(this.getInputParams)
+      const response = await this.invoiceService.getAllAsync(params ?? this.getInputParams())
 
       if (response && response.succeeded && !!response.data) {
         const tempData = response.data.map((x) => {
@@ -736,7 +741,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
 
         const reportParams = {
-          report_params: this.getInputParams,
+          report_params: this.getInputParams(),
         } as Constants.Dct
 
         this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))

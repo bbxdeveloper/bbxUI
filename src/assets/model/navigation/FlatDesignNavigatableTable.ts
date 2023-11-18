@@ -132,7 +132,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         colDefs: ModelFieldDescriptor[] = []
     ) {
         super();
-        
+
         this.includeSearchInNavigationMatrix = includeSearchInNavigationMatrix
 
         this.formAttachDirection = formAttachDirection;
@@ -662,7 +662,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
                 console.log(`FlatDesignNavigatableTable - HandleKey - ${this.KeySetting[Actions.Edit].FunctionLabel}, ${Actions[Actions.Edit]}`);
                 event.preventDefault();
 
-                if (this.data.length === 0) {
+                if (this.data.length === 0 || this.kbs.IsCurrentNavigatable(this.flatDesignForm)) {
                     return
                 }
 

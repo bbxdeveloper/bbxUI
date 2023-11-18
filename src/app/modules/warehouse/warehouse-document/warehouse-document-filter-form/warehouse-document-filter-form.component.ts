@@ -120,7 +120,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     private readonly localStorage: LocalStorageService,
     tokenService: TokenStorageService,
   ) {
-    this.localStorageKey = 'warehouse-document-filter.' + tokenService.user?.id + 'everyone'
+    this.localStorageKey = 'warehouse-document-filter.' + tokenService.user?.id ?? 'everyone'
 
     this.filterForm = new FormGroup({
       FromWarehouseCode: new FormControl(undefined, []),
@@ -158,13 +158,6 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
       if (response !== undefined) {
         this.statuses = response;
         this.statuses$.next(this.statuses.map(x => x.text));
-
-        const filter = this.localStorage.get<WarehouseDocumentFilterFormData>(this.localStorageKey)
-        const savedStatus = filter !== undefined && !HelperFunctions.isEmptyOrSpaces(filter.Status)
-        if (!savedStatus && HelperFunctions.isEmptyOrSpaces(this.filterFormNav?.form.controls['Status'].value) && this.statuses.length > 0) {
-          const tmp = this.statuses.find(x => x.text === OfflineWhsTransferStatus.Ready.text)
-          this.filterFormNav?.form.controls['Status'].setValue(tmp !== undefined ? tmp.text : this.statuses[0].text)
-        }
       }
     }
     catch (error) {
@@ -238,8 +231,12 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     this.statuses = tempStatuses;
     this.statuses$.next(this.statuses.map(x => x.text));
 
-    await this.getAndSetWarehouses();
-    await this.getAndSetStatuses();
+    await Promise.all([
+      this.getAndSetWarehouses(),
+      this.getAndSetStatuses()
+    ])
+
+    this.loadFilters()
 
     this.filterFormNav.GenerateAndSetNavMatrices(true)
 
@@ -258,6 +255,70 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
 
       this.Refresh()
     }
+  }
+
+  private loadFilters(): void {
+    const filter = this.localStorage.get<WarehouseDocumentFilterFormData>(this.localStorageKey)
+
+    if (!filter) {
+      return
+    }
+
+    this.loadWarehousesFilters(filter)
+    this.loadStatusFilter(filter)
+    this.loadDatesFromFilter(filter)
+  }
+
+  private loadWarehousesFilters(filter: WarehouseDocumentFilterFormData): void {
+    if (this.warehouses.length === 0) {
+      return
+    }
+
+    const setControlValue = (filterValue: string, control: AbstractControl) => {
+      const hasValue = !HelperFunctions.isEmptyOrSpaces(filterValue)
+      if (hasValue) {
+        const warehouse = this.warehouses.find(x => x.warehouseCode === filterValue)
+        control.setValue(warehouse?.warehouseCode ?? this.warehouses[0].warehouseDescription)
+      }
+      else {
+        control.setValue(this.warehouses[0].warehouseDescription)
+      }
+    }
+
+    const controls = this.filterForm.controls
+    setControlValue(filter.FromWarehouseCode, controls['FromWarehouseCode'])
+    setControlValue(filter.ToWarehouseCode, controls['ToWarehouseCode'])
+  }
+
+  private loadStatusFilter(filter: WarehouseDocumentFilterFormData): void {
+    if (this.statuses.length === 0) {
+      return
+    }
+
+    const controls = this.filterForm.controls
+
+    const savedStatus = HelperFunctions.isEmptyOrSpaces(filter.Status)
+    if (!savedStatus) {
+      const tmp = this.statuses.find(x => x.text === OfflineWhsTransferStatus.Ready.text)
+      controls['Status'].setValue(tmp !== undefined ? tmp.text : this.statuses[0].text)
+    }
+    else {
+      controls['Status'].setValue(this.statuses[0].text)
+    }
+  }
+
+  private loadDatesFromFilter(filter: WarehouseDocumentFilterFormData): void {
+    const setControlValue = (filterValue: string, control: AbstractControl) => {
+      if (!filterValue) {
+        return
+      }
+
+      control.setValue(filterValue)
+    }
+
+    const controls = this.filterForm.controls
+    setControlValue(filter.FromDate, controls['FromDate'])
+    setControlValue(filter.ToDate, controls['ToDate'])
   }
 
   public Refresh(): void {

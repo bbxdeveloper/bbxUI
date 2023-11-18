@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -18,10 +18,11 @@ import { ProductGroupService } from '../services/product-group.service';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { StatusService } from 'src/app/services/status.service';
-import { Actions } from 'src/assets/util/KeyBindings';
+import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-product-group-manager',
@@ -34,7 +35,7 @@ export class ProductGroupManagerComponent
 {
   @ViewChild('table') table?: NbTable<any>;
 
-  override allColumns = ['id', 'productGroupCode', 'productGroupDescription'];
+  override allColumns = ['id', 'productGroupCode', 'productGroupDescription', 'minMargin'];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Azonosító',
@@ -72,17 +73,39 @@ export class ProductGroupManagerComponent
       mask: 'Set in sidebar form.',
       colWidth: '50%',
       textAlign: 'left',
+      navMatrixCssClass: TileCssClass
+    },
+    {
+      label: 'Árrésminimum %',
+      objectKey: 'minMargin',
+      colKey: 'minMargin',
+      defaultValue: '',
+      type: 'formatted-number',
+      fInputType: 'formatted-number',
+      fRequired: false,
+      mask: '',
+      colWidth: '135px',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
       fLast: true
     },
   ];
 
-  override get getInputParams(): GetProductGroupsParamListModel {
-    return { PageNumber: this.dbDataTable.currentPage + '', PageSize: this.dbDataTable.pageSize,SearchString: this.searchString ?? '', OrderBy: 'productGroupCode' };
+  public override getInputParams(override?: Constants.Dct): GetProductGroupsParamListModel {
+    const params = {
+      PageNumber: 1 + '',
+      PageSize: this.dbDataTable.pageSize,
+      SearchString: this.searchString ?? '',
+      OrderBy: 'productGroupCode'
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"] + ''
+    }
+    return params
   }
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<ProductGroup>>,
     private seInv: ProductGroupService,
@@ -109,16 +132,24 @@ export class ProductGroupManagerComponent
     return data.productGroupCode
   }
 
+  private fixFields(data: any): any {
+    data.data.id = parseInt(data.data.id + '')
+    if (data.data.minMargin !== undefined) {
+      data.data.minMargin = parseFloat(data.data.minMargin + '')
+    }
+    return data
+  }
+
   override ProcessActionNew(data?: IUpdateRequest<ProductGroup>): void {
     console.log('ActionNew: ', data?.data);
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data = this.fixFields(data)
       this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-      this.seInv.Create(data.data).subscribe({
+      this.seInv.Create(data!.data).subscribe({
         next: async (d) => {
           if (d.succeeded && !!d.data) {
             await this.RefreshAsync({
-              PageNumber: this.dbDataTable.currentPage + '',
+              PageNumber: 1 + '',
               PageSize: this.dbDataTable.pageSize,
               SearchString: this.searchString ?? '',
               OrderBy: 'productGroupCode',
@@ -154,16 +185,16 @@ export class ProductGroupManagerComponent
   override ProcessActionPut(data?: IUpdateRequest<ProductGroup>): void {
     console.log('ActionPut: ', data?.data, JSON.stringify(data?.data));
     if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
+      data = this.fixFields(data)
       this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
-      this.seInv.Update(data.data).subscribe({
+      this.seInv.Update(data!.data).subscribe({
         next: (d) => {
           if (d.succeeded && !!d.data) {
             const newRow = {
               data: d.data,
             } as TreeGridNode<ProductGroup>;
             const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-            this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
+            this.dbData[newRowIndex !== -1 ? newRowIndex : data!.rowIndex] = newRow;
             this.RefreshTable(newRow.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,
@@ -238,6 +269,9 @@ export class ProductGroupManagerComponent
       productGroupDescription: new FormControl(undefined, [
         Validators.required,
       ]),
+      minMargin: new FormControl(undefined, [
+       Validators.min(0)
+      ])
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(
@@ -263,13 +297,13 @@ export class ProductGroupManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
     this.bbxSidebarService.collapse();
 
-    this.Refresh(this.getInputParams);
+    this.Refresh(this.getInputParams());
   }
 
   override Refresh(params?: GetProductGroupsParamListModel): void {
@@ -366,6 +400,12 @@ export class ProductGroupManagerComponent
       return;
     }
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Lock].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

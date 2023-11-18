@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, Output, EventEmitter, HostListener, Optional, ViewChild, DoCheck } from '@angular/core';
-import { NbDialogService, NbPopoverDirective, NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
+import { Component, Input, OnInit, Output, EventEmitter, HostListener, Optional, ViewChild } from '@angular/core';
+import { NbPopoverDirective, NbSortDirection, NbTreeGridDataSource } from '@nebular/theme';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -129,7 +129,7 @@ export class InlineEditableTableComponent implements OnInit {
 
   public KeySetting: Constants.KeySettingsDct = DefaultKeySettings;
 
-  constructor(@Optional() protected dialogService: NbDialogService,
+  constructor(@Optional() protected dialogService: BbxDialogServiceService,
               private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
               private statusService: StatusService, private khs: KeyboardHelperService) {}
 

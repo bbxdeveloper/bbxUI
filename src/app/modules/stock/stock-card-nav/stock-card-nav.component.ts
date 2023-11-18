@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -39,6 +39,7 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FilterForm } from './FitlerForm';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-stock-card-nav',
@@ -98,6 +99,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     'oRealQty',
     'xRealQty',
     'nRealQty',
+    'xRel',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -174,18 +176,6 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Kapcs.',
-      objectKey: 'xRel',
-      colKey: 'xRel',
-      defaultValue: '',
-      type: 'string',
-      fInputType: 'text',
-      mask: '',
-      colWidth: '120px',
-      textAlign: 'left',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
       label: 'E.Klt.',
       objectKey: 'oRealQty',
       colKey: 'oRealQty',
@@ -221,16 +211,28 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       textAlign: "right",
       navMatrixCssClass: TileCssClass,
     },
+    {
+      label: 'Megjegyzés',
+      objectKey: 'xRel',
+      colKey: 'xRel',
+      defaultValue: '',
+      type: 'string',
+      fRequired: true,
+      mask: '',
+      colWidth: "130px",
+      textAlign: "right",
+      navMatrixCssClass: TileCssClass,
+    },
   ];
 
-  override get getInputParams(): GetStockCardsParamsModel {
+  public override getInputParams(override?: Constants.Dct): GetStockCardsParamsModel {
     let productId = this.productFilter?.id;
     if (productId !== undefined) {
       productId = HelperFunctions.ToInt(productId);
     }
     let wareHouseId = this.wh.find(x => x.warehouseDescription === this.filterForm.controls['WarehouseID'].value)?.id;
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       WarehouseID: wareHouseId,
@@ -241,7 +243,11 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       OrderBy: "stockCardDate",
 
       ProductID: productId,
-    };
+    }
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+    return params
   }
 
   filterFormId = 'stock-card-filter-form';
@@ -262,7 +268,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
   private localStorageKey: string
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<StockCard>>,
     private cdref: ChangeDetectorRef,
@@ -379,8 +385,8 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
+      next: (newPageNumber: number) => {
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.flatDesignForm.commandsOnForm = this.commands;
@@ -461,16 +467,16 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     if (this.navigatedFromStock) {
       await this.getProductAsync(this.productCodeFromPath)
-      this.Refresh(this.getInputParams)
+      this.Refresh(this.getInputParams())
     } else {
       const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
       if (filterData && filterData.ProductSearch && filterData.ProductSearch !== '') {
         this.filterForm.patchValue(filterData)
-  
+
         this.productInputFilterString = filterData.ProductSearch ?? ''
-  
+
         await this.getProductAsync()
-        this.Refresh(this.getInputParams)
+        this.Refresh(this.getInputParams())
       }
     }
 
@@ -481,7 +487,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
     this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
     this.AddSearchButtonToFormMatrix();
-    
+
     this.kbS.SetCurrentNavigatable(this.filterFormNav);
 
     this.dbDataTable.GenerateAndSetNavMatrices(true);
@@ -568,6 +574,12 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     }
 
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.Create].KeyCode:
       case this.KeySetting[Actions.Edit].KeyCode:
       case this.KeySetting[Actions.Delete].KeyCode:
@@ -648,7 +660,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
       complete: () => {
         this.isLoading = false;
         if (refreashAfter) {
-          this.Refresh(this.getInputParams);
+          this.Refresh(this.getInputParams());
         }
       },
     });

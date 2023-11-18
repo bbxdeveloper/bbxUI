@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -22,7 +22,7 @@ import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemC
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { InvCtrlItemForPost, InvCtrlItemLine } from '../models/InvCtrlItem';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -40,6 +40,8 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { StockRecord } from '../../stock/models/StockRecord';
 import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -78,7 +80,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   get getAllPeriodsParams(): GetAllInvCtrlPeriodsParamListModel {
     return {
-      PageSize: 1000
+      PageSize: 1000,
+      OrderBy: 'warehouse'
     } as GetAllInvCtrlPeriodsParamListModel;
   }
 
@@ -166,7 +169,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   //#endregion AutoSave
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvCtrlItemLine>>,
     private invCtrlItemService: InventoryCtrlItemService,
@@ -184,6 +187,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     router: Router,
+    private route: ActivatedRoute,
     private statusService: StatusService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
@@ -496,6 +500,11 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.kbS.setEditMode(KeyboardModes.EDIT);
 
       this.cdref.detectChanges();
+
+      if (this.route.snapshot.queryParamMap.has('reload')) {
+        this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.ClickCurrentElement()
+      }
     }, 500);
 
     this.buyerForm.controls['invCtrlPeriod'].valueChanges.subscribe({
@@ -793,6 +802,50 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     return true
   }
 
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
+
+      this.sts.waitForLoad(false)
+
+      this.dialogService.open(ProductStockInformationDialogComponent, {
+        context: {
+          product: product
+        }
+      })
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
+  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
+
+      this.sts.waitForLoad(false)
+
+      this.dialogService.open(ProductStockInformationDialogComponent, {
+        context: {
+          product: product
+        }
+      })
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
@@ -820,6 +873,15 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           return;
         }
       }
+    } else {
+      switch (event.key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
+      }
     }
     this.HandleKeyDown(event);
   }
@@ -828,6 +890,21 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
+        case this.KeySetting[Actions.Refresh].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+          _event.preventDefault()
+
+          if (this.kbS.p.y === this.dbData.length - 1) {
+            break
+          }
+
+          const productCode = this.dbData[this.kbS.p.y].data.productCode
+          this.openProductStockInformationDialog(productCode)
+          break
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);

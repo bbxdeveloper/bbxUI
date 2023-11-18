@@ -7,7 +7,6 @@ import { VatRate } from "src/app/modules/vat-rate/models/VatRate";
 import { WareHouse } from "src/app/modules/warehouse/models/WareHouse";
 import { BlankComboBoxValue } from "../model/navigation/Nav";
 import * as moment from 'moment';
-import { NbDialogService } from "@nebular/theme";
 import { ConfirmationDialogComponent } from "src/app/modules/shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component";
 import { CalculatorPopoverComponent } from "src/app/modules/shared/calculator-popover/calculator-popover.component";
 import { FormGroup } from "@angular/forms";
@@ -15,6 +14,8 @@ import { OneButtonConfirmationDialogComponent } from "src/app/modules/shared/sim
 import { NavigatableType } from "../model/navigation/Navigatable";
 import { OneNumberInputDialogComponent } from "src/app/modules/shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component";
 import { createMask } from "@ngneat/input-mask";
+import { CurrencyCodes } from "src/app/modules/system/models/CurrencyCode";
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -261,6 +262,12 @@ export module HelperFunctions {
         return isEmptyOrSpaces(p) ? undefined : parseInt((p + '').replace(/\s/g, ''));
     }
 
+    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null): number {
+        return currency === CurrencyCodes.HUF
+            ? Round(value)
+            : Round2(value, 2)
+    }
+
     export function Round(p: string | number): number {
         return Math.round(ToFloat(p));
     }
@@ -277,7 +284,7 @@ export module HelperFunctions {
         return !isNaN(parseFloat(val2));
     }
 
-    export function confirm(dialogService: NbDialogService, msg: string, yesFunction: any, noFunction: any = () => {}): void {
+    export function confirm(dialogService: BbxDialogServiceService, msg: string, yesFunction: any, noFunction: any = () => {}): void {
         const confirmDialogRef = dialogService.open(ConfirmationDialogComponent, { context: { msg: msg } });
         confirmDialogRef.onClose.subscribe(res => {
             if (res) {
@@ -288,7 +295,7 @@ export module HelperFunctions {
         });
     }
 
-    export function confirmAsync(dialogService: NbDialogService, msg: string, yesFunctionAsync: any, noFunctionAsync: any = () => { }): void {
+    export function confirmAsync(dialogService: BbxDialogServiceService, msg: string, yesFunctionAsync: any, noFunctionAsync: any = () => { }): void {
         const confirmDialogRef = dialogService.open(ConfirmationDialogComponent, { context: { msg: msg } });
         confirmDialogRef.onClose.subscribe(async res => {
             if (res) {
@@ -299,14 +306,14 @@ export module HelperFunctions {
         });
     }
 
-    export function confirmOneButtonAsync(dialogService: NbDialogService, msg: string, buttonText: string, yesFunctionAsync: any): void {
+    export function confirmOneButtonAsync(dialogService: BbxDialogServiceService, msg: string, buttonText: string, yesFunctionAsync: any): void {
         const confirmDialogRef = dialogService.open(OneButtonConfirmationDialogComponent, { context: { msg: msg, buttonText: buttonText } });
         confirmDialogRef.onClose.subscribe(async res => {
             await yesFunctionAsync();
         });
     }
 
-    export function openCalculator(dialogService: NbDialogService, startValue: number, handle: (result?: number) => Promise<void>): void {
+    export function openCalculator(dialogService: BbxDialogServiceService, startValue: number, handle: (result?: number) => Promise<void>): void {
         const calculatorDialogRef = dialogService.open(CalculatorPopoverComponent, { context: { result: startValue } });
         calculatorDialogRef.onClose.subscribe(handle);
     }
@@ -483,7 +490,7 @@ export module HelperFunctions {
         return focusedTable.NavigatableType === NavigatableType.inline_editable_table && hasData && focusedTable.data.length === 1
     }
 
-    export function TestOneNumberInputDialog(dialogService: NbDialogService): void {
+    export function TestOneNumberInputDialog(dialogService: BbxDialogServiceService): void {
         var dialogRef;
         try {
         dialogRef = dialogService.open(OneNumberInputDialogComponent, {

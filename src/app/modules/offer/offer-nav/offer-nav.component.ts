@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -45,6 +45,7 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { OfferFilter } from '../models/OfferFilter';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 export interface OfferPrintParams {
   rowIndex: number,
@@ -215,14 +216,14 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     }
   }
 
-  override get getInputParams(): GetOffersParamsModel {
+  public override getInputParams(override?: Constants.Dct): GetOffersParamsModel {
     let issueFrom = this.filterForm.controls['OfferIssueDateFrom'].value ?? "";
     let issueTo = this.filterForm.controls['OfferIssueDateTo'].value ?? "";
     let vaidityFrom = this.filterForm.controls['OfferVaidityDateForm'].value ?? "";
     let vaidityTo = this.filterForm.controls['OfferVaidityDateTo'].value ?? "";
 
-    return {
-      PageNumber: this.dbDataTable.currentPage,
+    const params = {
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
       OfferNumber: this.filterForm.controls['OfferNumber'].value,
@@ -234,7 +235,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
       OfferVaidityDateForm: vaidityFrom.length > 0 ? vaidityFrom : undefined,
       OfferVaidityDateTo: vaidityTo.length > 0 ? vaidityTo : undefined,
-    };
+    }
+
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+
+    return params
   }
 
   filterFormId = 'offers-filter-form';
@@ -294,7 +301,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   isPageReady: boolean = false;
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Offer>>,
     private cdref: ChangeDetectorRef,
@@ -418,8 +425,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: () => {
-        this.Refresh(this.getInputParams);
+      next: (newPageNumber: number) => {
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
@@ -522,7 +529,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   public RefreshAndJumpToTable(): void {
-    this.Refresh(this.getInputParams, true);
+    this.Refresh(this.getInputParams(), true);
   }
 
   JumpToTable(x: number = 0, y: number = 0): void {
@@ -612,7 +619,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     if (filterData && filterData.customerSearch !== '') {
       await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
 
-      await this.RefreshAsync(this.getInputParams)
+      await this.RefreshAsync(this.getInputParams())
 
       if (this.dbData.length === 0) {
         this.kbS.SetCurrentNavigatable(this.filterFormNav)
@@ -632,7 +639,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       }
     }
     else {
-      this.RefreshAll(this.getInputParams)
+      this.RefreshAll(this.getInputParams())
     }
 
     this.fS.pushCommands(this.commands);
@@ -993,7 +1000,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                     this.buyerData.email = offerCustomer.email;
                     this.buyerData.customerName = offerCustomer.customerName;
                   }
-                  await this.RefreshAsync(this.getInputParams);
+                  await this.RefreshAsync(this.getInputParams());
                 } else {
                   this.bbxToastrService.show(
                     Constants.MSG_CUSTOMER_UPDATE_FAILED,
@@ -1086,7 +1093,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
                   Constants.TITLE_INFO,
                   Constants.TOASTR_SUCCESS_5_SEC
                 );
-                this.Refresh(this.getInputParams);
+                this.Refresh(this.getInputParams());
               } else {
                 this.cs.HandleError(res.errors);
                 this.isLoading = false;
@@ -1142,6 +1149,18 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     return customerRes;
   }
 
+  private toInvoice(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const id = this.dbData[this.kbS.p.y].data.id
+      this.router.navigate(['invoice/invoice', id, {}]);
+      this.router.navigate(['invoice/invoice'], {
+        queryParams: {
+          offerId: id
+        }
+      })
+    }
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) async onFunctionKeyDown(event: KeyboardEvent) {
@@ -1177,6 +1196,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       case this.KeySetting[Actions.Details].KeyCode:
         event.preventDefault();
         this.ViewNotice();
+        return;
+      case this.KeySetting[Actions.ToggleForm].KeyCode:
+        event.preventDefault();
+        this.toInvoice();
         return;
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();

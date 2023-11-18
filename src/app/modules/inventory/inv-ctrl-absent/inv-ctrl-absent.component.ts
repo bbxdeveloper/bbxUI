@@ -33,6 +33,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FilterForm } from './FilterForm';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-inv-ctrl-absent',
@@ -180,16 +181,21 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     return this.filterForm.controls['invCtrlPeriod'].value;
   }
 
-  override get getInputParams(): GetAllInvCtrlAbsentParamsModel {
-
-    return {
+  public override getInputParams(override?: Constants.Dct): GetAllInvCtrlAbsentParamsModel {
+    const params = {
       OrderBy: "ProductCode",
-      PageNumber: this.dbDataTable.currentPage,
+      PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
       InvCtrlPeriodID: this.SelectedInvCtrlPeriod?.id,
       SearchString: this.filterForm.controls['searchString'].value,
       IsInStock: this.filterForm.controls['isInStock'].value
-    };
+    }
+
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
+
+    return params;
   }
 
   filterFormId = 'invrow-filter-form';
@@ -210,7 +216,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   isPageReady: boolean = false;
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvCtrlAbsent>>,
     private cdref: ChangeDetectorRef,
@@ -298,8 +304,8 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.NewPageSelected.subscribe({
-      next: async () => {
-        await this.Refresh(this.getInputParams);
+      next: async (newPageNumber: number) => {
+        await this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
 
@@ -308,7 +314,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   }
 
   public async RefreshAndJumpToTable(): Promise<void> {
-    await this.Refresh(this.getInputParams, true);
+    await this.Refresh(this.getInputParams(), true);
   }
 
   JumpToFirstCellAndNav(): void {
@@ -323,7 +329,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   }
 
   private async refreshComboboxData(setIsLoad = false): Promise<void> {
-    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000 }))
+    await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000, OrderBy: 'warehouse' }))
       .then(data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
@@ -347,7 +353,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
   }
 
   private async refreshGridData(params: any): Promise<void> {
-    await lastValueFrom(this.stockService.GetAllAbsent(params ?? this.getInputParams))
+    await lastValueFrom(this.stockService.GetAllAbsent(params ?? this.getInputParams()))
       .then(d => {
         if (d.succeeded && !!d.data) {
           console.log('GetProducts response: ', d); // TODO: only for debug
@@ -498,7 +504,7 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         MsgFinish: `Az leltári időszak nyomtatása véget ért.`,
         Obs: this.inventoryCtrlItemService.GetAbsentReport.bind(this.inventoryCtrlItemService),
         ReportParams: {
-          "invCtrlPeriodID": id, "invPeriodTitle": title, "isInStock": this.getInputParams.IsInStock
+          "invCtrlPeriodID": id, "invPeriodTitle": title, "isInStock": this.getInputParams().IsInStock
         } as Constants.Dct
       } as PrintDialogRequest);
     }

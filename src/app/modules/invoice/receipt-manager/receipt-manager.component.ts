@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { of } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -38,6 +38,7 @@ import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-receipt-manager',
@@ -106,7 +107,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     invoiceService: InvoiceService,
@@ -510,13 +511,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
-      if (changedData.noDiscount) {
-        setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
-      }
-
-      changedData.unitPrice = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
-        ? HelperFunctions.Round(changedData.unitPrice)
-        : HelperFunctions.Round2(changedData.unitPrice, 2)
+      changedData.unitPrice = HelperFunctions.currencyRound(changedData.unitPrice, this.outGoingInvoiceData.currencyCode)
 
       this.RecalcNetAndVat()
 
@@ -525,6 +520,10 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
+    if (p.noDiscount) {
+      setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+    }
+
     let res = new InvoiceLine(this.requiredCols);
 
     res.productCode = p.productCode!;
@@ -536,7 +535,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     p.productGroup = !!p.productGroup ? p.productGroup : '-';
     res.noDiscount = p.noDiscount;
     res.custDiscounted = !p.noDiscount
-    res.unitPrice = p.unitPrice2!
+    res.unitPrice = HelperFunctions.currencyRound(p.unitPrice2!, this.outGoingInvoiceData.currencyCode)
 
     res.vatRateCode = p.vatRateCode;
 
@@ -573,7 +572,16 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -632,6 +640,15 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
             return;
           }
           break;
+        }
+      }
+    } else {
+      switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
         }
       }
     }

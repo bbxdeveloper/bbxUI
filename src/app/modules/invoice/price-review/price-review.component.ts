@@ -53,6 +53,7 @@ import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-price-review',
@@ -204,7 +205,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   })
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     private readonly invoiceService: InvoiceService,
@@ -1197,7 +1198,16 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
+        case KeyBindings.F11: {
+          _event.stopImmediatePropagation();
+          _event.stopPropagation();
+          _event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -1240,7 +1250,17 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       }
     }
     else {
+      const _event = event as KeyboardEvent
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch ((event as KeyboardEvent).key) {
+        case KeyBindings.F11: {
+          event.stopImmediatePropagation();
+          event.stopPropagation();
+          event.preventDefault();
+          break
+        }
         case this.KeySetting[Actions.Search].KeyCode: {
           if (!isForm) {
             return;

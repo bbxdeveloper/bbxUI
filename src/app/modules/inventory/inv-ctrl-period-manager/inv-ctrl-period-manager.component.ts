@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbDialogService, NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -25,13 +25,14 @@ import { InventoryService } from '../services/inventory.service';
 import { GetAllInvCtrlPeriodsParamListModel } from '../models/GetAllInvCtrlPeriodsParamListModel';
 import { DeleteInvCtrlPeriodParamListModel } from '../models/DeleteInvCtrlPeriodParamListModel';
 import { environment } from 'src/environments/environment';
-import { Actions, GetFooterCommandListFromKeySettings, InventoryPeriodsKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, InventoryPeriodsKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodParamListModel';
 import { GetInvCtrlPeriodParamListModel } from '../models/GetInvCtrlPeriodParamListModel';
 import { lastValueFrom } from 'rxjs';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { LoggerService } from 'src/app/services/logger.service';
+import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
   selector: 'app-inv-ctrl-period-manager',
@@ -122,13 +123,16 @@ export class InvCtrlPeriodManagerComponent
   ];
 
   idParam?: number;
-  override get getInputParams(): GetAllInvCtrlPeriodsParamListModel {
+  public override getInputParams(override?: Constants.Dct): GetAllInvCtrlPeriodsParamListModel {
     const params = {
-      PageNumber: HelperFunctions.ToInt(this.dbDataTable.currentPage),
+      PageNumber: 1,
       PageSize: HelperFunctions.ToInt(this.dbDataTable.pageSize),
       SearchString: this.searchString ?? '',
       ID: this.idParam
     };
+    if (override && override["PageNumber"] !== undefined) {
+      params.PageNumber = override["PageNumber"]
+    }
     this.idParam = undefined;
     return params;
   }
@@ -143,7 +147,7 @@ export class InvCtrlPeriodManagerComponent
   wareHouses: WareHouse[] = [];
 
   constructor(
-    @Optional() dialogService: NbDialogService,
+    @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvCtrlPeriod>>,
     private seInv: InventoryService,
@@ -168,7 +172,12 @@ export class InvCtrlPeriodManagerComponent
   }
 
   override GetRecordName(data: InvCtrlPeriod): string | number | undefined {
-    return `${data.warehouse} - ${data.dateFrom} - ${data.dateTo}`
+    const convertDate = (dateString: string): string => {
+      const date = new Date(dateString)
+      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+    }
+
+    return `${data.warehouseID} - ${convertDate(data.dateFrom)} - ${convertDate(data.dateTo)}`
   }
 
   private ConvertCombosForGet(data: InvCtrlPeriod): InvCtrlPeriod {
@@ -291,7 +300,7 @@ export class InvCtrlPeriodManagerComponent
               if (d.succeeded && !!d.data) {
                 this.idParam = d.data.id;
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                await this.RefreshAsync(this.getInputParams);
+                await this.RefreshAsync(this.getInputParams());
                 this.dbDataTable.SelectRowById(d.data.id);
                 this.simpleToastrService.show(
                   Constants.MSG_SAVE_SUCCESFUL,
@@ -463,14 +472,14 @@ export class InvCtrlPeriodManagerComponent
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams);
+        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
       },
     });
     this.dbDataTable.ReadonlyPredicator = this.ReadonlyPredicator;
 
     this.bbxSidebarService.collapse();
 
-    this.RefreshAll(this.getInputParams);
+    this.RefreshAll(this.getInputParams());
   }
 
   private RefreshAll(params?: GetAllInvCtrlPeriodsParamListModel): void {
@@ -596,6 +605,12 @@ export class InvCtrlPeriodManagerComponent
       return;
     }
     switch (event.key) {
+      case KeyBindings.F11: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        break
+      }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
         // TODO: 'active-prod-search' into global variable
         if ((event as any).target.id !== 'active-prod-search') {
