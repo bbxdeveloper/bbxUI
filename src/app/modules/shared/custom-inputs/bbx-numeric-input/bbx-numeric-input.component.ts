@@ -159,6 +159,9 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   // TODO for BbxProductCodeInputComponent: test
   proxyBlur(value: any) {
     this.log(`[BbxProductCodeInputComponent] proxyBlur, event: ${JSON.stringify(value)}`)
+
+    this.focusOnSavedValue = this.value
+    
     this.blur.emit(value)
   }
 
@@ -312,6 +315,9 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
           this.writeValue(this.focusOnSavedValue)
           $('#' + (event.target as any).id).text(this.focusOnSavedValue)
         }
+        break
+      case KeyBindings.Enter:
+        this.focusOnSavedValue = this.value
         break
     }
   }
