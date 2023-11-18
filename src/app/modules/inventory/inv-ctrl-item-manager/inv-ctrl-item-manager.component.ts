@@ -824,28 +824,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     }
   }
 
-  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
-
-    try {
-      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
-
-      this.sts.waitForLoad(false)
-
-      this.dialogService.open(ProductStockInformationDialogComponent, {
-        context: {
-          product: product
-        }
-      })
-    }
-    catch (error) {
-      this.cs.HandleError(error)
-    }
-    finally {
-      this.sts.waitForLoad(false)
-    }
-  }
-
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
