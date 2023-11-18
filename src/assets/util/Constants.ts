@@ -117,6 +117,7 @@ export module Constants {
         autoUnmask: true,
         casing: 'upper',
         mask: 'A{3}-C{0,26}',
+        placeholder: ' ',
         definitions: {
             'A': {
                 validator: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}]',
