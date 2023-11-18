@@ -303,7 +303,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
       controls['Status'].setValue(tmp !== undefined ? tmp.text : this.statuses[0].text)
     }
     else {
-      controls['Status'].setValue(this.statuses)
+      controls['Status'].setValue(this.statuses[0].text)
     }
   }
 
