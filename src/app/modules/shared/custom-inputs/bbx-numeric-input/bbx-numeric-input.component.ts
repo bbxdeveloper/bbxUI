@@ -308,7 +308,6 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
     switch (event.key) {
       case KeyBindings.exit:
       case KeyBindings.exitIE:
-        console.log("ESC")
         if (this.focusOnSavedValue || this.focusOnSavedValue == '') {
           this.writeValue(this.focusOnSavedValue)
           $('#' + (event.target as any).id).text(this.focusOnSavedValue)
