@@ -157,41 +157,49 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   // Handling events
 
   // TODO for BbxProductCodeInputComponent: test
-  proxyBlur(value: any) {
-    this.log(`[BbxProductCodeInputComponent] proxyBlur, event: ${JSON.stringify(value)}`)
+  proxyBlur(event: any) {
+    this.log(`[BbxProductCodeInputComponent] proxyBlur, event: ${JSON.stringify(event)}`)
 
+    this.id = event.target.id
     this.focusOnSavedValue = this.value
-    
-    this.blur.emit(value)
+
+    this.blur.emit(event)
   }
 
   // TODO for BbxProductCodeInputComponent: test
-  proxyFocus(value: any) {
-    this.log(`[BbxProductCodeInputComponent] proxyFocus, event: ${JSON.stringify(value)}`)
+  proxyFocus(event: any) {
+    this.log(`[BbxProductCodeInputComponent] proxyFocus, event: ${JSON.stringify(event)}`)
 
+    this.id = event.target.id
     this.focusOnSavedValue = this.value
 
     if (this.useFixCursorPosition) {
       if (this.input_type == 'INTEGER') {
-        fixIntegerCursorPosition(value)
+        fixIntegerCursorPosition(event)
       } else {
-        fixCursorPosition(value)
+        fixCursorPosition(event)
       }
     }
 
-    this.focus.emit(value)
+    this.focus.emit(event)
   }
 
   // TODO for BbxProductCodeInputComponent: test
-  proxyFocusOut(value: any) {
-    this.log(`[BbxProductCodeInputComponent] proxyFocusOut, event: ${JSON.stringify(value)}`)
-    this.focusOut.emit(value)
+  proxyFocusOut(event: any) {
+    this.log(`[BbxProductCodeInputComponent] proxyFocusOut, event: ${JSON.stringify(event)}`)
+
+    this.id = event.target.id
+
+    this.focusOut.emit(event)
   }
 
   // TODO for BbxProductCodeInputComponent: test
-  proxyClick(value: any) {
-    this.log(`[BbxProductCodeInputComponent] proxyClick, event: ${JSON.stringify(value)}`)
-    this.click.emit(value)
+  proxyClick(event: any) {
+    this.log(`[BbxProductCodeInputComponent] proxyClick, event: ${JSON.stringify(event)}`)
+
+    this.id = event.target.id
+
+    this.click.emit(event)
   }
 
   // Misc functions
@@ -308,12 +316,17 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    const targetId = (event.target as any).id
+    if (this.id !== targetId) {
+      return
+    }
+
     switch (event.key) {
       case KeyBindings.exit:
       case KeyBindings.exitIE:
         if (this.focusOnSavedValue || this.focusOnSavedValue == '') {
           this.writeValue(this.focusOnSavedValue)
-          $('#' + (event.target as any).id).text(this.focusOnSavedValue)
+          $('#' + this.id).text(this.focusOnSavedValue)
         }
         break
       case KeyBindings.Enter:
