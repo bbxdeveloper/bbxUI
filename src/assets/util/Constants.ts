@@ -185,6 +185,10 @@ export module Constants {
         Form, Product, Other
     }
 
+    export enum RowChangeTypes {
+        Add, Delete, Modify
+    }
+
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
     export const PrintReportStatuses: ProcessStatus[] = [
         { title: 'Riport', value: 0, msg: '0/4 - Kérés feldolgozása', isSimple: false },
@@ -222,6 +226,11 @@ export module Constants {
     export enum CRUDSavingPhases { SAVING }
     export const CRUDSavingStatuses: ProcessStatus[] = [
         { title: 'Mentés', value: 0, msg: '1/1 - Új rekord mentése', isSimple: true }
+    ];
+
+    export enum GeneralAutoSavingPhases { SAVING }
+    export const GeneralAutoSavingStatuses: ProcessStatus[] = [
+        { title: 'Automatikus Mentés', value: 0, msg: '1/1 - Mentés', isSimple: true }
     ];
 
     export enum GeneralSavingPhases { SAVING }

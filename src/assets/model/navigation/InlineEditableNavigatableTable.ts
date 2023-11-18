@@ -1,4 +1,4 @@
-import { ChangeDetectorRef } from "@angular/core";
+import { ChangeDetectorRef, EventEmitter } from "@angular/core";
 import { FormGroup, FormControl } from "@angular/forms";
 import { NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from "@nebular/theme";
 import { FORMATTED_NUMBER_COL_TYPES } from "src/app/modules/shared/flat-design-table/flat-design-table.component";
@@ -14,6 +14,7 @@ import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
 import { TreeGridNode } from "../TreeGridNode";
 import { INavigatable, AttachDirection, TileCssClass, NavigatableType } from "./Navigatable";
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
+import { BehaviorSubject } from "rxjs";
 
 
 export class InlineEditableNavigatableTable<T extends IEditable> implements INavigatable {
@@ -56,6 +57,22 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
 
     data: TreeGridNode<T>[];
     dataSource: NbTreeGridDataSource<TreeGridNode<T>>;
+
+    /**
+     * Row added
+     * [added row, length after add (without editor row)]
+     */
+    rowAdded: BehaviorSubject<any> = new BehaviorSubject<any>([undefined, undefined])
+    /**
+     * Row deleted
+     * [deleted row, length after delete (without editor row)]
+     */
+    rowDeleted: BehaviorSubject<any> = new BehaviorSubject<any>([undefined, undefined])
+    /**
+     * Row possibly modified
+     * [modified row, row pos]
+     */
+    rowModified: BehaviorSubject<any> = new BehaviorSubject<any>([undefined, undefined])
 
     isUnfinishedRowDeletable: boolean = false;
 
@@ -318,6 +335,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.kbS.SelectCurrentElement();
         this.PushFooterCommandList();
         this.repairMode = true;
+        this.rowModified.next([row, rowPos])
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
@@ -448,6 +466,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                         }
                         this.isUnfinishedRowDeletable = false;
 
+                        this.rowDeleted.next([this.data[rowPos], this.data.length - 1])
+
                         this.data.splice(rowPos, 1);
                         this.dataSource.setData(this.data);
 
@@ -457,12 +477,15 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                         setTimeout(() => {
                             this.kbS.MoveDown();
                         }, 50);
+
                         break;
                     case "ArrowDown":
                         if (!this.isUnfinishedRowDeletable) {
                             return;
                         }
                         this.isUnfinishedRowDeletable = false;
+
+                        this.rowDeleted.next([this.data[rowPos], this.data.length - 1])
 
                         this.data.splice(rowPos, 1);
                         this.dataSource.setData(this.data);
@@ -474,6 +497,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 }
             }
         }
+        this.rowModified.next([undefined, undefined])
     }
 
     HandleGridClick(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, mouseClick: boolean = false, clickEvent?: any, navigatable?: INavigatable): void {
@@ -554,6 +578,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 break
             }
         }
+        this.rowModified.next([row, rowPos])
     }
 
     private HandleGridEnterOld(row: TreeGridNode<T>, rowPos: number, col: string, colPos: number, inputId: string, fInputType?: string, fromEditMode: boolean = true, fromClickMethod: boolean = false, navigatable?: INavigatable): void {
@@ -603,6 +628,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 // New blank row if needed
                 if (rowPos === this.data.length - 1 && col === this.colDefs[0].colKey && !tmp.IsUnfinished()) {
                     this.productCreatorRow = this.GenerateCreatorRow;
+
                     this.data.push(this.productCreatorRow);
 
                     this.dataSource.setData(this.data);
@@ -610,6 +636,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                     this.GenerateAndSetNavMatrices(false);
 
                     this.isUnfinishedRowDeletable = true;
+
+                    this.rowAdded.next([this.data[this.data.length - 1], this.data.length - 1])
                 }
 
                 // Clear edit data
@@ -660,6 +688,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                         this.GenerateAndSetNavMatrices(false);
 
                         this.isUnfinishedRowDeletable = true;
+
+                        this.rowAdded.next([this.data[this.data.length - 1], this.data.length - 1])
                     }
 
                     // Clear edit data
@@ -703,6 +733,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
 
         this.parentComponent.RecalcNetAndVat();
+
+        this.rowModified.next([row, rowPos])
     }
 
     private nextAvailableInDistance(currentColumn: string, currentRow: TreeGridNode<T>): number {
@@ -783,6 +815,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 this.GenerateAndSetNavMatrices(false);
 
                 this.isUnfinishedRowDeletable = true;
+
+                this.rowAdded.next([this.data[this.data.length - 1], this.data.length - 1])
             }
 
             // this.kbS.toggleEdit();
@@ -864,6 +898,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 this.kbS.MoveUp();
             }
             this.GenerateAndSetNavMatrices(false);
+
+            this.rowDeleted.next([row, this.data.length - 1])
         }
 
         this.parentComponent.RecalcNetAndVat();
