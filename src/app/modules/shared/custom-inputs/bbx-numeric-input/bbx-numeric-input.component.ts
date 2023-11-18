@@ -1,14 +1,14 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, ViewEncapsulation, forwardRef } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, forwardRef } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { noop } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger.service';
 import { Constants } from 'src/assets/util/Constants';
-import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { NbFormFieldControl, NbPopoverDirective } from '@nebular/theme';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { fixCursorPosition, fixIntegerCursorPosition } from 'src/assets/util/input/fixCursorPosition';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 export enum BbxNumericInputType {
   DEFAULT = 'FLOAT',
@@ -78,7 +78,6 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   @ViewChild('input')
   public input: ElementRef|undefined
 
-  private _preEscapeValue: any
   useInputMask: boolean = true
 
   numberInputMask = NgNeatInputMasks.numberInputMask;
@@ -141,6 +140,8 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
     }
   }
 
+  private focusOnSavedValue?: any
+
   // ctor
 
   constructor(private logger: LoggerService,
@@ -164,6 +165,8 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   // TODO for BbxProductCodeInputComponent: test
   proxyFocus(value: any) {
     this.log(`[BbxProductCodeInputComponent] proxyFocus, event: ${JSON.stringify(value)}`)
+
+    this.focusOnSavedValue = this.value
 
     if (this.useFixCursorPosition) {
       if (this.input_type == 'INTEGER') {
@@ -282,7 +285,6 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   public onEscapeDown(event: any): void {
     // console.log("onEscapeDown: ", event.target.value, event)
-    this._preEscapeValue = event.target.value
     this.id = event.target.id
 
     // Switching to non-masked input so view value won't be affected by inputmask bug
@@ -302,8 +304,17 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
     }, 100);
   }
 
-  public onEscapeUp(event: any): void {
-    // console.log("onEscapeUp: ", this._preEscapeValue, event.target.value, event)
+  @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+    switch (event.key) {
+      case KeyBindings.exit:
+      case KeyBindings.exitIE:
+        console.log("ESC")
+        if (this.focusOnSavedValue || this.focusOnSavedValue == '') {
+          this.writeValue(this.focusOnSavedValue)
+          $('#' + (event.target as any).id).text(this.focusOnSavedValue)
+        }
+        break
+    }
   }
 
   //#endregion Key events
