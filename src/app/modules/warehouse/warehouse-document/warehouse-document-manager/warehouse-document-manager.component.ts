@@ -33,6 +33,7 @@ import { TokenStorageService } from 'src/app/modules/auth/services/token-storage
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import moment from 'moment';
 import { OfflineWhsTransferStatus } from '../../models/whs/WhsTransferStatus';
+import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
   selector: 'app-warehouse-document-manager',
@@ -192,6 +193,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private simpleToastrService: NbToastrService,
+    private toastrService: BbxToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
@@ -658,6 +660,14 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.preventDefault();
 
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
+
+        const currentRow = this.dbData[this.kbS.p.y].data
+        const currentWarehouse = this.tokenService.wareHouse
+        if (currentRow.fromWarehouseID !== currentWarehouse?.id) {
+          this.toastrService.showError(Constants.WAREHOUSEDOCUMENT_MSG_CANNOT_EDIT)
+          break
+        }
+
         this.Edit()
         break;
       }

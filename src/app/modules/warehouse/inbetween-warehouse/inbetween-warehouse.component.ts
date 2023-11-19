@@ -358,7 +358,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }
 
     if (col === '_quantity') {
-      this.quantityChanged(changedData)
+      this.quantityChanged(changedData, index)
     }
     else if ((!!col && col === 'productCode') || col === undefined) {
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -384,7 +384,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }
   }
 
-  private quantityChanged(changedData: InbetweenWarehouseProduct): void {
+  private quantityChanged(changedData: InbetweenWarehouseProduct, index: number|undefined): void {
     // reassign it to itself to convert it to a Number
     changedData.quantity = changedData.quantity
 
@@ -394,6 +394,12 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       }, 0);
 
       changedData.Restore()
+
+      if (this.kbS.p.y !== index) {
+        this.kbS.p.y = index ?? 0
+      }
+
+      this.dbDataTable.ClickByObjectKey('_quantity')
 
       return
     }
