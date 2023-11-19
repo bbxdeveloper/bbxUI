@@ -6,7 +6,7 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { CommonService } from 'src/app/services/common.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { WareHouse } from 'src/app/modules/warehouse/models/WareHouse';
 import { WareHouseService } from 'src/app/modules/warehouse/services/ware-house.service';
@@ -238,7 +238,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
 
     this.loadFilters()
 
-    this.filterFormNav.GenerateAndSetNavMatrices(true)
+    this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
 
     this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
@@ -323,5 +323,12 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
 
   public Refresh(): void {
     this.refreshClicked.emit(this.warehouseDocumentFormData)
+  }
+
+  MoveToSearchButton(event: any): void {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
   }
 }

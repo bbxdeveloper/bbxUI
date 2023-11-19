@@ -239,41 +239,43 @@ export class InlineTableNavigatableForm implements INavigatable {
     }
 
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
-        if (environment.inlineEditableTableNavigatableFormLog) {
-            console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
-        }
-
-        const ad = (event.target as any).getAttribute("aria-activedescendant");
-        if (this.kbS.isEditModeActivated &&
-            ad === null &&
-            possibleItems !== undefined && typedValue !== undefined &&
-            (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            event.stopPropagation();
-
-            if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
-                return
+        setTimeout(() => {
+            if (environment.inlineEditableTableNavigatableFormLog) {
+                console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
             }
 
-            const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
-            if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
-                this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
-            } else {
-                return;
-            }
-        }
+            const ad = (event.target as any).getAttribute("aria-activedescendant");
+            if (this.kbS.isEditModeActivated &&
+                ad === null &&
+                possibleItems !== undefined && typedValue !== undefined &&
+                (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                event.stopPropagation();
 
-        if (ad !== null && itemCount > 1) {
-            this.kbS.toggleEdit();
-        } else {
-            if (!this.kbS.isEditModeActivated) {
+                if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
+                    return
+                }
+
+                const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
+                if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
+                    this.form.controls[formFieldName!].setValue(caseInsensitiveMatch)
+                } else {
+                    return;
+                }
+            }
+
+            if (ad !== null && itemCount > 1) {
                 this.kbS.toggleEdit();
             } else {
-                this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                this.JumpToNextInput(event);
+                if (!this.kbS.isEditModeActivated) {
+                    this.kbS.toggleEdit();
+                } else {
+                    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                    this.JumpToNextInput(event);
+                }
             }
-        }
+        }, 0);
     }
 
     HandleKeyNoCrud(event: any, controlKey: string): void {
@@ -331,7 +333,13 @@ export class InlineTableNavigatableForm implements INavigatable {
         this.kbS.SetPositionById(event.target?.id);
     }
 
-    GenerateAndSetNavMatrices(attach: boolean, stayAtSamePoseAfterGenerate: boolean = false): void {
+    /**
+     * Navigational matrix generation
+     * @param attach 
+     * @param stayAtSamePoseAfterGenerate 
+     * @param includeDisabledMiscControls Include by default disabled buttons, eg. search buttons, radiobuttons...
+     */
+    GenerateAndSetNavMatrices(attach: boolean, stayAtSamePoseAfterGenerate: boolean = false, includeDisabledMiscControls: boolean = false): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.formId);
 
@@ -351,7 +359,8 @@ export class InlineTableNavigatableForm implements INavigatable {
             const next = tiles[i];
 
             const isDisabled = next.attributes.getNamedItem('disabled')
-            if (isDisabled) {
+            const isMiscControl = $(next).is(':button') || $(next).is(':radio')
+            if ((isDisabled && isMiscControl && !includeDisabledMiscControls) || (isDisabled && !isMiscControl)) {
                 continue
             }
 

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef, Input } from "@angular/core";
+import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef, Input, OnInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, AbstractControl } from "@angular/forms";
 import { NbDialogRef } from "@nebular/theme";
 import { KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
@@ -15,7 +15,7 @@ import { validDate } from "src/assets/model/Validators";
   templateUrl: './single-date-dialog.component.html',
   styleUrls: ['./single-date-dialog.component.scss']
 })
-export class SingleDateDialogComponent extends BaseNavigatableComponentComponent implements AfterViewInit, OnDestroy {
+export class SingleDateDialogComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() title: string = "Dátum megadása"
   closedManually = false
 
@@ -24,6 +24,9 @@ export class SingleDateDialogComponent extends BaseNavigatableComponentComponent
   @Input() minDate?: string
   @Input() defaultDate?: string
   @Input() maxDate?: string
+  @Input() fieldName?: string
+  
+  showError: boolean = false
 
   override NavigatableType = NavigatableType.dialog
 
@@ -86,17 +89,43 @@ export class SingleDateDialogComponent extends BaseNavigatableComponentComponent
     return wrong ? { maxDate: { value: control.value } } : null;
   }
 
+  validateMinMax(control: AbstractControl): any {
+    if (this._minDate === undefined || this._maxDate === undefined) {
+      return null;
+    }
+
+    let currentDate = HelperFunctions.GetDateIfDateStringValid(control.value);
+    let minDate = HelperFunctions.GetDateIfDateStringValid(this._minDate.toDateString());
+    let maxDate = HelperFunctions.GetDateIfDateStringValid(this._maxDate.toDateString());
+
+    const wrong = currentDate?.isBefore(minDate, "day") || currentDate?.isAfter(maxDate, "day");
+    return wrong ? { minMaxDate: { value: control.value } } : null;
+  }
+
+  private getDateControl(): FormControl {
+    if (this._minDate !== undefined && this._maxDate !== undefined) {
+      return new FormControl('', [
+        Validators.required,
+        this.validateMinMax.bind(this),
+        validDate
+      ])
+    }
+    return new FormControl('', [
+      Validators.required,
+      this.validateMin.bind(this),
+      this.validateMax.bind(this),
+      validDate
+    ])
+  }
+
   private Setup(): void {
     this.IsDialog = true;
     this.Matrix = [["date-interval-dialog-button-yes", "date-interval-dialog-button-no"]]
+  }
 
+  override ngOnInit(): void {
     const form = new FormGroup({
-      date: new FormControl('', [
-        Validators.required,
-        this.validateMin.bind(this),
-        this.validateMax.bind(this),
-        validDate
-      ])
+      date: this.getDateControl()
     })
 
     this.formNav = new NavigatableForm(
@@ -107,6 +136,8 @@ export class SingleDateDialogComponent extends BaseNavigatableComponentComponent
     this.formNav.OuterJump = true
     // And back to the form.
     this.OuterJump = true
+
+    this.showError = true
   }
 
   ngAfterViewInit(): void {
