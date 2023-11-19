@@ -372,7 +372,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       dialogRef.onClose.subscribe({
         next: res => {
           if (res.date) {
-            //this.ExecuteProcessActionLock(data, res.date)
+            this.ExecuteProcessActionLock(data, res.date)
           }
         }
       });
