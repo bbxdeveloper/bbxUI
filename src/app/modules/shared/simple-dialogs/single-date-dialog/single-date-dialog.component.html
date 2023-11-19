@@ -9,7 +9,7 @@
                     [dropSpecialCharacters]="false" [showMaskTyped]="true" formControlName='date' required="true"
                         (click)="formNav.HandleFormFieldClick($event)">
             </nb-form-field>
-            <app-form-control-error [form]="formNav" controlName="date"></app-form-control-error>
+            <app-form-control-error *ngIf="showError" [label]="fieldName" [form]="formNav" [min]="minDate" [max]="maxDate"controlName="date"></app-form-control-error>
         </form>
     </nb-card-body>
     <nb-card-footer>

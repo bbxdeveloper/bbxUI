@@ -31,6 +31,8 @@ import { ConfirmationDialogComponent } from 'src/app/modules/shared/simple-dialo
 import { LoggerService } from 'src/app/services/logger.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import moment from 'moment';
+import { OfflineWhsTransferStatus } from '../../models/whs/WhsTransferStatus';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 
 @Component({
@@ -348,12 +350,22 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
+      const dateTransfer = moment(data.data.transferDate)
+      const dateNow = moment()
+
+      const minDate = dateTransfer.isBefore(dateNow) ?
+        HelperFunctions.GetOnlyDateFromUtcDateString(data.data.transferDate ?? '') : HelperFunctions.GetDateString(0, 0, 0)
+      const maxDate = dateTransfer.isAfter(dateNow) ?
+        HelperFunctions.GetOnlyDateFromUtcDateString(data.data.transferDate ?? '') : HelperFunctions.GetDateString(0, 0, 0)
+
       const recordName = this.GetRecordName(data.data)
       const dialogRef = this.dialogService.open(SingleDateDialogComponent, {
         context: {
           title: HelperFunctions.isEmptyOrSpaces(recordName) ?
             Constants.WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE : HelperFunctions.StringFormat(Constants.WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM, recordName),
-          minDate: data.data.transferDate,
+          minDate: minDate,
+          maxDate: maxDate,
+          fieldName: 'véglegesítés dátuma',
           defaultDate: HelperFunctions.GetDateString(0,0,0)
         }
       });
@@ -554,7 +566,20 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbDataTable.data[this.kbS.p.y].data.id
+      const selectedItem = this.dbDataTable.data[this.kbS.p.y].data
+
+      if (selectedItem.whsTransferStatus === OfflineWhsTransferStatus.Completed.value) {
+        setTimeout(() => {
+          this.simpleToastrService.show(
+            Constants.MSG_ERROR_WAREHOUSE_DOCUMENT_EDIT_COMPLETED,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR_5_SEC
+          )
+        }, 0)
+        return
+      }
+
+      const id = selectedItem.id
       this.router.navigate(['warehouse/inbetween-warehouse-edit', id, {}])
     }
   }
