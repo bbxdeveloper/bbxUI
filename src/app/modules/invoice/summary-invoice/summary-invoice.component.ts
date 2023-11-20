@@ -831,7 +831,8 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         forceDisableOutgoingDelivery: true,
         negativeDiscount: !this.mode.isSummaryInvoice,
         checkCustomerLimit: true,
-        customer: this.buyerData
+        customer: this.buyerData,
+        Incoming: this.mode.incoming
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
