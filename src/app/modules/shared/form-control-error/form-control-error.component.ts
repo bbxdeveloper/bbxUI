@@ -12,8 +12,8 @@ import { ValidationMessage } from 'src/assets/util/ValidationMessages';
 export class FormControlErrorComponent {
   @Input() form?: FlatDesignNavigatableForm | InlineTableNavigatableForm | FlatDesignNoTableNavigatableForm;
   @Input() controlName?: string;
-  @Input() min?: number;
-  @Input() max?: number;
+  @Input() min?: string | number | undefined;
+  @Input() max?: string | number | undefined;
   @Input() validationParameterDate?: Date | undefined;
   @Input() validationParameterDateSecondary?: Date | undefined;
   @Input() label?: string;
@@ -40,7 +40,12 @@ export class FormControlErrorComponent {
       case ValidationMessage.ErrorMaxDate:
         return this.label ? `A ${this.label} értéke nagyobb a maximumnál!` : ValidationMessage.ErrorMaxDate;
       case ValidationMessage.ErrorMinMaxDate:
-        return this.label ? `A ${this.label} értékhatárokon kívülre esik!` : ValidationMessage.ErrorMinMaxDate;
+        {
+          if (this.min !== undefined && this.max !== undefined) {
+            return this.label ? `A ${this.label} értékének a ${this.min} és a ${this.max} dátumok között kell lennie!` : ValidationMessage.ErrorMinMaxDate;
+          }
+          return this.label ? `A ${this.label} értékhatárokon kívülre esik!` : ValidationMessage.ErrorMinMaxDate;
+        }
       case ValidationMessage.ErrorTodaysDate:
         return this.label ? `A ${this.label} legfeljebb mai dátum lehet!` : ValidationMessage.ErrorTodaysDate;
       case ValidationMessage.ErrorValidDate:

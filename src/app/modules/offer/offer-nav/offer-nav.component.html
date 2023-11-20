@@ -103,7 +103,7 @@
             <div class="form-row-flex">
                 <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshAndJumpToTable()" status="primary"
                     tabindex="-1">Keresés</button>
-                
+
                 <app-form-control-error [form]="filterFormNav" label="Sorszám" controlName="OfferNumber">
                     </app-form-control-error>
                 <app-form-control-error [form]="filterFormNav" label="kiállítás dátumától" controlName="OfferIssueDateFrom">
@@ -120,7 +120,7 @@
 </div>
 
 <nb-card-body>
-    <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="610" [wide]="false" [allColumns]="allColumns"
+    <app-flat-design-table [showMsgOnNoData]="false" [heightMargin]="650" [wide]="false" [allColumns]="allColumns"
         [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
         [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
         (focusOutTable)="focusOnTable(false)">

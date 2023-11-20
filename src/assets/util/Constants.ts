@@ -45,6 +45,7 @@ export module Constants {
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM = 'Véglegesítés dátuma a(z) {0} elemre'
     export const WAREHOUSEDOCUMENT_MSG_DELETE_PARAM = 'Törölhető a {0} raktárközi átadás bizonylat?'
+    export const WAREHOUSEDOCUMENT_MSG_CANNOT_EDIT = 'Csak abban a raktárban lehet elvégezni a raktárközi bizonylat módosítását, amelyből a kiadás megtörtént.'
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
@@ -95,6 +96,7 @@ export module Constants {
     export const MSG_PRINT_ONLY_WHEN_ROW_SELECTED = "Csak aktívan kijelölt rekord mellett lehet nyomtatni!"
 
     export const MSG_ERROR_WAREHOUSE_DOCUMENT_FINALIZE_DIFFERENT_WAREHOUSES = "Csak aktuális raktárba irányuló raktárközi átadsás véglegesíthető!"
+    export const MSG_ERROR_WAREHOUSE_DOCUMENT_EDIT_COMPLETED = "Feldolgozott státuszú bizonylatok nem szerkeszthetőek!"
 
     export const TOASTR_SUCCESS: Partial<NbToastrConfig> =
         { duration: 0, status: 'primary' };
@@ -117,6 +119,7 @@ export module Constants {
         autoUnmask: true,
         casing: 'upper',
         mask: 'A{3}-C{0,26}',
+        placeholder: ' ',
         definitions: {
             'A': {
                 validator: '[a-zA-Z0-9áéiíoóöőuúüűÁÉIÍOÓÖŐUÚÜŰä+?%=! ():.,;°~*&#@{}]',
@@ -184,6 +187,10 @@ export module Constants {
         Form, Product, Other
     }
 
+    export enum RowChangeTypes {
+        Add, Delete, Modify
+    }
+
     export enum PrintReportProcessPhases { PROC_CMD, GENERATING, PROC_RESP, SEND_TO_PRINTER }
     export const PrintReportStatuses: ProcessStatus[] = [
         { title: 'Riport', value: 0, msg: '0/4 - Kérés feldolgozása', isSimple: false },
@@ -221,6 +228,11 @@ export module Constants {
     export enum CRUDSavingPhases { SAVING }
     export const CRUDSavingStatuses: ProcessStatus[] = [
         { title: 'Mentés', value: 0, msg: '1/1 - Új rekord mentése', isSimple: true }
+    ];
+
+    export enum GeneralAutoSavingPhases { SAVING }
+    export const GeneralAutoSavingStatuses: ProcessStatus[] = [
+        { title: 'Automatikus Mentés', value: 0, msg: '1/1 - Mentés', isSimple: true }
     ];
 
     export enum GeneralSavingPhases { SAVING }
