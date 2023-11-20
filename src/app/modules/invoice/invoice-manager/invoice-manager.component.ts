@@ -793,7 +793,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         data: this.outGoingInvoiceData,
         customer: this.buyerData,
         checkCustomerLimit: this.mode.checkCustomerLimit,
-        defaultDiscountPercent: defaultDiscountPercent
+        defaultDiscountPercent: defaultDiscountPercent,
+        Incoming: this.mode.incoming
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {

@@ -463,6 +463,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       context: {
         data: this.outGoingInvoiceData,
         isDiscountDisabled: true,
+        Incoming: this.mode.incoming
       }
     })
 

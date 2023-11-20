@@ -867,6 +867,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         data: this.outGoingInvoiceData,
         isDiscountVisible: true,
         forceDisableOutgoingDelivery: true,
+        Incoming: this.mode.incoming
       }
     });
     dialogRef.onClose.subscribe(async (res?: OutGoingInvoiceFullData) => {
