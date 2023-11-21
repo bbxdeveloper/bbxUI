@@ -757,6 +757,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
     }
   }
 
+  GoToNavigation(): void {
+    this.router.navigate(['warehouse/warehouse-document'])
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
@@ -765,6 +769,13 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+        break
+      }
+      case this.KeySetting[Actions.Details].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+        this.GoToNavigation()
         break
       }
     }
