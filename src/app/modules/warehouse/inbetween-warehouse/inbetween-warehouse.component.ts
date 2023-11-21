@@ -412,7 +412,13 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         HelperFunctions.confirm(
           this.dialogService,
           message,
-          () => changedData.Save(),
+          () => {
+            if (this.kbS.p.y !== index) {
+              this.kbS.ClickCurrentElement()
+            }
+
+            return changedData.Save();
+          },
           () => {
             changedData.quantity = changedData.realQty >= 0 ? changedData.realQty : 0
             changedData.Save()
