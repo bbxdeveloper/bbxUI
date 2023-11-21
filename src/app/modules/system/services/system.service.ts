@@ -52,4 +52,8 @@ export class SystemService {
     const request = this.http.get<InvoiceType[]>(this.BaseUrl + '/invoicetypes')
     return firstValueFrom(request)
   }
+
+  public releaseLockedCustomers(): Observable<unknown> {
+    return this.http.post(this.BaseUrl + '/unlockallcustomers', {})
+  }
 }
