@@ -34,6 +34,7 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 import moment from 'moment';
 import { OfflineWhsTransferStatus } from '../../models/whs/WhsTransferStatus';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
+import { WarehouseDocumentDetailsDialogComponent } from '../warehouse-document-details-dialog/warehouse-document-details-dialog.component';
 
 @Component({
   selector: 'app-warehouse-document-manager',
@@ -584,6 +585,26 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     }
   }
 
+  ViewDetails(): void {
+    if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      const selectedItem = this.dbDataTable.data[this.kbS.p.y].data
+
+      const id = selectedItem.id
+
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+
+      const dialogRef = this.dialogService.open(WarehouseDocumentDetailsDialogComponent, {
+        context: {
+          dataId: id
+        }})
+        
+        dialogRef.onClose.subscribe(res => {
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.ClickCurrentElement()
+        })
+    }
+  }
+
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
@@ -652,6 +673,15 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.RefreshAll(this.getInputParams());
+        break;
+      }
+      case this.KeySetting[Actions.Reset].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
+        this.ViewDetails()
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {

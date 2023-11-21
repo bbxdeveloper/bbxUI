@@ -1,0 +1,132 @@
+<nb-card class="modal-product-active {{themeClass}}">
+    <nb-card-header class="modal-product-active-header {{themeClass}}">
+        <span>Raktárközi átadás bizonylat részletei</span>
+    </nb-card-header>
+    <nb-card-body [nbSpinner]="showSpinnerOnTable" class="modal-product-active-body {{themeClass}}">
+        <form [formGroup]="inputForm" ngForm [id]="inputFormId">
+            <div class="flex-row">
+                <div>
+                    <label>
+                        Kiadási raktár
+                    </label>
+                    <input nbInput type="text" formControlName="fromWarehouse" readonly>
+                </div>
+                <div>
+                    <label>
+                        Bevételi raktár
+                    </label>
+                    <input nbInput type="text" formControlName="toWarehouse" readonly>
+                </div>
+            </div>
+
+            <div class="horizontal" *ngIf="mode.edit">
+                <label>
+                    Bizonylat száma
+                </label>
+                <input nbInput type="text" formControlName="whsTransferNumber" readonly>
+            </div>
+
+            <div class="horizontal">
+                <label>Dátum</label>
+                <nb-form-field left>
+                    <input nbInput type="datetime" formControlName='transferDate' readonly
+                        id="m02" mask="0000-00-00"
+                        [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                </nb-form-field>
+            </div>
+
+            <div>
+                <label>
+                    Megjegyzés
+                </label>
+                <angular-editor formControlName="note" [config]="editorConfig"
+                    placeholder=""
+                    readonly aria-readonly="true">
+                </angular-editor>
+            </div>
+        </form>
+
+        <table class="card-table-header {{themeClass}}" [nbTreeGrid]="dbDataSource" [trackBy]="trackRows" equalColumnsWidth>
+            <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+            <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+                <ng-container [ngSwitch]="it.type">
+                    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef
+                    [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth">
+                        {{it.label}}
+                    </th>
+                </ng-container>
+            </ng-container>
+        </table>
+
+        <table class="table-active-product card-table-wrapper {{themeClass}}" [nbTreeGrid]="dbDataSource" [nbSort]="dbDataSource"
+            [trackBy]="trackRows" equalColumnsWidth>
+        
+            <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+        
+            <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
+                <ng-container [ngSwitch]="it.type">
+        
+                    <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell
+                        *nbTreeGridCellDef="let row; let rowPos = index"
+                        (keydown.F5)="openProductStockInformationDialog($event, row)"
+                        (keydown)="dbDataTable.HandleGridMovement($event, row, rowPos, it.objectKey, colPos, true)"
+                        (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                        [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
+                        [style.text-align]="it.textAlign"
+                        id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}" [ngSwitch]="it.type">
+                        <ng-container>
+                            <ng-container *ngSwitchCase="'code-field'">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+        
+                            <ng-container *ngSwitchCase="'formatted-number'">
+                                <div>
+                                    {{
+                                    it.calc !== undefined ?
+                                    it.calc(row.data) :
+                                    row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' |
+                                    replace:',':'.'
+                                    }}
+                                </div>
+                            </ng-container>
+        
+                            <ng-container *ngSwitchCase="'param-padded-formatted-integer'">
+                                <div>
+                                    {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) :
+                                    '8.2'):'fr' |
+                                    removeWhitespaces | replace:',':'.' }}
+                                </div>
+                            </ng-container>
+        
+                            <ng-container *ngSwitchCase="'checkbox'">
+                                <div>
+                                    {{ row.data[it.objectKey] ? '✓' : '✗' }}
+                                </div>
+                            </ng-container>
+        
+                            <ng-container *ngSwitchCase="'formatted-number-integer'">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+        
+                            <ng-container *ngSwitchDefault="">
+                                <div>
+                                    {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                </div>
+                            </ng-container>
+                        </ng-container>
+                    </td>
+                </ng-container>
+            </ng-container>
+        </table>
+
+        <div class="msg">{{responseMessage}}</div>
+    </nb-card-body>
+    <nb-card-footer class="modal-product-active-footer">
+        <button nbButton (click)="close()" status="primary" tabindex="-1"
+            id="confirm-dialog-button-close">Bezárás</button>
+    </nb-card-footer>
+</nb-card>

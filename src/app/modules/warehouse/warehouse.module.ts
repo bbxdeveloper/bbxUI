@@ -14,6 +14,7 @@ import { WarehouseDocumentManagerComponent } from './warehouse-document/warehous
 import { WarehouseDocumentSideBarFormComponent } from './warehouse-document/warehouse-document-side-bar-form/warehouse-document-side-bar-form.component';
 import { WarehouseDocumentFilterFormComponent } from './warehouse-document/warehouse-document-filter-form/warehouse-document-filter-form.component';
 import { InputMaskModule } from '@ngneat/input-mask';
+import { WarehouseDocumentDetailsDialogComponent } from './warehouse-document/warehouse-document-details-dialog/warehouse-document-details-dialog.component';
 
 
 
@@ -24,7 +25,8 @@ import { InputMaskModule } from '@ngneat/input-mask';
     InbetweenWarehouseComponent,
     WarehouseDocumentManagerComponent,
     WarehouseDocumentSideBarFormComponent,
-    WarehouseDocumentFilterFormComponent
+    WarehouseDocumentFilterFormComponent,
+    WarehouseDocumentDetailsDialogComponent
   ],
   imports: [
     CommonModule,
