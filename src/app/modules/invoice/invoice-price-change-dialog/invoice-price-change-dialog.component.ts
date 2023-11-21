@@ -276,6 +276,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
     }
 
     let minMarginChangeRate = this.isUnitPrice1InsideMinMargin ? 1 : changeRatePercent
+    minMarginChangeRate = this.canUnitPrice1Change ? minMarginChangeRate : 1
     const newPrice1 = this.setNewPrice(product.unitPrice1!, minMarginChangeRate)
 
     minMarginChangeRate = this.isUnitPrice2InsideMinMargin ? 1 : changeRatePercent
