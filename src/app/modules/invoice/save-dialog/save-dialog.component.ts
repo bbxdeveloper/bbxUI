@@ -169,7 +169,6 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   }
 
   private async checkCustomerLimits(): Promise<void> {
-    debugger
     if (this.customerLimitsChecked) {
       return
     }
