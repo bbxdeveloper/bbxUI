@@ -28,12 +28,17 @@
 
     <nb-action id="header-sett" class="cl-header-menu" tabIndex="3" [icon]="settingsIconConfig"
             nbPopoverTrigger="focus" [disabled]="InProgress"
-        nbPopoverPlacement="bottom" [nbPopover]="sub_sett" data-sub="header-sett-sub-1">
+        nbPopoverPlacement="bottom" [nbPopover]="sub_sett" data-sub="header-sett-sub-1,header-sett-sub-2">
     </nb-action>
     <ng-template #sub_sett let-data>
         <nb-card class="card-submenu-wrapper">
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
-                <button nbButton status="primary" id="header-sett-sub-1" [disabled]="InProgress" (click)="goToUserManuals($event)">
+                <button nbButton status="primary" id="header-sett-sub-1" [disabled]="InProgress && !isLoggedIn" (click)="unlockLockedCustomers()">
+                    Zárolt partnerek feloldása
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-sett-sub-2" [disabled]="InProgress" (click)="goToUserManuals($event)">
                     Kézikönyvek
                 </button>
             </nb-card-body>
@@ -270,7 +275,7 @@
             </nb-card-body>
         </nb-card>
     </ng-template>
-    
+
     <nb-action *ngIf="isLoggedIn" id="header-warehouse" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
         data-sub="header-warehouse-sub-1,header-warehouse-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_warehouse"
         [disabled]="InProgress">Raktár
@@ -293,7 +298,7 @@
             </nb-card-body>
         </nb-card>
     </ng-template>
-    
+
     <nb-action id="header-orde" class="cl-header-menu" tabIndex="6" disabled>Megrendelés</nb-action>
 
     <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="7" nbPopoverTrigger="focus"
