@@ -469,6 +469,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       comment: new FormControl(undefined, []),
       active: new FormControl(true, [Validators.required]),
       password: new FormControl(undefined, [this.validateRequiredPassword.bind(this)]),
+      warehouseID: new FormControl(0, [Validators.required]),
     });
     this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
