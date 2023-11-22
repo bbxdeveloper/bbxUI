@@ -830,7 +830,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         isDiscountVisible: false,
         forceDisableOutgoingDelivery: true,
         negativeDiscount: !this.mode.isSummaryInvoice,
-        checkCustomerLimit: true,
+        checkCustomerLimit: this.mode.checkCustomerLimit,
         customer: this.buyerData,
         Incoming: this.mode.incoming
       }
