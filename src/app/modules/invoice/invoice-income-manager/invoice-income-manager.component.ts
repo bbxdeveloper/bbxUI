@@ -493,7 +493,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange()) {
       changedData.previousUnitPrice = changedData.unitPrice
 
-      this.suggestPriceChange(this.dbData[index].data)
+      this.suggestPriceChange(this.dbData[index].data, false)
 
       changedData.Save()
     }
@@ -833,9 +833,9 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     return of().toPromise();
   }
 
-  private suggestPriceChange(invoiceLine: InvoiceLine): void {
+  private suggestPriceChange(invoiceLine: InvoiceLine, useChangedPrices: boolean): void {
     let priceChange = undefined
-    if (invoiceLine.newUnitPrice1 && invoiceLine.newUnitPrice2) {
+    if (useChangedPrices && invoiceLine.newUnitPrice1 && invoiceLine.newUnitPrice2) {
       priceChange = {
         newUnitPrice1: invoiceLine.newUnitPrice1,
         newUnitPrice2: invoiceLine.newUnitPrice2,
@@ -847,7 +847,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         productCode: invoiceLine.productCode,
         newPrice: invoiceLine.unitPrice,
         priceChange: priceChange,
-        wasOpen: invoiceLine.unitPriceChanged,
       },
       closeOnEsc: false
     })
@@ -859,7 +858,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         return
       }
 
-      invoiceLine.unitPriceChanged = true
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
     })
@@ -1059,7 +1057,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
           this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW);
         }, 0);
       } else {
-        this.suggestPriceChange(this.dbData[rowIndex].data)
+        this.suggestPriceChange(this.dbData[rowIndex].data, true)
       }
     }
   }
