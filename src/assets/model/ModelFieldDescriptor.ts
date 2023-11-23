@@ -2,7 +2,7 @@ import { Constants } from "../util/Constants";
 import { Actions } from "../util/KeyBindings";
 
 type FieldDescriptorType = 'number' | 'formatted-number' | 'number-3-length' | 'formatted-integer' | 'param-padded-formatted-integer' |
-    'string' | 'text' | 'password' | 'onlyDate' | 'html' | 'checkbox' | 'unitprice-checkbox' | 'getter' | 'bool'
+    'string' | 'text' | 'password' | 'onlyDate' | 'html' | 'checkbox' | 'unitprice-checkbox' | 'getter' | 'bool' | 'custom'
 
 /**
  * Táblázat oszlopleírója

@@ -79,6 +79,10 @@
                     <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label"></app-form-control-error>
                 </div>
             </ng-container>
+
+            <app-bbx-combo-box [isReadonly]="isReadonly" [needBlankOption]="false" [lastFormField]="true"
+                class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="warehouseForCombo" label="Alapértelmezett raktár"
+                [data$]="wareHouseComboData$"></app-bbx-combo-box>
         </form>
     </nb-card-body>
 </nb-card>
