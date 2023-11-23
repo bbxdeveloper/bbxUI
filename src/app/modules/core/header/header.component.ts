@@ -20,6 +20,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { CommonService } from 'src/app/services/common.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { SystemService } from '../../system/services/system.service';
 
 @Component({
   selector: 'app-header',
@@ -92,10 +93,10 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private readonly tokenService: TokenStorageService,
     private readonly bbxToastrService: BbxToastrService,
     private readonly simpleToastrService: NbToastrService,
-    private readonly status: StatusService,
     private readonly keyboardHelperService: KeyboardHelperService,
     private readonly commonService: CommonService,
-    private readonly loggerService: LoggerService) {
+    private readonly loggerService: LoggerService,
+    private readonly systemService: SystemService,) {
     super();
     this.OuterJump = true;
   }
@@ -159,6 +160,22 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     this.keyboardService.SetRoot(this);
   }
 
+  public unlockLockedCustomers(): void {
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_CUSTOMER_LOCK_RELEASE, () => {
+      this.statusService.waitForLoad()
+
+      this.systemService.releaseLockedCustomers()
+        .subscribe({
+          next: () => {},
+          error: error => {
+            this.commonService.HandleError(error)
+            this.statusService.waitForLoad(false)
+          },
+          complete: () => this.statusService.waitForLoad(false)
+        })
+    })
+  }
+
   /**
    * Checkboxok esetében readonly mellett is át tudom őket kattintani, így ilyen esetekre itt blokkolok minden readonly elemre szóló kattintást.
    * @param event
@@ -203,7 +220,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       return
     }
 
-    if (this.keyboardService.IsLocked() || this.status.InProgress || this.keyboardHelperService.IsKeyboardBlocked) {
+    if (this.keyboardService.IsLocked() || this.statusService.InProgress || this.keyboardHelperService.IsKeyboardBlocked) {
       this.loggerService.info("[onKeyDown] Movement is locked!");
 
       event.preventDefault();
@@ -218,7 +235,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();
-        
+
         this.goToUserManuals()
         break;
       }

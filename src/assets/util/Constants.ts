@@ -16,6 +16,7 @@ export module Constants {
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'
 
+    export const MSG_CONFIRMATION_CUSTOMER_LOCK_RELEASE = 'Elvégezhető a zárolt partnerek feloldása?'
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
@@ -46,6 +47,7 @@ export module Constants {
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM = 'Véglegesítés dátuma a(z) {0} elemre'
     export const WAREHOUSEDOCUMENT_MSG_DELETE_PARAM = 'Törölhető a {0} raktárközi átadás bizonylat?'
     export const WAREHOUSEDOCUMENT_MSG_CANNOT_EDIT = 'Csak abban a raktárban lehet elvégezni a raktárközi bizonylat módosítását, amelyből a kiadás megtörtént.'
+    export const WAREHOUSEDOCUMENT_MSG_CANNOT_SAVE = 'Csak a bevétel raktár véglegesítheti.'
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';

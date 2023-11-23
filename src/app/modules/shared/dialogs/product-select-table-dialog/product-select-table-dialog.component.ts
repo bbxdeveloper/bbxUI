@@ -196,11 +196,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       return
     }
 
+
     if ((event.key.length > 1 && event.key.toLowerCase() !== 'backspace') || event.ctrlKey || event.key == KeyBindings.F2 || IsKeyFunctionKey(event.key)) {
       return
     }
-
-    this.tokenService.setValue(LAST_PRODUCT_SEARCH_STRING_KEY, event.target.value)
 
     if (this.searchString.length !== 0 && event.target.value.length === 0) {
       this.searchString = event.target.value
@@ -208,6 +207,18 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     } else {
       this.searchString = event.target.value
       this.Search(this.searchString)
+    }
+  }
+
+  public shouldStoreSearchString(event: any): void {
+    const shouldStore = event.key === KeyBindings.up ||
+      event.key === KeyBindings.down ||
+      event.key === KeyBindings.left ||
+      event.key === KeyBindings.right ||
+      event.key === KeyBindings.Enter
+
+    if (shouldStore) {
+      this.tokenService.setValue(LAST_PRODUCT_SEARCH_STRING_KEY, event.target.value)
     }
   }
 
@@ -326,7 +337,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     }
 
     this.inputForm.controls['searchString'].setValue(newSearchString)
-    
+
     if (this.searchString.length !== 0 && newSearchString.length === 0) {
       this.searchString = newSearchString
       this.Refresh(this.getInputParams())

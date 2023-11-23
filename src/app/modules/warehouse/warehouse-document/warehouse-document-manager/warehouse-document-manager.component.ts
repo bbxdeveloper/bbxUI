@@ -639,6 +639,13 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         event.stopPropagation();
         event.preventDefault();
 
+        const toWarehouse = this.dbData[this.kbS.p.y].data.toWarehouseID
+        const warehouse = this.tokenService.wareHouse?.id
+        if (toWarehouse !== warehouse) {
+          setTimeout(() => this.toastrService.showError(Constants.WAREHOUSEDOCUMENT_MSG_CANNOT_SAVE), 0)
+          break
+        }
+
         console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
 
         this.dbDataTable?.HandleKey(event);
