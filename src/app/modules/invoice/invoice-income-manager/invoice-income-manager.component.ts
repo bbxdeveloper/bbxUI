@@ -728,7 +728,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData,
-        Incoming: this.mode.incoming
+        Incoming: this.mode.incoming,
+        checkCustomerLimit: this.mode.checkCustomerLimit
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
