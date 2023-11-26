@@ -17,8 +17,6 @@ export class BbxDialogServiceService extends NbDialogService {
   }
 
   override open<T>(content: Type<T> | TemplateRef<T>, userConfig: Partial<NbDialogConfig<Partial<T> | string>> = {}): NbDialogRef<T> {
-    
-    console.trace('BbxDialogServiceService open')
     const dialogRef = super.open<T>(content, userConfig)
     this.refCache.push(dialogRef)
     return dialogRef
