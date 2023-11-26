@@ -393,23 +393,38 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           warehouseID: this.getWareHouseFromDescription(data.data.warehouseForCombo).id
         } as UpdateUserRequest)
         .subscribe({
-          next: (d) => {
+          next: async (d) => {
             if (d.succeeded && !!d.data) {
-              const newRow = {
-                data: UpdateUserResponseDataToUser(d.data),
-              } as TreeGridNode<User>;
-              const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-              this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-              this.dbDataTable.SetDataForForm(newRow, false, false);
-              this.RefreshTable(newRow.data.id);
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              await lastValueFrom(this.seInv.Get({ ID: d.data.id }))
+                .then(async res => {
+                  if (res) {
+                    this.idParam = res.id;
+                    await this.RefreshAsync(this.getInputParams());
+                    setTimeout(() => {
+                      this.dbDataTable.SelectRowById(res.id);
+                      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                      this.simpleToastrService.show(
+                        Constants.MSG_SAVE_SUCCESFUL,
+                        Constants.TITLE_INFO,
+                        Constants.TOASTR_SUCCESS_5_SEC
+                      );
+                    }, 200);
+                  } else {
+                    this.simpleToastrService.show(
+                      Constants.MSG_USER_GET_FAILED + d.data?.name,
+                      Constants.TITLE_ERROR,
+                      Constants.TOASTR_ERROR_5_SEC
+                    );
+                    this.dbDataTable.SetFormReadonly(false)
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+                    this.kbS.ClickCurrentElement()
+                  }
+                })
+                .catch(err => {
+                  this.HandleError(err);
+                  this.dbDataTable.SetFormReadonly(false)
+                })
+                .finally(() => { });
             } else {
               this.simpleToastrService.show(
                 d.errors!.join('\n'),

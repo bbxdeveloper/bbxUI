@@ -6,13 +6,13 @@
             <div class="login_row" (keydown.enter)="loginFormNav.HandleFormEnter($event)">
                 <label>Felhasználó</label>
                 <input class="{{TileCssClass}}" nbInput type="text" formControlName='username' required="true"
-                 (click)="loginFormNav.HandleFormFieldClick($event)">
+                 (click)="loginFormNav.HandleFormFieldClick($event)" (blur)="autoFillWareHouse()">
             </div>
     
             <div class="login_row" (keydown.enter)="loginFormNav.HandleFormEnter($event)">
                 <label>Jelszó</label>
                 <input class="{{TileCssClass}}" nbInput type="password" formControlName='password' required="true"
-                 (click)="loginFormNav.HandleFormFieldClick($event)">
+                 (click)="loginFormNav.HandleFormFieldClick($event)" (blur)="autoFillWareHouse()">
             </div>
 
             <div class="login_row">

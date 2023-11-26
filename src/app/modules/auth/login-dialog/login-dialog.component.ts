@@ -6,11 +6,15 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoginDialogResponse } from '../models/LoginDialogResponse';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CommonService } from 'src/app/services/common.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
 import { StatusService } from 'src/app/services/status.service';
+import { UserService } from '../services/user.service';
+import { LoginNameAndPwdRequest } from '../models/LoginNameAndPwdRequest';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { Constants } from 'src/assets/util/Constants';
 
 @Component({
   selector: 'app-login-dialog',
@@ -40,7 +44,8 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     private kbS: KeyboardNavigationService,
     private wareHouseApi: WareHouseService,
     private commonService: CommonService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private userService: UserService
   ) {
     super();
     this.Setup();
@@ -125,5 +130,34 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     } finally {
       this.statusService.waitForLoad(false)
     }
+  }
+
+  async autoFillWareHouse(): Promise<void> {
+    const username = this.loginFormNav.GetValue('username')
+    const password = this.loginFormNav.GetValue('password')
+
+    if (HelperFunctions.isEmptyOrSpaces(username) || HelperFunctions.isEmptyOrSpaces(password)) {
+      return
+    }
+
+    this.statusService.waitForLoad(true)
+
+    await lastValueFrom(this.userService.CheckLoginNameAndPwd({
+      LoginName: username,
+      Password: password
+    } as LoginNameAndPwdRequest))
+    .then(data => {
+      if (HelperFunctions.isEmptyOrSpaces(data.warehouse)) {
+        this.commonService.ShowErrorMessage(Constants.MSG_NO_DEFAULT_WAREHOUSE_FOR_USER)
+      } else {
+        this.loginFormNav.SetValue('wareHouse', data.warehouse.split('-')[1])
+      }
+    })
+    .catch(err => {
+      this.commonService.HandleError(err)
+    })
+    .finally(() => {
+      this.statusService.waitForLoad(false)
+    })
   }
 }
