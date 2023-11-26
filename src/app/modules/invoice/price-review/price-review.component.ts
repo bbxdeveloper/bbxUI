@@ -875,9 +875,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       console.log("Selected item: ", res);
       if (!res) {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
-
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         return
       }
 

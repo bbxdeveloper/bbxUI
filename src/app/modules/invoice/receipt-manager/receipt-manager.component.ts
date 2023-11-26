@@ -455,8 +455,8 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
         });
       } else {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
       }
     });
   }

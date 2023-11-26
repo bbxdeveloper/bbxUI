@@ -5,7 +5,7 @@ import { Invoice } from '../models/Invoice';
 import { Customer } from '../../customer/models/Customer';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InvoiceLine } from '../models/InvoiceLine';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { CommonService } from 'src/app/services/common.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -470,6 +470,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     dialogRef.onClose.subscribe(async res => {
       if (!res) {
+        this.kbS.SelectFirstTile()
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         return
       }
 

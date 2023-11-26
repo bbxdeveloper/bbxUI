@@ -814,6 +814,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         setTimeout(() => {
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.SelectFirstTile();
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         }, 200)
 
         return
