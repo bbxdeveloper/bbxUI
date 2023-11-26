@@ -139,7 +139,8 @@ export class BaseManagerComponent<T> {
           context: {
             msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
               Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
-          }
+          },
+          closeOnEsc: false
         }
       )
       dialogRef.onClose.subscribe(res => {
@@ -151,7 +152,14 @@ export class BaseManagerComponent<T> {
           if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
             this.ProcessActionExit(data)
           } else {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } })
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent,
+              {
+                context: {
+                   msg: Constants.MSG_CONFIRMATION_FILTER_DELETE
+                },
+                closeOnEsc: false
+              }
+            )
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch()
