@@ -63,6 +63,8 @@ export class BaseManagerComponent<T> {
 
   protected Subscription_Refresh?: Subscription;
 
+  private alreadyConfirmedExit: boolean = false
+
   constructor(
     @Optional() protected dialogService: BbxDialogServiceService,
     protected kbS: KeyboardNavigationService,
@@ -144,6 +146,7 @@ export class BaseManagerComponent<T> {
         }
       )
       dialogRef.onClose.subscribe(res => {
+        this.alreadyConfirmedExit = true
         if (!res) {
           this.dbDataTable.SetFormReadonly(false)
           this.kbS.SelectFirstTile()
@@ -315,34 +318,48 @@ export class BaseManagerComponent<T> {
     if (!data?.needConfirmation) {
       this.ProcessActionNew(data)
     } else {
-      const recordName = this.GetRecordName(data.data)
-      const dialogRef = this.dialogService.open(
-        ConfirmationDialogComponent,
-        {
-          context: {
-            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
-              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
-          }
-        }
-      )
-      dialogRef.onClose.subscribe(res => {
-        if (!res) {
-          this.ExitWithNewOrEmptyData()
-          this.dbDataTableForm.reset()
+      if (this.alreadyConfirmedExit) {
+        if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
+          this.ProcessActionNew(data)
         } else {
-          if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
+          const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+          dialogRef.onClose.subscribe(res => {
+            if (res) {
+              this.clearSearch()
+            }
             this.ProcessActionNew(data)
-          } else {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
-            dialogRef.onClose.subscribe(res => {
-              if (res) {
-                this.clearSearch()
-              }
-              this.ProcessActionNew(data)
-            })
-          }
+          })
         }
-      })
+      } else {
+        const recordName = this.GetRecordName(data.data)
+        const dialogRef = this.dialogService.open(
+          ConfirmationDialogComponent,
+          {
+            context: {
+              msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+                Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
+            }
+          }
+        )
+        dialogRef.onClose.subscribe(res => {
+          if (!res) {
+            this.ExitWithNewOrEmptyData()
+            this.dbDataTableForm.reset()
+          } else {
+            if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
+              this.ProcessActionNew(data)
+            } else {
+              const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+              dialogRef.onClose.subscribe(res => {
+                if (res) {
+                  this.clearSearch()
+                }
+                this.ProcessActionNew(data)
+              })
+            }
+          }
+        })
+      }
     }
   }
   ProcessActionNew(data?: IUpdateRequest<T>): void { }

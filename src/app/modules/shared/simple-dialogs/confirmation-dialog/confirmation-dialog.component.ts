@@ -37,6 +37,7 @@ export class ConfirmationDialogComponent extends BaseNavigatableComponentCompone
     setTimeout(() => {
       this.pageReady = true
       this.kBs.setEditMode(KeyboardModes.NAVIGATION);
+      
       this.kBs.SelectFirstTile();
     }, 300);
   }
@@ -54,6 +55,7 @@ export class ConfirmationDialogComponent extends BaseNavigatableComponentCompone
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
+
     if (!this.pageReady) {
       event.preventDefault();
       event.stopImmediatePropagation();
