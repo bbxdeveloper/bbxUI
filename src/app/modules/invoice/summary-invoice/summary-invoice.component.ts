@@ -1060,7 +1060,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       if (customerInvoiceNumberString.includes(note.invoiceNumber)) {
         return
       }
-      
+
       if (customerInvoiceNumberString.length > 0) {
         customerInvoiceNumberString += `,${note.invoiceNumber}`
       } else {
@@ -1256,7 +1256,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
 
     const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
