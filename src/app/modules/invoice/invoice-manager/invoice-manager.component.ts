@@ -1117,7 +1117,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
 
     const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 

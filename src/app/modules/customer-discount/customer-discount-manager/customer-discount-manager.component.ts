@@ -752,7 +752,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
 
     if (data.countryCode !== undefined && this.countryCodes.length > 0) {
       data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
