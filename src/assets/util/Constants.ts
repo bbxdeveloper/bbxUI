@@ -43,6 +43,8 @@ export module Constants {
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE = "Nincs elérhető készletinformáció ehhez a termékhez erre a raktárra!"
     export const MSG_ERROR_CUSTOMER_LOCKED = 'Partner adatait más munkahelyen használják.'
 
+    export const MSG_NO_DEFAULT_WAREHOUSE_FOR_USER = 'Nincs megadva alapértelmezett raktár a felhasználóhoz!'
+
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE_PARAM = 'Véglegesítés dátuma a(z) {0} elemre'
     export const WAREHOUSEDOCUMENT_MSG_DELETE_PARAM = 'Törölhető a {0} raktárközi átadás bizonylat?'

@@ -3,23 +3,23 @@
     <nb-card-body class="form-col-1">
         <form id="loginForm" [formGroup]="loginFormNav.form" #formDirective="ngForm"
             (keydown.escape)="loginFormNav.HandleFormEscape()">
-            <div class="login_row">
-                <label>Raktár</label>
-                <app-bbx-combo-box [labelAboveField]="false" [needErrorMsg]="false" [currentForm]="loginFormNav"
-                    formFieldName="wareHouse" label="" [needBlankOption]="false" [simpleMode]="false" [data$]="wareHouseComboData$">
-                </app-bbx-combo-box>
-            </div>
-
             <div class="login_row" (keydown.enter)="loginFormNav.HandleFormEnter($event)">
                 <label>Felhasználó</label>
                 <input class="{{TileCssClass}}" nbInput type="text" formControlName='username' required="true"
-                 (click)="loginFormNav.HandleFormFieldClick($event)">
+                 (click)="loginFormNav.HandleFormFieldClick($event)" (blur)="autoFillWareHouse()">
             </div>
     
-            <div class="login_row" (keydown.enter)="MoveToSaveButtons($event)">
+            <div class="login_row" (keydown.enter)="loginFormNav.HandleFormEnter($event)">
                 <label>Jelszó</label>
                 <input class="{{TileCssClass}}" nbInput type="password" formControlName='password' required="true"
-                 (click)="loginFormNav.HandleFormFieldClick($event)">
+                 (click)="loginFormNav.HandleFormFieldClick($event)" (blur)="autoFillWareHouse()">
+            </div>
+
+            <div class="login_row">
+                <label>Raktár</label>
+                <app-bbx-combo-box [lastFormField]="true" [labelAboveField]="false" [needErrorMsg]="false" [currentForm]="loginFormNav"
+                    formFieldName="wareHouse" label="" [needBlankOption]="false" [simpleMode]="false" [data$]="wareHouseComboData$">
+                </app-bbx-combo-box>
             </div>
         </form>
     </nb-card-body>

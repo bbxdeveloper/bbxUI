@@ -9,4 +9,6 @@ export interface LoginNameAndPwdResponse {
     "createTime": string
     "updateTime": string
     "deleted": boolean
+    "warehouseID": number
+    "warehouse": string
 }
