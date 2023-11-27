@@ -798,6 +798,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       } else {
         this.isSaveInProgress = false;
         setTimeout(() => {
+          this.kbS.SelectFirstTile()
           this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         }, 200)
       }
