@@ -353,37 +353,40 @@ export class BaseManagerComponent<T> {
 
     if (!data?.needConfirmation) {
       this.ProcessActionPut(data)
-    } else {
-      const recordName = this.GetRecordName(data.data)
-      const dialogRef = this.dialogService.open(
-        ConfirmationDialogComponent,
-        {
-          context: {
-            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
-              Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
-          }
-        }
-      )
-      dialogRef.onClose.subscribe(res => {
-        if (!res) {
-          this.dbDataTable.SetFormReadonly(false)
-          this.kbS.SelectFirstTile()
-          this.kbS.ClickCurrentElement()
-        } else {
-          if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
-            this.ProcessActionPut(data)
-          } else {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
-            dialogRef.onClose.subscribe(res => {
-              if (res) {
-                this.clearSearch()
-              }
-              this.ProcessActionPut(data)
-            })
-          }
-        }
-      })
+
+      return
     }
+
+    const recordName = this.GetRecordName(data.data)
+    const dialogRef = this.dialogService.open(
+      ConfirmationDialogComponent,
+      {
+        context: {
+          msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+            Constants.MSG_CONFIRMATION_SAVE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_SAVE_PARAM, recordName)
+        }
+      }
+    )
+
+    dialogRef.onClose.subscribe(res => {
+      if (!res) {
+        this.dbDataTable.SetFormReadonly(false)
+        this.kbS.SelectFirstTile()
+        this.kbS.ClickCurrentElement()
+      } else {
+        if (HelperFunctions.isEmptyOrSpaces(this.searchString)) {
+          this.ProcessActionPut(data)
+        } else {
+          const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+          dialogRef.onClose.subscribe(res => {
+            if (res) {
+              this.clearSearch()
+            }
+            this.ProcessActionPut(data)
+          })
+        }
+      }
+    })
   }
   ActionPutOnExit(data?: IUpdateRequest<T>): void {
     this.loggerService.info(`${this.ActionPutOnExit.name}: ${JSON.stringify(data)}`)

@@ -57,12 +57,20 @@ export class BbxToastrService {
     return this._toastrRef?.toast;
   }
 
-  showError(message: any): void {
-    this.show(message, Constants.TITLE_ERROR, Constants.TOASTR_ERROR)
+  showError(message: any, fiveSecVersion = false): void {
+    const version = fiveSecVersion
+      ? Constants.TOASTR_ERROR_5_SEC
+      : Constants.TOASTR_ERROR
+
+    this.show(message, Constants.TITLE_ERROR, version)
   }
 
-  showSuccess(message: any): void {
-    this.show(message, Constants.TITLE_INFO, Constants.TOASTR_SUCCESS)
+  showSuccess(message: any, fiveSecVersion = false): void {
+    const version = fiveSecVersion
+      ? Constants.TOASTR_SUCCESS_5_SEC
+      : Constants.TOASTR_SUCCESS
+
+    this.show(message, Constants.TITLE_INFO, version)
   }
 
   close(): void {
