@@ -372,7 +372,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
 
         data.data.id = parseInt(data.data.id + ''); // TODO
         this.seInv.Update(updateRequest).subscribe({
-          next: (d) => {
+          next: async (d) => {
             if (!d.succeeded || !d.data) {
               this.bbxToastrService.showError(d.errors!.join('\n'), true)
               this.isLoading = false;
@@ -383,27 +383,10 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
               return
             }
 
-            this.seInv.Get({ ID: d.data.id }).subscribe({
-              next: newData => {
-                if (!!newData) {
-                  d.data = this.ConvertCombosForGet(newData);
-                  const newRow = {
-                    data: newData,
-                  } as TreeGridNode<Product>
-
-                  const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-                  this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-                  this.dbDataTable.SetDataForForm(newRow, false, false);
-                  this.RefreshTable(newRow.data.id);
-                  this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL, true)
-                }
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              },
-              error: (err) => {
-                this.HandleError(err);
-                this.dbDataTable.SetFormReadonly(false)
-              },
-            });
+            this.idParam = d.data.id
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            await this.RefreshAsync(this.getInputParams())
+            this.dbDataTable.SelectRowById(d.data.id)
           },
           error: (err) => {
             this.HandleError(err);
