@@ -149,6 +149,9 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
     .then(data => {
       if (HelperFunctions.isEmptyOrSpaces(data.warehouse)) {
         this.commonService.ShowErrorMessage(Constants.MSG_NO_DEFAULT_WAREHOUSE_FOR_USER)
+        if (this.wareHouses.length > 0) {
+          this.loginFormNav.SetValue('wareHouse', this.wareHouses[0])
+        }
       } else {
         this.loginFormNav.SetValue('wareHouse', data.warehouse.split('-')[1])
       }
