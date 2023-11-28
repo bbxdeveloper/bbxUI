@@ -377,7 +377,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   // invoiceDeliveryDate
   validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
+    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
@@ -389,7 +389,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   }
 
   validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined) {
+    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
