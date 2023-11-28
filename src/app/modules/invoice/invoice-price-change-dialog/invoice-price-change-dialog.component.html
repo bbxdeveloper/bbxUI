@@ -50,6 +50,8 @@
                     [inputmask]="numberInputMask"
                     placeholder="0.00"
                     [canCloseCalculatorWithEscape]="false"
+                    (calculatorOpened)="calculatorOpened($event)"
+                    (calculatorClosed)="calculatorClosed($event)"
                     #newUnitPrice1>
                 </app-bbx-numeric-input>
 
@@ -70,7 +72,9 @@
                     [useFixCursorPosition]="true"
                     [inputmask]="numberInputMask"
                     placeholder="0.00"
-                    [canCloseCalculatorWithEscape]="false">
+                    [canCloseCalculatorWithEscape]="false"
+                    (calculatorOpened)="calculatorOpened($event)"
+                    (calculatorClosed)="calculatorClosed($event)">
                 </app-bbx-numeric-input>
 
                 <div *ngIf="newUnitPrice2Control?.errors?.['notGreatherThanNewPrice']" class="alert-error">
