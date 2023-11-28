@@ -60,7 +60,10 @@ nb-card {
 form {
     display: flex;
     flex-direction: column;
-    row-gap: 0px;
+    row-gap: 5px;
+    
+    margin-left: 10px;
+    margin-right: 10px;
 
     .horizontal {
         display: flex;
@@ -71,7 +74,7 @@ form {
 
     .flex-row {
         display: flex;
-        gap: 5px;
+        gap: 10px;
     }
 
     label {
