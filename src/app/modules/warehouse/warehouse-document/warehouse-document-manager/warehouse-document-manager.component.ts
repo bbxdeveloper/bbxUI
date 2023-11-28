@@ -596,7 +596,9 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
       const dialogRef = this.dialogService.open(WarehouseDocumentDetailsDialogComponent, {
         context: {
           dataId: id
-        }})
+        },
+        closeOnEsc: false
+      })
         
         dialogRef.onClose.subscribe(res => {
           this.kbS.SetCurrentNavigatable(this.dbDataTable)

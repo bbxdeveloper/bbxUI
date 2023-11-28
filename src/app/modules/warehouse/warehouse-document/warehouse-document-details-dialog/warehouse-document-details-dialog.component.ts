@@ -2,7 +2,6 @@ import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, C
 import { FormGroup, FormControl } from '@angular/forms';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
-import { GetProductsParamListModel } from 'src/app/modules/product/models/GetProductsParamListModel';
 import { Product } from 'src/app/modules/product/models/Product';
 import { ProductService } from 'src/app/modules/product/services/product.service';
 import { ProductStockInformationDialogComponent } from 'src/app/modules/shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
@@ -20,7 +19,6 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings, Actions } from 'src/assets/util/KeyBindings';
 import { InbetweenWarehouseProduct } from '../../models/whs/InbetweenWarehouseProduct';
-import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { firstValueFrom } from 'rxjs';
 import { WhsTransferService } from '../../services/whs-transfer.service';
 import { WarehouseInbetweenMode } from '../../models/whs/WarehouseInbetweenMode';
@@ -331,7 +329,8 @@ implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit 
         const dialogRef = this.dialogService.open(ProductStockInformationDialogComponent, {
           context: {
             product: p
-          }
+          },
+          closeOnEsc: true
         });
         dialogRef.onClose.subscribe(async (res: Product) => {
           setTimeout(() => {
