@@ -47,6 +47,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
   @Input() forceDisableOutgoingDelivery: boolean = false
   @Input() negativeDiscount: boolean = false
   @Input() defaultDiscountPercent?: number
+  @Input() rountToFillér = false
 
   @Input() checkCustomerLimit: boolean = false
   @Input() customer?: Customer
@@ -248,7 +249,9 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       discountedInvoiceNetAmount = this.invoiceStats.SummaryInvoiceDiscountedNetAmountSum;
     }
 
-    discountedInvoiceNetAmount = HelperFunctions.Round2(discountedInvoiceNetAmount, 1);
+    discountedInvoiceNetAmount = this.rountToFillér
+      ? HelperFunctions.Round2(discountedInvoiceNetAmount, 1)
+      : HelperFunctions.Round2(discountedInvoiceNetAmount, 1);
 
     if (!this.isAggregate){
       let invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
