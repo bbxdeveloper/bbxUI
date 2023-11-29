@@ -140,7 +140,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
   }
 
   private validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
+    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
@@ -161,7 +161,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
   }
 
   private validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined) {
+    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
