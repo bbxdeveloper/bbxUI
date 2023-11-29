@@ -65,6 +65,7 @@ export class InvoiceBehaviorFactoryService {
     result.incoming = true
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.title = 'Be. Szállítólevél'
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -75,6 +76,7 @@ export class InvoiceBehaviorFactoryService {
     result.incoming = true
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.title = 'Be. Számla'
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -85,6 +87,7 @@ export class InvoiceBehaviorFactoryService {
     result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
     result.title = 'Árfelülvizsg.'
     result.partnerLock = this.partnerLock
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -97,6 +100,7 @@ export class InvoiceBehaviorFactoryService {
     result.title = 'Bejövő javítószámla'
     result.unitPriceColumnTitle = 'Besz.Ár'
     result.partnerLock = this.partnerLock
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -108,6 +112,7 @@ export class InvoiceBehaviorFactoryService {
     result.quantityValidators = [new NotZeroQuantityValidator, new NegativeQuantityValidator]
     result.title = 'Javítószámla'
     result.partnerLock = this.partnerLock
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -144,6 +149,7 @@ export class InvoiceBehaviorFactoryService {
     result.quantityValidators = [new NotZeroQuantityValidator]
     result.isSummaryInvoice = true
     result.title = 'Blokk'
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -157,6 +163,7 @@ export class InvoiceBehaviorFactoryService {
     result.title = 'Gyűjtőszámla'
     result.useCustomersPaymentMethod = true
     result.partnerLock = this.partnerLock
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -170,6 +177,7 @@ export class InvoiceBehaviorFactoryService {
     result.title = 'Be. Gyűjtőszámla'
     result.unitPriceColumnTitle = 'Besz.Ár'
     result.partnerLock = this.partnerLock
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -185,6 +193,7 @@ export class InvoiceBehaviorFactoryService {
     result.title = 'Szállító vissz.'
     result.invoiceCorrection = true
     result.partnerLock = this.partnerLock
+    result.checkCustomerLimit = false
     return result
   }
 
@@ -202,6 +211,7 @@ export class InvoiceBehaviorFactoryService {
     result.unitPriceColumnTitle = 'Besz.Ár'
     result.partnerLock = this.partnerLock
     result.autoFillCustomerInvoiceNumber = true
+    result.checkCustomerLimit = false
     return result
   }
 }

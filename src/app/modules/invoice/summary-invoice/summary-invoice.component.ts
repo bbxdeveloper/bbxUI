@@ -830,7 +830,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         isDiscountVisible: false,
         forceDisableOutgoingDelivery: true,
         negativeDiscount: !this.mode.isSummaryInvoice,
-        checkCustomerLimit: true,
+        checkCustomerLimit: this.mode.checkCustomerLimit,
         customer: this.buyerData,
         Incoming: this.mode.incoming
       }
@@ -880,7 +880,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
               await this.printAndDownLoadService.openPrintDialog({
                 DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                DefaultCopies: 1,
+                DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                 MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                 MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
@@ -1060,7 +1060,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       if (customerInvoiceNumberString.includes(note.invoiceNumber)) {
         return
       }
-      
+
       if (customerInvoiceNumberString.length > 0) {
         customerInvoiceNumberString += `,${note.invoiceNumber}`
       } else {
@@ -1256,7 +1256,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
 
     const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 

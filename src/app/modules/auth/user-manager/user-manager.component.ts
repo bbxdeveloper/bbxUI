@@ -27,6 +27,8 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { WareHouse } from '../../warehouse/models/WareHouse';
+import { WareHouseService } from '../../warehouse/services/ware-house.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -36,12 +38,14 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 export class UserManagerComponent extends BaseManagerComponent<User> implements OnInit
 {
   @ViewChild('table') table?: NbTable<any>;
+  
+  wareHousesData: WareHouse[] = []
 
   get IsPasswordRequired(): boolean {
     return this.dbDataTable?.flatDesignForm?.formMode !== undefined && this.dbDataTable?.flatDesignForm?.formMode === Constants.FormState.new;
   }
 
-  override allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active'];
+  override allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active', 'warehouse'];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'ID',
@@ -130,6 +134,19 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       colWidth: '',
       textAlign: '',
       navMatrixCssClass: TileCssClass,
+      fRequired: this.IsPasswordRequired
+    },
+    {
+      label: 'Alapértelmezett raktár',
+      objectKey: 'warehouse',
+      colKey: 'warehouse',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'custom',
+      mask: '',
+      colWidth: '130px',
+      textAlign: '',
+      navMatrixCssClass: TileCssClass,
       fLast: true,
       fRequired: this.IsPasswordRequired
     },
@@ -168,7 +185,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     cs: CommonService,
     sts: StatusService,
     private khs: KeyboardHelperService,
-    loggerService: LoggerService
+    loggerService: LoggerService,
+    private wareHouseApi: WareHouseService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
@@ -297,7 +315,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           loginName: data.data.loginName,
           password: data.data.password,
           comment: data.data.comment,
-          active: data.data.active
+          active: data.data.active,
+          warehouseID: this.getWareHouseFromDescription(data.data.warehouseForCombo).id
         } as CreateUserRequest)
         .subscribe({
           next: async (d) => {
@@ -370,26 +389,42 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
           loginName: data.data.loginName,
           password: data.data.password,
           comment: data.data.comment,
-          active: data.data.active
+          active: data.data.active,
+          warehouseID: this.getWareHouseFromDescription(data.data.warehouseForCombo).id
         } as UpdateUserRequest)
         .subscribe({
-          next: (d) => {
+          next: async (d) => {
             if (d.succeeded && !!d.data) {
-              const newRow = {
-                data: UpdateUserResponseDataToUser(d.data),
-              } as TreeGridNode<User>;
-              const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
-              this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-              this.dbDataTable.SetDataForForm(newRow, false, false);
-              this.RefreshTable(newRow.data.id);
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.dbDataTable.flatDesignForm.SetFormStateToDefault();
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              await lastValueFrom(this.seInv.Get({ ID: d.data.id }))
+                .then(async res => {
+                  if (res) {
+                    this.idParam = res.id;
+                    await this.RefreshAsync(this.getInputParams());
+                    setTimeout(() => {
+                      this.dbDataTable.SelectRowById(res.id);
+                      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                      this.simpleToastrService.show(
+                        Constants.MSG_SAVE_SUCCESFUL,
+                        Constants.TITLE_INFO,
+                        Constants.TOASTR_SUCCESS_5_SEC
+                      );
+                    }, 200);
+                  } else {
+                    this.simpleToastrService.show(
+                      Constants.MSG_USER_GET_FAILED + d.data?.name,
+                      Constants.TITLE_ERROR,
+                      Constants.TOASTR_ERROR_5_SEC
+                    );
+                    this.dbDataTable.SetFormReadonly(false)
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+                    this.kbS.ClickCurrentElement()
+                  }
+                })
+                .catch(err => {
+                  this.HandleError(err);
+                  this.dbDataTable.SetFormReadonly(false)
+                })
+                .finally(() => { });
             } else {
               this.simpleToastrService.show(
                 d.errors!.join('\n'),
@@ -448,6 +483,35 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     }
   }
 
+  private getWareHouseFromDescription(desc?: string): WareHouse {
+    if (!desc) {
+      throw new Error('Missing WareHouse combobox value!')
+    }
+    let wareHouse = this.wareHousesData.find(x => x.warehouseDescription === desc)
+    return wareHouse!
+  }
+
+  private getDescriptionFromWareHouseField(val?: string): string | undefined {
+    if (!val || !val.includes('-')) {
+      return undefined
+    }
+    return val.split('-')[1]
+  }
+
+  private async refreshComboboxData(): Promise<void> {
+    try {
+      this.sts.waitForLoad()
+
+      const warehouseData = await this.wareHouseApi.GetAllPromise()
+
+      this.wareHousesData = warehouseData.data ?? []
+    } catch (error) {
+      this.cs.HandleError(error)
+    } finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
   override search(): void {
     this.Refresh(this.getInputParams());
   }
@@ -469,6 +533,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       comment: new FormControl(undefined, []),
       active: new FormControl(true, [Validators.required]),
       password: new FormControl(undefined, [this.validateRequiredPassword.bind(this)]),
+      warehouseForCombo: new FormControl(undefined, [Validators.required]),
     });
     this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
@@ -510,6 +575,9 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     console.log('Refreshing');
 
     this.isLoading = true;
+
+    this.refreshComboboxData()
+
     this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
       next: (d) => {
         if (d.succeeded && !!d.data) {
@@ -522,7 +590,11 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                   x.loginName,
                   x.email,
                   x.comment,
-                  x.active
+                  x.active,
+                  undefined,
+                  x.warehouseID,
+                  x.warehouse,
+                  this.getDescriptionFromWareHouseField(x.warehouse)
                 ),
                 uid: this.nextUid(),
               };
@@ -549,7 +621,11 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
   async RefreshAsync(params?: GetUsersParamListModel): Promise<void> {
     console.log('Refreshing');
+    
     this.isLoading = true;
+    
+    await this.refreshComboboxData()
+
     await lastValueFrom(this.seInv.GetAll(params))
       .then(d => {
         if (d.succeeded && !!d.data) {
@@ -562,7 +638,11 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                   x.loginName,
                   x.email,
                   x.comment,
-                  x.active
+                  x.active,
+                  undefined,
+                  x.warehouseID,
+                  x.warehouse,
+                  this.getDescriptionFromWareHouseField(x.warehouse)
                 ),
                 uid: this.nextUid(),
               };

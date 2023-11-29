@@ -463,7 +463,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       context: {
         data: this.outGoingInvoiceData,
         isDiscountDisabled: true,
-        Incoming: this.mode.incoming
+        Incoming: this.mode.incoming,
+        checkCustomerLimit: this.mode.checkCustomerLimit
       }
     })
 
@@ -489,7 +490,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
         await this.printAndDownloadService.openPrintDialog({
           DialogTitle: Constants.TITLE_PRINT_INVOICE,
-          DefaultCopies: 1,
+          DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
           MsgError: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
           MsgFinish: `A ${res.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,

@@ -47,7 +47,7 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
-import { PaymentMethods } from '../models/PaymentMethod';
+import { PaymentMethods, OfflinePaymentMethods } from '../models/PaymentMethod';
 import { OfferService } from '../../offer/services/offer.service';
 import { GetOfferParamsModel } from '../../offer/models/GetOfferParamsModel';
 import { Offer } from '../../offer/models/Offer';
@@ -788,6 +788,15 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }
     }
 
+    const isOutGoingInvoice = 
+        !this.mode.incoming && 
+        this.mode.invoiceCategory === InvoiceCategory.NORMAL && 
+        this.mode.invoiceType === InvoiceTypes.INV
+    
+    if (isOutGoingInvoice) {
+      this.mode.checkCustomerLimit = this.outGoingInvoiceData.paymentMethod !== OfflinePaymentMethods.Cash.value
+    }
+
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData,
@@ -840,7 +849,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
               await this.printAndDownLoadService.openPrintDialog({
                 DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                DefaultCopies: 1,
+                DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                 MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                 MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
@@ -1108,7 +1117,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
 
     const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 

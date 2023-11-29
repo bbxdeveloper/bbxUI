@@ -48,9 +48,6 @@ export class InvoiceLine extends MementoObject implements IEditable {
     unitPrice: number = 0.0; // editable
 
     @JsonIgnore
-    unitPriceChanged: boolean = false
-
-    @JsonIgnore
     previousUnitPrice: number = 0
 
     newUnitPrice1: number|undefined;

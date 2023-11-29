@@ -867,7 +867,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         data: this.outGoingInvoiceData,
         isDiscountVisible: true,
         forceDisableOutgoingDelivery: true,
-        Incoming: this.mode.incoming
+        Incoming: this.mode.incoming,
+        checkCustomerLimit: this.mode.checkCustomerLimit
       }
     });
     dialogRef.onClose.subscribe(async (res?: OutGoingInvoiceFullData) => {
@@ -909,7 +910,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         await this.printAndDownLoadService.openPrintDialog({
           DialogTitle: Constants.TITLE_PRINT_INVOICE,
-          DefaultCopies: 1,
+          DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
           MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
           MsgFinish: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,

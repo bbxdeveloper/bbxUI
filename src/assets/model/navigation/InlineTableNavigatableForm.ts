@@ -74,6 +74,10 @@ export class InlineTableNavigatableForm implements INavigatable {
         return this.form.controls[formFieldName].value;
     }
 
+    SetValue(formFieldName: string, value: any): any {
+        return this.form.controls[formFieldName].setValue(value)
+    }
+
     HandleFormEscape(): void {
         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
         this.cdref.detectChanges();

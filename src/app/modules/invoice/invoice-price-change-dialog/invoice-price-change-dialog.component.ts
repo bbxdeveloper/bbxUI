@@ -43,9 +43,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   @Input()
   public priceChange: ProductPriceChange|undefined
 
-  @Input()
-  public wasOpen: boolean = false
-
   @ViewChild('newUnitPrice1')
   private newUnitPrice1!: ElementRef
 
@@ -232,7 +229,7 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
       newUnitPrice1 = product.unitPrice1
       newUnitPrice2 = product.unitPrice2
     }
-    else if (this.wasOpen && this.priceChange !== undefined) {
+    else if (this.priceChange !== undefined) {
       newUnitPrice1 = this.priceChange.newUnitPrice1
       newUnitPrice2 = this.priceChange.newUnitPrice2
     }
@@ -320,13 +317,6 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   }
 
   public close(): void {
-    const controls = this.productPriceChangeForm.controls
-
-    const priceChange = {
-      newUnitPrice1: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice1'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice1'].value),
-      newUnitPrice2: this.wasOpen ? HelperFunctions.ToFloat(controls['newUnitPrice2'].value) : HelperFunctions.ToFloat(controls['oldUnitPrice2'].value)
-    } as ProductPriceChange
-
-    this.dialogRef.close(priceChange)
+    this.dialogRef.close(undefined)
   }
 }

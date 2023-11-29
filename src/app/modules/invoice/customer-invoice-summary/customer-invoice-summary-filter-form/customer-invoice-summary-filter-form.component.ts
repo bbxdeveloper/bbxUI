@@ -63,7 +63,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
   get isEditModeOff(): boolean {
     return !this.keyboardService.isEditModeActivated
   }
-  
+
   public get formData() {
     const controls = this.filterForm.controls
 
@@ -92,7 +92,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
 
   // CountryCode
   countryCodes: CountryCode[] = [];
-  
+
   get fromDateValue(): Date | undefined {
     if (!this.filterForm) {
       return undefined;
@@ -418,7 +418,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
 
     const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 

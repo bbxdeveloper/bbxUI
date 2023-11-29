@@ -493,7 +493,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange()) {
       changedData.previousUnitPrice = changedData.unitPrice
 
-      this.suggestPriceChange(this.dbData[index].data)
+      this.suggestPriceChange(this.dbData[index].data, false)
 
       changedData.Save()
     }
@@ -728,7 +728,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
         data: this.outGoingInvoiceData,
-        Incoming: this.mode.incoming
+        Incoming: this.mode.incoming,
+        checkCustomerLimit: this.mode.checkCustomerLimit
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
@@ -763,7 +764,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                  DefaultCopies: 1,
+                  DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                   MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,
@@ -833,9 +834,9 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     return of().toPromise();
   }
 
-  private suggestPriceChange(invoiceLine: InvoiceLine): void {
+  private suggestPriceChange(invoiceLine: InvoiceLine, useChangedPrices: boolean): void {
     let priceChange = undefined
-    if (invoiceLine.newUnitPrice1 && invoiceLine.newUnitPrice2) {
+    if (useChangedPrices && invoiceLine.newUnitPrice1 && invoiceLine.newUnitPrice2) {
       priceChange = {
         newUnitPrice1: invoiceLine.newUnitPrice1,
         newUnitPrice2: invoiceLine.newUnitPrice2,
@@ -847,7 +848,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         productCode: invoiceLine.productCode,
         newPrice: invoiceLine.unitPrice,
         priceChange: priceChange,
-        wasOpen: invoiceLine.unitPriceChanged,
       },
       closeOnEsc: false
     })
@@ -859,7 +859,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         return
       }
 
-      invoiceLine.unitPriceChanged = true
       invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
     })
@@ -977,7 +976,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     console.log('Before: ', data);
 
     data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
 
     const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
 
@@ -1059,7 +1058,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
           this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW);
         }, 0);
       } else {
-        this.suggestPriceChange(this.dbData[rowIndex].data)
+        this.suggestPriceChange(this.dbData[rowIndex].data, true)
       }
     }
   }

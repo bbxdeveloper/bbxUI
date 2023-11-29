@@ -386,7 +386,8 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
     const dialogRef = this.dialogService.open(SaveDialogComponent, {
       context: {
-        data: this.outGoingInvoiceData
+        data: this.outGoingInvoiceData,
+        checkCustomerLimit: this.mode.checkCustomerLimit
       }
     });
     dialogRef.onClose.subscribe((res?: OutGoingInvoiceFullData) => {
@@ -421,7 +422,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                  DefaultCopies: 1,
+                  DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                   MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
