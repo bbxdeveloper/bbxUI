@@ -29,7 +29,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         'ActionReset': false,
         'ActionPut': true,
         'ActionDelete': true,
-        'ActionExit': false
+        'ActionExit': true
     }
 
     originalData: any = {}
