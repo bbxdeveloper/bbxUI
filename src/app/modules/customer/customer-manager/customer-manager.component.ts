@@ -31,6 +31,7 @@ import { InvoiceService } from '../../invoice/services/invoice.service';
 import { PaymentMethod } from '../../invoice/models/PaymentMethod';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { GetCustomersResponse } from '../models/GetCustomersResponse';
 
 @Component({
   selector: 'app-customer-manager',
@@ -642,26 +643,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
 
     this.isLoading = true;
     this.Subscription_Refresh = this.customerService.GetAll(params).subscribe({
-      next: (d) => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            this.dbData = d.data.map((x) => {
-              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
-            });
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable();
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      },
+      next: this.getCustomersCallback.bind(this),
       error: (err) => {
         this.HandleError(err);
+        this.isLoading = false
       },
       complete: () => {
         this.isLoading = false;
@@ -673,30 +658,28 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     this.loggerService.info('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.customerService.GetAll(params))
-      .then(d => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            this.dbData = d.data.map((x) => {
-              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
-            });
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable();
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      })
+      .then(this.getCustomersCallback.bind(this))
       .catch(err => {
         this.HandleError(err);
+        this.isLoading = false
       })
       .finally(() => {
         this.isLoading = false;
       });
+  }
+
+  private getCustomersCallback(d: GetCustomersResponse): void {
+    if (!d.succeeded || !d.data) {
+      this.bbxToastrService.showError(d.errors!.join('\n'), true);
+      return
+    }
+
+    this.dbData = d.data.map((x) => {
+      return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
+    });
+    this.dbDataDataSrc.setData(this.dbData);
+    this.dbDataTable.SetPaginatorData(d);
+    this.RefreshTable();
   }
 
   public ngOnInit(): void {

@@ -182,15 +182,17 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
         return data as T;
     }
 
-    FillFormWithObject: (data: any, setValueOptions?: any) => void = (data: any, setValueOptions?: any) => {
-        if (!!data) {
-            Object.keys(this.form.controls).forEach((x: string) => {
-                this.form.controls[x].setValue(data[x], setValueOptions)
-                if (environment.flatDesignFormDebug) {
-                    console.log(`[FillFormWithObject] ${x}, ${data[x]}, ${this.form.controls[x].value}`);
-                }
-            })
+    public FillFormWithObject(data: any, setValueOptions?: any): void {
+        if (!data) {
+            return
         }
+
+        Object.keys(this.form.controls).forEach((x: string) => {
+            this.form.controls[x].setValue(data[x], setValueOptions)
+            if (environment.flatDesignFormDebug) {
+                console.log(`[FillFormWithObject] ${x}, ${data[x]}, ${this.form.controls[x].value}`);
+            }
+        })
     }
 
     protected MoveNext(): MoveRes {
