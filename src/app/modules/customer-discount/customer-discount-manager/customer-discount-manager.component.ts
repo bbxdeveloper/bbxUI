@@ -946,6 +946,11 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
+        // Prevent focus from going up to the URL field
+        case KeyBindings.F6: {
+          HelperFunctions.StopEvent(_event)
+          return
+        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -983,6 +988,11 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     }
     else {
       switch ((event as KeyboardEvent).key) {
+        // Prevent focus from going up to the URL field
+        case KeyBindings.F6: {
+          HelperFunctions.StopEvent(event)
+          return
+        }
         case KeyBindings.F11: {
           event.stopImmediatePropagation();
           event.stopPropagation();

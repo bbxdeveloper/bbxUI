@@ -875,9 +875,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       console.log("Selected item: ", res);
       if (!res) {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
-
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         return
       }
 
@@ -910,7 +908,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         await this.printAndDownLoadService.openPrintDialog({
           DialogTitle: Constants.TITLE_PRINT_INVOICE,
-          DefaultCopies: 1,
+          DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
           MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
           MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
           MsgFinish: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,

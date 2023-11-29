@@ -124,7 +124,6 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     khs: KeyboardHelperService,
     activatedRoute: ActivatedRoute,
     router: Router,
-    bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
@@ -134,7 +133,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
           customerService, cdref, kbS, simpleToastrService, bbxToastrService,
           cs, statusService, productService, status, sideBarService, khs,
-          activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
+          activatedRoute, router, behaviorFactory, tokenService,
           productCodeManagerService, printAndDownLoadService, editCustomerDialog)
     this.preventF12 = true
     this.InitialSetup()
@@ -422,7 +421,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                  DefaultCopies: 1,
+                  DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                   MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
@@ -455,8 +454,8 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
         });
       } else {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION)
       }
     });
   }
@@ -522,7 +521,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
   override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
     if (p.noDiscount) {
-      setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+      setTimeout(() => this.bbxToastrService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
     }
 
     let res = new InvoiceLine(this.requiredCols);

@@ -191,7 +191,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     khs: KeyboardHelperService,
     activatedRoute: ActivatedRoute,
     router: Router,
-    bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
@@ -203,7 +202,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
-      activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
+      activatedRoute, router, behaviorFactory, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog)
     this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
@@ -377,7 +376,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   // invoiceDeliveryDate
   validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
+    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
@@ -389,7 +388,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   }
 
   validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined) {
+    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
@@ -840,12 +839,11 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
       if (!res) {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
         setTimeout(() => {
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
-          this.kbS.SelectFirstTile();
+          this.kbS.SelectFirstTile()
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         }, 200)
-
         return
       }
 
@@ -880,7 +878,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
               await this.printAndDownLoadService.openPrintDialog({
                 DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                DefaultCopies: 1,
+                DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                 MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
                 MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
                 MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,

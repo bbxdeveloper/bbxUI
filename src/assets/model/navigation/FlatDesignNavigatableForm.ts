@@ -29,7 +29,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         'ActionReset': false,
         'ActionPut': true,
         'ActionDelete': true,
-        'ActionExit': false
+        'ActionExit': true
     }
 
     originalData: any = {}
@@ -84,7 +84,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
             event?.preventDefault()
             event?.stopImmediatePropagation()
             event?.stopPropagation()
-            
+
             this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
             this.ActionExit()
@@ -182,11 +182,10 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
 
     /**
      * Load object into form for edit.
-     * @param row 
-     * @param rowPos 
-     * @param objectKey 
+     * @param row
+     * @param rowPos
      */
-    public override SetDataForEdit(row: TreeGridNode<any>, rowPos: number, objectKey: string): void {
+    public override SetDataForEdit(row: TreeGridNode<any>, rowPos: number): void {
         if (environment.flatDesignFormDebug) {
             console.log("[SetDataForEdit] Form: ", this.form, ", row: ", row); // TODO: only for debug
         }
@@ -218,7 +217,7 @@ export class FlatDesignNavigatableForm<T = any> extends BaseNavigatableForm {
         if (this.blockInputJump) {
             return
         }
-        
+
         const moveRes = this.MoveNext();
         // We can't know if we should click the first element if we moved to another navigation-matrix.
         if (!moveRes.jumped) {

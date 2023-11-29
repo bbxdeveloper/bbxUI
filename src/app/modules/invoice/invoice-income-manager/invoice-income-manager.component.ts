@@ -191,7 +191,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     khs: KeyboardHelperService,
     activatedRoute: ActivatedRoute,
     router: Router,
-    bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
@@ -201,7 +200,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
-      activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
+      activatedRoute, router, behaviorFactory, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog)
 
     this.preventF12 = true
@@ -360,7 +359,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
   // invoiceDeliveryDate
   validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
+    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
@@ -372,7 +371,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
   }
 
   validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined) {
+    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
       return null;
     }
 
@@ -508,11 +507,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       }
 
       setTimeout(() => {
-        this.bbxToasterService.show(
-          validationResult,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
+        this.bbxToastrService.showError(validationResult)
       }, 0);
       this.dbData[index].data.Restore()
 
@@ -764,7 +759,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                  DefaultCopies: 1,
+                  DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                   MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,
@@ -797,8 +792,10 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         });
       } else {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
+        setTimeout(() => {
+          this.kbS.SelectFirstTile()
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+        }, 200)
       }
     });
   }

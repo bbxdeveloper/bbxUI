@@ -104,7 +104,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     khs: KeyboardHelperService,
     protected readonly activatedRoute: ActivatedRoute,
     router: Router,
-    protected readonly bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
     protected readonly tokenService: TokenStorageService,
     protected productCodeManagerService: ProductCodeManagerServiceService,
