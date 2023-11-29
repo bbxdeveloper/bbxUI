@@ -840,12 +840,11 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
       if (!res) {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
         setTimeout(() => {
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
-          this.kbS.SelectFirstTile();
+          this.kbS.SelectFirstTile()
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         }, 200)
-
         return
       }
 

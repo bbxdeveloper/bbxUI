@@ -797,8 +797,10 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         });
       } else {
         this.isSaveInProgress = false;
-        // Szerkesztés esetleges folytatása miatt
-        this.kbS.ClickCurrentElement();
+        setTimeout(() => {
+          this.kbS.SelectFirstTile()
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+        }, 200)
       }
     });
   }
