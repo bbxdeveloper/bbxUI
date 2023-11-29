@@ -25,6 +25,7 @@ export interface Product {
     exhangedUnitPrice1?: number,
     exhangedUnitPrice2?: number,
     minMargin: number,
+    unitWeight?: number,
 }
 
 export function getPriceByPriceType(product: Product, priceType: UnitPriceTypes|string): number {
