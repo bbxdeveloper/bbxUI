@@ -764,7 +764,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                  DefaultCopies: 1,
+                  DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
                   MsgError: `A ${ordinal} számla nyomtatása közben hiba történt.`,
                   MsgCancel: `A ${ordinal} számla nyomtatása nem történt meg.`,
                   MsgFinish: `A ${ordinal} számla nyomtatása véget ért.`,

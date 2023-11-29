@@ -822,7 +822,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.printAndDownloadService.openPrintDialog({
       DialogTitle: Constants.TITLE_PRINT_INVOICE,
-      DefaultCopies: 1,
+      DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
       MsgError: `A ${invoiceNumber} számla nyomtatása közben hiba történt.`,
       MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
       MsgFinish: `A ${invoiceNumber} számla nyomtatása véget ért.`,

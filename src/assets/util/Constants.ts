@@ -11,6 +11,8 @@ export module Constants {
     export const MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD = 'Legalább egy érvényesen megadott tétel szükséges a mentéshez.'
     export const MSG_ERROR_WRONG_QUANTITY_ONE_OR_MORE = 'Egy vagy több tétel mezői hibásan (például: rossz mennyisség) vannak kitöltve.'
 
+    export const OutgoingIncomingInvoiceDefaultPrintCopy: number = 2
+
     export const MSG_ERROR_USERDATA_NEEDED = 'A mentés előtt érvényes bejelentkezési adatok megadása szükséges!'
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
