@@ -142,12 +142,11 @@ export class CalculatorPopoverComponent extends BaseNavigatableComponentComponen
     if (event.key == KeyBindings.Enter) {
       this.calc()
     } else if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      event.preventDefault()
+      event.stopPropagation()
+      event.stopImmediatePropagation()
       if (this.canCloseWithEscape) {
         this.close()
-      } else {
-        event.preventDefault()
-        event.stopPropagation()
-        event.stopImmediatePropagation()
       }
     }
   }

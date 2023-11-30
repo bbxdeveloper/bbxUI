@@ -116,6 +116,12 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   @Output()
   public click = new EventEmitter<any>()
 
+  @Output()
+  public calculatorOpened = new EventEmitter<any>()
+
+  @Output()
+  public calculatorClosed = new EventEmitter<any>()
+
   // Mask
 
   maskPatterns = Constants.ProductCodePatterns;
@@ -257,6 +263,7 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
     HelperFunctions.StopEvent(event)
     if (!this.popover?.isShown) {
       this.popover?.show()
+      this.calculatorOpened.emit()
     } else {
       this.popover?.hide()
     }
@@ -268,6 +275,7 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
     if (this.keyboardModeBeforeCalculator !== undefined) {
       this.keyboardService.setEditMode(this.keyboardModeBeforeCalculator)
     }
+    this.calculatorClosed.emit()
   }
 
   //#region Key events

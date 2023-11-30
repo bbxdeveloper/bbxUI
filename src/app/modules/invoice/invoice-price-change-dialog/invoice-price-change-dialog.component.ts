@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, NavigatableType, TileCssClass } from 'src/assets/model/navigation/Navigatable';
@@ -18,6 +18,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { onNegateKeepCaretPosition } from 'src/assets/util/input/onNegateKeepCaretPosition';
 import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
 import { StatusService } from 'src/app/services/status.service';
+import { KeyBindings } from 'src/assets/util/KeyBindings';
 
 type PriceChangeFormValues = {
   productCode: string
@@ -78,6 +79,8 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
   public TileCssClass = TileCssClass
 
   public fixCursorPosition = fixCursorPosition
+
+  public isCalculatorOpened: boolean = false
 
   numberInputMask = createMask({
     alias: 'numeric',
@@ -318,5 +321,25 @@ export class InvoicePriceChangeDialogComponent extends BaseNavigatableComponentC
 
   public close(): void {
     this.dialogRef.close(undefined)
+  }
+
+  public calculatorOpened(event?: any): void {
+    this.isCalculatorOpened = true
+  }
+
+  public calculatorClosed(event?: any): void {
+    this.isCalculatorOpened = false
+  }
+
+  @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (event.key == KeyBindings.exit || event.key == KeyBindings.exitIE) {
+      if (this.isCalculatorOpened) {
+        event.preventDefault()
+        event.stopPropagation()
+        event.stopImmediatePropagation()
+      } else {
+        this.close()
+      }
+    }
   }
 }
