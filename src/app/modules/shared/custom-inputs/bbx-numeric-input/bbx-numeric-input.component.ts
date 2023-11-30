@@ -292,12 +292,6 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   public onBackspaceUp(event: any): void {
     // console.log("onBackspaceUp: ", event.target.value, event)
-    this.writeValue(event.target.value)
-    let selectionStart = event.target.selectionStart
-    setTimeout(() => {
-      event.target.selectionStart = selectionStart
-      event.target.selectionEnd = selectionStart
-    }, 100);
   }
 
   public onEscapeDown(event: any): void {
