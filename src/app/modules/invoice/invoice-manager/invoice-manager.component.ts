@@ -884,7 +884,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
-    if (!!res) {
+        if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
       if (!wasInNavigationMode) {
@@ -1045,7 +1045,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       res.unitPrice = unitPrice;
     }
 
-    res.unitPrice = HelperFunctions.currencyRound(res.unitPrice, this.outGoingInvoiceData.currencyCode)
+    res.unitPrice = HelperFunctions.currencyRound(res.unitPrice, this.outGoingInvoiceData.currencyCode, true)
 
     res.vatRateCode = product.vatRateCode;
 

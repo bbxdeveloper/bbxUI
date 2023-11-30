@@ -231,7 +231,7 @@ export class ProductCodeManagerServiceService {
   //#region TableCodeFieldChanged
 
   TableCodeFieldChanged(request: any): void {
-    switch (request.path) {
+        switch (request.path) {
       // Receipt, Invoice, InvoiceIncome komponensek
       case 'invoice':
       case 'invoice-income':

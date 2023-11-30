@@ -262,14 +262,19 @@ export module HelperFunctions {
         return isEmptyOrSpaces(p) ? undefined : parseInt((p + '').replace(/\s/g, ''));
     }
 
-    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null): number {
-        return currency === CurrencyCodes.HUF
-            ? Round(value)
-            : Round2(value, 2)
+    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null, roundToFillér = false): number {
+        if (currency === CurrencyCodes.HUF) {
+            return roundToFillér
+                ? Round2(value, 1)
+                : Round(value)
+        }
+        else {
+            return Round2(value, 2)
+        }
     }
 
-    export function Round(p: string | number): number {
-        return Math.round(ToFloat(p));
+    export function Round(value: string | number): number {
+        return Math.round(ToFloat(value));
     }
 
     export function IsStringValid(str: any): boolean {
@@ -318,8 +323,8 @@ export module HelperFunctions {
         calculatorDialogRef.onClose.subscribe(handle);
     }
 
-    export function Round2(n: number, r: number): number {
-        return HelperFunctions.ToFloat(HelperFunctions.ToFloat(n).toFixed(r));
+    export function Round2(value: number, fractionDigits: number): number {
+        return HelperFunctions.ToFloat(HelperFunctions.ToFloat(value).toFixed(fractionDigits));
     }
 
     export function Round2Old(n: number, r: number): number {
