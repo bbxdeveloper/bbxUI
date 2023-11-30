@@ -1,5 +1,5 @@
 import { Injectable, Optional } from '@angular/core';
-import { BehaviorSubject, lastValueFrom, Observable, of } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, Observable, of, Subscription } from 'rxjs';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { StatusService } from './status.service';
@@ -178,7 +178,8 @@ export class PrintAndDownloadService {
       next: async res => {
         console.log("OneTextInputDialogComponent: ", res);
         if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
-          let commandEndedSubscription = this.CommandEnded.subscribe({
+          let commandEndedSubscription: Subscription|undefined = undefined
+          commandEndedSubscription = this.CommandEnded.subscribe({
             next: async cmdEnded => {
               try {
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
@@ -188,11 +189,7 @@ export class PrintAndDownloadService {
 
                   request.Reset();
 
-                  this.simpleToastrService.show(
-                    request.MsgFinish,
-                    Constants.TITLE_INFO,
-                    Constants.TOASTR_SUCCESS_5_SEC
-                  );
+                  this.bbxToastrService.showSuccess(request.MsgFinish, true);
                 }
               } catch (error) {
                 if (commandEndedSubscription && !commandEndedSubscription.closed) {
@@ -204,18 +201,14 @@ export class PrintAndDownloadService {
             },
             error: async cmdEnded => {
               try {
-                console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
-                commandEndedSubscription?.unsubscribe();
+                console.log(`CommandEnded error received: ${cmdEnded?.ResultCmdType}`);
+                commandEndedSubscription?.unsubscribe()
 
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await request.Reset();
 
-                this.bbxToastrService.show(
-                  request.MsgError,
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
-                );
+                this.bbxToastrService.showError(request.MsgError);
 
               } catch (error) {
                 if (commandEndedSubscription && !commandEndedSubscription.closed) {
@@ -225,6 +218,11 @@ export class PrintAndDownloadService {
                 this.cs.HandleError(error)
               } finally {
                 this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              }
+            },
+            complete: () => {
+              if (commandEndedSubscription && !commandEndedSubscription.closed) {
+                commandEndedSubscription.unsubscribe()
               }
             }
           });
