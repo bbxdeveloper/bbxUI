@@ -320,7 +320,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.prevSelectedCol = '';
         this.prevSelectedColPos = -1;
 
-        this.flatDesignForm.SetDataForEdit(creatorRow, -1, '');
+        this.flatDesignForm.SetDataForEdit(creatorRow, -1);
         this.SyncNeighbourRelations()
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
 
@@ -382,7 +382,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.prevSelectedCol = col;
         this.prevSelectedColPos = colPos;
 
-        this.flatDesignForm.SetDataForEdit(row, rowPos, col);
+        this.flatDesignForm.SetDataForEdit(row, rowPos);
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
 
         this.flatDesignForm.PreviousXOnGrid = this.kbs.p.x;
@@ -507,7 +507,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.prevSelectedRow = row;
 
-        this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!, this.prevSelectedCol!);
+        this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!);
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
 
         this.flatDesignForm.SetClean();
@@ -532,7 +532,6 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
      * Formban található adatok beállítása kifejezetten readonly formhoz
      * @param row
      * @param openSideBar
-     * @param jump
      */
     SetDataForReadonlyForm(row: TreeGridNode<T>, openSideBar: boolean): void {
         if (environment.flatDesignTableDebug) {
@@ -541,7 +540,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.prevSelectedRow = row;
 
-        this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!, this.prevSelectedCol!);
+        this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!);
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
 
         this.flatDesignForm.SetClean();
@@ -573,12 +572,13 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
             return;
         }
+
         if (!this.sidebarService.sideBarOpened) {
             this.flatDesignForm.PushFooterCommandList();
         } else {
             this.PushFooterCommandList();
         }
-        // console.log(!this.sidebarService.sideBarOpened, this.data.length === 0, !this.kbs.IsCurrentNavigatable(this), !!!this.flatDesignForm.DataToEdit);
+
         if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
             this.SetBlankInstanceForForm(true);
         } else if (!this.sidebarService.sideBarOpened) {

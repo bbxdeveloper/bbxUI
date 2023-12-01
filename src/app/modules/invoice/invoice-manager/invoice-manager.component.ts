@@ -198,7 +198,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     khs: KeyboardHelperService,
     activatedRoute: ActivatedRoute,
     router: Router,
-    bbxToasterService: BbxToastrService,
     behaviorFactory: InvoiceBehaviorFactoryService,
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
@@ -211,7 +210,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
-      activatedRoute, router, bbxToasterService, behaviorFactory, tokenService,
+      activatedRoute, router, behaviorFactory, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog)
 
     this.preventF12 = true
@@ -788,11 +787,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }
     }
 
-    const isOutGoingInvoice = 
-        !this.mode.incoming && 
-        this.mode.invoiceCategory === InvoiceCategory.NORMAL && 
+    const isOutGoingInvoice =
+        !this.mode.incoming &&
+        this.mode.invoiceCategory === InvoiceCategory.NORMAL &&
         this.mode.invoiceType === InvoiceTypes.INV
-    
+
     if (isOutGoingInvoice) {
       this.mode.checkCustomerLimit = this.outGoingInvoiceData.paymentMethod !== OfflinePaymentMethods.Cash.value
     }
@@ -814,6 +813,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         setTimeout(() => {
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.SelectFirstTile();
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION)
         }, 200)
 
         return
@@ -884,7 +884,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
-    if (!!res) {
+        if (!!res) {
       this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
       if (!wasInNavigationMode) {
@@ -1009,7 +1009,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
   override async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> {
     if (product.noDiscount) {
-      setTimeout(() => this.bbxToasterService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+      setTimeout(() => this.bbxToastrService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
     }
 
     const res = new InvoiceLine(this.requiredCols);
@@ -1045,7 +1045,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       res.unitPrice = unitPrice;
     }
 
-    res.unitPrice = HelperFunctions.currencyRound(res.unitPrice, this.outGoingInvoiceData.currencyCode)
+    res.unitPrice = HelperFunctions.currencyRound(res.unitPrice, this.outGoingInvoiceData.currencyCode, true)
 
     res.vatRateCode = product.vatRateCode;
 

@@ -6,7 +6,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { NbFormFieldControl, NbPopoverDirective } from '@nebular/theme';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { fixCursorPosition, fixIntegerCursorPosition } from 'src/assets/util/input/fixCursorPosition';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
 
@@ -116,6 +116,12 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   @Output()
   public click = new EventEmitter<any>()
 
+  @Output()
+  public calculatorOpened = new EventEmitter<any>()
+
+  @Output()
+  public calculatorClosed = new EventEmitter<any>()
+
   // Mask
 
   maskPatterns = Constants.ProductCodePatterns;
@@ -141,6 +147,8 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   }
 
   private focusOnSavedValue?: any
+
+  private keyboardModeBeforeCalculator?: KeyboardModes
 
   // ctor
 
@@ -251,9 +259,11 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   // Misc...
 
   public openCalculator(event: any): void {
+    this.keyboardModeBeforeCalculator = this.keyboardService.currentKeyboardMode
     HelperFunctions.StopEvent(event)
     if (!this.popover?.isShown) {
       this.popover?.show()
+      this.calculatorOpened.emit()
     } else {
       this.popover?.hide()
     }
@@ -262,6 +272,10 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
   public closeCalculator(): void {
     this.popover?.hide()
     this.keyboardService.ClickCurrentElement()
+    if (this.keyboardModeBeforeCalculator !== undefined) {
+      this.keyboardService.setEditMode(this.keyboardModeBeforeCalculator)
+    }
+    this.calculatorClosed.emit()
   }
 
   //#region Key events
@@ -286,12 +300,6 @@ export class BbxNumericInputComponent implements OnInit, ControlValueAccessor, V
 
   public onBackspaceUp(event: any): void {
     // console.log("onBackspaceUp: ", event.target.value, event)
-    this.writeValue(event.target.value)
-    let selectionStart = event.target.selectionStart
-    setTimeout(() => {
-      event.target.selectionStart = selectionStart
-      event.target.selectionEnd = selectionStart
-    }, 100);
   }
 
   public onEscapeDown(event: any): void {

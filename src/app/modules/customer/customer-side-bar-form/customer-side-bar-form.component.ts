@@ -182,10 +182,4 @@ export class CustomerSideBarFormComponent extends BaseSideBarFormComponent imple
       }
     });
   }
-
-  protected override SetupForms(): void {
-    if (!!this.currentForm) {
-      this.currentForm.form.controls['privatePerson'].setValue(this.privatePersonDefaultValue);
-    }
-  }
 }
