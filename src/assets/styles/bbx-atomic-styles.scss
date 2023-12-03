@@ -1,3 +1,13 @@
+/*
+    Variables
+*/
+
+$loopUntil100: 100;
+
+/*
+    Display
+*/
+
 .flex {
     display: flex !important;
 }
@@ -6,3 +16,40 @@
     display: inline-block !important;
 }
 
+/*
+    Margins
+*/
+
+@for $i from 0 through $loopUntil100 {
+    .margin-right-#{$i} {
+        margin-right:  #{$i}px !important;
+    }
+    .margin-left-#{$i} {
+        margin-right:  #{$i}px !important;
+    }
+    .margin-top-#{$i} {
+        margin-right:  #{$i}px !important;
+    }
+    .margin-bottom-#{$i} {
+        margin-right:  #{$i}px !important;
+    }
+}
+
+/*
+    Paddings
+*/
+
+@for $i from 0 through $loopUntil100 {
+    .padding-right-#{$i} {
+        padding-right:  #{$i}px !important;
+    }
+    .padding-left-#{$i} {
+        padding-right:  #{$i}px !important;
+    }
+    .padding-top-#{$i} {
+        padding-right:  #{$i}px !important;
+    }
+    .padding-bottom-#{$i} {
+        padding-right:  #{$i}px !important;
+    }
+}
