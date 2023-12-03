@@ -538,8 +538,6 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             console.log(`Data: ${row}`);
         }
 
-        this.prevSelectedRow = row;
-
         this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!);
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
 

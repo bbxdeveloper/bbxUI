@@ -143,13 +143,14 @@ export module HelperFunctions {
     }
 
     export function GetProductGroupDescription(
-        val?: string, data?: ProductGroup[], defaultValue: any = ''): any {
+        val?: string,
+        data?: ProductGroup[],
+        defaultValue: any = ''): any {
         if (val === undefined || val === null || val.trim() === '') {
             return defaultValue;
         }
-        if (val?.includes('-')) {
-            return val.split('-')[1] ?? defaultValue;
-        } else if (!!data && data.length > 0) {
+
+        if (!!data && data.length > 0) {
             return data.find(x => x.productGroupCode === val)?.productGroupDescription ?? defaultValue;
         } else {
             return val;

@@ -17,9 +17,9 @@ import { GetProductsParamListModel } from '../models/GetProductsParamListModel';
 import { AttachDirection, BlankComboBoxValue, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { Origin } from '../../origin/models/Origin';
 import { OriginService } from '../../origin/services/origin.service';
-import { ProductGroup, ProductGroupDescriptionToCode } from '../../product-group/models/ProductGroup';
+import { ProductGroup } from '../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../product-group/services/product-group.service';
-import { UnitOfMeasure, UnitOfMeasureTextToValue } from '../models/UnitOfMeasure';
+import { UnitOfMeasure } from '../models/UnitOfMeasure';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CreateProductRequest } from '../models/CreateProductRequest';
@@ -34,6 +34,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { GetProductsResponse } from '../models/GetProductsResponse';
 
 @Component({
   selector: 'app-product-manager',
@@ -221,28 +222,11 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     return data.productCode
   }
 
-  private ConvertCombosForPost(data: Product): Product {
-    if (data.productGroup !== undefined && this.productGroups.length > 0)
-      data.productGroup = ProductGroupDescriptionToCode(
-        data.productGroup,
-        this.productGroups
-      );
-    if (data.unitOfMeasure !== undefined && this.uom.length > 0)
-      data.unitOfMeasure = UnitOfMeasureTextToValue(
-        data.unitOfMeasure,
-        this.uom
-      );
-
-    data.vtsz = data.vtsz + '';
-    data.ean = data.ean + '';
-
-    return data;
-  }
-
   private ConvertCombosForGet(data: Product): Product {
     if (data.unitOfMeasure !== undefined && this.uom.length > 0) {
       data.unitOfMeasure = data.unitOfMeasureX;
     }
+
     if (data.vatRateCode !== undefined && this.vats.length > 0) {
       data.vatRateCode = this.vats.find(x => x.vatRateCode == data.vatRateCode)?.vatRateDescription ?? '';
     }
@@ -554,7 +538,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         data = {...data};
 
         data.origin = HelperFunctions.GetOriginDescription(data.origin, this.origins, '');
-        data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroup, this.productGroups, '');
+        data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroup, this.productGroups, data.productGroup);
 
         Object.keys(this.dbDataTable.flatDesignForm.form.controls).forEach((x: string) => {
           this.dbDataTable.flatDesignForm!.form.controls[x].setValue(data[x as keyof Product]);
@@ -580,27 +564,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
 
     this.isLoading = true;
     this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
-      next: async (d) => {
-        if (d.succeeded && !!d.data) {
-          await this.RefreshComboValues();
-          console.log('GetProducts response: ', d);
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable();
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      },
+      next: this.getProductCallback.bind(this),
       error: (err) => {
         { this.cs.HandleError(err); this.isLoading = false; };
         this.isLoading = false;
@@ -615,32 +579,30 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     console.log('Refreshing');
     this.isLoading = true;
     await lastValueFrom(this.seInv.GetAll(params))
-      .then(async d => {
-        if (d.succeeded && !!d.data) {
-          await this.RefreshComboValues();
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable();
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      })
+      .then(this.getProductCallback.bind(this))
       .catch(err => {
         this.cs.HandleError(err);
       })
       .finally(() => {
         this.isLoading = false;
       })
+  }
+
+  private async getProductCallback(response: GetProductsResponse): Promise<void> {
+    if (!response.succeeded || !response.data) {
+      this.bbxToastrService.showError(response.errors!.join('\n'))
+      return
+    }
+
+    await this.RefreshComboValues();
+
+    this.dbData = response.data.map((x) => {
+      return { data: this.ConvertCombosForGet(x), uid: this.nextUid() };
+    });
+    this.dbDataDataSrc.setData(this.dbData);
+    this.dbDataTable.SetPaginatorData(response);
+
+    this.RefreshTable();
   }
 
   ngOnInit(): void {
