@@ -322,7 +322,22 @@
         </nb-card>
     </ng-template>
 
-    <nb-action id="header-shut" class="cl-header-menu" tabIndex="9" icon="power-outline" *ngIf="isElectron"
+    <nb-action *ngIf="isLoggedIn" id="header-nav" class="cl-header-menu" tabIndex="9" nbPopoverTrigger="focus"
+        data-sub="header-nav-sub-1,header-nav-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_nav"
+        [disabled]="InProgress">NAV
+    </nb-action>
+    <nb-action *ngIf="!isLoggedIn" id="header-nav" class="cl-header-menu" tabIndex="9" data-sub="" disabled>NAV</nb-action>
+    <ng-template #sub_nav let-data>
+        <nb-card class="card-submenu-wrapper">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-nav-sub-1" [disabled]="InProgress" (click)="openSendToNav()">
+                    Bizonylat NAV adatküldés
+                </button>
+            </nb-card-body>
+        </nb-card>
+    </ng-template>
+
+    <nb-action id="header-shut" class="cl-header-menu" tabIndex="10" icon="power-outline" *ngIf="isElectron"
         [disabled]="InProgress" (click)="quit($event)">
         Kilépés
     </nb-action>

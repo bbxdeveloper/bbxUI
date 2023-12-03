@@ -21,6 +21,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { SystemService } from '../../system/services/system.service';
+import { SendDataToNavComponent } from '../send-data-to-nav/send-data-to-nav.component';
 
 @Component({
   selector: 'app-header',
@@ -174,6 +175,10 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           complete: () => this.statusService.waitForLoad(false)
         })
     })
+  }
+
+  public openSendToNav(): void {
+    this.dialogService.open(SendDataToNavComponent)
   }
 
   /**

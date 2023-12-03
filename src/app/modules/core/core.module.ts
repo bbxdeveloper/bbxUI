@@ -7,6 +7,8 @@ import { NbActionsModule, NbButtonGroupModule, NbButtonModule, NbCardModule, NbC
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
+import { SendDataToNavComponent } from './send-data-to-nav/send-data-to-nav.component';
+import { SharedModule } from '../shared/shared.module';
 
 
 
@@ -14,7 +16,8 @@ import { NgxMaskModule } from 'ngx-mask';
   declarations: [
     DashboardComponent,
     StatusAndSpinnerComponent,
-    HeaderComponent
+    HeaderComponent,
+    SendDataToNavComponent
   ],
   imports: [
     CommonModule,
@@ -38,7 +41,8 @@ import { NgxMaskModule } from 'ngx-mask';
     NbCheckboxModule,
     NbProgressBarModule,
     NbSpinnerModule,
-    NbTooltipModule
+    NbTooltipModule,
+    SharedModule,
   ],
   exports: [
     DashboardComponent,
