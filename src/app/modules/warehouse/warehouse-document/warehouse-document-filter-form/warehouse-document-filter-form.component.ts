@@ -135,8 +135,6 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
         validDate
       ])
     });
-
-    this.filterForm.valueChanges.subscribe(value => this.localStorage.put(this.localStorageKey, value))
   }
 
   private async getAndSetWarehouses(): Promise<void> {
@@ -322,6 +320,7 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
   }
 
   public Refresh(): void {
+    this.localStorage.put(this.localStorageKey, this.filterForm.value)
     this.refreshClicked.emit(this.warehouseDocumentFormData)
   }
 
