@@ -51,6 +51,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
     'unitOfMeasureX',
     'unitPrice1',
     'unitPrice2',
+    'unitWeight',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -133,6 +134,18 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       mask: '',
       colWidth: '25%',
       textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Súly',
+      objectKey: 'unitWeight',
+      colKey: 'unitWeight',
+      defaultValue: '',
+      type: 'formatted-number',
+      fRequired: false,
+      mask: '',
+      colWidth: '130px',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
   ];
@@ -263,7 +276,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       productFee: HelperFunctions.ToFloat(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode,
-      noDiscount: p.noDiscount
+      noDiscount: p.noDiscount,
+      unitWeight: p.unitWeight !== undefined ? HelperFunctions.ToFloat(p.unitWeight) : undefined
     } as CreateProductRequest;
     return res;
   }
@@ -294,7 +308,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       productFee: HelperFunctions.ToFloat(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode,
-      noDiscount: p.noDiscount
+      noDiscount: p.noDiscount,
+      unitWeight: p.unitWeight !== undefined ? HelperFunctions.ToFloat(p.unitWeight) : undefined
     } as UpdateProductRequest;
     return res;
   }
@@ -504,7 +519,8 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
       vatRateCode: new FormControl(undefined, [this.validateVats.bind(this)]),
-      noDiscount: new FormControl(false, [])
+      noDiscount: new FormControl(false, []),
+      unitWeight: new FormControl(undefined, []),
     });
 
     console.log("Manager ProductGroups: ", this.productGroups);

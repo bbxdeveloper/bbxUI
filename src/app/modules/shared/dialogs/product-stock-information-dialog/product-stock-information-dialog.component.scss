@@ -1,10 +1,11 @@
 @import 'side-bar-form-dialog';
+@import 'bbx-atomic-styles';
 
 .modal-product-active {
     border: 4px yellow double;
 
     min-width: 700px;
-    max-height: 800px;
+    max-height: 850px;
 
     button {
         margin-right: 25px;

@@ -15,5 +15,6 @@ export interface CreateProductRequest {
     "vtsz": string,
     "ean": string,
     "vatRateCode": string,
-    "noDiscount": boolean
+    "noDiscount": boolean,
+    "unitWeight"?: number,
 }
