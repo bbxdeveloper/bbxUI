@@ -45,7 +45,7 @@ jobs:
 
       - name: package.json info
         id: info
-        uses: jaywcjlove/github-action-package@develop
+        uses: jaywcjlove/github-action-package@main
         with:
           version: version - ${{ steps.info.outputs.version }} - $SHA_SHORT_COMMIT_NUMBER
       - run: echo "version - ${{ steps.info.outputs.version }} - $SHA_SHORT_COMMIT_NUMBER"
