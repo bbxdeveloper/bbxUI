@@ -170,7 +170,46 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
 
     console.log("[SetNewForm] ", this._form); // TODO: only for debug
 
+    this.setupFormEventHandlers()
+
     this.cdref.detectChanges();
+  }
+
+  private setupFormEventHandlers(): void {
+    this._form?.form.controls['productCode'].valueChanges.subscribe({
+      next: this.onProductCodeValueChanges()
+    })
+  }
+
+  private onProductCodeValueChanges() {
+    let previousValue = ''
+
+    return (newValue: string) => {
+      if (HelperFunctions.isEmptyOrSpaces(newValue)) {
+        return
+      }
+
+      const delta = newValue.length - previousValue.length
+      if ((delta === 2 || delta === 3) && newValue.endsWith('-')) {
+        this._form?.form.controls['productCode'].setValue(newValue.slice(0, -1))
+
+        return
+      }
+
+      let currentProductGroup = this._form?.form.controls['productGroup'].value;
+      if (!!newValue && newValue.length >= 3 &&
+        (currentProductGroup === undefined || currentProductGroup === null || currentProductGroup.length === 0)) {
+
+        let defaultProductGroup = this._productGroups
+          .find(x => x.productGroupCode === newValue.substring(0, 3))?.productGroupDescription ?? BlankComboBoxValue;
+
+        if (defaultProductGroup.length > 0) {
+          this._form?.form.controls['productGroup'].setValue(defaultProductGroup);
+        }
+      }
+
+      previousValue = newValue
+    }
   }
 
   close(answer: any) {
