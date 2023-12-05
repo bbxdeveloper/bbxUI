@@ -970,6 +970,16 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     this.router.navigate(['product/offers-nav']);
   }
 
+  protected NavToCreate(): void {
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate(['product/offers-create'], {
+        queryParams: {
+          reload: true
+        }
+      })
+    })
+  }
+
   ToggleAllShowDiscount(): void {
     if (this.dbData.length === 0) {
       return;

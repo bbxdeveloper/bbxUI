@@ -426,12 +426,12 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 );
 
                 if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITH_VERSIONING) {
-                  await this.print(d.data?.id, this.ExitToNav.bind(this))
+                  await this.print(d.data?.id, this.NavToCreate.bind(this))
 
                   return
                 }
 
-                this.ExitToNav();
+                this.NavToCreate();
               } else {
                 this.cs.HandleError(d.errors);
                 this.isLoading = false;
@@ -473,7 +473,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                   // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
                   this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-                  await this.print(d.data?.id, this.DelayedReset.bind(this))
+                  await this.print(d.data?.id, this.NavToCreate.bind(this))
                 } else {
                   this.cs.HandleError(d.errors);
                   this.isLoading = false;
@@ -691,7 +691,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             return;
           }
           event.preventDefault();
-          this.ExitToNav();
+          this.NavToCreate();
           break;
         }
         case this.KeySetting[Actions.ToggleForm].KeyCode: {
