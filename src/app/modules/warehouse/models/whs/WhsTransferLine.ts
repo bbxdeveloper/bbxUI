@@ -13,7 +13,7 @@ export class WhsTransferLineFull extends WhsTransferLine implements IBaseEntity<
     id: number = 0
     whsTransferID?: number
     productID?: number
-    product?: Product
+    product?: string
     unitOfMeasureX?: string
     itemAmount?: number
 }
