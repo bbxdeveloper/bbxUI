@@ -554,7 +554,9 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         data = {...data};
 
         data.origin = HelperFunctions.GetOriginDescription(data.origin, this.origins, '');
-        data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroup, this.productGroups, data.productGroup);
+
+        const productDescription = data.productGroup?.split(data.productGroupCode + '-')[1] ?? data.productGroup
+        data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroupCode, this.productGroups, productDescription);
 
         Object.keys(this.dbDataTable.flatDesignForm.form.controls).forEach((x: string) => {
           this.dbDataTable.flatDesignForm!.form.controls[x].setValue(data[x as keyof Product]);
