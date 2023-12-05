@@ -121,7 +121,8 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
       vatRateCode: new FormControl(undefined, [Validators.required]),
-      noDiscount: new FormControl(false, [])
+      noDiscount: new FormControl(false, []),
+      unitWeight: new FormControl(undefined, [])
     });
 
     this.refreshComboboxData();
@@ -215,7 +216,8 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
       productFee: HelperFunctions.ToInt(p.productFee),
       productCode: p.productCode,
       vatRateCode: vatRatecode,
-      noDiscount: p.noDiscount
+      noDiscount: p.noDiscount,
+      unitWeight: p.unitWeight !== undefined ? HelperFunctions.ToFloat(p.unitWeight) : undefined
     } as CreateProductRequest;
     return res;
   }

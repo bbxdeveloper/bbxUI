@@ -53,6 +53,8 @@ export module Constants {
     export const WAREHOUSEDOCUMENT_MSG_CANNOT_EDIT = 'Csak abban a raktárban lehet elvégezni a raktárközi bizonylat módosítását, amelyből a kiadás megtörtént.'
     export const WAREHOUSEDOCUMENT_MSG_CANNOT_SAVE = 'Csak a bevétel raktár véglegesítheti.'
 
+    export const NAV_INVOICE_SENT = 'A {{invoice-number}} bizonylat NAV küldésre előkészítve'
+
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
     export const TITLE_INFO: string = 'Információ';

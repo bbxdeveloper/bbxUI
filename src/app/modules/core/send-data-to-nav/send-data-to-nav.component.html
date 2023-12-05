@@ -1,0 +1,34 @@
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>NAV bizonylat küldés</span>
+    </nb-card-header>
+    <nb-card-body [nbSpinner]="showSpinnerOnTable" class="modal-product-active-body">
+        <form [id]="formId" [formGroup]="form" #formDirective="ngForm">
+            <nb-form-field (keydown.enter)="moveToButtons($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>
+                        Küldendő bizonylat
+                    </label>
+
+                    <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber"
+                        [readonly]="isEditModeOff" [disabled]="isLoading" (click)="navigateable.HandleFormFieldClick($event)" required autocomplete="off">
+
+                    <div *ngIf="invoiceNumber?.invalid && (invoiceNumber?.dirty || invoiceNumber?.touched)">
+                        <div *ngIf="invoiceNumber?.errors?.['required']" class="alert-error">
+                            Kitöltése kötelező
+                        </div>
+                    </div>
+                </div>
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+    <nb-card-footer class="modal-product-active-footer">
+        <button nbButton (click)="send()" status="primary" tabindex="-1" id="confirm-dialog-button-yes">
+            Kiválasztás
+        </button>
+        <button nbButton (click)="close()" status="danger" tabindex="-1" id="confirm-dialog-button-no">
+            Mégse
+        </button>
+    </nb-card-footer>
+</nb-card>
+

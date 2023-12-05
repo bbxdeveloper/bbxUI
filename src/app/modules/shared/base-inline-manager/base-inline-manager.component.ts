@@ -36,12 +36,7 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 export class BaseInlineManagerComponent<T extends IEditable> {
   // Invoice
   // TODO: BaseInvoiceManagerComponent
-  protected InvoiceType: string = InvoiceTypes.NOT_DEFINED;
-  protected InvoiceCategory: string = InvoiceCategory.NOT_DEFINED
   DeliveryPaymentMethod: string = 'OTHER';
-  get Delivery(): boolean {
-    return this.InvoiceType == InvoiceTypes.DNI || this.InvoiceType == InvoiceTypes.DNO;
-  }
 
   // General
 

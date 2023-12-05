@@ -127,6 +127,7 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
       latestIn: new FormControl(0, []),
       latestOut: new FormControl(undefined, []),
       location: new FormControl(undefined, []),
+      unitWeight: new FormControl(undefined, []),
     });
 
     this.refreshComboboxData();

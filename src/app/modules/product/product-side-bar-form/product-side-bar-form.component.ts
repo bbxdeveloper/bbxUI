@@ -45,8 +45,12 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
   vatRates: string[] = [];
   vatRateComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
-  constructor(private sbf: SideBarFormService, private sb: NbSidebarService, kbS: KeyboardNavigationService,
-    private productGroupApi: ProductGroupService, private productApi: ProductService, private originApi: OriginService,
+  constructor(
+    private sbf: SideBarFormService,
+    kbS: KeyboardNavigationService,
+    private productGroupApi: ProductGroupService,
+    private productApi: ProductService,
+    private originApi: OriginService,
     private vatApi: VatRateService,
     cdref: ChangeDetectorRef) {
     super(kbS, cdref);

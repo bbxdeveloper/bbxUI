@@ -711,7 +711,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
     this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
 
-    this.outGoingInvoiceData.paymentMethod = this.Delivery ? this.DeliveryPaymentMethod :
+    this.outGoingInvoiceData.paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
 
     this.outGoingInvoiceData.warehouseCode = '1';
@@ -826,46 +826,43 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.invoiceService.CreateOutgoing(request).subscribe({
         next: async d => {
           try {
-            //this.isSilentLoading = false;
-            if (!!d.data) {
-              console.log('Save response: ', d);
-
-              if (!!d.data) {
-                this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-              }
-
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-
-              this.dbDataTable.RemoveEditRow();
-              this.kbS.SelectFirstTile();
-
-              this.isSaveInProgress = true;
-
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-
-              await this.printAndDownLoadService.openPrintDialog({
-                DialogTitle: Constants.TITLE_PRINT_INVOICE,
-                DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
-                MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
-                Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-                Reset: this.DelayedReset.bind(this),
-                ReportParams: {
-                  "id": d.data?.id,
-                  "copies": 1 // Ki lesz töltve dialog alapján
-                } as Constants.Dct,
-                DialogClasses: Constants.INVOICE_PRINT_DIALOG_MARGIN_CLASS
-              } as PrintDialogRequest);
-            } else {
+            if (!d.data) {
               this.cs.HandleError(d.errors);
               this.isSaveInProgress = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+              return
             }
+
+            console.log('Save response: ', d);
+
+            if (!!d.data) {
+              this.outInvForm.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
+            }
+
+            this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL);
+
+            this.dbDataTable.RemoveEditRow();
+            this.kbS.SelectFirstTile();
+
+            this.isSaveInProgress = true;
+
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+            await this.printAndDownLoadService.openPrintDialog({
+              DialogTitle: Constants.TITLE_PRINT_INVOICE,
+              DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
+              MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+              MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+              MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+              Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+              Reset: this.DelayedReset.bind(this),
+              ReportParams: {
+                "id": d.data?.id,
+                "copies": 1 // Ki lesz töltve dialog alapján
+              } as Constants.Dct,
+              DialogClasses: Constants.INVOICE_PRINT_DIALOG_MARGIN_CLASS
+            } as PrintDialogRequest);
           } catch (error) {
             this.Reset()
             this.cs.HandleError(error)

@@ -112,6 +112,23 @@
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="_form" formFieldName="vatRateCode" label="Áfakód*"
                 [data$]="vatRateComboData$"></app-bbx-combo-box>
 
+            <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)">
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Súly</label>
+
+                    <app-bbx-numeric-input
+                            formControlName='unitWeight'
+                            class="display-contents"
+                            input_class="{{TileCssClass}} {{TileCssColClass}}"
+                            (click)="_form.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isEditModeOff">
+                        </app-bbx-numeric-input>
+                </div>
+                <app-form-control-error [form]="_form" label="súly" controlName="unitWeight">
+                </app-form-control-error>
+            </nb-form-field>
+
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-55 checkbox-wrapper"
                     (keydown.enter)="_form.HandleFormEnter($event)">
