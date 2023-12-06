@@ -9,6 +9,7 @@ env:
   CONNECTION_STRING: DefaultEndpointsProtocol=https;EndpointSuffix=core.windows.net;AccountName=bbx;AccountKey=W6pStudoWs5SVxEJCwZeDILx5Kv1gYQ0Rut5P+ggnOpFSGI7CH5d4gjR2wwS60ey4ULYC+EgKkznMGsoxlYIGw==;
   PROJECT_NAME: bbx-ui
   SHA_SHORT_COMMIT_NUMBER: 0
+  PACKAGE_VERSION: 0
 
 on:
   pull_request: 
@@ -45,16 +46,14 @@ jobs:
 
       - name: Print Package Version
         run: |
-          echo "Reading package.json"
-          VERSION=$(node -p "require('./package.json').version")
-          echo "Package version is: $VERSION"
+          echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
 
       - name: package.json info
         id: info
         uses: jaywcjlove/github-action-package@main
         with:
-          version: $VERSION - ${{ env.SHA_SHORT_COMMIT_NUMBER }}
-      - run: echo "$VERSION --> ${{ env.SHA_SHORT_COMMIT_NUMBER }}"
+          version: ${{ env.PACKAGE_VERSION }} - ${{ env.SHA_SHORT_COMMIT_NUMBER }}
+      - run: echo "${{ env.PACKAGE_VERSION }} - ${{ env.SHA_SHORT_COMMIT_NUMBER }}"
 
       - name: Early exit
         run: |
