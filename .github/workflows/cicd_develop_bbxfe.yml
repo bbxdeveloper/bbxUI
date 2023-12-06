@@ -43,12 +43,18 @@ jobs:
 #        run: npm version minor && npm publish && npm version patch 
 #        #&& git push --tags && git push origin master
 
+      - name: Print Package Version
+        run: |
+          echo "Reading package.json"
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Package version is: $VERSION"
+
       - name: package.json info
         id: info
         uses: jaywcjlove/github-action-package@main
         with:
-          version: ${{ steps.info.outputs.version }} - ${{ env.SHA_SHORT_COMMIT_NUMBER }}
-      - run: echo "${{ steps.info.outputs.version }} --> ${{ env.SHA_SHORT_COMMIT_NUMBER }}"
+          version: $VERSION - ${{ env.SHA_SHORT_COMMIT_NUMBER }}
+      - run: echo "$VERSION --> ${{ env.SHA_SHORT_COMMIT_NUMBER }}"
 
       - name: Early exit
         run: |
