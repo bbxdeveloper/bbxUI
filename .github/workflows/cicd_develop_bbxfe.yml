@@ -47,7 +47,7 @@ jobs:
         id: info
         uses: jaywcjlove/github-action-package@main
         with:
-          version: ${{ steps.info.inputs.version }} - ${{SHA_SHORT_COMMIT_NUMBER}}
+          version: ${{ steps.info.inputs.version }} - ${SHA_SHORT_COMMIT_NUMBER}
       - run: echo "${{ steps.info.inputs.version }} - $SHA_SHORT_COMMIT_NUMBER"
         
       - name: Build
