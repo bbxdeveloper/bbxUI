@@ -555,8 +555,14 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
 
         data.origin = HelperFunctions.GetOriginDescription(data.origin, this.origins, '');
 
-        const productDescription = data.productGroup?.split(data.productGroupCode + '-')[1] ?? data.productGroup
-        data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroupCode, this.productGroups, productDescription);
+        if (HelperFunctions.isEmptyOrSpaces(data.productGroup) || HelperFunctions.isEmptyOrSpaces(data.productGroupCode)) {
+          data.productGroup = undefined
+        } else {
+          const _productGroupFirstPart = data.productGroupCode + '-'
+          const productGroupParts: string[] = data.productGroup?.split(_productGroupFirstPart)
+          
+          data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroupCode, this.productGroups, productGroupParts.pop());
+        }
 
         Object.keys(this.dbDataTable.flatDesignForm.form.controls).forEach((x: string) => {
           this.dbDataTable.flatDesignForm!.form.controls[x].setValue(data[x as keyof Product]);
