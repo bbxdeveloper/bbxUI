@@ -20,4 +20,5 @@ export interface CreateCustomerRequest {
     defPaymentMethod: string,
     email?: string,
     latestDiscountPercent?: number,
+    isFA: boolean
 }
