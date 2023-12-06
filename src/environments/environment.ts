@@ -35,7 +35,7 @@ export const environment = {
   consoleLogsWrapperLogs: false,
   bbxProductCodeInputComponentLogs: false,
 
-  partnerLock: false,
+  partnerLock: true,
 
   theme: 'cosmic-custom',
 
