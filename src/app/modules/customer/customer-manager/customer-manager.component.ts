@@ -50,16 +50,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     'city',
     'additionalAddressDetail',
     'thirdStateTaxId',
-    'isOwnData',
-    'isFA',
   ];
   allColumnsWithOpenedSideBar = [
     'id',
     'customerName',
     'taxpayerNumber',
     'thirdStateTaxId',
-    'isOwnData',
-    'isFA',
   ];
 
   AllColumns: ReplaySubject<string[]> = new ReplaySubject<string[]>();
@@ -200,30 +196,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       mask: '',
       colWidth: '25%',
       textAlign: 'left',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Saját',
-      objectKey: 'isOwnData',
-      colKey: 'isOwnData',
-      defaultValue: '',
-      type: 'bool',
-      fInputType: 'bool',
-      mask: '',
-      colWidth: '70px',
-      textAlign: 'center',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Ford.áfa',
-      objectKey: 'isFA',
-      colKey: 'isFA',
-      defaultValue: '',
-      type: 'bool',
-      fInputType: 'bool',
-      mask: '',
-      colWidth: '70px',
-      textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
   ];
