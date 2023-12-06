@@ -47,12 +47,19 @@ jobs:
         id: info
         uses: jaywcjlove/github-action-package@main
         with:
-          version: ${{ steps.info.outputs.version }} - $SHA_SHORT_COMMIT_NUMBER
+          version: v1.0.0 - 1234
       - run: echo "${{ steps.info.outputs.version }} - $SHA_SHORT_COMMIT_NUMBER"
         
       - name: Build
         run: npm run build-prod
-        #run: ng build --prod --base-href        
+        #run: ng build --prod --base-href   
+
+      - name: Early exit
+        run: |
+          gh run cancel ${{ github.run_id }}
+          gh run watch ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       #- name: Run tests
       #  run: npm run test -- --configuration production
