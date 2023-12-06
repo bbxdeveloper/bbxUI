@@ -36,5 +36,6 @@ export class PartnerLockHandlerService implements IPartnerLock {
 
   public switchCustomer(customerId: number|string): Promise<unknown> {
     return this.partnerLock.switchCustomer(customerId)
+      .catch(this.lockErrorHandler.bind(this))
   }
 }

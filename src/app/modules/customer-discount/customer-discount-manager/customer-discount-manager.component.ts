@@ -151,7 +151,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
     sideBarService: BbxSidebarService,
@@ -345,11 +344,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
               this.partnerLock.unlockCustomer()
 
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              )
+              this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL, true)
 
               this.DelayedReset(200)
             } else {

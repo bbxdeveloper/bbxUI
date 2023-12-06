@@ -700,6 +700,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.kbS.Detach();
 
     this.editCustomerDialogSubscription.unsubscribe()
+
+    this.mode.partnerLock?.unlockCustomer()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -943,6 +945,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       if (!!res) {
         this.buyerData = res;
 
+        this.mode.partnerLock?.lockCustomer(this.buyerData.id)
+
         if (this.mode.useCustomersPaymentMethod) {
           this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
         }
@@ -952,11 +956,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         this.kbS.setEditMode(KeyboardModes.EDIT);
 
         if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-          this.simpleToastrService.show(
-            Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
+          this.bbxToastrService.showSuccess(Constants.MSG_WARNING_CUSTDISCOUNT_PREV, true);
         }
       }
     });
@@ -1078,16 +1078,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           this.cachedCustomerName = res.data[0].customerName;
           this.searchByTaxtNumber = false;
 
+          this.mode.partnerLock?.lockCustomer(this.buyerData.id)
+
           if (this.mode.useCustomersPaymentMethod) {
             this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
           }
 
           if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-            this.simpleToastrService.show(
-              Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            this.bbxToastrService.showSuccess(Constants.MSG_WARNING_CUSTDISCOUNT_PREV, true);
           }
         } else {
           if (this.customerInputFilterString.length >= 8 &&
