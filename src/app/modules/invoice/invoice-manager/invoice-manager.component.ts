@@ -261,6 +261,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
         let invoiceLines: TreeGridNode<InvoiceLine>[] = []
 
+        let notFoundCodes: string[] = []
+
         // offerData.offerLines.forEach won't work with await
         for (let i = 0; i < offerData.offerLines.length; i++) {
           const offerLine = offerData.offerLines[i]
@@ -270,7 +272,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
               return data
             })
             .catch(err => {
-              this.cs.HandleError(err)
+              notFoundCodes.push(offerLine.productCode)
             })
             .finally(() => { })
 
@@ -284,6 +286,10 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
             invoiceLines.push(invoiceLine)
           }
+        }
+
+        if (notFoundCodes.length > 0) {
+          this.cs.ShowErrorMessage(Constants.ERROR_OFFER_TO_INVOICE_PRODUCTS_NOT_FOUND + notFoundCodes.join(', '))
         }
 
         this.dbDataTable.AddRange(invoiceLines, 'productCode')
