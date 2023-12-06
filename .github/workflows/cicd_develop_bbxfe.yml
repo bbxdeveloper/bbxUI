@@ -55,12 +55,12 @@ jobs:
           version: ${{ env.PACKAGE_VERSION }} - ${{ env.SHA_SHORT_COMMIT_NUMBER }}
       - run: echo "${{ env.PACKAGE_VERSION }} - ${{ env.SHA_SHORT_COMMIT_NUMBER }}"
 
-      - name: Early exit
-        run: |
-          gh run cancel ${{ github.run_id }}
-          gh run watch ${{ github.run_id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+     # - name: Early exit
+     #   run: |
+     #     gh run cancel ${{ github.run_id }}
+     #     gh run watch ${{ github.run_id }}
+     #   env:
+     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           
       - name: Build
         run: npm run build-prod
