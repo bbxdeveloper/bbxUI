@@ -126,6 +126,7 @@ export class InvoiceBehaviorFactoryService {
     result.checkCustomerLimit = true
     result.title = 'Számla'
     result.useCustomersPaymentMethod = true
+    result.partnerLock = this.partnerLock
     return result
   }
 

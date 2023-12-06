@@ -344,7 +344,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
               this.partnerLock.unlockCustomer()
 
-              this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL)
+              this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL, true)
 
               this.DelayedReset(200)
             } else {
