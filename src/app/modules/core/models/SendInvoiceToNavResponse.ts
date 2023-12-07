@@ -1,6 +1,3 @@
-export interface SendInvoiceToNavResponse {
-    succeeded: boolean,
-    message: string,
-    errors: string[],
-    data: unknown|null
-}
+import { INavResponseBase } from "./INavResponseBase";
+
+export interface SendInvoiceToNavResponse extends INavResponseBase {}

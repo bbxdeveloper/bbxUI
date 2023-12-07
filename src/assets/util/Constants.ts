@@ -54,6 +54,7 @@ export module Constants {
     export const WAREHOUSEDOCUMENT_MSG_CANNOT_SAVE = 'Csak a bevétel raktár véglegesítheti.'
 
     export const NAV_INVOICE_SENT = 'A {{invoice-number}} bizonylat NAV küldésre előkészítve'
+    export const NAV_INVOICE_CANCELLED = 'A {{invoice-number}} bizonylat technikai visszavonása elindítva. A visszavonást a NAV Online Számla felületén meg kell erősíteni'
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';

@@ -334,6 +334,11 @@
                     Bizonylat NAV adatküldés
                 </button>
             </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-nav-sub-2" [disabled]="InProgress" (click)="openNavTechnicalCancel()">
+                    NAV technikai visszavonás
+                </button>
+            </nb-card-body>
         </nb-card>
     </ng-template>
 
