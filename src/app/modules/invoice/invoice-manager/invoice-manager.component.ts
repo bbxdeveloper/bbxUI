@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
-import { Product, getPriceByPriceType } from '../../product/models/Product';
+import { Product, getPriceByPriceType, isProduct } from '../../product/models/Product';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
@@ -271,13 +271,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             .then(data => {
               return data
             })
-            .catch(err => {
-              notFoundCodes.push(offerLine.productCode)
-            })
-            .finally(() => { })
 
-          if (product) {
-            let invoiceLine = { data: await this.ProductToInvoiceLine(product) }
+          if (isProduct(product)) {
+            let invoiceLine = { data: await this.ProductToInvoiceLine(product!) }
 
             invoiceLine.data.quantity = offerLine.quantity
             invoiceLine.data.unitPrice = offerLine.unitPrice
@@ -285,6 +281,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             invoiceLine.data.ReCalc()
 
             invoiceLines.push(invoiceLine)
+          } else {
+            notFoundCodes.push(offerLine.productCode)
           }
         }
 
