@@ -50,14 +50,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     'city',
     'additionalAddressDetail',
     'thirdStateTaxId',
-    'isOwnData',
   ];
   allColumnsWithOpenedSideBar = [
     'id',
     'customerName',
     'taxpayerNumber',
     'thirdStateTaxId',
-    'isOwnData',
   ];
 
   AllColumns: ReplaySubject<string[]> = new ReplaySubject<string[]>();
@@ -198,18 +196,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       mask: '',
       colWidth: '25%',
       textAlign: 'left',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Saját',
-      objectKey: 'isOwnData',
-      colKey: 'isOwnData',
-      defaultValue: '',
-      type: 'bool',
-      fInputType: 'bool',
-      mask: '',
-      colWidth: '70px',
-      textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
   ];
@@ -377,7 +363,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       paymentDays: Number(customer.paymentDays),
       defPaymentMethod: defPaymentMethod,
       latestDiscountPercent: HelperFunctions.ToOptionalInt(customer.latestDiscountPercent),
-      email: customer.email
+      email: customer.email,
+      isFA: customer.isFA
     } as CreateCustomerRequest;
     return res;
   }
@@ -556,7 +543,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       unitPriceType: new FormControl('', [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
-      isOwnData: new FormControl(false, []),
+      isFA: new FormControl(false, []),
       email: new FormControl(undefined, []),
       warningLimit: new FormControl(undefined, [
         this.validateWarningLimit.bind(this),

@@ -49,7 +49,9 @@ export interface Customer {
 
     paymentDays: number,
 
-    latestDiscountPercent?: number
+    latestDiscountPercent?: number,
+
+    isFA: boolean
 }
 
 export function isCustomerPrivatePerson(customer: Customer): boolean {
@@ -83,6 +85,7 @@ export function BlankCustomer(): Customer {
         warningLimit: undefined,
         maxLimit: undefined,
         defPaymentMethod: OfflinePaymentMethods.Cash.text,
-        latestDiscountPercent: undefined
+        latestDiscountPercent: undefined,
+        isFA: false,
     } as Customer;
 }
