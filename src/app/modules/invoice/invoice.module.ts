@@ -32,6 +32,7 @@ import { CustomerInvoiceSummaryManagerComponent } from './customer-invoice-summa
 import { CustomerInvoiceSummarySideBarFormComponent } from './customer-invoice-summary/customer-invoice-summary-side-bar-form/customer-invoice-summary-side-bar-form.component';
 import { BaseInvoiceManagerComponent } from './base-invoice-manager/base-invoice-manager.component';
 import { InvoiceCustomerComponent } from './invoice-customer/invoice-customer.component';
+import { LoadInvoiceLinesDialogComponent } from './load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 
 
 
@@ -62,6 +63,7 @@ import { InvoiceCustomerComponent } from './invoice-customer/invoice-customer.co
     CustomerInvoiceSummarySideBarFormComponent,
     BaseInvoiceManagerComponent,
     InvoiceCustomerComponent,
+    LoadInvoiceLinesDialogComponent,
   ],
   imports: [
     CommonModule,

@@ -232,4 +232,21 @@ export class InvoiceLine extends MementoObject implements IEditable {
         // console.log("==========================");
         // console.log("");
     }
+
+    public static fromData(data: InvoiceLine): InvoiceLine {
+        const line = new InvoiceLine()
+
+        const data2 = data as any
+        for(let key in line ) {
+            (<any>line)[key] = data2[key]
+        }
+
+        line.productDescription = data2.lineDescription
+        line.unitOfMeasure = data2.unitOfMeasure
+        line.unitOfMeasureX = data2.unitOfMeasureX
+
+        line.ReCalc()
+
+        return line
+    }
 }
