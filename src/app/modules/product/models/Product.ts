@@ -1,3 +1,4 @@
+import { HelperFunctions } from "src/assets/util/HelperFunctions"
 import { UnitPriceTypes } from "../../customer/models/UnitPriceType"
 
 export interface Product {
@@ -30,4 +31,8 @@ export interface Product {
 
 export function getPriceByPriceType(product: Product, priceType: UnitPriceTypes|string): number {
     return priceType === UnitPriceTypes.List ? product.unitPrice1! : product.unitPrice2!
+}
+
+export function isProduct(val: any): boolean {
+    return val && Object.keys(val).includes('productCode') && !HelperFunctions.isEmptyOrSpaces(val.productCode)
 }

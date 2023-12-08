@@ -1151,12 +1151,13 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   private toInvoice(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
-      const id = this.dbData[this.kbS.p.y].data.id
-      this.router.navigate(['invoice/invoice', id, {}]);
-      this.router.navigate(['invoice/invoice'], {
-        queryParams: {
-          offerId: id
-        }
+      HelperFunctions.confirm(this.dialogService, Constants.TITLE_OFFER_TO_INVOICE_CONFIRMATION, () => {
+        const id = this.dbData[this.kbS.p.y].data.id
+        this.router.navigate(['invoice/invoice'], {
+          queryParams: {
+            offerId: id
+          }
+        })
       })
     }
   }

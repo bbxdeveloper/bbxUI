@@ -64,6 +64,10 @@ export module Constants {
     export const TITLE_PRINT_QUESTION = 'Nyomtatás indítása?'
     export const TITLE_PRINT_FINISHED = 'A nyomtatás rendben megtörtént!'
 
+    export const TITLE_OFFER_TO_INVOICE_CONFIRMATION = 'Ajánlatból bizonylat generálása?'
+
+    export const ERROR_OFFER_TO_INVOICE_PRODUCTS_NOT_FOUND = 'Az alábbi termékek nem lettek betöltve: '
+
     /**
      * Margin for print dialog on invoice pages. Provides enough
      * margin to make the number of the saved invoice visible.
