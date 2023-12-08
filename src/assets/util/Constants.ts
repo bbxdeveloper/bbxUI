@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { ProcessStatus } from "../model/ProcessStatus";
 import { Actions, KeyBindings } from "./KeyBindings";
 import { createMask } from "@ngneat/input-mask";
+import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 export module Constants {
     // Messages
@@ -63,6 +64,10 @@ export module Constants {
     export const TITLE_PRINT_INVOICE_2 = 'Számla nyomtatása'
     export const TITLE_PRINT_QUESTION = 'Nyomtatás indítása?'
     export const TITLE_PRINT_FINISHED = 'A nyomtatás rendben megtörtént!'
+
+    export const TITLE_OFFER_TO_INVOICE_CONFIRMATION = 'Ajánlatból bizonylat generálása?'
+
+    export const ERROR_OFFER_TO_INVOICE_PRODUCTS_NOT_FOUND = 'Az alábbi termékek nem lettek betöltve: '
 
     /**
      * Margin for print dialog on invoice pages. Provides enough
@@ -300,5 +305,51 @@ export module Constants {
          */
         ResultCmdType: CommandType;
         State?: CommandType;
+    }
+
+    export const GeneralEditorConfig: AngularEditorConfig = {
+        editable: true,
+        spellcheck: true,
+        height: 'auto',
+        minHeight: '0',
+        maxHeight: '100px',
+        width: 'auto',
+        minWidth: '0',
+        translate: 'yes',
+        enableToolbar: true,
+        showToolbar: true,
+        placeholder: 'Enter text here...',
+        defaultParagraphSeparator: '',
+        defaultFontName: '',
+        defaultFontSize: '',
+        fonts: [
+            { class: 'arial', name: 'Arial' },
+            { class: 'times-new-roman', name: 'Times New Roman' },
+            { class: 'calibri', name: 'Calibri' },
+            { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+        ],
+        customClasses: [
+        {
+            name: 'quote',
+            class: 'quote',
+        },
+        {
+            name: 'redText',
+            class: 'redText'
+        },
+        {
+            name: 'titleText',
+            class: 'titleText',
+            tag: 'h1',
+        },
+        ],
+            uploadUrl: 'v1/image',
+            uploadWithCredentials: false,
+            sanitize: true,
+            toolbarPosition: 'top',
+            toolbarHiddenButtons: [
+            ['bold', 'italic'],
+            ['fontSize']
+        ]
     }
 }

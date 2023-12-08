@@ -17,7 +17,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
-import { Product, getPriceByPriceType } from '../../product/models/Product';
+import { Product, getPriceByPriceType, isProduct } from '../../product/models/Product';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
@@ -264,6 +264,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
         let invoiceLines: TreeGridNode<InvoiceLine>[] = []
 
+        let notFoundCodes: string[] = []
+
         // offerData.offerLines.forEach won't work with await
         for (let i = 0; i < offerData.offerLines.length; i++) {
           const offerLine = offerData.offerLines[i]
@@ -272,13 +274,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             .then(data => {
               return data
             })
-            .catch(err => {
-              this.cs.HandleError(err)
-            })
-            .finally(() => { })
 
-          if (product) {
-            let invoiceLine = { data: await this.ProductToInvoiceLine(product) }
+          if (isProduct(product)) {
+            let invoiceLine = { data: await this.ProductToInvoiceLine(product!) }
 
             invoiceLine.data.quantity = offerLine.quantity
             invoiceLine.data.unitPrice = offerLine.unitPrice
@@ -286,7 +284,13 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             invoiceLine.data.ReCalc()
 
             invoiceLines.push(invoiceLine)
+          } else {
+            notFoundCodes.push(offerLine.productCode)
           }
+        }
+
+        if (notFoundCodes.length > 0) {
+          this.cs.ShowErrorMessage(Constants.ERROR_OFFER_TO_INVOICE_PRODUCTS_NOT_FOUND + notFoundCodes.join(', '))
         }
 
         this.dbDataTable.AddRange(invoiceLines, 'productCode')
