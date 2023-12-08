@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <div class="horizontal" *ngIf="mode.edit">
+            <div class="horizontal">
                 <label>
                     Bizonylat száma
                 </label>
@@ -36,7 +36,7 @@
             </div>
 
             <div>
-                <label>
+                <label class="margin-bottom-10">
                     Megjegyzés
                 </label>
                 <angular-editor formControlName="note" [config]="editorConfig"
