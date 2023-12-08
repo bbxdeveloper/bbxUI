@@ -54,7 +54,6 @@ import { Offer } from '../../offer/models/Offer';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 
 @Component({
@@ -1189,42 +1188,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     });
   }
 
-  private loadInvoiceItems(): void {
-    const dialogRef = this.dialogService.open(LoadInvoiceLinesDialogComponent, {
-      context: {
-        invoiceType: this.mode.invoiceType
-      }
-    })
-
-    dialogRef.onClose.subscribe((res: InvoiceLine[]) => {
-      if (!res) {
-        return
-      }
-
-      const whichIsNotLoadedYet = (x: InvoiceLine) => this.dbData.find(y => y.data.productCode === x.productCode) === undefined
-
-      // TODO: line itemek sorrendisége
-      this.dbData = this.dbData
-        .concat(
-          res.filter(whichIsNotLoadedYet)
-            .map(x => {
-              // TODO: partnerkedvezmények
-              // const discount = this.GetPartnerDiscountForProduct(x.produc)
-              // x.custDiscounted = true;
-              // x.discount = discount * 100
-
-              return ({ data: x, uid: this.nextUid() });
-            })
-        )
-        .filter(x => x.data.productCode !== '')
-        .sort((a, b) => a.data.productCode.localeCompare(b.data.productCode))
-
-      this.RefreshTable()
-
-      this.UpdateOutGoingData()
-    })
-  }
-
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
@@ -1294,6 +1257,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           }
 
           this.loadInvoiceItems()
+
+          this.UpdateOutGoingData()
 
           break
         }

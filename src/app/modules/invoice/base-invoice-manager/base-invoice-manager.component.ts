@@ -36,6 +36,7 @@ import { PrintAndDownloadService } from 'src/app/services/print-and-download.ser
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -333,5 +334,39 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     finally {
       this.sts.waitForLoad(false)
     }
+  }
+
+  protected loadInvoiceItems(): void {
+    const dialogRef = this.dialogService.open(LoadInvoiceLinesDialogComponent, {
+      context: {
+        invoiceType: this.mode.invoiceType
+      }
+    })
+
+    dialogRef.onClose.subscribe((res: InvoiceLine[]) => {
+      if (!res) {
+        return
+      }
+
+      const whichIsNotLoadedYet = (x: InvoiceLine) => this.dbData.find(y => y.data.productCode === x.productCode) === undefined
+
+      // TODO: line itemek sorrendisége
+      this.dbData = this.dbData
+        .concat(
+          res.filter(whichIsNotLoadedYet)
+            .map(x => {
+              // TODO: partnerkedvezmények
+              // const discount = this.GetPartnerDiscountForProduct(x.produc)
+              // x.custDiscounted = true;
+              // x.discount = discount * 100
+
+              return ({ data: x, uid: this.nextUid() });
+            })
+        )
+        .filter(x => x.data.productCode !== '')
+        .sort((a, b) => a.data.productCode.localeCompare(b.data.productCode))
+
+      this.RefreshTable()
+    })
   }
 }

@@ -83,7 +83,7 @@ export class InvoiceLine extends MementoObject implements IEditable {
     vatRate: number = 1; // hidden
 
     @JsonIgnore
-    unitOfMeasureX?: string;
+    unitOfMeasureX?: string = undefined;
 
     relDeliveryNoteInvoiceLineID: number = 0
 
@@ -237,13 +237,13 @@ export class InvoiceLine extends MementoObject implements IEditable {
         const line = new InvoiceLine()
 
         const data2 = data as any
-        for(let key in line ) {
-            (<any>line)[key] = data2[key]
+        for(let key in line) {
+            if (data2[key]) {
+                (<any>line)[key] = data2[key]
+            }
         }
 
         line.productDescription = data2.lineDescription
-        line.unitOfMeasure = data2.unitOfMeasure
-        line.unitOfMeasureX = data2.unitOfMeasureX
 
         line.ReCalc()
 
