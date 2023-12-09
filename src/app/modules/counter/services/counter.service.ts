@@ -17,7 +17,7 @@ import { CreateCounterRequest } from '../models/CreateCounterRequest';
   providedIn: 'root'
 })
 export class CounterService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Counter';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Counter';
 
   constructor(private http: HttpClient) { }
 

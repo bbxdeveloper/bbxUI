@@ -8,7 +8,7 @@ import { SendInvoiceToNavResponse } from '../models/SendInvoiceToNavResponse';
   providedIn: 'root'
 })
 export class NavService {
-  private readonly baseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'NAV';
+  private readonly baseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/NAV';
 
   constructor(private readonly http: HttpClient) { }
 

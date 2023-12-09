@@ -11,7 +11,7 @@ import { InvoiceType } from '../models/InvoiceType';
   providedIn: 'root'
 })
 export class SystemService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'System';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/System';
 
   constructor(private http: HttpClient) { }
 

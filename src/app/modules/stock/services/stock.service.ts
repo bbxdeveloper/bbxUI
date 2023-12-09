@@ -19,7 +19,7 @@ import { ProductStock } from '../models/ProductStock';
   providedIn: 'root'
 })
 export class StockService {
-  private readonly StockBaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Stock';
+  private readonly StockBaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Stock';
 
   constructor(private http: HttpClient) { }
 

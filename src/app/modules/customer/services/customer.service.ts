@@ -57,7 +57,7 @@ const MOCK_CUSTOMERS = {
   providedIn: 'root'
 })
 export class CustomerService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Customer';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Customer';
 
   constructor(private http: HttpClient) { }
 

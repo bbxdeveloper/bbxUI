@@ -17,7 +17,7 @@ import { DeleteLocationResponse } from '../models/DeleteLocationResponse';
   providedIn: 'root'
 })
 export class LocationService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Location';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Location';
 
   constructor(private http: HttpClient) { }
 

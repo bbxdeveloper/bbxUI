@@ -6,7 +6,7 @@ import { IPartnerLock } from './IPartnerLock';
 
 @Injectable()
 export class PartnerLockService implements IPartnerLock {
-  private readonly baseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Customer'
+  private readonly baseUrl = environment.apiUrl + 'api' + environment.apiVersion + '/Customer'
 
   private customerId: string|number|undefined
 

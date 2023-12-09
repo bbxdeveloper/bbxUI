@@ -20,7 +20,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
   providedIn: 'root'
 })
 export class UserService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'User';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/User';
 
   constructor(private http: HttpClient) { }
 

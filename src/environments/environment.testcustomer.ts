@@ -2,7 +2,7 @@ export const environment = {
     production: true,
     electron: false,
     apiUrl: "https://bbxbetestcustomer.azurewebsites.net/",
-    apiVersion: "/v1/",
+    apiVersion: "v1",
 
     buildType: 'production - customer test',
 

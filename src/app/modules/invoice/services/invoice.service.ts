@@ -29,7 +29,7 @@ import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoi
   providedIn: 'root'
 })
 export class InvoiceService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Invoice';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Invoice';
 
   constructor(
     private readonly http: HttpClient,

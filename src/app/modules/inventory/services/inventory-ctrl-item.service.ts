@@ -20,7 +20,7 @@ import { GetLatestIccResponse } from '../models/GetLatestIccResponse';
   providedIn: 'root'
 })
 export class InventoryCtrlItemService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrl';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/InvCtrl';
 
   constructor(private http: HttpClient) { }
 

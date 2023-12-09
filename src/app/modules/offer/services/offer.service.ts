@@ -16,7 +16,7 @@ import { DeleteOfferResponse } from '../models/DeleteOfferResponse';
   providedIn: 'root'
 })
 export class OfferService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Offer';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Offer';
 
   constructor(private http: HttpClient) { }
 

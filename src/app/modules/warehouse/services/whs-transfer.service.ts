@@ -24,7 +24,7 @@ export enum WhsStatus {
 @Injectable()
 export class WhsTransferService {
 
-  private readonly baseUrl = `${environment.apiUrl}/api/${environment.apiVersion}/WhsTransfer`
+  private readonly baseUrl = `${environment.apiUrl}api/${environment.apiVersion}/WhsTransfer`
 
   constructor(private http: HttpClient, private cs: CommonService) { }
 

@@ -17,7 +17,7 @@ import { DeleteOriginResponse } from '../models/DeleteOriginResponse';
   providedIn: 'root'
 })
 export class OriginService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Origin';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Origin';
 
   constructor(private http: HttpClient) { }
 

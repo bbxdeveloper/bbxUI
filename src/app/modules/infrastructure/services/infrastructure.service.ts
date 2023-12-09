@@ -8,7 +8,7 @@ import { SendEmailRequest, SendEmailResponse } from '../models/Email';
   providedIn: 'root'
 })
 export class InfrastructureService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Offer';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Offer';
 
   constructor(private http: HttpClient) { }
 

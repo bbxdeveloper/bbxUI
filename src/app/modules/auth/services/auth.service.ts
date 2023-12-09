@@ -16,7 +16,7 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Auth';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Auth';
 
   constructor(private http: HttpClient, private tokenService: TokenStorageService) { }
 

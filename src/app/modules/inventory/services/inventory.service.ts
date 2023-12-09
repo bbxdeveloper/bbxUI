@@ -20,7 +20,7 @@ import { Constants } from 'src/assets/util/Constants';
   providedIn: 'root'
 })
 export class InventoryService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlPeriod';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/InvCtrlPeriod';
 
   constructor(private http: HttpClient) { }
 

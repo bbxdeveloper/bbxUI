@@ -13,7 +13,7 @@ import { CustDicountForGet } from '../models/CustDiscount';
 })
 export class CustomerDiscountService {
   // https://bbxbe.azurewebsites.net/api/v1/CustDiscount/discountforcustomer?CustomerID=1
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'CustDiscount';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/CustDiscount';
 
   constructor(private http: HttpClient) { }
 

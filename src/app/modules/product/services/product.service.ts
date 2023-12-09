@@ -50,7 +50,7 @@ const MOCK: GetProductsResponse = {
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Product';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/Product';
 
   constructor(private http: HttpClient) { }
 

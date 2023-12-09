@@ -11,7 +11,7 @@ import { GetStockCardResponse } from '../models/GetStockCardResponse';
   providedIn: 'root'
 })
 export class StockCardService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'StockCard';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/StockCard';
 
   constructor(private http: HttpClient) { }
 

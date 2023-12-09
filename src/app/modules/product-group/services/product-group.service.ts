@@ -17,7 +17,7 @@ import { DeleteProductGroupResponse } from '../models/DeleteProductGroupResponse
   providedIn: 'root'
 })
 export class ProductGroupService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'ProductGroup';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/ProductGroup';
 
   constructor(private http: HttpClient) { }
 

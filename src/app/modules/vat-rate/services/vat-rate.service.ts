@@ -11,7 +11,7 @@ import { GetVatRatesResponse } from '../models/GetVatRatesResponse';
   providedIn: 'root'
 })
 export class VatRateService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'VatRate';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/VatRate';
 
   constructor(private http: HttpClient) { }
 

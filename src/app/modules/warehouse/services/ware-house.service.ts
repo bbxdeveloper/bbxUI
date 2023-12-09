@@ -19,7 +19,7 @@ import { CommonService } from 'src/app/services/common.service';
   providedIn: 'root'
 })
 export class WareHouseService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'WareHouse';
+  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + '/WareHouse';
 
   constructor(private http: HttpClient, private cs: CommonService) { }
 
