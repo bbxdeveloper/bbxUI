@@ -613,6 +613,18 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
           });
           break;
         }
+        case this.KeySetting[Actions.Reset].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+
+          this.loadInvoiceItems([])
+
+          this.UpdateOutGoingData()
+
+          break
+        }
         case this.KeySetting[Actions.Refresh].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event)
