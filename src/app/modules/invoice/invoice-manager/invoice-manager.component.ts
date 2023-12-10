@@ -81,8 +81,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
-  private customerDiscounts: CustDiscountForGet[] = []
-
   customerInputFilterString: string = '';
 
   _searchByTaxtNumber: boolean = false;
@@ -205,7 +203,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
-    private custDiscountService: CustomerDiscountService,
+    custDiscountService: CustomerDiscountService,
     editCustomerDialog: EditCustomerDialogManagerService,
     private offerService: OfferService,
     private route: ActivatedRoute
@@ -214,7 +212,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, statusService, productService, status, sideBarService, khs,
       activatedRoute, router, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
 
     this.preventF12 = true
     this.InitialSetup();
@@ -955,7 +953,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         this.mode.partnerLock?.lockCustomer(this.buyerData.id)
 
         this.isLoading = true
-        this.customerDiscounts = await this.loadCustomerDiscounts(this.buyerData.id)
+        await this.loadCustomerDiscounts(this.buyerData.id)
         this.isLoading = false
 
         if (this.mode.useCustomersPaymentMethod) {
@@ -1078,7 +1076,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
           this.mode.partnerLock?.lockCustomer(this.buyerData.id)
 
-          this.customerDiscounts = await this.loadCustomerDiscounts(this.buyerData.id)
+          this.isLoading = true
+          await this.loadCustomerDiscounts(this.buyerData.id)
+          this.isLoading = false
 
           if (this.mode.useCustomersPaymentMethod) {
             this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
@@ -1108,18 +1108,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     });
   }
 
-  private async loadCustomerDiscounts(customerId: number): Promise<CustDiscountForGet[]> {
-    try {
-      const discounts = await this.custDiscountService.getByCustomerAsync({ CustomerID: customerId })
-
-      return discounts
-    }
-    catch (error) {
-      this.cs.HandleError(error)
-    }
-
-    return []
-  }
 
   private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
@@ -1260,7 +1248,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             return
           }
 
-          this.loadInvoiceItems(this.customerDiscounts)
+          this.loadInvoiceItems()
 
           this.UpdateOutGoingData()
 

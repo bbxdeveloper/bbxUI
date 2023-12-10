@@ -134,7 +134,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
           customerService, cdref, kbS, simpleToastrService, bbxToastrService,
           cs, statusService, productService, status, sideBarService, khs,
           activatedRoute, router, behaviorFactory, tokenService,
-          productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+          productCodeManagerService, printAndDownLoadService, editCustomerDialog, null)
     this.preventF12 = true
     this.InitialSetup()
     this.activatedRoute.url.subscribe(params => {
@@ -619,7 +619,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
             return
           }
 
-          this.loadInvoiceItems([])
+          this.loadInvoiceItems()
 
           this.UpdateOutGoingData()
 

@@ -38,6 +38,7 @@ import { ProductStockInformationDialogComponent } from '../../shared/dialogs/pro
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -52,6 +53,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
   senderData: Customer|undefined
   customerData!: Customer;
+
+  protected customerDiscounts: CustDiscountForGet[] = []
 
   buyersData: Customer[] = [];
 
@@ -111,6 +114,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     protected productCodeManagerService: ProductCodeManagerServiceService,
     protected printAndDownLoadService: PrintAndDownloadService,
     protected readonly editCustomerDialog: EditCustomerDialogManagerService,
+    @Optional() protected readonly customerDiscountService: CustomerDiscountService|null,
   ) {
     super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
   }
@@ -337,7 +341,16 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  protected loadInvoiceItems(customerDiscounts: CustDiscountForGet[]): void {
+  protected async loadCustomerDiscounts(customerId: number): Promise<void> {
+    try {
+      this.customerDiscounts = await this.customerDiscountService?.getByCustomerAsync({ CustomerID: customerId }) ?? []
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+  }
+
+  protected loadInvoiceItems(): void {
     const dialogRef = this.dialogService.open(LoadInvoiceLinesDialogComponent, {
       context: {
         invoiceType: this.mode.invoiceType
@@ -376,7 +389,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
             this.dbData = this.dbData
               .concat(
                   filtered.map(invoiceLine => {
-                    const discount = customerDiscounts.find(x => x.productGroupCode === invoiceLine.productGroupCode)
+                    const discount = this.customerDiscounts.find(x => x.productGroupCode === invoiceLine.productGroupCode)
                     if (discount) {
                       invoiceLine.custDiscounted = true
                       invoiceLine.discount = discount.discount
