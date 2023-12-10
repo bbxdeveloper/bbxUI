@@ -54,7 +54,7 @@ import { Offer } from '../../offer/models/Offer';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
+import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -81,7 +81,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
-  private customerDiscounts: CustDicountForGet[] = []
+  private customerDiscounts: CustDiscountForGet[] = []
 
   customerInputFilterString: string = '';
 
@@ -1108,7 +1108,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     });
   }
 
-  private async loadCustomerDiscounts(customerId: number): Promise<CustDicountForGet[]> {
+  private async loadCustomerDiscounts(customerId: number): Promise<CustDiscountForGet[]> {
     try {
       const discounts = await this.custDiscountService.getByCustomerAsync({ CustomerID: customerId })
 

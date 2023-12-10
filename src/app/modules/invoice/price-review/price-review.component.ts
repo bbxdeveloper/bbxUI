@@ -44,7 +44,7 @@ import { GetPendingDeliveryNotesDialogComponent } from '../get-pending-delivery-
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
-import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
+import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
@@ -1103,7 +1103,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     })
   }
 
-  private async getDiscountsAndProducts(): Promise<[CustDicountForGet[], Product[]] | undefined> {
+  private async getDiscountsAndProducts(): Promise<[CustDiscountForGet[], Product[]] | undefined> {
     try {
       this.isLoading = true
 
@@ -1128,7 +1128,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     return undefined
   }
 
-  private recalcuatePrices(customerDiscounts: CustDicountForGet[], products: Product[]): void {
+  private recalcuatePrices(customerDiscounts: CustDiscountForGet[], products: Product[]): void {
     for (const { data: invoiceLine } of this.dbData) {
       const product = products.find(x => x.id == invoiceLine.productID)
 

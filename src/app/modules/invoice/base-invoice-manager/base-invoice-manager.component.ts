@@ -37,7 +37,7 @@ import { EditCustomerDialogManagerService } from '../../shared/services/edit-cus
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
-import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
+import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -337,7 +337,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  protected loadInvoiceItems(customerDiscounts: CustDicountForGet[]): void {
+  protected loadInvoiceItems(customerDiscounts: CustDiscountForGet[]): void {
     const dialogRef = this.dialogService.open(LoadInvoiceLinesDialogComponent, {
       context: {
         invoiceType: this.mode.invoiceType
