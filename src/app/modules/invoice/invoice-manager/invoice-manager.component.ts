@@ -192,7 +192,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     simpleToastrService: NbToastrService,
     bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     productService: ProductService,
     status: StatusService,
     sideBarService: BbxSidebarService,
@@ -210,7 +209,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
-      cs, statusService, productService, status, sideBarService, khs,
+      cs, productService, status, sideBarService, khs,
       activatedRoute, router, behaviorFactory, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
 
@@ -231,7 +230,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   private async loadOffer(id: number): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     const offerData: Offer | void = await lastValueFrom(this.offerService.Get({ ID: id, FullData: true } as GetOfferParamsModel))
       .then(data => {
@@ -303,7 +302,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }
     }
 
-    this.sts.waitForLoad(false)
+    this.status.waitForLoad(false)
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -829,14 +828,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
       const request = this.UpdateOutGoingData();
 
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.invoiceService.CreateOutgoing(request).subscribe({
         next: async d => {
           try {
             if (!d.data) {
               this.cs.HandleError(d.errors);
               this.isSaveInProgress = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
               return
             }
@@ -854,7 +853,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
             this.isSaveInProgress = true;
 
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
             await this.printAndDownLoadService.openPrintDialog({
               DialogTitle: Constants.TITLE_PRINT_INVOICE,
@@ -876,7 +875,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           }
         },
         error: err => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
           this.cs.HandleError(err);
           this.isSaveInProgress = false;
         },
@@ -889,7 +888,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
       if (!wasInNavigationMode) {
         const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
@@ -917,7 +916,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }, 200)
     }
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
 

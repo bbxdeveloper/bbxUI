@@ -255,7 +255,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
   }
 
   private async LoadAndSetDataForEdit(): Promise<void> {
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
     this.idFromPath = parseInt(this.route.snapshot.params['id'], 10);
     console.log("ID for edit: ", this.idFromPath);
@@ -323,7 +323,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
     this.isOfferEditor = true
     this.customerChanged = false
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   ngOnInit(): void {
@@ -397,7 +397,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
       this.isLoading = false;
 
       if (selectedSaveOption !== undefined && selectedSaveOption >= 0) {
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
         if (selectedSaveOption === OfferUtil.EditSaveModes.SAVE_WITHOUT_VERSIONING) {
           this.offerData.newOfferVersion = false
@@ -416,7 +416,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           this.offerService.Update(this.offerData).subscribe({
             next: async d => {
               if (!!d.data) {
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
                 console.log('Save response: ', d);
 
                 this.simpleToastrService.show(
@@ -435,7 +435,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
               } else {
                 this.cs.HandleError(d.errors);
                 this.isLoading = false;
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
               }
             },
             error: err => {
@@ -445,7 +445,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 this.offerData.offerVersion -= 1;
                 this.offerData.newOfferVersion = false;
               }
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
             },
             complete: () => {
               this.isLoading = false;
@@ -456,7 +456,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
             next: async d => {
               try {
                 if (!!d.data) {
-                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  this.status.pushProcessStatus(Constants.BlankProcessStatus);
                   console.log('Save response: ', d);
 
                   this.simpleToastrService.show(
@@ -471,13 +471,13 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                   this.kbS.SelectFirstTile();
 
                   // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
                   await this.print(d.data?.id, this.NavToCreate.bind(this))
                 } else {
                   this.cs.HandleError(d.errors);
                   this.isLoading = false;
-                  this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                  this.status.pushProcessStatus(Constants.BlankProcessStatus);
                 }
               } catch (error) {
                 this.Reset()
@@ -491,7 +491,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
                 this.offerData.offerVersion -= 1;
                 this.offerData.newOfferVersion = false;
               }
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
             },
             complete: () => {
               this.isLoading = false;

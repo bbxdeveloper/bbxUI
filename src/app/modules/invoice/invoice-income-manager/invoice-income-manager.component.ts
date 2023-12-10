@@ -185,7 +185,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     simpleToastrService: NbToastrService,
     bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     productService: ProductService,
     status: StatusService,
     sideBarService: BbxSidebarService,
@@ -201,7 +200,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
-      cs, statusService, productService, status, sideBarService, khs,
+      cs, productService, status, sideBarService, khs,
       activatedRoute, router, behaviorFactory, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog, customerDiscountService)
 
@@ -724,7 +723,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         const request = this.UpdateOutGoingData();
         let ordinal = '';
 
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.invoiceService.CreateOutgoing(request).subscribe({
           next: async d => {
             try {
@@ -745,7 +744,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
                 this.dbDataTable.RemoveEditRow();
                 this.kbS.SelectFirstTile();
 
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
@@ -764,7 +763,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
               } else {
                 this.cs.HandleError(d.errors);
                 this.isSaveInProgress = false;
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
               }
             } catch (error) {
               this.Reset()
@@ -775,7 +774,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
           error: err => {
             this.cs.HandleError(err);
             this.isSaveInProgress = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
           },
           complete: () => {
           }
@@ -792,7 +791,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
         currentRow?.data.Save('productCode');
@@ -817,7 +816,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       }, 200)
     }
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
 

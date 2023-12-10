@@ -530,12 +530,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -547,7 +547,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 

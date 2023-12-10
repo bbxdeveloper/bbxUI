@@ -122,7 +122,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected cs: CommonService,
-    protected sts: StatusService,
+    protected status: StatusService,
     protected sideBarService: BbxSidebarService,
     protected khs: KeyboardHelperService,
     protected router: Router
@@ -203,7 +203,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   HandleError(err: any): void {
     this.cs.HandleError(err);
     this.isLoading = false;
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   HandleGridSelectionAfterDelete(indexOfDeleteItem: number): void {

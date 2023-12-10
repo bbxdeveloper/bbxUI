@@ -102,9 +102,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     protected readonly simpleToastrService: NbToastrService,
     protected readonly bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     protected readonly productService: ProductService,
-    protected readonly status: StatusService,
+    status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     protected readonly activatedRoute: ActivatedRoute,
@@ -116,7 +115,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     protected readonly editCustomerDialog: EditCustomerDialogManagerService,
     @Optional() protected readonly customerDiscountService: CustomerDiscountService|null,
   ) {
-    super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
+    super(dialogService, kbS, footerService, cs, status, sideBarService, khs, router);
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
@@ -201,7 +200,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
   TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
@@ -226,7 +225,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
         },
         complete: () => {
           this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -320,12 +319,12 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -337,7 +336,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 

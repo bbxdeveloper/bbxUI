@@ -881,7 +881,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       try {
         this.isSaveInProgress = true
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
         const request = {
           customerID: this.buyerData.id,
@@ -896,7 +896,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         const response = await this.invoiceService.pricePreview(request)
 
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        this.status.pushProcessStatus(Constants.BlankProcessStatus)
 
         this.mode.partnerLock?.unlockCustomer()
 
@@ -923,7 +923,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       }
       catch (error) {
         this.cs.HandleError(error)
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        this.status.pushProcessStatus(Constants.BlankProcessStatus)
       }
       finally {
         this.isSaveInProgress = false
@@ -1160,12 +1160,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -1177,7 +1177,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 
