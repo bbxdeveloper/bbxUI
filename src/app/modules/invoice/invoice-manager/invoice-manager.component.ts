@@ -989,15 +989,15 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
-  private GetPartnerDiscountForProduct(productGroupCode: string): number|undefined {
+  private GetPartnerDiscountForProduct(productGroupCode: string): number {
     if (this.buyerData === undefined || this.buyerData.id === undefined) {
       this.bbxToastrService.showError(Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN);
 
-      return undefined;
+      return 0;
     }
 
     const res = this.customerDiscounts.find(x => x.productGroupCode == productGroupCode)?.discount
-    const discount = res ? (res / 100.0) : undefined
+    const discount = res ? (res / 100.0) : 0
 
     return discount;
   }
@@ -1260,7 +1260,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             return
           }
 
-          this.loadInvoiceItems()
+          this.loadInvoiceItems(this.customerDiscounts)
 
           this.UpdateOutGoingData()
 

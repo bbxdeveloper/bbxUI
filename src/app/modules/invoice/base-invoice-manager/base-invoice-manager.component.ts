@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { of, BehaviorSubject } from 'rxjs';
+import { of, BehaviorSubject, forkJoin } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -37,6 +37,7 @@ import { EditCustomerDialogManagerService } from '../../shared/services/edit-cus
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
+import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -336,37 +337,66 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  protected loadInvoiceItems(): void {
+  protected loadInvoiceItems(customerDiscounts: CustDicountForGet[]): void {
     const dialogRef = this.dialogService.open(LoadInvoiceLinesDialogComponent, {
       context: {
         invoiceType: this.mode.invoiceType
       }
     })
 
-    dialogRef.onClose.subscribe((res: InvoiceLine[]) => {
-      if (!res) {
+    dialogRef.onClose.subscribe((invoiceLines: InvoiceLine[]) => {
+      if (!invoiceLines) {
         return
       }
 
       const whichIsNotLoadedYet = (x: InvoiceLine) => this.dbData.find(y => y.data.productCode === x.productCode) === undefined
 
-      // TODO: line itemek sorrendisége
-      this.dbData = this.dbData
-        .concat(
-          res.filter(whichIsNotLoadedYet)
-            .map(x => {
-              // TODO: partnerkedvezmények
-              // const discount = this.GetPartnerDiscountForProduct(x.produc)
-              // x.custDiscounted = true;
-              // x.discount = discount * 100
+      const filtered = invoiceLines.filter(whichIsNotLoadedYet)
 
-              return ({ data: x, uid: this.nextUid() });
-            })
-        )
-        .filter(x => x.data.productCode !== '')
-        .sort((a, b) => a.data.productCode.localeCompare(b.data.productCode))
+      const requests = []
+      for (const invoiceLine of filtered) {
+        requests.push(this.productService.GetProductByCode({ ProductCode: invoiceLine.productCode }))
+      }
 
-      this.RefreshTable()
+      this.isLoading = true
+      forkJoin(requests)
+        .subscribe({
+          next: (products: Product[]) => {
+            for (const product of products) {
+              const invoiceLine = filtered.find(x => x.productCode === product.productCode)
+
+              if (!invoiceLine) {
+                console.error('Missing invoice line for product: ' + product.productCode)
+                continue
+              }
+
+              invoiceLine.productGroupCode = product.productGroupCode
+            }
+
+            this.dbData = this.dbData
+              .concat(
+                  filtered.map(invoiceLine => {
+                    const discount = customerDiscounts.find(x => x.productGroupCode === invoiceLine.productGroupCode)
+                    if (discount) {
+                      invoiceLine.custDiscounted = true
+                      invoiceLine.discount = discount.discount
+                    }
+
+                    return ({ data: invoiceLine, uid: this.nextUid() });
+                  })
+              )
+              .filter(x => x.data.productCode !== '')
+              .sort((a, b) => a.data.productCode.localeCompare(b.data.productCode))
+
+            this.RefreshTable()
+          },
+          error: error => {
+            this.cs.HandleError(error)
+            this.isLoading = false
+          },
+          complete: () => this.isLoading = false
+        })
+
     })
   }
 }
