@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, O
 import { NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { CorrectionInvoiceSelectionDialogComponent } from '../correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { Invoice } from '../models/Invoice';
-import { Customer } from '../../customer/models/Customer';
+import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -40,6 +40,7 @@ import { ChooseSummaryInvoiceProductRequest, ProductCodeManagerServiceService } 
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { ProductService } from '../../product/services/product.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { InvoiceTypes } from '../models/InvoiceTypes';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -449,6 +450,14 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
   }
 
   private Save(): void {
+    if (this.mode.invoiceType === InvoiceTypes.INV &&
+      !this.buyerData.privatePerson &&
+      (isTaxPayerNumberEmpty(this.buyerData) && HelperFunctions.isEmptyOrSpaces(this.buyerData.thirdStateTaxId))) {
+
+      this.bbxToasterService.showError(Constants.MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY)
+      return
+    }
+
     if (this.invoiceForm.outInvForm.invalid) {
       this.bbxToasterService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`)
       return

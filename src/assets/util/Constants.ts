@@ -15,6 +15,7 @@ export module Constants {
     export const OutgoingIncomingInvoiceDefaultPrintCopy: number = 2
 
     export const MSG_ERROR_USERDATA_NEEDED = 'A mentés előtt érvényes bejelentkezési adatok megadása szükséges!'
+    export const MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY = 'Adóalany ügyfélnek a számlázáshoz kötelező adószámot megadni!'
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'

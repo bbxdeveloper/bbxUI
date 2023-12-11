@@ -58,6 +58,15 @@ export function isCustomerPrivatePerson(customer: Customer): boolean {
     return customer.customerVatStatus === 'PRIVATE_PERSON'
 }
 
+export function isTaxPayerNumberEmpty(customer: Customer): boolean {
+    if (!customer.taxpayerNumber) {
+        return true
+    }
+
+    const taxpayerNumberLengthWidthoutDashes = 11
+    return customer.taxpayerNumber.replace(/-/g, '').length !== taxpayerNumberLengthWidthoutDashes
+}
+
 export function BlankCustomer(): Customer {
     return {
         id: 0,
