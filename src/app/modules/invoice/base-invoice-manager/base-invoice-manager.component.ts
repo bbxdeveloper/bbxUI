@@ -363,52 +363,24 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
       const whichIsNotLoadedYet = (x: InvoiceLine) => this.dbData.find(y => y.data.productCode === x.productCode) === undefined
 
-      const filtered = invoiceLines.filter(whichIsNotLoadedYet)
+      const newlyLoadedInvoiceLines = invoiceLines
+        .filter(whichIsNotLoadedYet)
+        .map(invoiceLine => {
+          const discount = this.customerDiscounts.find(x => x.productGroupCode === invoiceLine.productGroup)
+          if (discount) {
+            invoiceLine.custDiscounted = true
+            invoiceLine.discount = discount.discount
+          }
 
-      const requests = []
-      for (const invoiceLine of filtered) {
-        requests.push(this.productService.GetProductByCode({ ProductCode: invoiceLine.productCode }))
-      }
-
-      this.isLoading = true
-      forkJoin(requests)
-        .subscribe({
-          next: (products: Product[]) => {
-            for (const product of products) {
-              const invoiceLine = filtered.find(x => x.productCode === product.productCode)
-
-              if (!invoiceLine) {
-                console.error('Missing invoice line for product: ' + product.productCode)
-                continue
-              }
-
-              invoiceLine.productGroupCode = product.productGroupCode
-            }
-
-            this.dbData = this.dbData
-              .concat(
-                  filtered.map(invoiceLine => {
-                    const discount = this.customerDiscounts.find(x => x.productGroupCode === invoiceLine.productGroupCode)
-                    if (discount) {
-                      invoiceLine.custDiscounted = true
-                      invoiceLine.discount = discount.discount
-                    }
-
-                    return ({ data: invoiceLine, uid: this.nextUid() });
-                  })
-              )
-              .filter(x => x.data.productCode !== '')
-              .sort((a, b) => a.data.productCode.localeCompare(b.data.productCode))
-
-            this.RefreshTable()
-          },
-          error: error => {
-            this.cs.HandleError(error)
-            this.isLoading = false
-          },
-          complete: () => this.isLoading = false
+          return ({ data: invoiceLine, uid: this.nextUid() });
         })
 
+      this.dbData = this.dbData
+        .concat(newlyLoadedInvoiceLines)
+        .filter(x => x.data.productCode !== '')
+        .sort((a, b) => a.data.productCode.localeCompare(b.data.productCode))
+
+      this.RefreshTable()
     })
   }
 }

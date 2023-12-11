@@ -41,7 +41,7 @@ export class InvoiceLine extends MementoObject implements IEditable {
     productCode: string = ''; // editable
     productDescription: string = "";
 
-    productGroupCode: string|undefined = undefined
+    productGroup: string|undefined = undefined
 
     quantity: number = 0.0; // editable
 
