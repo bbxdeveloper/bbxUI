@@ -328,7 +328,8 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     }, 300);
   }
 
-  private async refreshComboboxData(setIsLoad = false): Promise<void> {
+  private async refreshComboboxData(setIsLoad = false): Promise<boolean> {
+    let availableInventoryPeriods = true
     await lastValueFrom(this.inventoryService.GetAll({ PageSize: 10000, OrderBy: 'warehouse' }))
       .then(data => {
         console.log("[refreshComboboxData]: ", data);
@@ -341,6 +342,11 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
             this.invCtrlPeriodValues[res] = x;
             return res;
           }) ?? [];
+        if (this.invCtrlPeriods.length === 0) {
+          this.cs.ShowErrorMessage(Constants.MSG_ERROR_NO_OPENED_INVENTORY_PERIOD)
+          availableInventoryPeriods = false
+          return
+        }
         this.invCtrlPeriodComboData$.next(this.invCtrlPeriods);
         if (this.invCtrlPeriods.length > 0 && !this.invCtrlPeriods.includes(this.SelectedInvCtrlPeriodComboValue ?? 'no data')) {
           this.filterForm.controls['invCtrlPeriod'].setValue(this.invCtrlPeriods[0]);
@@ -350,13 +356,17 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         this.cs.HandleError(err);
       })
       .finally(() => {})
+    return availableInventoryPeriods
   }
 
   private async refreshGridData(params: any): Promise<void> {
+    const p = params ?? this.getInputParams()
+    if (HelperFunctions.isEmptyOrSpaces(p.InvCtrlPeriodID)) {
+      return
+    }
     await lastValueFrom(this.stockService.GetAllAbsent(params ?? this.getInputParams()))
       .then(d => {
         if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
               return { data: this.GetInvCtrlAbsentFromResponse(x), uid: this.nextUid() };
@@ -411,20 +421,28 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
 
     console.log('Refreshing: ', params); // TODO: only for debug
 
-    await this.refreshComboboxData();
+    if (refreshCombo) {
+      await this.refreshComboboxData();
+    }
     await this.refreshGridData(params);
 
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   async ngOnInit(): Promise<void> {
+    const loadCachedPeriod = await this.refreshComboboxData();
+
     this.fS.pushCommands(this.commands);
+
     const filterData = this.localStorage.get<FilterForm>(this.localStorageKey)
     if (filterData) {
       this.filterForm.patchValue(filterData)
+      if (!loadCachedPeriod) {
+        this.filterForm.controls['invCtrlPeriod'].setValue(undefined);
+      }
     }
 
-    await this.Refresh();
+    await this.Refresh(undefined, false, false);
   }
   ngAfterViewInit(): void {
     console.log("[ngAfterViewInit]");
