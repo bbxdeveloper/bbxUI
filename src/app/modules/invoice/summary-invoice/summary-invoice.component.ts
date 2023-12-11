@@ -14,7 +14,7 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from '
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { Customer } from '../../customer/models/Customer';
+import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
@@ -51,6 +51,7 @@ import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoic
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { InvoiceCategory } from '../models/InvoiceCategory';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -785,28 +786,25 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
-    if (this.buyerForm.invalid) {
-      this.bbxToastrService.show(
-        `Nincs megadva vevő.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+    if (this.buyerData.id === undefined) {
+      this.bbxToastrService.showError(`Nincs megadva vevő.`);
       valid = false;
     }
+    else if (this.mode.invoiceType === InvoiceTypes.INV &&
+      !this.buyerData.privatePerson &&
+      (isTaxPayerNumberEmpty(this.buyerData) && HelperFunctions.isEmptyOrSpaces(this.buyerData.thirdStateTaxId))) {
+
+      this.bbxToastrService.showError(Constants.MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY)
+      valid = false
+    }
+
     if (this.outInvForm.invalid) {
-      this.bbxToastrService.show(
-        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`);
       valid = false;
     }
+
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       valid = false;
     }
     if (!valid) {
