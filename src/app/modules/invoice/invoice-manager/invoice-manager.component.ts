@@ -760,7 +760,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       valid = false;
     }
     else {
-      if (!this.buyerData.privatePerson && (isTaxPayerNumberEmpty(this.buyerData) || HelperFunctions.isEmptyOrSpaces(this.buyerData.thirdStateTaxId))) {
+      if (!this.buyerData.privatePerson && (isTaxPayerNumberEmpty(this.buyerData) && HelperFunctions.isEmptyOrSpaces(this.buyerData.thirdStateTaxId))) {
         this.bbxToastrService.showError(Constants.MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY)
         valid = false
       }
