@@ -14,7 +14,7 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from '
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { Customer } from '../../customer/models/Customer';
+import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product, getPriceByPriceType, isProduct } from '../../product/models/Product';
@@ -754,18 +754,25 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
-    if (this.buyerForm.invalid) {
+    if (this.buyerData.id === undefined) {
       this.bbxToastrService.showError(`Nincs megadva vevő.`);
       valid = false;
     }
+    else if (!this.buyerData.privatePerson && (isTaxPayerNumberEmpty(this.buyerData) && HelperFunctions.isEmptyOrSpaces(this.buyerData.thirdStateTaxId))) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY)
+      valid = false
+    }
+
     if (this.outInvForm.invalid) {
       this.bbxToastrService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`);
       valid = false;
     }
+
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       valid = false;
     }
+
     if (!valid) {
       return;
     }
@@ -1275,6 +1282,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
               _event.stopPropagation();
               return;
             }
+
             this.Save();
             return;
           }

@@ -15,6 +15,7 @@ export module Constants {
     export const OutgoingIncomingInvoiceDefaultPrintCopy: number = 2
 
     export const MSG_ERROR_USERDATA_NEEDED = 'A mentés előtt érvényes bejelentkezési adatok megadása szükséges!'
+    export const MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY = 'Adóalany ügyfélnek a számlázáshoz kötelező adószámot megadni!'
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'
@@ -45,6 +46,8 @@ export module Constants {
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE = "Nincs elérhető készletinformáció ehhez a termékhez!"
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE = "Nincs elérhető készletinformáció ehhez a termékhez erre a raktárra!"
     export const MSG_ERROR_CUSTOMER_LOCKED = 'Partner adatait más munkahelyen használják.'
+
+    export const MSG_ERROR_NO_OPENED_INVENTORY_PERIOD = 'Nincs nyitott leltáridőszak megadva!'
 
     export const MSG_NO_DEFAULT_WAREHOUSE_FOR_USER = 'Nincs megadva alapértelmezett raktár a felhasználóhoz!'
 
