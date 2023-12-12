@@ -54,7 +54,6 @@ import { Offer } from '../../offer/models/Offer';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -210,7 +209,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, productService, status, sideBarService, khs,
-      activatedRoute, router, behaviorFactory, tokenService,
+      activatedRoute, router, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
 
     this.preventF12 = true

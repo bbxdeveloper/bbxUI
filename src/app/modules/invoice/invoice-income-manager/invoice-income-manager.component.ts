@@ -201,7 +201,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, productService, status, sideBarService, khs,
-      activatedRoute, router, behaviorFactory, tokenService,
+      activatedRoute, router, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog, customerDiscountService)
 
     this.preventF12 = true

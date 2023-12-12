@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { of, BehaviorSubject, forkJoin } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -28,7 +28,6 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
@@ -108,7 +107,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     khs: KeyboardHelperService,
     protected readonly activatedRoute: ActivatedRoute,
     router: Router,
-    behaviorFactory: InvoiceBehaviorFactoryService,
     protected readonly tokenService: TokenStorageService,
     protected productCodeManagerService: ProductCodeManagerServiceService,
     protected printAndDownLoadService: PrintAndDownloadService,

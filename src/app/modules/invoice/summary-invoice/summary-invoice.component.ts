@@ -201,7 +201,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, productService, status, sideBarService, khs,
-      activatedRoute, router, behaviorFactory, tokenService,
+      activatedRoute, router, tokenService,
       productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
     this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
