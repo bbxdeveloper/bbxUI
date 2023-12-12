@@ -450,14 +450,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       return
     }
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
             if (row.data.productID === product.id) {
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
               this.dbDataTable.MoveNextInTable();
               setTimeout(() => {
                 this.kbS.setEditMode(KeyboardModes.EDIT);
@@ -517,10 +517,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         error: err => {
           this.dbDataTable.data[rowPos].data.Restore('productCode');
           this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         },
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -531,10 +531,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       return
     }
 
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
     if (this.dbDataTable.data[rowPos].data.productID === product.id) {
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      this.status.pushProcessStatus(Constants.BlankProcessStatus);
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
       this.dbDataTable.MoveNextInTable();
       setTimeout(() => {
@@ -643,7 +643,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       })
       .finally(() => { });
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
 
@@ -695,7 +695,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   async refresh(): Promise<void> {
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
     await this.refreshComboboxData();
 
@@ -725,7 +725,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       })
       .finally(() => {});
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   protected filterBuyers(value: string): string[] {
@@ -1115,11 +1115,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   protected async openProductStockInformationDialog(id: any): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     const product = await firstValueFrom(this.productService.Get({ ID: id }))
 
-    this.sts.waitForLoad(false)
+    this.status.waitForLoad(false)
 
     this.dialogService.open(ProductStockInformationDialogComponent, {
       context: {

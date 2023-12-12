@@ -47,6 +47,7 @@ import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoic
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 
 @Component({
   selector: 'app-invoice-income-manager',
@@ -184,7 +185,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     simpleToastrService: NbToastrService,
     bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     productService: ProductService,
     status: StatusService,
     sideBarService: BbxSidebarService,
@@ -196,12 +196,13 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
     editCustomerDialog: EditCustomerDialogManagerService,
+    customerDiscountService: CustomerDiscountService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
-      cs, statusService, productService, status, sideBarService, khs,
-      activatedRoute, router, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+      cs, productService, status, sideBarService, khs,
+      activatedRoute, router, tokenService,
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog, customerDiscountService)
 
     this.preventF12 = true
     this.InitialSetup();
@@ -683,27 +684,15 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
     let valid = true;
     if (this.activeForm.invalid) {
-      this.bbxToastrService.show(
-        `Nincs megadva szállító.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Nincs megadva szállító.`);
       valid = false;
     }
     if (this.outInvForm.invalid) {
-      this.bbxToastrService.show(
-        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`);
       valid = false;
     }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       valid = false;
     }
     if (!valid) {
@@ -734,7 +723,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         const request = this.UpdateOutGoingData();
         let ordinal = '';
 
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
         this.invoiceService.CreateOutgoing(request).subscribe({
           next: async d => {
             try {
@@ -755,7 +744,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
                 this.dbDataTable.RemoveEditRow();
                 this.kbS.SelectFirstTile();
 
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
@@ -774,7 +763,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
               } else {
                 this.cs.HandleError(d.errors);
                 this.isSaveInProgress = false;
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
               }
             } catch (error) {
               this.Reset()
@@ -785,7 +774,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
           error: err => {
             this.cs.HandleError(err);
             this.isSaveInProgress = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
           },
           complete: () => {
           }
@@ -802,7 +791,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
         currentRow?.data.Save('productCode');
@@ -827,7 +816,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       }, 200)
     }
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
 
@@ -886,10 +875,14 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Customer) => {
+    dialogRef.onClose.subscribe(async (res: Customer) => {
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
+
+        this.isLoading = true
+        await this.loadCustomerDiscounts(this.buyerData.id)
+        this.isLoading = false
 
         this.kbS.SetCurrentNavigatable(this.outInvFormNav);
         this.kbS.SelectFirstTile();
@@ -943,12 +936,16 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.activeFormNav.FillForm(res.data[0], ['customerSearch']);
           this.searchByTaxtNumber = false;
+
+          this.isLoading = true
+          await this.loadCustomerDiscounts(this.buyerData.id)
+          this.isLoading = false
         } else {
           if (this.customerInputFilterString.length >= 8 &&
             this.IsNumber(this.customerInputFilterString)) {
@@ -1118,6 +1115,18 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });
           break;
+        }
+        case this.KeySetting[Actions.Reset].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+
+          this.loadInvoiceItems()
+
+          this.UpdateOutGoingData()
+
+          break
         }
         case this.KeySetting[Actions.Refresh].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {

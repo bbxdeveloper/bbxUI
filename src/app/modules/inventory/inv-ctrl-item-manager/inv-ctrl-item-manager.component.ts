@@ -607,7 +607,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         await this.HandleProductSelection(res, rowIndex);
       } else {
@@ -617,7 +617,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         }
       }
     }
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
@@ -677,7 +677,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
           console.log('[TableCodeFieldChanged] res: ', changedData, ' | Product: ', product);
@@ -697,7 +697,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         complete: async () => {
           this.isLoading = false;
           this.handleUnsaved(this.dbDataTable.data[rowPos], rowPos)
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         }
       })
     } else {
@@ -803,12 +803,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -820,7 +820,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 

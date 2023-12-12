@@ -330,7 +330,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
     HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_DATA, async () => {
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+      this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
       this.UpdateOutGoingData()
 
@@ -361,7 +361,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         })
         .finally(() => {})
 
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+      this.status.pushProcessStatus(Constants.BlankProcessStatus)
     });
   }
 

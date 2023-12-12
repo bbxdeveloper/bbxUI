@@ -191,7 +191,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     simpleToastrService: NbToastrService,
     bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     productService: ProductService,
     status: StatusService,
     sideBarService: BbxSidebarService,
@@ -202,16 +201,16 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
-    private custDiscountService: CustomerDiscountService,
+    custDiscountService: CustomerDiscountService,
     editCustomerDialog: EditCustomerDialogManagerService,
     private offerService: OfferService,
     private route: ActivatedRoute
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
-      cs, statusService, productService, status, sideBarService, khs,
-      activatedRoute, router, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+      cs, productService, status, sideBarService, khs,
+      activatedRoute, router, tokenService,
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
 
     this.preventF12 = true
     this.InitialSetup();
@@ -230,7 +229,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   private async loadOffer(id: number): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     const offerData: Offer | void = await lastValueFrom(this.offerService.Get({ ID: id, FullData: true } as GetOfferParamsModel))
       .then(data => {
@@ -302,7 +301,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }
     }
 
-    this.sts.waitForLoad(false)
+    this.status.waitForLoad(false)
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -835,14 +834,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.outGoingInvoiceData.invoiceDiscountPercent = res.invoiceDiscountPercent;
       const request = this.UpdateOutGoingData();
 
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+      this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
       this.invoiceService.CreateOutgoing(request).subscribe({
         next: async d => {
           try {
             if (!d.data) {
               this.cs.HandleError(d.errors);
               this.isSaveInProgress = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+              this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
               return
             }
@@ -860,7 +859,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
             this.isSaveInProgress = true;
 
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
             await this.printAndDownLoadService.openPrintDialog({
               DialogTitle: Constants.TITLE_PRINT_INVOICE,
@@ -882,7 +881,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           }
         },
         error: err => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
           this.cs.HandleError(err);
           this.isSaveInProgress = false;
         },
@@ -894,8 +893,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
-        if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    if (!!res) {
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
       if (!wasInNavigationMode) {
         const currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
@@ -923,7 +922,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       }, 200)
     }
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
 
@@ -951,12 +950,16 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
     });
-    dialogRef.onClose.subscribe((res: Customer) => {
+    dialogRef.onClose.subscribe(async (res: Customer) => {
       console.log("Selected item: ", res);
       if (!!res) {
         this.buyerData = res;
 
         this.mode.partnerLock?.lockCustomer(this.buyerData.id)
+
+        this.isLoading = true
+        await this.loadCustomerDiscounts(this.buyerData.id)
+        this.isLoading = false
 
         if (this.mode.useCustomersPaymentMethod) {
           this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
@@ -989,29 +992,16 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
-  async GetPartnerDiscountForProduct(productGroupCode: string): Promise<number | undefined> {
-    let discount: number | undefined = undefined;
-
+  private GetPartnerDiscountForProduct(productGroupCode: string): number {
     if (this.buyerData === undefined || this.buyerData.id === undefined) {
-      this.bbxToastrService.show(
-        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return discount;
+      this.bbxToastrService.showError(Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN);
+
+      return 0;
     }
 
-    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
-      .then(discounts => {
-        if (discounts) {
-          const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
-          discount = res !== undefined ? (res / 100.0) : undefined;
-        }
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => {})
+    const res = this.customerDiscounts.find(x => x.productGroupCode == productGroupCode)?.discount
+    const discount = res ? (res / 100.0) : 0
+
     return discount;
   }
 
@@ -1040,7 +1030,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (!product.noDiscount) {
-      const discountForPrice = await this.GetPartnerDiscountForProduct(product.productGroup.split("-")[0]);
+      const discountForPrice = this.GetPartnerDiscountForProduct(product.productGroup.split("-")[0]);
       if (discountForPrice !== undefined) {
         const discountedPrice = unitPrice * discountForPrice;
         res.unitPrice = unitPrice - discountedPrice;
@@ -1083,13 +1073,17 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
       IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
     } as GetCustomersParamListModel).subscribe({
-      next: res => {
+      next: async res => {
         if (!!res && res.data !== undefined && res.data.length > 0) {
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.searchByTaxtNumber = false;
 
           this.mode.partnerLock?.lockCustomer(this.buyerData.id)
+
+          this.isLoading = true
+          await this.loadCustomerDiscounts(this.buyerData.id)
+          this.isLoading = false
 
           if (this.mode.useCustomersPaymentMethod) {
             this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
@@ -1118,6 +1112,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       },
     });
   }
+
 
   private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
@@ -1251,6 +1246,18 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });
           break;
+        }
+        case this.KeySetting[Actions.Reset].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+
+          this.loadInvoiceItems()
+
+          this.UpdateOutGoingData()
+
+          break
         }
         case this.KeySetting[Actions.Refresh].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {

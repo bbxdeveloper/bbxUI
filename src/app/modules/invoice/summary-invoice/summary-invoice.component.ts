@@ -185,7 +185,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     simpleToastrService: NbToastrService,
     bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     productService: ProductService,
     status: StatusService,
     sideBarService: BbxSidebarService,
@@ -196,15 +195,15 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
-    protected readonly custDiscountService: CustomerDiscountService,
+    custDiscountService: CustomerDiscountService,
     public readonly invoiceStatisticsService: InvoiceStatisticsService,
     editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
-      cs, statusService, productService, status, sideBarService, khs,
-      activatedRoute, router, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+      cs, productService, status, sideBarService, khs,
+      activatedRoute, router, tokenService,
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
     this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
@@ -913,7 +912,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
         currentRow?.data.Save('productCode');
@@ -930,7 +929,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         }
       }
     }
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
 
@@ -1137,15 +1136,15 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     let discount: number | undefined = undefined;
 
     if (this.buyerData === undefined || this.buyerData.id === undefined) {
-      this.bbxToastrService.show(
-        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN);
       return discount;
     }
 
-    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+    if (!this.customerDiscountService) {
+      return undefined
+    }
+
+    await lastValueFrom(this.customerDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
       .then(discounts => {
         if (discounts) {
           const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;

@@ -265,6 +265,14 @@ tr.parent-of-current-keyboard-nav-selected {
 
 // Height margin
 
+.mt-8 {
+  margin-top: 8px;
+}
+
+.ml-8 {
+  margin-left: 8px !important;
+}
+
 $marginMax: 1000;
 $i: 0;
 @while $i < $marginMax {
@@ -301,4 +309,10 @@ $i: 0;
         color: nb-theme(iframe-table-cell-text-color) !important;
       }
     }
+}
+
+// Transforms
+
+.scale-1\.5 {
+  transform: scale(1.5);
 }

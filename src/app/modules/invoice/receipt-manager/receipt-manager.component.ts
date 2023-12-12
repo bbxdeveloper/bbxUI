@@ -117,7 +117,6 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     simpleToastrService: NbToastrService,
     bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     productService: ProductService,
     status: StatusService,
     sideBarService: BbxSidebarService,
@@ -132,9 +131,9 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
           customerService, cdref, kbS, simpleToastrService, bbxToastrService,
-          cs, statusService, productService, status, sideBarService, khs,
-          activatedRoute, router, behaviorFactory, tokenService,
-          productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+          cs, productService, status, sideBarService, khs,
+          activatedRoute, router, tokenService,
+          productCodeManagerService, printAndDownLoadService, editCustomerDialog, null)
     this.preventF12 = true
     this.InitialSetup()
     this.activatedRoute.url.subscribe(params => {
@@ -462,7 +461,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
         currentRow?.data.Save('productCode');
@@ -486,7 +485,7 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
       }, 200)
     }
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
 
@@ -612,6 +611,18 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
             return this.HandleProductChoose(product, event.WasInNavigationMode);
           });
           break;
+        }
+        case this.KeySetting[Actions.Reset].KeyCode: {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(_event)
+            return
+          }
+
+          this.loadInvoiceItems()
+
+          this.UpdateOutGoingData()
+
+          break
         }
         case this.KeySetting[Actions.Refresh].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {

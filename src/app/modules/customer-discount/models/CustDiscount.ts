@@ -12,7 +12,7 @@ export interface CustDiscountForPostItem {
     discount: number;
 }
 
-export interface CustDicountForGet {
+export interface CustDiscountForGet {
     "customerID": number,
     "customer": string,
     "productGroupID": number,
@@ -21,7 +21,7 @@ export interface CustDicountForGet {
     "discount": number
 }
 
-export class CustDiscount extends MementoObject implements IEditable, CustDiscountForPostItem, CustDicountForGet {
+export class CustDiscount extends MementoObject implements IEditable, CustDiscountForPostItem, CustDiscountForGet {
     public override DeafultFieldList: string[] = ['productGroupCode'];
 
     "customerID": number = -1;
@@ -81,7 +81,7 @@ export class CustDiscount extends MementoObject implements IEditable, CustDiscou
     }
 }
 
-export function CustDiscountFromCustDiscountForGet(item: CustDicountForGet): CustDiscount {
+export function CustDiscountFromCustDiscountForGet(item: CustDiscountForGet): CustDiscount {
     let res = new CustDiscount();
 
     res.customerID = item.customerID;

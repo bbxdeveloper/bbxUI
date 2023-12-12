@@ -163,7 +163,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             return
           }
 
-          this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+          this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
           let newExchangeRate = 1;
 
@@ -199,7 +199,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
             this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
           }, 0);
 
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
 
@@ -318,7 +318,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(res => {
       if (res) {
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
 
         this.UpdateOutGoingData();
 
@@ -343,7 +343,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
                 this.kbS.SelectFirstTile();
 
                 // this.buyerFormNav.controls['invoiceOrdinal'].setValue(d.data.invoiceNumber ?? '');
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: 'Ajánlat Nyomtatása',
@@ -361,7 +361,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
               } else {
                 this.cs.HandleError(d.errors);
                 this.isLoading = false;
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                this.status.pushProcessStatus(Constants.BlankProcessStatus);
               }
             } catch (error) {
               this.Reset()
@@ -371,7 +371,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           error: err => {
             this.cs.HandleError(err);
             this.isLoading = false;
-            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
           }
         });
       }

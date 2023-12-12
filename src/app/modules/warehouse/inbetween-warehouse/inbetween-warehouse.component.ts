@@ -223,7 +223,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   private async LoadForEdit(): Promise<void> {
     try {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
       const whsTransfer = await firstValueFrom(this.whsTransferService.Get({ ID: this.mode.id }))
         .catch(err => {
@@ -265,7 +265,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.cs.HandleError(err)
     }
     finally {
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      this.status.pushProcessStatus(Constants.BlankProcessStatus);
     }
   }
 
@@ -311,7 +311,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   HandleProductChoose(res: InbetweenWarehouseProduct, wasInNavigationMode: boolean): void {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING])
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING])
       if (!wasInNavigationMode) {
         let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: res }, ['productCode'])
         currentRow?.data.Save('productCode')
@@ -328,7 +328,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         }
       }
     }
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+    this.status.pushProcessStatus(Constants.BlankProcessStatus)
   }
 
   private async createInbetweenProduct(product: Product): Promise<InbetweenWarehouseProduct|undefined> {
@@ -460,7 +460,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       return
     }
 
-    this.sts.waitForLoad();
+    this.status.waitForLoad();
 
     this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest)
       .subscribe({
@@ -490,10 +490,10 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         },
         error: () => {
           this.cs.HandleError.bind(this.cs)
-          this.sts.waitForLoad(false)
+          this.status.waitForLoad(false)
         } ,
         complete: () => {
-          this.sts.waitForLoad(false)
+          this.status.waitForLoad(false)
         }
       })
   }
@@ -533,7 +533,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   public ngOnInit(): void {
-    this.sts.waitForLoad()
+    this.status.waitForLoad()
 
     this.warehouseService.GetAll()
       .pipe(
@@ -555,9 +555,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         next: data => this.warehouseData = data,
         error: () => {
           this.cs.HandleError.bind(this.cs)
-          this.sts.waitForLoad(false)
+          this.status.waitForLoad(false)
         },
-        complete: () => this.sts.waitForLoad(false)
+        complete: () => this.status.waitForLoad(false)
       })
 
     setTimeout(() => {
@@ -607,7 +607,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   private async create(): Promise<void> {
     try {
-      this.sts.waitForLoad()
+      this.status.waitForLoad()
 
       const request = this.createWhsTransferRequest()
       const response = await this.whsTransferService.create(request)
@@ -641,7 +641,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 
@@ -651,7 +651,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   private async update(): Promise<void> {
     try {
-      this.sts.waitForLoad()
+      this.status.waitForLoad()
 
       const request = this.createWhsTransferUpdateRequest()
       const response = await this.whsTransferService.update(request)
@@ -685,7 +685,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 
@@ -742,12 +742,12 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -759,7 +759,7 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 
