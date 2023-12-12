@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
+import { BaseNavigatableComponentComponent } from '../../../shared/base-navigatable-component/base-navigatable-component.component';
 import { AttachDirection, NavigatableType, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -7,18 +7,19 @@ import { NavigatableForm } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { StatusService } from 'src/app/services/status.service';
 import { NbDialogRef } from '@nebular/theme';
-import { NavService } from '../services/nav.service';
-import { SendInvoiceToNavResponse } from '../models/SendInvoiceToNavResponse';
+import { NavService } from '../../services/nav.service';
+import { SendInvoiceToNavResponse } from '../../models/SendInvoiceToNavResponse';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
+import { TechnicalCancelResponse } from '../../models/TechnicalCancelResponse';
 
 @Component({
-  selector: 'app-send-data-to-nav',
-  templateUrl: './send-data-to-nav.component.html',
-  styleUrls: ['./send-data-to-nav.component.scss']
+  selector: 'app-nav-technical-cancel-dialog',
+  templateUrl: './nav-technical-cancel-dialog.component.html',
+  styleUrls: ['./nav-technical-cancel-dialog.component.scss']
 })
-export class SendDataToNavComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit, OnDestroy {
+export class NavTechnicalCancelDialogComponent extends BaseNavigatableComponentComponent implements OnInit, AfterViewInit, OnDestroy {
   public get isEditModeOff(): boolean {
     return !this.keyboardService.isEditModeActivated
   }
@@ -68,7 +69,7 @@ export class SendDataToNavComponent extends BaseNavigatableComponentComponent im
     )
 
     this.Matrix = [['confirm-dialog-button-yes', 'confirm-dialog-button-no']]
-   }
+  }
 
   public ngAfterViewInit(): void {
     this.keyboardService.SetWidgetNavigatable(this)
@@ -116,10 +117,10 @@ export class SendDataToNavComponent extends BaseNavigatableComponentComponent im
     this.statusService.waitForSave(true)
 
     const value = this.form.controls['invoiceNumber'].value
-    this.navService.sendInvoice(value).subscribe({
-      next: (response: SendInvoiceToNavResponse) => {
+    this.navService.technicalCancel(value).subscribe({
+      next: (response: TechnicalCancelResponse) => {
         if (response.succeeded) {
-          const message = Constants.NAV_INVOICE_SENT.replace('{{invoice-number}}', value)
+          const message = Constants.NAV_INVOICE_CANCELLED.replace('{{invoice-number}}', value)
           this.toastrService.showSuccess(message, true)
 
           this.dialogRef.close()
