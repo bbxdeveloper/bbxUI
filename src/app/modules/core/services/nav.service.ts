@@ -18,6 +18,6 @@ export class NavService {
   }
 
   public technicalCancel(invoiceNumber: string): Observable<TechnicalCancelResponse> {
-    return this.http.post<TechnicalCancelResponse>(`${this.baseUrl}/callmanageannulment?InvoiceNumber=${invoiceNumber}`, {})
+    return this.http.get<TechnicalCancelResponse>(`${this.baseUrl}/sendannulmenttonav?InvoiceNumber=${invoiceNumber}`)
   }
 }
