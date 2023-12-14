@@ -30,6 +30,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { authInterceptorProviders } from 'src/assets/util/auth.interceptor';
 import { CustomerDiscountModule } from './modules/customer-discount/customer-discount.module';
 import { LocationModule } from './modules/location/location.module';
+import { EqualizationsModule } from './modules/equalizations/equalizations.module';
 
 registerLocaleData(localeFr, 'fr');
 
@@ -76,7 +77,8 @@ const maskConfig: Partial<IConfig> = {
     StockModule,
     InventoryModule,
     CustomerDiscountModule,
-    LocationModule
+    LocationModule,
+    EqualizationsModule
   ],
   exports: [
     NbLayoutModule,
