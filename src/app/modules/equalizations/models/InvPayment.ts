@@ -4,7 +4,7 @@ import { DynamicObject, JsonIgnore } from "src/assets/model/navigation/DynamicOb
 import { HelperFunctions } from "src/assets/util/HelperFunctions";
 
 export class InvPayment extends DynamicObject {
-    "invPaymentItems": InvPaymentItem[]
+    invPaymentItems: InvPaymentItem[] = []
 }
 
 export interface InvPaymentItemFull {

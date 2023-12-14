@@ -1,0 +1,309 @@
+@import 'table-colors';
+@import 'common-styles';
+
+$td-height: 30px;
+
+nb-card {
+    background: none;
+    border: none;
+    margin: 0px;
+}
+
+.card-table-wrapper {
+    display: block;
+
+    position: sticky;
+    top: 0;
+
+    margin: auto;
+
+    max-height: calc(100vh - 600px) !important;
+
+    @media (max-height: 1000px) {
+        td {
+            padding: 0rem 1.25rem !important;
+        }
+    }
+
+    nb-form-field {
+        margin: 10px;
+
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    nb-form-field {
+        margin: 0px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .div-wrapper-input {
+        display: flex;
+
+        align-items: center;
+        column-gap: 15px;
+
+        flex-flow: wrap;
+    }
+
+    th {
+        text-align: center;
+        font-weight: bold;
+        font-variant: small-caps;
+    }
+
+    tr > th {
+        position: sticky;
+        top: -1px;
+    }
+
+    tr:nth-child(even) {
+        th,
+        td {
+            height: $td-height;
+
+            &.table-cell-edited {
+                padding: 0px;
+
+                .input-table-cell {
+                    width: 100%;
+
+                    border: none;
+                    background: none;
+                    text-align: left;
+
+                    padding: 0px;
+
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                        padding-right: 20px;
+                    }
+
+                    font-size: 1.1rem !important;
+
+                    font-family: Open Sans, sans-serif;
+                    font-weight: 400;
+                    line-height: 1.25rem;
+                }
+
+                div {
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+                }
+            }
+        }
+    }
+
+    tr:nth-child(odd) {
+        th,
+        td {
+            height: $td-height;
+
+            &.table-cell-edited {
+                padding: 0px;
+
+                .input-table-cell {
+                    width: 100%;
+
+                    border: none;
+                    background: none;
+                    text-align: left;
+
+                    padding: 0px;
+
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                        padding-right: 20px;
+                    }
+
+                    font-size: 1.1rem !important;
+
+                    font-family: Open Sans, sans-serif;
+                    font-weight: 400;
+                    line-height: 1.25rem;
+                }
+
+                div {
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+                }
+            }
+        }
+    }
+
+    th {
+        text-align: center;
+        font-weight: bold;
+        font-variant: small-caps;
+    }
+
+    tr:last-child {
+        th,
+        td {
+            height: $td-height;
+
+            &.table-cell-edited {
+                padding: 0px;
+
+                .input-table-cell {
+                    width: 100%;
+
+                    border: none;
+                    background: none;
+                    text-align: left;
+
+                    padding: 0px;
+
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+
+                    font-size: 1.1rem !important;
+
+                    font-family: Open Sans, sans-serif;
+                    font-weight: 400;
+                    line-height: 1.25rem;
+                }
+
+                div {
+                    @media (max-height: 1000px) {
+                        padding-left: 0px;
+                    }
+                    @media (min-height: 1001px) {
+                        padding-left: 20px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+::-webkit-scrollbar {
+    width: 12px !important;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(36, 27, 88, 0.767) !important;
+    border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px !important;
+    -webkit-box-shadow: inset 0 0 6px rgba(85, 84, 180, 0.966) !important;
+}
+
+nb-card-header {
+    padding: 0px;
+}
+
+////////////////////////////////////////
+
+.nb-overlay-bottom {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.layout {
+    min-height: 10vh !important;
+    padding: 0px !important;
+}
+
+.card-header-txt-center {
+    text-align: center;
+    font-size: larger;
+    text-transform: uppercase;
+}
+
+.card-title {
+    background: none !important;
+    border: none !important;
+
+    margin-bottom: 0px !important;
+
+    text-align: center;
+    font-size: larger !important;
+    text-transform: uppercase;
+}
+.header-blank {
+    color: transparent !important;
+}
+
+.flex-text-center {
+    display: flex;
+    justify-items: center;
+}
+
+::ng-deep nb-card-header {
+    font-size: 2rem !important;
+}
+
+nb-layout-footer.custom {
+    nav {
+        padding: 0px !important;
+        background: none !important;
+    }
+}
+
+.invoice-table-statistics {
+    padding: 0px;
+    padding-right: 75px;
+
+    width: 100%;
+    text-align: right;
+
+    span.line-amount {
+        font-size: 1rem;
+        margin-left: 25px;
+    }
+}
+
+.card-header-top-margin {
+    margin-top: 25px;
+    margin-bottom: 5px;
+}
+
+table.table-statistics-net-vat-gross {
+    right: 100px !important;
+    position: fixed;
+
+    column-gap: 25px;
+    padding: 5px;
+    border-spacing: 15px 0px;
+
+    td {
+        min-width: 300px;
+        text-align: left;
+    }
+}
+
+form.form-with-rows {
+    display: flex;
+    align-items: flex-start;
+    grid-column-gap: 10px;
+    column-gap: 10px;
+    row-gap: 10px;
+    flex-direction: column;
+
+    .form-row {
+        display: flex;
+        justify-content: flex-start;
+    }
+}
