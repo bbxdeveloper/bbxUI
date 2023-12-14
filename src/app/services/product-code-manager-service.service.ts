@@ -58,6 +58,7 @@ export interface ChooseEditOfferProductRequest extends ChooseProductRequest<Offe
 export interface CodeFieldChangeRequest {
   dbDataTable: InlineEditableNavigatableTable<any>
   productToGridProductConversionCallback: any
+  createProductCallback?: any
 
   changedData: any
   index: number
@@ -297,9 +298,13 @@ export class ProductCodeManagerServiceService {
             currentRow?.data.Save('productCode')
             this.MoveNextFromCodeField(request)
           } else {
-            this.keyboardService.ClickCurrentElement()
-            selectProcutCodeInTableInput()
-            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
+            if (request.createProductCallback === undefined) {
+              this.keyboardService.ClickCurrentElement()
+              selectProcutCodeInTableInput()
+              this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
+            } else {
+              request.createProductCallback(request.rowPos, request.changedData.productCode)
+            }
           }
         },
         error: err => {
