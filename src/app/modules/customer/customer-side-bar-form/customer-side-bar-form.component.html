@@ -20,7 +20,7 @@
                     <label>Név*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
-                        [readonly]="isReadonly"
+                        [readonly]="isReadonly" (focusout)="upperCaseFirstLetter($event, 'customerName')"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>

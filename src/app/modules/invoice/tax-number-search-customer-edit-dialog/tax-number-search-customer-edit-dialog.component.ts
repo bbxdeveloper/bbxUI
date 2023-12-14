@@ -384,7 +384,21 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     }
   }
 
+  upperCaseFirstLetter(event: any, formField?: string): void {
+    if (formField === undefined) {
+      return
+    }
+    const val = this.currentForm?.form.controls[formField].value
+    if (val.length === 1) {
+      this.currentForm?.form.controls[formField].setValue(event.target.value = event.target.value.toUpperCase())
+    } else if (val.length > 1) {
+      const firstLetter = val[0]
+      this.currentForm?.form.controls[formField].setValue(firstLetter.toUpperCase() + val.slice(1))
+    }
+  }
+
   cityInputFocusOut(event: any): void {
+    this.upperCaseFirstLetter(event, 'city')
     if (!this.isHuCountryCodeSet) {
       return;
     }

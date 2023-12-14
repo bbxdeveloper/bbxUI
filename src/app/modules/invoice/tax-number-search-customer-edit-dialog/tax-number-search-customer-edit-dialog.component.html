@@ -11,6 +11,7 @@
                     <label>Név*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
+                        (focusout)="upperCaseFirstLetter($event, 'customerName')"
                         [readonly]="isEditModeOff" (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>
