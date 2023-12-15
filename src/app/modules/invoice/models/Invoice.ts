@@ -40,4 +40,16 @@ export interface Invoice {
     invoiceGrossAmount: number,
     invoiceLines: InvoiceLine[],
     invoiceDiscountPercent: number,
+    invoicePayedAmount: number,
+    invoicePayedAmountHUF: number,
+    invoiceCorrection: boolean,
+    userID: number,
+    userName: string,
+    workNumber: any,
+    priceReview: false,
+    createTime: string,
+    updateTime: string,
+    deleted: boolean,
+    summaryByVatRates: any[],
+    invPayments: any[]
 }

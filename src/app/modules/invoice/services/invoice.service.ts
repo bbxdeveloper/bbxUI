@@ -24,6 +24,7 @@ import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { GetCustomerInvoiceSummariesResponse } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummariesResponse';
 import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
+import { CreateOutgoingInvoiceResponseData } from '../models/CreateOutgoingInvoiceResponseData';
 
 @Injectable({
   providedIn: 'root'
@@ -193,6 +194,12 @@ export class InvoiceService {
   public GetCustomerUnpaidAmount(params?: { CustomerID: number }): Promise<number> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
     const request = this.http.get<number>(this.BaseUrl + '/customerunpaidamount' + (!!params ? ('?' + queryParams) : ''));
+    return firstValueFrom(request)
+  }
+
+  public GetInvoiceByInvoiceNumber(params?: { invoiceNumber: any }): Promise<Invoice> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const request = this.http.get<Invoice>(this.BaseUrl + '/byinvoicenumber' + (!!params ? ('?' + queryParams) : ''));
     return firstValueFrom(request)
   }
 }

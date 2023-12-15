@@ -10,7 +10,6 @@ import { CreateIccRequest } from 'src/app/modules/inventory/models/CreateIccRequ
 import { CreateInvCtrlItemRequest } from 'src/app/modules/inventory/models/CreateInvCtrlItemRequest';
 import { GetAllInvCtrlPeriodsParamListModel } from 'src/app/modules/inventory/models/GetAllInvCtrlPeriodsParamListModel';
 import { GetLatestIccRequest } from 'src/app/modules/inventory/models/GetLatestIccRequest';
-import { InvCtrlItemLine } from 'src/app/modules/inventory/models/InvCtrlItem';
 import { InventoryCtrlItemService } from 'src/app/modules/inventory/services/inventory-ctrl-item.service';
 import { GetProductByCodeRequest } from 'src/app/modules/product/models/GetProductByCodeRequest';
 import { Product } from 'src/app/modules/product/models/Product';
@@ -42,8 +41,10 @@ import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTa
 import { TileCssClass, TileCssColClass, AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { InvCtrlItemCreatorKeySettings, GetFooterCommandListFromKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
+import { EqualizationCreatorKeySettings, GetFooterCommandListFromKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { EqualizationsService } from '../../services/equalizations.service';
+import { InvoiceService } from 'src/app/modules/invoice/services/invoice.service';
+import { Invoice } from 'src/app/modules/invoice/models/Invoice';
 
 @Component({
   selector: 'app-equalization-creator',
@@ -55,7 +56,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
   Subscription_Search?: Subscription;
 
-  public KeySetting: Constants.KeySettingsDct = InvCtrlItemCreatorKeySettings;
+  public KeySetting: Constants.KeySettingsDct = EqualizationCreatorKeySettings;
   override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   invPaymentData!: InvPayment;
@@ -63,7 +64,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePayedAmount", "invPaymentAmountH"];
+  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePayedAmount", "invPaymentAmountHUF"];
   override allColumns = [
     'invoiceNumber',
     'customerName',
@@ -74,22 +75,22 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     'currencyCode',
     'exchangeRate',
     'invPaymentAmount',
-    'invPaymentAmountH'
+    'invPaymentAmountHUF'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Számlaszám', objectKey: 'invoiceNumber', colKey: 'invoiceNumber',
-      defaultValue: '', type: 'string', mask: "CCCCCCCCCC",
-      colWidth: "30%", textAlign: "left", fInputType: 'code-field'
+      defaultValue: '', type: 'string', mask: "",
+      colWidth: "30%", textAlign: "left", fInputType: 'invoice-number'
     },
     {
       label: 'Ügyfél', objectKey: 'customerName', colKey: 'customerName',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "50%", textAlign: "left",
+      colWidth: "80%", textAlign: "left",
     },
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',
-      defaultValue: '', type: 'onlyDate', fRequired: true,
+      defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date',
       mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true
     },
     {
@@ -99,13 +100,13 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     },
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
-      defaultValue: '', type: 'string', mask: "",
+      defaultValue: '', type: 'string', mask: "CCCCCCCCCCC", uppercase: true,
       colWidth: "125px", textAlign: "left",
     },
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
-      defaultValue: '', type: 'onlyDate',
-      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true
+      defaultValue: '', type: 'onlyDate', fInputType: 'date',
+      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode',
@@ -123,7 +124,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
-      label: 'Összeg HUF', objectKey: 'invPaymentAmountH', colKey: 'invPaymentAmountH',
+      label: 'Összeg HUF', objectKey: 'invPaymentAmountHUF', colKey: 'invPaymentAmountHUF',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     }
@@ -164,7 +165,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     khs: KeyboardHelperService,
     router: Router,
     private readonly tokenService: TokenStorageService,
-    private readonly invPaymentService: EqualizationsService
+    private readonly invPaymentService: EqualizationsService,
+    private readonly invoiceService: InvoiceService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -248,18 +250,13 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
         this.isSaveInProgress = true;
         this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
-        const request = this.dbDataTable.data
+        this.invPaymentData.invPaymentItems = 
+          this.dbDataTable.data
           .filter(x => !x.data.IsUnfinished())
-          .map(x => ({
-            warehouseID: this.tokenService.wareHouse?.id,
-            productID: x.data.productID,
-            nRealQty: parseInt(x.data.nRealQty.toString()),
-            invCtrlDate: moment(this.invCtrlDate).format('YYYY-MM-DD').toString(),
-            userID: res.value!
-          } as CreateIccRequest))
-          .filter(x => x.productID !== -1)
+          .map(x => x.data)
+          .filter(x => x.invoiceID > 0)
 
-        await this.invCtrlItemService.createIcc(request)
+        await this.invPaymentService.Create(this.invPaymentData)
 
         this.simpleToastrService.show(
           Constants.MSG_SAVE_SUCCESFUL,
@@ -283,8 +280,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   }
 
   protected AfterViewInitSetup(): void {
-    this.InitFormDefaultValues();
-
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     this.dbDataTable.Setup(
@@ -313,7 +308,47 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
-  async HandleProductSelection(res: Product, rowIndex: number, checkIfCodeEqual: boolean = true) {}
+  async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true) {
+    if (res.id === undefined || res.id === -1) {
+      return;
+    }
+
+    let row = this.dbDataTable.data[rowIndex];
+    let count = this.dbDataTable.data.filter(x => x.data.invoiceNumber === res.invoiceNumber).length;
+    if (count > 1 || (count === 1 && res.invoiceNumber !== row.data.invoiceNumber)) {
+      this.dbDataTable.editedRow!.data.invoiceNumber = "";
+      this.kbS.ClickCurrentElement();
+      this.bbxToastrService.show(
+        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    } else if (checkIfCodeEqual && res.invoiceNumber === row.data.invoiceNumber) {
+      this.bbxToastrService.show(
+        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+
+    let newPaymentItem = new InvPaymentItem()
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+      data: HelperFunctions.PatchObject(res, newPaymentItem, [], [{ from: 'id', to: 'invoiceID'}])
+    }, ['invoiceNumber']);
+    currentRow?.data.Save('invoiceNumber');
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    this.dbDataTable.MoveNextInTable();
+    setTimeout(() => {
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+      this.isLoading = false;
+      this.kbS.ClickCurrentElement();
+    }, 500);
+
+    return;
+  }
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {}
 
@@ -323,12 +358,11 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   RefreshData(): void { }
   RecalcNetAndVat(): void { }
 
-  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!event) {
       this.bbxToastrService.close();
       event.stopPropagation();
     }
-    console.log('[HandleGridCodeFieldEnter]: editmode off: ', this.isEditModeOff);
     if (this.isEditModeOff) {
       this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
       setTimeout(() => {
@@ -340,15 +374,9 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
-  private async GetStockRecordForProduct(productId: number): Promise<StockRecord> {
-    return lastValueFrom(this.stockService.Record({ ProductID: productId, WarehouseID: this.SelectedWareHouseId } as GetStockRecordParamsModel));
-  }
-
-  protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvCtrlItemLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    console.log("[TableCodeFieldChanged] at rowPos: ", this.dbDataTable.data[rowPos]);
-
-    const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('productCode')
-    if (previousValue && changedData?.productCode === previousValue) {
+  protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('invoiceNumber')
+    if (previousValue && changedData?.invoiceNumber === previousValue) {
       this.bbxToastrService.show(
         Constants.MSG_PRODUCT_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -356,142 +384,61 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       );
       return
     }
-
-    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      let _product: Product = { id: -1 } as Product;
+    if (!!changedData && !!changedData.invoiceNumber && changedData.invoiceNumber.length > 0) {
+      let _invoice: Invoice = { id: -1 } as Invoice;
       this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: async product => {
-          console.log('[TableCodeFieldChanged] res: ', changedData, ' | Product: ', product);
-
-          if (!!product && !!product?.productCode) {
-            _product = product;
-            await this.HandleProductSelection(_product, rowPos, false)
-          } else {
-            selectProcutCodeInTableInput()
-            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
+      this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
+        .then(
+          async (invoice: Invoice) => {
+            if (!!invoice && !!invoice?.invoiceNumber) {
+              _invoice = invoice;
+              await this.HandleProductSelection(_invoice, rowPos, false)
+            } else {
+              selectProcutCodeInTableInput()
+              this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
+            }
           }
-        },
-        error: () => {
-          this.dbDataTable.data[rowPos].data.Restore('productCode');
-          this.RecalcNetAndVat();
-        },
-        complete: async () => {
-          this.isLoading = false;
-          this.status.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
-    }
-  }
-
-  protected RoundPrices(rowPos: number): void {
-    if ((this.dbData.length + 1) <= rowPos) {
-      return;
-    }
-    const d = this.dbData[rowPos]?.data;
-    if (!!d) {
-      d.Round();
+        )
+        .catch(err => {
+          this.dbDataTable.data[rowPos].data.Restore('invoiceNumber')
+        })
+        .finally(() => {
+          this.status.pushProcessStatus(Constants.BlankProcessStatus)
+        })
     }
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    if (index !== undefined) {
-      this.RoundPrices(index);
-    }
-
-    if (!changedData || !changedData.productCode)
+    if (!changedData || !changedData.invoiceNumber)
       return
 
-    if ((!!col && col === 'productCode') || col === undefined) {
-      this.productCodeChanged(changedData, index)
-    }
-
-    if (col && col === 'nRealQty') {
-      this.quantityChanged(changedData, index)
+    if ((!!col && col === 'invoiceNumber') || col === undefined) {
+      this.invoiceNumberChanged(changedData, index)
     }
   }
 
-  private productCodeChanged(changedData: InvCtrlItemLine, index?: number): void {
-    this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-      next: product => {
-        console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
+  private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
+    this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
+      .then((invoice: Invoice) => {
         if (index !== undefined) {
           let tmp = this.dbData[index].data;
 
-          tmp.lineDescription = product.description ?? '';
-
-          tmp.vatRate = product.vatPercentage ?? 0.0;
-          tmp.unitVat = tmp.vatRate * tmp.unitPrice;
-          product.vatRateCode = product.vatRateCode === null || product.vatRateCode === undefined || product.vatRateCode === '' ? '27%' : product.vatRateCode;
-          tmp.vatRateCode = product.vatRateCode;
-
-          tmp.productID = product.id;
+          tmp = HelperFunctions.PatchObject(invoice, tmp, [], [{ from: 'id', to: 'invoiceID' }])
 
           this.dbData[index].data = tmp;
-
           this.dbDataDataSrc.setData(this.dbData);
-
-          console.log("after TableRowDataChanged: ", this.dbDataTable.data);
         }
 
         this.RecalcNetAndVat();
-      },
-      error: () => {
-        this.RecalcNetAndVat();
-      }
-    });
-  }
-
-  private async quantityChanged(changedData: InvCtrlItemLine, index?: number): Promise<void> {
-    try {
-      this.isLoading = true
-
-      const request = {
-        productID: changedData.productID,
-        warehouseCode: this.tokenService.wareHouse?.warehouseCode,
-        retroDays: 7
-      } as GetLatestIccRequest
-
-      const response = await this.invCtrlItemService.getLatestIcc(request)
-
-      if (response && !changedData.doAddToExisting) {
-        const day = moment(response.invCtrlDate).format('YYYY-MM-DD')
-        const message = `${response.productCode} ${response.product} ${day}-n leltározva volt ${response.nRealQty} készlettel. Hozzáadjuk a mennyiséget a leltározott készlethez?`
-
-        HelperFunctions.confirm(
-          this.dialogService,
-          message,
-          () => {
-            changedData.doAddToExisting = true
-            changedData.nRealQty = parseInt(changedData.nRealQty.toString()) + response.nRealQty
-
-            this.kbS.ClickCurrentElement()
-          },
-          () => {
-            changedData.doAddToExisting = false
-
-            this.kbS.ClickCurrentElement()
-          })
-      }
-    } catch (error) {
-      this.cs.HandleError(error)
-    } finally {
-      this.isLoading = false
-    }
+      })
+    .catch(err => {
+      this.cs.HandleError(err)
+    })
   }
 
   CheckSaveConditionsAndSave(): void {
     this.dateForm.markAllAsTouched();
 
-    if (this.dateForm.invalid) {
-      this.bbxToastrService.show(
-        `Az űrlap hibásan vagy hiányosan van kitöltve.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    }
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
@@ -502,28 +449,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
 
     this.Save();
-  }
-
-  protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.status.waitForLoad(true)
-
-    try {
-      const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
-
-      this.status.waitForLoad(false)
-
-      this.dialogService.open(ProductStockInformationDialogComponent, {
-        context: {
-          product: product
-        }
-      })
-    }
-    catch (error) {
-      this.cs.HandleError(error)
-    }
-    finally {
-      this.status.waitForLoad(false)
-    }
   }
 
   /////////////////////////////////////////////
@@ -550,7 +475,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
             return;
           }
           event.preventDefault();
-          this.dbDataTable.GetEditedRow()?.data.Restore('productCode');
+          this.dbDataTable.GetEditedRow()?.data.Restore('invoiceNumber');
           return;
         }
         case KeyBindings.F11: {
@@ -577,21 +502,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
       switch (_event.key) {
-        case this.KeySetting[Actions.Refresh].KeyCode: {
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(_event)
-            return
-          }
-          _event.preventDefault()
-
-          if (this.kbS.p.y === this.dbData.length - 1) {
-            break
-          }
-
-          const productCode = this.dbData[this.kbS.p.y].data.productCode
-          this.openProductStockInformationDialog(productCode)
-          break
-        }
         case this.KeySetting[Actions.Delete].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(_event);
@@ -600,26 +510,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           _event.preventDefault();
           HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
-          });
-          break;
-        }
-        case this.KeySetting[Actions.Search].KeyCode: {
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(_event);
-            return;
-          }
-          _event.preventDefault();
-          this.ChooseDataForTableRow(event.RowPos, event.WasInNavigationMode);
-          break;
-        }
-        case this.KeySetting[Actions.Create].KeyCode: {
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(_event);
-            return;
-          }
-          _event.preventDefault();
-          this.CreateProduct(event.RowPos, product => {
-            return this.HandleProductChoose(product, event.WasInNavigationMode, event.RowPos);
           });
           break;
         }

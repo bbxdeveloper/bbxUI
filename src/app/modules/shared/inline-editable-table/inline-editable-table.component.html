@@ -45,6 +45,21 @@
                                     </div>
                                 </ng-container>
 
+                                <ng-container *ngSwitchCase="'invoice-number'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        oninput="this.value = this.value.toUpperCase()"
+                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
+                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
                                 <ng-container *ngSwitchCase="'formatted-number'">
                                     <app-bbx-numeric-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         [(ngModel)]="row.data[it.objectKey]" [name]="InputId"
@@ -111,6 +126,20 @@
                                     </div>
                                 </ng-container>
 
+                                <ng-container *ngSwitchCase="'date'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput type="datetime" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" mask="0000-00-00" [validation]="true"
+                                        [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ GetDateString(row.data[it.objectKey]) }}
+                                    </div>
+                                </ng-container>
+
                                 <ng-container *ngSwitchCase="'checkbox'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" type="checkbox" [name]="InputId"
@@ -152,6 +181,7 @@
 
                                 <ng-container *ngSwitchDefault="">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        oninput="this.value = it.uppercase ? this.value.toUpperCase() : this.value"
                                         autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
@@ -174,6 +204,11 @@
                                         row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' |
                                         replace:',':'.'
                                         }}
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'date'">
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ GetDateString(row.data[it.objectKey]) }}
                                     </div>
                                 </ng-container>
                                 <ng-container *ngSwitchDefault="">

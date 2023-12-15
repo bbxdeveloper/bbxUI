@@ -60,4 +60,6 @@ export interface ModelFieldDescriptor {
     cursorAfterLastChar?: boolean,
 
     checkIfReadonly?: (param: any) => boolean,
+
+    uppercase?: boolean
 }

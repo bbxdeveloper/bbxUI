@@ -1,35 +1,36 @@
 import { IEditable } from "src/assets/model/IEditable"
 import { MementoObject } from "src/assets/model/MementoObject"
-import { DynamicObject, JsonIgnore } from "src/assets/model/navigation/DynamicObject";
-import { HelperFunctions } from "src/assets/util/HelperFunctions";
+import { DynamicObject, JsonIgnore } from "src/assets/model/navigation/DynamicObject"
+import { HelperFunctions } from "src/assets/util/HelperFunctions"
 
 export class InvPayment extends DynamicObject {
     invPaymentItems: InvPaymentItem[] = []
 }
 
 export interface InvPaymentItemFull {
-    "invoiceID": number
-    "invoiceNumber": string
-    "paymentDate": string
-    "customerID": number
-    "customerName": string
-    "bankTransaction": string
-    "invPaymentDate": string
-    "currencyCode": string
-    "currencyCodeX": string
-    "exchangeRate": number
-    "invPaymentAmount": number
-    "invPaymentAmountHUF": number
-    "userID": number
-    "userName": string
+    invoiceID: number
+    invoiceNumber: string
+    paymentDate: string
+    customerID: number
+    customerName: string
+    bankTransaction: string
+    invPaymentDate: string
+    currencyCode: string
+    currencyCodeX: string
+    exchangeRate: number
+    invPaymentAmount: number
+    invPaymentAmountHUF: number
+    userID: number
+    userName: string
 }
 
-export class InvPaymentItem extends MementoObject implements IEditable {
+export class InvPaymentItem extends MementoObject implements IEditable, InvPaymentItemFull {
     @JsonIgnore
     public override DeafultFieldList: string[] = ['invoiceNumber'];
     @JsonIgnore
     public requiredFields?: string[]
 
+    // POST
     invoiceNumber: string = ''
     bankTransaction: string = ''
     invPaymentDate: string = ''
@@ -37,6 +38,26 @@ export class InvPaymentItem extends MementoObject implements IEditable {
     exchangeRate: number = 0
     invPaymentAmount: number = 0
     userID: number = 0
+
+    // GET, TABLE...
+    @JsonIgnore
+    invoiceID: number = 0
+    @JsonIgnore
+    paymentDate: string = ''
+    @JsonIgnore
+    customerID: number = 0
+    @JsonIgnore
+    customerName: string = ''
+    @JsonIgnore
+    currencyCodeX: string = ''
+    @JsonIgnore
+    invPaymentAmountHUF: number = 0
+    @JsonIgnore
+    userName: string = ''
+    @JsonIgnore
+    invoicePayedAmount: number = 0
+    @JsonIgnore
+    invoicePayedAmountHUF: number = 0
 
     constructor(requiredFields?: string[]) {
         super();
