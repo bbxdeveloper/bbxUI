@@ -50,10 +50,11 @@
                                         oninput="this.value = this.value.toUpperCase()"
                                         autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
-                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
                                         [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
                                         [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
-                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+                                        class="product-code-input input-table-cell select-first-char"
+                                        [style.text-align]="it.textAlign" />
 
                                     <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
                                         {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
