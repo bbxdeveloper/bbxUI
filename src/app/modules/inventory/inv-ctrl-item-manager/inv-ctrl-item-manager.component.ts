@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbSortDirection } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -19,8 +19,6 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { ProductSelectTableDialogComponent } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
-import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
@@ -43,6 +41,7 @@ import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } 
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { environment } from 'src/environments/environment';
+import { ConfirmationWithAuthDialogComponent } from '../../shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -178,11 +177,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private vatRateService: VatRateService,
     private stockService: StockService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
@@ -411,7 +408,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     if (!autoSave) {
-      const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
+      const confirmDialogRef = this.dialogService.open(ConfirmationWithAuthDialogComponent, { context: { title: Constants.MSG_CONFIRMATION_SAVE_DATA } });
       confirmDialogRef.onClose.subscribe(res => {
         if (res) {
           this.statusService.waitForSave(true)
@@ -435,11 +432,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           if (!!d.data) {
             console.log('Save response: ', d);
 
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL, true);
             this.statusService.waitForAutoSave(false)
 
             if (!autoSave) {
