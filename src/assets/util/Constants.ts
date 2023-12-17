@@ -24,7 +24,7 @@ export module Constants {
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
-    export const MSG_CONFIRMATION_DELETE_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem törlésését?";
+    export const MSG_CONFIRMATION_DELETE_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem törlését?";
     export const MSG_CONFIRMATION_LOCK: string = "Biztosan végre szeretné hajtani a zárást?";
     export const MSG_CONFIRMATION_LOCK_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem zárását?";
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
