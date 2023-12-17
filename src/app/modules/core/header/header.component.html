@@ -352,10 +352,16 @@
         <nb-card class="card-submenu-wrapper">
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-equalization-sub-1" [disabled]="InProgress"
+                    (click)="goTo('equalizations/query-financial-equalizations')">
+                    Pénzügyi kiegyenlítések
+                </button>
+            </nb-card-body>
+            <!-- <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-equalization-sub-2" [disabled]="InProgress"
                     (click)="goTo('equalizations/create-financial-equalization')">
                     Pénzügyi kiegyenlítés felvitele
                 </button>
-            </nb-card-body>
+            </nb-card-body> -->
         </nb-card>
     </ng-template>
 

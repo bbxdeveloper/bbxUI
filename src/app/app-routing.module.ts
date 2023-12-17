@@ -33,6 +33,7 @@ import { InbetweenWarehouseComponent } from './modules/warehouse/inbetween-wareh
 import { WarehouseDocumentManagerComponent } from './modules/warehouse/warehouse-document/warehouse-document-manager/warehouse-document-manager.component';
 import { CustomerInvoiceSummaryManagerComponent } from './modules/invoice/customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
 import { EqualizationCreatorComponent } from './modules/equalizations/equalization-manager/equalization-creator/equalization-creator.component';
+import { EqualizationNavigationManagerComponent } from './modules/equalizations/equalization-navigation/equalization-navigation-manager/equalization-navigation-manager.component';
 
 const routes: Routes = [
   {
@@ -266,6 +267,10 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     canDeactivate: [NavigationGuard],
     children: [
+      {
+        path: 'query-financial-equalizations',
+        component: EqualizationNavigationManagerComponent,
+      },
       {
         path: 'create-financial-equalization',
         component: EqualizationCreatorComponent,

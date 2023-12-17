@@ -9,12 +9,18 @@ import { NbLayoutModule, NbCardModule, NbButtonModule, NbTreeGridModule, NbTabse
 import { InputMaskModule } from '@ngneat/input-mask';
 import { AngularSplitModule } from 'angular-split';
 import { NgxMaskModule } from 'ngx-mask';
+import { EqualizationNavigationFilterFormComponent } from './equalization-navigation/equalization-navigation-filter-form/equalization-navigation-filter-form.component';
+import { EqualizationNavigationManagerComponent } from './equalization-navigation/equalization-navigation-manager/equalization-navigation-manager.component';
+import { EqualizationNavigationSideBarFormComponent } from './equalization-navigation/equalization-navigation-side-bar-form/equalization-navigation-side-bar-form.component';
 
 
 
 @NgModule({
   declarations: [
-    EqualizationCreatorComponent
+    EqualizationCreatorComponent,
+    EqualizationNavigationFilterFormComponent,
+    EqualizationNavigationManagerComponent,
+    EqualizationNavigationSideBarFormComponent
   ],
   imports: [
     CommonModule,
@@ -46,7 +52,8 @@ import { NgxMaskModule } from 'ngx-mask';
     InputMaskModule,
   ],
   exports: [
-    EqualizationCreatorComponent
+    EqualizationCreatorComponent,
+    EqualizationNavigationManagerComponent
   ]
 })
 export class EqualizationsModule { }
