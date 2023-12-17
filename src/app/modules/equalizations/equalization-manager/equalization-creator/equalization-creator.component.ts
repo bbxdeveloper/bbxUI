@@ -4,7 +4,7 @@ import { FormGroup, AbstractControl, ValidationErrors, FormControl, Validators }
 import { Router } from '@angular/router';
 import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import moment from 'moment';
-import { Subscription, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
 import { CreateIccRequest } from 'src/app/modules/inventory/models/CreateIccRequest';
 import { CreateInvCtrlItemRequest } from 'src/app/modules/inventory/models/CreateInvCtrlItemRequest';
@@ -45,6 +45,8 @@ import { EqualizationCreatorKeySettings, GetFooterCommandListFromKeySettings, Ac
 import { EqualizationsService } from '../../services/equalizations.service';
 import { InvoiceService } from 'src/app/modules/invoice/services/invoice.service';
 import { Invoice } from 'src/app/modules/invoice/models/Invoice';
+import { CurrencyCode } from 'src/app/modules/system/models/CurrencyCode';
+import { SystemService } from 'src/app/modules/system/services/system.service';
 
 @Component({
   selector: 'app-equalization-creator',
@@ -63,6 +65,12 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
+
+  currencyCodes: string[] = []
+  currencyCodeValues: { [key: string]: CurrencyCode } = {}
+  get currencyCodeComboData$(): BehaviorSubject<string[]> {
+    return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
+  }
 
   override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePayedAmount", "invPaymentAmountHUF"];
   override allColumns = [
@@ -110,8 +118,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     },
     {
       label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode',
-      defaultValue: '', type: 'string', mask: "",
-      colWidth: "125px", textAlign: "left",
+      defaultValue: '', type: 'string', mask: "", //fInputType: 'combobox', fReadonly: false,
+      colWidth: "125px", textAlign: "left", comboboxData$: new BehaviorSubject<string[]>([])
     },
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
@@ -166,11 +174,34 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     router: Router,
     private readonly tokenService: TokenStorageService,
     private readonly invPaymentService: EqualizationsService,
-    private readonly invoiceService: InvoiceService
+    private readonly invoiceService: InvoiceService,
+    private readonly systemService: SystemService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
     this.initialSetup();
+  }
+
+  private async refreshComboboxData(setIsLoad = false): Promise<void> {
+    await lastValueFrom(this.systemService.GetAllCurrencyCodes())
+      .then(data => {
+        console.log("[refreshComboboxData] GetAllCurrencyCodes: ", data);
+
+        this.currencyCodes =
+          data?.map(x => {
+            let res = x.text;
+            this.currencyCodeValues[res] = x;
+            return x.text;
+          }) ?? [];
+
+        this.currencyCodes =
+          data?.map(x => x.text) ?? [];
+        this.currencyCodeComboData$.next(this.currencyCodes);
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => { });
   }
 
   private initialSetup(): void {
@@ -223,8 +254,9 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.RefreshTable();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
+    await this.refreshComboboxData()
   }
 
   ngAfterViewInit(): void {

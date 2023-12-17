@@ -78,10 +78,7 @@ export class InvPaymentItem extends MementoObject implements IEditable, InvPayme
             }) > -1
         }
         return HelperFunctions.isEmptyOrSpaces(this.invoiceNumber)
-            || HelperFunctions.isEmptyOrSpaces(this.bankTransaction)
-            || HelperFunctions.isEmptyOrSpaces(this.invPaymentDate)
-            || HelperFunctions.isEmptyOrSpaces(this.currencyCode)
-            || this.exchangeRate === 0
+            || HelperFunctions.isEmptyOrSpaces(this.customerName)
     }
 }
 

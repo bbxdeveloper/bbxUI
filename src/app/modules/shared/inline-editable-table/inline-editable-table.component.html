@@ -61,6 +61,27 @@
                                     </div>
                                 </ng-container>
 
+                                <ng-container *ngSwitchCase="'combobox'">
+                                    <app-bbx-inline-table-combo-box *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
+                                        [(ngModel)]="row.data[it.objectKey]"
+                                        [id]="InputId" [name]="InputId"
+                                        [style.text-align]="it.textAlign"
+                                        class="product-code-input input-table-cell select-first-char"
+                                        [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        [needErrorMsg]="false"
+                                        [needBlankOption]="false"
+                                        [autoFillFirstAvailableValue]="true"
+                                        [simpleMode]="false"
+                                        [data$]="it.comboboxData$!">
+                                    </app-bbx-inline-table-combo-box>
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
                                 <ng-container *ngSwitchCase="'formatted-number'">
                                     <app-bbx-numeric-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         [(ngModel)]="row.data[it.objectKey]" [name]="InputId"

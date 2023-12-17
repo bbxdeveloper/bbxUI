@@ -1,3 +1,4 @@
+import { BehaviorSubject } from "rxjs";
 import { Constants } from "../util/Constants";
 import { Actions } from "../util/KeyBindings";
 
@@ -61,5 +62,7 @@ export interface ModelFieldDescriptor {
 
     checkIfReadonly?: (param: any) => boolean,
 
-    uppercase?: boolean
+    uppercase?: boolean,
+
+    comboboxData$?: BehaviorSubject<string[]>
 }
