@@ -19,6 +19,7 @@ export module Constants {
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'
+    export const MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE = 'Beszerzési ár alatt nem lehet eladni!'
 
     export const MSG_CONFIRMATION_CUSTOMER_LOCK_RELEASE = 'Elvégezhető a zárolt partnerek feloldása?'
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";

@@ -58,7 +58,7 @@ export class InvoiceLine extends MementoObject implements IEditable {
     vatRateCode: string = ''; // below table
 
     @JsonIgnore
-    latestSupplyPrice?: number
+    latestSupplyPrice: number|undefined = undefined
 
     @JsonIgnore
     lineNetAmount: number = 0.0; // price * quant
