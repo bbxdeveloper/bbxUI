@@ -258,7 +258,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   }
 
   async RefreshAsync(params?: GetInvPaymentsParamListModel): Promise<void> {
-    this.isLoading = true;
+    this.sts.waitForLoad(true)
 
     await lastValueFrom(this.equalizationService.GetAll(params))
       .then(async d => {
@@ -282,9 +282,10 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
       })
       .catch(err => {
         this.cs.HandleError(err);
+        this.sts.waitForLoad(false)
       })
       .finally(() => {
-        this.isLoading = false;
+        this.sts.waitForLoad(false)
       })
   }
 

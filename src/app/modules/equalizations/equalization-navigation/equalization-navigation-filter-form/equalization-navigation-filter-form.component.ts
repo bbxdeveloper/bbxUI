@@ -58,7 +58,7 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
   public TileCssClass = TileCssClass
 
   public filterForm!: FormGroup
-  public filterFormId = 'stock-document-filter-form'
+  public filterFormId = 'equalizations-navigation-filter-form'
   filterFormNav!: InlineTableNavigatableForm
   outInvFormNav$ = new BehaviorSubject<InlineTableNavigatableForm[]>([])
 
