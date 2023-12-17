@@ -14,6 +14,7 @@ export class BbxComboBoxComponent implements AfterViewInit {
   @Input() currentForm?: FlatDesignNavigatableForm | FlatDesignNoTableNavigatableForm | InlineTableNavigatableForm;
   @Input() formFieldName: string = '';
   @Input() label: string = '';
+  @Input() labelWidth: string = '185px'
   @Input() getData: () => string[] = () => [];
   @Input() data$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   @Input() isWide: boolean = true;
