@@ -1,1 +1,106 @@
-<p>equalization-navigation-side-bar-form works!</p>
+<nb-card>
+    <nb-card-body class="bbx-fd-ncb">
+        <app-crud-buttons class="crud-buttons" [TileCssClass]="TileCssClass" [currentForm]="currentForm"
+            [KeySetting]="KeySetting" [newButton]="false" [editButton]="false" [deleteButton]="false"
+            [saveButton]="false" [resetButton]="false" [lockButton]="true">
+        </app-crud-buttons>
+
+        <form *ngIf="!!currentForm" id="sideBarForm" [formGroup]="currentForm.form" #formDirective="ngForm"
+            (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape($event)"
+            (click)="currentForm.HandleFormClick()">
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Számla ID</label>
+                        <input nbInput type="text" formControlName="invoiceID" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div">
+                        <label class="multicol-label-col-2">Számlaszám</label>
+                        <input nbInput type="text" formControlName="invoiceNumber" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Fiz.hat</label>
+                        <input nbInput type="datetime" formControlName="paymentDate" readonly mask="0000-00-00">
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div">
+                        <label class="multicol-label-col-2">Partner ID</label>
+                        <input nbInput type="text" formControlName="customerID" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Partner</label>
+                    <input nbInput type="text" formControlName="customerName" readonly>
+                </div>
+            </nb-form-field>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Banki tranzakció</label>
+                        <input nbInput type="text" formControlName="bankTransaction" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Dátum</label>
+                        <input nbInput type="text" formControlName="invPaymentDate" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Pénznem</label>
+                        <input nbInput type="text" formControlName="currencyCodeX" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Árfolyam</label>
+                        <input nbInput [inputMask]="numberInputMask" type="text" formControlName="exchangeRate" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Összeg</label>
+                        <input nbInput type="text" [inputMask]="numberInputMask" formControlName="invPaymentAmount" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Összeg forintban</label>
+                        <input nbInput type="text" [inputMask]="numberInputMask" formControlName="invPaymentAmountHUF" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Rögzítette</label>
+                    <input nbInput type="text" formControlName="userName" readonly>
+                </div>
+            </nb-form-field>
+        </form>
+    </nb-card-body>
+</nb-card>

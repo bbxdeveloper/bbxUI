@@ -1,1 +1,24 @@
-<p>equalization-navigation-manager works!</p>
+<as-split direction="horizontal">
+    <as-split-area [size]="53">
+        <app-hozirontal-split-layout proportion="30" [hideDivider]="true">
+            <app-head-line msg="Raktárközi átadás bizonylatok" title></app-head-line>
+
+            <app-equalization-navigation-filter-form (refreshClicked)="refreshClicked($event)"
+                (pageReady)="filterFormPageReady()" top>
+            </app-equalization-navigation-filter-form>
+
+            <ng-container bottom>
+                <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+                    [heightMargin]="520" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                    [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+                    (focusOutTable)="focusOnTable(false)">
+                </app-flat-design-table>
+
+                <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+            </ng-container>
+        </app-hozirontal-split-layout>
+    </as-split-area>
+    <as-split-area [size]="47" *ngIf="isSideBarOpened">
+        <app-equalization-navigation-side-bar-form class="bbx-sidebar"></app-equalization-navigation-side-bar-form>
+    </as-split-area>
+</as-split>
