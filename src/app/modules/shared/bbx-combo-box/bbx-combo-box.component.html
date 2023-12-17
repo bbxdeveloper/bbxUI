@@ -2,7 +2,7 @@
     <nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
         (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, defaultDataCount, comboBoxData, '', false, lastFormField)">
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
-            <label *ngIf="label.length > 0">{{label}}</label>
+            <label *ngIf="label.length > 0" [ngStyle]="{ minWidth: labelWidth }">{{label}}</label>
 
             <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text" readonly
                 (click)="currentForm?.HandleFormFieldClick($event)" (focus)="select($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
@@ -27,7 +27,7 @@
     <nb-form-field [ngClass]="wrapperClass" *ngIf="!!(currentForm?.form)" [formGroup]="currentForm!.form"
         (keydown.enter)="currentForm?.HandleFormDropdownEnter($event, currentDataCount, currentFilteredData, currentTypedData, false, lastFormField, formFieldName)">
         <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses">
-            <label *ngIf="label.length > 0">{{label}}</label>
+            <label *ngIf="label.length > 0" [ngStyle]="{ minWidth: labelWidth }">{{label}}</label>
 
             <input class="{{TileCssClass}}" [formControlName]="formFieldName" nbInput type="text" [readOnly]="isReadonly"
                 (click)="currentForm?.HandleFormFieldClick($event)" (focus)="select($event)" [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
