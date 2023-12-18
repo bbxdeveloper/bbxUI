@@ -414,6 +414,9 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
         case KeyBindings.F11: {
           _event.stopImmediatePropagation();
