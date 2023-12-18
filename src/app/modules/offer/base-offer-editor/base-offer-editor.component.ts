@@ -47,6 +47,7 @@ import { GetCustomerParamListModel } from '../../customer/models/GetCustomerPara
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { OfflineUnitOfMeasures } from '../../product/models/UnitOfMeasure';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -451,8 +452,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       description: undefined,
       productGroup: undefined,
       origin: undefined,
-      unitOfMeasure: undefined,
-      unitOfMeasureX: undefined,
+      unitOfMeasure: OfflineUnitOfMeasures.PIECE.value,
+      unitOfMeasureX: OfflineUnitOfMeasures.PIECE.text,
       unitPrice1: 0,
       unitPrice2: 0,
       latestSupplyPrice: 0,
@@ -463,8 +464,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       active: true,
       vtsz: '',
       ean: '',
-      vatRateCode: '',
-      vatPercentage: 0,
+      vatRateCode: '27%',
+      vatPercentage: 0.27,
       noDiscount: true
     } as Product
     return p
