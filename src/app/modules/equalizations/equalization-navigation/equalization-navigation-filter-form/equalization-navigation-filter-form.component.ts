@@ -34,7 +34,7 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
   }
 
   @Input()
-  public set warehouseDocumentFormData(formData: EqualizationsNavigationFilterFormData | undefined) {
+  public set equalizationNavigationFormData(formData: EqualizationsNavigationFilterFormData | undefined) {
     if (!formData) {
       return
     }
@@ -44,7 +44,7 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
     controls['FromDate'].setValue(formData.FromDate)
     controls['ToDate'].setValue(formData.ToDate)
   }
-  public get warehouseDocumentFormData() {
+  public get equalizationNavigationFormData() {
     const controls = this.filterForm.controls
 
     const formData = {
@@ -194,10 +194,10 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
 
     const savedStatus = HelperFunctions.isEmptyOrSpaces(filter.SearchString)
     if (!savedStatus) {
-      controls['Status'].setValue(filter.SearchString)
+      controls['SearchString'].setValue(filter.SearchString)
     }
     else {
-      controls['Status'].setValue(undefined)
+      controls['SearchString'].setValue(undefined)
     }
   }
 
@@ -217,7 +217,7 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
 
   public Refresh(): void {
     this.localStorage.put(this.localStorageKey, this.filterForm.value)
-    this.refreshClicked.emit(this.warehouseDocumentFormData)
+    this.refreshClicked.emit(this.equalizationNavigationFormData)
   }
 
   MoveToSearchButton(event: any): void {

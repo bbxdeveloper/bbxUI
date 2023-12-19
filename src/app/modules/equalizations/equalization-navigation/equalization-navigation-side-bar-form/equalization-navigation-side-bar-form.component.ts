@@ -1,12 +1,10 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { LocationService } from 'src/app/modules/location/services/location.service';
 import { BaseSideBarFormComponent } from 'src/app/modules/shared/base-side-bar-form/base-side-bar-form.component';
-import { WhsTransferService } from 'src/app/modules/warehouse/services/whs-transfer.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { Constants } from 'src/assets/util/Constants';
-import { KeyBindings, WarehouseDocumentsKeySettings } from 'src/assets/util/KeyBindings';
+import { KeyBindings, EqualizationNavigationManagerComponentKeySettings } from 'src/assets/util/KeyBindings';
 
 @Component({
   selector: 'app-equalization-navigation-side-bar-form',
@@ -20,7 +18,7 @@ export class EqualizationNavigationSideBarFormComponent extends BaseSideBarFormC
     return KeyBindings;
   }
 
-  public override KeySetting: Constants.KeySettingsDct = WarehouseDocumentsKeySettings;
+  public override KeySetting: Constants.KeySettingsDct = EqualizationNavigationManagerComponentKeySettings;
 
   customPatterns = Constants.ProductCodePatterns;
 

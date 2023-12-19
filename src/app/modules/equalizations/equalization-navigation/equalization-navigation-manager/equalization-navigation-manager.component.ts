@@ -20,7 +20,7 @@ import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesi
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { WarehouseDocumentsKeySettings, GetFooterCommandListFromKeySettings, Actions } from 'src/assets/util/KeyBindings';
+import { EqualizationNavigationManagerComponentKeySettings, GetFooterCommandListFromKeySettings, Actions } from 'src/assets/util/KeyBindings';
 import { GetInvPaymentsParamListModel } from '../../models/GetInvPaymentsParamListModel';
 import { InvPaymentItem, InvPaymentItemFull } from '../../models/InvPayment';
 import { EqualizationsNavigationFilterFormData } from '../equalization-navigation-filter-form/EqualizationsNavigationFilterFormData';
@@ -34,7 +34,7 @@ import { EqualizationsService } from '../../services/equalizations.service';
 export class EqualizationNavigationManagerComponent extends BaseManagerComponent<InvPaymentItem> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
 
-  public override KeySetting: Constants.KeySettingsDct = WarehouseDocumentsKeySettings;
+  public override KeySetting: Constants.KeySettingsDct = EqualizationNavigationManagerComponentKeySettings;
   public override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   override allColumns = [
@@ -66,7 +66,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     },
     {
       label: 'Kiegyenlítve', objectKey: 'invoicePayedAmount', colKey: 'invoicePayedAmount',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'formatted-number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
@@ -86,12 +86,12 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     },
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'formatted-number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Összeg', objectKey: 'invPaymentAmount', colKey: 'invPaymentAmount',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'formatted-number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     }
   ]
