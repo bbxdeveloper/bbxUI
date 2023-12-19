@@ -1,1 +1,5 @@
-@import 'side-bar-form-default';
+@use 'side-bar-form-default';
+
+label {
+    min-width: 130px !important;
+}

@@ -697,6 +697,9 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
         case this.KeySetting[Actions.Refresh].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {

@@ -498,20 +498,14 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             if (d.succeeded && !!d.data) {
               const di = this.dbData.findIndex((x) => x.data.id === id);
               this.dbData.splice(di, 1);
-              this.simpleToastrService.show(
-                Constants.MSG_DELETE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
+              this.bbxToastrService.showSuccess(Constants.MSG_DELETE_SUCCESFUL, true);
+
               this.HandleGridSelectionAfterDelete(di);
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.simpleToastrService.show(
-                d.errors!.join('\n'),
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR_5_SEC
-              );
+              this.bbxToastrService.showError(d.errors!.join('\n'), true);
+
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }

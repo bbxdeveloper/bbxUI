@@ -206,12 +206,13 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.ResetEdit();
     }
 
-    ClickByObjectKey(objectKey: string, timeout: number = 200): void {
+    ClickByObjectKey(objectKey: string, timeout: number = 200, yIndex: number|undefined = undefined): void {
         setTimeout(() => {
             const filteredCols = this.colDefs.filter(x => !this.colsToIgnore.includes(x.objectKey))
-            const nextIndex = filteredCols.findIndex(x => x.objectKey.toLowerCase() === objectKey)
+            const nextIndex = filteredCols.findIndex(x => x.objectKey.toLowerCase() === objectKey.toLowerCase())
             this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-            this.kbS.SelectElementByCoordinate(nextIndex, this.kbS.p.y)
+            const y = yIndex ?? this.kbS.p.y
+            this.kbS.SelectElementByCoordinate(nextIndex, y)
             this.kbS.ClickCurrentElement()
         }, timeout);
     }

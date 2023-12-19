@@ -259,7 +259,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
 
       this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
     } else {
-      this.sumForm.controls['invoiceDiscountValue'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum);
+      const discountedValue = HelperFunctions.currencyRound(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum, this.data.currencyCode)
+      this.sumForm.controls['invoiceDiscountValue'].setValue(discountedValue);
 
       this.sumForm.controls['invoiceNetAmount'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineNetSum);
     }

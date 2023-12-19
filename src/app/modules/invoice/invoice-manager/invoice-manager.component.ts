@@ -984,6 +984,16 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
+      if (changedData.unitPrice < (changedData.latestSupplyPrice ?? 0)) {
+        setTimeout(() => this.bbxToastrService.showError(Constants.MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE), 0)
+
+        this.dbData[index].data.Restore()
+
+        this.dbDataTable.ClickByObjectKey('unitPrice', 200, index)
+
+        return
+      }
+
       changedData.unitPrice = HelperFunctions.currencyRound(changedData.unitPrice, this.outGoingInvoiceData.currencyCode)
 
       this.RecalcNetAndVat()
@@ -1020,6 +1030,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     product.productGroup = !!product.productGroup ? product.productGroup : '-';
     res.noDiscount = product.noDiscount;
+
+    res.latestSupplyPrice = product.latestSupplyPrice
 
     let unitPrice: number
     if (this.buyerData) {
