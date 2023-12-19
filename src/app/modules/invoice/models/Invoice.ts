@@ -51,5 +51,6 @@ export interface Invoice {
     updateTime: string,
     deleted: boolean,
     summaryByVatRates: any[],
-    invPayments: any[]
+    invPayments: any[],
+    currencyCode: string,
 }

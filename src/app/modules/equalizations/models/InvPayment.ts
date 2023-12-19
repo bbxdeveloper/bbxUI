@@ -59,6 +59,11 @@ export class InvPaymentItem extends MementoObject implements IEditable, InvPayme
     @JsonIgnore
     invoicePayedAmountHUF: number = 0
 
+    @JsonIgnore
+    get GetInvoicePayedAmountHUF(): number {
+        return HelperFunctions.Round2(this.invPaymentAmount * this.exchangeRate, 1)
+    }
+
     constructor(requiredFields?: string[]) {
         super();
         this.SaveDefault();

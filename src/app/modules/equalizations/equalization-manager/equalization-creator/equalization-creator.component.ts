@@ -1,27 +1,12 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { InvPayment, InvPaymentItem } from '../../models/InvPayment';
-import { FormGroup, AbstractControl, ValidationErrors, FormControl, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import moment from 'moment';
 import { BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
-import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
-import { CreateIccRequest } from 'src/app/modules/inventory/models/CreateIccRequest';
-import { CreateInvCtrlItemRequest } from 'src/app/modules/inventory/models/CreateInvCtrlItemRequest';
-import { GetAllInvCtrlPeriodsParamListModel } from 'src/app/modules/inventory/models/GetAllInvCtrlPeriodsParamListModel';
-import { GetLatestIccRequest } from 'src/app/modules/inventory/models/GetLatestIccRequest';
-import { InventoryCtrlItemService } from 'src/app/modules/inventory/services/inventory-ctrl-item.service';
-import { GetProductByCodeRequest } from 'src/app/modules/product/models/GetProductByCodeRequest';
-import { Product } from 'src/app/modules/product/models/Product';
-import { ProductService } from 'src/app/modules/product/services/product.service';
 import { BaseInlineManagerComponent } from 'src/app/modules/shared/base-inline-manager/base-inline-manager.component';
-import { ProductSelectTableDialogComponent } from 'src/app/modules/shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
-import { ProductStockInformationDialogComponent } from 'src/app/modules/shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from 'src/app/modules/shared/inline-editable-table/inline-editable-table.component';
 import { ConfirmationWithAuthDialogComponent, ConfirmationWithAuthDialogesponse } from 'src/app/modules/shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
-import { GetStockRecordParamsModel } from 'src/app/modules/stock/models/GetStockRecordParamsModel';
-import { StockRecord } from 'src/app/modules/stock/models/StockRecord';
-import { StockService } from 'src/app/modules/stock/services/stock.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -33,9 +18,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { validDate } from 'src/assets/model/Validators';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 import { TileCssClass, TileCssColClass, AttachDirection } from 'src/assets/model/navigation/Navigatable';
@@ -45,8 +28,9 @@ import { EqualizationCreatorKeySettings, GetFooterCommandListFromKeySettings, Ac
 import { EqualizationsService } from '../../services/equalizations.service';
 import { InvoiceService } from 'src/app/modules/invoice/services/invoice.service';
 import { Invoice } from 'src/app/modules/invoice/models/Invoice';
-import { CurrencyCode } from 'src/app/modules/system/models/CurrencyCode';
+import { CurrencyCode, CurrencyCodes } from 'src/app/modules/system/models/CurrencyCode';
 import { SystemService } from 'src/app/modules/system/services/system.service';
+import { GetExchangeRateParamsModel } from 'src/app/modules/system/models/GetExchangeRateParamsModel';
 
 @Component({
   selector: 'app-equalization-creator',
@@ -83,12 +67,12 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     'currencyCode',
     'exchangeRate',
     'invPaymentAmount',
-    'invPaymentAmountHUF'
+    'GetInvoicePayedAmountHUF'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Számlaszám', objectKey: 'invoiceNumber', colKey: 'invoiceNumber',
-      defaultValue: '', type: 'string', mask: "",
+      defaultValue: '', type: 'string', mask: "", uppercase: true,
       colWidth: "30%", textAlign: "left", fInputType: 'invoice-number'
     },
     {
@@ -108,7 +92,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     },
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
-      defaultValue: '', type: 'string', mask: "CCCCCCCCCCC", uppercase: true,
+      defaultValue: '', type: 'string', mask: "", uppercase: true,
       colWidth: "125px", textAlign: "left",
     },
     {
@@ -132,7 +116,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
-      label: 'Összeg HUF', objectKey: 'invPaymentAmountHUF', colKey: 'invPaymentAmountHUF',
+      label: 'Összeg HUF', objectKey: 'GetInvoicePayedAmountHUF', colKey: 'GetInvoicePayedAmountHUF',
       defaultValue: '', type: 'number', mask: "",
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     }
@@ -160,19 +144,15 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvPaymentItem>>,
-    private readonly invCtrlItemService: InventoryCtrlItemService,
     private readonly cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private readonly bbxToastrService: BbxToastrService,
     private readonly simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
-    private readonly productService: ProductService,
-    private readonly stockService: StockService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     router: Router,
-    private readonly tokenService: TokenStorageService,
     private readonly invPaymentService: EqualizationsService,
     private readonly invoiceService: InvoiceService,
     private readonly systemService: SystemService
@@ -340,6 +320,10 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
+  public isRowInErrorState(row: TreeGridNode<InvPaymentItem>): boolean {
+    return !row.data.IsUnfinished() && row.data.invPaymentAmount === 0
+  }
+
   async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true) {
     if (res.id === undefined || res.id === -1) {
       return;
@@ -365,9 +349,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       return;
     }
 
-    let newPaymentItem = new InvPaymentItem()
     let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-      data: HelperFunctions.PatchObject(res, newPaymentItem, [], [{ from: 'id', to: 'invoiceID'}])
+      data: await this.FromInvoice(res)
     }, ['invoiceNumber']);
     currentRow?.data.Save('invoiceNumber');
 
@@ -382,7 +365,26 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     return;
   }
 
-  async HandleProductChoose(res: Product, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {}
+  private async FromInvoice(res: Invoice): Promise<InvPaymentItem> {
+    let newPaymentItem = new InvPaymentItem()
+    newPaymentItem = HelperFunctions.PatchObject(res, newPaymentItem, [], [{ from: 'id', to: 'invoiceID'}])
+    
+    if (newPaymentItem.currencyCode === CurrencyCodes.HUF) {
+      newPaymentItem.exchangeRate = 1
+    } else {
+      const exchangeRate = await lastValueFrom(this.systemService.GetExchangeRate({
+        Currency: newPaymentItem.currencyCode,
+        ExchengeRateDate: res.invoiceIssueDate
+      } as GetExchangeRateParamsModel))
+        .catch(err => {
+          this.cs.HandleError(err)
+        })
+    }
+
+    return newPaymentItem
+  }
+
+  async HandleProductChoose(): Promise<void> {}
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
 
@@ -431,7 +433,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
             }
           }
         )
-        .catch(err => {
+        .catch(() => {
           this.dbDataTable.data[rowPos].data.Restore('invoiceNumber')
         })
         .finally(() => {
@@ -451,11 +453,11 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
   private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
     this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
-      .then((invoice: Invoice) => {
+      .then(async (invoice: Invoice) => {
         if (index !== undefined) {
           let tmp = this.dbData[index].data;
 
-          tmp = HelperFunctions.PatchObject(invoice, tmp, [], [{ from: 'id', to: 'invoiceID' }])
+          tmp = await this.FromInvoice(invoice)
 
           this.dbData[index].data = tmp;
           this.dbDataDataSrc.setData(this.dbData);

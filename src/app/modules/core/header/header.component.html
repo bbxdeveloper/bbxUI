@@ -343,7 +343,7 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-equalization" class="cl-header-menu" tabIndex="10" nbPopoverTrigger="focus"
-        data-sub="header-equalization-sub-1" nbPopoverPlacement="bottom" [nbPopover]="sub_equalizations"
+        data-sub="header-equalization-sub-1, header-equalization-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_equalizations"
         [disabled]="InProgress">Kiegyenlítések
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-equalization" class="cl-header-menu" tabIndex="10" data-sub="" disabled>Kiegyenlítések
@@ -356,12 +356,12 @@
                     Pénzügyi kiegyenlítések
                 </button>
             </nb-card-body>
-            <!-- <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-equalization-sub-2" [disabled]="InProgress"
                     (click)="goTo('equalizations/create-financial-equalization')">
                     Pénzügyi kiegyenlítés felvitele
                 </button>
-            </nb-card-body> -->
+            </nb-card-body>
         </nb-card>
     </ng-template>
 
