@@ -17,7 +17,7 @@ import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
-import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { EqualizationNavigationManagerComponentKeySettings, GetFooterCommandListFromKeySettings, Actions } from 'src/assets/util/KeyBindings';
@@ -57,41 +57,41 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     {
       label: 'Ügyfél', objectKey: 'customerName', colKey: 'customerName',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "80%", textAlign: "left",
+      colWidth: "80%", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',
       defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date',
-      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true
+      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true, navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Kiegyenlítve', objectKey: 'invoicePayedAmount', colKey: 'invoicePayedAmount',
-      defaultValue: '', type: 'formatted-number', mask: "",
+      defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
       defaultValue: '', type: 'string', mask: "CCCCCCCCCCC", uppercase: true,
-      colWidth: "125px", textAlign: "left",
+      colWidth: "125px", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
-      defaultValue: '', type: 'onlyDate', fInputType: 'date',
+      defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
       mask: '', colWidth: '120px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Pénznem', objectKey: 'currencyCodeX', colKey: 'currencyCodeX',
-      defaultValue: '', type: 'string', mask: "",
+      defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "left", comboboxData$: new BehaviorSubject<string[]>([])
     },
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
-      defaultValue: '', type: 'formatted-number', mask: "",
+      defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Összeg', objectKey: 'invPaymentAmount', colKey: 'invPaymentAmount',
-      defaultValue: '', type: 'formatted-number', mask: "",
+      defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     }
   ]
@@ -226,6 +226,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   }
 
   override Refresh(params?: GetInvPaymentsParamListModel): void {
+    console.warn('BEGIN override Refresh(params?: GetInvPaymentsParamListModel): void {')
     this.sts.waitForLoad(true)
     this.equalizationService.GetAll(params).subscribe({
       next: async (d) => {
@@ -238,6 +239,8 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
+          console.warn('this.RefreshTable(undefined, true);')
+          console.warn(this.dbDataTable.UpNeighbour)
           this.RefreshTable(undefined, true);
         } else {
           this.simpleToastrService.show(
@@ -253,6 +256,8 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
       },
       complete: () => {
         this.sts.waitForLoad(false)
+        console.warn('END override Refresh(params?: GetInvPaymentsParamListModel): void {')
+        console.warn(this.dbDataTable.Matrix)
       },
     })
   }
@@ -301,12 +306,15 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   }
 
   public filterFormPageReady(): void {
+    console.warn('filterFormPageReady')
     this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
     this.SetTableAndFormCommandListFromManager()
 
-    this.dbDataTable.GenerateAndSetNavMatrices(true)
     this.dbDataTable.PushFooterCommandList()
+    console.warn('this.dbDataTable.GenerateAndSetNavMatrices(true)')
+    this.dbDataTable.GenerateAndSetNavMatrices(true)
+    console.warn(this.dbDataTable.Matrix)
   }
 
   private RefreshAll(params?: GetInvPaymentsParamListModel): void {
