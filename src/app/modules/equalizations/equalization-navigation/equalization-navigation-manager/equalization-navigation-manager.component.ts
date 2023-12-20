@@ -316,7 +316,6 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
-    return
     if (this.khs.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
