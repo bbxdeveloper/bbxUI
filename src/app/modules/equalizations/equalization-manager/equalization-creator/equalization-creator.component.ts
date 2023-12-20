@@ -72,52 +72,52 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Számlaszám', objectKey: 'invoiceNumber', colKey: 'invoiceNumber',
-      defaultValue: '', type: 'string', mask: "", uppercase: true,
+      defaultValue: '', type: 'string', mask: "", uppercase: true, navMatrixCssClass: TileCssClass,
       colWidth: "30%", textAlign: "left", fInputType: 'invoice-number'
     },
     {
       label: 'Ügyfél', objectKey: 'customerName', colKey: 'customerName',
-      defaultValue: '', type: 'string', mask: "", fReadonly: true,
+      defaultValue: '', type: 'string', mask: "", fReadonly: true, navMatrixCssClass: TileCssClass,
       colWidth: "80%", textAlign: "left",
     },
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',
-      defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date',
+      defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date', navMatrixCssClass: TileCssClass,
       mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true
     },
     {
       label: 'Kiegyenlítve', objectKey: 'invoicePayedAmount', colKey: 'invoicePayedAmount',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
       defaultValue: '', type: 'string', mask: "", uppercase: true,
-      colWidth: "125px", textAlign: "left",
+      colWidth: "125px", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
-      defaultValue: '', type: 'onlyDate', fInputType: 'date',
+      defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
       mask: '', colWidth: '120px', textAlign: 'left', fReadonly: false
     },
     {
-      label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode',
+      label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode', navMatrixCssClass: TileCssClass,
       defaultValue: '', type: 'string', mask: "", //fInputType: 'combobox', fReadonly: false,
       colWidth: "125px", textAlign: "left", comboboxData$: new BehaviorSubject<string[]>([])
     },
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Összeg', objectKey: 'invPaymentAmount', colKey: 'invPaymentAmount',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Összeg HUF', objectKey: 'GetInvoicePayedAmountHUF', colKey: 'GetInvoicePayedAmountHUF',
-      defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     }
   ]
@@ -307,10 +307,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.dbDataTable.commandsOnTableEditMode = this.commands;
     this.dbDataTable.PushFooterCommandList();
 
-    this.kbS.SetCurrentNavigatable(this.dbDataTable);
-    this.kbS.SelectFirstTile();
-    this.kbS.setEditMode(KeyboardModes.EDIT);
-
     this.cdref.detectChanges();
 
     // TODO
@@ -318,6 +314,10 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       this.dbDataTable.data = [this.dbDataTable.data[0]];
       this.dbDataDataSrc.setData(this.dbDataTable.data);
     }
+
+    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+    this.kbS.SelectFirstTile()
+    this.kbS.ClickCurrentElement()
   }
 
   public isRowInErrorState(row: TreeGridNode<InvPaymentItem>): boolean {
