@@ -378,4 +378,5 @@
         </nb-tag-list>
     </nb-action>
 
+    <nb-action *ngIf="isDebug" (click)="GetNavigationInfo(true)" class="nb-action-storage-title">{{GetNavigationInfo(false)}}</nb-action>
 </nb-actions>

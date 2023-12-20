@@ -161,26 +161,19 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
     this.loadFilters()
 
     setTimeout(() => {
-      console.warn('this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)')
       this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
-
-      console.warn('this.keyboardService.SetCurrentNavigatable(this.filterFormNav)')
       this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
-      console.warn('this.pageReady.emit()')
       this.pageReady.emit()
 
       this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
       this.keyboardService.SelectFirstTile()
       this.keyboardService.ClickCurrentElement()
 
-      console.warn('after this.keyboardService.ClickCurrentElement()')
-
       const filter = this.localStorage.get<EqualizationsNavigationFilterFormData>(this.localStorageKey)
 
       if (filter) {
         this.filterForm.patchValue(filter)
-        console.warn('this.Refresh()')
         this.Refresh()
       }
     }, 200);

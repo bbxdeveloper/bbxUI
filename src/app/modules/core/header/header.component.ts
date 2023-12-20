@@ -86,6 +86,10 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     }
   }
 
+  get isDebug(): boolean {
+    return environment.debug
+  }
+
   constructor(
     private readonly dialogService: BbxDialogServiceService,
     private readonly keyboardService: KeyboardNavigationService,
@@ -101,6 +105,18 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private readonly systemService: SystemService,) {
     super();
     this.OuterJump = true;
+  }
+
+  GetNavigationInfo(log: boolean = false): any {
+    if (log) {
+      console.warn('---------------------------')
+      console.warn(this.keyboardService.p)
+      console.warn(this.keyboardService.Here)
+      console.warn(this.keyboardService.AroundHere)
+      console.warn(this.keyboardService.GetCurrentNavigatable)
+      console.warn('---------------------------')
+    }
+    return `[${this.keyboardService.p.x},${this.keyboardService.p.y}] : ${this.keyboardService.GetCurrentNavigatable?.constructor.name} : ${this.keyboardService.Here}`
   }
 
   override ngOnInit(): void {

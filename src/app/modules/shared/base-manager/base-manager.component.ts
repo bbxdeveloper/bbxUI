@@ -537,19 +537,12 @@ export class BaseManagerComponent<T> {
       !setAsCurrent
     );
     setTimeout(() => {
-      console.warn('BEGIN RefreshTable setTimeout')
-      console.warn($('#table_body'))
-      console.warn(this.dbDataTable.Matrix, this.dbDataTable.data, this.dbData, this.dbDataTable._data)
-      console.warn('GenerateAndSetNavMatrices')
       this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
-      console.warn(this.dbDataTable.Matrix)
       if (setAsCurrent && this.dbDataTable.Matrix.length > 0 && this.dbDataTable.Matrix[0].length > 0) {
         this.kbS.SetCurrentNavigatable(this.dbDataTable)
         this.kbS.SelectFirstTile()
       }
       this.kbS.ClickCurrentElement(true)
-      console.warn($('#table_body'))
-      console.warn('END RefreshTable setTimeout')
     }, 200);
   }
 

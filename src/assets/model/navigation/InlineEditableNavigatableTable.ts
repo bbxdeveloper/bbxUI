@@ -340,7 +340,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.inlineEditableTableMatrixGenerationLog) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 

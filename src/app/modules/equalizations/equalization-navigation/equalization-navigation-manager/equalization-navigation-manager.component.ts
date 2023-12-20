@@ -51,7 +51,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Számlaszám', objectKey: 'invoiceNumber', colKey: 'invoiceNumber',
-      defaultValue: '', type: 'string', mask: "",
+      defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "30%", textAlign: "left", fInputType: 'invoice-number'
     },
     {
@@ -226,7 +226,6 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   }
 
   override Refresh(params?: GetInvPaymentsParamListModel): void {
-    console.warn('BEGIN override Refresh(params?: GetInvPaymentsParamListModel): void {')
     this.sts.waitForLoad(true)
     this.equalizationService.GetAll(params).subscribe({
       next: async (d) => {
@@ -239,8 +238,6 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
             this.dbDataDataSrc.setData(this.dbData);
             this.dbDataTable.SetPaginatorData(d);
           }
-          console.warn('this.RefreshTable(undefined, true);')
-          console.warn(this.dbDataTable.UpNeighbour)
           this.RefreshTable(undefined, true);
         } else {
           this.simpleToastrService.show(
@@ -256,8 +253,6 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
       },
       complete: () => {
         this.sts.waitForLoad(false)
-        console.warn('END override Refresh(params?: GetInvPaymentsParamListModel): void {')
-        console.warn(this.dbDataTable.Matrix)
       },
     })
   }
@@ -306,15 +301,12 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   }
 
   public filterFormPageReady(): void {
-    console.warn('filterFormPageReady')
     this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
     this.SetTableAndFormCommandListFromManager()
 
     this.dbDataTable.PushFooterCommandList()
-    console.warn('this.dbDataTable.GenerateAndSetNavMatrices(true)')
     this.dbDataTable.GenerateAndSetNavMatrices(true)
-    console.warn(this.dbDataTable.Matrix)
   }
 
   private RefreshAll(params?: GetInvPaymentsParamListModel): void {
@@ -324,6 +316,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
   // F12 is special, it has to be handled in constructor with a special keydown event handling
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
+    return
     if (this.khs.IsKeyboardBlocked) {
       event.preventDefault();
       event.stopImmediatePropagation();
