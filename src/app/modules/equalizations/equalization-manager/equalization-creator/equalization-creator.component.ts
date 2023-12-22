@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { InvPayment, InvPaymentItem } from '../../models/InvPayment';
+import { InvPayment, InvPaymentItem, InvPaymentItemPost } from '../../models/InvPayment';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
@@ -50,11 +50,12 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
 
-  currencyCodes: string[] = []
-  currencyCodeValues: { [key: string]: CurrencyCode } = {}
-  get currencyCodeComboData$(): BehaviorSubject<string[]> {
-    return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
-  }
+  currencyCodes: CurrencyCode[] = []
+  // currencyCodes: string[] = []
+  // currencyCodeValues: { [key: string]: CurrencyCode } = {}
+  // get currencyCodeComboData$(): BehaviorSubject<string[]> {
+  //   return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
+  // }
 
   override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePayedAmount", "invPaymentAmountHUF"];
   override allColumns = [
@@ -72,7 +73,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Számlaszám', objectKey: 'invoiceNumber', colKey: 'invoiceNumber',
-      defaultValue: '', type: 'string', mask: "", uppercase: true, navMatrixCssClass: TileCssClass,
+      defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "30%", textAlign: "left", fInputType: 'invoice-number'
     },
     {
@@ -92,7 +93,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     },
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
-      defaultValue: '', type: 'string', mask: "", uppercase: true,
+      defaultValue: '', type: 'string', mask: "", fInputType: 'uppercase',
       colWidth: "125px", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
@@ -103,7 +104,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     {
       label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode', navMatrixCssClass: TileCssClass,
       defaultValue: '', type: 'string', mask: "", //fInputType: 'combobox', fReadonly: false,
-      colWidth: "125px", textAlign: "left", comboboxData$: new BehaviorSubject<string[]>([])
+      colWidth: "125px", textAlign: "left", fInputType: 'uppercase' //, comboboxData$: new BehaviorSubject<string[]>([])
     },
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
@@ -165,18 +166,17 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   private async refreshComboboxData(setIsLoad = false): Promise<void> {
     await lastValueFrom(this.systemService.GetAllCurrencyCodes())
       .then(data => {
-        console.log("[refreshComboboxData] GetAllCurrencyCodes: ", data);
+        this.currencyCodes = data
+        // this.currencyCodes =
+        //   data?.map(x => {
+        //     let res = x.text;
+        //     this.currencyCodeValues[res] = x;
+        //     return x.text;
+        //   }) ?? [];
 
-        this.currencyCodes =
-          data?.map(x => {
-            let res = x.text;
-            this.currencyCodeValues[res] = x;
-            return x.text;
-          }) ?? [];
-
-        this.currencyCodes =
-          data?.map(x => x.text) ?? [];
-        this.currencyCodeComboData$.next(this.currencyCodes);
+        // this.currencyCodes =
+        //   data?.map(x => x.text) ?? [];
+        // this.currencyCodeComboData$.next(this.currencyCodes);
       })
       .catch(err => {
         this.cs.HandleError(err);
@@ -188,7 +188,9 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.dbDataTableId = "offers-inline-table-invoice-line";
     this.cellClass = "PRODUCT";
 
-    this.invPaymentData = new InvPayment()
+    this.invPaymentData = {
+      invPaymentItems: []
+    } as InvPayment
 
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
@@ -248,8 +250,30 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.kbS.Detach();
   }
 
+  UpdateSaveData(): void {
+    this.invPaymentData.invPaymentItems =
+      this.dbDataTable.data
+        .filter(x => !x.data.IsUnfinished())
+        .map(x => x.data)
+        .filter(x => x.invoiceID > 0)
+
+    for (let i = 0; i < this.invPaymentData.invPaymentItems.length; i++) {
+      this.invPaymentData.invPaymentItems[i] = {
+        invoiceNumber: this.invPaymentData.invPaymentItems[i].invoiceNumber,
+        bankTransaction: this.invPaymentData.invPaymentItems[i].bankTransaction,
+        invPaymentDate: this.invPaymentData.invPaymentItems[i].invPaymentDate,
+        currencyCode: this.invPaymentData.invPaymentItems[i].currencyCode,
+        exchangeRate: HelperFunctions.ToFloat(this.invPaymentData.invPaymentItems[i].exchangeRate),
+        invPaymentAmount: HelperFunctions.ToFloat(this.invPaymentData.invPaymentItems[i].invPaymentAmount),
+        userID: this.invPaymentData.invPaymentItems[i].userID,
+      } as InvPaymentItemPost
+    }
+  }
+
   Save(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.UpdateSaveData()
 
     const confirmDialogRef = this.dialogService.open(ConfirmationWithAuthDialogComponent, { context: { title: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(async (res: ConfirmationWithAuthDialogesponse) => {
@@ -262,13 +286,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
         this.isSaveInProgress = true;
         this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
-        this.invPaymentData.invPaymentItems = 
-          this.dbDataTable.data
-          .filter(x => !x.data.IsUnfinished())
-          .map(x => x.data)
-          .filter(x => x.invoiceID > 0)
-
-        await this.invPaymentService.Create(this.invPaymentData)
+        await lastValueFrom(this.invPaymentService.Create(this.invPaymentData))
 
         this.simpleToastrService.show(
           Constants.MSG_SAVE_SUCCESFUL,
@@ -448,6 +466,40 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
     if ((!!col && col === 'invoiceNumber') || col === undefined) {
       this.invoiceNumberChanged(changedData, index)
+    }
+
+    if (col === 'currencyCode' && index !== null && index !== undefined) {
+      if (this.currencyCodes.find(x => x.value.toLowerCase() === changedData.currencyCode.toLowerCase()) === undefined) {
+        setTimeout(() => {
+          this.bbxToastrService.show(
+            Constants.MSG_ERROR_INVALID_CURRENCY_CODE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+        }, 0);
+        this.dbData[index].data.Restore()
+
+        this.dbDataTable.ClickByObjectKey('currencyCode')
+      } else {
+        changedData.Save()
+      }
+    }
+
+    if (col === 'invPaymentDate' && index !== null && index !== undefined) {
+      if (!HelperFunctions.IsDateStringValid(changedData.invPaymentDate + '') ) {
+        setTimeout(() => {
+          this.bbxToastrService.show(
+            Constants.MSG_ERROR_INVALID_DATE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+        }, 0);
+        this.dbData[index].data.Restore()
+
+        this.dbDataTable.ClickByObjectKey('invPaymentDate')
+      } else {
+        changedData.Save()
+      }
     }
   }
 

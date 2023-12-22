@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { catchError, lastValueFrom, Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonService } from 'src/app/services/common.service';
 import { environment } from 'src/environments/environment';
 import { CreateInvPaymentResponse } from '../models/CreateInvPaymentResponse';
@@ -47,6 +47,9 @@ export class EqualizationsService {
   }
 
   Create(req: InvPayment): Observable<CreateInvPaymentResponse> {
-    return this.http.post<CreateInvPaymentResponse>(this.BaseUrl, req.JsonStringify());
+    let options = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set("charset", "utf8")
+    return this.http.post<CreateInvPaymentResponse>(this.BaseUrl, req, { headers: options });
   }
 }

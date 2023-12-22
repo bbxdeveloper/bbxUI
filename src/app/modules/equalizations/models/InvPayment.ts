@@ -3,11 +3,21 @@ import { MementoObject } from "src/assets/model/MementoObject"
 import { DynamicObject, JsonIgnore } from "src/assets/model/navigation/DynamicObject"
 import { HelperFunctions } from "src/assets/util/HelperFunctions"
 
-export class InvPayment extends DynamicObject {
-    invPaymentItems: InvPaymentItem[] = []
+export interface InvPayment {
+    invPaymentItems: InvPaymentItemPost[]
 }
 
-export interface InvPaymentItemFull {
+export interface InvPaymentItemPost {
+    invoiceNumber: string
+    bankTransaction: string
+    invPaymentDate: string
+    currencyCode: string
+    exchangeRate: number
+    invPaymentAmount: number
+    userID: number
+}
+
+export interface InvPaymentItemFull extends InvPaymentItemPost {
     invoiceID: number
     invoiceNumber: string
     paymentDate: string

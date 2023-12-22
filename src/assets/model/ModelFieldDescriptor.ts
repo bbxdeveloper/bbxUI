@@ -62,7 +62,5 @@ export interface ModelFieldDescriptor {
 
     checkIfReadonly?: (param: any) => boolean,
 
-    uppercase?: boolean,
-
     comboboxData$?: BehaviorSubject<string[]>
 }

@@ -71,7 +71,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     },
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
-      defaultValue: '', type: 'string', mask: "CCCCCCCCCCC", uppercase: true,
+      defaultValue: '', type: 'string', mask: "",
       colWidth: "125px", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
