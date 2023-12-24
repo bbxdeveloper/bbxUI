@@ -237,6 +237,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     })
   }
 
+  public currentRealQty(): number | string {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return 0;
+    }
+
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
+  }
+
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
     if (!event.Focused) {
       this.dbData.forEach(x => x.data.ReCalc());

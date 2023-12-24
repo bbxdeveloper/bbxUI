@@ -149,6 +149,13 @@ export class InvoiceLine extends MementoObject implements IEditable {
     }
     //#endregion Gyűjtő számla
 
+    //#region Készlet
+
+    @JsonIgnore
+    realQty: number = 0
+
+    //#endregion Készlet
+
     constructor(requiredFields?: string[]) {
         super();
         this.SaveDefault();

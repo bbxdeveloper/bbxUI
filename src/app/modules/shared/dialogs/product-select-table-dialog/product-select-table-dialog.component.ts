@@ -14,7 +14,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { GetProductsParamListModel } from '../../../product/models/GetProductsParamListModel';
-import { Product, ProductRow, ProductToProductRow } from '../../../product/models/Product';
+import { Product, ProductRow, ProductRowToProduct, ProductToProductRow } from '../../../product/models/Product';
 import { ProductService } from '../../../product/services/product.service';
 import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
 import { CurrencyCodes } from '../../../system/models/CurrencyCode';
@@ -346,6 +346,12 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       this.Search(this.searchString)
     }
   }
+
+  // override close(answer?: ProductRow) {
+  //   this.closedManually = true;
+  //   this.kbS.RemoveWidgetNavigatable();
+  //   this.dialogRef.close(answer ? ProductRowToProduct(answer) : answer);
+  // }
 
   @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.code === 'Tab') {

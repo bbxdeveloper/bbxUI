@@ -117,6 +117,7 @@
     (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)" (tableKeyDown)="onTableFunctionKeyDown($event)">
 </app-inline-editable-table>
 <div class="table-statistics-net-vat-gross">
+    <div>Készlet: {{ currentRealQty() | number:'1.2':'fr' | replace:',':'.' }}</div>
     <div>Bizonylat száma: {{SelectedRowProperty('invoiceNumber')}}</div>
     <div>Munkaszám: {{SelectedRowProperty('workNumber')}}</div>
     <div>Tételek nettó: {{this.invoiceStatisticsService.SummaryInvoiceInvoiceLineNetSum | number:'1.2':'fr' | replace:',':'.'}}</div>

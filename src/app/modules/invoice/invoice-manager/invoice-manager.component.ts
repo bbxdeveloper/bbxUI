@@ -1066,6 +1066,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
 
+    res.realQty = product.activeStockRealQty ?? 0
+
     return res;
   }
 

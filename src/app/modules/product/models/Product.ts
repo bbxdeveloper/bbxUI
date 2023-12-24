@@ -29,6 +29,7 @@ export interface Product {
     minMargin: number,
     unitWeight?: number,
     stocks?: ProductStockInfo[]
+    activeStockRealQty?: number
 }
 
 export class ProductRow implements Product {
@@ -112,6 +113,17 @@ export function ProductToProductRow(p: Product, activeWareHouseId?: number): Pro
     })
 
     result.activeWareHouseId = activeWareHouseId ?? -1
+
+    return result
+}
+
+export function ProductRowToProduct(p: ProductRow, activeWareHouseId?: number): Product {
+    let result = {} as Product
+
+    Object.keys(p).forEach(key => {
+        (result as any)[key as keyof Product] = p[key as keyof ProductRow]
+    })
+    result.activeStockRealQty = p.activeStockRealQty
 
     return result
 }
