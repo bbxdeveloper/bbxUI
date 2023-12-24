@@ -339,7 +339,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   }
 
   public isRowInErrorState(row: TreeGridNode<InvPaymentItem>): boolean {
-    return !row.data.IsUnfinished() && row.data.invPaymentAmount === 0
+    return !row.data.IsUnfinished() && row.data.invPaymentAmount == 0
   }
 
   async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true) {
@@ -468,7 +468,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       this.invoiceNumberChanged(changedData, index)
     }
 
-    if (col === 'currencyCode' && index !== null && index !== undefined) {
+    else if (col === 'currencyCode' && index !== null && index !== undefined) {
       if (this.currencyCodes.find(x => x.value.toLowerCase() === changedData.currencyCode.toLowerCase()) === undefined) {
         setTimeout(() => {
           this.bbxToastrService.show(
@@ -485,7 +485,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       }
     }
 
-    if (col === 'invPaymentDate' && index !== null && index !== undefined) {
+    else if (col === 'invPaymentDate' && index !== null && index !== undefined) {
       if (!HelperFunctions.IsDateStringValid(changedData.invPaymentDate + '') ) {
         setTimeout(() => {
           this.bbxToastrService.show(
@@ -500,6 +500,10 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       } else {
         changedData.Save()
       }
+    }
+
+    else {
+      changedData.Save()
     }
   }
 
