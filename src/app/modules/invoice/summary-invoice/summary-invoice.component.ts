@@ -944,7 +944,8 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       path: this.path,
       mode: this.mode,
       originalCustomerID: this.originalCustomerID,
-      fillTableWithDataCallback: this.fillTableWithPendingNotes.bind(this)
+      fillTableWithDataCallback: this.fillTableWithPendingNotes.bind(this),
+      showWorkNumber: !this.mode.incoming
     } as ChooseSummaryInvoiceProductRequest);
   }
 

@@ -3,7 +3,7 @@ import { KeyboardModes, KeyboardNavigationService } from './keyboard-navigation.
 import { LoggerService } from './logger.service';
 import { Observable, of } from 'rxjs';
 import { StatusService } from './status.service';
-import { InvoiceItemsDialogTableSettings, PendingDeliveryNotesTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { InvoiceItemsDialogTableSettings, PendingDeliveryNotesTableSettings, PendingDeliveryNotesTableWithWorkNumberSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { ProductSelectTableDialogComponent } from '../modules/shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -43,6 +43,7 @@ export interface ChooseProductRequest<T = any, Item = any> {
 export interface ChooseSummaryInvoiceProductRequest extends ChooseProductRequest<OutGoingInvoiceFullData, InvoiceLine> {
   fillTableWithDataCallback: any
   originalCustomerID: number
+  showWorkNumber?: boolean
   mode: InvoiceBehaviorMode
 }
 
@@ -156,12 +157,13 @@ export class ProductCodeManagerServiceService {
 
     this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
-        allColumns: PendingDeliveryNotesTableSettings.AllColumns,
-        colDefs: PendingDeliveryNotesTableSettings.ColDefs,
+        allColumns: request.showWorkNumber ? PendingDeliveryNotesTableWithWorkNumberSettings.AllColumns : PendingDeliveryNotesTableSettings.AllColumns,
+        colDefs: request.showWorkNumber ? PendingDeliveryNotesTableWithWorkNumberSettings.ColDefs : PendingDeliveryNotesTableSettings.ColDefs,
         checkedNotes: checkedNotes,
         customerID: request.originalCustomerID,
         selectedNotes: event,
-        mode: request.mode
+        mode: request.mode,
+        cssClass: request.showWorkNumber ? 'pending-deliveri-notes-select-wide' : 'pending-deliveri-notes-select-normal'
       }
     });
 
