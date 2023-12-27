@@ -130,7 +130,8 @@ import { BbxInlineTableComboBoxComponent } from './custom-inputs/bbx-inline-tabl
     NbIconModule,
     NbAutocompleteModule,
     NbRadioModule,
-    NbToggleModule
+    NbToggleModule,
+    NbSelectModule
   ],
   exports: [
     BaseNavigatableComponentComponent,

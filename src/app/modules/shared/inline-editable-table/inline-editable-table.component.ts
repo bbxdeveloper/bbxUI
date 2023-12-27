@@ -14,6 +14,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
+import { BbxInlineTableComboBoxComponent } from '../custom-inputs/bbx-inline-table-combo-box/bbx-inline-table-combo-box.component';
 
 export interface InputFocusChangedEvent {
     Event: any,
@@ -70,7 +71,8 @@ export function selectProcutCodeInTableInput(timeout: number = 200): void {
   styleUrls: ['./inline-editable-table.component.scss']
 })
 export class InlineEditableTableComponent implements OnInit {
-  @ViewChild(NbPopoverDirective) popover?: NbPopoverDirective;
+  @ViewChild(NbPopoverDirective) popover?: NbPopoverDirective
+  @ViewChild('inlineTableCombobox') combobox?: BbxInlineTableComboBoxComponent
 
   @Input() dbDataTable?: InlineEditableNavigatableTable<any>;
   @Input() allColumns: string[] = [];
@@ -135,6 +137,10 @@ export class InlineEditableTableComponent implements OnInit {
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)
+  }
+
+  HandleComboboxClick(event: any): void {
+    this.combobox?.clickThis(0)
   }
 
   ngOnInit(): void { }

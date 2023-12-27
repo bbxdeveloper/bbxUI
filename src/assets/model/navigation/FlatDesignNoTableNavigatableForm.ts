@@ -438,6 +438,7 @@ export class FlatDesignNoTableNavigatableForm<T = any> implements INavigatable, 
     }
 
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
+        debugger
         console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
 
         if (preventEvent) {

@@ -318,6 +318,7 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
     }
 
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
+        debugger
         if (environment.flatDesignFormDebug) {
             console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
         }

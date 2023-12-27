@@ -46,11 +46,12 @@ export class BbxInlineTableComboBoxComponent implements AfterViewInit, ControlVa
   @Input() lastFormField: boolean = false;
   @Input() id: string = ''
   @Input() name: string = ''
-  @Input() disabled: boolean = false
 
   @Input() blankOptionText: string = BlankComboBoxValue;
-
-  @Input() isReadonly: boolean = false;
+  
+  @Input() disabled: boolean = false
+  @Input() required: boolean = false
+  @Input() isReadonly: boolean = false
 
   comboBoxData: string[] = [];
   currentDataCount: number = 0;
@@ -252,43 +253,55 @@ export class BbxInlineTableComboBoxComponent implements AfterViewInit, ControlVa
     }
   }
 
+  HandleFormDropdownOptionEnter(event: any, optionValue: string): void {
+    debugger
+    this.value = optionValue
+    event.target.value = optionValue
+  }
+
+  clickThis(event: any): void {
+    //debugger
+    $(event.target).click()
+  }
+
   HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
     setTimeout(() => {
-      if (environment.inlineEditableTableNavigatableFormLog) {
-        console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+    }, 0);
+    //debugger
+    if (environment.inlineEditableTableNavigatableFormLog) {
+      console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+    }
+
+    const ad = (event.target as any).getAttribute("aria-activedescendant");
+    if (this.kbS.isEditModeActivated &&
+      ad === null &&
+      possibleItems !== undefined && typedValue !== undefined &&
+      (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+
+      if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
+        return
       }
 
-      const ad = (event.target as any).getAttribute("aria-activedescendant");
-      if (this.kbS.isEditModeActivated &&
-        ad === null &&
-        possibleItems !== undefined && typedValue !== undefined &&
-        (!possibleItems.includes(typedValue) && typedValue !== BlankComboBoxValue)) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-
-        if (HelperFunctions.isEmptyOrSpaces(formFieldName)) {
-          return
-        }
-
-        const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
-        if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
-          this.writeValue(caseInsensitiveMatch)
-        } else {
-          return;
-        }
+      const caseInsensitiveMatch = possibleItems.find(x => x.toLowerCase() === (event as any).target.value.trim().toLowerCase())
+      if (!HelperFunctions.isEmptyOrSpaces(caseInsensitiveMatch)) {
+        this.writeValue(caseInsensitiveMatch)
+      } else {
+        return;
       }
+    }
 
-      if (ad !== null && itemCount > 1) {
+    if (ad !== null && itemCount > 1) {
+      this.kbS.toggleEdit();
+    } else {
+      if (!this.kbS.isEditModeActivated) {
         this.kbS.toggleEdit();
       } else {
-        if (!this.kbS.isEditModeActivated) {
-          this.kbS.toggleEdit();
-        } else {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-          //this.JumpToNextInput(event);
-        }
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        //this.JumpToNextInput(event);
       }
-    }, 0);
+    }
   }
 }

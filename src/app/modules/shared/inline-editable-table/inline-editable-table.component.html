@@ -24,7 +24,7 @@
                             *nbTreeGridCellDef="let row; let rowPos = index"
                             [class.table-cell-edited]="dbDataTable.isEditingCell(rowPos, it.objectKey)"
                             (keydown)="HandleGridKeydown($event, row, rowPos, it.objectKey, colPos, InputId, it.fInputType, isEditModeOn, true, currentNavigatable)"
-                            (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, InputId, it.fInputType, true, $event, currentNavigatable)"
+                            (click)="HandleComboboxClick($event); dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos, InputId, it.fInputType, true, $event, currentNavigatable)"
                             [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
                             [style.text-align]="it.textAlign" id="{{'PRODUCT-' + colPos + '-' + rowPos}}"
                             [ngSwitch]="it.fInputType">
@@ -62,7 +62,7 @@
                                 </ng-container>
 
                                 <ng-container *ngSwitchCase="'combobox'">
-                                    <app-bbx-inline-table-combo-box *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                    <app-bbx-inline-table-combo-box #inlineTableCombobox *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
                                         (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
                                         [(ngModel)]="row.data[it.objectKey]"
