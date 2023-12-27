@@ -764,6 +764,15 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       this.outGoingInvoiceData.invoiceDiscountPercent = response.invoiceDiscountPercent
 
+      for (let i = 0; i < response.invoiceLines.length; i++) {
+        const currentLine = response.invoiceLines[i]
+        const productData = await this.productService.getProductByCodeAsync({ ProductCode: currentLine.productCode } as GetProductByCodeRequest)
+        if (productData && productData.productCode) {
+          const warehouseID = this.tokenService.wareHouse?.id
+          response.invoiceLines[i].realQty = productData.stocks?.find(x => x.warehouseID === warehouseID)?.realQty ?? 0
+        }
+      }
+
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 

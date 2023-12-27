@@ -948,8 +948,15 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     } as ChooseSummaryInvoiceProductRequest);
   }
 
-  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): InvoiceLine {
+  private async PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): Promise<InvoiceLine> {
     const line = new InvoiceLine(this.requiredCols)
+
+    const productData = await this.productService.getProductByCodeAsync({ ProductCode: value.productCode } as GetProductByCodeRequest)
+    if (productData && productData.productCode) {
+      const warehouseID = this.tokenService.wareHouse?.id
+      line.realQty = productData.stocks?.find(x => x.warehouseID === warehouseID)?.realQty ?? 0
+    }
+
     line.productCode = value.productCode
     line.productDescription = value.lineDescription
     line.quantity = value.quantity
@@ -971,7 +978,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     return line
   }
 
-  private fillTableWithPendingNotes(notes: PendingDeliveryNoteItem[]): void {
+  private async fillTableWithPendingNotes(notes: PendingDeliveryNoteItem[]): Promise<void> {
     this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
     notes.forEach(note => {
@@ -999,8 +1006,13 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       .filter(x => !!x.data.relDeliveryNoteInvoiceLineID)
       .map(x => x.data)
 
-    this.dbData = notes
-      .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
+    let nonExistingNotes = []
+    for (let i = 0; i < notes.length; i++) {
+      const invoiceLine = await this.PendingDeliveryNoteToInvoiceLine(notes[i])
+      nonExistingNotes.push(invoiceLine)
+    }
+
+    this.dbData = nonExistingNotes
       .concat(existingNotes)
       .map(x => ({ data: x, uid: this.nextUid() }))
 
