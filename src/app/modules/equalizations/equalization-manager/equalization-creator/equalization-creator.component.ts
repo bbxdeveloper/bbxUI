@@ -57,18 +57,18 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   //   return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
   // }
 
-  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePayedAmount", "invPaymentAmountHUF"];
+  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePaidAmount", "invPaymentAmountHUF"];
   override allColumns = [
     'invoiceNumber',
     'customerName',
     'paymentDate',
-    'invoicePayedAmount',
+    'invoicePaidAmount',
     'bankTransaction',
     'invPaymentDate',
     'currencyCode',
     'exchangeRate',
     'invPaymentAmount',
-    'GetInvoicePayedAmountHUF'
+    'GetInvoicePaidAmountHUF'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -87,7 +87,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true
     },
     {
-      label: 'Kiegyenlítve', objectKey: 'invoicePayedAmount', colKey: 'invoicePayedAmount',
+      label: 'Kiegyenlítve', objectKey: 'invoicePaidAmount', colKey: 'invoicePaidAmount',
       defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
@@ -117,7 +117,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
-      label: 'Összeg HUF', objectKey: 'GetInvoicePayedAmountHUF', colKey: 'GetInvoicePayedAmountHUF',
+      label: 'Összeg HUF', objectKey: 'GetInvoicePaidAmountHUF', colKey: 'GetInvoicePaidAmountHUF',
       defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     }
