@@ -42,6 +42,7 @@ import { ProductStockInformationDialogComponent } from '../../shared/dialogs/pro
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { environment } from 'src/environments/environment';
 import { ConfirmationWithAuthDialogComponent } from '../../shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -66,8 +67,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   invCtrlPeriodComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get SelectedWareHouseId(): number {
-    return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
-      HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1]?.warehouseID) : -1;
+    return HelperFunctions.ToInt(this.tokenService.wareHouse?.id)
   }
   get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
     if (!!this.buyerForm && this.buyerForm.controls !== undefined) {
@@ -185,7 +185,8 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     khs: KeyboardHelperService,
     router: Router,
     private route: ActivatedRoute,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private tokenService: TokenStorageService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -298,12 +299,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           break
       }
     }
-
-    // console.log('\n')
-    // console.log(`checkAutoSave
-    //              \nchange: ${change},
-    //              \nthis.savedRows.length: ${this.savedRows.length}, this.unsavedRows.length: ${this.unsavedRows.length}`)
-    // console.log('\n')
 
     if (this.unsavedRows.length === 0) {
       return
@@ -753,7 +748,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       next: data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
-          data?.data?.filter(x => !x.closed).map(x => {
+          data?.data?.filter(x => !x.closed && x.warehouseID === this.tokenService.wareHouse?.id).map(x => {
             let res = x.warehouse + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
             this.invCtrlPeriodValues[res] = x;
             return res;
