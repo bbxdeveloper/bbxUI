@@ -20,7 +20,7 @@ import { ProductGroup } from '../../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../../product-group/services/product-group.service';
 import { CreateProductRequest } from '../../../product/models/CreateProductRequest';
 import { Product } from '../../../product/models/Product';
-import { UnitOfMeasure } from '../../../product/models/UnitOfMeasure';
+import { OfflineUnitOfMeasures, UnitOfMeasure } from '../../../product/models/UnitOfMeasure';
 import { ProductService } from '../../../product/services/product.service';
 import { VatRate } from '../../../vat-rate/models/VatRate';
 import { VatRateService } from '../../../vat-rate/services/vat-rate.service';
@@ -336,6 +336,12 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
         this._uom = data ?? [];
         this.uom = data?.map(x => x.text) ?? [];
         this.uomComboData$.next(this.uom);
+        
+        if (this.uom.length > 0 && HelperFunctions.isEmptyOrSpaces(this.productForm.controls['unitOfMeasure'].value)) {
+          this.productForm.controls['unitOfMeasure'].setValue(
+            this._uom.find(x => x.value === OfflineUnitOfMeasures.PIECE.value)?.text
+          )
+        }
       }
     });
 
