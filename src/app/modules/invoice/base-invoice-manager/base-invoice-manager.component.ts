@@ -301,12 +301,20 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  public currentLineDiscount(): number|string {
+  public currentLineDiscount(): number | string {
     if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       return '-';
     }
 
     return this.dbDataTable?.data[this.kbS.p.y]?.data.discount ?? '-';
+  }
+
+  public currentRealQty(): number | string {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return 0;
+    }
+    
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
   }
 
   protected editCustomer(customer: Customer|undefined = undefined): void {

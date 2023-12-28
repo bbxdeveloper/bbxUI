@@ -117,7 +117,8 @@ export module ProductDialogTableSettings {
         'description',
         'latestSupplyPrice',
         'exhangedUnitPrice1',
-        'exhangedUnitPrice2'
+        'exhangedUnitPrice2',
+        'activeStockRealQty'
     ];
     export const ProductSelectorDialogColDefs: ModelFieldDescriptor[] = [
         {
@@ -170,6 +171,18 @@ export module ProductDialogTableSettings {
             label: 'Beszerzési ár',
             objectKey: 'latestSupplyPrice',
             colKey: 'latestSupplyPrice',
+            defaultValue: '',
+            type: 'formatted-number',
+            fRequired: false,
+            mask: '',
+            colWidth: '130px',
+            textAlign: 'right',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Készlet',
+            objectKey: 'activeStockRealQty',
+            colKey: 'activeStockRealQty',
             defaultValue: '',
             type: 'formatted-number',
             fRequired: false,

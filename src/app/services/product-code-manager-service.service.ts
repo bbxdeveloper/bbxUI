@@ -25,6 +25,8 @@ import { CreateOfferRequest } from '../modules/offer/models/CreateOfferRequest';
 import { Offer } from '../modules/offer/models/Offer';
 import { FormGroup } from '@angular/forms';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { ProductToProductRow } from '../modules/product/models/Product';
+import { TokenStorageService } from '../modules/auth/services/token-storage.service';
 
 //#region Exports
 
@@ -86,7 +88,8 @@ export class ProductCodeManagerServiceService {
               private statusService: StatusService,
               private productService: ProductService,
               private bbxToastrService: BbxToastrService,
-              private commonService: CommonService
+              private commonService: CommonService,
+              private tokenService: TokenStorageService
               ) {
 
   }
@@ -293,7 +296,8 @@ export class ProductCodeManagerServiceService {
           console.log('[TableRowDataChanged]: ', request.changedData, ' | Product: ', product)
 
           if (!!product && !!product?.productCode) {
-            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) }, ['productCode'])
+            const productRow = ProductToProductRow(product, this.tokenService.wareHouse?.id)
+            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(productRow) }, ['productCode'])
             currentRow?.data.Save('productCode')
             this.MoveNextFromCodeField(request)
           } else {
@@ -327,7 +331,8 @@ export class ProductCodeManagerServiceService {
           console.log('[TableRowDataChanged]: ', request.changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) }, ['productCode']);
+            const productRow = ProductToProductRow(product, this.tokenService.wareHouse?.id)
+            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(productRow) }, ['productCode']);
             currentRow?.data.Save('productCode');
             this.MoveNextFromCodeField(request)
           } else {

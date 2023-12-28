@@ -917,6 +917,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     res.unitOfMeasure = p.unitOfMeasure
     res.unitOfMeasureX = p.unitOfMeasureX
 
+    res.realQty = p.activeStockRealQty ?? 0
+
     // console.log('ProductToInvoiceLine res: ', res)
 
     return res

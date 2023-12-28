@@ -545,7 +545,9 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     res.unitOfMeasure = p.unitOfMeasure;
     res.unitOfMeasureX = p.unitOfMeasureX;
 
-    console.log('ProductToInvoiceLine res: ', res);
+    res.realQty = p.activeStockRealQty ?? 0
+
+    console.log('ProductToInvoiceLine res: ', res, 'product: ', p);
 
     return res;
   }
