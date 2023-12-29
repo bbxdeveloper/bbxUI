@@ -486,7 +486,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             product = this.CreateLocalProduct(changedData.productCode)
             this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
-          
+
           if (row.data.productID === product.id) {
             this.status.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.MoveNextInTable();
@@ -601,7 +601,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         }
 
         if (!product.noDiscount) {
-          await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+          await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id ?? -1 }))
             .then(data => {
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                 data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
