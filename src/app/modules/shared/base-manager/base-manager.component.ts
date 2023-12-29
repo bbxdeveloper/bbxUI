@@ -44,6 +44,8 @@ export class BaseManagerComponent<T> {
 
   isLoading: boolean = true;
 
+  private isDialogOpened = false
+
   get isSideBarOpened(): boolean {
     return this.bbxSidebarService.sideBarOpened;
   }
@@ -451,27 +453,34 @@ export class BaseManagerComponent<T> {
   ProcessActionPut(data?: IUpdateRequest<T>): void { }
 
   ActionDelete(data?: IUpdateRequest<T>): void {
+    if (this.isDialogOpened) {
+      return
+    }
+
     this.loggerService.info(`${this.ActionDelete.name}: ${JSON.stringify(data)}`)
 
     if (!data?.needConfirmation) {
       this.ProcessActionDelete(data)
-    } else {
-      const recordName = this.GetRecordName(data.data)
-      const dialogRef = this.dialogService.open(
-        ConfirmationDialogComponent,
-        {
-          context: {
-            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
-              Constants.MSG_CONFIRMATION_DELETE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, recordName)
-          }
-        }
-      )
-      dialogRef.onClose.subscribe(res => {
-        if (res) {
-          this.ProcessActionDelete(data)
-        }
-      })
+      return
     }
+
+    const recordName = this.GetRecordName(data.data)
+    const dialogRef = this.dialogService.open(
+      ConfirmationDialogComponent,
+      {
+        context: {
+          msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+            Constants.MSG_CONFIRMATION_DELETE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, recordName)
+        }
+      }
+    )
+    this.isDialogOpened = true
+    dialogRef.onClose.subscribe(res => {
+      this.isDialogOpened = false
+      if (res) {
+        this.ProcessActionDelete(data)
+      }
+    })
   }
   ProcessActionDelete(data?: IUpdateRequest<T>): void { }
 
