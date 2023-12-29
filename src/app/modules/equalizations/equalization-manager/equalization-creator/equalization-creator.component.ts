@@ -447,12 +447,13 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
               await this.HandleProductSelection(_invoice, rowPos, false)
             } else {
               selectProcutCodeInTableInput()
-              this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
+              this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
             }
           }
         )
         .catch(() => {
           this.dbDataTable.data[rowPos].data.Restore('invoiceNumber')
+          this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
         })
         .finally(() => {
           this.status.pushProcessStatus(Constants.BlankProcessStatus)
