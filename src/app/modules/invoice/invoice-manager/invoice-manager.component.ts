@@ -180,6 +180,18 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.searchByTaxtNumber = false;
   })
 
+  override confirmAndCreateProductCallback?: any = (rowPos: number, productCode: string) => {
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_PRODUCT_CREATE, () => {
+      this.CreateProduct(
+        rowPos,
+        product => {
+          return this.HandleProductChoose(product, false)
+        },
+        productCode
+      )
+    })
+  }
+
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
@@ -35,6 +35,8 @@ import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
   styleUrls: ['./create-new-product-dialog.component.scss']
 })
 export class CreateNewProductDialogComponent extends BaseNavigatableComponentComponent implements OnDestroy, AfterViewInit {
+  @Input() productCode?: string
+  
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -152,6 +154,10 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
 
     this.kbS.SelectFirstTile();
     this.kbS.Jump(AttachDirection.UP, true);
+
+    if (!HelperFunctions.isEmptyOrSpaces(this.productCode)) {
+      this.productForm.controls['productCode'].setValue(this.productCode)
+    }
   }
 
   private SetNewForm(form?: FormGroup): void {

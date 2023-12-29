@@ -421,11 +421,13 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     });
   }
 
-  CreateProduct(event: any, handler: (p: Product) => Promise<void>): void {
+  CreateProduct(event: any, handler: (p: Product) => Promise<void>, productCode?: string): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     const dialogRef = this.dialogService.open(CreateNewProductDialogComponent, {
-      context: {},
+      context: {
+        productCode: productCode
+      },
       closeOnEsc: false
     });
     dialogRef.onClose.subscribe({
