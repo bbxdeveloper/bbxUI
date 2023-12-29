@@ -23,8 +23,6 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-nu
 import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-table.component';
 import { CreateNewProductDialogComponent } from '../dialogs/create-new-product-dialog/create-new-product-dialog.component';
 import { Product } from '../../product/models/Product';
-import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
-import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
 import { Router } from '@angular/router';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
