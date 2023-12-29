@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Optional, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { Observable, of, startWith, map, Subscription, lastValueFrom, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -40,7 +40,7 @@ import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/simple-dialogs/radio-choice-dialog/radio-choice-dialog.component';
 import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { Product } from '../../product/models/Product';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
