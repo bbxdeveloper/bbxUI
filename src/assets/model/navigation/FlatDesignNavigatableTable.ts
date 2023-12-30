@@ -320,6 +320,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.prevSelectedCol = '';
         this.prevSelectedColPos = -1;
 
+        this.flatDesignForm.isReadonly = false
+
         this.flatDesignForm.SetDataForEdit(creatorRow, -1);
         this.SyncNeighbourRelations()
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
@@ -598,7 +600,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             } else if (!this.sidebarService.sideBarOpened) {
                 this.SetDataForFormAndOpen(this.editedRow!, true);
             } else {
-                this.SetDataForFormAndOpen(this.editedRow!, false);
+                this.SetDataForFormAndOpen(this.editedRow!, true);
             }
         }
     }
