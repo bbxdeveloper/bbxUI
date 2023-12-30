@@ -574,7 +574,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
             this.SetBlankInstanceForForm(true);
         } else if (!this.sidebarService.sideBarOpened) {
-                        this.SetDataForReadonlyFormAndOpen(this.editedRow!, true);
+            this.SetDataForReadonlyFormAndOpen(this.editedRow!, true);
         } else {
             this.flatDesignForm.CloseReadonlySideBar(wasReadonly)
         }

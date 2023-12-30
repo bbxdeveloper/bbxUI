@@ -48,7 +48,7 @@ export class ProductSideBarFormComponent extends BaseSideBarFormComponent implem
     private sbf: SideBarFormService,
     kbS: KeyboardNavigationService,
     private productGroupApi: ProductGroupService,
-        private productApi: ProductService,
+    private productApi: ProductService,
     private originApi: OriginService,
     private vatApi: VatRateService,
     cdref: ChangeDetectorRef) {
