@@ -500,7 +500,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
      * @param openSideBar
      * @param jump
      */
-    SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
+    SetDataForFormAndOpen(row: TreeGridNode<T>, openSidebar: boolean, jump: boolean = true): void {
         if (environment.flatDesignTableDebug) {
             console.log(`Data: ${row}`);
         }
@@ -512,20 +512,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.SetClean();
 
-        setTimeout(() => {
-            if (openSideBar) {
-                this.sidebarService.expand();
-            }
-
-            this.flatDesignForm.GenerateAndSetNavMatrices(false, true);
-            this.SetAsNeighbour(this.formAttachDirection, this.flatDesignForm);
-
-            if (jump) {
-                this.kbs.Jump(this.flatDesignForm.attachDirection, true);
-            }
-
-            this.flatDesignForm.PushFooterCommandList();
-        }, 200);
+        this.openSidebar(openSidebar, jump)
     }
 
     /**
@@ -533,7 +520,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
      * @param row
      * @param openSideBar
      */
-    SetDataForReadonlyForm(row: TreeGridNode<T>, openSideBar: boolean): void {
+    SetDataForReadonlyFormAndOpen(row: TreeGridNode<T>, openSidebar: boolean): void {
         if (environment.flatDesignTableDebug) {
             console.log(`Data: ${row}`);
         }
@@ -543,14 +530,22 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.SetClean();
 
+        this.openSidebar(openSidebar, false)
+    }
+
+    private openSidebar(openSidebar: boolean, jump: boolean): void {
         setTimeout(() => {
-            if (openSideBar) {
+            if (openSidebar) {
                 this.sidebarService.expand();
-                this.flatDesignForm.isReadonly = true
+                this.flatDesignForm.isReadonly = !jump
             }
 
             this.flatDesignForm.GenerateAndSetNavMatrices(false, true);
             this.SetAsNeighbour(this.formAttachDirection, this.flatDesignForm);
+
+            if (jump) {
+                this.kbs.Jump(this.flatDesignForm.attachDirection, true);
+            }
 
             this.flatDesignForm.PushFooterCommandList();
         }, 200);
@@ -577,7 +572,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
             this.SetBlankInstanceForForm(true);
         } else if (!this.sidebarService.sideBarOpened) {
-                        this.SetDataForReadonlyForm(this.editedRow!, true);
+                        this.SetDataForReadonlyFormAndOpen(this.editedRow!, true);
         } else {
             this.flatDesignForm.CloseReadonlySideBar(wasReadonly)
         }
@@ -601,9 +596,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
                 this.SetBlankInstanceForForm(true);
             } else if (!this.sidebarService.sideBarOpened) {
-                this.SetDataForForm(this.editedRow!, true);
+                this.SetDataForFormAndOpen(this.editedRow!, true);
             } else {
-                this.SetDataForForm(this.editedRow!, false);
+                this.SetDataForFormAndOpen(this.editedRow!, false);
             }
         }
     }
