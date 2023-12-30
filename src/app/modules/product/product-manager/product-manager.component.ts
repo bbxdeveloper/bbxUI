@@ -96,7 +96,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'string',
       fRequired: true,
       mask: '',
-      colWidth: '130px',
+      colWidth: '80px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -108,7 +108,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'formatted-number',
       fRequired: true,
       mask: '',
-      colWidth: '130px',
+      colWidth: '110px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -120,7 +120,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'formatted-number',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '110px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -144,7 +144,7 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
       type: 'formatted-number',
       fRequired: false,
       mask: '',
-      colWidth: '130px',
+      colWidth: '66px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -554,7 +554,15 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         data = {...data};
 
         data.origin = HelperFunctions.GetOriginDescription(data.origin, this.origins, '');
-        data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroup, this.productGroups, data.productGroup);
+
+        if (HelperFunctions.isEmptyOrSpaces(data.productGroup) || HelperFunctions.isEmptyOrSpaces(data.productGroupCode)) {
+          data.productGroup = undefined
+        } else {
+          const _productGroupFirstPart = data.productGroupCode + '-'
+          const productGroupParts: string[] = data.productGroup?.split(_productGroupFirstPart)
+
+          data.productGroup = HelperFunctions.GetProductGroupDescription(data.productGroupCode, this.productGroups, productGroupParts.pop());
+        }
 
         Object.keys(this.dbDataTable.flatDesignForm.form.controls).forEach((x: string) => {
           this.dbDataTable.flatDesignForm!.form.controls[x].setValue(data[x as keyof Product]);

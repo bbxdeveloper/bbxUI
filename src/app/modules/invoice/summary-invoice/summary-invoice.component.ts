@@ -14,7 +14,7 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from '
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { Customer } from '../../customer/models/Customer';
+import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
@@ -51,6 +51,7 @@ import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoic
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { InvoiceCategory } from '../models/InvoiceCategory';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -184,7 +185,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     simpleToastrService: NbToastrService,
     bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     productService: ProductService,
     status: StatusService,
     sideBarService: BbxSidebarService,
@@ -195,15 +195,15 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
-    protected readonly custDiscountService: CustomerDiscountService,
+    custDiscountService: CustomerDiscountService,
     public readonly invoiceStatisticsService: InvoiceStatisticsService,
     editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
-      cs, statusService, productService, status, sideBarService, khs,
-      activatedRoute, router, behaviorFactory, tokenService,
-      productCodeManagerService, printAndDownLoadService, editCustomerDialog)
+      cs, productService, status, sideBarService, khs,
+      activatedRoute, router, tokenService,
+      productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
     this.preventF12 = true
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
@@ -785,28 +785,25 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
-    if (this.buyerForm.invalid) {
-      this.bbxToastrService.show(
-        `Nincs megadva vevő.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+    if (this.buyerData.id === undefined) {
+      this.bbxToastrService.showError(`Nincs megadva vevő.`);
       valid = false;
     }
+    else if (this.mode.invoiceType === InvoiceTypes.INV &&
+      !this.buyerData.privatePerson &&
+      (isTaxPayerNumberEmpty(this.buyerData) && HelperFunctions.isEmptyOrSpaces(this.buyerData.thirdStateTaxId))) {
+
+      this.bbxToastrService.showError(Constants.MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY)
+      valid = false
+    }
+
     if (this.outInvForm.invalid) {
-      this.bbxToastrService.show(
-        `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`);
       valid = false;
     }
+
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       valid = false;
     }
     if (!valid) {
@@ -915,7 +912,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(res) }, ['productCode']);
         currentRow?.data.Save('productCode');
@@ -932,7 +929,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         }
       }
     }
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
     return of().toPromise();
   }
 
@@ -947,12 +944,20 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       path: this.path,
       mode: this.mode,
       originalCustomerID: this.originalCustomerID,
-      fillTableWithDataCallback: this.fillTableWithPendingNotes.bind(this)
+      fillTableWithDataCallback: this.fillTableWithPendingNotes.bind(this),
+      showWorkNumber: !this.mode.incoming
     } as ChooseSummaryInvoiceProductRequest);
   }
 
-  private PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): InvoiceLine {
+  private async PendingDeliveryNoteToInvoiceLine(value: PendingDeliveryNoteItem): Promise<InvoiceLine> {
     const line = new InvoiceLine(this.requiredCols)
+
+    const productData = await this.productService.getProductByCodeAsync({ ProductCode: value.productCode } as GetProductByCodeRequest)
+    if (productData && productData.productCode) {
+      const warehouseID = this.tokenService.wareHouse?.id
+      line.realQty = productData.stocks?.find(x => x.warehouseID === warehouseID)?.realQty ?? 0
+    }
+
     line.productCode = value.productCode
     line.productDescription = value.lineDescription
     line.quantity = value.quantity
@@ -974,7 +979,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     return line
   }
 
-  private fillTableWithPendingNotes(notes: PendingDeliveryNoteItem[]): void {
+  private async fillTableWithPendingNotes(notes: PendingDeliveryNoteItem[]): Promise<void> {
     this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
     notes.forEach(note => {
@@ -1002,8 +1007,13 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       .filter(x => !!x.data.relDeliveryNoteInvoiceLineID)
       .map(x => x.data)
 
-    this.dbData = notes
-      .map(x => this.PendingDeliveryNoteToInvoiceLine(x))
+    let nonExistingNotes = []
+    for (let i = 0; i < notes.length; i++) {
+      const invoiceLine = await this.PendingDeliveryNoteToInvoiceLine(notes[i])
+      nonExistingNotes.push(invoiceLine)
+    }
+
+    this.dbData = nonExistingNotes
       .concat(existingNotes)
       .map(x => ({ data: x, uid: this.nextUid() }))
 
@@ -1139,15 +1149,15 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     let discount: number | undefined = undefined;
 
     if (this.buyerData === undefined || this.buyerData.id === undefined) {
-      this.bbxToastrService.show(
-        Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_DISCOUNT_CUSTOMER_MUST_BE_CHOSEN);
       return discount;
     }
 
-    await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+    if (!this.customerDiscountService) {
+      return undefined
+    }
+
+    await lastValueFrom(this.customerDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
       .then(discounts => {
         if (discounts) {
           const res = discounts.find(x => x.productGroupCode == productGroupCode)?.discount;
@@ -1193,6 +1203,8 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
+
+    res.realQty = product.activeStockRealQty ?? 0
 
     return res;
   }

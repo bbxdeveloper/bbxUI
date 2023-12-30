@@ -24,7 +24,7 @@ import { WhsTransferService } from '../../services/whs-transfer.service';
 import { WarehouseInbetweenMode } from '../../models/whs/WarehouseInbetweenMode';
 import { WhsTransferFull } from '../../models/whs/WhsTransfer';
 import { StockService } from 'src/app/modules/stock/services/stock.service';
-import { WhsTransferLine } from '../../models/whs/WhsTransferLine';
+import { WhsTransferLine, WhsTransferLineFull } from '../../models/whs/WhsTransferLine';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 const NavMap: string[][] = [
@@ -61,51 +61,7 @@ implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit 
   public loadedData?: WhsTransferFull
   public summedCost: number = 0
 
-  editorConfig: AngularEditorConfig = {
-    editable: false,
-    spellcheck: false,
-    height: 'auto',
-    minHeight: '50px',
-    maxHeight: 'auto',
-    width: 'auto',
-    minWidth: '0',
-    translate: 'yes',
-    enableToolbar: false,
-    showToolbar: false,
-    placeholder: 'Enter text here...',
-    defaultParagraphSeparator: '',
-    defaultFontName: '',
-    defaultFontSize: '',
-    fonts: [
-      { class: 'arial', name: 'Arial' },
-      { class: 'times-new-roman', name: 'Times New Roman' },
-      { class: 'calibri', name: 'Calibri' },
-      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
-    ],
-    customClasses: [
-      {
-        name: 'quote',
-        class: 'quote',
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: 'titleText',
-        class: 'titleText',
-        tag: 'h1',
-      },
-    ],
-    uploadUrl: 'v1/image',
-    uploadWithCredentials: false,
-    sanitize: true,
-    toolbarPosition: 'top',
-    toolbarHiddenButtons: [
-      ['bold', 'italic'],
-      ['fontSize']
-    ]
-  }
+  editorConfig: AngularEditorConfig = Constants.GeneralEditorConfig
 
   constructor(
     private cdref: ChangeDetectorRef,
@@ -147,7 +103,7 @@ implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit 
       },
     {
         label: 'Mennyiség', objectKey: '_quantity', colKey: '_quantity',
-        defaultValue: '', type: 'number', mask: "",
+      defaultValue: '', type: 'formatted-number', mask: "",
         colWidth: "100px", textAlign: "right", fInputType: 'formatted-number',
         checkIfReadonly: (row: TreeGridNode<InbetweenWarehouseProduct>) => HelperFunctions.isEmptyOrSpaces(row.data.productCode),
       },
@@ -158,12 +114,12 @@ implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit 
       },
       {
         label: 'Ált. nyilv. ár', objectKey: 'currAvgCost', colKey: 'currAvgCost',
-        defaultValue: '', type: 'number', mask: "", fReadonly: true,
+        defaultValue: '', type: 'formatted-number', mask: "", fReadonly: true,
         colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
       },
       {
         label: 'Érték', objectKey: 'linePrice', colKey: 'linePrice',
-        defaultValue: '', type: 'number', mask: "", fReadonly: true,
+        defaultValue: '', type: 'formatted-number', mask: "", fReadonly: true,
         colWidth: "130px", textAlign: "right", fInputType: 'formatted-number'
       },
     ]
@@ -199,32 +155,20 @@ implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit 
     );
   }
 
-  private async WhsTransferLinesToInbetweenWarehouseProducts(whsTransferLine: WhsTransferLine): Promise<InbetweenWarehouseProduct | undefined> {
-    const product = await this.productService.getProductByCodeAsync({ ProductCode: whsTransferLine.productCode! })
-      .catch(err => {
-        this.cs.HandleError(err)
-      })
-
-    if (product === undefined) {
-      return undefined
-    } else  {
-      const inbetweenProduct = await this.createInbetweenProduct(product)
-      if (inbetweenProduct) {
-        inbetweenProduct!.quantity = whsTransferLine.quantity
-      }
-      return inbetweenProduct
+  private async WhsTransferLinesToInbetweenWarehouseProducts(whsTransferLine: WhsTransferLineFull): Promise<InbetweenWarehouseProduct | undefined> {
+    const inbetweenProduct = await this.createInbetweenProduct(whsTransferLine)
+    if (inbetweenProduct) {
+      inbetweenProduct!.quantity = whsTransferLine.quantity
     }
+    return inbetweenProduct
   }
 
-  private async createInbetweenProduct(product: Product): Promise<InbetweenWarehouseProduct|undefined> {
-    if (this.dbData.find(x => x.data.productID === product.id)) {
+  private async createInbetweenProduct(whsTransferLine: WhsTransferLineFull): Promise<InbetweenWarehouseProduct|undefined> {
+    if (this.dbData.find(x => x.data.productCode === whsTransferLine.productCode)) {
       return
     }
 
-    const productStocks = await this.stockService.getProductStock(product.id)
-    const stock = productStocks.find(x => x.warehouseCode === this.tokenService.wareHouse?.warehouseCode)
-
-    const inbetween = InbetweenWarehouseProduct.fromProductAndStock(product, stock)
+    const inbetween = InbetweenWarehouseProduct.fromWhsTransferLineFull(whsTransferLine)
 
     return inbetween
   }

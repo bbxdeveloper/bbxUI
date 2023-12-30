@@ -161,9 +161,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       }
     });
     result.forEach(x => {
-      x.Value = this.data.currencyCode === CurrencyCodes.HUF
-        ? HelperFunctions.Round(x.Value)
-        : HelperFunctions.Round2(x.Value, 2)
+      x.Value = HelperFunctions.currencyRound(x.Value, this.data.currencyCode)
     });
     this.vatRateCodes = result;
   }
@@ -248,7 +246,8 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       discountedInvoiceNetAmount = this.invoiceStats.SummaryInvoiceDiscountedNetAmountSum;
     }
 
-    discountedInvoiceNetAmount = HelperFunctions.Round2(discountedInvoiceNetAmount, 1);
+    discountedInvoiceNetAmount = HelperFunctions.currencyRound(discountedInvoiceNetAmount, this.data.currencyCode)
+    this.sumForm.controls['discountedInvoiceNetAmount'].setValue(discountedInvoiceNetAmount);
 
     if (!this.isAggregate){
       let invoiceDiscountValue = this.data.invoiceNetAmount - discountedInvoiceNetAmount;
@@ -256,14 +255,15 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       if (this.negativeDiscount) {
         invoiceDiscountValue = -invoiceDiscountValue
       }
+      invoiceDiscountValue = HelperFunctions.currencyRound(invoiceDiscountValue, this.data.currencyCode)
+
       this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
     } else {
-      this.sumForm.controls['invoiceDiscountValue'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum);
+      const discountedValue = HelperFunctions.currencyRound(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum, this.data.currencyCode)
+      this.sumForm.controls['invoiceDiscountValue'].setValue(discountedValue);
 
       this.sumForm.controls['invoiceNetAmount'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineNetSum);
     }
-
-    this.sumForm.controls['discountedInvoiceNetAmount'].setValue(discountedInvoiceNetAmount);
 
     // discounted vat amount
     // refresh invoice stats
@@ -282,9 +282,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
         .map(x => HelperFunctions.ToFloat(x.discountedData!.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
 
-      discountedVatAmount = this.data.currencyCode === CurrencyCodes.HUF
-        ? HelperFunctions.Round(discountedVatAmount)
-        : HelperFunctions.Round2(discountedVatAmount, 2)
+      discountedVatAmount = HelperFunctions.currencyRound(discountedVatAmount, this.data.currencyCode)
 
       discountedGross = discountedInvoiceNetAmount + discountedVatAmount;
     }

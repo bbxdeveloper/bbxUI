@@ -47,6 +47,7 @@ import { GetCustomerParamListModel } from '../../customer/models/GetCustomerPara
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { OfflineUnitOfMeasures } from '../../product/models/UnitOfMeasure';
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -444,72 +445,97 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }, delayInMs);
   }
 
+  protected CreateLocalProduct(code: string): Product {
+    const p = {
+      id: 0,
+      productCode: code,
+      description: undefined,
+      productGroup: undefined,
+      origin: undefined,
+      unitOfMeasure: OfflineUnitOfMeasures.PIECE.value,
+      unitOfMeasureX: OfflineUnitOfMeasures.PIECE.text,
+      unitPrice1: 0,
+      unitPrice2: 0,
+      latestSupplyPrice: 0,
+      isStock: true,
+      minStock: 0,
+      ordUnit: 0,
+      productFee: 0,
+      active: true,
+      vtsz: '',
+      ean: '',
+      vatRateCode: '27%',
+      vatPercentage: 0.27,
+      noDiscount: true
+    } as Product
+    return p
+  }
+
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<OfferLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!this.dbDataTable.data[rowPos].data.Changed('productCode', true)) {
       this.MoveNextFromCodeField()
       return
     }
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
           console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
 
-          if (!!product && !!product?.productCode) {
-            if (row.data.productID === product.id) {
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              this.dbDataTable.MoveNextInTable();
-              setTimeout(() => {
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-                this.kbS.ClickCurrentElement();
-              }, 500);
-              return;
-            }
-
-            const unitPriceType = this.isOfferEditor ?
-              (this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit):
-              undefined
-
-            if (!product.noDiscount) {
-              await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id ?? -1 }))
-                .then(data => {
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-                  }, ['productCode']);
-                  currentRow?.data.Save('productCode');
-                  const _d = this.dbData[rowPos].data;
-                  this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
-
-                  this.MoveNextFromCodeField()
-                })
-                .catch(err => {
-                  this.cs.HandleError(err);
-
-                  let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                    data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-                  }, ['productCode']);
-                  currentRow?.data.Save('productCode');
-
-                  this.MoveNextFromCodeField(500)
-                })
-                .finally(() => {
-
-                });
-            } else {
-              let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-                data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
-              }, ['productCode']);
-              currentRow?.data.Save('productCode');
-
-              const _d = this.dbData[rowPos].data;
-              this.dbData[rowPos].data.discount = 0;
-
-              this.MoveNextFromCodeField()
-            }
-          } else {
-            this.kbS.ClickCurrentElement()
-            selectProcutCodeInTableInput()
+          if (!!!product || HelperFunctions.isEmptyOrSpaces(product?.productCode)) {
+            product = this.CreateLocalProduct(changedData.productCode)
             this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
+          }
+          
+          if (row.data.productID === product.id) {
+            this.status.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.MoveNextInTable();
+            setTimeout(() => {
+              this.kbS.setEditMode(KeyboardModes.EDIT);
+              this.kbS.ClickCurrentElement();
+            }, 500);
+            return;
+          }
+
+          const unitPriceType = this.isOfferEditor ?
+            (this.buyerData?.unitPriceType ?? UnitPriceTypes.Unit):
+            undefined
+
+          if (!product.noDiscount) {
+            await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id ?? -1 }))
+              .then(data => {
+                let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+                  data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
+                }, ['productCode']);
+                currentRow?.data.Save('productCode');
+                const _d = this.dbData[rowPos].data;
+                this.dbData[rowPos].data.discount = data.find(x => _d.productGroup.split("-")[0] === x.productGroupCode)?.discount ?? 0;
+
+                this.MoveNextFromCodeField()
+              })
+              .catch(err => {
+                this.cs.HandleError(err);
+
+                let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+                  data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
+                }, ['productCode']);
+                currentRow?.data.Save('productCode');
+
+                this.MoveNextFromCodeField(500)
+              })
+              .finally(() => {
+
+              });
+          } else {
+            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+              data: OfferLine.FromProduct(product, undefined, undefined, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
+            }, ['productCode']);
+            currentRow?.data.Save('productCode');
+
+            const _d = this.dbData[rowPos].data;
+            this.dbData[rowPos].data.discount = 0;
+
+            this.MoveNextFromCodeField()
           }
 
           this.RecalcNetAndVat();
@@ -517,10 +543,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         error: err => {
           this.dbDataTable.data[rowPos].data.Restore('productCode');
           this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         },
         complete: () => {
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -531,10 +557,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       return
     }
 
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
     if (this.dbDataTable.data[rowPos].data.productID === product.id) {
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+      this.status.pushProcessStatus(Constants.BlankProcessStatus);
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
       this.dbDataTable.MoveNextInTable();
       setTimeout(() => {
@@ -643,7 +669,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       })
       .finally(() => { });
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
 
@@ -695,7 +721,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   async refresh(): Promise<void> {
-    this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
 
     await this.refreshComboboxData();
 
@@ -725,7 +751,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       })
       .finally(() => {});
 
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   protected filterBuyers(value: string): string[] {
@@ -970,6 +996,16 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     this.router.navigate(['product/offers-nav']);
   }
 
+  protected NavToCreate(): void {
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate(['product/offers-create'], {
+        queryParams: {
+          reload: true
+        }
+      })
+    })
+  }
+
   ToggleAllShowDiscount(): void {
     if (this.dbData.length === 0) {
       return;
@@ -1105,11 +1141,11 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   protected async openProductStockInformationDialog(id: any): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     const product = await firstValueFrom(this.productService.Get({ ID: id }))
 
-    this.sts.waitForLoad(false)
+    this.status.waitForLoad(false)
 
     this.dialogService.open(ProductStockInformationDialogComponent, {
       context: {

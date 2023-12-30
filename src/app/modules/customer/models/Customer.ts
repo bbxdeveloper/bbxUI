@@ -49,11 +49,22 @@ export interface Customer {
 
     paymentDays: number,
 
-    latestDiscountPercent?: number
+    latestDiscountPercent?: number,
+
+    isFA: boolean
 }
 
 export function isCustomerPrivatePerson(customer: Customer): boolean {
     return customer.customerVatStatus === 'PRIVATE_PERSON'
+}
+
+export function isTaxPayerNumberEmpty(customer: Customer): boolean {
+    if (!customer.taxpayerNumber) {
+        return true
+    }
+
+    const taxpayerNumberLengthWidthoutDashes = 11
+    return customer.taxpayerNumber.replace(/-/g, '').length !== taxpayerNumberLengthWidthoutDashes
 }
 
 export function BlankCustomer(): Customer {
@@ -83,6 +94,7 @@ export function BlankCustomer(): Customer {
         warningLimit: undefined,
         maxLimit: undefined,
         defPaymentMethod: OfflinePaymentMethods.Cash.text,
-        latestDiscountPercent: undefined
+        latestDiscountPercent: undefined,
+        isFA: false,
     } as Customer;
 }

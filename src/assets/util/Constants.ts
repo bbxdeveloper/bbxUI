@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { ProcessStatus } from "../model/ProcessStatus";
 import { Actions, KeyBindings } from "./KeyBindings";
 import { createMask } from "@ngneat/input-mask";
+import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 export module Constants {
     // Messages
@@ -14,15 +15,18 @@ export module Constants {
     export const OutgoingIncomingInvoiceDefaultPrintCopy: number = 2
 
     export const MSG_ERROR_USERDATA_NEEDED = 'A mentés előtt érvényes bejelentkezési adatok megadása szükséges!'
+    export const MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY = 'Adóalany ügyfélnek a számlázáshoz kötelező adószámot megadni!'
 
     export const MSG_MAXIMUM_QUANTITY_REACHED: string = 'A megadott mennyiség nagyobb az elérhető mennyiségnél.'
     export const MSG_CANNOT_BE_LOWER_THAN_ZERO: string = 'A mennyiségnek nagyobbnak kell lennie nullánál.'
+    export const MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE = 'Beszerzési ár alatt nem lehet eladni!'
 
+    export const MSG_CONFIRMATION_PRODUCT_CREATE = 'Új termék felvitele?'
     export const MSG_CONFIRMATION_CUSTOMER_LOCK_RELEASE = 'Elvégezhető a zárolt partnerek feloldása?'
     export const MSG_CONFIRMATION_QUIT: string = "Biztosan szeretne kiléni az alkalmazásból?";
     export const MSG_CONFIRMATION_FILTER_DELETE: string = "Szeretné törölni keresés szövegét? Előfordulhat az új vagy frissített elem nem lesz látható mellette.";
     export const MSG_CONFIRMATION_DELETE: string = "Biztosan végre szeretné hajtani a törlést?";
-    export const MSG_CONFIRMATION_DELETE_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem törlésését?";
+    export const MSG_CONFIRMATION_DELETE_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem törlését?";
     export const MSG_CONFIRMATION_LOCK: string = "Biztosan végre szeretné hajtani a zárást?";
     export const MSG_CONFIRMATION_LOCK_PARAM: string = "Biztosan végre szeretné hajtani a(z) {0} elem zárását?";
     export const MSG_CONFIRMATION_SAVE: string = "El szeretné menteni?";
@@ -45,6 +49,8 @@ export module Constants {
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE = "Nincs elérhető készletinformáció ehhez a termékhez erre a raktárra!"
     export const MSG_ERROR_CUSTOMER_LOCKED = 'Partner adatait más munkahelyen használják.'
 
+    export const MSG_ERROR_NO_OPENED_INVENTORY_PERIOD = 'Nincs nyitott leltáridőszak megadva!'
+
     export const MSG_NO_DEFAULT_WAREHOUSE_FOR_USER = 'Nincs megadva alapértelmezett raktár a felhasználóhoz!'
 
     export const WAREHOUSEDOCUMENT_TITLE_FINALIZE_DATE = 'Véglegesítés dátuma'
@@ -54,6 +60,7 @@ export module Constants {
     export const WAREHOUSEDOCUMENT_MSG_CANNOT_SAVE = 'Csak a bevétel raktár véglegesítheti.'
 
     export const NAV_INVOICE_SENT = 'A {{invoice-number}} bizonylat NAV küldésre előkészítve'
+    export const NAV_INVOICE_CANCELLED = 'A {{invoice-number}} bizonylat technikai visszavonása elindítva. A visszavonást a NAV Online Számla felületén meg kell erősíteni'
 
     export const TITLE_ERROR: string = 'Hiba';
     export const TITLE_WARNING: string = 'Figyelmeztetés';
@@ -63,6 +70,10 @@ export module Constants {
     export const TITLE_PRINT_INVOICE_2 = 'Számla nyomtatása'
     export const TITLE_PRINT_QUESTION = 'Nyomtatás indítása?'
     export const TITLE_PRINT_FINISHED = 'A nyomtatás rendben megtörtént!'
+
+    export const TITLE_OFFER_TO_INVOICE_CONFIRMATION = 'Ajánlatból bizonylat generálása?'
+
+    export const ERROR_OFFER_TO_INVOICE_PRODUCTS_NOT_FOUND = 'Az alábbi termékek nem lettek betöltve: '
 
     /**
      * Margin for print dialog on invoice pages. Provides enough
@@ -300,5 +311,51 @@ export module Constants {
          */
         ResultCmdType: CommandType;
         State?: CommandType;
+    }
+
+    export const GeneralEditorConfig: AngularEditorConfig = {
+        editable: true,
+        spellcheck: true,
+        height: 'auto',
+        minHeight: '0',
+        maxHeight: '100px',
+        width: 'auto',
+        minWidth: '0',
+        translate: 'yes',
+        enableToolbar: true,
+        showToolbar: true,
+        placeholder: 'Enter text here...',
+        defaultParagraphSeparator: '',
+        defaultFontName: '',
+        defaultFontSize: '',
+        fonts: [
+            { class: 'arial', name: 'Arial' },
+            { class: 'times-new-roman', name: 'Times New Roman' },
+            { class: 'calibri', name: 'Calibri' },
+            { class: 'comic-sans-ms', name: 'Comic Sans MS' }
+        ],
+        customClasses: [
+        {
+            name: 'quote',
+            class: 'quote',
+        },
+        {
+            name: 'redText',
+            class: 'redText'
+        },
+        {
+            name: 'titleText',
+            class: 'titleText',
+            tag: 'h1',
+        },
+        ],
+            uploadUrl: 'v1/image',
+            uploadWithCredentials: false,
+            sanitize: true,
+            toolbarPosition: 'top',
+            toolbarHiddenButtons: [
+            ['bold', 'italic'],
+            ['fontSize']
+        ]
     }
 }

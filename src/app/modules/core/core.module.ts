@@ -7,8 +7,9 @@ import { NbActionsModule, NbButtonGroupModule, NbButtonModule, NbCardModule, NbC
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule } from 'ngx-mask';
-import { SendDataToNavComponent } from './send-data-to-nav/send-data-to-nav.component';
+import { SendDataToNavComponent } from './nav/send-data-to-nav/send-data-to-nav.component';
 import { SharedModule } from '../shared/shared.module';
+import { NavTechnicalCancelDialogComponent } from './nav/nav-technical-cancel-dialog/nav-technical-cancel-dialog.component';
 
 
 
@@ -17,7 +18,8 @@ import { SharedModule } from '../shared/shared.module';
     DashboardComponent,
     StatusAndSpinnerComponent,
     HeaderComponent,
-    SendDataToNavComponent
+    SendDataToNavComponent,
+    NavTechnicalCancelDialogComponent
   ],
   imports: [
     CommonModule,

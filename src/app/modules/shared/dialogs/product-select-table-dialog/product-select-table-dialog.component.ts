@@ -14,7 +14,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { IsKeyFunctionKey, KeyBindings } from 'src/assets/util/KeyBindings';
 import { GetProductsParamListModel } from '../../../product/models/GetProductsParamListModel';
-import { Product } from '../../../product/models/Product';
+import { Product, ProductRow, ProductRowToProduct, ProductToProductRow } from '../../../product/models/Product';
 import { ProductService } from '../../../product/services/product.service';
 import { SelectTableDialogComponent } from '../select-table-dialog/select-table-dialog.component';
 import { CurrencyCodes } from '../../../system/models/CurrencyCode';
@@ -41,7 +41,7 @@ export enum SearchMode {
   templateUrl: './product-select-table-dialog.component.html',
   styleUrls: ['./product-select-table-dialog.component.scss']
 })
-export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<Product>
+export class ProductSelectTableDialogComponent extends SelectTableDialogComponent<ProductRow>
   implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
   currentChooserValue: SearchMode = SearchMode.SEARCH_NAME_CODE;
 
@@ -94,9 +94,9 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     private bbxToastrService: BbxToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
-    dialogRef: NbDialogRef<SelectTableDialogComponent<Product>>,
+    dialogRef: NbDialogRef<SelectTableDialogComponent<ProductRow>>,
     kbS: KeyboardNavigationService,
-    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<Product>>,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<ProductRow>>,
     private productService: ProductService,
     private cdrf: ChangeDetectorRef,
     private dialogService: BbxDialogServiceService,
@@ -105,7 +105,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   ) {
     super(dialogRef, kbS, dataSourceBuilder, statusService);
 
-    this.dbDataTable = new SimpleNavigatableTable<Product>(
+    this.dbDataTable = new SimpleNavigatableTable<ProductRow>(
       this.dataSourceBuilder, this.kbS, this.cdref, this.dbData, '', AttachDirection.DOWN, this
     );
     this.dbDataTable.InnerJumpOnEnter = true;
@@ -115,7 +115,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   override Setup(): void {
     this.dbData = []; // this.allData;
     this.dbDataSource = this.dataSourceBuilder.create(this.dbData);
-    this.selectedRow = {} as Product;
+    this.selectedRow = new ProductRow();
 
     this.IsDialog = true;
     this.InnerJumpOnEnter = true;
@@ -263,7 +263,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
           console.log('GetProducts response: ', d); // TODO: only for debug
           if (!!d) {
             const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
+              return { data: ProductToProductRow(x, this.tokenService.wareHouse?.id), uid: this.nextUid() };
             });
             tempData.forEach(x => {
               x.data.exhangedUnitPrice1 = x.data.unitPrice1;
@@ -346,6 +346,12 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       this.Search(this.searchString)
     }
   }
+
+  // override close(answer?: ProductRow) {
+  //   this.closedManually = true;
+  //   this.kbS.RemoveWidgetNavigatable();
+  //   this.dialogRef.close(answer ? ProductRowToProduct(answer) : answer);
+  // }
 
   @HostListener('document:keydown', ['$event']) override onKeyDown(event: KeyboardEvent) {
     if (event.code === 'Tab') {

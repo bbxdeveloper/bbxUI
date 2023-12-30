@@ -28,7 +28,6 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
@@ -36,6 +35,9 @@ import { PrintAndDownloadService } from 'src/app/services/print-and-download.ser
 import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
+import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
+import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -50,6 +52,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
   senderData: Customer|undefined
   customerData!: Customer;
+
+  protected customerDiscounts: CustDiscountForGet[] = []
 
   buyersData: Customer[] = [];
 
@@ -86,6 +90,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   public KeySetting!: Constants.KeySettingsDct
   override commands: FooterCommandInfo[] = [];
 
+  confirmAndCreateProductCallback?: any
+
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
@@ -97,20 +103,19 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     protected readonly simpleToastrService: NbToastrService,
     protected readonly bbxToastrService: BbxToastrService,
     cs: CommonService,
-    statusService: StatusService,
     protected readonly productService: ProductService,
-    protected readonly status: StatusService,
+    status: StatusService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     protected readonly activatedRoute: ActivatedRoute,
     router: Router,
-    behaviorFactory: InvoiceBehaviorFactoryService,
     protected readonly tokenService: TokenStorageService,
     protected productCodeManagerService: ProductCodeManagerServiceService,
     protected printAndDownLoadService: PrintAndDownloadService,
     protected readonly editCustomerDialog: EditCustomerDialogManagerService,
+    @Optional() protected readonly customerDiscountService: CustomerDiscountService|null,
   ) {
-    super(dialogService, kbS, footerService, cs, statusService, sideBarService, khs, router);
+    super(dialogService, kbS, footerService, cs, status, sideBarService, khs, router);
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
@@ -173,7 +178,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
         this.kbS.ClickCurrentElement();
       }, 50);
     } else {
-      // this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
       this.productCodeManagerService.TableCodeFieldChanged({
         dbDataTable: this.dbDataTable,
         productToGridProductConversionCallback: this.ProductToInvoiceLine.bind(this),
@@ -186,45 +190,13 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
         inputId: inputId,
         fInputType: fInputType,
         path: this.path,
-        onComplete: this.RecalcNetAndVat.bind(this)
+        onComplete: this.RecalcNetAndVat.bind(this),
+        createProductCallback: this.confirmAndCreateProductCallback
       } as CodeFieldChangeRequest)
     }
   }
 
   async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> { return of({} as any).toPromise() }
-
-  TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: async product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-          if (!!product && !!product?.productCode) {
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) }, ['productCode']);
-            currentRow?.data.Save('productCode');
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 200);
-          } else {
-            this.kbS.ClickCurrentElement()
-            selectProcutCodeInTableInput()
-            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
-          }
-        },
-        error: err => {
-          this.cs.HandleError(err);
-        },
-        complete: () => {
-          this.RecalcNetAndVat();
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
-    }
-  }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
     if (!!changedData && !!changedData.productCode) {
@@ -298,12 +270,20 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  public currentLineDiscount(): number|string {
+  public currentLineDiscount(): number | string {
     if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       return '-';
     }
 
     return this.dbDataTable?.data[this.kbS.p.y]?.data.discount ?? '-';
+  }
+
+  public currentRealQty(): number | string {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return 0;
+    }
+    
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
   }
 
   protected editCustomer(customer: Customer|undefined = undefined): void {
@@ -314,12 +294,12 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -331,7 +311,51 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
+  }
+
+  protected async loadCustomerDiscounts(customerId: number): Promise<void> {
+    try {
+      this.customerDiscounts = await this.customerDiscountService?.getByCustomerAsync({ CustomerID: customerId }) ?? []
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+  }
+
+  protected loadInvoiceItems(): void {
+    const dialogRef = this.dialogService.open(LoadInvoiceLinesDialogComponent, {
+      context: {
+        invoiceType: this.mode.invoiceType
+      }
+    })
+
+    dialogRef.onClose.subscribe((invoiceLines: InvoiceLine[]) => {
+      if (!invoiceLines) {
+        return
+      }
+
+      const whichIsNotLoadedYet = (x: InvoiceLine) => this.dbData.find(y => y.data.productCode === x.productCode) === undefined
+
+      const newlyLoadedInvoiceLines = invoiceLines
+        .filter(whichIsNotLoadedYet)
+        .map(invoiceLine => {
+          const discount = this.customerDiscounts.find(x => x.productGroupCode === invoiceLine.productGroup)
+          if (discount) {
+            invoiceLine.custDiscounted = true
+            invoiceLine.discount = discount.discount
+          }
+
+          return ({ data: invoiceLine, uid: this.nextUid() });
+        })
+
+      this.dbData = this.dbData
+        .concat(newlyLoadedInvoiceLines)
+        .filter(x => x.data.productCode !== '')
+        .sort((a, b) => a.data.productCode.localeCompare(b.data.productCode))
+
+      this.RefreshTable()
+    })
   }
 }

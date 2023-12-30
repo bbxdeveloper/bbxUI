@@ -4,6 +4,7 @@ import { MementoObject } from "src/assets/model/MementoObject"
 import { Product } from "src/app/modules/product/models/Product"
 import { ProductStock } from "src/app/modules/stock/models/ProductStock"
 import { JsonIgnore } from "src/assets/model/navigation/DynamicObject"
+import { WhsTransferLine, WhsTransferLineFull } from "./WhsTransferLine"
 
 export class InbetweenWarehouseProduct extends MementoObject implements IEditable {
     @JsonIgnore
@@ -76,6 +77,22 @@ export class InbetweenWarehouseProduct extends MementoObject implements IEditabl
         obj._unitOfMeasureX = product.unitOfMeasureX
         obj._realQty = stock?.realQty ?? 0
         obj._currAvgCost = stock?.avgCost ?? product.latestSupplyPrice!
+
+        obj.Save()
+
+        return obj
+    }
+
+    public static fromWhsTransferLineFull(whsTransferLine: WhsTransferLineFull): InbetweenWarehouseProduct {
+        const obj = new InbetweenWarehouseProduct()
+
+        obj.productCode = whsTransferLine.productCode!
+
+        obj._productID = -1
+        obj._productDescription = whsTransferLine.product!
+        obj._unitOfMeasure = whsTransferLine.unitOfMeasure!
+        obj._unitOfMeasureX = whsTransferLine.unitOfMeasureX!
+        obj._currAvgCost = whsTransferLine.currAvgCost
 
         obj.Save()
 

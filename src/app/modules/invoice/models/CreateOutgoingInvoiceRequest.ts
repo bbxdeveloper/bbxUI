@@ -28,8 +28,8 @@ export class CreateOutgoingInvoiceRequest<T = InvoiceLine> extends DynamicObject
 
     "invoiceDiscountPercent": number;
 
-    "workNumber"?: string;
-    "priceReview"?: boolean;
+    workNumber: string|undefined = undefined
+    priceReview: boolean|undefined = undefined
     deliveryNoteCorrection?: boolean = undefined
     invoiceCorrection: boolean = false
     originalInvoiceID: number|undefined

@@ -21,7 +21,8 @@ import { CommonService } from 'src/app/services/common.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { SystemService } from '../../system/services/system.service';
-import { SendDataToNavComponent } from '../send-data-to-nav/send-data-to-nav.component';
+import { SendDataToNavComponent } from '../nav/send-data-to-nav/send-data-to-nav.component';
+import { NavTechnicalCancelDialogComponent } from '../nav/nav-technical-cancel-dialog/nav-technical-cancel-dialog.component';
 
 @Component({
   selector: 'app-header',
@@ -179,6 +180,10 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
 
   public openSendToNav(): void {
     this.dialogService.open(SendDataToNavComponent)
+  }
+
+  public openNavTechnicalCancel(): void {
+    this.dialogService.open(NavTechnicalCancelDialogComponent)
   }
 
   /**

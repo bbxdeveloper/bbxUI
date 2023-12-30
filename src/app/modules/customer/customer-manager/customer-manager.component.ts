@@ -50,14 +50,12 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
     'city',
     'additionalAddressDetail',
     'thirdStateTaxId',
-    'isOwnData',
   ];
   allColumnsWithOpenedSideBar = [
     'id',
     'customerName',
     'taxpayerNumber',
     'thirdStateTaxId',
-    'isOwnData',
   ];
 
   AllColumns: ReplaySubject<string[]> = new ReplaySubject<string[]>();
@@ -198,18 +196,6 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       mask: '',
       colWidth: '25%',
       textAlign: 'left',
-      navMatrixCssClass: TileCssClass,
-    },
-    {
-      label: 'Saját',
-      objectKey: 'isOwnData',
-      colKey: 'isOwnData',
-      defaultValue: '',
-      type: 'bool',
-      fInputType: 'bool',
-      mask: '',
-      colWidth: '70px',
-      textAlign: 'center',
       navMatrixCssClass: TileCssClass,
     },
   ];
@@ -377,7 +363,8 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       paymentDays: Number(customer.paymentDays),
       defPaymentMethod: defPaymentMethod,
       latestDiscountPercent: HelperFunctions.ToOptionalInt(customer.latestDiscountPercent),
-      email: customer.email
+      email: customer.email,
+      isFA: customer.isFA
     } as CreateCustomerRequest;
     return res;
   }
@@ -511,20 +498,14 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
             if (d.succeeded && !!d.data) {
               const di = this.dbData.findIndex((x) => x.data.id === id);
               this.dbData.splice(di, 1);
-              this.simpleToastrService.show(
-                Constants.MSG_DELETE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
+              this.bbxToastrService.showSuccess(Constants.MSG_DELETE_SUCCESFUL, true);
+
               this.HandleGridSelectionAfterDelete(di);
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.simpleToastrService.show(
-                d.errors!.join('\n'),
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR_5_SEC
-              );
+              this.bbxToastrService.showError(d.errors!.join('\n'), true);
+
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
@@ -556,7 +537,7 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
       unitPriceType: new FormControl('', [Validators.required]),
       privatePerson: new FormControl(false, []),
       comment: new FormControl(undefined, []),
-      isOwnData: new FormControl(false, []),
+      isFA: new FormControl(false, []),
       email: new FormControl(undefined, []),
       warningLimit: new FormControl(undefined, [
         this.validateWarningLimit.bind(this),

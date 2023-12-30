@@ -25,13 +25,13 @@ $loopUntil100: 100;
         margin-right:  #{$i}px !important;
     }
     .margin-left-#{$i} {
-        margin-right:  #{$i}px !important;
+        margin-left:  #{$i}px !important;
     }
     .margin-top-#{$i} {
-        margin-right:  #{$i}px !important;
+        margin-top:  #{$i}px !important;
     }
     .margin-bottom-#{$i} {
-        margin-right:  #{$i}px !important;
+        margin-bottom:  #{$i}px !important;
     }
 }
 
@@ -44,12 +44,12 @@ $loopUntil100: 100;
         padding-right:  #{$i}px !important;
     }
     .padding-left-#{$i} {
-        padding-right:  #{$i}px !important;
+        padding-left:  #{$i}px !important;
     }
     .padding-top-#{$i} {
-        padding-right:  #{$i}px !important;
+        padding-top:  #{$i}px !important;
     }
     .padding-bottom-#{$i} {
-        padding-right:  #{$i}px !important;
+        padding-bottom:  #{$i}px !important;
     }
 }

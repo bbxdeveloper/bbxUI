@@ -44,7 +44,7 @@ import { GetPendingDeliveryNotesDialogComponent } from '../get-pending-delivery-
 import { PendingDeliveryNote } from '../models/PendingDeliveryNote';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { ValidationMessage } from 'src/assets/util/ValidationMessages';
-import { CustDicountForGet } from '../../customer-discount/models/CustDiscount';
+import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
 import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
@@ -235,6 +235,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.InitialSetup();
       this.isPageReady = true;
     })
+  }
+
+  public currentRealQty(): number | string {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return 0;
+    }
+
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
   }
 
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
@@ -756,6 +764,15 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       this.outGoingInvoiceData.invoiceDiscountPercent = response.invoiceDiscountPercent
 
+      for (let i = 0; i < response.invoiceLines.length; i++) {
+        const currentLine = response.invoiceLines[i]
+        const productData = await this.productService.getProductByCodeAsync({ ProductCode: currentLine.productCode } as GetProductByCodeRequest)
+        if (productData && productData.productCode) {
+          const warehouseID = this.tokenService.wareHouse?.id
+          response.invoiceLines[i].realQty = productData.stocks?.find(x => x.warehouseID === warehouseID)?.realQty ?? 0
+        }
+      }
+
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
 
@@ -881,7 +898,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       try {
         this.isSaveInProgress = true
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
         const request = {
           customerID: this.buyerData.id,
@@ -896,7 +913,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
         const response = await this.invoiceService.pricePreview(request)
 
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        this.status.pushProcessStatus(Constants.BlankProcessStatus)
 
         this.mode.partnerLock?.unlockCustomer()
 
@@ -923,7 +940,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       }
       catch (error) {
         this.cs.HandleError(error)
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        this.status.pushProcessStatus(Constants.BlankProcessStatus)
       }
       finally {
         this.isSaveInProgress = false
@@ -1103,7 +1120,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     })
   }
 
-  private async getDiscountsAndProducts(): Promise<[CustDicountForGet[], Product[]] | undefined> {
+  private async getDiscountsAndProducts(): Promise<[CustDiscountForGet[], Product[]] | undefined> {
     try {
       this.isLoading = true
 
@@ -1128,7 +1145,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     return undefined
   }
 
-  private recalcuatePrices(customerDiscounts: CustDicountForGet[], products: Product[]): void {
+  private recalcuatePrices(customerDiscounts: CustDiscountForGet[], products: Product[]): void {
     for (const { data: invoiceLine } of this.dbData) {
       const product = products.find(x => x.id == invoiceLine.productID)
 
@@ -1160,12 +1177,12 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -1177,7 +1194,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 

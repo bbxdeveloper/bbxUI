@@ -115,58 +115,14 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   offerDiscountInputMask = NgNeatInputMasks.offerDiscountInputMask;
   numberInputMaskInteger = NgNeatInputMasks.numberInputMaskInteger;
 
-  editorConfig: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    height: 'auto',
-    minHeight: '0',
-    maxHeight: 'auto',
-    width: 'auto',
-    minWidth: '0',
-    translate: 'yes',
-    enableToolbar: true,
-    showToolbar: true,
-    placeholder: 'Enter text here...',
-    defaultParagraphSeparator: '',
-    defaultFontName: '',
-    defaultFontSize: '',
-    fonts: [
-      { class: 'arial', name: 'Arial' },
-      { class: 'times-new-roman', name: 'Times New Roman' },
-      { class: 'calibri', name: 'Calibri' },
-      { class: 'comic-sans-ms', name: 'Comic Sans MS' }
-    ],
-    customClasses: [
-      {
-        name: 'quote',
-        class: 'quote',
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: 'titleText',
-        class: 'titleText',
-        tag: 'h1',
-      },
-    ],
-    uploadUrl: 'v1/image',
-    uploadWithCredentials: false,
-    sanitize: true,
-    toolbarPosition: 'top',
-    toolbarHiddenButtons: [
-      ['bold', 'italic'],
-      ['fontSize']
-    ]
-  };
+  editorConfig: AngularEditorConfig = Constants.GeneralEditorConfig
 
   constructor(
     @Optional() protected dialogService: BbxDialogServiceService,
     protected kbS: KeyboardNavigationService,
     protected fS: FooterService,
     protected cs: CommonService,
-    protected sts: StatusService,
+    protected status: StatusService,
     protected sideBarService: BbxSidebarService,
     protected khs: KeyboardHelperService,
     protected router: Router
@@ -247,7 +203,7 @@ export class BaseInlineManagerComponent<T extends IEditable> {
   HandleError(err: any): void {
     this.cs.HandleError(err);
     this.isLoading = false;
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   HandleGridSelectionAfterDelete(indexOfDeleteItem: number): void {
@@ -465,11 +421,13 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     });
   }
 
-  CreateProduct(event: any, handler: (p: Product) => Promise<void>): void {
+  CreateProduct(event: any, handler: (p: Product) => Promise<void>, productCode?: string): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     const dialogRef = this.dialogService.open(CreateNewProductDialogComponent, {
-      context: {},
+      context: {
+        productCode: productCode
+      },
       closeOnEsc: false
     });
     dialogRef.onClose.subscribe({

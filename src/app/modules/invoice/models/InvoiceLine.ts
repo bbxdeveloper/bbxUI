@@ -41,6 +41,8 @@ export class InvoiceLine extends MementoObject implements IEditable {
     productCode: string = ''; // editable
     productDescription: string = "";
 
+    productGroup: string|undefined = undefined
+
     quantity: number = 0.0; // editable
 
     unitOfMeasure: string = "";
@@ -56,7 +58,7 @@ export class InvoiceLine extends MementoObject implements IEditable {
     vatRateCode: string = ''; // below table
 
     @JsonIgnore
-    latestSupplyPrice?: number
+    latestSupplyPrice: number|undefined = undefined
 
     @JsonIgnore
     lineNetAmount: number = 0.0; // price * quant
@@ -83,7 +85,7 @@ export class InvoiceLine extends MementoObject implements IEditable {
     vatRate: number = 1; // hidden
 
     @JsonIgnore
-    unitOfMeasureX?: string;
+    unitOfMeasureX?: string = undefined;
 
     relDeliveryNoteInvoiceLineID: number = 0
 
@@ -146,6 +148,13 @@ export class InvoiceLine extends MementoObject implements IEditable {
         return HelperFunctions.Round2(this.rowGrossPrice, 0);
     }
     //#endregion Gyűjtő számla
+
+    //#region Készlet
+
+    @JsonIgnore
+    realQty: number = 0
+
+    //#endregion Készlet
 
     constructor(requiredFields?: string[]) {
         super();
@@ -231,5 +240,22 @@ export class InvoiceLine extends MementoObject implements IEditable {
         // console.log("lineGrossAmount: " + this.lineGrossAmount);
         // console.log("==========================");
         // console.log("");
+    }
+
+    public static fromData(data: InvoiceLine): InvoiceLine {
+        const line = new InvoiceLine()
+
+        const data2 = data as any
+        for(let key in line) {
+            if (data2[key]) {
+                (<any>line)[key] = data2[key]
+            }
+        }
+
+        line.productDescription = data2.lineDescription
+
+        line.ReCalc()
+
+        return line
     }
 }

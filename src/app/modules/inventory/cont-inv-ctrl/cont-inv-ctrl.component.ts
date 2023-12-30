@@ -265,7 +265,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
       try {
         this.isSaveInProgress = true;
-        this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
         const request = this.dbDataTable.data
           .filter(x => !x.data.IsUnfinished())
@@ -296,7 +296,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         this.cs.HandleError(error)
       } finally {
         this.isSaveInProgress = false
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+        this.status.pushProcessStatus(Constants.BlankProcessStatus)
       }
     });
   }
@@ -407,7 +407,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         await this.HandleProductSelection(res, rowIndex);
       } else {
@@ -417,7 +417,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         }
       }
     }
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
@@ -480,7 +480,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
           console.log('[TableCodeFieldChanged] res: ', changedData, ' | Product: ', product);
@@ -499,7 +499,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
         },
         complete: async () => {
           this.isLoading = false;
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
     }
@@ -626,12 +626,12 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -643,7 +643,7 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 
@@ -697,6 +697,9 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
         case this.KeySetting[Actions.Refresh].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {

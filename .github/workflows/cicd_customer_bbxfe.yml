@@ -5,6 +5,8 @@ env:
   AZURE_STORAGE_KEY: S4vQyGVrOwKlaj6eF954Wl4yj2L1Jccd9SfmSOMVsIDyv3hME/65FKUlouut7Pr+CwC/YDYZNU/wDWOwebPNtw==
   CONNECTION_STRING: DefaultEndpointsProtocol=https;AccountName=bbxtestcustomerfe;AccountKey=S4vQyGVrOwKlaj6eF954Wl4yj2L1Jccd9SfmSOMVsIDyv3hME/65FKUlouut7Pr+CwC/YDYZNU/wDWOwebPNtw==;
   PROJECT_NAME: bbx-ui
+  SHA_SHORT_COMMIT_NUMBER: 0
+  PACKAGE_VERSION: 0
 
 on:
   pull_request: 
@@ -22,6 +24,11 @@ jobs:
       - name: Checkout from repository
         uses: actions/checkout@v3
 
+      - name: Get Short SHA commit number
+        shell: bash
+        run: |
+          echo "SHA_SHORT_COMMIT_NUMBER=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"  
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -30,8 +37,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Print Package Version
+        run: |
+          echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+
+      - name: package.json info
+        id: info
+        uses: jaywcjlove/github-action-package@main
+        with:
+          version: ${{ env.PACKAGE_VERSION }} - ${{ env.SHA_SHORT_COMMIT_NUMBER }}
+      - run: echo "${{ env.PACKAGE_VERSION }} - ${{ env.SHA_SHORT_COMMIT_NUMBER }}"
+      
       #- name: Run tests
       #  run: npm run test:headless
+      
       - name: Build
         run: npm run build-customer-test
         #run: ng build --prod --base-href

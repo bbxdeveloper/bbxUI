@@ -6,7 +6,7 @@ import { GetCustDiscountParamsModel } from '../models/GetCustDiscountParamsModel
 import { GetCustDiscountByCustomerParamsModel } from '../models/GetCustDiscountByCustomerParamsModel';
 import { CreateCustDiscountRequest } from '../models/CreateCustDiscountRequest';
 import { CreateCustDiscountResponse } from '../models/CreateCustDiscountResponse';
-import { CustDicountForGet } from '../models/CustDiscount';
+import { CustDiscountForGet } from '../models/CustDiscount';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class CustomerDiscountService {
 
   constructor(private http: HttpClient) { }
 
-  Get(params?: GetCustDiscountParamsModel): Observable<CustDicountForGet> {
+  Get(params?: GetCustDiscountParamsModel): Observable<CustDiscountForGet> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -35,10 +35,10 @@ export class CustomerDiscountService {
       });
     }
 
-    return this.http.get<CustDicountForGet>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<CustDiscountForGet>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
   }
 
-  public GetByCustomer(params?: GetCustDiscountByCustomerParamsModel): Observable<CustDicountForGet[]> {
+  public GetByCustomer(params?: GetCustDiscountByCustomerParamsModel): Observable<CustDiscountForGet[]> {
     // Process params
     var queryParams = '';
     var index = 0;
@@ -56,10 +56,10 @@ export class CustomerDiscountService {
       });
     }
 
-    return this.http.get<CustDicountForGet[]>(this.BaseUrl + '/discountforcustomer' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<CustDiscountForGet[]>(this.BaseUrl + '/discountforcustomer' + (!!params ? ('?' + queryParams) : ''));
   }
 
-  public getByCustomerAsync(params: GetCustDiscountByCustomerParamsModel): Promise<CustDicountForGet[]> {
+  public getByCustomerAsync(params: GetCustDiscountByCustomerParamsModel): Promise<CustDiscountForGet[]> {
     return firstValueFrom(this.GetByCustomer(params))
   }
 

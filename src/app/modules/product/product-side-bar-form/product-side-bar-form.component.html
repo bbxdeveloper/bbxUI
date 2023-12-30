@@ -40,7 +40,7 @@
             </nb-form-field>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="productGroup" label="Csoport"
-                [data$]="productGroupComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true"></app-bbx-combo-box>
+                [data$]="productGroupComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true" labelWidth="130px"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
@@ -77,10 +77,10 @@
             <app-form-control-error [form]="currentForm" label="utolsó beszár" controlName="latestSupplyPrice"></app-form-control-error>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="origin" label="Származási hely"
-                [data$]="originsComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true"></app-bbx-combo-box>
+                [data$]="originsComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true" labelWidth="130px"></app-bbx-combo-box>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="unitOfMeasure" label="Me.e.*"
-                [data$]="uomComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true"></app-bbx-combo-box>
+                [data$]="uomComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true" labelWidth="130px"></app-bbx-combo-box>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
@@ -117,23 +117,26 @@
             <app-form-control-error [form]="currentForm" label="elad ár 2" controlName="unitPrice2"></app-form-control-error>
 
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="vatRateCode" label="Áfakód"
-                [data$]="vatRateComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true"></app-bbx-combo-box>
+                [data$]="vatRateComboData$" [isReadonly]="isReadonly" [needErrorMsg]="true" labelWidth="130px"></app-bbx-combo-box>
 
-            <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
-                <div class="bbx-fd-form-field-inner-div">
-                    <label>Súly</label>
-            
-                    <app-bbx-numeric-input
-                        formControlName='unitWeight'
-                        class="display-contents"
-                        input_class="{{TileCssClass}}"
-                        (click)="currentForm.HandleFormFieldClick($event)"
-                        [inputmask]="numberInputMask" placeholder="0.00"
-                        [readonly]="isReadonly">
-                    </app-bbx-numeric-input>
-                </div>
-                <app-form-control-error [form]="currentForm" label="súly" controlName="unitWeight"></app-form-control-error>
-            </nb-form-field>
+            <div class="bbx-fd-form-field-wrapper-div-row">
+
+                <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)" class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div">
+                        <label>Súly</label>
+
+                        <app-bbx-numeric-input
+                            formControlName='unitWeight'
+                            class="display-contents"
+                            input_class="{{TileCssClass}}"
+                            (click)="currentForm.HandleFormFieldClick($event)"
+                            [inputmask]="numberInputMask" placeholder="0.00"
+                            [readonly]="isReadonly">
+                        </app-bbx-numeric-input>
+                    </div>
+                    <app-form-control-error [form]="currentForm" label="súly" controlName="unitWeight"></app-form-control-error>
+                </nb-form-field>
+            </div>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-40 checkbox-wrapper"

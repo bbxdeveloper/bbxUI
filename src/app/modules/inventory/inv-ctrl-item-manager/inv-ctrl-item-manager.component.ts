@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService, NbSortDirection } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbSortDirection } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -19,8 +19,6 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { ProductSelectTableDialogComponent } from '../../shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { CreateInvCtrlItemRequest } from '../models/CreateInvCtrlItemRequest';
 import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, InvCtrlItemCreatorKeySettings } from 'src/assets/util/KeyBindings';
-import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
-import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductDialogTableSettings } from 'src/assets/model/TableSettings';
@@ -43,6 +41,8 @@ import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } 
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { environment } from 'src/environments/environment';
+import { ConfirmationWithAuthDialogComponent } from '../../shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
+import { TokenStorageService } from '../../auth/services/token-storage.service';
 
 @Component({
   selector: 'app-inv-ctrl-item-manager',
@@ -67,8 +67,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   invCtrlPeriodComboData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   get SelectedWareHouseId(): number {
-    return this.buyerForm.controls['invCtrlPeriod'].value !== undefined ?
-      HelperFunctions.ToInt(this.invCtrlPeriodValues[this.buyerForm.controls['invCtrlPeriod'].value ?? -1]?.warehouseID) : -1;
+    return HelperFunctions.ToInt(this.tokenService.wareHouse?.id)
   }
   get SelectedInvCtrlPeriod(): InvCtrlPeriod | undefined {
     if (!!this.buyerForm && this.buyerForm.controls !== undefined) {
@@ -178,17 +177,16 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
     private productService: ProductService,
-    private vatRateService: VatRateService,
     private stockService: StockService,
     sideBarService: BbxSidebarService,
     khs: KeyboardHelperService,
     router: Router,
     private route: ActivatedRoute,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private tokenService: TokenStorageService
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -302,12 +300,6 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       }
     }
 
-    // console.log('\n')
-    // console.log(`checkAutoSave
-    //              \nchange: ${change},
-    //              \nthis.savedRows.length: ${this.savedRows.length}, this.unsavedRows.length: ${this.unsavedRows.length}`)
-    // console.log('\n')
-
     if (this.unsavedRows.length === 0) {
       return
     }
@@ -411,7 +403,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     if (!autoSave) {
-      const confirmDialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_SAVE_DATA } });
+      const confirmDialogRef = this.dialogService.open(ConfirmationWithAuthDialogComponent, { context: { title: Constants.MSG_CONFIRMATION_SAVE_DATA } });
       confirmDialogRef.onClose.subscribe(res => {
         if (res) {
           this.statusService.waitForSave(true)
@@ -435,11 +427,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
           if (!!d.data) {
             console.log('Save response: ', d);
 
-            this.simpleToastrService.show(
-              Constants.MSG_SAVE_SUCCESFUL,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL, true);
             this.statusService.waitForAutoSave(false)
 
             if (!autoSave) {
@@ -607,7 +595,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
   async HandleProductChoose(res: Product, wasInNavigationMode: boolean, rowIndex: number): Promise<void> {
     if (!!res) {
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       if (!wasInNavigationMode) {
         await this.HandleProductSelection(res, rowIndex);
       } else {
@@ -617,7 +605,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         }
       }
     }
-    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+    this.status.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
@@ -677,7 +665,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
 
     if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
       let _product: Product = { id: -1 } as Product;
-      this.sts.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
         next: async product => {
           console.log('[TableCodeFieldChanged] res: ', changedData, ' | Product: ', product);
@@ -697,7 +685,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
         complete: async () => {
           this.isLoading = false;
           this.handleUnsaved(this.dbDataTable.data[rowPos], rowPos)
-          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
         }
       })
     } else {
@@ -760,7 +748,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       next: data => {
         console.log("[refreshComboboxData]: ", data);
         this.invCtrlPeriods =
-          data?.data?.filter(x => !x.closed).map(x => {
+          data?.data?.filter(x => !x.closed && x.warehouseID === this.tokenService.wareHouse?.id).map(x => {
             let res = x.warehouse + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateFrom) + ' ' + HelperFunctions.GetOnlyDateFromUtcDateString(x.dateTo);
             this.invCtrlPeriodValues[res] = x;
             return res;
@@ -803,12 +791,12 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
-    this.sts.waitForLoad(true)
+    this.status.waitForLoad(true)
 
     try {
       const product = await this.productService.getProductByCodeAsync({ ProductCode: productCode })
 
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
 
       this.dialogService.open(ProductStockInformationDialogComponent, {
         context: {
@@ -820,7 +808,7 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
       this.cs.HandleError(error)
     }
     finally {
-      this.sts.waitForLoad(false)
+      this.status.waitForLoad(false)
     }
   }
 
@@ -867,6 +855,9 @@ export class InvCtrlItemManagerComponent extends BaseInlineManagerComponent<InvC
   public override HandleKeyDown(event: Event | TableKeyDownEvent, isForm: boolean = false): void {
     if (isTableKeyDownEvent(event)) {
       let _event = event.Event;
+      if (_event.ctrlKey && _event.key !== 'Enter') {
+        return
+      }
       switch (_event.key) {
         case this.KeySetting[Actions.Refresh].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {

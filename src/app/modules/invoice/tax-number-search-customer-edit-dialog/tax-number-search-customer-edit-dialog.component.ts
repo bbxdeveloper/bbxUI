@@ -152,6 +152,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
         this.paymentDateValidation.bind(this)
       ]),
       email: new FormControl(undefined, []),
+      isFA: new FormControl(false, []),
     });
 
     this.IsDialog = true;
@@ -190,6 +191,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       controls['comment'].setValue(this.data.comment);
       controls['email'].setValue(this.data.email)
       controls['paymentDays'].setValue(this.data.paymentDays)
+      controls['isFA'].setValue(this.data.isFA)
     }
   }
 
@@ -286,6 +288,7 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       email: customer.email,
       defPaymentMethod: customer.defPaymentMethod,
       paymentDays: HelperFunctions.ToInt(customer.paymentDays),
+      isFA: customer.isFA
     } as CreateCustomerRequest;
 
     console.log("[TaxNumberSearchCustomerEditDialogComponent] CustomerToCreateRequest after:", res);
@@ -381,7 +384,21 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
     }
   }
 
+  upperCaseFirstLetter(event: any, formField?: string): void {
+    if (formField === undefined) {
+      return
+    }
+    const val = this.currentForm?.form.controls[formField].value
+    if (val.length === 1) {
+      this.currentForm?.form.controls[formField].setValue(event.target.value = event.target.value.toUpperCase())
+    } else if (val.length > 1) {
+      const firstLetter = val[0]
+      this.currentForm?.form.controls[formField].setValue(firstLetter.toUpperCase() + val.slice(1))
+    }
+  }
+
   cityInputFocusOut(event: any): void {
+    this.upperCaseFirstLetter(event, 'city')
     if (!this.isHuCountryCodeSet) {
       return;
     }

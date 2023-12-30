@@ -20,7 +20,7 @@
                     <label>Név*</label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="customerName"
-                        [readonly]="isReadonly"
+                        [readonly]="isReadonly" (focusout)="upperCaseFirstLetter($event, 'customerName')"
                         (click)="currentForm.HandleFormFieldClick($event)" required>
                 </div>
                 <app-form-control-error [form]="currentForm" label="név" controlName="customerName"></app-form-control-error>
@@ -105,13 +105,13 @@
 
                 <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33"
                     (keydown.enter)="currentForm.HandleFormEnter($event)">
-                    <label class="label-checkbox">Saját adat</label>
+                    <label class="label-checkbox">Ford.áfa</label>
 
-                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isOwnData"
+                    <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox" formControlName="isFA"
                         [readonly]="isReadonly"
                         (click)="currentForm.HandleFormFieldClick($event)">
 
-                    <app-form-control-error [form]="currentForm" label="saját adat" controlName="isOwnData"></app-form-control-error>
+                    <app-form-control-error [form]="currentForm" label="ford.áfa" controlName="isFA"></app-form-control-error>
                 </div>
             </div>
 

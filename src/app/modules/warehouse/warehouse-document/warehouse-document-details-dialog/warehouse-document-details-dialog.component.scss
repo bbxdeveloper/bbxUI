@@ -41,7 +41,7 @@ form.form-with-rows {
 }
 
 .modal-product-active {
-    max-height: 610px !important;
+    max-height: 700px !important;
 }
 
 .alert-error {
@@ -62,8 +62,7 @@ form {
     flex-direction: column;
     row-gap: 5px;
     
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 10px;
 
     .horizontal {
         display: flex;

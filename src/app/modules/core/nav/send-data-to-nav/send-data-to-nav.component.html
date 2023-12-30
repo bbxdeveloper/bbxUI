@@ -11,6 +11,7 @@
                     </label>
 
                     <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber"
+                        oninput="this.value = this.value.toUpperCase()"
                         [readonly]="isEditModeOff" [disabled]="isLoading" (click)="navigateable.HandleFormFieldClick($event)" required autocomplete="off">
 
                     <div *ngIf="invoiceNumber?.invalid && (invoiceNumber?.dirty || invoiceNumber?.touched)">

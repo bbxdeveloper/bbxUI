@@ -151,7 +151,6 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     cs: CommonService,
     sts: StatusService,
     sideBarService: BbxSidebarService,
@@ -331,7 +330,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
     this.kbS.setEditMode(KeyboardModes.NAVIGATION)
 
     HelperFunctions.confirmAsync(this.dialogService, Constants.MSG_CONFIRMATION_SAVE_DATA, async () => {
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+      this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
 
       this.UpdateOutGoingData()
 
@@ -345,11 +344,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
 
               this.partnerLock.unlockCustomer()
 
-              this.simpleToastrService.show(
-                Constants.MSG_SAVE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              )
+              this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL, true)
 
               this.DelayedReset(200)
             } else {
@@ -366,7 +361,7 @@ export class CustomerDiscountManagerComponent extends BaseInlineManagerComponent
         })
         .finally(() => {})
 
-      this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+      this.status.pushProcessStatus(Constants.BlankProcessStatus)
     });
   }
 
