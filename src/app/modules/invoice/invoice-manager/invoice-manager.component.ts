@@ -70,6 +70,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
   cachedCustomerName?: string;
 
+  private lastBuyerId: number|undefined
   get buyerData(): Customer {
     return this.customerData
   }
@@ -333,6 +334,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       let k = this.KeySetting;
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
+    }
+
+    if (this.lastBuyerId !== this.buyerData.id && this.buyerData.id !== undefined) {
+      this.mode.partnerLock?.switchCustomer(this.buyerData.id)
+      this.lastBuyerId = this.buyerData.id
     }
   }
 
@@ -967,8 +973,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       if (!!res) {
         this.buyerData = res;
 
-        this.mode.partnerLock?.lockCustomer(this.buyerData.id)
-
         this.isLoading = true
         await this.loadCustomerDiscounts(this.buyerData.id)
         this.isLoading = false
@@ -1104,8 +1108,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.searchByTaxtNumber = false;
-
-          this.mode.partnerLock?.lockCustomer(this.buyerData.id)
 
           this.isLoading = true
           await this.loadCustomerDiscounts(this.buyerData.id)
