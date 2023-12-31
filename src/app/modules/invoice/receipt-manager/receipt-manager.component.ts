@@ -106,6 +106,18 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   override KeySetting: Constants.KeySettingsDct = ReceiptKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
+  override confirmAndCreateProductCallback?: any = (rowPos: number, productCode: string) => {
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_PRODUCT_CREATE, () => {
+      this.CreateProduct(
+        rowPos,
+        product => {
+          return this.HandleProductChoose(product, false)
+        },
+        productCode
+      )
+    })
+  }
+
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
@@ -545,7 +557,9 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     res.unitOfMeasure = p.unitOfMeasure;
     res.unitOfMeasureX = p.unitOfMeasureX;
 
-    console.log('ProductToInvoiceLine res: ', res);
+    res.realQty = p.activeStockRealQty ?? 0
+
+    console.log('ProductToInvoiceLine res: ', res, 'product: ', p);
 
     return res;
   }

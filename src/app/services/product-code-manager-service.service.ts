@@ -3,7 +3,7 @@ import { KeyboardModes, KeyboardNavigationService } from './keyboard-navigation.
 import { LoggerService } from './logger.service';
 import { Observable, of } from 'rxjs';
 import { StatusService } from './status.service';
-import { InvoiceItemsDialogTableSettings, PendingDeliveryNotesTableSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
+import { InvoiceItemsDialogTableSettings, PendingDeliveryNotesTableSettings, PendingDeliveryNotesTableWithWorkNumberSettings, ProductDialogTableSettings } from 'src/assets/model/TableSettings';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { ProductSelectTableDialogComponent } from '../modules/shared/dialogs/product-select-table-dialog/product-select-table-dialog.component';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -25,6 +25,8 @@ import { CreateOfferRequest } from '../modules/offer/models/CreateOfferRequest';
 import { Offer } from '../modules/offer/models/Offer';
 import { FormGroup } from '@angular/forms';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { ProductToProductRow } from '../modules/product/models/Product';
+import { TokenStorageService } from '../modules/auth/services/token-storage.service';
 
 //#region Exports
 
@@ -43,6 +45,7 @@ export interface ChooseProductRequest<T = any, Item = any> {
 export interface ChooseSummaryInvoiceProductRequest extends ChooseProductRequest<OutGoingInvoiceFullData, InvoiceLine> {
   fillTableWithDataCallback: any
   originalCustomerID: number
+  showWorkNumber?: boolean
   mode: InvoiceBehaviorMode
 }
 
@@ -58,6 +61,7 @@ export interface ChooseEditOfferProductRequest extends ChooseProductRequest<Offe
 export interface CodeFieldChangeRequest {
   dbDataTable: InlineEditableNavigatableTable<any>
   productToGridProductConversionCallback: any
+  createProductCallback?: any
 
   changedData: any
   index: number
@@ -86,7 +90,8 @@ export class ProductCodeManagerServiceService {
               private statusService: StatusService,
               private productService: ProductService,
               private bbxToastrService: BbxToastrService,
-              private commonService: CommonService
+              private commonService: CommonService,
+              private tokenService: TokenStorageService
               ) {
 
   }
@@ -156,12 +161,13 @@ export class ProductCodeManagerServiceService {
 
     this.dialogService.open(PendingDeliveryNotesSelectDialogComponent, {
       context: {
-        allColumns: PendingDeliveryNotesTableSettings.AllColumns,
-        colDefs: PendingDeliveryNotesTableSettings.ColDefs,
+        allColumns: request.showWorkNumber ? PendingDeliveryNotesTableWithWorkNumberSettings.AllColumns : PendingDeliveryNotesTableSettings.AllColumns,
+        colDefs: request.showWorkNumber ? PendingDeliveryNotesTableWithWorkNumberSettings.ColDefs : PendingDeliveryNotesTableSettings.ColDefs,
         checkedNotes: checkedNotes,
         customerID: request.originalCustomerID,
         selectedNotes: event,
-        mode: request.mode
+        mode: request.mode,
+        cssClass: request.showWorkNumber ? 'pending-deliveri-notes-select-wide' : 'pending-deliveri-notes-select-normal'
       }
     });
 
@@ -293,13 +299,18 @@ export class ProductCodeManagerServiceService {
           console.log('[TableRowDataChanged]: ', request.changedData, ' | Product: ', product)
 
           if (!!product && !!product?.productCode) {
-            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) }, ['productCode'])
+            const productRow = ProductToProductRow(product, this.tokenService.wareHouse?.id)
+            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(productRow) }, ['productCode'])
             currentRow?.data.Save('productCode')
             this.MoveNextFromCodeField(request)
           } else {
-            this.keyboardService.ClickCurrentElement()
-            selectProcutCodeInTableInput()
-            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
+            if (request.createProductCallback === undefined) {
+              this.keyboardService.ClickCurrentElement()
+              selectProcutCodeInTableInput()
+              this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND)
+            } else {
+              request.createProductCallback(request.rowPos, request.changedData.productCode)
+            }
           }
         },
         error: err => {
@@ -327,7 +338,8 @@ export class ProductCodeManagerServiceService {
           console.log('[TableRowDataChanged]: ', request.changedData, ' | Product: ', product);
 
           if (!!product && !!product?.productCode) {
-            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(product) }, ['productCode']);
+            const productRow = ProductToProductRow(product, this.tokenService.wareHouse?.id)
+            let currentRow = request.dbDataTable.FillCurrentlyEditedRow({ data: await request.productToGridProductConversionCallback(productRow) }, ['productCode']);
             currentRow?.data.Save('productCode');
             this.MoveNextFromCodeField(request)
           } else {

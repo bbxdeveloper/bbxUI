@@ -23,8 +23,6 @@ import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-nu
 import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-table.component';
 import { CreateNewProductDialogComponent } from '../dialogs/create-new-product-dialog/create-new-product-dialog.component';
 import { Product } from '../../product/models/Product';
-import { InvoiceTypes } from '../../invoice/models/InvoiceTypes';
-import { InvoiceCategory } from '../../invoice/models/InvoiceCategory';
 import { Router } from '@angular/router';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
@@ -421,11 +419,13 @@ export class BaseInlineManagerComponent<T extends IEditable> {
     });
   }
 
-  CreateProduct(event: any, handler: (p: Product) => Promise<void>): void {
+  CreateProduct(event: any, handler: (p: Product) => Promise<void>, productCode?: string): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     const dialogRef = this.dialogService.open(CreateNewProductDialogComponent, {
-      context: {},
+      context: {
+        productCode: productCode
+      },
       closeOnEsc: false
     });
     dialogRef.onClose.subscribe({

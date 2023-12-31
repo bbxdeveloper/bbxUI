@@ -90,6 +90,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   public KeySetting!: Constants.KeySettingsDct
   override commands: FooterCommandInfo[] = [];
 
+  confirmAndCreateProductCallback?: any
+
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
     footerService: FooterService,
@@ -176,7 +178,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
         this.kbS.ClickCurrentElement();
       }, 50);
     } else {
-      // this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
       this.productCodeManagerService.TableCodeFieldChanged({
         dbDataTable: this.dbDataTable,
         productToGridProductConversionCallback: this.ProductToInvoiceLine.bind(this),
@@ -189,45 +190,13 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
         inputId: inputId,
         fInputType: fInputType,
         path: this.path,
-        onComplete: this.RecalcNetAndVat.bind(this)
+        onComplete: this.RecalcNetAndVat.bind(this),
+        createProductCallback: this.confirmAndCreateProductCallback
       } as CodeFieldChangeRequest)
     }
   }
 
   async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> { return of({} as any).toPromise() }
-
-  TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!changedData && !!changedData.productCode && changedData.productCode.length > 0) {
-      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
-        next: async product => {
-          console.log('[TableRowDataChanged]: ', changedData, ' | Product: ', product);
-
-          if (!!product && !!product?.productCode) {
-            let currentRow = this.dbDataTable.FillCurrentlyEditedRow({ data: await this.ProductToInvoiceLine(product) }, ['productCode']);
-            currentRow?.data.Save('productCode');
-            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-            this.dbDataTable.MoveNextInTable();
-            setTimeout(() => {
-              this.kbS.setEditMode(KeyboardModes.EDIT);
-              this.kbS.ClickCurrentElement();
-            }, 200);
-          } else {
-            this.kbS.ClickCurrentElement()
-            selectProcutCodeInTableInput()
-            this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
-          }
-        },
-        error: err => {
-          this.cs.HandleError(err);
-        },
-        complete: () => {
-          this.RecalcNetAndVat();
-          this.status.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
-    }
-  }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
     if (!!changedData && !!changedData.productCode) {
@@ -301,12 +270,20 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  public currentLineDiscount(): number|string {
+  public currentLineDiscount(): number | string {
     if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       return '-';
     }
 
     return this.dbDataTable?.data[this.kbS.p.y]?.data.discount ?? '-';
+  }
+
+  public currentRealQty(): number | string {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return 0;
+    }
+    
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
   }
 
   protected editCustomer(customer: Customer|undefined = undefined): void {

@@ -1,7 +1,12 @@
 @import 'quick-search-modal-deafult';
 
-.pending-deliveri-notes-select {
+.pending-deliveri-notes-select-normal {
     width: 1300px;
+    max-width: unset;
+}
+
+.pending-deliveri-notes-select-wide {
+    width: 1500px;
     max-width: unset;
 }
 

@@ -26,6 +26,7 @@ export class PendingDeliveryNotesSelectDialogComponent extends SelectTableDialog
   @Input() public checkedNotes!: PendingDeliveryNoteItem[]
   @Output() public selectedNotes = new EventEmitter<PendingDeliveryNoteItem[]>()
   @Input() public mode!: InvoiceBehaviorMode
+  @Input() public cssClass: string = 'pending-deliveri-notes-select-normal'
 
   public isLoaded = false
   public override isLoading = false
