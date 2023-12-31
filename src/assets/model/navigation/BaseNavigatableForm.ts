@@ -54,6 +54,8 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
 
     DataToEdit?: TreeGridNode<any>;
 
+    isReadonly = false
+
     readonly commandsOnForm: FooterCommandInfo[] = [
         { key: 'Tab', value: '', disabled: false },
         { key: 'F1', value: '', disabled: false },
@@ -267,6 +269,10 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
     }
 
     HandleFormEnter(event: Event, jumpNext: boolean = true, toggleEditMode: boolean = true): void {
+        if (this.isReadonly) {
+            return
+        }
+
         if (toggleEditMode) {
             this.kbS.toggleEdit();
         }
@@ -320,6 +326,10 @@ export class BaseNavigatableForm<T = any> implements IFunctionHandler, INavigata
     HandleFormDropdownEnter(event: Event, itemCount: number, possibleItems?: string[], typedValue?: string, preventEvent = false, lastFormField: boolean = false, formFieldName?: string): void {
         if (environment.flatDesignFormDebug) {
             console.log("itemCount: " + itemCount, typedValue, event.target, (event.target as any).getAttribute("aria-activedescendant"));
+        }
+
+        if (this.isReadonly) {
+            return
         }
 
         if (preventEvent) {
