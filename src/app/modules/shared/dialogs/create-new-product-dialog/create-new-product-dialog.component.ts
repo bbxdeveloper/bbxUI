@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
@@ -20,7 +20,7 @@ import { ProductGroup } from '../../../product-group/models/ProductGroup';
 import { ProductGroupService } from '../../../product-group/services/product-group.service';
 import { CreateProductRequest } from '../../../product/models/CreateProductRequest';
 import { Product } from '../../../product/models/Product';
-import { UnitOfMeasure } from '../../../product/models/UnitOfMeasure';
+import { OfflineUnitOfMeasures, UnitOfMeasure } from '../../../product/models/UnitOfMeasure';
 import { ProductService } from '../../../product/services/product.service';
 import { VatRate } from '../../../vat-rate/models/VatRate';
 import { VatRateService } from '../../../vat-rate/services/vat-rate.service';
@@ -35,6 +35,8 @@ import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
   styleUrls: ['./create-new-product-dialog.component.scss']
 })
 export class CreateNewProductDialogComponent extends BaseNavigatableComponentComponent implements OnDestroy, AfterViewInit {
+  @Input() productCode?: string
+  
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -152,6 +154,10 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
 
     this.kbS.SelectFirstTile();
     this.kbS.Jump(AttachDirection.UP, true);
+
+    if (!HelperFunctions.isEmptyOrSpaces(this.productCode)) {
+      this.productForm.controls['productCode'].setValue(this.productCode)
+    }
   }
 
   private SetNewForm(form?: FormGroup): void {
@@ -336,6 +342,12 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
         this._uom = data ?? [];
         this.uom = data?.map(x => x.text) ?? [];
         this.uomComboData$.next(this.uom);
+        
+        if (this.uom.length > 0 && HelperFunctions.isEmptyOrSpaces(this.productForm.controls['unitOfMeasure'].value)) {
+          this.productForm.controls['unitOfMeasure'].setValue(
+            this._uom.find(x => x.value === OfflineUnitOfMeasures.PIECE.value)?.text
+          )
+        }
       }
     });
 

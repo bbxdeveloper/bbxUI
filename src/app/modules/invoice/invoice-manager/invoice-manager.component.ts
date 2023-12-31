@@ -71,6 +71,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
   cachedCustomerName?: string;
 
+  private lastBuyerId: number|undefined
   get buyerData(): Customer {
     return this.customerData
   }
@@ -180,6 +181,18 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.cachedCustomerName = customer.customerName;
     this.searchByTaxtNumber = false;
   })
+
+  override confirmAndCreateProductCallback?: any = (rowPos: number, productCode: string) => {
+    HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_PRODUCT_CREATE, () => {
+      this.CreateProduct(
+        rowPos,
+        product => {
+          return this.HandleProductChoose(product, false)
+        },
+        productCode
+      )
+    })
+  }
 
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
@@ -322,6 +335,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       let k = this.KeySetting;
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
+    }
+
+    if (this.lastBuyerId !== this.buyerData.id && this.buyerData.id !== undefined) {
+      this.mode.partnerLock?.switchCustomer(this.buyerData.id)
+      this.lastBuyerId = this.buyerData.id
     }
   }
 
@@ -956,8 +974,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       if (!!res) {
         this.buyerData = res;
 
-        this.mode.partnerLock?.lockCustomer(this.buyerData.id)
-
         this.isLoading = true
         await this.loadCustomerDiscounts(this.buyerData.id)
         this.isLoading = false
@@ -1072,6 +1088,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         this.bbxToastrService.showError(HelperFunctions.StringFormat(Constants.MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER, product.productCode))
       }, 0);
     }
+    
+    res.realQty = product.activeStockRealQty ?? 0
 
     return res;
   }
@@ -1097,8 +1115,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.searchByTaxtNumber = false;
-
-          this.mode.partnerLock?.lockCustomer(this.buyerData.id)
 
           this.isLoading = true
           await this.loadCustomerDiscounts(this.buyerData.id)

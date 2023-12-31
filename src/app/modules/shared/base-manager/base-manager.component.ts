@@ -1,6 +1,6 @@
 import { Component, HostListener, Optional } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { NbSidebarService, NbTreeGridDataSource } from '@nebular/theme';
+import { NbTreeGridDataSource } from '@nebular/theme';
 import { Subscription } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -13,7 +13,7 @@ import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesi
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings, InvoiceKeySettings, OfferNavKeySettings } from 'src/assets/util/KeyBindings';
+import { Actions, DefaultKeySettings, GeneralFlatDesignKeySettings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { ConfirmationDialogComponent } from '../simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoggerService } from 'src/app/services/logger.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
@@ -43,6 +43,8 @@ export class BaseManagerComponent<T> {
   tableIsFocused: boolean = false;
 
   isLoading: boolean = true;
+
+  private isDialogOpened = false
 
   get isSideBarOpened(): boolean {
     return this.bbxSidebarService.sideBarOpened;
@@ -451,27 +453,34 @@ export class BaseManagerComponent<T> {
   ProcessActionPut(data?: IUpdateRequest<T>): void { }
 
   ActionDelete(data?: IUpdateRequest<T>): void {
+    if (this.isDialogOpened) {
+      return
+    }
+
     this.loggerService.info(`${this.ActionDelete.name}: ${JSON.stringify(data)}`)
 
     if (!data?.needConfirmation) {
       this.ProcessActionDelete(data)
-    } else {
-      const recordName = this.GetRecordName(data.data)
-      const dialogRef = this.dialogService.open(
-        ConfirmationDialogComponent,
-        {
-          context: {
-            msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
-              Constants.MSG_CONFIRMATION_DELETE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, recordName)
-          }
-        }
-      )
-      dialogRef.onClose.subscribe(res => {
-        if (res) {
-          this.ProcessActionDelete(data)
-        }
-      })
+      return
     }
+
+    const recordName = this.GetRecordName(data.data)
+    const dialogRef = this.dialogService.open(
+      ConfirmationDialogComponent,
+      {
+        context: {
+          msg: HelperFunctions.isEmptyOrSpaces(recordName) ?
+            Constants.MSG_CONFIRMATION_DELETE : HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, recordName)
+        }
+      }
+    )
+    this.isDialogOpened = true
+    dialogRef.onClose.subscribe(res => {
+      this.isDialogOpened = false
+      if (res) {
+        this.ProcessActionDelete(data)
+      }
+    })
   }
   ProcessActionDelete(data?: IUpdateRequest<T>): void { }
 

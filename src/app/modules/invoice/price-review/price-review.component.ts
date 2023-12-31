@@ -237,6 +237,14 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     })
   }
 
+  public currentRealQty(): number | string {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
+      return 0;
+    }
+
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
+  }
+
   public inlineInputFocusChanged(event: InputFocusChangedEvent): void {
     if (!event.Focused) {
       this.dbData.forEach(x => x.data.ReCalc());
@@ -755,6 +763,15 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       controls['paymentDate'].setValue(response.paymentDate)
 
       this.outGoingInvoiceData.invoiceDiscountPercent = response.invoiceDiscountPercent
+
+      for (let i = 0; i < response.invoiceLines.length; i++) {
+        const currentLine = response.invoiceLines[i]
+        const productData = await this.productService.getProductByCodeAsync({ ProductCode: currentLine.productCode } as GetProductByCodeRequest)
+        if (productData && productData.productCode) {
+          const warehouseID = this.tokenService.wareHouse?.id
+          response.invoiceLines[i].realQty = productData.stocks?.find(x => x.warehouseID === warehouseID)?.realQty ?? 0
+        }
+      }
 
       this.dbData = response.invoiceLines
         .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))

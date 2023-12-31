@@ -326,7 +326,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
                     } as TreeGridNode<Counter>
                     const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
                     this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-                    this.dbDataTable.SetDataForForm(newRow, false, false);
+                    this.dbDataTable.SetDataForFormAndOpen(newRow, false, false);
                     this.RefreshTable(newRow.data.id);
                     this.simpleToastrService.show(
                       Constants.MSG_SAVE_SUCCESFUL,
@@ -432,8 +432,8 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
 
   /**
    * Required check is bugged for some characters, so custom required is needed
-   * @param control 
-   * @returns 
+   * @param control
+   * @returns
    */
   private validateRequired(control: AbstractControl): any {
     if (this.dbDataTableForm === undefined || this.dbDataTableForm.controls === undefined) {
@@ -441,7 +441,7 @@ export class CounterManagerComponent extends BaseManagerComponent<Counter> imple
     }
 
     const controlValue = control.value + ''
-    
+
     const wrong = HelperFunctions.isEmptyOrSpaces(controlValue) || !Constants.ConuterSuffixCharacters.includes(controlValue)
 
     console.log(controlValue, HelperFunctions.isEmptyOrSpaces(controlValue), !Constants.ConuterSuffixCharacters.includes(controlValue), Constants.ConuterSuffixCharacters)
