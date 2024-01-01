@@ -45,6 +45,43 @@
                                     </div>
                                 </ng-container>
 
+                                <ng-container *ngSwitchCase="'invoice-number'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        oninput="this.value = this.value.toUpperCase()"
+                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
+                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                        class="product-code-input input-table-cell select-first-char"
+                                        [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'combobox'">
+                                    <app-bbx-inline-table-combo-box *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true, true, it.cursorAfterLastChar ?? false)"
+                                        [(ngModel)]="row.data[it.objectKey]"
+                                        [id]="InputId" [name]="InputId"
+                                        [style.text-align]="it.textAlign"
+                                        class="product-code-input input-table-cell select-first-char"
+                                        [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        [needErrorMsg]="false"
+                                        [needBlankOption]="false"
+                                        [autoFillFirstAvailableValue]="true"
+                                        [simpleMode]="false"
+                                        [data$]="it.comboboxData$!">
+                                    </app-bbx-inline-table-combo-box>
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
                                 <ng-container *ngSwitchCase="'formatted-number'">
                                     <app-bbx-numeric-input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         [(ngModel)]="row.data[it.objectKey]" [name]="InputId"
@@ -111,6 +148,20 @@
                                     </div>
                                 </ng-container>
 
+                                <ng-container *ngSwitchCase="'date'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        autocomplete="off" nbInput type="datetime" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" mask="0000-00-00" [validation]="true"
+                                        [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ GetDateString(row.data[it.objectKey]) }}
+                                    </div>
+                                </ng-container>
+
                                 <ng-container *ngSwitchCase="'checkbox'">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" type="checkbox" [name]="InputId"
@@ -150,6 +201,21 @@
                                     </div>
                                 </ng-container>
 
+                                <ng-container *ngSwitchCase="'uppercase'">
+                                    <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
+                                        oninput="this.value = this.value.toUpperCase()"
+                                        autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
+                                        (blur)="inlineInputFocusChange($event, row, rowPos, it, colPos, false)"
+                                        (focus)="inlineInputFocusChange($event, row, rowPos, it, colPos, true)"
+                                        [(ngModel)]="row.data[it.objectKey]" [id]="InputId" [mask]="it.mask"
+                                        [patterns]="customMaskPatterns" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                                        class="input-table-cell" [style.text-align]="it.textAlign" />
+
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ it.calc !== undefined ? it.calc(row.data) : row.data[it.objectKey] }}
+                                    </div>
+                                </ng-container>
+
                                 <ng-container *ngSwitchDefault="">
                                     <input *ngIf="dbDataTable.isEditingCell(rowPos, it.objectKey) && !(it.fReadonly ?? false)"
                                         autocomplete="off" nbInput [type]="it.type" [name]="InputId" [disabled]="it.checkIfReadonly !== undefined ? it.checkIfReadonly(row) : false"
@@ -174,6 +240,11 @@
                                         row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' |
                                         replace:',':'.'
                                         }}
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'date'">
+                                    <div *ngIf="!dbDataTable.isEditingCell(rowPos, it.objectKey)">
+                                        {{ GetDateString(row.data[it.objectKey]) }}
                                     </div>
                                 </ng-container>
                                 <ng-container *ngSwitchDefault="">

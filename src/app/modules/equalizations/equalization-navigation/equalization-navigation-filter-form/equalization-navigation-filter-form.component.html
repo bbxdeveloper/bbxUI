@@ -1,0 +1,36 @@
+<div class="filter-div">
+    <nb-card class="filter-card">
+        <nb-card-body class="filter-card-body">
+            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
+                (keydown.escape)="filterFormNav.HandleFormEscape()">
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
+                    <label>Keresés</label>
+                    <input nbInput type="text" formControlName='SearchString' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" left>
+                    <label>Kezdődátum</label>
+                    <input nbInput type="datetime" formControlName='FromDate' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <app-form-control-error [form]="filterFormNav" controlName="FromDate">
+                    </app-form-control-error>
+                </nb-form-field>
+
+                <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" right>
+                    <label>Végdátum</label>
+                    <input nbInput type="datetime" formControlName='ToDate' class="{{TileCssClass}}"
+                        (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
+                        mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
+                    <app-form-control-error [form]="filterFormNav" controlName="ToDate">
+                    </app-form-control-error>
+                </nb-form-field>
+
+                <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
+                    status="primary">Keresés</button>
+            </form>
+        </nb-card-body>
+    </nb-card>
+</div>

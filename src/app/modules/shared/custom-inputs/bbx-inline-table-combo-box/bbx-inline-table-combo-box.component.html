@@ -1,0 +1,59 @@
+<ng-container *ngIf="simpleMode">
+    <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses"
+            (keydown.enter)="HandleFormDropdownEnter($event, defaultDataCount, comboBoxData, '', false, lastFormField)">
+            <input class="{{TileCssClass}}" nbInput type="text" readonly
+                (blur)="proxyBlur($event)"
+                (focus)="proxyFocus($event)"
+                (focusout)="proxyFocusOut($event)"
+                (click)="proxyClick($event)"
+                [(ngModel)]="value" [name]="name" [disabled]="disabled"
+                (focus)="select($event)"
+                [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete" readonly
+                autocomplete="off" />
+                <!-- (click)="currentForm?.HandleFormFieldClick($event)" -->
+    </div>
+    <!-- <app-form-control-error *ngIf="needErrorMsg" [form]="currentForm" [label]="label.toLowerCase()"
+        [controlName]="formFieldName">
+    </app-form-control-error> -->
+    <!-- AUTOCOMPLETE -->
+    <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxComplete [activeFirst]="false"
+        (selectedChange)="HandleAutoCompleteSelect($event)">
+        <nb-option *ngFor="let option of data$ | async; let i = index" [value]="option">
+            {{ option }}
+        </nb-option>
+    </nb-autocomplete>
+    <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxCompleteEmpty [activeFirst]="false"
+        (selectedChange)="HandleAutoCompleteSelect($event)">
+    </nb-autocomplete>
+</ng-container>
+
+<ng-container *ngIf="!simpleMode">
+    <div class="bbx-fd-form-field-inner-div" [ngClass]="cssClasses"
+        (keydown.enter)="HandleFormDropdownEnter($event, currentDataCount, currentFilteredData, currentTypedData, false, lastFormField, name)">
+        <input class="{{TileCssClass}}" nbInput type="text"
+            (blur)="proxyBlur($event)"
+            (focus)="proxyFocus($event)"
+            (focusout)="proxyFocusOut($event)"
+            (click)="proxyClick($event)"
+            [(ngModel)]="value" [name]="name" [disabled]="disabled"
+            [readOnly]="isReadonly" (focus)="select($event)"
+            [nbAutocomplete]="isReadonly ? autoComboBoxCompleteEmpty : autoComboBoxComplete"
+            (focusout)="AutoCorrectSelectCaseInsensitive($event, currentDataCount, currentFilteredData, currentTypedData, false, lastFormField, name)"
+            [readonly]="isEditModeOff" autocomplete="off" />
+            <!-- (click)="currentForm?.HandleFormFieldClick($event)" -->
+    </div>
+    <!-- <app-form-control-error *ngIf="needErrorMsg" [form]="currentForm" [label]="label.toLowerCase()"
+        [controlName]="formFieldName">
+    </app-form-control-error> -->
+    <!-- AUTOCOMPLETE -->
+    <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxComplete [activeFirst]="false"
+        (selectedChange)="HandleAutoCompleteSelect($event)">
+        <nb-option *ngFor="let option of filteredData$ | async; let i = index" [value]="option"
+            [disabled]="option === '' && !needBlankOption">
+            {{ option }}
+        </nb-option>
+    </nb-autocomplete>
+    <nb-autocomplete [ngClass]="wrapperClass" #autoComboBoxCompleteEmpty [activeFirst]="false"
+        (selectedChange)="HandleAutoCompleteSelect($event)">
+    </nb-autocomplete>
+</ng-container>

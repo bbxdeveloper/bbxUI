@@ -137,7 +137,7 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.matrixGenerationLog) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 
@@ -167,10 +167,6 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
             this.Matrix.push(row);
         }
 
-        if (environment.debug) {
-        }
-        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
-
         if (attach) {
             this.kbS.Attach(this, this.attachDirection, setAsCurrent);
         }
@@ -179,10 +175,6 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
     GenerateAndSetNavMatrices_(attach: boolean): void {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
-
-        if (environment.debug) {
-            console.log('[GenerateAndSetNavMatrices]', this.tableId, tiles, '.' + TileCssClass, '#' + this.tableId);
-        }
 
         let currentParent!: HTMLElement;
 
@@ -214,10 +206,6 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
 
             next.id = TileCssClass + this.tableId + '-' + Math.floor(Date.now() * Math.random());
             this.Matrix[currentMatrixIndex].push(next.id);
-        }
-
-        if (environment.debug) {
-            console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
 
         if (attach) {

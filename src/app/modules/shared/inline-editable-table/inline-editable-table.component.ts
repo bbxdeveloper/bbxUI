@@ -133,6 +133,10 @@ export class InlineEditableTableComponent implements OnInit {
               private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
               private statusService: StatusService, private khs: KeyboardHelperService) {}
 
+  GetDateString(val: string): string {
+    return HelperFunctions.GetDateStringFromDate(val)
+  }
+
   ngOnInit(): void { }
 
   focusOnTable(focusIn: boolean): void {
