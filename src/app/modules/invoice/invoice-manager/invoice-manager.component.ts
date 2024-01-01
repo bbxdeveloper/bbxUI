@@ -54,6 +54,7 @@ import { Offer } from '../../offer/models/Offer';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { OfflineVatRate } from '../../vat-rate/models/VatRate';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -1082,6 +1083,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
 
+    if (!this.mode.incoming && !this.customerData.isFA && product.vatRateCode === OfflineVatRate.FA.vatRateCode) {
+      setTimeout(() => {
+        this.bbxToastrService.showError(HelperFunctions.StringFormat(Constants.MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER, product.productCode))
+      }, 0);
+    }
+    
     res.realQty = product.activeStockRealQty ?? 0
 
     return res;
