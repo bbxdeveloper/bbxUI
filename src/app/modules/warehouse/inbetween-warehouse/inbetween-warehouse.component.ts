@@ -647,6 +647,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   protected ExitToNav(): void {
     this.router.navigate(['warehouse/warehouse-document']);
+    setTimeout(() => {
+      window.location.reload()
+    }, 50);
   }
 
   private async update(): Promise<void> {
@@ -765,6 +768,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   GoToNavigation(): void {
     this.router.navigate(['warehouse/warehouse-document'])
+    setTimeout(() => {
+      window.location.reload()
+    }, 50);
   }
 
   // F12 is special, it has to be handled in constructor with a special keydown event handling

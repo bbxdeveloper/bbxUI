@@ -1066,12 +1066,18 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
 
   Create(): void {
     this.router.navigate(['product/offers-create']);
+    setTimeout(() => {
+      window.location.reload()
+    }, 50);
   }
 
   Edit(): void {
     if (this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       const id = this.dbData[this.kbS.p.y].data.id;
       this.router.navigate(['product/offers-edit', id, {}]);
+      setTimeout(() => {
+        window.location.reload()
+      }, 50);
     }
   }
 
@@ -1158,6 +1164,9 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
             offerId: id
           }
         })
+        setTimeout(() => {
+          window.location.reload()
+        }, 50);
       })
     }
   }

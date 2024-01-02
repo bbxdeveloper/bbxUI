@@ -677,7 +677,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
           productCode: productCode,
           wareHouse: this.filterForm.controls['WarehouseID'].value
         }
-      });
+      })
+      setTimeout(() => {
+        window.location.reload()
+      }, 50);
     }
   }
 

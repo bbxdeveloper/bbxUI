@@ -397,6 +397,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           this.tokenService.signOut();
           this.router.navigate(['/home']);
           setTimeout(() => {
+            window.location.reload()
+          }, 50);
+          setTimeout(() => {
             this.GenerateAndSetNavMatrices();
             this.keyboardService.SelectFirstTile();
           }, 200);
