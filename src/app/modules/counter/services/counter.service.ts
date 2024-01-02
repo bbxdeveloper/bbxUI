@@ -12,56 +12,26 @@ import { UpdateCounterRequest } from '../models/UpdateCounterRequest';
 import { DeleteCounterRequest } from '../models/DeleteCounterRequest';
 import { DeleteCounterResponse } from '../models/DeleteCounterResponse';
 import { CreateCounterRequest } from '../models/CreateCounterRequest';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CounterService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Counter';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Counter';
 
   constructor(private http: HttpClient) { }
 
   GetAll(params?: GetCountersParamListModel): Observable<GetCountersResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetCountersParamListModel] != undefined && params[key as keyof GetCountersParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetCountersParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetCountersParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetCountersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetCountersResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params?: GetCounterParamListModel): Observable<Counter> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetCounterParamListModel] != undefined && params[key as keyof GetCounterParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetCounterParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetCounterParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<Counter>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Counter>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateCounterRequest): Observable<CreateCounterResponse> {

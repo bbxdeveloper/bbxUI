@@ -20,23 +20,26 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
   providedIn: 'root'
 })
 export class UserService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'User';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'User';
 
   constructor(private http: HttpClient) { }
 
   CheckLoginNameAndPwd(params?: LoginNameAndPwdRequest): Observable<LoginNameAndPwdResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    return this.http.get<LoginNameAndPwdResponse>(this.BaseUrl + '/loginnameandpwd' + (!!params ? ('?' + queryParams) : ''));
+
+    return this.http.get<LoginNameAndPwdResponse>(this.BaseUrl + '/loginnameandpwd' + '?' + queryParams);
   }
 
   GetAll(params?: GetUsersParamListModel): Observable<GetUsersResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    return this.http.get<GetUsersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+
+    return this.http.get<GetUsersResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params?: GetUserParamListModel): Observable<User> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    return this.http.get<User>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+
+    return this.http.get<User>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateUserRequest): Observable<CreateUserResponse> {

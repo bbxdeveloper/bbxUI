@@ -12,56 +12,26 @@ import { UpdateOriginRequest } from '../models/UpdateOriginRequest';
 import { UpdateOriginResponse } from '../models/UpdateOriginResponse';
 import { DeleteOriginRequest } from '../models/DeleteOriginRequest';
 import { DeleteOriginResponse } from '../models/DeleteOriginResponse';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class OriginService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Origin';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Origin';
 
   constructor(private http: HttpClient) { }
 
   GetAll(params?: GetOriginsParamListModel): Observable<GetOriginsResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetOriginsParamListModel] != undefined && params[key as keyof GetOriginsParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetOriginsParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetOriginsParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetOriginsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetOriginsResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params?: GetOriginParamListModel): Observable<Origin> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetOriginParamListModel] != undefined && params[key as keyof GetOriginParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetOriginParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetOriginParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<Origin>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Origin>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateOriginRequest): Observable<CreateOriginResponse> {
