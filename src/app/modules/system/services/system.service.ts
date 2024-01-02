@@ -6,12 +6,13 @@ import { CurrencyCode } from '../models/CurrencyCode';
 import { GetExchangeRateParamsModel } from '../models/GetExchangeRateParamsModel';
 import { ZipInfo } from '../models/ZipInfo';
 import { InvoiceType } from '../models/InvoiceType';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class SystemService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'System';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'System';
 
   constructor(private http: HttpClient) { }
 
@@ -20,24 +21,9 @@ export class SystemService {
   }
 
   public GetExchangeRate(params: GetExchangeRateParamsModel): Observable<number> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetExchangeRateParamsModel] != undefined && params[key as keyof GetExchangeRateParamsModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetExchangeRateParamsModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetExchangeRateParamsModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<number>(this.BaseUrl + '/exchangerate' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<number>(this.BaseUrl + '/exchangerate' + '?' + queryParams);
   }
 
   public CityByZip(zip: number | string): Observable<ZipInfo> {

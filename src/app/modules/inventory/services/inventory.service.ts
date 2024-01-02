@@ -15,34 +15,20 @@ import { GetAllInvCtrlPeriodsResponse } from '../models/GetAllInvCtrlPeriodsResp
 import { CloseInvCtrlPeriodParamListModel } from '../models/CloseInvCtrlPeriodParamListModel';
 import { CloseInvCtrlPeriodResponse } from '../models/CloseInvCtrlPeriodResponse';
 import { Constants } from 'src/assets/util/Constants';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'InvCtrlPeriod';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'InvCtrlPeriod';
 
   constructor(private http: HttpClient) { }
 
   GetAll(params?: GetAllInvCtrlPeriodsParamListModel): Observable<GetAllInvCtrlPeriodsResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetAllInvCtrlPeriodsParamListModel] != undefined && params[key as keyof GetAllInvCtrlPeriodsParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetAllInvCtrlPeriodsParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetAllInvCtrlPeriodsParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetAllInvCtrlPeriodsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetAllInvCtrlPeriodsResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   GetReport(params: Constants.Dct): Observable<any> {
@@ -62,25 +48,9 @@ export class InventoryService {
   }
 
   Get(params?: GetInvCtrlPeriodParamListModel): Observable<InvCtrlPeriod> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetInvCtrlPeriodParamListModel] != undefined && params[key as keyof GetInvCtrlPeriodParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetInvCtrlPeriodParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetInvCtrlPeriodParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<InvCtrlPeriod>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<InvCtrlPeriod>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateInvCtrlPeriodRequest): Observable<CreateInvCtrlPeriodResponse> {
@@ -92,44 +62,14 @@ export class InventoryService {
   }
 
   Delete(params: DeleteInvCtrlPeriodParamListModel): Observable<DeleteInvCtrlPeriodResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof DeleteInvCtrlPeriodParamListModel] != undefined && params[key as keyof DeleteInvCtrlPeriodParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof DeleteInvCtrlPeriodParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof DeleteInvCtrlPeriodParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.delete<DeleteInvCtrlPeriodResponse>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.delete<DeleteInvCtrlPeriodResponse>(this.BaseUrl + '?' + queryParams);
   }
 
   Close(params: CloseInvCtrlPeriodParamListModel): Observable<CloseInvCtrlPeriodResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof DeleteInvCtrlPeriodParamListModel] != undefined && params[key as keyof DeleteInvCtrlPeriodParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof DeleteInvCtrlPeriodParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof DeleteInvCtrlPeriodParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.patch<CloseInvCtrlPeriodResponse>(this.BaseUrl + '/close' + (!!params ? ('?' + queryParams) : ''), {}, {});
+    return this.http.patch<CloseInvCtrlPeriodResponse>(this.BaseUrl + '/close' + '?' + queryParams, {}, {});
   }
 }

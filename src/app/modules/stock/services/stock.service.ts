@@ -14,55 +14,26 @@ import { GetAllInvCtrlAbsentResponse } from '../models/GetAllInvCtrlAbsentRespon
 import { UpdateStockLocationRequest } from '../models/UpdateStockLocationRequest';
 import { UpdateStockLocationResponse } from '../models/UpdateStockLocationResponse';
 import { ProductStock } from '../models/ProductStock';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class StockService {
-  private readonly StockBaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Stock';
+  private readonly StockBaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Stock';
 
   constructor(private http: HttpClient) { }
 
   GetAll(params?: GetStocksParamsModel): Observable<GetStocksResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetStocksParamsModel] != undefined && params[key as keyof GetStocksParamsModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetStocksParamsModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetStocksParamsModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetStocksResponse>(this.StockBaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetStocksResponse>(this.StockBaseUrl + '/query' + '?' + queryParams);
   }
 
   Record(params?: GetStockRecordParamsModel): Observable<StockRecord> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetStockRecordParamsModel] != undefined && params[key as keyof GetStockRecordParamsModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetStockRecordParamsModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetStockRecordParamsModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<StockRecord>(this.StockBaseUrl + '/record' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<StockRecord>(this.StockBaseUrl + '/record' + '?' + queryParams);
   }
 
   public getProductStock(productId: string|number): Promise<ProductStock[]> {
@@ -70,46 +41,15 @@ export class StockService {
   }
 
   Get(params?: GetStockParamsModel): Observable<Stock> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetStockParamsModel] != undefined && params[key as keyof GetStockParamsModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetStockParamsModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetStockParamsModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<Stock>(this.StockBaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Stock>(this.StockBaseUrl + '?' + queryParams);
   }
 
   GetAllAbsent(params?: GetAllInvCtrlAbsentParamsModel): Observable<GetAllInvCtrlAbsentResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetAllInvCtrlAbsentParamsModel] != undefined && params[key as keyof GetAllInvCtrlAbsentParamsModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetAllInvCtrlAbsentParamsModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetAllInvCtrlAbsentParamsModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetAllInvCtrlAbsentResponse>(this.StockBaseUrl + "/queryinvctrlabsent" + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetAllInvCtrlAbsentResponse>(this.StockBaseUrl + "/queryinvctrlabsent" + '?' + queryParams);
   }
 
   UpdateLocation(request: UpdateStockLocationRequest): Observable<UpdateStockLocationResponse> {

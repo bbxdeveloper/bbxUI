@@ -30,7 +30,7 @@ import { CreateOutgoingInvoiceResponseData } from '../models/CreateOutgoingInvoi
   providedIn: 'root'
 })
 export class InvoiceService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Invoice';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Invoice';
 
   constructor(
     private readonly http: HttpClient,
@@ -54,13 +54,13 @@ export class InvoiceService {
   public GetAllCustomerInvoiceSummary(params?: GetCustomerInvoiceSummaryParamListModel): Observable<GetCustomerInvoiceSummariesResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<GetCustomerInvoiceSummariesResponse>(this.BaseUrl + '/querycustomerinvoicesummary' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetCustomerInvoiceSummariesResponse>(this.BaseUrl + '/querycustomerinvoicesummary' + '?' + queryParams);
   }
 
   public GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   public getAllAsync(params: GetInvoicesParamListModel): Promise<GetInvoicesResponse> {
@@ -69,7 +69,7 @@ export class InvoiceService {
 
   public Get(params: GetInvoiceRequest): Promise<Invoice> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    const response = this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    const response = this.http.get<Invoice>(this.BaseUrl + '?' + queryParams);
 
     return firstValueFrom(response)
   }
@@ -193,13 +193,13 @@ export class InvoiceService {
 
   public GetCustomerUnpaidAmount(params?: { CustomerID: number }): Promise<number> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    const request = this.http.get<number>(this.BaseUrl + '/customerunpaidamount' + (!!params ? ('?' + queryParams) : ''));
+    const request = this.http.get<number>(this.BaseUrl + '/customerunpaidamount' + '?' + queryParams);
     return firstValueFrom(request)
   }
 
   public GetInvoiceByInvoiceNumber(params?: { invoiceNumber: any }): Promise<Invoice> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    const request = this.http.get<Invoice>(this.BaseUrl + '/byinvoicenumber' + (!!params ? ('?' + queryParams) : ''));
+    const request = this.http.get<Invoice>(this.BaseUrl + '/byinvoicenumber' + '?' + queryParams);
     return firstValueFrom(request)
   }
 }

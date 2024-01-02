@@ -437,8 +437,8 @@ export module HelperFunctions {
             return '';
         }
 
-        var queryParams = '';
-        var index = 0;
+        let queryParams = '';
+        let index = 0;
 
         Object.keys(params).forEach((key: string) => {
             const paramsField = params[key as keyof T]
@@ -482,10 +482,10 @@ export module HelperFunctions {
     /**
      * Updates fields in destination object by corresponding fields from source object.
      * Types of fields are not checkec during the process!
-     * @param source 
-     * @param destination 
-     * @param skip 
-     * @param mapping 
+     * @param source
+     * @param destination
+     * @param skip
+     * @param mapping
      */
     export function PatchObject(source: any, destination: any, skip: string[] = [], mapping: { from: string, to: string }[] = []): any {
         if (source && destination) {

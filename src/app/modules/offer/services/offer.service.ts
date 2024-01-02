@@ -11,56 +11,26 @@ import { CreateOfferRequest } from '../models/CreateOfferRequest';
 import { CreateOfferResponse } from '../models/CreateOfferResponse';
 import { DeleteOfferRequest } from '../models/DeleteOfferRequest';
 import { DeleteOfferResponse } from '../models/DeleteOfferResponse';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class OfferService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Offer';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Offer';
 
   constructor(private http: HttpClient) { }
 
   GetAll(params?: GetOffersParamsModel): Observable<GetOffersResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetOffersParamsModel] != undefined && params[key as keyof GetOffersParamsModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetOffersParamsModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetOffersParamsModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetOffersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetOffersResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params?: GetOfferParamsModel): Observable<Offer> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetOfferParamsModel] != undefined && params[key as keyof GetOfferParamsModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetOfferParamsModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetOfferParamsModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<Offer>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Offer>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateOfferRequest): Observable<CreateOfferResponse> {
