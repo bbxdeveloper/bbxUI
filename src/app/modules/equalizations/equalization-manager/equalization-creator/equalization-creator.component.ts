@@ -31,6 +31,7 @@ import { Invoice } from 'src/app/modules/invoice/models/Invoice';
 import { CurrencyCode, CurrencyCodes } from 'src/app/modules/system/models/CurrencyCode';
 import { SystemService } from 'src/app/modules/system/services/system.service';
 import { GetExchangeRateParamsModel } from 'src/app/modules/system/models/GetExchangeRateParamsModel';
+import { OfflinePaymentMethods } from 'src/app/modules/invoice/models/PaymentMethod';
 
 @Component({
   selector: 'app-equalization-creator',
@@ -118,6 +119,11 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     },
     {
       label: 'Összeg HUF', objectKey: 'GetInvoicePaidAmountHUF', colKey: 'GetInvoicePaidAmountHUF',
+      defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+    },
+    {
+      label: 'Bruttó', objectKey: 'invoiceGrossAmount', colKey: 'invoiceGrossAmount',
       defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     }
@@ -353,14 +359,14 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       this.dbDataTable.editedRow!.data.invoiceNumber = "";
       this.kbS.ClickCurrentElement();
       this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
       return;
     } else if (checkIfCodeEqual && res.invoiceNumber === row.data.invoiceNumber) {
       this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
@@ -428,14 +434,17 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('invoiceNumber')
-    if (previousValue && changedData?.invoiceNumber === previousValue) {
+
+    // Már szerepel a tételek között
+    if ((previousValue && changedData?.invoiceNumber === previousValue) || this.dbData.findIndex(x => x.data.invoiceID > 0 && x.data.invoiceNumber === changedData.invoiceNumber) > -1) {
       this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
       return
     }
+
     if (!!changedData && !!changedData.invoiceNumber && changedData.invoiceNumber.length > 0) {
       let _invoice: Invoice = { id: -1 } as Invoice;
       this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
@@ -444,7 +453,18 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           async (invoice: Invoice) => {
             if (!!invoice && !!invoice?.invoiceNumber) {
               _invoice = invoice;
-              await this.HandleProductSelection(_invoice, rowPos, false)
+              // Nem átutalásos
+              if (_invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
+                selectProcutCodeInTableInput()
+                this.bbxToastrService.show(
+                  Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                )
+              // Nincs hiba
+              } else {
+                await this.HandleProductSelection(_invoice, rowPos, false)
+              }
             } else {
               selectProcutCodeInTableInput()
               this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
@@ -511,7 +531,24 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
     this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
       .then(async (invoice: Invoice) => {
-        if (index !== undefined) {
+        // Nem átutalásos
+        if (invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
+          this.bbxToastrService.show(
+            Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+        // Már szerepel a tételek között
+        } else if (this.dbData.findIndex(x => x.data.invoiceID > 0 && x.data.invoiceNumber === changedData.invoiceNumber) > -1) {
+          this.bbxToastrService.show(
+            Constants.MSG_INVOICE_ALREADY_THERE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+        // Nincs hiba
+        } else if (index !== undefined) {
           let tmp = this.dbData[index].data;
 
           tmp = await this.FromInvoice(invoice)
