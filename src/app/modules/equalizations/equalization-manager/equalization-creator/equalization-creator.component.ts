@@ -3,7 +3,7 @@ import { InvPayment, InvPaymentItem, InvPaymentItemPost } from '../../models/Inv
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
+import { Subscription, lastValueFrom } from 'rxjs';
 import { BaseInlineManagerComponent } from 'src/app/modules/shared/base-inline-manager/base-inline-manager.component';
 import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from 'src/app/modules/shared/inline-editable-table/inline-editable-table.component';
 import { ConfirmationWithAuthDialogComponent, ConfirmationWithAuthDialogesponse } from 'src/app/modules/shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
@@ -58,7 +58,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   //   return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
   // }
 
-  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePaidAmount", "invPaymentAmountHUF"];
+  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePaidAmount", "GetInvoicePaidAmountHUF", "invoiceGrossAmount"];
   override allColumns = [
     'invoiceNumber',
     'customerName',
@@ -69,7 +69,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     'currencyCode',
     'exchangeRate',
     'invPaymentAmount',
-    'GetInvoicePaidAmountHUF'
+    'GetInvoicePaidAmountHUF',
+    'invoiceGrossAmount'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -409,9 +410,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   }
 
   async HandleProductChoose(): Promise<void> {}
-
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
-
   ChooseDataForCustomerForm(): void { }
   RefreshData(): void { }
   RecalcNetAndVat(): void { }
@@ -432,11 +431,18 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
+  private CheckIfRowAlreadyExists(invoiceNumber?: string, index?: number): boolean {
+    if (invoiceNumber === undefined || index === undefined) {
+      return false
+    }
+    return this.dbData.findIndex((x, idx: number) => index !== idx && x.data.invoiceID > 0 && x.data.invoiceNumber === invoiceNumber) > -1
+  }
+
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('invoiceNumber')
 
     // Már szerepel a tételek között
-    if ((previousValue && changedData?.invoiceNumber === previousValue) || this.dbData.findIndex(x => x.data.invoiceID > 0 && x.data.invoiceNumber === changedData.invoiceNumber) > -1) {
+    if ((previousValue && changedData?.invoiceNumber === previousValue) || this.CheckIfRowAlreadyExists(changedData.invoiceNumber, rowPos)) {
       this.bbxToastrService.show(
         Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -540,7 +546,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           )
           return
         // Már szerepel a tételek között
-        } else if (this.dbData.findIndex(x => x.data.invoiceID > 0 && x.data.invoiceNumber === changedData.invoiceNumber) > -1) {
+        } else if (this.CheckIfRowAlreadyExists(changedData.invoiceNumber, index)) {
           this.bbxToastrService.show(
             Constants.MSG_INVOICE_ALREADY_THERE,
             Constants.TITLE_ERROR,
