@@ -454,6 +454,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     if (!!changedData && !!changedData.invoiceNumber && changedData.invoiceNumber.length > 0) {
       let _invoice: Invoice = { id: -1 } as Invoice;
       this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      
       this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
         .then(
           async (invoice: Invoice) => {
@@ -478,7 +479,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           }
         )
         .catch(() => {
-          this.dbDataTable.data[rowPos].data.Restore('invoiceNumber')
+          // Nem törölhetjük ki a rossz számlaszámot
+          this.dbDataTable.data[rowPos].data.Save('invoiceNumber')
           this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
         })
         .finally(() => {
@@ -555,12 +557,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           return
         // Nincs hiba
         } else if (index !== undefined) {
-          let tmp = this.dbData[index].data;
-
-          tmp = await this.FromInvoice(invoice)
-
-          this.dbData[index].data = tmp;
-          this.dbDataDataSrc.setData(this.dbData);
+          this.HandleProductSelection(invoice, index)
         }
 
         this.RecalcNetAndVat();
