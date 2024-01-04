@@ -762,8 +762,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     return [""].concat(this.buyersData.map(x => x.customerName).filter(optionValue => optionValue.toLowerCase().includes(filterValue)));
   }
 
-  protected AfterViewInitSetup(): void {
-    this.InitFormDefaultValues();
+  protected AfterViewInitSetup(initForm: boolean = true): void {
+    if (initForm) {
+      this.InitFormDefaultValues();
+    }
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
