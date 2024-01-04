@@ -230,8 +230,13 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       this.dialogService.closeAll()
 
       this.goTo('/')
+
       this.keyboardService.ClickCurrentElement()
       this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
+
+      setTimeout(() => {
+        window.location.reload()
+      }, 50);
 
       return
     }
@@ -407,6 +412,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           );
           this.tokenService.signOut();
           this.router.navigate(['/home']);
+          setTimeout(() => {
+            window.location.reload()
+          }, 50);
           setTimeout(() => {
             this.GenerateAndSetNavMatrices();
             this.keyboardService.SelectFirstTile();
