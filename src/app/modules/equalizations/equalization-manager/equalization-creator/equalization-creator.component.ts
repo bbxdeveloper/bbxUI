@@ -86,7 +86,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',
       defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true
+      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: true
     },
     {
       label: 'Kiegyenlítve', objectKey: 'invoicePaidAmount', colKey: 'invoicePaidAmount',
@@ -101,7 +101,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
       defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: false
+      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode', navMatrixCssClass: TileCssClass,
@@ -111,7 +111,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
       defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
+      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Összeg', objectKey: 'invPaymentAmount', colKey: 'invPaymentAmount',
@@ -489,6 +489,15 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
+  private HandleRowDataChangedError(index: number, key: string): void {
+    this.dbData[index].data.Restore()
+    const previousMode = this.kbS.currentKeyboardMode
+    this.dbDataTable.ClickByObjectKey(key)
+    setTimeout(() => {
+      this.kbS.setEditMode(previousMode)
+    }, 200);
+  }
+
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
     if (!changedData || !changedData.invoiceNumber)
       return
@@ -506,9 +515,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
             Constants.TOASTR_ERROR
           )
         }, 0);
-        this.dbData[index].data.Restore()
 
-        this.dbDataTable.ClickByObjectKey('currencyCode')
+        this.HandleRowDataChangedError(index, 'currencyCode')
       } else {
         changedData.Save()
       }
@@ -523,9 +531,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
             Constants.TOASTR_ERROR
           )
         }, 0);
-        this.dbData[index].data.Restore()
 
-        this.dbDataTable.ClickByObjectKey('invPaymentDate')
+        this.HandleRowDataChangedError(index, 'invPaymentDate')
       } else {
         changedData.Save()
       }
@@ -639,7 +646,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
             return;
           }
           _event.preventDefault();
-          HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data), () => {
+          HelperFunctions.confirm(this.dialogService, HelperFunctions.StringFormat(Constants.MSG_CONFIRMATION_DELETE_PARAM, event.Row.data.invoiceNumber), () => {
             this.dbDataTable?.HandleGridDelete(_event, event.Row, event.RowPos, event.ObjectKey)
           });
           break;
