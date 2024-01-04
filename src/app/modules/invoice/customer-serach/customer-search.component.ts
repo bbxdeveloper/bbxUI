@@ -7,11 +7,10 @@ import {Customer} from "../../customer/models/Customer";
 import {CustDiscountForGet} from "../../customer-discount/models/CustDiscount";
 import {Subscription} from "rxjs";
 import {KeyboardModes, KeyboardNavigationService} from "../../../services/keyboard-navigation.service";
-import {
-  CustomerSelectTableDialogComponent
-} from "../customer-select-table-dialog/customer-select-table-dialog.component";
+import {CustomerSelectTableDialogComponent} from "../customer-select-table-dialog/customer-select-table-dialog.component";
 import {CustomerDialogTableSettings} from "../../../../assets/model/TableSettings";
 import {BbxDialogServiceService} from "../../../services/bbx-dialog-service.service";
+import {TaxNumberSearchCustomerEditDialogComponent} from "../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component";
 
 @Component({
   selector: 'app-customer-serach',
@@ -113,7 +112,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  public chooseDataForCustomerForm() {
+  public chooseDataForCustomerForm(): void {
     this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
 
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
@@ -135,6 +134,28 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
         this.loadingChanged.emit(true)
         await this.loadCustomerDiscounts(customer.id)
         this.loadingChanged.emit(false)
+      }
+    });
+  }
+
+  public createCustomer(): void {
+    this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+      context: {
+        createCustomer: true
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (customer: Customer) => {
+        if (!!customer) {
+          const shouldNavigate = true
+          this.customerChanged.emit([customer, shouldNavigate])
+        }
+      },
+      error: err => {
+        this.commonService.HandleError(err);
       }
     });
   }
