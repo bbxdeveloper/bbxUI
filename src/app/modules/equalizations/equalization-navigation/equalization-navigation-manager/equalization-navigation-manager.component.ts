@@ -46,38 +46,39 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     'invPaymentDate',
     'currencyCodeX',
     'exchangeRate',
-    'invPaymentAmount'
+    'invPaymentAmount',
+    'GetRemaining'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Számlaszám', objectKey: 'invoiceNumber', colKey: 'invoiceNumber',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "30%", textAlign: "left", fInputType: 'invoice-number'
+      colWidth: "20%", textAlign: "left", fInputType: 'invoice-number'
     },
     {
       label: 'Ügyfél', objectKey: 'customerName', colKey: 'customerName',
       defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "80%", textAlign: "left", navMatrixCssClass: TileCssClass,
+      colWidth: "90%", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',
       defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date',
-      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: true, navMatrixCssClass: TileCssClass,
+      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: true, navMatrixCssClass: TileCssClass,
     },
     {
-      label: 'Kiegyenlítve', objectKey: 'payableAmount', colKey: 'payableAmount',
+      label: 'Kiegyenlítendő', objectKey: 'payableAmount', colKey: 'payableAmount',
       defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+      colWidth: "150px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
       defaultValue: '', type: 'string', mask: "",
-      colWidth: "125px", textAlign: "left", navMatrixCssClass: TileCssClass,
+      colWidth: "150px", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
       defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '120px', textAlign: 'left', fReadonly: false
+      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Pénznem', objectKey: 'currencyCodeX', colKey: 'currencyCodeX',
@@ -91,6 +92,11 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     },
     {
       label: 'Összeg', objectKey: 'invPaymentAmount', colKey: 'invPaymentAmount',
+      defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
+    },
+    {
+      label: 'Fennmaradó', objectKey: 'GetRemaining', colKey: 'GetRemaining',
       defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     }
