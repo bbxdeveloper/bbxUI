@@ -266,28 +266,28 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         break;
       }
       case KeyBindings.up: {
-        if (!this.keyboardService.isEditModeActivated) {
+        if (this.keyboardService.isNavigationModeActivated) {
           event.preventDefault();
           this.keyboardService.MoveUp(true, event.altKey);
         }
         break;
       }
       case KeyBindings.down: {
-        if (!this.keyboardService.isEditModeActivated) {
+        if (this.keyboardService.isNavigationModeActivated) {
           event.preventDefault();
           this.keyboardService.MoveDown(true, event.altKey);
         }
         break;
       }
       case KeyBindings.left: {
-        if (!this.keyboardService.isEditModeActivated) {
+        if (this.keyboardService.isNavigationModeActivated) {
           event.preventDefault();
           this.keyboardService.MoveLeft(true, event.altKey);
         }
         break;
       }
       case KeyBindings.right: {
-        if (!this.keyboardService.isEditModeActivated) {
+        if (this.keyboardService.isNavigationModeActivated) {
           event.preventDefault();
           this.keyboardService.MoveRight(true, event.altKey);
         }

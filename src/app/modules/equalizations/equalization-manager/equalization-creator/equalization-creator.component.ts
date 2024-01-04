@@ -3,7 +3,7 @@ import { InvPayment, InvPaymentItem, InvPaymentItemPost } from '../../models/Inv
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { BehaviorSubject, Subscription, lastValueFrom } from 'rxjs';
+import { Subscription, lastValueFrom } from 'rxjs';
 import { BaseInlineManagerComponent } from 'src/app/modules/shared/base-inline-manager/base-inline-manager.component';
 import { selectProcutCodeInTableInput, TableKeyDownEvent, isTableKeyDownEvent } from 'src/app/modules/shared/inline-editable-table/inline-editable-table.component';
 import { ConfirmationWithAuthDialogComponent, ConfirmationWithAuthDialogesponse } from 'src/app/modules/shared/simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
@@ -31,6 +31,7 @@ import { Invoice } from 'src/app/modules/invoice/models/Invoice';
 import { CurrencyCode, CurrencyCodes } from 'src/app/modules/system/models/CurrencyCode';
 import { SystemService } from 'src/app/modules/system/services/system.service';
 import { GetExchangeRateParamsModel } from 'src/app/modules/system/models/GetExchangeRateParamsModel';
+import { OfflinePaymentMethods } from 'src/app/modules/invoice/models/PaymentMethod';
 
 @Component({
   selector: 'app-equalization-creator',
@@ -57,7 +58,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   //   return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
   // }
 
-  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePaidAmount", "invPaymentAmountHUF"];
+  override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePaidAmount", "GetInvoicePaidAmountHUF", "invoiceGrossAmount"];
   override allColumns = [
     'invoiceNumber',
     'customerName',
@@ -68,7 +69,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     'currencyCode',
     'exchangeRate',
     'invPaymentAmount',
-    'GetInvoicePaidAmountHUF'
+    'GetInvoicePaidAmountHUF',
+    'invoiceGrossAmount'
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -118,6 +120,11 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     },
     {
       label: 'Összeg HUF', objectKey: 'GetInvoicePaidAmountHUF', colKey: 'GetInvoicePaidAmountHUF',
+      defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
+      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+    },
+    {
+      label: 'Bruttó', objectKey: 'invoiceGrossAmount', colKey: 'invoiceGrossAmount',
       defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     }
@@ -353,14 +360,14 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       this.dbDataTable.editedRow!.data.invoiceNumber = "";
       this.kbS.ClickCurrentElement();
       this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
       return;
     } else if (checkIfCodeEqual && res.invoiceNumber === row.data.invoiceNumber) {
       this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
@@ -403,9 +410,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   }
 
   async HandleProductChoose(): Promise<void> {}
-
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
-
   ChooseDataForCustomerForm(): void { }
   RefreshData(): void { }
   RecalcNetAndVat(): void { }
@@ -426,25 +431,47 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
+  private CheckIfRowAlreadyExists(invoiceNumber?: string, index?: number): boolean {
+    if (invoiceNumber === undefined || index === undefined) {
+      return false
+    }
+    return this.dbData.findIndex((x, idx: number) => index !== idx && x.data.invoiceID > 0 && x.data.invoiceNumber === invoiceNumber) > -1
+  }
+
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('invoiceNumber')
-    if (previousValue && changedData?.invoiceNumber === previousValue) {
+
+    // Már szerepel a tételek között
+    if ((previousValue && changedData?.invoiceNumber === previousValue) || this.CheckIfRowAlreadyExists(changedData.invoiceNumber, rowPos)) {
       this.bbxToastrService.show(
-        Constants.MSG_PRODUCT_ALREADY_THERE,
+        Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );
       return
     }
+
     if (!!changedData && !!changedData.invoiceNumber && changedData.invoiceNumber.length > 0) {
       let _invoice: Invoice = { id: -1 } as Invoice;
       this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+      
       this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
         .then(
           async (invoice: Invoice) => {
             if (!!invoice && !!invoice?.invoiceNumber) {
               _invoice = invoice;
-              await this.HandleProductSelection(_invoice, rowPos, false)
+              // Nem átutalásos
+              if (_invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
+                selectProcutCodeInTableInput()
+                this.bbxToastrService.show(
+                  Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                )
+              // Nincs hiba
+              } else {
+                await this.HandleProductSelection(_invoice, rowPos, false)
+              }
             } else {
               selectProcutCodeInTableInput()
               this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
@@ -452,7 +479,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           }
         )
         .catch(() => {
-          this.dbDataTable.data[rowPos].data.Restore('invoiceNumber')
+          // Nem törölhetjük ki a rossz számlaszámot
+          this.dbDataTable.data[rowPos].data.Save('invoiceNumber')
           this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
         })
         .finally(() => {
@@ -511,13 +539,25 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
     this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
       .then(async (invoice: Invoice) => {
-        if (index !== undefined) {
-          let tmp = this.dbData[index].data;
-
-          tmp = await this.FromInvoice(invoice)
-
-          this.dbData[index].data = tmp;
-          this.dbDataDataSrc.setData(this.dbData);
+        // Nem átutalásos
+        if (invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
+          this.bbxToastrService.show(
+            Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+        // Már szerepel a tételek között
+        } else if (this.CheckIfRowAlreadyExists(changedData.invoiceNumber, index)) {
+          this.bbxToastrService.show(
+            Constants.MSG_INVOICE_ALREADY_THERE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+        // Nincs hiba
+        } else if (index !== undefined) {
+          this.HandleProductSelection(invoice, index)
         }
 
         this.RecalcNetAndVat();
