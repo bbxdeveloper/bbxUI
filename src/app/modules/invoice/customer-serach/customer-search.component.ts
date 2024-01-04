@@ -6,6 +6,12 @@ import {CommonService} from "../../../services/common.service";
 import {Customer} from "../../customer/models/Customer";
 import {CustDiscountForGet} from "../../customer-discount/models/CustDiscount";
 import {Subscription} from "rxjs";
+import {KeyboardModes, KeyboardNavigationService} from "../../../services/keyboard-navigation.service";
+import {
+  CustomerSelectTableDialogComponent
+} from "../customer-select-table-dialog/customer-select-table-dialog.component";
+import {CustomerDialogTableSettings} from "../../../../assets/model/TableSettings";
+import {BbxDialogServiceService} from "../../../services/bbx-dialog-service.service";
 
 @Component({
   selector: 'app-customer-serach',
@@ -15,7 +21,7 @@ import {Subscription} from "rxjs";
 export class CustomerSearchComponent implements OnInit, OnDestroy {
   @Input() withDiscounts = false
 
-  @Output() customerChanged = new EventEmitter<Customer>()
+  @Output() customerChanged = new EventEmitter<[Customer, boolean]>()
   @Output() customerDiscountsChanged = new EventEmitter<CustDiscountForGet[]>(true)
   @Output() loadingChanged = new EventEmitter<boolean>()
 
@@ -36,6 +42,8 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     private readonly customerDiscountService: CustomerDiscountService,
     private readonly commonService: CommonService,
     private readonly cdref: ChangeDetectorRef,
+    private readonly keyboardNavigationService: KeyboardNavigationService,
+    private readonly dialogService: BbxDialogServiceService,
   ) { }
 
   public ngOnInit(): void {
@@ -65,13 +73,14 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
           // this.cachedCustomerName = res.data[0].customerName;
           // this.searchByTaxtNumber = false;
 
+          const shouldNavigate = false
+          this.customerChanged.emit([customer, shouldNavigate])
+
           if (this.withDiscounts) {
             this.loadingChanged.emit(true)
             await this.loadCustomerDiscounts(customer.id)
             this.loadingChanged.emit(false)
           }
-
-          this.customerChanged.emit(customer)
         } else {
           // if (this.customerInputFilterString.length >= 8 &&
           //   this.IsNumber(this.customerInputFilterString)) {
@@ -102,5 +111,31 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     catch (error) {
       this.commonService.HandleError(error)
     }
+  }
+
+  public chooseDataForCustomerForm() {
+    this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    });
+    dialogRef.onClose.subscribe(async (customer: Customer) => {
+      if (!customer) {
+        return;
+      }
+
+      const shouldNavigate = true
+      this.customerChanged.emit([customer, shouldNavigate])
+
+      if (this.withDiscounts) {
+        this.loadingChanged.emit(true)
+        await this.loadCustomerDiscounts(customer.id)
+        this.loadingChanged.emit(false)
+      }
+    });
   }
 }
