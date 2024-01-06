@@ -1,11 +1,17 @@
-<input formControlName="customerSearch"
-       nbInput
-       type="text"
-       maxlength="80"
-       (input)="FillFormWithFirstAvailableCustomer($event)"
-       placeholder="Keresés"
-       autocomplete="off"
-       id="r00"
-       (keydown.F2)="chooseDataForCustomerForm()"
-       (keydown.F3)="createCustomer()"
-       (keydown.F4)="editCustomer()"/>
+<div>
+  <input formControlName="customerSearch"
+         nbInput
+         type="text"
+         maxlength="80"
+         (input)="FillFormWithFirstAvailableCustomer($event)"
+         placeholder="Keresés"
+         autocomplete="off"
+         id="r00"
+         (keydown.F2)="chooseDataForCustomerForm()"
+         (keydown.F3)="createCustomer()"
+         (keydown.F4)="editCustomer()"/>
+  <button nbButton *ngIf="searchByTaxNumber" (click)="ChoseDataForFormByTaxNumber()">
+    NAV
+  </button>
+
+</div>

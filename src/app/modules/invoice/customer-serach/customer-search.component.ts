@@ -14,6 +14,9 @@ import {TaxNumberSearchCustomerEditDialogComponent} from "../tax-number-search-c
 import {EditCustomerDialogComponent} from "../../shared/edit-customer-dialog/edit-customer-dialog.component";
 import {StatusService} from "../../../services/status.service";
 import {Constants} from "../../../../assets/util/Constants";
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
+import {GetCustomerByTaxNumberParams} from "../../customer/models/GetCustomerByTaxNumberParams";
+import {BbxToastrService} from "../../../services/bbx-toastr-service.service";
 
 @Component({
   selector: 'app-customer-serach',
@@ -48,6 +51,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     private readonly keyboardNavigationService: KeyboardNavigationService,
     private readonly dialogService: BbxDialogServiceService,
     private readonly statusService: StatusService,
+    private readonly toastrService: BbxToastrService,
   ) { }
 
   public ngOnInit(): void {
@@ -82,7 +86,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
           if (!!res && res.data !== undefined && res.data.length > 0) {
             const customer = res.data[0]
             // this.cachedCustomerName = res.data[0].customerName;
-            // this.searchByTaxtNumber = false;
+            this.searchByTaxNumber = false;
 
             const shouldNavigate = false
             this.customerChanged.emit([customer, shouldNavigate])
@@ -93,13 +97,10 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
               this.loadingChanged.emit(false)
             }
           } else {
-            // if (this.customerInputFilterString.length >= 8 &&
-            //   this.IsNumber(this.customerInputFilterString)) {
-            //   this.searchByTaxtNumber = true;
-            // } else {
-            //   this.searchByTaxtNumber = false;
-            // }
-            // this.buyerFormNav.FillForm({}, ['customerSearch']);
+            this.searchByTaxNumber = this.customerInputFilterString.length >= 8
+              && HelperFunctions.IsNumber(this.customerInputFilterString)
+
+            //this.buyerFormNav.FillForm({}, ['customerSearch']);
           }
         },
         error: (err) => {
@@ -215,5 +216,51 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
           }
         })
     })
+  }
+
+  public ChoseDataForFormByTaxNumber(): void {
+    console.log("Selecting Customer from avaiable data by taxtnumber.");
+
+    this.loadingChanged.emit(true)
+
+    const request = { Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams
+
+    this.customerService.GetByTaxNumber(request).subscribe({
+      next: async res => {
+        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
+          this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
+
+          const customer = res.data
+          customer.taxpayerNumber = `${customer.taxpayerId}-${customer.vatCode ?? ''}-${customer.countyCode ?? ''}`
+
+          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+            context: {
+              data: customer//await this.PrepareCustomer(res.data)
+            },
+            closeOnEsc: false
+          });
+          dialogRef.onClose.subscribe({
+            next: (res: Customer) => {
+              console.log("Selected item: ", res);
+
+              const navigate = true
+              this.customerChanged.emit([res, navigate])
+            },
+            error: err => {
+              this.commonService.HandleError(err);
+            }
+          });
+        } else {
+          this.toastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
+        }
+      },
+      error: (err) => {
+        this.commonService.HandleError(err)
+        this.loadingChanged.emit(false)
+      },
+      complete: () => {
+        this.loadingChanged.emit(false)
+      },
+    });
   }
 }
