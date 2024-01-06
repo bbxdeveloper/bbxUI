@@ -11,6 +11,9 @@ import {CustomerSelectTableDialogComponent} from "../customer-select-table-dialo
 import {CustomerDialogTableSettings} from "../../../../assets/model/TableSettings";
 import {BbxDialogServiceService} from "../../../services/bbx-dialog-service.service";
 import {TaxNumberSearchCustomerEditDialogComponent} from "../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component";
+import {EditCustomerDialogComponent} from "../../shared/edit-customer-dialog/edit-customer-dialog.component";
+import {StatusService} from "../../../services/status.service";
+import {Constants} from "../../../../assets/util/Constants";
 
 @Component({
   selector: 'app-customer-serach',
@@ -19,6 +22,7 @@ import {TaxNumberSearchCustomerEditDialogComponent} from "../tax-number-search-c
 })
 export class CustomerSearchComponent implements OnInit, OnDestroy {
   @Input() withDiscounts = false
+  @Input() customer: Customer|undefined
 
   @Output() customerChanged = new EventEmitter<[Customer, boolean]>()
   @Output() customerDiscountsChanged = new EventEmitter<CustDiscountForGet[]>(true)
@@ -43,6 +47,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     private readonly cdref: ChangeDetectorRef,
     private readonly keyboardNavigationService: KeyboardNavigationService,
     private readonly dialogService: BbxDialogServiceService,
+    private readonly statusService: StatusService,
   ) { }
 
   public ngOnInit(): void {
@@ -158,5 +163,50 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
         this.commonService.HandleError(err);
       }
     });
+  }
+
+  public editCustomer(): void {
+    if (!this.customer) {
+      return
+    }
+
+    const dialog = this.dialogService.open(EditCustomerDialogComponent, {
+      context: {
+        customerId: this.customer.id
+      }
+    })
+    dialog.onClose.subscribe(refresh => {
+      if (!refresh) {
+        return
+      }
+
+      const request = {
+        ID: this.customer!.id,
+        PageSize: '1',
+        OrderBy: 'customerName'
+      } as GetCustomersParamListModel
+
+      this.statusService.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING])
+      this.customerService.GetAll(request)
+        .subscribe({
+          next: res => {
+            if (!res.succeeded) {
+              this.commonService.HandleError(res.errors)
+            }
+
+            if (res.data && res.data.length > 0) {
+              const navigate = false
+              this.customerChanged.emit([res.data[0], navigate])
+            }
+          },
+          error: error => {
+            this.commonService.HandleError(error)
+            this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
+          },
+          complete: () => {
+            this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
+          }
+        })
+    })
   }
 }
