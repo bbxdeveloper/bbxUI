@@ -28,10 +28,10 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   @Output() customerDiscountsChanged = new EventEmitter<CustDiscountForGet[]>(true)
   @Output() loadingChanged = new EventEmitter<boolean>()
 
-  private _searchByTaxtNumber: boolean = false;
-  public get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
-  private set searchByTaxtNumber(value: boolean) {
-    this._searchByTaxtNumber = value;
+  private _searchByTaxNumber: boolean = false;
+  public get searchByTaxNumber(): boolean { return this._searchByTaxNumber; }
+  private set searchByTaxNumber(value: boolean) {
+    this._searchByTaxNumber = value;
     this.cdref.detectChanges();
     // this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
@@ -68,42 +68,49 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
 
     this.loadingChanged.emit(true)
 
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
-    } as GetCustomersParamListModel).subscribe({
-      next: async res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          const customer = res.data[0]
-          // this.cachedCustomerName = res.data[0].customerName;
-          // this.searchByTaxtNumber = false;
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: this.customerInputFilterString,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
 
-          const shouldNavigate = false
-          this.customerChanged.emit([customer, shouldNavigate])
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll(request)
+      .subscribe({
+        next: async res => {
+          if (!!res && res.data !== undefined && res.data.length > 0) {
+            const customer = res.data[0]
+            // this.cachedCustomerName = res.data[0].customerName;
+            // this.searchByTaxtNumber = false;
 
-          if (this.withDiscounts) {
-            this.loadingChanged.emit(true)
-            await this.loadCustomerDiscounts(customer.id)
-            this.loadingChanged.emit(false)
+            const shouldNavigate = false
+            this.customerChanged.emit([customer, shouldNavigate])
+
+            if (this.withDiscounts) {
+              this.loadingChanged.emit(true)
+              await this.loadCustomerDiscounts(customer.id)
+              this.loadingChanged.emit(false)
+            }
+          } else {
+            // if (this.customerInputFilterString.length >= 8 &&
+            //   this.IsNumber(this.customerInputFilterString)) {
+            //   this.searchByTaxtNumber = true;
+            // } else {
+            //   this.searchByTaxtNumber = false;
+            // }
+            // this.buyerFormNav.FillForm({}, ['customerSearch']);
           }
-        } else {
-          // if (this.customerInputFilterString.length >= 8 &&
-          //   this.IsNumber(this.customerInputFilterString)) {
-          //   this.searchByTaxtNumber = true;
-          // } else {
-          //   this.searchByTaxtNumber = false;
-          // }
-          // this.buyerFormNav.FillForm({}, ['customerSearch']);
-        }
-      },
-      error: (err) => {
-        this.commonService.HandleError(err);
-        this.loadingChanged.emit(false)
-        this.searchByTaxtNumber = false;
-      },
-      complete: () => {
-        this.loadingChanged.emit(false)
-      },
-    });
+        },
+        error: (err) => {
+          this.commonService.HandleError(err);
+          this.loadingChanged.emit(false)
+          this.searchByTaxNumber = false;
+        },
+        complete: () => {
+          this.loadingChanged.emit(false)
+        },
+      });
   }
 
   protected async loadCustomerDiscounts(customerId: number): Promise<void> {
