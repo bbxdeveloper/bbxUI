@@ -227,32 +227,18 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
 
     this.customerService.GetByTaxNumber(request).subscribe({
       next: async res => {
-        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
-          this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
-
-          const customer = res.data
-          customer.taxpayerNumber = `${customer.taxpayerId}-${customer.vatCode ?? ''}-${customer.countyCode ?? ''}`
-
-          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-            context: {
-              data: customer//await this.PrepareCustomer(res.data)
-            },
-            closeOnEsc: false
-          });
-          dialogRef.onClose.subscribe({
-            next: (res: Customer) => {
-              console.log("Selected item: ", res);
-
-              const navigate = true
-              this.customerChanged.emit([res, navigate])
-            },
-            error: err => {
-              this.commonService.HandleError(err);
-            }
-          });
-        } else {
+        if (!res || !res.data || !res.data.customerName || res.data.customerName.length === 0) {
           this.toastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
+
+          return
         }
+
+        this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
+
+        const customer = res.data
+        customer.taxpayerNumber = `${customer.taxpayerId}-${customer.vatCode ?? ''}-${customer.countyCode ?? ''}`
+
+        this.openTaxNumberSearchCustomerEditDialog(customer)
       },
       error: (err) => {
         this.commonService.HandleError(err)
@@ -261,6 +247,24 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       complete: () => {
         this.loadingChanged.emit(false)
       },
+    });
+  }
+
+  private openTaxNumberSearchCustomerEditDialog(customer: Customer): void {
+    const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+      context: {
+        data: customer//await this.PrepareCustomer(res.data)
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (res: Customer) => {
+        const navigate = true
+        this.customerChanged.emit([res, navigate])
+      },
+      error: err => {
+        this.commonService.HandleError(err);
+      }
     });
   }
 }
