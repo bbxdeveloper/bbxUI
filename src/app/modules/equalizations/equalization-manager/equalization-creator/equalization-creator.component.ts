@@ -96,22 +96,22 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     {
       label: 'Banki azonosító', objectKey: 'bankTransaction', colKey: 'bankTransaction',
       defaultValue: '', type: 'string', mask: "", fInputType: 'uppercase',
-      colWidth: "125px", textAlign: "left", navMatrixCssClass: TileCssClass,
+      colWidth: "130px", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
       defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
+      mask: '', colWidth: '90px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode', navMatrixCssClass: TileCssClass,
       defaultValue: '', type: 'string', mask: "", //fInputType: 'combobox', fReadonly: false,
-      colWidth: "125px", textAlign: "left", fInputType: 'uppercase' //, comboboxData$: new BehaviorSubject<string[]>([])
+      colWidth: "90px", textAlign: "left", fInputType: 'uppercase' //, comboboxData$: new BehaviorSubject<string[]>([])
     },
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
       defaultValue: '', type: 'number', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "100px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
+      colWidth: "90px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Összeg', objectKey: 'invPaymentAmount', colKey: 'invPaymentAmount',
@@ -533,6 +533,22 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
         }, 0);
 
         this.HandleRowDataChangedError(index, 'invPaymentDate')
+      } else {
+        changedData.Save()
+      }
+    }
+
+    else if (col === 'exchangeRate' && index !== null && index !== undefined) {
+      if (changedData.currencyCode === CurrencyCodes.HUF && changedData.exchangeRate !== 1) {
+        setTimeout(() => {
+          this.bbxToastrService.show(
+            HelperFunctions.StringFormat(Constants.MSG_EXCHANGE_RATE_SHOULD_BE, changedData.currencyCode, changedData.exchangeRate),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+        }, 0);
+
+        this.HandleRowDataChangedError(index, 'exchangeRate')
       } else {
         changedData.Save()
       }
