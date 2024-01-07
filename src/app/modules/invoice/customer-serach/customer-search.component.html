@@ -1,4 +1,4 @@
-<form [formGroup]="searchForm" ngForm [id]="searchFormId">
+<form [formGroup]="searchForm" ngForm [id]="searchFormId" class="flex">
     <input formControlName="customerSearch"
            nbInput
            type="text"
@@ -16,9 +16,9 @@
 
   <button *ngIf="canGetFromNav && searchByTaxNumber"
           nbButton
+          status="primary"
           class="{{TileCssClass}}"
           (click)="ChoseDataForFormByTaxNumber()">
     NAV
   </button>
-
 </form>
