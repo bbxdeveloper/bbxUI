@@ -349,8 +349,15 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       this._countryCodes = countryCodeData ?? []
       this.countryCodes = countryCodeData?.map(x => x.text) ?? []
       this.countryCodeComboData$.next(this.countryCodes)
-      if (HelperFunctions.isEmptyOrSpaces(this.currentForm?.form.controls['countryCode'].value) && this.countryCodes.length > 0) {
-        this.currentForm?.form.controls['countryCode'].setValue(this.countryCodes[0])
+
+      const controls = this.currentForm?.form.controls
+
+      if (this.data && this.data.countryCode) {
+        const countryCode = this._countryCodes.find(x => x.value === this.data.countryCode)?.text
+        controls!['countryCode'].setValue(countryCode)
+      }
+      else if (HelperFunctions.isEmptyOrSpaces(controls!['countryCode'].value) && this.countryCodes.length > 0) {
+        controls!['countryCode'].setValue(this.countryCodes[0])
       }
 
       this.unitPriceTypes = await unitPriceTypeRequest ?? []
@@ -358,13 +365,13 @@ export class TaxNumberSearchCustomerEditDialogComponent extends BaseNavigatableC
       this.unitPriceTypeData.next(this.unitPriceTypes.map(x => x.text))
       this.paymentMethodsComboData$.next(this.paymentMethods.map(x => x.text))
 
-      const defPaymentMethod = this.currentForm?.form.controls['defPaymentMethod']!
+      const defPaymentMethod = controls!['defPaymentMethod']!
       if (HelperFunctions.isEmptyOrSpaces(defPaymentMethod.value) && this.paymentMethods.length > 0) {
         const tmp = this.paymentMethods.find(x => x.text === OfflinePaymentMethods.Cash.text) ?? this.paymentMethods[0].text
         defPaymentMethod.setValue(tmp)
       }
 
-      const unitPriceType = this.currentForm?.form.controls['unitPriceType']!
+      const unitPriceType = controls!['unitPriceType']!
       if (HelperFunctions.isEmptyOrSpaces(unitPriceType.value) && this.unitPriceTypes.length > 0) {
         const tmp = this.unitPriceTypes.find(x => x.text === OfflineUnitPriceTypes.Unit.text) ?? this.unitPriceTypes[0].text
         unitPriceType.setValue(tmp)

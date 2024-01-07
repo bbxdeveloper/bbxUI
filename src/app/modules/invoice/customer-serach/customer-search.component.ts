@@ -104,6 +104,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
           OrderBy: 'customerName'
         } as GetCustomersParamListModel)),
         switchMap(request => this.customerService.GetAll(request)),
+        tap(() => this.loadingChanged.emit(false)),
       )
       .subscribe({
         next: async res => {
@@ -284,7 +285,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   private openTaxNumberSearchCustomerEditDialog(customer: Customer): void {
     const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
       context: {
-        data: customer//await this.PrepareCustomer(res.data)
+        data: customer
       },
       closeOnEsc: false
     });
