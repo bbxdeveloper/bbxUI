@@ -666,24 +666,26 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                 // Detect changes in DOM
                 this.cdref!.detectChanges();
 
-                if (!this.repairMode) {
-                    // Move to the next cell and enter edit mode in it
-                    let newX = this.MoveNextInTable();
-                    if (newX < colPos) {
-                        this.isUnfinishedRowDeletable = false;
-                    }
-                    let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
-                    let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                    // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
-                    this.mechanicalClick = true;
-                    this.kbs.ClickCurrentElement();
-                } else {
-                    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                    this.repairMode = false;
-                }
-
                 // Notify the parent component about the datachange
-                this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
+                var res = this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
+
+                if (res.success) {
+                    if (!this.repairMode) {
+                        // Move to the next cell and enter edit mode in it
+                        let newX = this.MoveNextInTable();
+                        if (newX < colPos) {
+                            this.isUnfinishedRowDeletable = false;
+                        }
+                        let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
+                        let nextRow = newX < colPos ? this.data[nextRowPost] : row;
+                        // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                        this.mechanicalClick = true;
+                        this.kbs.ClickCurrentElement();
+                    } else {
+                        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                        this.repairMode = false;
+                    }
+                }
             } else {
                 // Entering edit mode
                 this.Edit(row, rowPos, col);
@@ -718,30 +720,32 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
                     // Detect changes in DOM
                     this.cdref!.detectChanges();
 
-                    if (!this.repairMode) {
-                        const moveCount = this.nextAvailableInDistance(col, row)
-
-                        // Move to the next cell and enter edit mode in it
-                        let newX = 1
-                        for (let i = 0; i < moveCount; i++) {
-                            newX = this.MoveNextInTable();
-                        }
-
-                        if (newX < colPos) {
-                            this.isUnfinishedRowDeletable = false;
-                        }
-                        let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
-                        let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                        // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
-                        this.mechanicalClick = true;
-                        this.kbs.ClickCurrentElement();
-                    } else {
-                        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-                        this.repairMode = false;
-                    }
-
                     // Notify the parent component about the datachange
-                    this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
+                    var res = this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
+
+                    if (res.success) {
+                        if (!this.repairMode) {
+                            const moveCount = this.nextAvailableInDistance(col, row)
+    
+                            // Move to the next cell and enter edit mode in it
+                            let newX = 1
+                            for (let i = 0; i < moveCount; i++) {
+                                newX = this.MoveNextInTable();
+                            }
+    
+                            if (newX < colPos) {
+                                this.isUnfinishedRowDeletable = false;
+                            }
+                            let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
+                            let nextRow = newX < colPos ? this.data[nextRowPost] : row;
+                            // this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                            this.mechanicalClick = true;
+                            this.kbs.ClickCurrentElement();
+                        } else {
+                            this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+                            this.repairMode = false;
+                        }
+                    }
                 } else {
                     // Entering edit mode
                     this.Edit(row, rowPos, col);
@@ -843,17 +847,19 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
             this.ResetEdit();
             this.cdref!.detectChanges();
 
-            let newX = this.MoveNextInTable();
-            if (wasEditActivatedPreviously) {
-                if (newX < colPos) {
-                    this.isUnfinishedRowDeletable = false;
-                }
-                let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
-                let nextRow = newX < colPos ? this.data[nextRowPost] : row;
-                this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
-            }
+            var res = this.parentComponent.TableRowDataChanged(tmp, rowPos, col)
 
-            this.parentComponent.TableRowDataChanged(tmp, rowPos, col);
+            if (res.success) {
+                let newX = this.MoveNextInTable();
+                if (wasEditActivatedPreviously) {
+                    if (newX < colPos) {
+                        this.isUnfinishedRowDeletable = false;
+                    }
+                    let nextRowPost = newX < colPos ? rowPos + 1 : rowPos;
+                    let nextRow = newX < colPos ? this.data[nextRowPost] : row;
+                    this.HandleGridEnter(nextRow, nextRowPost, this.colDefs[newX].objectKey, newX, inputId);
+                }
+            }
         } else {
             // Entering edit mode
             this.Edit(row, rowPos, col);

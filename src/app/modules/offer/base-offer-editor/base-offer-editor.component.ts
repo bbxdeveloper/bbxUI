@@ -6,7 +6,7 @@ import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -673,13 +673,13 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
 
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse {
     if (index !== undefined) {
       this.RoundPrices(index);
     }
 
     if (!changedData?.productCode) {
-      return
+      return new ManagerResponse()
     }
 
     if ((!!col && col === 'UnitPriceSwitch') || col === undefined) {
@@ -718,6 +718,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         }
       });
     }
+
+    return new ManagerResponse()
   }
 
   async refresh(): Promise<void> {

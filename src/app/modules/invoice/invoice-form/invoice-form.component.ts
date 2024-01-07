@@ -10,7 +10,7 @@ import { InvoiceService } from '../services/invoice.service';
 import { CommonService } from 'src/app/services/common.service';
 import { InvoiceFormData } from './InvoiceFormData';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 
 @Component({
@@ -131,7 +131,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
 
   IsTableFocused: boolean = false
 
-  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
+  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): ManagerResponse {
     throw new Error('Method not implemented.');
   }
 

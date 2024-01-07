@@ -17,7 +17,7 @@ import { BaseNoFormManagerComponent } from '../../shared/base-no-form-manager/ba
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { Customer } from '../../customer/models/Customer';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, KeyBindings, GetFooterCommandListFromKeySettings, InvRowNavKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
@@ -443,7 +443,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
   ChooseDataForCustomerForm(): void {}
 
   RefreshData(): void { }
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse { return new ManagerResponse() }
   RecalcNetAndVat(): void { }
 
   private async csvExport(): Promise<void> {

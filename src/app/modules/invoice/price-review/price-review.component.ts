@@ -7,7 +7,7 @@ import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
@@ -524,9 +524,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     return row.data.priceReview
   }
 
-  public TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+  public TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse {
     if (!changedData && !changedData.productCode) {
-      return
+      return new ManagerResponse()
     }
 
     if ((!!col && col === 'productCode') || col === undefined) {
@@ -576,7 +576,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         changedData.priceReview = false
         changedData.Save()
 
-        return
+        return new ManagerResponse()
       }
 
       this.bbxToastrService.show(
@@ -594,7 +594,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       if (!validationResult) {
         changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
         changedData.Save()
-        return
+        return new ManagerResponse()
       }
 
       setTimeout(() => {
@@ -608,6 +608,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
       this.dbDataTable.ClickByObjectKey('quantity')
     }
+
+    return new ManagerResponse()
   }
 
   refresh(): void {

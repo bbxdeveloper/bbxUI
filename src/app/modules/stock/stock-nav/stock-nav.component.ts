@@ -13,7 +13,7 @@ import { TileCssClass, AttachDirection, TileCssColClass, NavMatrixOrientation } 
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, StockNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
@@ -655,7 +655,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
   }
 
   RefreshData(): void { }
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse { return new ManagerResponse() }
   RecalcNetAndVat(): void { }
 
   HandleFunctionKey(event: Event | KeyBindings): void {

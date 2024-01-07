@@ -7,7 +7,7 @@ import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navig
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { WareHouse } from 'src/app/modules/warehouse/models/WareHouse';
 import { WareHouseService } from 'src/app/modules/warehouse/services/ware-house.service';
 import { CustomerInvoiceSummaryFilterFormData } from './CustomerInvoiceSummaryFilterFormData';
@@ -236,7 +236,7 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
 
   IsTableFocused: boolean = false
 
-  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
+  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): ManagerResponse {
     throw new Error('Method not implemented.');
   }
 

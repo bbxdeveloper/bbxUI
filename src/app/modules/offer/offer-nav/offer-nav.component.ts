@@ -25,7 +25,7 @@ import { GetCustomersParamListModel } from '../../customer/models/GetCustomersPa
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { CountryCode } from '../../customer/models/CountryCode';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { Actions, OfferNavKeySettings, KeyBindings, GetFooterCommandListFromKeySettings } from 'src/assets/util/KeyBindings';
@@ -883,7 +883,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   RefreshData(): void {}
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {}
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse { return new ManagerResponse() }
   RecalcNetAndVat(): void { }
 
   HandleFunctionKey(event: Event | KeyBindings): void {

@@ -15,7 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
 import { Actions, CorrectionInvoiceKeySettings, GetFooterCommandListFromKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
@@ -426,9 +426,9 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
-  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
+  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): ManagerResponse {
     if (!changedData && !changedData.productCode) {
-      return
+      return new ManagerResponse()
     }
 
     if (col === 'quantity' && index !== null && index !== undefined) {
@@ -437,7 +437,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       if (!validationResult) {
         changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
         changedData.Save()
-        return
+        return new ManagerResponse()
       }
 
       setTimeout(() => {
@@ -447,6 +447,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
       this.dbDataTable.ClickByObjectKey('quantity')
     }
+
+    return new ManagerResponse()
   }
 
   private Save(): void {

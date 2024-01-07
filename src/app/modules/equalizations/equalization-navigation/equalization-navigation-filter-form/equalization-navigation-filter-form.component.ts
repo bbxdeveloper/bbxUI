@@ -5,7 +5,7 @@ import { TokenStorageService } from 'src/app/modules/auth/services/token-storage
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardNavigationService, KeyboardModes } from 'src/app/services/keyboard-navigation.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { validDate } from 'src/assets/model/Validators';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 import { TileCssClass, AttachDirection } from 'src/assets/model/navigation/Navigatable';
@@ -114,7 +114,7 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
 
   IsTableFocused: boolean = false
 
-  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): void {
+  public TableRowDataChanged(changedData?: any, index?: number | undefined, col?: string | undefined): ManagerResponse {
     throw new Error('Method not implemented.');
   }
 

@@ -6,7 +6,7 @@ import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
 import { AttachDirection, NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
@@ -515,21 +515,22 @@ export class ContInvCtrlComponent extends BaseInlineManagerComponent<InvCtrlItem
     }
   }
 
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse {
     if (index !== undefined) {
       this.RoundPrices(index);
     }
 
-    if (!changedData || !changedData.productCode)
-      return
-
-    if ((!!col && col === 'productCode') || col === undefined) {
-      this.productCodeChanged(changedData, index)
+    if (!(!changedData || !changedData.productCode)) {
+      if ((!!col && col === 'productCode') || col === undefined) {
+        this.productCodeChanged(changedData, index)
+      }
+  
+      if (col && col === 'nRealQty') {
+        this.quantityChanged(changedData, index)
+      }
     }
 
-    if (col && col === 'nRealQty') {
-      this.quantityChanged(changedData, index)
-    }
+    return new ManagerResponse()
   }
 
   private productCodeChanged(changedData: InvCtrlItemLine, index?: number): void {

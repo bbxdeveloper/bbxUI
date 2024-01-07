@@ -5,7 +5,7 @@ import { WareHouseService } from '../services/ware-house.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { validDate } from 'src/assets/model/Validators';
 import moment from 'moment';
 import { BehaviorSubject, firstValueFrom, map, tap } from 'rxjs';
@@ -348,13 +348,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
 
   public RefreshData(): void {}
 
-  public TableRowDataChanged(changedData?: InbetweenWarehouseProduct, index?: number|undefined, col?: string|undefined): void {
-    if (!changedData) {
-      return
-    }
-
-    if (!index && !col) {
-      return
+  public TableRowDataChanged(changedData?: InbetweenWarehouseProduct, index?: number | undefined, col?: string | undefined): ManagerResponse {
+    if (!changedData || (!index && !col)) {
+      return new ManagerResponse()
     }
 
     if (col === '_quantity') {
@@ -382,6 +378,8 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
         }
       });
     }
+
+    return new ManagerResponse()
   }
 
   private quantityChanged(changedData: InbetweenWarehouseProduct, index: number|undefined): void {

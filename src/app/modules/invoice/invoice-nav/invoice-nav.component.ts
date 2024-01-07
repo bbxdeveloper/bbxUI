@@ -23,7 +23,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { validDate } from 'src/assets/model/Validators';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { GetFooterCommandListFromKeySettings, InvoiceNavKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { IFunctionHandler } from 'src/assets/model/navigation/IFunctionHandler';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
@@ -710,7 +710,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   RefreshData(): void { }
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse { return new ManagerResponse() }
   RecalcNetAndVat(): void { }
 
   HandleFunctionKey(event: Event | KeyBindings): void {

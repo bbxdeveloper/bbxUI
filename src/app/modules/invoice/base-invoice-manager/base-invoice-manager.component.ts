@@ -38,6 +38,7 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import { ManagerResponse } from 'src/assets/model/IInlineManager';
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -198,7 +199,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
   async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> { return of({} as any).toPromise() }
 
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse {
     if (!!changedData && !!changedData.productCode) {
       if ((!!col && col === 'productCode') || col === undefined) {
         this.productService.GetProductByCode({ ProductCode: changedData.productCode } as GetProductByCodeRequest).subscribe({
@@ -247,7 +248,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
           if (!validationResult) {
             changedData.quantity = HelperFunctions.ToInt(changedData.quantity)
             changedData.Save()
-            return
+            return new ManagerResponse()
           }
 
           setTimeout(() => {
@@ -262,6 +263,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
       this.additionalRowDataChanged(changedData, index, col)
     }
+
+    return new ManagerResponse()
   }
 
   protected additionalRowDataChanged(changedData: any, index?: number, col?: string): void {

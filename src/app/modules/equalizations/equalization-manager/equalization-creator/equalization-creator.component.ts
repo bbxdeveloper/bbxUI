@@ -16,7 +16,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { KeyboardNavigationService, KeyboardModes } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
+import { IInlineManager, ManagerResponse } from 'src/assets/model/IInlineManager';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
@@ -489,18 +489,9 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
-  private HandleRowDataChangedError(index: number, key: string): void {
-    this.dbData[index].data.Restore()
-    const previousMode = this.kbS.currentKeyboardMode
-    this.dbDataTable.ClickByObjectKey(key)
-    setTimeout(() => {
-      this.kbS.setEditMode(previousMode)
-    }, 200);
-  }
-
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): ManagerResponse {
     if (!changedData || !changedData.invoiceNumber)
-      return
+      return new ManagerResponse()
 
     if ((!!col && col === 'invoiceNumber') || col === undefined) {
       this.invoiceNumberChanged(changedData, index)
@@ -516,7 +507,13 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           )
         }, 0);
 
-        this.HandleRowDataChangedError(index, 'currencyCode')
+        this.dbData[index].data.Restore()
+
+        this.kbS.setEditMode(KeyboardModes.EDIT)
+
+        var response = new ManagerResponse()
+        response.success = false
+        return response
       } else {
         changedData.Save()
       }
@@ -532,7 +529,13 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           )
         }, 0);
 
-        this.HandleRowDataChangedError(index, 'invPaymentDate')
+        this.dbData[index].data.Restore()
+
+        this.kbS.setEditMode(KeyboardModes.EDIT)
+
+        var response = new ManagerResponse()
+        response.success = false
+        return response
       } else {
         changedData.Save()
       }
@@ -541,6 +544,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     else {
       changedData.Save()
     }
+
+    return new ManagerResponse()
   }
 
   private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
