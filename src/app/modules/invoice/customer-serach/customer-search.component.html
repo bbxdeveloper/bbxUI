@@ -8,6 +8,8 @@
            placeholder="Keresés"
            autocomplete="off"
            id="r00"
+           (focusin)="onFormSearchFocused()"
+           (focusout)="onFormSearchBlurred()"
            (keydown.enter)="searchFormNav.HandleFormEnter($event, true, true, true)"
            (keydown.F2)="chooseDataForCustomerForm()"
            (keydown.F3)="createCustomer()"

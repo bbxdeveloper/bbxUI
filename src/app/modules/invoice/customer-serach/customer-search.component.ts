@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {GetCustomersParamListModel} from "../../customer/models/GetCustomersParamListModel";
 import {CustomerService} from "../../customer/services/customer.service";
 import {CustomerDiscountService} from "../../customer-discount/services/customer-discount.service";
@@ -27,7 +27,7 @@ import {IInlineManager} from "../../../../assets/model/IInlineManager";
   templateUrl: './customer-search.component.html',
   styleUrls: ['./customer-search.component.scss']
 })
-export class CustomerSearchComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CustomerSearchComponent implements OnInit, OnDestroy {
   @Input() withDiscounts = false
   @Input() customer: Customer|undefined
 
@@ -39,6 +39,8 @@ export class CustomerSearchComponent implements OnInit, OnDestroy, AfterViewInit
   @Output() customerChanged = new EventEmitter<[Customer, boolean]>()
   @Output() customerDiscountsChanged = new EventEmitter<CustDiscountForGet[]>(true)
   @Output() loadingChanged = new EventEmitter<boolean>()
+  @Output() focusIn = new EventEmitter<string>()
+  @Output() focusOut = new EventEmitter<string>()
 
   private _searchByTaxNumber: boolean = false;
   public get searchByTaxNumber(): boolean { return this._searchByTaxNumber; }
@@ -54,8 +56,8 @@ export class CustomerSearchComponent implements OnInit, OnDestroy, AfterViewInit
 
   TileCssClass = TileCssClass
 
-  searchForm: FormGroup
-  searchFormNav: InlineTableNavigatableForm
+  public searchForm: FormGroup
+  public searchFormNav: InlineTableNavigatableForm
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription
 
@@ -95,10 +97,6 @@ export class CustomerSearchComponent implements OnInit, OnDestroy, AfterViewInit
     if (this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
       this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe()
     }
-  }
-
-  public ngAfterViewInit() {
-    this.searchFormNav.GenerateAndSetNavMatrices(true)
   }
 
   public FillFormWithFirstAvailableCustomer(event: any): void {
@@ -305,5 +303,13 @@ export class CustomerSearchComponent implements OnInit, OnDestroy, AfterViewInit
 
   private raiseCustomerChanged(customer: Customer, navigate: boolean): void {
     this.customerChanged.emit([customer, navigate])
+  }
+
+  public onFormSearchFocused(): void {
+    this.focusIn.emit('customerSearch')
+  }
+
+  public onFormSearchBlurred(): void {
+    this.focusOut.emit('customerSearch')
   }
 }
