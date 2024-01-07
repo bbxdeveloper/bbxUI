@@ -5,7 +5,7 @@ import {CustomerDiscountService} from "../../customer-discount/services/customer
 import {CommonService} from "../../../services/common.service";
 import {Customer} from "../../customer/models/Customer";
 import {CustDiscountForGet} from "../../customer-discount/models/CustDiscount";
-import {Subscription} from "rxjs";
+import {debounceTime, distinctUntilChanged, map, Subscription, switchMap, tap} from "rxjs";
 import {KeyboardModes, KeyboardNavigationService} from "../../../services/keyboard-navigation.service";
 import {CustomerSelectTableDialogComponent} from "../customer-select-table-dialog/customer-select-table-dialog.component";
 import {CustomerDialogTableSettings} from "../../../../assets/model/TableSettings";
@@ -59,9 +59,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   public searchForm: FormGroup
   public searchFormNav: InlineTableNavigatableForm
 
-  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription
-
-  private customerInputFilterString = ''
+  private subscription: Subscription|undefined
 
   constructor(
     private readonly customerService: CustomerService,
@@ -91,32 +89,22 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-  }
-
-  ngOnDestroy(): void {
-    if (this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe()
-    }
-  }
-
-  public FillFormWithFirstAvailableCustomer(event: any): void {
-    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
-    }
-
-    this.customerInputFilterString = event.target.value ?? '';
-
-    this.loadingChanged.emit(true)
-
-    const request = {
-      IsOwnData: false,
-      PageNumber: '1',
-      PageSize: '1',
-      SearchString: this.customerInputFilterString,
-      OrderBy: 'customerName'
-    } as GetCustomersParamListModel
-
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll(request)
+    let search = ''
+    this.subscription = this.searchForm.get('customerSearch')?.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        tap(() => this.loadingChanged.emit(true)),
+        tap((filter: string) => search = filter),
+        map((filter: string) => ({
+          IsOwnData: false,
+          PageNumber: '1',
+          PageSize: '1',
+          SearchString: filter,
+          OrderBy: 'customerName'
+        } as GetCustomersParamListModel)),
+        switchMap(request => this.customerService.GetAll(request)),
+      )
       .subscribe({
         next: async res => {
           if (!!res && res.data !== undefined && res.data.length > 0) {
@@ -132,8 +120,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
               this.loadingChanged.emit(false)
             }
           } else {
-            this.searchByTaxNumber = this.customerInputFilterString.length >= 8
-              && HelperFunctions.IsNumber(this.customerInputFilterString)
+            this.searchByTaxNumber = search.length >= 8 && HelperFunctions.IsNumber(search)
 
             //this.buyerFormNav.FillForm({}, ['customerSearch']);
           }
@@ -143,10 +130,14 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
           this.loadingChanged.emit(false)
           this.searchByTaxNumber = false;
         },
-        complete: () => {
-          this.loadingChanged.emit(false)
-        },
-      });
+        complete: this.loadingChanged.emit.bind(this, false)
+    })
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription && !this.subscription.closed) {
+      this.subscription.unsubscribe()
+    }
   }
 
   protected async loadCustomerDiscounts(customerId: number): Promise<void> {
@@ -163,9 +154,10 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   public chooseDataForCustomerForm(): void {
     this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
 
+    const filter = this.searchForm.get('customerSearch')?.value
     const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
       context: {
-        searchString: this.customerInputFilterString,
+        searchString: filter,
         allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
         colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
       }
@@ -261,7 +253,8 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   public ChoseDataForFormByTaxNumber(): void {
     this.loadingChanged.emit(true)
 
-    const request = { Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams
+    const filter = this.searchForm.get('customerSearch')?.value
+    const request = { Taxnumber: filter } as GetCustomerByTaxNumberParams
 
     this.customerService.GetByTaxNumber(request).subscribe({
       next: async res => {
