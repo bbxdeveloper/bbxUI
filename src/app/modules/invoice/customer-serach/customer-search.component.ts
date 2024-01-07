@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {GetCustomersParamListModel} from "../../customer/models/GetCustomersParamListModel";
 import {CustomerService} from "../../customer/services/customer.service";
 import {CustomerDiscountService} from "../../customer-discount/services/customer-discount.service";
@@ -17,19 +17,24 @@ import {Constants} from "../../../../assets/util/Constants";
 import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 import {GetCustomerByTaxNumberParams} from "../../customer/models/GetCustomerByTaxNumberParams";
 import {BbxToastrService} from "../../../services/bbx-toastr-service.service";
+import {FormControl, FormGroup} from "@angular/forms";
+import {AttachDirection, TileCssClass} from "../../../../assets/model/navigation/Navigatable";
+import {InlineTableNavigatableForm} from "../../../../assets/model/navigation/InlineTableNavigatableForm";
+import {IInlineManager} from "../../../../assets/model/IInlineManager";
 
 @Component({
   selector: 'app-customer-search',
   templateUrl: './customer-search.component.html',
   styleUrls: ['./customer-search.component.scss']
 })
-export class CustomerSearchComponent implements OnInit, OnDestroy {
+export class CustomerSearchComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() withDiscounts = false
   @Input() customer: Customer|undefined
 
   @Input() canCreate = true
   @Input() canEdit = true
   @Input() canGetFromNav = true
+  @Input() searchFormId = 'customer-search-form'
 
   @Output() customerChanged = new EventEmitter<[Customer, boolean]>()
   @Output() customerDiscountsChanged = new EventEmitter<CustDiscountForGet[]>(true)
@@ -38,10 +43,19 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   private _searchByTaxNumber: boolean = false;
   public get searchByTaxNumber(): boolean { return this._searchByTaxNumber; }
   private set searchByTaxNumber(value: boolean) {
+    if (value === this._searchByTaxNumber) {
+      return
+    }
+
     this._searchByTaxNumber = value;
     this.cdref.detectChanges();
-    // this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
+    this.searchFormNav.GenerateAndSetNavMatrices(false, true);
   }
+
+  TileCssClass = TileCssClass
+
+  searchForm: FormGroup
+  searchFormNav: InlineTableNavigatableForm
 
   private Subscription_FillFormWithFirstAvailableCustomer?: Subscription
 
@@ -55,8 +69,24 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     private readonly keyboardNavigationService: KeyboardNavigationService,
     private readonly dialogService: BbxDialogServiceService,
     private readonly statusService: StatusService,
-    private readonly toastrService: BbxToastrService,
-  ) { }
+    private readonly toasterService: BbxToastrService,
+  ) {
+    this.searchForm = new FormGroup({
+      customerSearch: new FormControl('')
+    })
+
+    this.searchFormNav = new InlineTableNavigatableForm(
+      this.searchForm,
+      this.keyboardNavigationService,
+      this.cdref,
+      [],
+      this.searchFormId,
+      AttachDirection.DOWN,
+      {} as IInlineManager
+    )
+
+    this.searchFormNav.OuterJump = true
+  }
 
   public ngOnInit(): void {
   }
@@ -65,6 +95,10 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     if (this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
       this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe()
     }
+  }
+
+  public ngAfterViewInit() {
+    this.searchFormNav.GenerateAndSetNavMatrices(true)
   }
 
   public FillFormWithFirstAvailableCustomer(event: any): void {
@@ -234,7 +268,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     this.customerService.GetByTaxNumber(request).subscribe({
       next: async res => {
         if (!res || !res.data || !res.data.customerName || res.data.customerName.length === 0) {
-          this.toastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
+          this.toasterService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
 
           return
         }

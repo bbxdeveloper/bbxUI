@@ -1,17 +1,23 @@
-<div>
-  <input formControlName="customerSearch"
-         nbInput
-         type="text"
-         maxlength="80"
-         (input)="FillFormWithFirstAvailableCustomer($event)"
-         placeholder="Keresés"
-         autocomplete="off"
-         id="r00"
-         (keydown.F2)="chooseDataForCustomerForm()"
-         (keydown.F3)="createCustomer()"
-         (keydown.F4)="editCustomer()"/>
-  <button nbButton *ngIf="canGetFromNav && searchByTaxNumber" (click)="ChoseDataForFormByTaxNumber()">
+<form [formGroup]="searchForm" ngForm [id]="searchFormId">
+    <input formControlName="customerSearch"
+           nbInput
+           type="text"
+           class="{{TileCssClass}}"
+           maxlength="80"
+           (input)="FillFormWithFirstAvailableCustomer($event)"
+           placeholder="Keresés"
+           autocomplete="off"
+           id="r00"
+           (keydown.enter)="searchFormNav.HandleFormEnter($event, true, true, true)"
+           (keydown.F2)="chooseDataForCustomerForm()"
+           (keydown.F3)="createCustomer()"
+           (keydown.F4)="editCustomer()"/>
+
+  <button *ngIf="canGetFromNav && searchByTaxNumber"
+          nbButton
+          class="{{TileCssClass}}"
+          (click)="ChoseDataForFormByTaxNumber()">
     NAV
   </button>
 
-</div>
+</form>
