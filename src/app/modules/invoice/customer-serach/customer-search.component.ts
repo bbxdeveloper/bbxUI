@@ -110,7 +110,6 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
         next: async res => {
           if (!!res && res.data !== undefined && res.data.length > 0) {
             const customer = res.data[0]
-            // this.cachedCustomerName = res.data[0].customerName;
             this.searchByTaxNumber = false;
 
             this.raiseCustomerChanged(customer, false)
@@ -122,8 +121,6 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
             }
           } else {
             this.searchByTaxNumber = search.length >= 8 && HelperFunctions.IsNumber(search)
-
-            //this.buyerFormNav.FillForm({}, ['customerSearch']);
           }
         },
         error: (err) => {
