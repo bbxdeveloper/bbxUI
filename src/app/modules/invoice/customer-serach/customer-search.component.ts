@@ -19,13 +19,17 @@ import {GetCustomerByTaxNumberParams} from "../../customer/models/GetCustomerByT
 import {BbxToastrService} from "../../../services/bbx-toastr-service.service";
 
 @Component({
-  selector: 'app-customer-serach',
+  selector: 'app-customer-search',
   templateUrl: './customer-search.component.html',
   styleUrls: ['./customer-search.component.scss']
 })
 export class CustomerSearchComponent implements OnInit, OnDestroy {
   @Input() withDiscounts = false
   @Input() customer: Customer|undefined
+
+  @Input() canCreate = true
+  @Input() canEdit = true
+  @Input() canGetFromNav = true
 
   @Output() customerChanged = new EventEmitter<[Customer, boolean]>()
   @Output() customerDiscountsChanged = new EventEmitter<CustDiscountForGet[]>(true)
@@ -88,8 +92,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
             // this.cachedCustomerName = res.data[0].customerName;
             this.searchByTaxNumber = false;
 
-            const shouldNavigate = false
-            this.customerChanged.emit([customer, shouldNavigate])
+            this.raiseCustomerChanged(customer, false)
 
             if (this.withDiscounts) {
               this.loadingChanged.emit(true)
@@ -140,8 +143,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const shouldNavigate = true
-      this.customerChanged.emit([customer, shouldNavigate])
+      this.raiseCustomerChanged(customer, true)
 
       if (this.withDiscounts) {
         this.loadingChanged.emit(true)
@@ -152,6 +154,10 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   }
 
   public createCustomer(): void {
+    if (!this.canCreate) {
+      return
+    }
+
     this.keyboardNavigationService.setEditMode(KeyboardModes.NAVIGATION);
 
     const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
@@ -162,9 +168,8 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     });
     dialogRef.onClose.subscribe({
       next: (customer: Customer) => {
-        if (!!customer) {
-          const shouldNavigate = true
-          this.customerChanged.emit([customer, shouldNavigate])
+        if (customer) {
+          this.raiseCustomerChanged(customer, true)
         }
       },
       error: err => {
@@ -174,7 +179,11 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   }
 
   public editCustomer(): void {
-    if (!this.customer) {
+    if (!this.canEdit) {
+      return
+    }
+
+    if (!this.customer || !this.customer.id) {
       return
     }
 
@@ -203,8 +212,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
             }
 
             if (res.data && res.data.length > 0) {
-              const navigate = false
-              this.customerChanged.emit([res.data[0], navigate])
+              this.raiseCustomerChanged(res.data[0], false)
             }
           },
           error: error => {
@@ -219,8 +227,6 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   }
 
   public ChoseDataForFormByTaxNumber(): void {
-    console.log("Selecting Customer from avaiable data by taxtnumber.");
-
     this.loadingChanged.emit(true)
 
     const request = { Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams
@@ -258,13 +264,12 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       closeOnEsc: false
     });
     dialogRef.onClose.subscribe({
-      next: (res: Customer) => {
-        const navigate = true
-        this.customerChanged.emit([res, navigate])
-      },
-      error: err => {
-        this.commonService.HandleError(err);
-      }
+      next: (customer: Customer) => this.raiseCustomerChanged(customer, true),
+      error: err => this.commonService.HandleError(err)
     });
+  }
+
+  private raiseCustomerChanged(customer: Customer, navigate: boolean): void {
+    this.customerChanged.emit([customer, navigate])
   }
 }

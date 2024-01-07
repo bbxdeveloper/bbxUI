@@ -10,7 +10,7 @@
          (keydown.F2)="chooseDataForCustomerForm()"
          (keydown.F3)="createCustomer()"
          (keydown.F4)="editCustomer()"/>
-  <button nbButton *ngIf="searchByTaxNumber" (click)="ChoseDataForFormByTaxNumber()">
+  <button nbButton *ngIf="canGetFromNav && searchByTaxNumber" (click)="ChoseDataForFormByTaxNumber()">
     NAV
   </button>
 
