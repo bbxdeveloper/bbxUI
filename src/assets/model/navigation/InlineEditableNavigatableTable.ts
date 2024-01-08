@@ -364,9 +364,9 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         if (!this.colsToIgnore || this.colsToIgnore.length === 0) {
             return
         }
-        this.colsToIgnore.forEach(ignoredColoumn => {
-            if (this.allColumns.findIndex(normalColoumn => normalColoumn === ignoredColoumn) === -1) {
-                throw new Error(`Skipped coloumns (colsToIgnore) in navigation includes coloumns not present in the list of all table coloumns (allColumns)!`)
+        this.colsToIgnore.forEach(ignoredColumn => {
+            if (this.allColumns.findIndex(normalColumn => normalColumn === ignoredColumn) === -1) {
+                throw new Error(`Skipped columns (colsToIgnore) in navigation includes column (${ignoredColumn}) not present in the list of all table columns (allColumns)!`)
             }
         })
     }
