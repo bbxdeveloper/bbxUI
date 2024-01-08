@@ -1,6 +1,6 @@
 import { AfterContentInit, AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { NbDialogRef } from '@nebular/theme';
+import { NbDialogRef, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { createMask } from '@ngneat/input-mask';
 import { BehaviorSubject } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -14,13 +14,18 @@ import { TileCssClass, TileCssColClass, AttachDirection, NavigatableType } from 
 import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { Product } from '../../../product/models/Product';
+import { Product, ProductStockInfo } from '../../../product/models/Product';
 import { BaseNavigatableComponentComponent } from '../../base-navigatable-component/base-navigatable-component.component';
 import { LocationService } from 'src/app/modules/location/services/location.service';
 import { Location } from 'src/app/modules/location/models/Location';
 import { StockService } from 'src/app/modules/stock/services/stock.service';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
 import { ExtendedStockData } from 'src/app/modules/stock/models/Stock';
+import { FlatDesignNoFormNavigatableTable } from 'src/assets/model/navigation/FlatDesignNoFormNavigatableTable';
+import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
+import { TreeGridNode } from 'src/assets/model/TreeGridNode';
+import { SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { IUpdater } from 'src/assets/model/UpdaterInterfaces';
 
 @Component({
   selector: 'app-product-stock-information-dialog',
@@ -29,6 +34,55 @@ import { ExtendedStockData } from 'src/app/modules/stock/models/Stock';
 })
 export class ProductStockInformationDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
   @Input() product?: Product
+
+  @Input() allColumns: string[] = [
+    'warehouseDescription',
+    'realQty',
+    'avgCost',
+    'latestIn',
+    'latestOut'
+  ]
+  @Input() colDefs: ModelFieldDescriptor[] = [
+    {
+      label: 'Raktár', objectKey: 'warehouseDescription', colKey: 'warehouseDescription',
+      defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
+      colWidth: "100%", textAlign: "left", fInputType: ''
+    },
+    {
+      label: 'Készlet', objectKey: 'realQty', colKey: 'realQty',
+      defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
+      colWidth: "150px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+    },
+    {
+      label: 'Átl besz.ár', objectKey: 'avgCost', colKey: 'avgCost',
+      defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
+      colWidth: "150px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+    },
+    {
+      label: 'Bevét', objectKey: 'latestIn', colKey: 'latestIn',
+      defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
+      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
+    },
+    {
+      label: 'Kiadás', objectKey: 'latestOut', colKey: 'latestOut',
+      defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
+      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
+    }
+  ]
+  dbData!: TreeGridNode<ProductStockInfo>[];
+  dbDataSource!: NbTreeGridDataSource<TreeGridNode<ProductStockInfo>>;
+  dbDataTable!: FlatDesignNoFormNavigatableTable<ProductStockInfo>;
+  selectedRow!: ProductStockInfo;
+  dbDataTableForm!: FormGroup;
+  dbDataTableId: string = 'product-stocks';
+  trackRows(index: number, row: any) {
+    return row.uid;
+  }
+  private uid = 0;
+  protected nextUid() {
+    ++this.uid;
+    return this.uid;
+  }
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -97,7 +151,11 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     private bbxToastrService: BbxToastrService,
     private locationService: LocationService,
     private stockService: StockService,
-    private tokenService: TokenStorageService
+    private tokenService: TokenStorageService,
+    private dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<ProductStockInfo>>,
+    private sidebarService: BbxSidebarService,
+    private sidebarFormService: SideBarFormService,
+    private fS: FooterService
   ) {
     super();
 
@@ -131,11 +189,66 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     });
 
     this.refreshComboboxData();
+
+    this.dbDataTableForm = new FormGroup({});
+    this.dbDataTable = new FlatDesignNoFormNavigatableTable(
+      this.dbDataTableForm,
+      'ProductStockInfo',
+      this.dataSourceBuilder,
+      this.kbS,
+      this.fS,
+      this.cdref,
+      this.dbData,
+      this.dbDataTableId,
+      AttachDirection.DOWN,
+      'sideBarForm',
+      AttachDirection.UP,
+      this.sidebarService,
+      this.sidebarFormService,
+      {} as IUpdater<ProductStockInfo>,
+      () => {
+        return {} as ProductStockInfo;
+      }
+    )
+    this.dbDataTable.InnerJumpOnEnter = true;
+    this.dbDataTable.OuterJump = true;
+  }
+
+  focusOnTable(focusIn: boolean): void {
+    // this.tableIsFocused = focusIn;
+    // if (this.isSideBarOpened) {
+    //   return;
+    // }
+    // if (focusIn) {
+    //   this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    //   this.dbDataTable.PushFooterCommandList();
+    // } else {
+    //   this.fS.pushCommands(this.commands);
+    // }
   }
 
   private Setup(): void {
     this.IsDialog = true;
     this.Matrix = [["confirm-dialog-button-close"]];
+  }
+  
+  RefreshTable(selectAfterRefresh?: any, setAsCurrent: boolean = false): void {
+    this.dbDataTable.Setup(
+      this.dbData,
+      this.dbDataSource,
+      this.allColumns,
+      this.colDefs,
+      [],
+      undefined
+    )
+    setTimeout(() => {
+      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      if (setAsCurrent && this.dbDataTable.Matrix.length > 0 && this.dbDataTable.Matrix[0].length > 0) {
+        this.kbS.SetCurrentNavigatable(this.dbDataTable)
+        this.kbS.SelectFirstTile()
+      }
+      this.kbS.ClickCurrentElement(true)
+    }, 200);
   }
 
   async loadProductData(): Promise<void> {
@@ -178,6 +291,29 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     if (this.productForm.controls['id'].value === -1) {
       this.productForm.controls['id'].setValue(undefined)
     }
+
+    this.dbData = []
+    this.dbDataSource = this.dataSourceBuilder.create(this.dbData)
+    this.selectedRow = {} as ProductStockInfo
+
+    const stocks = this.product.stocks?.sort((a, b) => {
+      var n1 = a.warehouseID;
+      var n2 = b.warehouseID;
+      if (n1 > n2) {
+        return 1;
+      }
+      if (n1 < n2) {
+        return -1;
+      }
+      return 0;
+    }) ?? []
+    const tempData = stocks.map((x) => {
+      return { data: x, uid: this.nextUid() };
+    });
+
+    this.dbData = tempData;
+    this.dbDataSource.setData(this.dbData);
+    this.RefreshTable()
 
     this.sts.waitForLoad(false)
   }

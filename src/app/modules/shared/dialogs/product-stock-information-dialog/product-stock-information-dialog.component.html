@@ -195,6 +195,12 @@
             <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="_form" formFieldName="location" label="Elhelyezés"
                 [data$]="locationsComboData$" [lastFormField]="true" readonly [isReadonly]="true"></app-bbx-combo-box>
         </form>
+
+        <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataSource"
+            [heightMargin]="350"
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="false"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
     </nb-card-body>
     <nb-card-footer class="modal-product-active-footer">
         <button nbButton (click)="close()" status="primary" tabindex="-1"
