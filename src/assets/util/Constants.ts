@@ -12,6 +12,8 @@ export module Constants {
     export const MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD = 'Legalább egy érvényesen megadott tétel szükséges a mentéshez.'
     export const MSG_ERROR_WRONG_QUANTITY_ONE_OR_MORE = 'Egy vagy több tétel mezői hibásan (például: rossz mennyisség) vannak kitöltve.'
 
+    export const MSG_EXCHANGE_RATE_SHOULD_BE: string = '{0} pénznem esetén az árfolyamnak {1} kéne lennie!'
+
     export const MSG_ERROR_INVALID_DATE: string = 'Érvénytelen dátum!'
     export const MSG_ERROR_INVALID_CURRENCY_CODE: string = 'Érvénytelen pénznem!'
 
