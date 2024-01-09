@@ -582,9 +582,6 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
 
       const id = selectedItem.id
       this.router.navigate(['warehouse/inbetween-warehouse-edit', id, {}])
-      setTimeout(() => {
-        window.location.reload()
-      }, 50);
     }
   }
 
