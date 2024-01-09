@@ -243,9 +243,13 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       this.loadFilters()
 
       const filter = this.localStorage.get<UnbalancedInvoicesFilterFormData>(this.localStorageKey)
-      if (filter && filter.CustomerSearch !== '') {
-        await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
-        this.keyboardService.SelectElementByCoordinate(0, 5)
+      if (filter) {
+        if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
+          filter.CustomerID = undefined
+        } else {
+          await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
+          this.keyboardService.SelectElementByCoordinate(0, 5)
+        }
       }
 
       if (filter) {
