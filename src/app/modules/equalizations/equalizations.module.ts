@@ -12,6 +12,8 @@ import { NgxMaskModule } from 'ngx-mask';
 import { EqualizationNavigationFilterFormComponent } from './equalization-navigation/equalization-navigation-filter-form/equalization-navigation-filter-form.component';
 import { EqualizationNavigationManagerComponent } from './equalization-navigation/equalization-navigation-manager/equalization-navigation-manager.component';
 import { EqualizationNavigationSideBarFormComponent } from './equalization-navigation/equalization-navigation-side-bar-form/equalization-navigation-side-bar-form.component';
+import { UnbalancedInvoicesNavigationManagerComponent } from './unbalanced-invoices-navigation/unbalanced-invoices-navigation-manager/unbalanced-invoices-navigation-manager.component';
+import { UnbalancedInvoicesNavigationFilterFormComponent } from './unbalanced-invoices-navigation/unbalanced-invoices-navigation-filter-form/unbalanced-invoices-navigation-filter-form.component';
 
 
 
@@ -20,7 +22,9 @@ import { EqualizationNavigationSideBarFormComponent } from './equalization-navig
     EqualizationCreatorComponent,
     EqualizationNavigationFilterFormComponent,
     EqualizationNavigationManagerComponent,
-    EqualizationNavigationSideBarFormComponent
+    EqualizationNavigationSideBarFormComponent,
+    UnbalancedInvoicesNavigationManagerComponent,
+    UnbalancedInvoicesNavigationFilterFormComponent
   ],
   imports: [
     CommonModule,
@@ -53,7 +57,8 @@ import { EqualizationNavigationSideBarFormComponent } from './equalization-navig
   ],
   exports: [
     EqualizationCreatorComponent,
-    EqualizationNavigationManagerComponent
+    EqualizationNavigationManagerComponent,
+    UnbalancedInvoicesNavigationManagerComponent,
   ]
 })
 export class EqualizationsModule { }
