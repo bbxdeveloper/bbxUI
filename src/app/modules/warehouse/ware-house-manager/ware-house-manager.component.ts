@@ -171,7 +171,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
             } as TreeGridNode<WareHouse>;
             const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
             this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex] = newRow;
-            this.dbDataTable.SetDataForForm(newRow, false, false);
+            this.dbDataTable.SetDataForFormAndOpen(newRow, false, false);
             this.RefreshTable(newRow.data.id);
             this.simpleToastrService.show(
               Constants.MSG_SAVE_SUCCESFUL,

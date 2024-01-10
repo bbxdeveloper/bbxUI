@@ -57,7 +57,7 @@ const MOCK_CUSTOMERS = {
   providedIn: 'root'
 })
 export class CustomerService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Customer';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Customer';
 
   constructor(private http: HttpClient) { }
 
@@ -72,19 +72,19 @@ export class CustomerService {
   public GetAll(params?: GetCustomersParamListModel): Observable<GetCustomersResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<GetCustomersResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetCustomersResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params: GetCustomerParamListModel): Observable<Customer> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    return this.http.get<Customer>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Customer>(this.BaseUrl + '?' + queryParams);
   }
 
   GetByTaxNumber(params?: GetCustomerByTaxNumberParams): Observable<GetCustomerByTaxNumberResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<GetCustomerByTaxNumberResponse>(this.BaseUrl + '/querytaxpayer' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetCustomerByTaxNumberResponse>(this.BaseUrl + '/querytaxpayer' + '?' + queryParams);
   }
 
   Create(req: CreateCustomerRequest): Observable<CreateCustomerResponse> {

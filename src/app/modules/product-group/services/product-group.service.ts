@@ -12,57 +12,26 @@ import { UpdateProductGroupRequest } from '../models/UpdateProductGroupRequest';
 import { UpdateProductGroupResponse } from '../models/UpdateProductGroupResponse';
 import { DeleteProductGroupRequest } from '../models/DeleteProductGroupRequest';
 import { DeleteProductGroupResponse } from '../models/DeleteProductGroupResponse';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductGroupService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'ProductGroup';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'ProductGroup';
 
   constructor(private http: HttpClient) { }
 
   GetAll(params?: GetProductGroupsParamListModel): Observable<GetProductGroupsResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    // TODO: organize into util / base class with generic T parameter
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetProductGroupsParamListModel] != undefined && params[key as keyof GetProductGroupsParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetProductGroupsParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetProductGroupsParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetProductGroupsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetProductGroupsResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params?: GetProductGroupParamListModel): Observable<ProductGroup> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetProductGroupParamListModel] != undefined && params[key as keyof GetProductGroupParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetProductGroupParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetProductGroupParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<ProductGroup>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<ProductGroup>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateProductGroupRequest): Observable<CreateProductGroupResponse> {

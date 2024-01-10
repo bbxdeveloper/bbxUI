@@ -252,7 +252,7 @@ export class InvCtrlPeriodManagerComponent
               next: getRes => {
                 const index = this.dbData.findIndex(x => x.data.id === data.data.id);
                 this.dbData[index].data.closed = true;
-                this.dbDataTable.SetDataForForm(this.dbData[index], false, false);
+                this.dbDataTable.SetDataForFormAndOpen(this.dbData[index], false, false);
                 this.RefreshTable();
                 this.simpleToastrService.show(
                   Constants.MSG_SAVE_SUCCESFUL,
@@ -344,7 +344,7 @@ export class InvCtrlPeriodManagerComponent
                 const newRow = { data: this.ConvertCombosForGet(d.data) } as TreeGridNode<InvCtrlPeriod>;
                 const index = this.dbData.findIndex(x => x.data.id === data.data.id);
                 this.dbData[index] = newRow;
-                this.dbDataTable.SetDataForForm(newRow, false, false);
+                this.dbDataTable.SetDataForFormAndOpen(newRow, false, false);
                 this.RefreshTable();
                 this.simpleToastrService.show(
                   Constants.MSG_SAVE_SUCCESFUL,

@@ -24,6 +24,7 @@ export const environment = {
     inlineEditableTableMatrixGenerationLog: false,
     inlineEditableTableNavigatableFormLog: false,
     inlineEditableTableKeyboardDebug: false,
+    matrixGenerationLog: false,
 
     offerLineLog: false,
     InvSaveDlgLogs: false,

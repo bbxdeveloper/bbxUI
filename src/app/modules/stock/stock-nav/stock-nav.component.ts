@@ -273,7 +273,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
                   const newRowIndex = this.dbData.findIndex(x => x.data.id === newRow.data.id);
                   this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex].data.location = newRow.data.location;
                   this.dbData[newRowIndex !== -1 ? newRowIndex : data.rowIndex].data.locationID = newRow.data.locationID;
-                  this.dbDataTable.SetDataForForm(newRow, false, false);
+                  this.dbDataTable.SetDataForFormAndOpen(newRow, false, false);
                   this.simpleToastrService.show(
                     Constants.MSG_SAVE_SUCCESFUL,
                     Constants.TITLE_INFO,
@@ -677,7 +677,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
           productCode: productCode,
           wareHouse: this.filterForm.controls['WarehouseID'].value
         }
-      });
+      })
     }
   }
 

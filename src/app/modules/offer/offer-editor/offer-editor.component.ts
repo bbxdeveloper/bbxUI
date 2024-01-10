@@ -164,7 +164,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         next: newValue => {
           this.offerData.isBrutto = newValue;
           if (newValue) {
-            this.ShowColumn('UnitGrossVal');
+            this.ShowColumn('UnitGrossVal', true);
           } else {
             this.HideColumn('UnitGrossVal');
           }
@@ -266,14 +266,21 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           this.buyerForm.controls['customerName'].setValue(res.customerName);
           this.buyerForm.controls['customerAddress'].setValue(res.customerPostalCode + ', ' + res.customerCity);
           this.buyerForm.controls['customerTaxNumber'].setValue(res.customerTaxpayerNumber);
-          this.buyerForm.controls['offerIssueDate'].setValue(res.offerIssueDate);
-          this.buyerForm.controls['offerVaidityDate'].setValue(res.offerVaidityDate);
           this.buyerForm.controls['notice'].setValue(res.notice);
           this.buyerForm.controls['offerNumberX'].setValue(res.offerNumberX);
           this.buyerForm.controls['currencyCode'].setValue(res.currencyCodeX);
           this.buyerForm.controls['exchangeRate'].setValue(res.exchangeRate);
-          this.buyerForm.controls['exchangeRate'].setValue(res.exchangeRate);
           this.buyerForm.controls['isBrutto'].setValue(res.isBrutto);
+
+          this.buyerForm.controls['offerIssueDate'].setValue(res.offerIssueDate);
+          this.buyerForm.controls['offerVaidityDate'].setValue(res.offerVaidityDate);
+
+          this.buyerForm.controls['offerIssueDate'].valueChanges.subscribe({
+            next: p => {
+              this.buyerForm.controls['offerVaidityDate'].setValue(this.buyerForm.controls['offerVaidityDate'].value);
+              this.buyerForm.controls['offerVaidityDate'].markAsTouched();
+            }
+          });
 
           this.offerData = res;
 
@@ -317,7 +324,7 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
         this.cs.HandleError(err);
       })
       .finally(() => {
-        this.AfterViewInitSetup();
+        this.AfterViewInitSetup(false);
       });
 
     this.isOfferEditor = true

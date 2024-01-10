@@ -6,7 +6,7 @@ import { FooterService } from "src/app/services/footer.service";
 import { PreferredSelectionMethod, KeyboardNavigationService, KeyboardModes } from "src/app/services/keyboard-navigation.service";
 import { SideBarFormService } from "src/app/services/side-bar-form.service";
 import { Constants } from "src/assets/util/Constants";
-import { Actions, DefaultKeySettings, KeyBindings } from "src/assets/util/KeyBindings";
+import { Actions, DefaultKeySettings } from "src/assets/util/KeyBindings";
 import { environment } from "src/environments/environment";
 import { FooterCommandInfo } from "../FooterCommandInfo";
 import { ModelFieldDescriptor } from "../ModelFieldDescriptor";
@@ -320,6 +320,8 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         this.prevSelectedCol = '';
         this.prevSelectedColPos = -1;
 
+        this.flatDesignForm.isReadonly = false
+
         this.flatDesignForm.SetDataForEdit(creatorRow, -1);
         this.SyncNeighbourRelations()
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
@@ -500,7 +502,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
      * @param openSideBar
      * @param jump
      */
-    SetDataForForm(row: TreeGridNode<T>, openSideBar: boolean, jump: boolean = true): void {
+    SetDataForFormAndOpen(row: TreeGridNode<T>, openSidebar: boolean, jump: boolean = true): void {
         if (environment.flatDesignTableDebug) {
             console.log(`Data: ${row}`);
         }
@@ -512,9 +514,32 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
         this.flatDesignForm.SetClean();
 
+        this.openSidebar(openSidebar, jump)
+    }
+
+    /**
+     * Formban található adatok beállítása kifejezetten readonly formhoz
+     * @param row
+     * @param openSideBar
+     */
+    SetDataForReadonlyFormAndOpen(row: TreeGridNode<T>, openSidebar: boolean): void {
+        if (environment.flatDesignTableDebug) {
+            console.log(`Data: ${row}`);
+        }
+
+        this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!);
+        this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
+
+        this.flatDesignForm.SetClean();
+
+        this.openSidebar(openSidebar, false)
+    }
+
+    private openSidebar(openSidebar: boolean, jump: boolean): void {
         setTimeout(() => {
-            if (openSideBar) {
+            if (openSidebar) {
                 this.sidebarService.expand();
+                this.flatDesignForm.isReadonly = !jump
             }
 
             this.flatDesignForm.GenerateAndSetNavMatrices(false, true);
@@ -528,44 +553,13 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         }, 200);
     }
 
-    /**
-     * Formban található adatok beállítása kifejezetten readonly formhoz
-     * @param row
-     * @param openSideBar
-     */
-    SetDataForReadonlyForm(row: TreeGridNode<T>, openSideBar: boolean): void {
-        if (environment.flatDesignTableDebug) {
-            console.log(`Data: ${row}`);
-        }
-
-        this.flatDesignForm.SetDataForEdit(row, this.prevSelectedRowPos!);
-        this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }]);
-
-        this.flatDesignForm.SetClean();
-
-        setTimeout(() => {
-            if (openSideBar) {
-                this.sidebarService.expand();
-            }
-
-            this.flatDesignForm.GenerateAndSetNavMatrices(false, true);
-            this.SetAsNeighbour(this.formAttachDirection, this.flatDesignForm);
-
-            this.flatDesignForm.PushFooterCommandList();
-        }, 200);
-    }
-
     public SetFormReadonly(readonly: boolean): void {
         this.ReadonlySideForm = readonly
         this.sidebarFormService.SetCurrentForm([this.tag, { form: this.flatDesignForm, readonly: this.ReadonlyForm }])
     }
 
-    /**
-     * Open sidebarform for readonly
-     * @param setFormForNew
-     * @returns
-     */
-    private HandleToggleSideBarForm(setFormForNew: boolean = false, wasReadonly: boolean = true): void {
+    /** Open sidebarform for readonly */
+    private HandleToggleSideBarForm(wasReadonly: boolean = true): void {
         if (this.ReadonlyForm &&
             (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit))) {
             return;
@@ -580,7 +574,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
         if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
             this.SetBlankInstanceForForm(true);
         } else if (!this.sidebarService.sideBarOpened) {
-            this.SetDataForReadonlyForm(this.editedRow!, true);
+            this.SetDataForReadonlyFormAndOpen(this.editedRow!, true);
         } else {
             this.flatDesignForm.CloseReadonlySideBar(wasReadonly)
         }
@@ -604,9 +598,9 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
             if (!this.sidebarService.sideBarOpened && (this.data.length === 0 || !this.kbs.IsCurrentNavigatable(this) || !!!this.flatDesignForm.DataToEdit)) {
                 this.SetBlankInstanceForForm(true);
             } else if (!this.sidebarService.sideBarOpened) {
-                this.SetDataForForm(this.editedRow!, true);
+                this.SetDataForFormAndOpen(this.editedRow!, true);
             } else {
-                this.SetDataForForm(this.editedRow!, false);
+                this.SetDataForFormAndOpen(this.editedRow!, true);
             }
         }
     }
@@ -639,7 +633,7 @@ export class FlatDesignNavigatableTable<T> extends SimplePaginator implements IN
 
                 const tmp = this.ReadonlySideForm
                 this.ReadonlySideForm = true
-                this.HandleToggleSideBarForm(true, tmp)
+                this.HandleToggleSideBarForm(tmp)
                 break;
             }
             case this.KeySetting[Actions.Refresh].KeyCode: {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
+import { catchError, firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
@@ -24,16 +24,21 @@ import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { GetCustomerInvoiceSummariesResponse } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummariesResponse';
 import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
+import { CreateOutgoingInvoiceResponseData } from '../models/CreateOutgoingInvoiceResponseData';
+import { GetInvPaymentsResponse } from '../../equalizations/models/GetInvPaymentsResponse';
+import { GetUnbalancedInvoicesParamListModel } from '../../equalizations/models/GetUnbalancedInvoicesParamListModel';
+import { CommonService } from 'src/app/services/common.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InvoiceService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Invoice';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Invoice';
 
   constructor(
     private readonly http: HttpClient,
-    private readonly tokenService: TokenStorageService) { }
+    private readonly tokenService: TokenStorageService,
+    private readonly commonService: CommonService) { }
 
   GetTemporaryPaymentMethod(): Observable<PaymentMethod[]> {
     return of([{
@@ -53,13 +58,13 @@ export class InvoiceService {
   public GetAllCustomerInvoiceSummary(params?: GetCustomerInvoiceSummaryParamListModel): Observable<GetCustomerInvoiceSummariesResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<GetCustomerInvoiceSummariesResponse>(this.BaseUrl + '/querycustomerinvoicesummary' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetCustomerInvoiceSummariesResponse>(this.BaseUrl + '/querycustomerinvoicesummary' + '?' + queryParams);
   }
 
   public GetAll(params?: GetInvoicesParamListModel): Observable<GetInvoicesResponse> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   public getAllAsync(params: GetInvoicesParamListModel): Promise<GetInvoicesResponse> {
@@ -68,7 +73,7 @@ export class InvoiceService {
 
   public Get(params: GetInvoiceRequest): Promise<Invoice> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    const response = this.http.get<Invoice>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    const response = this.http.get<Invoice>(this.BaseUrl + '?' + queryParams);
 
     return firstValueFrom(response)
   }
@@ -192,7 +197,43 @@ export class InvoiceService {
 
   public GetCustomerUnpaidAmount(params?: { CustomerID: number }): Promise<number> {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-    const request = this.http.get<number>(this.BaseUrl + '/customerunpaidamount' + (!!params ? ('?' + queryParams) : ''));
+    const request = this.http.get<number>(this.BaseUrl + '/customerunpaidamount' + '?' + queryParams);
     return firstValueFrom(request)
+  }
+
+  public GetInvoiceByInvoiceNumber(params?: { invoiceNumber: any }): Promise<Invoice> {
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const request = this.http.get<Invoice>(this.BaseUrl + '/byinvoicenumber' + '?' + queryParams);
+    return firstValueFrom(request)
+  }
+
+  GetAllUnbalanced(params?: GetUnbalancedInvoicesParamListModel): Observable<GetInvoicesResponse> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof GetUnbalancedInvoicesParamListModel] != undefined && params[key as keyof GetUnbalancedInvoicesParamListModel] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof GetUnbalancedInvoicesParamListModel];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof GetUnbalancedInvoicesParamListModel];
+          }
+          index++;
+        }
+      });
+    }
+
+    return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/queryunpaid' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  async GetAllUnbalancedPromise(params?: GetUnbalancedInvoicesParamListModel): Promise<GetInvoicesResponse> {
+    return lastValueFrom(this.GetAllUnbalanced(params).pipe(
+      catchError((err, c) => {
+        this.commonService.HandleError(err);
+        return c;
+      })
+    ));
   }
 }

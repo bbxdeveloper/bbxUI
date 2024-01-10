@@ -340,7 +340,7 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.inlineEditableTableMatrixGenerationLog) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 
@@ -356,8 +356,25 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         }
     }
 
+    /**
+     * Sanity check to decide if the list of all rendered coloumns contains all the skipped ones.
+     * Skipping coloumns that are not part of the table can lead to navigation errors!
+     */
+    private checkColoumnLists(): void {
+        if (!this.colsToIgnore || this.colsToIgnore.length === 0) {
+            return
+        }
+        this.colsToIgnore.forEach(ignoredColumn => {
+            if (this.allColumns.findIndex(normalColumn => normalColumn === ignoredColumn) === -1) {
+                throw new Error(`Skipped columns (colsToIgnore) in navigation includes column (${ignoredColumn}) not present in the list of all table columns (allColumns)!`)
+            }
+        })
+    }
+
     GenerateAndSetNavMatrices(attach: boolean, afterSort: boolean = false): void {
         this.Matrix = [];
+
+        this.checkColoumnLists()
 
         for (let y = 0; y < this.data.length; y++) {
             let row = [];
@@ -415,6 +432,8 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         // Prepare matrix
         this.Matrix = [[]];
         let currentMatrixIndex = 0;
+
+        this.checkColoumnLists()
 
         // Getting tiles, rows for navigation matrix
         for (let i = 0; i < tiles.length; i++) {

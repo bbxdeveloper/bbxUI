@@ -1,0 +1,24 @@
+<form [formGroup]="searchForm" ngForm [id]="searchFormId" class="flex">
+    <input formControlName="customerSearch"
+           nbInput
+           type="text"
+           class="{{TileCssClass}}"
+           maxlength="80"
+           placeholder="Keresés"
+           autocomplete="off"
+           id="r00"
+           (focusin)="onFormSearchFocused()"
+           (focusout)="onFormSearchBlurred()"
+           (keydown.enter)="searchFormNav.HandleFormEnter($event, true, true, true)"
+           (keydown.F2)="chooseDataForCustomerForm()"
+           (keydown.F3)="createCustomer()"
+           (keydown.F4)="editCustomer()"/>
+
+  <button *ngIf="canGetFromNav && searchByTaxNumber"
+          nbButton
+          status="primary"
+          class="{{TileCssClass}}"
+          (click)="ChoseDataForFormByTaxNumber()">
+    NAV
+  </button>
+</form>

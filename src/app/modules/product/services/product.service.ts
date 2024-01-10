@@ -50,7 +50,7 @@ const MOCK: GetProductsResponse = {
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Product';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Product';
 
   constructor(private http: HttpClient) { }
 
@@ -59,9 +59,9 @@ export class ProductService {
   }
 
   GetAll(params?: GetProductsParamListModel): Observable<GetProductsResponse> {
-    var queryParams = HelperFunctions.ParseObjectAsQueryString(params);
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
 
-    return this.http.get<GetProductsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetProductsResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params?: GetProductParamListModel): Observable<Product> {
@@ -83,9 +83,9 @@ export class ProductService {
   }
 
   public GetProductByCode(params: GetProductByCodeRequest): Observable<Product> {
-    var queryParams = HelperFunctions.ParseObjectAsQueryString(params)
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    return this.http.get<Product>(this.BaseUrl + '/productbycode' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Product>(this.BaseUrl + '/productbycode' + '?' + queryParams);
   }
 
   public getProductByCodeAsync(params: GetProductByCodeRequest): Promise<Product> {

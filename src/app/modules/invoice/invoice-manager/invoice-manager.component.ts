@@ -54,6 +54,7 @@ import { Offer } from '../../offer/models/Offer';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { OfflineVatRate } from '../../vat-rate/models/VatRate';
 
 @Component({
   selector: 'app-invoice-manager',
@@ -70,6 +71,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
   cachedCustomerName?: string;
 
+  private lastBuyerId: number|undefined
   get buyerData(): Customer {
     return this.customerData
   }
@@ -333,6 +335,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       let k = this.KeySetting;
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
+    }
+
+    if (this.lastBuyerId !== this.buyerData.id && this.buyerData.id !== undefined) {
+      this.mode.partnerLock?.switchCustomer(this.buyerData.id)
+      this.lastBuyerId = this.buyerData.id
     }
   }
 
@@ -967,8 +974,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       if (!!res) {
         this.buyerData = res;
 
-        this.mode.partnerLock?.lockCustomer(this.buyerData.id)
-
         this.isLoading = true
         await this.loadCustomerDiscounts(this.buyerData.id)
         this.isLoading = false
@@ -1078,6 +1083,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
 
+    if (!this.mode.incoming && !this.customerData.isFA && product.vatRateCode === OfflineVatRate.FA.vatRateCode) {
+      setTimeout(() => {
+        this.bbxToastrService.showError(HelperFunctions.StringFormat(Constants.MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER, product.productCode))
+      }, 0);
+    }
+    
     res.realQty = product.activeStockRealQty ?? 0
 
     return res;
@@ -1104,8 +1115,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           this.buyerData = res.data[0];
           this.cachedCustomerName = res.data[0].customerName;
           this.searchByTaxtNumber = false;
-
-          this.mode.partnerLock?.lockCustomer(this.buyerData.id)
 
           this.isLoading = true
           await this.loadCustomerDiscounts(this.buyerData.id)

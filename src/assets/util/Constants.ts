@@ -12,6 +12,11 @@ export module Constants {
     export const MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD = 'Legalább egy érvényesen megadott tétel szükséges a mentéshez.'
     export const MSG_ERROR_WRONG_QUANTITY_ONE_OR_MORE = 'Egy vagy több tétel mezői hibásan (például: rossz mennyisség) vannak kitöltve.'
 
+    export const MSG_EXCHANGE_RATE_SHOULD_BE: string = '{0} pénznem esetén az árfolyamnak {1} kéne lennie!'
+
+    export const MSG_ERROR_INVALID_DATE: string = 'Érvénytelen dátum!'
+    export const MSG_ERROR_INVALID_CURRENCY_CODE: string = 'Érvénytelen pénznem!'
+
     export const OutgoingIncomingInvoiceDefaultPrintCopy: number = 2
 
     export const MSG_ERROR_USERDATA_NEEDED = 'A mentés előtt érvényes bejelentkezési adatok megadása szükséges!'
@@ -48,6 +53,8 @@ export module Constants {
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE = "Nincs elérhető készletinformáció ehhez a termékhez!"
     export const MSG_ERROR_NO_PRODUCTSTOCK_AVAILABLE_FOR_WAREHOUSE = "Nincs elérhető készletinformáció ehhez a termékhez erre a raktárra!"
     export const MSG_ERROR_CUSTOMER_LOCKED = 'Partner adatait más munkahelyen használják.'
+
+    export const MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER = 'A {0} termék fordított áfás, de a partnernak ez nem engedélyezett'
 
     export const MSG_ERROR_NO_OPENED_INVENTORY_PERIOD = 'Nincs nyitott leltáridőszak megadva!'
 
@@ -98,6 +105,10 @@ export module Constants {
 
     export const MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID = 'Az adószám keresés nem talált eredményt a NAV adatbázisában!'
 
+    export const MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER: string = 'Csak átutalásos számla egyenlíthető ki!';
+
+    export const MSG_NO_INVOICE_FOUND: string = 'Nincs a begépelt számlaszámnak megfelelő bizonylat!';
+    export const MSG_INVOICE_ALREADY_THERE: string = 'Ez a számla már szerepel a felvett tételek között.';
     export const MSG_NO_PRODUCT_FOUND: string = 'Nincs a begépelt kódnak megfelelő termék! Kérem próbálja meg a keresőablak használatával.';
     export const MSG_NO_PRODUCT_GROUP_FOUND: string = 'Nincs a begépelt kódnak megfelelő termékcsoport! Kérem próbálja meg a keresőablak használatával.';
     export const MSG_PRODUCT_ALREADY_THERE: string = 'Ez a termék már szerepel a felvett tételek között.';

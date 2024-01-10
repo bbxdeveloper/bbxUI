@@ -243,7 +243,7 @@ export module HelperFunctions {
         formatString: string = DATE_FORMATSTRING,
         dateLocale: string = 'hu-HU'): moment.Moment | undefined  {
         // console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
-        if (val === undefined || val === null || val.length == 0) {
+        if (val === undefined || val === null || isEmptyOrSpaces(val)) {
             return undefined;
         }
         moment.locale(dateLocale);
@@ -437,8 +437,8 @@ export module HelperFunctions {
             return '';
         }
 
-        var queryParams = '';
-        var index = 0;
+        let queryParams = '';
+        let index = 0;
 
         Object.keys(params).forEach((key: string) => {
             const paramsField = params[key as keyof T]
@@ -477,6 +477,30 @@ export module HelperFunctions {
                 form.controls[x.to].setValue(data[x.from]);
             })
         }
+    }
+
+    /**
+     * Updates fields in destination object by corresponding fields from source object.
+     * Types of fields are not checkec during the process!
+     * @param source
+     * @param destination
+     * @param skip
+     * @param mapping
+     */
+    export function PatchObject(source: any, destination: any, skip: string[] = [], mapping: { from: string, to: string }[] = []): any {
+        if (source && destination) {
+            const srcKeys = Object.keys(source)
+            mapping.forEach(m => {
+                skip.push(m.to)
+                destination[m.to] = source[m.from]
+            })
+            Object.keys(destination).forEach((x: string) => {
+                if (!skip.includes(x) && srcKeys.includes(x)) {
+                    destination[x] = source[x]
+                }
+            })
+        }
+        return destination
     }
 
     export function GetFieldValueFromGeneric(data: any, objectKey: string = 'id', defaultValue?: any): any {

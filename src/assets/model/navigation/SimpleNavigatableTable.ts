@@ -137,7 +137,7 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
     }
 
     private LogMatrixGenerationCycle(cssClass: string, totalTiles: number, node: string, parent: any, grandParent: any): void {
-        if (environment.debug) {
+        if (environment.matrixGenerationLog) {
             console.log("\n\n+---- MATRIX GEN ----+");
             console.log(`Time: ${Date.now().toLocaleString()}`);
 
@@ -153,8 +153,25 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
         }
     }
 
+    /**
+     * Sanity check to decide if the list of all rendered coloumns contains all the skipped ones.
+     * Skipping coloumns that are not part of the table can lead to navigation errors!
+     */
+    private checkColoumnLists(): void {
+        if (!this.colsToIgnore || this.colsToIgnore.length === 0) {
+            return
+        }
+        this.colsToIgnore.forEach(ignoredColoumn => {
+            if (this.allColumns.findIndex(normalColoumn => normalColoumn === ignoredColoumn) === -1) {
+                throw new Error(`Skipped coloumns (colsToIgnore) in navigation includes coloumns not present in the list of all table coloumns (allColumns)!`)
+            }
+        })
+    }
+
     GenerateAndSetNavMatrices(attach: boolean, setAsCurrent: boolean = true): void {
         this.Matrix = [];
+
+        this.checkColoumnLists()
 
         for (let y = 0; y < this.data.length; y++) {
             let row = [];
@@ -167,10 +184,6 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
             this.Matrix.push(row);
         }
 
-        if (environment.debug) {
-        }
-        console.log('[GenerateAndSetNavMatrices]', this.Matrix);
-
         if (attach) {
             this.kbS.Attach(this, this.attachDirection, setAsCurrent);
         }
@@ -180,15 +193,13 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
         // Get tiles
         const tiles = $('.' + TileCssClass, '#' + this.tableId);
 
-        if (environment.debug) {
-            console.log('[GenerateAndSetNavMatrices]', this.tableId, tiles, '.' + TileCssClass, '#' + this.tableId);
-        }
-
         let currentParent!: HTMLElement;
 
         // Prepare matrix
         this.Matrix = [[]];
         let currentMatrixIndex = 0;
+
+        this.checkColoumnLists()
 
         // Getting tiles, rows for navigation matrix
         for (let i = 0; i < tiles.length; i++) {
@@ -214,10 +225,6 @@ export class SimpleNavigatableTable<T = any> implements INavigatable {
 
             next.id = TileCssClass + this.tableId + '-' + Math.floor(Date.now() * Math.random());
             this.Matrix[currentMatrixIndex].push(next.id);
-        }
-
-        if (environment.debug) {
-            console.log('[GenerateAndSetNavMatrices]', this.Matrix);
         }
 
         if (attach) {

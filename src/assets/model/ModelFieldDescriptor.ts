@@ -1,3 +1,4 @@
+import { BehaviorSubject } from "rxjs";
 import { Constants } from "../util/Constants";
 import { Actions } from "../util/KeyBindings";
 
@@ -60,4 +61,6 @@ export interface ModelFieldDescriptor {
     cursorAfterLastChar?: boolean,
 
     checkIfReadonly?: (param: any) => boolean,
+
+    comboboxData$?: BehaviorSubject<string[]>
 }

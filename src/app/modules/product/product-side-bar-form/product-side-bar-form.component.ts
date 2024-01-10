@@ -1,5 +1,4 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { NbSidebarService } from '@nebular/theme';
 import { BehaviorSubject } from 'rxjs';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';

@@ -12,56 +12,26 @@ import { UpdateLocationRequest } from '../models/UpdateLocationRequest';
 import { UpdateLocationResponse } from '../models/UpdateLocationResponse';
 import { DeleteLocationRequest } from '../models/DeleteLocationRequest';
 import { DeleteLocationResponse } from '../models/DeleteLocationResponse';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocationService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'Location';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Location';
 
   constructor(private http: HttpClient) { }
 
   GetAll(params?: GetLocationsParamListModel): Observable<GetLocationsResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetLocationsParamListModel] != undefined && params[key as keyof GetLocationsParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetLocationsParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetLocationsParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetLocationsResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetLocationsResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   Get(params?: GetLocationParamListModel): Observable<Location> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetLocationParamListModel] != undefined && params[key as keyof GetLocationParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetLocationParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetLocationParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<Location>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<Location>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateLocationRequest): Observable<CreateLocationResponse> {

@@ -14,12 +14,13 @@ import { DeleteWareHouseRequest } from '../models/DeleteWareHouseRequest';
 import { DeleteWareHouseResponse } from '../models/DeleteWareHouseResponse';
 import { map } from 'jquery';
 import { CommonService } from 'src/app/services/common.service';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WareHouseService {
-  private readonly BaseUrl = environment.apiUrl + 'api/' + environment.apiVersion + 'WareHouse';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'WareHouse';
 
   constructor(private http: HttpClient, private cs: CommonService) { }
 
@@ -32,25 +33,9 @@ export class WareHouseService {
   }
 
   GetAll(params?: GetWareHousesParamListModel): Observable<GetWareHousesResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    // TODO: organize into util / base class with generic T parameter
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetWareHousesParamListModel] != undefined && params[key as keyof GetWareHousesParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetWareHousesParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetWareHousesParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetWareHousesResponse>(this.BaseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetWareHousesResponse>(this.BaseUrl + '/query' + '?' + queryParams);
   }
 
   async GetAllPromise(params?: GetWareHousesParamListModel): Promise<GetWareHousesResponse> {
@@ -63,25 +48,9 @@ export class WareHouseService {
   }
 
   Get(params?: GetWareHouseParamListModel): Observable<WareHouse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof GetWareHouseParamListModel] != undefined && params[key as keyof GetWareHouseParamListModel] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof GetWareHouseParamListModel];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof GetWareHouseParamListModel];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<WareHouse>(this.BaseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<WareHouse>(this.BaseUrl + '?' + queryParams);
   }
 
   Create(req: CreateWareHouseRequest): Observable<CreateWareHouseResponse> {

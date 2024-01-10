@@ -299,8 +299,31 @@
         </nb-card>
     </ng-template>
 
+    <nb-action *ngIf="isLoggedIn" id="header-equalization" class="cl-header-menu" tabIndex="10" nbPopoverTrigger="focus"
+               data-sub="header-equalization-sub-1,header-equalization-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_equalizations"
+               [disabled]="InProgress">Kiegyenlítések
+    </nb-action>
+    <nb-action *ngIf="!isLoggedIn" id="header-equalization" class="cl-header-menu" tabIndex="10" data-sub="" disabled>Kiegyenlítések
+    </nb-action>
+    <ng-template #sub_equalizations let-data>
+      <nb-card class="card-submenu-wrapper">
+        <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+          <button nbButton status="primary" id="header-equalization-sub-1" [disabled]="InProgress"
+                  (click)="goTo('equalizations/query-financial-equalizations')">
+            Pénzügyi kiegyenlítések
+          </button>
+        </nb-card-body>
+        <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+          <button nbButton status="primary" id="header-equalization-sub-2" [disabled]="InProgress"
+                  (click)="goTo('equalizations/create-financial-equalization')">
+            Pénzügyi kiegyenlítés felvitele
+          </button>
+        </nb-card-body>
+      </nb-card>
+    </ng-template>
+
     <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1,header-info-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        data-sub="header-info-sub-1,header-info-sub-2,header-info-sub-3" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
         [disabled]="InProgress">Információ
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="8" data-sub="" disabled>Információ
@@ -317,6 +340,12 @@
                 <button nbButton status="primary" id="header-info-sub-2" [disabled]="InProgress"
                     (click)="goTo('information/customerinvoicesummary')">
                     Partnerenkénti forgalom
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-info-sub-3" [disabled]="InProgress"
+                    (click)="goTo('information/unbalancedinvoicesnavigation')">
+                    Kiegyenlítetlen Számlák
                 </button>
             </nb-card-body>
         </nb-card>
@@ -355,4 +384,5 @@
         </nb-tag-list>
     </nb-action>
 
+    <nb-action *ngIf="isDebug" (click)="GetNavigationInfo(true)" class="nb-action-storage-title">{{GetNavigationInfo(false)}}</nb-action>
 </nb-actions>

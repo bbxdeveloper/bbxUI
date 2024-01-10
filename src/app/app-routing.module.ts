@@ -32,6 +32,9 @@ import { CorrectionInvoiceComponent } from './modules/invoice/correction-invoice
 import { InbetweenWarehouseComponent } from './modules/warehouse/inbetween-warehouse/inbetween-warehouse.component';
 import { WarehouseDocumentManagerComponent } from './modules/warehouse/warehouse-document/warehouse-document-manager/warehouse-document-manager.component';
 import { CustomerInvoiceSummaryManagerComponent } from './modules/invoice/customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
+import { EqualizationCreatorComponent } from './modules/equalizations/equalization-manager/equalization-creator/equalization-creator.component';
+import { EqualizationNavigationManagerComponent } from './modules/equalizations/equalization-navigation/equalization-navigation-manager/equalization-navigation-manager.component';
+import { UnbalancedInvoicesNavigationManagerComponent } from './modules/equalizations/unbalanced-invoices-navigation/unbalanced-invoices-navigation-manager/unbalanced-invoices-navigation-manager.component';
 
 const routes: Routes = [
   {
@@ -178,6 +181,10 @@ const routes: Routes = [
       {
         path: "customerinvoicesummary",
         component: CustomerInvoiceSummaryManagerComponent,
+      },
+      {
+        path: "unbalancedinvoicesnavigation",
+        component: UnbalancedInvoicesNavigationManagerComponent,
       }
     ]
   },
@@ -257,6 +264,21 @@ const routes: Routes = [
       {
         path: 'warehouse-document',
         component: WarehouseDocumentManagerComponent,
+      }
+    ]
+  },
+  {
+    path: 'equalizations',
+    canActivate: [AuthGuard],
+    canDeactivate: [NavigationGuard],
+    children: [
+      {
+        path: 'query-financial-equalizations',
+        component: EqualizationNavigationManagerComponent,
+      },
+      {
+        path: 'create-financial-equalization',
+        component: EqualizationCreatorComponent,
       }
     ]
   },

@@ -13,6 +13,7 @@ import { WhsTransferQueryParams } from '../models/whs/WhsTransferQueryParams';
 import { WhsTransferStatus } from '../models/whs/WhsTransferStatus';
 import { FinalizeWhsTransferRequest } from '../models/whs/FinalizeWhsTransferRequest';
 import { UpdateWarehouseDocumentResponse } from '../models/whs/UpdateWarehouseDocumentResponse';
+import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
 export enum WhsStatus {
   /** Elkészült */
@@ -24,7 +25,7 @@ export enum WhsStatus {
 @Injectable()
 export class WhsTransferService {
 
-  private readonly baseUrl = `${environment.apiUrl}/api/${environment.apiVersion}/WhsTransfer`
+  private readonly baseUrl = environment.apiUrl + 'api'+ environment.apiVersion + 'WhsTransfer'
 
   constructor(private http: HttpClient, private cs: CommonService) { }
 
@@ -57,24 +58,9 @@ export class WhsTransferService {
   }
 
   GetAll(params?: WhsTransferQueryParams): Observable<GetWhsTransfersResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof WhsTransferQueryParams] != undefined && params[key as keyof WhsTransferQueryParams] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof WhsTransferQueryParams];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof WhsTransferQueryParams];
-          }
-          index++;
-        }
-      });
-    }
-
-    return this.http.get<GetWhsTransfersResponse>(this.baseUrl + '/query' + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<GetWhsTransfersResponse>(this.baseUrl + '/query' + '?' + queryParams);
   }
 
   async GetAllPromise(params?: WhsTransferQueryParams): Promise<GetWhsTransfersResponse> {
@@ -87,25 +73,9 @@ export class WhsTransferService {
   }
 
   Get(params?: WhsTransferQueryParams): Observable<WhsTransferFull> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof WhsTransferQueryParams] != undefined && params[key as keyof WhsTransferQueryParams] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof WhsTransferQueryParams];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof WhsTransferQueryParams];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.get<WhsTransferFull>(this.baseUrl + (!!params ? ('?' + queryParams) : ''));
+    return this.http.get<WhsTransferFull>(this.baseUrl + '?' + queryParams);
   }
 
   Delete(id: number): Observable<IResponseSingleData<WhsTransferFull>> {
@@ -149,24 +119,8 @@ export class WhsTransferService {
   }
 
   Finalize(params?: FinalizeWhsTransferRequest): Observable<UpdateWarehouseDocumentResponse> {
-    // Process params
-    var queryParams = '';
-    var index = 0;
+    const queryParams = HelperFunctions.ParseObjectAsQueryString(params)
 
-    if (!!params) {
-      Object.keys(params).forEach((key: string) => {
-        if (params[key as keyof FinalizeWhsTransferRequest] != undefined && params[key as keyof FinalizeWhsTransferRequest] != null) {
-          if (index == 0) {
-            queryParams += key + '=' + params[key as keyof FinalizeWhsTransferRequest];
-          } else {
-            queryParams += '&' + key + '=' + params[key as keyof FinalizeWhsTransferRequest];
-          }
-          index++;
-        }
-      });
-    }
-
-    // Get
-    return this.http.patch<UpdateWarehouseDocumentResponse>(this.baseUrl + '/process' + (!!params ? ('?' + queryParams) : ''), null);
+    return this.http.patch<UpdateWarehouseDocumentResponse>(this.baseUrl + '/process' + '?' + queryParams, null);
   }
 }

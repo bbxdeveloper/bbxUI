@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Optional, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { Observable, of, startWith, map, Subscription, lastValueFrom, BehaviorSubject, firstValueFrom } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -40,7 +40,7 @@ import { SimpleDialogResponse } from 'src/assets/model/SimpleDialogResponse';
 import { RadioChoiceDialogComponent } from '../../shared/simple-dialogs/radio-choice-dialog/radio-choice-dialog.component';
 import { UnitPriceTypes } from '../../customer/models/UnitPriceType';
 import { ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { Product } from '../../product/models/Product';
 import { GetVatRatesParamListModel } from '../../vat-rate/models/GetVatRatesParamListModel';
 import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
@@ -107,7 +107,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "exchangedOriginalUnitPrice", "vatRateCode", "UnitGrossVal"];
+  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "UnitPriceVal", "exchangedOriginalUnitPrice", "UnitGrossVal"];
   override allColumns = [
     'productCode',
     'lineDescription',
@@ -119,7 +119,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     'showDiscount',
     'unitPrice',
     'UnitPriceVal',
-    'vatRateCode'
+    'vatRateCode',
+    'UnitGrossVal',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -287,13 +288,18 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   protected HideColumn(col: string): void {
-    const index = this.allColumns.findIndex(x => x == col);
+    let index = this.allColumns.findIndex(x => x == col);
     if (index >= 0) {
       this.allColumns.splice(index, 1);
+
+      index = this.colsToIgnore.findIndex(x => x == col)
+      if (index >= 0) {
+        this.colsToIgnore.splice(index, 1)
+      }
     }
   }
 
-  protected ShowColumn(col: string, position?: number): void {
+  protected ShowColumn(col: string, ignored: boolean, position?: number): void {
     if (this.allColumns.includes(col)) {
       return;
     }
@@ -301,6 +307,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       this.allColumns.splice(position!, 0, col);
     } else {
       this.allColumns.push(col);
+    }
+
+    if (ignored) {
+      this.colsToIgnore.push(col)
     }
   }
 
@@ -486,7 +496,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             product = this.CreateLocalProduct(changedData.productCode)
             this.bbxToastrService.showError(Constants.MSG_NO_PRODUCT_FOUND);
           }
-          
+
           if (row.data.productID === product.id) {
             this.status.pushProcessStatus(Constants.BlankProcessStatus);
             this.dbDataTable.MoveNextInTable();
@@ -601,7 +611,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         }
 
         if (!product.noDiscount) {
-          await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData.id ?? -1 }))
+          await lastValueFrom(this.custDiscountService.GetByCustomer({ CustomerID: this.buyerData?.id ?? -1 }))
             .then(data => {
               let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
                 data: OfferLine.FromProduct(product, 0, vatRateFromProduct?.id ?? 0, false, this.SelectedCurrency?.value ?? CurrencyCodes.HUF, this.offerData.exchangeRate, unitPriceType)
@@ -762,8 +772,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     return [""].concat(this.buyersData.map(x => x.customerName).filter(optionValue => optionValue.toLowerCase().includes(filterValue)));
   }
 
-  protected AfterViewInitSetup(): void {
-    this.InitFormDefaultValues();
+  protected AfterViewInitSetup(initForm: boolean = true): void {
+    if (initForm) {
+      this.InitFormDefaultValues();
+    }
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
