@@ -1006,10 +1006,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   protected ExitToNav(): void {
     this.router.navigate(['product/offers-nav']);
-
-    setTimeout(() => {
-      window.location.reload()
-    }, 50);
   }
 
   protected NavToCreate(): void {
@@ -1020,10 +1016,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         }
       })
     })
-
-    setTimeout(() => {
-      window.location.reload()
-    }, 50);
   }
 
   ToggleAllShowDiscount(): void {

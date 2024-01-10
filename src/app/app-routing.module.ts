@@ -34,6 +34,7 @@ import { WarehouseDocumentManagerComponent } from './modules/warehouse/warehouse
 import { CustomerInvoiceSummaryManagerComponent } from './modules/invoice/customer-invoice-summary/customer-invoice-summary-manager/customer-invoice-summary-manager.component';
 import { EqualizationCreatorComponent } from './modules/equalizations/equalization-manager/equalization-creator/equalization-creator.component';
 import { EqualizationNavigationManagerComponent } from './modules/equalizations/equalization-navigation/equalization-navigation-manager/equalization-navigation-manager.component';
+import { UnbalancedInvoicesNavigationManagerComponent } from './modules/equalizations/unbalanced-invoices-navigation/unbalanced-invoices-navigation-manager/unbalanced-invoices-navigation-manager.component';
 
 const routes: Routes = [
   {
@@ -180,6 +181,10 @@ const routes: Routes = [
       {
         path: "customerinvoicesummary",
         component: CustomerInvoiceSummaryManagerComponent,
+      },
+      {
+        path: "unbalancedinvoicesnavigation",
+        component: UnbalancedInvoicesNavigationManagerComponent,
       }
     ]
   },

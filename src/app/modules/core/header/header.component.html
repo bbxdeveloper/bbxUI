@@ -323,7 +323,7 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="8" nbPopoverTrigger="focus"
-        data-sub="header-info-sub-1,header-info-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
+        data-sub="header-info-sub-1,header-info-sub-2,header-info-sub-3" nbPopoverPlacement="bottom" [nbPopover]="sub_info"
         [disabled]="InProgress">Információ
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-info" class="cl-header-menu" tabIndex="8" data-sub="" disabled>Információ
@@ -340,6 +340,12 @@
                 <button nbButton status="primary" id="header-info-sub-2" [disabled]="InProgress"
                     (click)="goTo('information/customerinvoicesummary')">
                     Partnerenkénti forgalom
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-info-sub-3" [disabled]="InProgress"
+                    (click)="goTo('information/unbalancedinvoicesnavigation')">
+                    Kiegyenlítetlen Számlák
                 </button>
             </nb-card-body>
         </nb-card>

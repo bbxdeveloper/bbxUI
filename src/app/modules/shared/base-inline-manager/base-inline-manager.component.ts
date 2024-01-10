@@ -140,10 +140,6 @@ export class BaseInlineManagerComponent<T extends IEditable> {
         }
       })
     })
-
-    setTimeout(() => {
-      window.location.reload()
-    }, 50);
   }
 
   protected async DelayedReset(delay: number = 200): Promise<void> {
@@ -158,10 +154,6 @@ export class BaseInlineManagerComponent<T extends IEditable> {
             reload: true
           }
         })
-
-        setTimeout(() => {
-          window.location.reload()
-        }, 50);
       }, delay);
     })
   }
