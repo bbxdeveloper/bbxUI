@@ -46,17 +46,17 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     {
       label: 'Raktár', objectKey: 'warehouseDescription', colKey: 'warehouseDescription',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "100%", textAlign: "left", fInputType: ''
+      colWidth: "200px", textAlign: "left", fInputType: ''
     },
     {
       label: 'Készlet', objectKey: 'realQty', colKey: 'realQty',
       defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "150px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
       label: 'Átl besz.ár', objectKey: 'avgCost', colKey: 'avgCost',
       defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "150px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
+      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
       label: 'Bevét', objectKey: 'latestIn', colKey: 'latestIn',

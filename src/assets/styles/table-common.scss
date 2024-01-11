@@ -33,6 +33,11 @@ nb-card-body {
     max-height: calc(100vh - 290px) !important;
 }
 
+.card-table-compact {
+    width: fit-content !important;
+    margin: auto !important
+}
+
 // TABLE: Header
 
 .card-table-header {
