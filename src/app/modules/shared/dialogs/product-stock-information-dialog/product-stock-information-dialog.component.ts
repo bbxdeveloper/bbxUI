@@ -35,14 +35,16 @@ import { IUpdater } from 'src/assets/model/UpdaterInterfaces';
 export class ProductStockInformationDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
   @Input() product?: Product
 
-  @Input() allColumns: string[] = [
+  //#region Table
+
+  allColumns: string[] = [
     'warehouseDescription',
     'realQty',
     'avgCost',
     'latestIn',
     'latestOut'
   ]
-  @Input() colDefs: ModelFieldDescriptor[] = [
+  colDefs: ModelFieldDescriptor[] = [
     {
       label: 'Raktár', objectKey: 'warehouseDescription', colKey: 'warehouseDescription',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
@@ -83,6 +85,9 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     ++this.uid;
     return this.uid;
   }
+  tableIsFocused: boolean = false
+
+  //#endregion Table
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -215,16 +220,10 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
   }
 
   focusOnTable(focusIn: boolean): void {
-    // this.tableIsFocused = focusIn;
-    // if (this.isSideBarOpened) {
-    //   return;
-    // }
-    // if (focusIn) {
-    //   this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    //   this.dbDataTable.PushFooterCommandList();
-    // } else {
-    //   this.fS.pushCommands(this.commands);
-    // }
+    this.tableIsFocused = focusIn;
+    if (focusIn) {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    }
   }
 
   private Setup(): void {
@@ -292,11 +291,17 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
       this.productForm.controls['id'].setValue(undefined)
     }
 
+    this.fillStocksTable()
+
+    this.sts.waitForLoad(false)
+  }
+
+  private fillStocksTable(): void {
     this.dbData = []
     this.dbDataSource = this.dataSourceBuilder.create(this.dbData)
     this.selectedRow = {} as ProductStockInfo
 
-    const stocks = this.product.stocks?.sort((a, b) => {
+    const stocks = this.product!.stocks?.sort((a, b) => {
       var n1 = a.warehouseID;
       var n2 = b.warehouseID;
       if (n1 > n2) {
@@ -314,8 +319,6 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     this.dbData = tempData;
     this.dbDataSource.setData(this.dbData);
     this.RefreshTable()
-
-    this.sts.waitForLoad(false)
   }
 
   override ngOnInit(): void {
