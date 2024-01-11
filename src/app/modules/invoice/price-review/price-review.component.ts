@@ -95,8 +95,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
-  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
-    "unitOfMeasureX", 'quantity', 'rowNetPrice','rowGrossPriceRounded'];
+  override colsToIgnore: string[] = ["productDescription", "unitOfMeasureX", 'quantity', 'rowNetPrice','rowGrossPriceRounded'];
   override allColumns = [
     'productCode',
     'productDescription',

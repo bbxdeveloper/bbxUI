@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
+import { catchError, firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
@@ -25,6 +25,9 @@ import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { GetCustomerInvoiceSummariesResponse } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummariesResponse';
 import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 import { CreateOutgoingInvoiceResponseData } from '../models/CreateOutgoingInvoiceResponseData';
+import { GetInvPaymentsResponse } from '../../equalizations/models/GetInvPaymentsResponse';
+import { GetUnbalancedInvoicesParamListModel } from '../../equalizations/models/GetUnbalancedInvoicesParamListModel';
+import { CommonService } from 'src/app/services/common.service';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +37,8 @@ export class InvoiceService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly tokenService: TokenStorageService) { }
+    private readonly tokenService: TokenStorageService,
+    private readonly commonService: CommonService) { }
 
   GetTemporaryPaymentMethod(): Observable<PaymentMethod[]> {
     return of([{
@@ -201,5 +205,35 @@ export class InvoiceService {
     const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
     const request = this.http.get<Invoice>(this.BaseUrl + '/byinvoicenumber' + '?' + queryParams);
     return firstValueFrom(request)
+  }
+
+  GetAllUnbalanced(params?: GetUnbalancedInvoicesParamListModel): Observable<GetInvoicesResponse> {
+    // Process params
+    var queryParams = '';
+    var index = 0;
+
+    if (!!params) {
+      Object.keys(params).forEach((key: string) => {
+        if (params[key as keyof GetUnbalancedInvoicesParamListModel] != undefined && params[key as keyof GetUnbalancedInvoicesParamListModel] != null) {
+          if (index == 0) {
+            queryParams += key + '=' + params[key as keyof GetUnbalancedInvoicesParamListModel];
+          } else {
+            queryParams += '&' + key + '=' + params[key as keyof GetUnbalancedInvoicesParamListModel];
+          }
+          index++;
+        }
+      });
+    }
+
+    return this.http.get<GetInvoicesResponse>(this.BaseUrl + '/queryunpaid' + (!!params ? ('?' + queryParams) : ''));
+  }
+
+  async GetAllUnbalancedPromise(params?: GetUnbalancedInvoicesParamListModel): Promise<GetInvoicesResponse> {
+    return lastValueFrom(this.GetAllUnbalanced(params).pipe(
+      catchError((err, c) => {
+        this.commonService.HandleError(err);
+        return c;
+      })
+    ));
   }
 }

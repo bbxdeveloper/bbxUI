@@ -1,0 +1,19 @@
+<as-split direction="horizontal">
+    <app-hozirontal-split-layout proportion="40" [hideDivider]="true">
+        <app-head-line msg="Kiegyenlítetlen számlák" title></app-head-line>
+
+        <app-unbalanced-invoices-navigation-filter-form (refreshClicked)="refreshClicked($event)"
+            (pageReady)="filterFormPageReady()" [invoiceNumberData$]="invoiceNumberData$" top>
+        </app-unbalanced-invoices-navigation-filter-form>
+
+        <ng-container bottom>
+            <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+                [heightMargin]="600" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+                (focusOutTable)="focusOnTable(false)">
+            </app-flat-design-table>
+
+            <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+        </ng-container>
+    </app-hozirontal-split-layout>
+</as-split>
