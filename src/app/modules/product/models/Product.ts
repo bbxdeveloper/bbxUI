@@ -90,6 +90,7 @@ export class ProductRow implements Product {
 
 export interface ProductStockInfo {
     id: number
+    warehouseDescription: string
     warehouseID: number
     realQty: number
     avgCost: number
