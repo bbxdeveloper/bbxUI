@@ -16,6 +16,8 @@ import { OneNumberInputDialogComponent } from "src/app/modules/shared/simple-dia
 import { createMask } from "@ngneat/input-mask";
 import { CurrencyCodes } from "src/app/modules/system/models/CurrencyCode";
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { ModelFieldDescriptor } from "../model/ModelFieldDescriptor";
+import { Constants } from "./Constants";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -545,5 +547,26 @@ export module HelperFunctions {
             }
         });
         } catch (error) {}
+    }
+
+    export function HasVerticalScrollbar(id: string): boolean {
+        var element = document.getElementById(id)
+        if (!!!element) {
+            return false
+        }
+        return element.scrollHeight > element.clientHeight
+    }
+
+    export function GetHeaderColWidth(
+            col: ModelFieldDescriptor, all: string[],
+            id: string, scollbarWidth: number = Constants.ScrollbarWidthInPixels,
+            unitOfMeasure: string = 'px'): any {
+        const key = col.objectKey
+        const lastCol = all[all.length - 1]
+        if (key === lastCol && HelperFunctions.HasVerticalScrollbar(id)) {
+            const withoutPixel = col.colWidth!.split(unitOfMeasure)[0]
+            return HelperFunctions.ToInt(withoutPixel) + scollbarWidth + unitOfMeasure
+        }
+        return col.colWidth!
     }
 }

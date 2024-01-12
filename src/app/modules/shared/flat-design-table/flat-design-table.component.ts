@@ -62,6 +62,10 @@ export class FlatDesignTableComponent implements OnInit {
     private sideBarService: BbxSidebarService,
     private statusService: StatusService,
     private commonService: CommonService) {}
+  
+  GetColWidth(col: ModelFieldDescriptor): any {
+    return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId)
+  }
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)

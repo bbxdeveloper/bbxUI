@@ -132,6 +132,10 @@ export class InlineEditableTableComponent implements OnInit {
   constructor(@Optional() protected dialogService: BbxDialogServiceService,
               private sideBarService: BbxSidebarService, private kbs: KeyboardNavigationService,
               private statusService: StatusService, private khs: KeyboardHelperService) {}
+  
+  GetColWidth(col: ModelFieldDescriptor): any {
+    return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId)
+  }
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)
