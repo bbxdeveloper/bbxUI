@@ -23,19 +23,6 @@ label.label-checkbox {
     align-self: auto !important;
 }
 
-input[type="checkbox"],
-[type="radio"] {
-    box-sizing: border-box;
-    padding: 0;
-    -ms-transform: scale(1.5);
-    -moz-transform: scale(1.5);
-    -webkit-transform: scale(1.5);
-    -o-transform: scale(1.5);
-    transform: scale(1.5);
-    margin-bottom: 10px;
-    padding: 10px;
-}
-
 label {
     @extend .label-type-1;
 }
@@ -167,4 +154,19 @@ $colSizeLimit: 80;
 
 ::ng-deep .bbx-numeric-input-inner {
     margin-top: 2px;
+}
+
+// common-styles.scss / checkbox-field overwrites
+
+input[type="checkbox"],
+[type="radio"] {
+    box-sizing: border-box;
+    padding: 0;
+    -ms-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    transform: scale(1.5);
+    margin-bottom: 10px;
+    padding: 10px;
 }
