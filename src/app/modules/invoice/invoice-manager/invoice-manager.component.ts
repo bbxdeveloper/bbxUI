@@ -241,7 +241,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         .finally(() => { })
 
       if (customer) {
-        this.SetDataForForm(customer)
+        this.buyerData = customer
 
         const controls = this.outInvForm.controls
         controls['paymentMethod'].setValue(customer.defPaymentMethodX)
@@ -993,17 +993,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     res.realQty = product.activeStockRealQty ?? 0
 
     return res;
-  }
-
-  /// TODO remove
-  override SetDataForForm(data: any): void {
-    if (!!data) {
-      this.buyerData = { ...data as Customer };
-
-      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-      this.kbS.SelectFirstTile();
-      this.kbS.setEditMode(KeyboardModes.EDIT);
-    }
   }
 
   /////////////////////////////////////////////
