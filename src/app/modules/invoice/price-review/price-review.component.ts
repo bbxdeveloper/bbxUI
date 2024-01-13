@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
 import { Observable, of, BehaviorSubject, Subscription, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -15,7 +15,6 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
-import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product, getPriceByPriceType } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
@@ -51,7 +50,6 @@ import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-fact
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
-import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
@@ -63,8 +61,6 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 })
 export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine> implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
-
-  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -87,13 +83,13 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   isPageReady = false;
 
-  _searchByTaxtNumber: boolean = false;
-  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
-  set searchByTaxtNumber(value: boolean) {
-    this._searchByTaxtNumber = value;
-    this.cdref.detectChanges();
-    this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
-  }
+  // _searchByTaxtNumber: boolean = false;
+  // get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
+  // set searchByTaxtNumber(value: boolean) {
+  //   this._searchByTaxtNumber = value;
+  //   this.cdref.detectChanges();
+  //   this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
+  // }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
     "unitOfMeasureX", 'quantity', 'rowNetPrice','rowGrossPriceRounded'];
@@ -154,9 +150,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   outInvFormId: string = "outgoing-invoice-form";
   outInvFormNav$: BehaviorSubject<InlineTableNavigatableForm[]> = new BehaviorSubject<InlineTableNavigatableForm[]>([]);
 
-  buyerForm!: FormGroup;
-  buyerFormId: string = "buyer-form";
-  buyerFormNav!: InlineTableNavigatableForm;
+  // buyerForm!: FormGroup;
+  // buyerFormId: string = "buyer-form";
+  // buyerFormNav!: InlineTableNavigatableForm;
 
   private tabIndex = 10000;
   get NextTabIndex() { return this.tabIndex++; }
@@ -198,11 +194,11 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   private invoiceId: number = -1
   public mode!: InvoiceBehaviorMode
 
-  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
-    this.buyerData = customer
-    this.cachedCustomerName = customer.customerName;
-    this.searchByTaxtNumber = false;
-  })
+  // private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+  //   this.buyerData = customer
+  //   this.cachedCustomerName = customer.customerName;
+  //   this.searchByTaxtNumber = false;
+  // })
 
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
@@ -226,7 +222,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     private readonly bbxToasterService: BbxToastrService,
     router: Router,
     behaviorFactory: InvoiceBehaviorFactoryService,
-    private readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, kbS, fS, cs, sts, sideBarService, khs, router);
     this.preventF12 = true
@@ -313,21 +308,21 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
     this.setupOutInvForm()
 
-    this.buyerForm = new FormGroup({
-      customerSearch: new FormControl('', []),
-    });
-
-    this.buyerFormNav = new InlineTableNavigatableForm(
-      this.buyerForm,
-      this.kbS,
-      this.cdref,
-      this.buyersData,
-      this.buyerFormId,
-      AttachDirection.DOWN,
-      this
-    );
-
-    this.buyerFormNav!.OuterJump = true;
+    // this.buyerForm = new FormGroup({
+    //   customerSearch: new FormControl('', []),
+    // });
+    //
+    // this.buyerFormNav = new InlineTableNavigatableForm(
+    //   this.buyerForm,
+    //   this.kbS,
+    //   this.cdref,
+    //   this.buyersData,
+    //   this.buyerFormId,
+    //   AttachDirection.DOWN,
+    //   this
+    // );
+    //
+    // this.buyerFormNav!.OuterJump = true;
 
     console.log('new InvoiceLine(): ', new InvoiceLine());
 
@@ -645,7 +640,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
-        this.buyerFormNav.Setup(this.buyersData);
+        // todo
+        // this.buyerFormNav.Setup(this.buyersData);
         console.log('Buyers: ', d);
 
         // Products
@@ -693,7 +689,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.buyerFormNav.GenerateAndSetNavMatrices(true);
+    // todo
+    // this.buyerFormNav.GenerateAndSetNavMatrices(true);
     // this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
     this.dbDataTable?.Setup(
@@ -710,7 +707,8 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.InitFormDefaultValues();
 
     setTimeout(() => {
-      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+      // todo
+      // this.kbS.SetCurrentNavigatable(this.buyerFormNav);
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -804,8 +802,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     this.kbS.Detach();
 
     this.mode.partnerLock?.unlockCustomer()
-
-    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
@@ -844,18 +840,18 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   }
 
   Save(): void {
-    this.buyerForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
-    if (this.buyerForm.invalid) {
-      this.bbxToastrService.show(
-        `Nincs megadva vevő.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      valid = false;
-    }
+    // todo
+    // if (this.buyerForm.invalid) {
+    //   this.bbxToastrService.show(
+    //     `Nincs megadva vevő.`,
+    //     Constants.TITLE_ERROR,
+    //     Constants.TOASTR_ERROR
+    //   );
+    //   valid = false;
+    // }
     if (this.outInvForm.invalid) {
       this.bbxToastrService.show(
         `Teljesítési időpont, vagy más számlával kapcsolatos adat nincs megadva.`,
@@ -987,49 +983,49 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     return !isNaN(parseFloat(val2));
   }
 
-  FillFormWithFirstAvailableCustomer(event: any): void {
-    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
-    }
-
-    this.customerInputFilterString = event.target.value ?? '';
-    this.isLoading = true;
-
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
-    } as GetCustomersParamListModel).subscribe({
-      next: res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.buyerData = res.data[0];
-          this.cachedCustomerName = res.data[0].customerName;
-          this.searchByTaxtNumber = false;
-
-          if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-            this.simpleToastrService.show(
-              Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
-          }
-        } else {
-          if (this.customerInputFilterString.length >= 8 &&
-          this.IsNumber(this.customerInputFilterString)) {
-            this.searchByTaxtNumber = true;
-          } else {
-            this.searchByTaxtNumber = false;
-          }
-          this.buyerFormNav.FillForm({}, ['customerSearch']);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-        this.searchByTaxtNumber = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
+  // FillFormWithFirstAvailableCustomer(event: any): void {
+  //   if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
+  //     this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
+  //   }
+  //
+  //   this.customerInputFilterString = event.target.value ?? '';
+  //   this.isLoading = true;
+  //
+  //   this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
+  //     IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
+  //   } as GetCustomersParamListModel).subscribe({
+  //     next: res => {
+  //       if (!!res && res.data !== undefined && res.data.length > 0) {
+  //         this.buyerData = res.data[0];
+  //         this.cachedCustomerName = res.data[0].customerName;
+  //         this.searchByTaxtNumber = false;
+  //
+  //         if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+  //           this.simpleToastrService.show(
+  //             Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+  //             Constants.TITLE_INFO,
+  //             Constants.TOASTR_SUCCESS_5_SEC
+  //           );
+  //         }
+  //       } else {
+  //         if (this.customerInputFilterString.length >= 8 &&
+  //         this.IsNumber(this.customerInputFilterString)) {
+  //           this.searchByTaxtNumber = true;
+  //         } else {
+  //           this.searchByTaxtNumber = false;
+  //         }
+  //         this.buyerFormNav.FillForm({}, ['customerSearch']);
+  //       }
+  //     },
+  //     error: (err) => {
+  //       this.cs.HandleError(err); this.isLoading = false;
+  //       this.searchByTaxtNumber = false;
+  //     },
+  //     complete: () => {
+  //       this.isLoading = false;
+  //     },
+  //   });
+  // }
 
   private async PrepareCustomer(data: Customer): Promise<Customer> {
     console.log('Before: ', data);
@@ -1170,11 +1166,11 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     }
   }
 
-  protected editCustomer(): void {
-    if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
-      this.editCustomerDialog.open(this.buyerData?.id)
-    }
-  }
+  // protected editCustomer(): void {
+  //   if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
+  //     this.editCustomerDialog.open(this.buyerData?.id)
+  //   }
+  // }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
     this.status.waitForLoad(true)
@@ -1302,13 +1298,13 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           this.CreateCustomer(event);
           break;
         }
-        case this.KeySetting[Actions.Edit].KeyCode: {
-          HelperFunctions.StopEvent(event)
-
-          this.editCustomer()
-
-          break;
-        }
+        // case this.KeySetting[Actions.Edit].KeyCode: {
+        //   HelperFunctions.StopEvent(event)
+        //
+        //   this.editCustomer()
+        //
+        //   break;
+        // }
       }
     }
   }

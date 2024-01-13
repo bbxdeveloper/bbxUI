@@ -36,7 +36,6 @@ import { lastValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { ChooseCreateOfferProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
@@ -59,12 +58,12 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     return this.buyerForm?.controls['isBrutto'].value
   }
 
-  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
-    this.buyerData = customer
-    this.cachedCustomerName = customer.customerName;
-    this.SetCustomerFormFields(customer)
-    this.searchByTaxtNumber = false;
-  })
+  // private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
+  //   this.buyerData = customer
+  //   this.cachedCustomerName = customer.customerName;
+  //   this.SetCustomerFormFields(customer)
+  //   this.searchByTaxtNumber = false;
+  // })
 
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
@@ -89,7 +88,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     custDiscountService: CustomerDiscountService,
     systemService: SystemService,
     productCodeManagerServiceService: ProductCodeManagerServiceService,
-    private readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
@@ -258,8 +256,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
-
-    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): void {
@@ -556,19 +552,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           }
           event.preventDefault();
           this.SwitchUnitPriceAll();
-          break;
-        }
-        case this.KeySetting[Actions.Edit].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-
-          HelperFunctions.StopEvent(event)
-
-          if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
-            this.editCustomerDialog.open(this.buyerData?.id)
-          }
-
           break;
         }
       }

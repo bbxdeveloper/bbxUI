@@ -26,13 +26,12 @@ import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { InputFocusChangedEvent, selectProcutCodeInTableInput } from '../../shared/inline-editable-table/inline-editable-table.component';
+import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
-import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
@@ -66,10 +65,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
   outInvForm!: FormGroup;
   outInvFormId: string = "";
   outInvFormNav!: InlineTableNavigatableForm;
-
-  buyerForm!: FormGroup;
-  buyerFormId: string = "";
-  buyerFormNav!: InlineTableNavigatableForm;
 
   sortColumn: string = '';
   sortDirection: NbSortDirection = NbSortDirection.NONE;
@@ -112,7 +107,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     protected readonly tokenService: TokenStorageService,
     protected productCodeManagerService: ProductCodeManagerServiceService,
     protected printAndDownLoadService: PrintAndDownloadService,
-    protected readonly editCustomerDialog: EditCustomerDialogManagerService,
     @Optional() protected readonly customerDiscountService: CustomerDiscountService|null,
   ) {
     super(dialogService, kbS, footerService, cs, status, sideBarService, khs, router);
@@ -282,15 +276,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     if (!this.kbS.IsCurrentNavigatable(this.dbDataTable)) {
       return 0;
     }
-    
-    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
-  }
 
-  protected editCustomer(customer: Customer|undefined = undefined): void {
-    const customerData = customer ? customer : this.customerData
-    if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
-      this.editCustomerDialog.open(customerData?.id)
-    }
+    return this.dbDataTable?.data[this.kbS.p.y]?.data.realQty ?? 0;
   }
 
   protected async openProductStockInformationDialog(productCode: string): Promise<void> {
@@ -315,13 +302,8 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
   }
 
-  protected async loadCustomerDiscounts(customerId: number): Promise<void> {
-    try {
-      this.customerDiscounts = await this.customerDiscountService?.getByCustomerAsync({ CustomerID: customerId }) ?? []
-    }
-    catch (error) {
-      this.cs.HandleError(error)
-    }
+  public customerDiscountsChanged(discounts: CustDiscountForGet[]): void {
+    this.customerDiscounts = discounts
   }
 
   protected loadInvoiceItems(): void {

@@ -33,27 +33,16 @@
         <table class="customer-search-row area-row-0 mb-10">
             <tr>
                 <td>
-                    <form [formGroup]="buyerForm" #formDirective="ngForm" (keydown.escape)="buyerFormNav.HandleFormEscape()"
-                        [id]="buyerFormId">
-                        <nb-form-field class="search-row-nb-form-field"
-                            (keydown.enter)="buyerFormNav.HandleFormEnter($event, true, true, true)"
-                            (focusin)="onFormSearchFocused($event, 'customerSearch')"
-                            (focusout)="onFormSearchBlurred($event, 'customerSearch')"
-                            (keydown.F2)="HandleKeyDown($event, true)"
-                            (keydown.F3)="HandleKeyDown($event, true)"
-                            (keydown.F4)="HandleKeyDown($event, true)">
-                            <input formControlName="customerSearch" nbInput type="text" class="{{TileCssClass}}"
-                                (click)="buyerFormNav.HandleFormFieldClick($event)"
-                                maxlength="80"
-                                (input)="FillFormWithFirstAvailableCustomer($event)" [readonly]="editDisabled"
-                                placeholder="Keresés" autocomplete="off" id="r00" />
-                        </nb-form-field>
-                    </form>
+                    <app-customer-search #customerSearch
+                                         [customer]="buyerData"
+                                         (customerChanged)="customerChanged($event)"
+                                         (customerDiscountsChanged)="customerDiscountsChanged($event)"
+                                         (focusIn)="onFormSearchFocused(undefined, $event)"
+                                         (focusOut)="onFormSearchBlurred(undefined, $event)"
+                                         [withDiscounts]="true"
+                                         (loadingChanged)="isLoading = $event"></app-customer-search>
                 </td>
                 <td>
-                    <button *ngIf="searchByTaxtNumber" [disabled]="isLoading" [disabled]="!editDisabled"
-                            nbButton [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
-                            (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                 </td>
                 <td>
                     <div class="card-header-row-txt card-header-top-margin">
