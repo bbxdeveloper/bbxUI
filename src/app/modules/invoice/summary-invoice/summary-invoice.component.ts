@@ -60,8 +60,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   customerInputFilterString: string = '';
 
-  override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount",
-    "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
+  override colsToIgnore: string[] = ["productDescription", "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
   requiredCols: string[] = ['productCode', 'quantity'];
   override allColumns = [
     'productCode',

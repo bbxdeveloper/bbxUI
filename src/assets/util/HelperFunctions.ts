@@ -243,7 +243,7 @@ export module HelperFunctions {
         formatString: string = DATE_FORMATSTRING,
         dateLocale: string = 'hu-HU'): moment.Moment | undefined  {
         // console.log(`IsDateStringValid, val: ${val}, moment: ${moment(val)}, result: ${moment(val).isValid()}`);
-        if (val === undefined || val === null || val.length == 0) {
+        if (val === undefined || val === null || isEmptyOrSpaces(val)) {
             return undefined;
         }
         moment.locale(dateLocale);

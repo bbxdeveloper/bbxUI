@@ -7,6 +7,7 @@ import { CreateInvPaymentResponse } from '../models/CreateInvPaymentResponse';
 import { GetInvPaymentsParamListModel } from '../models/GetInvPaymentsParamListModel';
 import { GetInvPaymentsResponse } from '../models/GetInvPaymentsResponse';
 import { InvPayment } from '../models/InvPayment';
+import { GetUnbalancedInvoicesParamListModel } from '../models/GetUnbalancedInvoicesParamListModel';
 
 @Injectable({
   providedIn: 'root'

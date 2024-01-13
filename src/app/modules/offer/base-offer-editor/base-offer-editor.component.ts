@@ -105,7 +105,7 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     }
   }
 
-  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "unitGross", "UnitPriceVal", "exchangedOriginalUnitPrice", "vatRateCode", "UnitGrossVal"];
+  override colsToIgnore: string[] = ["vatRateCode", "unitOfMeasureX", "UnitPriceVal", "exchangedOriginalUnitPrice", "UnitGrossVal"];
   override allColumns = [
     'productCode',
     'lineDescription',
@@ -117,7 +117,8 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
     'showDiscount',
     'unitPrice',
     'UnitPriceVal',
-    'vatRateCode'
+    'vatRateCode',
+    'UnitGrossVal',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -285,13 +286,18 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   protected HideColumn(col: string): void {
-    const index = this.allColumns.findIndex(x => x == col);
+    let index = this.allColumns.findIndex(x => x == col);
     if (index >= 0) {
       this.allColumns.splice(index, 1);
+
+      index = this.colsToIgnore.findIndex(x => x == col)
+      if (index >= 0) {
+        this.colsToIgnore.splice(index, 1)
+      }
     }
   }
 
-  protected ShowColumn(col: string, position?: number): void {
+  protected ShowColumn(col: string, ignored: boolean, position?: number): void {
     if (this.allColumns.includes(col)) {
       return;
     }
@@ -299,6 +305,10 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
       this.allColumns.splice(position!, 0, col);
     } else {
       this.allColumns.push(col);
+    }
+
+    if (ignored) {
+      this.colsToIgnore.push(col)
     }
   }
 
@@ -994,10 +1004,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   protected ExitToNav(): void {
     this.router.navigate(['product/offers-nav']);
-
-    setTimeout(() => {
-      window.location.reload()
-    }, 50);
   }
 
   protected NavToCreate(): void {
@@ -1008,10 +1014,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         }
       })
     })
-
-    setTimeout(() => {
-      window.location.reload()
-    }, 50);
   }
 
   ToggleAllShowDiscount(): void {

@@ -822,10 +822,10 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
   private suggestPriceChange(invoiceLine: InvoiceLine, useChangedPrices: boolean): void {
     let priceChange = undefined
-    if (useChangedPrices && invoiceLine.newUnitPrice1 && invoiceLine.newUnitPrice2) {
+    if (useChangedPrices && invoiceLine.newUnitPrice1HUF && invoiceLine.newUnitPrice2HUF) {
       priceChange = {
-        newUnitPrice1: invoiceLine.newUnitPrice1,
-        newUnitPrice2: invoiceLine.newUnitPrice2,
+        newUnitPrice1: invoiceLine.newUnitPrice1HUF,
+        newUnitPrice2: invoiceLine.newUnitPrice2HUF,
       } as ProductPriceChange
     }
 
@@ -845,8 +845,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         return
       }
 
-      invoiceLine.newUnitPrice1 = priceChange.newUnitPrice1
-      invoiceLine.newUnitPrice2 = priceChange.newUnitPrice2
+      invoiceLine.newUnitPrice1HUF = priceChange.newUnitPrice1
+      invoiceLine.newUnitPrice2HUF = priceChange.newUnitPrice2
     })
   }
 

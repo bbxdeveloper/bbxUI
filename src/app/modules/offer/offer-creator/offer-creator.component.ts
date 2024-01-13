@@ -148,7 +148,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
         next: newValue => {
           this.offerData.isBrutto = newValue;
           if (newValue) {
-            this.ShowColumn('UnitGrossVal');
+            this.ShowColumn('UnitGrossVal', true);
           } else {
             this.HideColumn('UnitGrossVal');
           }
