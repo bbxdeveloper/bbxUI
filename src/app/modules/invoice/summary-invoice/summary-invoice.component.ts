@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { of, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -46,6 +46,7 @@ import { ChooseSummaryInvoiceProductRequest, CodeFieldChangeRequest, ProductCode
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import {CustomerSearchComponent} from "../customer-serach/customer-search.component";
 
 @Component({
   selector: 'app-summary-invoice',
@@ -55,6 +56,9 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 })
 export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent implements OnInit, AfterViewInit, OnDestroy, IInlineManager {
   @ViewChild('table') table?: NbTable<any>;
+
+  @ViewChild('customerSearch')
+  private customerSearch!: CustomerSearchComponent
 
   buyerData!: Customer;
 
@@ -117,7 +121,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   override outInvFormId: string = "outgoing-invoice-form";
 
   get invoiceIssueDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
+    if (!this.outInvForm) {
       return undefined;
     }
     const tmp = this.outInvForm.controls['invoiceIssueDate'].value;
@@ -126,7 +130,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   }
 
   get invoiceDeliveryDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
+    if (!this.outInvForm) {
       return undefined;
     }
     const tmp = this.outInvForm.controls['invoiceDeliveryDate'].value;
@@ -313,23 +317,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     });
   }
 
-  changeSort(sortRequest: NbSortRequest): void {
-    this.dbDataDataSrc.sort(sortRequest);
-    this.sortColumn = sortRequest.column;
-    this.sortDirection = sortRequest.direction;
-
-    setTimeout(() => {
-      this.dbDataTable?.GenerateAndSetNavMatrices(false, true);
-    }, 50);
-  }
-
-  getDirection(column: string): NbSortDirection {
-    if (column === this.sortColumn) {
-      return this.sortDirection;
-    }
-    return NbSortDirection.NONE;
-  }
-
   // invoiceDeliveryDate
   validateInvoiceDeliveryDate(control: AbstractControl): any {
     if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
@@ -394,10 +381,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
           }
         }
       });
-  }
-
-  ToFloat(p: any): number {
-    return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
   }
 
   override RecalcNetAndVat(): void {
@@ -568,8 +551,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
-        // todo krumpli
-        // this.buyerFormNav.Setup(this.buyersData);
+        this.customerSearch.searchFormNav.Setup(this.buyersData)
         console.log('Buyers: ', d);
 
         // Products
@@ -622,8 +604,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
     if (this.mode.isSummaryInvoice) {
-      // todo navigation for new
-      // this.buyerFormNav.GenerateAndSetNavMatrices(true);
+      this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true)
     }
 
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
@@ -642,8 +623,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.InitFormDefaultValues();
 
     setTimeout(() => {
-      // todo make navigation work
-      // this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+      this.kbS.SetCurrentNavigatable(this.customerSearch.searchFormNav)
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -678,7 +658,11 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         this.outInvForm.controls['paymentMethod'].setValue(customer.defPaymentMethodX)
       }
 
-      this.SetDataForForm(customer)
+      this.buyerData = customer
+
+      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
     }
     catch(error) {
       this.cs.HandleError(error)
@@ -739,7 +723,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   }
 
   Save(): void {
-    // this.buyerForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
@@ -1133,16 +1116,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     return res;
   }
 
-  override SetDataForForm(data: any): void {
-    if (!!data) {
-      this.buyerData = { ...data as Customer };
-
-      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-      this.kbS.SelectFirstTile();
-      this.kbS.setEditMode(KeyboardModes.EDIT);
-    }
-  }
-
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
@@ -1246,7 +1219,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
-  public customerChanged([customer, shouldNavigate]: [Customer, boolean]) {
+  public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
     this.buyerData = customer
 
     if (this.mode.useCustomersPaymentMethod) {

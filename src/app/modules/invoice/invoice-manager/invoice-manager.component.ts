@@ -1116,7 +1116,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
-  public customerChanged([customer, shouldNavigate]: [Customer, boolean]) {
+  public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
     this.buyerData = customer
 
     if (this.mode.useCustomersPaymentMethod) {
