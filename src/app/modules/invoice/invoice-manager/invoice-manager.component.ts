@@ -130,7 +130,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   override outInvFormId: string = "outgoing-invoice-form";
 
   get invoiceIssueDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
+    if (!this.outInvForm) {
       return undefined;
     }
     const tmp = this.outInvForm.controls['invoiceIssueDate'].value;
@@ -139,7 +139,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   get invoiceDeliveryDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
+    if (!this.outInvForm) {
       return undefined;
     }
     const tmp = this.outInvForm.controls['invoiceDeliveryDate'].value;

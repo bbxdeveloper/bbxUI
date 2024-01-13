@@ -1247,4 +1247,21 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
+  public customerChanged([customer, shouldNavigate]: [Customer, boolean]) {
+    this.buyerData = customer
+
+    if (this.mode.useCustomersPaymentMethod) {
+      this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+    }
+
+    if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+      this.bbxToastrService.showSuccess(Constants.MSG_WARNING_CUSTDISCOUNT_PREV, true);
+    }
+
+    if (shouldNavigate) {
+      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+    }
+  }
 }
