@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -647,30 +647,30 @@ export class OfferEditorComponent extends BaseOfferEditorComponent implements On
           event.preventDefault();
           break
         }
-        case this.KeySetting[Actions.Search].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.selectedSearchFieldType !== Constants.SearchFieldTypes.Form || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.ChooseDataForCustomerForm();
-          break;
-        }
-        case this.KeySetting[Actions.Create].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.CreateCustomer(event);
-          break;
-        }
+        // case this.KeySetting[Actions.Search].KeyCode: {
+        //   if (!isForm) {
+        //     return;
+        //   }
+        //   if (this.selectedSearchFieldType !== Constants.SearchFieldTypes.Form || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        //     HelperFunctions.StopEvent(event);
+        //     return;
+        //   }
+        //   event.preventDefault();
+        //   this.ChooseDataForCustomerForm();
+        //   break;
+        // }
+        // case this.KeySetting[Actions.Create].KeyCode: {
+        //   if (!isForm) {
+        //     return;
+        //   }
+        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        //     HelperFunctions.StopEvent(event);
+        //     return;
+        //   }
+        //   event.preventDefault();
+        //   this.CreateCustomer(event);
+        //   break;
+        // }
         case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             event.preventDefault();

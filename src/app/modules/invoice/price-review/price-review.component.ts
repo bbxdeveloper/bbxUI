@@ -18,7 +18,6 @@ import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product, getPriceByPriceType } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
-import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { PaymentMethod } from '../models/PaymentMethod';
@@ -26,12 +25,10 @@ import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
-import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, KeyBindings, PricePreviewKeySettings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings, GetPendingDeliveryNotesDialogTableSettings } from 'src/assets/model/TableSettings';
+import { GetPendingDeliveryNotesDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -946,34 +943,34 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
 
   // Invoked when user presses F2 on the search field
   ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    });
-    dialogRef.onClose.subscribe((res: Customer) => {
-      console.log("Selected item: ", res);
-      if (!!res) {
-        this.buyerData = res;
-
-        this.kbS.SelectFirstTile();
-        this.kbS.setEditMode(KeyboardModes.EDIT);
-
-        if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-          this.simpleToastrService.show(
-            Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
-        }
-      }
-    });
+    // console.log("Selecting Customer from avaiable data.");
+    //
+    // this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    //
+    // const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+    //   context: {
+    //     searchString: this.customerInputFilterString,
+    //     allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+    //     colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+    //   }
+    // });
+    // dialogRef.onClose.subscribe((res: Customer) => {
+    //   console.log("Selected item: ", res);
+    //   if (!!res) {
+    //     this.buyerData = res;
+    //
+    //     this.kbS.SelectFirstTile();
+    //     this.kbS.setEditMode(KeyboardModes.EDIT);
+    //
+    //     if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+    //       this.simpleToastrService.show(
+    //         Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+    //         Constants.TITLE_INFO,
+    //         Constants.TOASTR_SUCCESS_5_SEC
+    //       );
+    //     }
+    //   }
+    // });
   }
 
   RefreshData(): void { }
@@ -1027,20 +1024,20 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
   //   });
   // }
 
-  private async PrepareCustomer(data: Customer): Promise<Customer> {
-    console.log('Before: ', data);
-
-    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
-
-    const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
-
-    if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
-      data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
-    }
-
-    return data;
-  }
+  // private async PrepareCustomer(data: Customer): Promise<Customer> {
+  //   console.log('Before: ', data);
+  //
+  //   data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
+  //   data.taxpayerNumber = (data.taxpayerId + (data.vatCode ?? '') + (data.countyCode ?? '')) ?? '';
+  //
+  //   const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
+  //
+  //   if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
+  //     data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
+  //   }
+  //
+  //   return data;
+  // }
 
   override SetDataForForm(data: any): void {
     if (!!data) {
@@ -1051,51 +1048,51 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
     }
   }
 
-  ChoseDataForFormByTaxtNumber(): void {
-    console.log("Selecting Customer from avaiable data by taxtnumber.");
-
-    this.isLoading = true;
-
-    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: async res => {
-        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-            context: {
-              data: await this.PrepareCustomer(res.data)
-            },
-            closeOnEsc: false
-          });
-          dialogRef.onClose.subscribe({
-            next: (res: Customer) => {
-              console.log("Selected item: ", res);
-              this.SetDataForForm(res);
-
-              if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-                this.simpleToastrService.show(
-                  Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-              }
-            },
-            error: err => {
-              this.cs.HandleError(err);
-            }
-          });
-        } else {
-          this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
+  // ChoseDataForFormByTaxtNumber(): void {
+  //   console.log("Selecting Customer from avaiable data by taxtnumber.");
+  //
+  //   this.isLoading = true;
+  //
+  //   this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+  //     next: async res => {
+  //       if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
+  //         this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+  //
+  //         const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+  //           context: {
+  //             data: await this.PrepareCustomer(res.data)
+  //           },
+  //           closeOnEsc: false
+  //         });
+  //         dialogRef.onClose.subscribe({
+  //           next: (res: Customer) => {
+  //             console.log("Selected item: ", res);
+  //             this.SetDataForForm(res);
+  //
+  //             if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+  //               this.simpleToastrService.show(
+  //                 Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
+  //                 Constants.TITLE_INFO,
+  //                 Constants.TOASTR_SUCCESS_5_SEC
+  //               );
+  //             }
+  //           },
+  //           error: err => {
+  //             this.cs.HandleError(err);
+  //           }
+  //         });
+  //       } else {
+  //         this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
+  //       }
+  //     },
+  //     error: (err) => {
+  //       this.cs.HandleError(err); this.isLoading = false;
+  //     },
+  //     complete: () => {
+  //       this.isLoading = false;
+  //     },
+  //   });
+  // }
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void { }
 
@@ -1274,30 +1271,30 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
           event.preventDefault();
           break
         }
-        case this.KeySetting[Actions.Search].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.ChooseDataForCustomerForm();
-          break;
-        }
-        case this.KeySetting[Actions.Create].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.CreateCustomer(event);
-          break;
-        }
+        // case this.KeySetting[Actions.Search].KeyCode: {
+        //   if (!isForm) {
+        //     return;
+        //   }
+        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        //     HelperFunctions.StopEvent(event);
+        //     return;
+        //   }
+        //   event.preventDefault();
+        //   this.ChooseDataForCustomerForm();
+        //   break;
+        // }
+        // case this.KeySetting[Actions.Create].KeyCode: {
+        //   if (!isForm) {
+        //     return;
+        //   }
+        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+        //     HelperFunctions.StopEvent(event);
+        //     return;
+        //   }
+        //   event.preventDefault();
+        //   this.CreateCustomer(event);
+        //   break;
+        // }
         // case this.KeySetting[Actions.Edit].KeyCode: {
         //   HelperFunctions.StopEvent(event)
         //

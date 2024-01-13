@@ -20,7 +20,6 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
-import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { OfferLine } from '../models/OfferLine';
@@ -29,7 +28,6 @@ import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-n
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
@@ -798,32 +796,32 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
 
   ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    });
-    dialogRef.onClose.subscribe((res: Customer) => {
-      console.log("Selected item: ", res);
-      if (!!res) {
-        this.buyerData = res;
-        this.SetCustomerFormFields(res);
-
-        this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-        this.kbS.SelectFirstTile();
-        this.kbS.setEditMode(KeyboardModes.EDIT);
-
-        if (this.isOfferEditor) {
-          this.customerChanged = true
-        }
-      }
-    });
+    // console.log("Selecting Customer from avaiable data.");
+    //
+    // this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    //
+    // const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+    //   context: {
+    //     searchString: this.customerInputFilterString,
+    //     allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+    //     colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+    //   }
+    // });
+    // dialogRef.onClose.subscribe((res: Customer) => {
+    //   console.log("Selected item: ", res);
+    //   if (!!res) {
+    //     this.buyerData = res;
+    //     this.SetCustomerFormFields(res);
+    //
+    //     this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+    //     this.kbS.SelectFirstTile();
+    //     this.kbS.setEditMode(KeyboardModes.EDIT);
+    //
+    //     if (this.isOfferEditor) {
+    //       this.customerChanged = true
+    //     }
+    //   }
+    // });
   }
 
   RefreshData(): void { }

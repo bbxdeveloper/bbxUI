@@ -576,11 +576,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
-        // todo sajt
-        // this.buyerFormNav.Setup(this.buyersData);
+        this.customerSearch.searchFormNav.Setup(this.buyersData)
         console.log('Buyers: ', d);
-
-        // Set filters
 
         // Products
         this.dbData = [];
