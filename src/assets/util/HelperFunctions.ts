@@ -559,14 +559,34 @@ export module HelperFunctions {
 
     export function GetHeaderColWidth(
             col: ModelFieldDescriptor, all: string[],
-            id: string, scollbarWidth: number = Constants.ScrollbarWidthInPixels,
-            unitOfMeasure: string = 'px'): any {
-        const key = col.objectKey
-        const lastCol = all[all.length - 1]
-        if (key === lastCol && HelperFunctions.HasVerticalScrollbar(id)) {
-            const withoutPixel = col.colWidth!.split(unitOfMeasure)[0]
-            return HelperFunctions.ToInt(withoutPixel) + scollbarWidth + unitOfMeasure
+            id: string, scollbarWidth: number = Constants.ScrollbarWidthInPixels): any {
+        var unitOfMeasure = 'px'
+        if (col.colWidth?.includes(unitOfMeasure)) {
+            const key = col.objectKey
+            const lastCol = all[all.length - 1]
+            if (key === lastCol && HelperFunctions.HasVerticalScrollbar(id)) {
+                const withoutPixel = col.colWidth!.split(unitOfMeasure)[0]
+                return HelperFunctions.ToInt(withoutPixel) + scollbarWidth + unitOfMeasure
+            }
         }
         return col.colWidth!
+    }
+
+    export function GetElementWidthInPixel(id: string): number {
+        var element = document.getElementById(id)
+        if (!!!element) {
+            return 0
+        }
+        return HelperFunctions.ToInt(getComputedStyle(element).width.replace('px', ''))
+    }
+
+    export function GetElementWidthInPercent(id: string): number {
+        var element = document.getElementById(id)
+        if (!!!element || !!!element.parentElement!) {
+            return 0
+        }
+        return HelperFunctions.ToFloat(getComputedStyle(element).width.replace('px', ''))
+            / HelperFunctions.ToFloat(getComputedStyle(element.parentElement).width.replace('px', ''))
+            * 100
     }
 }
