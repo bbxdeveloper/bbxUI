@@ -494,30 +494,30 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           event.preventDefault();
           break
         }
-        // case this.KeySetting[Actions.Search].KeyCode: {
-        //   if (!isForm) {
-        //     return;
-        //   }
-        //   if (this.selectedSearchFieldType !== Constants.SearchFieldTypes.Form || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-        //     HelperFunctions.StopEvent(event);
-        //     return;
-        //   }
-        //   event.preventDefault();
-        //   this.ChooseDataForCustomerForm();
-        //   break;
-        // }
-        // case this.KeySetting[Actions.Create].KeyCode: {
-        //   if (!isForm) {
-        //     return;
-        //   }
-        //   if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-        //     HelperFunctions.StopEvent(event);
-        //     return;
-        //   }
-        //   event.preventDefault();
-        //   this.CreateCustomer(event);
-        //   break;
-        // }
+        case this.KeySetting[Actions.Search].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.selectedSearchFieldType !== Constants.SearchFieldTypes.Form || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.ChooseDataForCustomerForm();
+          break;
+        }
+        case this.KeySetting[Actions.Create].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+            HelperFunctions.StopEvent(event);
+            return;
+          }
+          event.preventDefault();
+          this.CreateCustomer(event);
+          break;
+        }
         case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(event);

@@ -395,27 +395,6 @@ export class BaseInlineManagerComponent<T extends IEditable> {
 
   SetDataForForm(data: any): void {}
 
-  // CreateCustomer(event: any): void {
-  //   this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-  //
-  //   const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-  //     context: {
-  //       createCustomer: true
-  //     },
-  //     closeOnEsc: false
-  //   });
-  //   dialogRef.onClose.subscribe({
-  //     next: (res: Customer) => {
-  //       console.log("Selected item: ", res);
-  //       if (!!res) {
-  //         this.SetDataForForm(res);
-  //       }
-  //     },
-  //     error: err => {
-  //       this.cs.HandleError(err);
-  //     }
-  //   });
-  // }
 
   CreateProduct(event: any, handler: (p: Product) => Promise<void>, productCode?: string): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);

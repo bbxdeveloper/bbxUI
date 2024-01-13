@@ -46,6 +46,8 @@ import { GetCustomersParamListModel } from '../../customer/models/GetCustomersPa
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { OfflineUnitOfMeasures } from '../../product/models/UnitOfMeasure';
+import { CustomerDialogTableSettings } from "../../../../assets/model/TableSettings";
+import { CustomerSelectTableDialogComponent } from "../../invoice/customer-select-table-dialog/customer-select-table-dialog.component";
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -209,23 +211,19 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   get offerIssueDateValue(): Date | undefined {
-    if (!!!this.buyerForm) {
+    if (!this.buyerForm) {
       return undefined;
     }
     const tmp = this.buyerForm.controls['offerIssueDate'].value;
-
-    // console.log(tmp, new Date(tmp));
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   get offerValidityDateValue(): Date | undefined {
-    if (!!!this.buyerForm) {
+    if (!this.buyerForm) {
       return undefined;
     }
     const tmp = this.buyerForm.controls['offerVaidityDate'].value;
-
-    // console.log(tmp, new Date(tmp));
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
@@ -805,34 +803,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
 
-  ChooseDataForCustomerForm(): void {
-    // console.log("Selecting Customer from avaiable data.");
-    //
-    // this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    //
-    // const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-    //   context: {
-    //     searchString: this.customerInputFilterString,
-    //     allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-    //     colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-    //   }
-    // });
-    // dialogRef.onClose.subscribe((res: Customer) => {
-    //   console.log("Selected item: ", res);
-    //   if (!!res) {
-    //     this.buyerData = res;
-    //     this.SetCustomerFormFields(res);
-    //
-    //     this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-    //     this.kbS.SelectFirstTile();
-    //     this.kbS.setEditMode(KeyboardModes.EDIT);
-    //
-    //     if (this.isOfferEditor) {
-    //       this.customerChanged = true
-    //     }
-    //   }
-    // });
-  }
 
   RefreshData(): void { }
 
@@ -1162,5 +1132,56 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         product: product
       }
     })
+  }
+
+  protected CreateCustomer(event: any): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+      context: {
+        createCustomer: true
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (res: Customer) => {
+        console.log("Selected item: ", res);
+        if (!!res) {
+          this.SetDataForForm(res);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+      }
+    });
+  }
+
+  ChooseDataForCustomerForm(): void {
+    console.log("Selecting Customer from avaiable data.");
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    });
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        this.buyerData = res;
+        this.SetCustomerFormFields(res);
+
+        this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+
+        if (this.isOfferEditor) {
+          this.customerChanged = true
+        }
+      }
+    });
   }
 }
