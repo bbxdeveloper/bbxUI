@@ -856,14 +856,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             this.buyerForm.controls['customerTaxNumber'].setValue(res.taxpayerNumber);
           } else {
             this.bbxToastrService.show(
-              `A szerkesztésre betöltött ajánlatban található ügyfélazonosítóhoz (${this.buyerData.id}) nem található ügyfél.`,
+              `A szerkesztésre betöltött ajánlatban található ügyfélazonosítóhoz (${this.buyerData?.id}) nem található ügyfél.`,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
           }
         },
         error: (err) => {
-          this.cs.HandleError(err, `Hiba a ${this.buyerData.id} azonosítóval rendelkező ügyfél betöltése közben:\n`);
+          this.cs.HandleError(err, `Hiba a ${this.buyerData?.id} azonosítóval rendelkező ügyfél betöltése közben:\n`);
         },
         complete: () => {
           this.isLoading = false;
