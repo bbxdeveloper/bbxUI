@@ -37,7 +37,6 @@ import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 
 @Component({
@@ -101,7 +100,6 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
   ]
 
   override outInvFormId: string = "outgoing-invoice-form";
-  override buyerFormId: string = "buyer-form";
 
   override KeySetting: Constants.KeySettingsDct = ReceiptKeySettings;
   override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
@@ -139,13 +137,12 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     tokenService: TokenStorageService,
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
-    editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
           customerService, cdref, kbS, simpleToastrService, bbxToastrService,
           cs, productService, status, sideBarService, khs,
           activatedRoute, router, tokenService,
-          productCodeManagerService, printAndDownLoadService, editCustomerDialog, null)
+          productCodeManagerService, printAndDownLoadService, null)
     this.preventF12 = true
     this.InitialSetup()
     this.activatedRoute.url.subscribe(params => {
