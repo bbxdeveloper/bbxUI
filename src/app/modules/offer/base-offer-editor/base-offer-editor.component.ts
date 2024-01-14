@@ -20,7 +20,6 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { CountryCode } from '../../customer/models/CountryCode';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
-import { CustomerSelectTableDialogComponent } from '../../invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { InvoiceService } from '../../invoice/services/invoice.service';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { OfferLine } from '../models/OfferLine';
@@ -29,7 +28,6 @@ import { OneNumberInputDialogComponent } from '../../shared/simple-dialogs/one-n
 import { VatRateService } from '../../vat-rate/services/vat-rate.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
@@ -48,6 +46,8 @@ import { GetCustomersParamListModel } from '../../customer/models/GetCustomersPa
 import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { OfflineUnitOfMeasures } from '../../product/models/UnitOfMeasure';
+import { CustomerDialogTableSettings } from "../../../../assets/model/TableSettings";
+import { CustomerSelectTableDialogComponent } from "../../invoice/customer-select-table-dialog/customer-select-table-dialog.component";
 
 @Component({
   selector: 'app-base-offer-editor',
@@ -211,23 +211,19 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
   }
 
   get offerIssueDateValue(): Date | undefined {
-    if (!!!this.buyerForm) {
+    if (!this.buyerForm) {
       return undefined;
     }
     const tmp = this.buyerForm.controls['offerIssueDate'].value;
-
-    // console.log(tmp, new Date(tmp));
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
   get offerValidityDateValue(): Date | undefined {
-    if (!!!this.buyerForm) {
+    if (!this.buyerForm) {
       return undefined;
     }
     const tmp = this.buyerForm.controls['offerVaidityDate'].value;
-
-    // console.log(tmp, new Date(tmp));
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
@@ -807,34 +803,6 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
 
   ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
 
-  ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    });
-    dialogRef.onClose.subscribe((res: Customer) => {
-      console.log("Selected item: ", res);
-      if (!!res) {
-        this.buyerData = res;
-        this.SetCustomerFormFields(res);
-
-        this.kbS.SetCurrentNavigatable(this.buyerFormNav);
-        this.kbS.SelectFirstTile();
-        this.kbS.setEditMode(KeyboardModes.EDIT);
-
-        if (this.isOfferEditor) {
-          this.customerChanged = true
-        }
-      }
-    });
-  }
 
   RefreshData(): void { }
 
@@ -888,14 +856,14 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
             this.buyerForm.controls['customerTaxNumber'].setValue(res.taxpayerNumber);
           } else {
             this.bbxToastrService.show(
-              `A szerkesztésre betöltött ajánlatban található ügyfélazonosítóhoz (${this.buyerData.id}) nem található ügyfél.`,
+              `A szerkesztésre betöltött ajánlatban található ügyfélazonosítóhoz (${this.buyerData?.id}) nem található ügyfél.`,
               Constants.TITLE_ERROR,
               Constants.TOASTR_ERROR
             );
           }
         },
         error: (err) => {
-          this.cs.HandleError(err, `Hiba a ${this.buyerData.id} azonosítóval rendelkező ügyfél betöltése közben:\n`);
+          this.cs.HandleError(err, `Hiba a ${this.buyerData?.id} azonosítóval rendelkező ügyfél betöltése közben:\n`);
         },
         complete: () => {
           this.isLoading = false;
@@ -1164,5 +1132,56 @@ export class BaseOfferEditorComponent extends BaseInlineManagerComponent<OfferLi
         product: product
       }
     })
+  }
+
+  protected CreateCustomer(event: any): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+      context: {
+        createCustomer: true
+      },
+      closeOnEsc: false
+    });
+    dialogRef.onClose.subscribe({
+      next: (res: Customer) => {
+        console.log("Selected item: ", res);
+        if (!!res) {
+          this.SetDataForForm(res);
+        }
+      },
+      error: err => {
+        this.cs.HandleError(err);
+      }
+    });
+  }
+
+  ChooseDataForCustomerForm(): void {
+    console.log("Selecting Customer from avaiable data.");
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    });
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res);
+      if (!!res) {
+        this.buyerData = res;
+        this.SetCustomerFormFields(res);
+
+        this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+        this.kbS.SelectFirstTile();
+        this.kbS.setEditMode(KeyboardModes.EDIT);
+
+        if (this.isOfferEditor) {
+          this.customerChanged = true
+        }
+      }
+    });
   }
 }
