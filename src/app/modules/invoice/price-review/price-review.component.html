@@ -104,24 +104,18 @@
 
 <ng-template #activeForm let-label="label">
     <div class="card-col-1 px-24">
-        <table class="customer-search-row area-row-0 mb-10">
-            <tr>
-                <td>
-                    <app-customer-search #customerSearch
-                                         [customer]="buyerData"
-                                         [withDiscounts]="true"
-                                         (customerChanged)="customerChanged($event)"
-                                         (focusIn)="onFormSearchFocused(undefined, $event)"
-                                         (focusOut)="onFormSearchBlurred(undefined, $event)"
-                                         (loadingChanged)="isLoading = $event"></app-customer-search>
-                </td>
-                <td>
-                    <div class="card-header-row-txt card-header-top-margin">
-                        {{label}}
-                    </div>
-                </td>
-            </tr>
-        </table>
+        <div class="customer-search-row area-row-0 mb-10">
+            <app-customer-search #customerSearch
+                                 [customer]="buyerData"
+                                 [withDiscounts]="true"
+                                 (customerChanged)="customerChanged($event)"
+                                 (focusIn)="onFormSearchFocused(undefined, $event)"
+                                 (focusOut)="onFormSearchBlurred(undefined, $event)"
+                                 (loadingChanged)="isLoading = $event"></app-customer-search>
+            <div class="card-header-row-txt card-header-top-margin">
+                {{ label }}
+            </div>
+        </div>
 
         <app-invoice-customer [customer]="buyerData" [markPrivatePerson]="true"></app-invoice-customer>
     </div>
