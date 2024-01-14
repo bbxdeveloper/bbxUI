@@ -60,30 +60,15 @@ form.invoice-customer-form {
 }
 
 .customer-search-row {
-    display: block;
-    height: 45.6px;
+  height: 45.6px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
 
-    tr {
-        display: grid;
-        align-items: center;
-        grid-template-columns: 37% 15% 48%;
-        min-width: 100%;
-
-        td {
-            input {
-                min-width: 50% !important;
-            }
-
-            .card-header-row-txt {
-                text-align: left;
-                margin-left: 10px;
-
-                font-size: xx-large;
-                text-transform: uppercase;
-                font-weight: 600;
-            }
-        }
-    }
+  .card-header-row-txt {
+    font-size: xx-large;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
 }
 
 .card-header-title {
