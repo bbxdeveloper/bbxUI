@@ -60,15 +60,20 @@ form.invoice-customer-form {
 }
 
 .customer-search-row {
-  height: 45.6px;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+    height: 45.6px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
 
-  .card-header-row-txt {
-    font-size: xx-large;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
+    .card-header-row-txt {
+        font-size: xx-large;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+}
+
+.card-header-top-margin {
+    margin-top: 10px;
+    margin-bottom: 5px;
 }
 
 .card-header-title {
