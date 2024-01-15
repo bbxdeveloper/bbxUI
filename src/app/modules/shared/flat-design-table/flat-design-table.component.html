@@ -189,7 +189,7 @@
             </table>
         </form>
     </nb-card-body>
-    <nb-card-footer class="footer-paginator" *ngIf="!!dbDataTable">
+    <nb-card-footer class="footer-paginator" *ngIf="!!dbDataTable && !hidePaginator">
         <app-paginator *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" [paginator]="dbDataTable"></app-paginator>
         <span *ngIf="showMsgOnNoData && !!dbDataTable && !isLoading && dbDataTable.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
     </nb-card-footer>

@@ -21,6 +21,9 @@ $loopUntil100: 100;
 */
 
 @for $i from 0 through $loopUntil100 {
+    .margin-#{$i} {
+        margin:  #{$i}px !important;
+    }
     .margin-right-#{$i} {
         margin-right:  #{$i}px !important;
     }
@@ -40,6 +43,9 @@ $loopUntil100: 100;
 */
 
 @for $i from 0 through $loopUntil100 {
+    .padding-#{$i} {
+        padding:  #{$i}px !important;
+    }
     .padding-right-#{$i} {
         padding-right:  #{$i}px !important;
     }

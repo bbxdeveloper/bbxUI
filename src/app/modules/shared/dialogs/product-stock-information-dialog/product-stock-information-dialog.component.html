@@ -1,6 +1,7 @@
 <nb-card class="modal-product-active">
     <nb-card-header class="modal-product-active-header">
         <span>Termék részletek</span>
+        <button nbButton (click)="close()" status="primary" tabindex="-1" id="confirm-dialog-button-close" class="padding-0 width-of-30px height-of-30px">X</button>
     </nb-card-header>
     <nb-card-body class="modal-product-active-body padding-top-0 padding-bottom-0">
         <form *ngIf="!!_form" [id]="sumFormId" [formGroup]="_form.form" #formDirective="ngForm"
@@ -198,13 +199,9 @@
         </form>
 
         <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataSource"
-            [heightMargin]="350" [compact]="true"
+            [heightMargin]="350" [compact]="true" [hidePaginator]="true"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="false"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
         </app-flat-design-table>
     </nb-card-body>
-    <nb-card-footer class="modal-product-active-footer">
-        <button nbButton (click)="close()" status="primary" tabindex="-1"
-            id="confirm-dialog-button-close">Bezárás</button>
-    </nb-card-footer>
 </nb-card>

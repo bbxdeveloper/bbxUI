@@ -48,7 +48,7 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     {
       label: 'Raktár', objectKey: 'warehouseDescription', colKey: 'warehouseDescription',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "200px", textAlign: "left", fInputType: ''
+      colWidth: "50%", textAlign: "left", fInputType: ''
     },
     {
       label: 'Készlet', objectKey: 'realQty', colKey: 'realQty',
@@ -241,7 +241,7 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
       undefined
     )
     setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(false, selectAfterRefresh);
+      this.dbDataTable.GenerateAndSetNavMatrices(true, selectAfterRefresh);
       if (setAsCurrent && this.dbDataTable.Matrix.length > 0 && this.dbDataTable.Matrix[0].length > 0) {
         this.kbS.SetCurrentNavigatable(this.dbDataTable)
         this.kbS.SelectFirstTile()

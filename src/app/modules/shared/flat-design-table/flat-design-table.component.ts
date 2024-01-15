@@ -42,6 +42,8 @@ export class FlatDesignTableComponent implements OnInit {
 
   @Input() isLoading: boolean = false;
 
+  @Input() hidePaginator: boolean = false
+
   @Output() focusInTable: EventEmitter<any> = new EventEmitter();
   @Output() focusOutTable: EventEmitter<any> = new EventEmitter();
 
