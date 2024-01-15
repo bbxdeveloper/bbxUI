@@ -48,7 +48,7 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     {
       label: 'Raktár', objectKey: 'warehouseDescription', colKey: 'warehouseDescription',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "50%", textAlign: "left", fInputType: ''
+      colWidth: "200px", textAlign: "left", fInputType: ''
     },
     {
       label: 'Készlet', objectKey: 'realQty', colKey: 'realQty',
