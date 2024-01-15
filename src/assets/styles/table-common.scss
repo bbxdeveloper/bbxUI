@@ -34,7 +34,11 @@ nb-card-body {
 }
 
 .card-table-compact {
-    width: fit-content !important;
+    width: 100%;
+    width: -moz-fill-available;
+    width: -webkit-fill-available;
+    width: fill-available;
+    
     margin: auto !important
 }
 

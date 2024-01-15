@@ -48,7 +48,7 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     {
       label: 'Raktár', objectKey: 'warehouseDescription', colKey: 'warehouseDescription',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "200px", textAlign: "left", fInputType: ''
+      colWidth: "100%", textAlign: "left", fInputType: ''
     },
     {
       label: 'Készlet', objectKey: 'realQty', colKey: 'realQty',
@@ -63,12 +63,12 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
     {
       label: 'Bevét', objectKey: 'latestIn', colKey: 'latestIn',
       defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
+      mask: '', colWidth: '110px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Kiadás', objectKey: 'latestOut', colKey: 'latestOut',
       defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
+      mask: '', colWidth: '110px', textAlign: 'left', fReadonly: false
     }
   ]
   dbData!: TreeGridNode<ProductStockInfo>[];
