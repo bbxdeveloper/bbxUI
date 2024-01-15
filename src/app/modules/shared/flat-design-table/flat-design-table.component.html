@@ -2,7 +2,7 @@
     <nb-card-header *ngIf="!!dbDataTable">
         <ng-content></ng-content>
     </nb-card-header>
-    <nb-card-body *ngIf="!!dbDataTable">
+    <nb-card-body *ngIf="!!dbDataTable" class="padding-top-10">
         <form class="card-table-wrapper-form {{themeClass}}">
             <table class="card-table-header {{themeClass}}" [ngClass]="getTableClasses()"  [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
                 nbSort (sort)="changeSort($event)" id="table_header">

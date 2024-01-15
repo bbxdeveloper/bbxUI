@@ -2,9 +2,10 @@
     <nb-card-header class="modal-product-active-header">
         <span>Termék részletek</span>
     </nb-card-header>
-    <nb-card-body class="modal-product-active-body">
+    <nb-card-body class="modal-product-active-body padding-top-0 padding-bottom-0">
         <form *ngIf="!!_form" [id]="sumFormId" [formGroup]="_form.form" #formDirective="ngForm"
-            (focusout)="_form.HandleFormFocusOut()" (click)="_form.HandleFormClick()"><div class="bbx-fd-form-field-wrapper-div-row">
+            (focusout)="_form.HandleFormFocusOut()" (click)="_form.HandleFormClick()" class="margin-top-5 margin-bottom-10 no-overflow-y">
+            <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field (keydown.enter)="_form.HandleFormEnter($event)" class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Készlet Azonosító</label>

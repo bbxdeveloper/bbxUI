@@ -53,3 +53,11 @@ $loopUntil100: 100;
         padding-bottom:  #{$i}px !important;
     }
 }
+
+/*
+    Misc
+*/
+
+.no-overflow-y {
+    overflow-y: hidden;
+}
