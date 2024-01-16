@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="triple-column">
-                    <!-- <div class="field-wrapper">                        
+                    <div class="field-wrapper">                        
                         <nb-form-field class="search-row-nb-form-field"
                             (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
                             (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'CustomerSearch')">
@@ -104,8 +104,8 @@
                             [disabled]="isLoading"
                             [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                             (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
-                    </div> -->
-                    <div class="field-wrapper">
+                    </div>
+                    <!-- <div class="field-wrapper">
                         <app-customer-search #customerSearch
                                  [customer]="buyerData" classes="field-wrapper"
                                  (customerChanged)="customerChanged($event)"
@@ -113,7 +113,7 @@
                                  (focusOut)="onFormSearchBlurred(undefined, $event)"
                                  [withDiscounts]="false"
                                  (loadingChanged)="isLoading = $event"></app-customer-search>
-                    </div>
+                    </div>-->
                     <div class="field-wrapper">
                         <nb-form-field>
                             <label>Ügyfél</label>
@@ -134,7 +134,7 @@
                     </div>
 
                     <div class="form-button" right>
-                        <button nbButton [id]="SearchButtonId" (click)="Refresh()" [disabled]="!!filterForm.invalid"
+                        <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
                             status="primary">Keresés</button>
                     </div>
                 </div>

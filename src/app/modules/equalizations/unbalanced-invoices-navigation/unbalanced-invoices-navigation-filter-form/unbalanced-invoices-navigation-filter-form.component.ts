@@ -52,20 +52,34 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     return !this.keyboardService.isEditModeActivated
   }
 
+  readonly SearchButtonId: string = 'customer-button-search';
+  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
+  customerInputFilterString: string = '';
+  cachedCustomerName?: string;
+  _searchByTaxtNumber: boolean = false;
+  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
+  set searchByTaxtNumber(value: boolean) {
+    this._searchByTaxtNumber = value;
+    this.cdref.detectChanges();
+    this.filterFormNav.GenerateAndSetNavMatrices(false, true);
+    this.AddSearchButtonToFormMatrix();
+  }
+  customerData?: Customer;
+  customersData: Customer[] = [];
+
   isLoading: boolean = false
 
-  readonly SearchButtonId: string = 'button-search';
-  customerData?: Customer;
-  @ViewChild('customerSearch')
-  private customerSearch!: CustomerSearchComponent
-  customerSearchFocused: boolean = false
-  private lastBuyerId: number | undefined
-  get buyerData(): Customer {
-    return this.customerData!
-  }
-  set buyerData(buyer: Customer) {
-    this.customerData = buyer
-  }
+  // customerData?: Customer;
+  // @ViewChild('customerSearch')
+  // private customerSearch!: CustomerSearchComponent
+  // customerSearchFocused: boolean = false
+  // private lastBuyerId: number | undefined
+  // get buyerData(): Customer {
+  //   return this.customerData!
+  // }
+  // set buyerData(buyer: Customer) {
+  //   this.customerData = buyer
+  // }
 
   @Input()
   public set componentFormData(formData: UnbalancedInvoicesFilterFormData | undefined) {
@@ -233,9 +247,9 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
       this.filterFormNav.InnerJumpOnEnter = true
       this.filterFormNav.OuterJump = true
-      this.customerSearch.searchFormNav.attachDirection = AttachDirection.DOWN
-      this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true, undefined, true)
-      this.customerSearch.searchFormNav.Matrix[0].push(this.SearchButtonId)
+      // this.customerSearch.searchFormNav.attachDirection = AttachDirection.DOWN
+      // this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true, undefined, true)
+      // this.customerSearch.searchFormNav.Matrix[0].push(this.SearchButtonId)
 
       this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
@@ -247,7 +261,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       this.keyboardService.SelectFirstTile()
       this.keyboardService.ClickCurrentElement()
 
-      this.loadFilters()
+      await this.loadFilters()
 
       const filter = this.localStorage.get<UnbalancedInvoicesFilterFormData>(this.localStorageKey)
 
@@ -262,19 +276,19 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     }, 500);
   }
 
-  private loadFilters(): void {
+  private async loadFilters(): Promise<void> {
     const filter = this.localStorage.get<UnbalancedInvoicesFilterFormData>(this.localStorageKey)
 
     if (!filter) {
       return
     }
 
+    await this.loadCustomerFilter(filter)
     this.loadMiscFilters(filter)
     this.loadDatesFromFilter(filter)
-    this.loadCustomerFilter(filter)
   }
 
-  private loadCustomerFilter(filter: UnbalancedInvoicesFilterFormData): void {
+  private async loadCustomerFilter(filter: UnbalancedInvoicesFilterFormData): Promise<void> {
     const setControlValue = (filterValue: any, control: AbstractControl) => {
       if (!filterValue) {
         return
@@ -282,7 +296,16 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       control.setValue(filterValue)
     }
 
-    this.customerSearch.search(filter.CustomerSearch)
+    if (filter) {
+      if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
+        filter.CustomerID = undefined
+      } else {
+        await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
+        this.keyboardService.SelectElementByCoordinate(0, 5)
+      }
+    }
+
+    // this.customerSearch.search(filter.CustomerSearch)
   }
 
   private loadMiscFilters(filter: UnbalancedInvoicesFilterFormData): void {
@@ -351,6 +374,163 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
   }
 
+  FillFormWithFirstAvailableCustomer(event: any): void {
+    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
+      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
+    }
+
+    this.customerInputFilterString = event.target.value ?? '';
+
+    if (this.customerInputFilterString.replace(' ', '') === '' || HelperFunctions.isEmptyOrSpaces(this.customerInputFilterString)) {
+      this.customerData = undefined;
+      this.SetCustomerFormFields(undefined);
+      this.isLoading = false
+      return;
+    }
+
+    this.isLoading = true;
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.searchCustomer(this.customerInputFilterString)
+  }
+
+  private async searchCustomerAsync(term: string): Promise<void> {
+    if (HelperFunctions.isEmptyOrSpaces(term)) {
+      this.SetCustomerFormFields(undefined);
+    }
+
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    try {
+      const res = await firstValueFrom(this.customerService.GetAll(request))
+
+      if (!!res && res.data !== undefined && res.data.length > 0) {
+        this.customerData = res.data[0];
+        this.cachedCustomerName = res.data[0].customerName;
+        this.SetCustomerFormFields(res.data[0]);
+        this.searchByTaxtNumber = false;
+      } else {
+        if (this.customerInputFilterString.length >= 8 &&
+          HelperFunctions.IsNumber(this.customerInputFilterString)) {
+          this.searchByTaxtNumber = true;
+        } else {
+          this.searchByTaxtNumber = false;
+        }
+        this.SetCustomerFormFields(undefined);
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+      this.isLoading = false;
+      this.searchByTaxtNumber = false;
+    }
+  }
+
+  private searchCustomer(term: string): Subscription {
+    if (HelperFunctions.isEmptyOrSpaces(term)) {
+      this.SetCustomerFormFields(undefined);
+    }
+
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    return this.customerService.GetAll(request).subscribe({
+      next: res => {
+        if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.customerData = res.data[0];
+          this.cachedCustomerName = res.data[0].customerName;
+          this.SetCustomerFormFields(res.data[0]);
+          this.searchByTaxtNumber = false;
+        } else {
+          if (this.customerInputFilterString.length >= 8 &&
+            HelperFunctions.IsNumber(this.customerInputFilterString)) {
+            this.searchByTaxtNumber = true;
+          } else {
+            this.searchByTaxtNumber = false;
+          }
+          this.SetCustomerFormFields(undefined);
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.searchByTaxtNumber = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  private async PrepareCustomer(data: Customer): Promise<Customer> {
+    console.log('Before: ', data);
+
+    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
+
+    // const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
+
+    // if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
+    //   data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
+    // }
+
+    return data;
+  }
+
+  ChoseDataForFormByTaxtNumber(): void {
+    console.log("Selecting Customer from avaiable data by taxtnumber.");
+
+    this.isLoading = true;
+
+    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+      next: async res => {
+        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
+          this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+
+          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+            context: {
+              data: await this.PrepareCustomer(res.data)
+            },
+            closeOnEsc: false
+          });
+          dialogRef.onClose.subscribe({
+            next: (res: Customer) => {
+              console.log("Selected item: ", res);
+              if (!!res) {
+                this.customerData = res;
+                this.filterForm.controls["CustomerName"].setValue(res.customerName);
+
+                this.keyboardService.SetCurrentNavigatable(this.filterFormNav);
+                this.keyboardService.SelectFirstTile();
+                this.keyboardService.setEditMode(KeyboardModes.EDIT);
+              }
+            },
+            error: err => {
+              this.cs.HandleError(err);
+            }
+          });
+        } else {
+          this.bbxToastService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err); this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
   //#endregion Customer
 
   //#region Validation
@@ -416,10 +596,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
 
   //#region Unimplemented
 
-  ChoseDataForFormByTaxtNumber(): void {
-    throw new Error('Method not implemented.');
-  }
-
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {
     throw new Error('Method not implemented.');
   }
@@ -443,18 +619,18 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
 
   //#region customer search component
 
-  public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
-    this.buyerData = customer
-    this.SetCustomerFormFields(customer)
-  }
+  // public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
+  //   this.buyerData = customer
+  //   this.SetCustomerFormFields(customer)
+  // }
 
-  public onFormSearchFocused(event?: any, formFieldName?: string): void {
-    this.customerSearchFocused = true;
-  }
+  // public onFormSearchFocused(event?: any, formFieldName?: string): void {
+  //   this.customerSearchFocused = true;
+  // }
 
-  public onFormSearchBlurred(event?: any, formFieldName?: string): void {
-    this.customerSearchFocused = false;
-  }
+  // public onFormSearchBlurred(event?: any, formFieldName?: string): void {
+  //   this.customerSearchFocused = false;
+  // }
 
   //#endregion customer search component
 
