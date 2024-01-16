@@ -66,10 +66,12 @@ nb-card-body {
 
 form {
     display: grid;
-    grid-template-rows: 15% 25% 25% 25%;
+    grid-template-rows: 18% 25% 25% 25%;
     grid-template-columns: 100%;
     column-gap: 10px;
+    row-gap: 5px;
     justify-items: start;
+    align-items: center;
 }
 
 .double-row {
