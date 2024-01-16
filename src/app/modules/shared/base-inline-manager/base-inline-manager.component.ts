@@ -18,8 +18,6 @@ import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { Customer } from '../../customer/models/Customer';
-import { TaxNumberSearchCustomerEditDialogComponent } from '../../invoice/tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { TableKeyDownEvent } from '../inline-editable-table/inline-editable-table.component';
 import { CreateNewProductDialogComponent } from '../dialogs/create-new-product-dialog/create-new-product-dialog.component';
 import { Product } from '../../product/models/Product';
@@ -397,27 +395,6 @@ export class BaseInlineManagerComponent<T extends IEditable> {
 
   SetDataForForm(data: any): void {}
 
-  CreateCustomer(event: any): void {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-      context: {
-        createCustomer: true
-      },
-      closeOnEsc: false
-    });
-    dialogRef.onClose.subscribe({
-      next: (res: Customer) => {
-        console.log("Selected item: ", res);
-        if (!!res) {
-          this.SetDataForForm(res);
-        }
-      },
-      error: err => {
-        this.cs.HandleError(err);
-      }
-    });
-  }
 
   CreateProduct(event: any, handler: (p: Product) => Promise<void>, productCode?: string): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);

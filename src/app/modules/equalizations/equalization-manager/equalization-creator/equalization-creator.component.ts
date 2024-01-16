@@ -86,7 +86,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',
       defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: true
+      mask: '', colWidth: '110px', textAlign: 'left', fReadonly: true
     },
     {
       label: 'Kiegyenlítve', objectKey: 'invoicePaidAmount', colKey: 'invoicePaidAmount',
@@ -101,7 +101,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
       defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '90px', textAlign: 'left', fReadonly: false
+      mask: '', colWidth: '110px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Pénznem', objectKey: 'currencyCode', colKey: 'currencyCode', navMatrixCssClass: TileCssClass,
@@ -518,6 +518,10 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
         this.HandleRowDataChangedError(index, 'currencyCode')
       } else {
+        if (changedData.currencyCode === CurrencyCodes.HUF) {
+          changedData.exchangeRate = 1
+        }
+
         changedData.Save()
       }
     }
@@ -542,7 +546,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       if (changedData.currencyCode === CurrencyCodes.HUF && changedData.exchangeRate !== 1) {
         setTimeout(() => {
           this.bbxToastrService.show(
-            HelperFunctions.StringFormat(Constants.MSG_EXCHANGE_RATE_SHOULD_BE, changedData.currencyCode, changedData.exchangeRate),
+            HelperFunctions.StringFormat(Constants.MSG_EXCHANGE_RATE_SHOULD_BE, changedData.currencyCode, 1),
             Constants.TITLE_ERROR,
             Constants.TOASTR_ERROR
           )
@@ -596,6 +600,15 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.show(
         `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+
+    if (this.dbData.find(x => x.data.currencyCode === CurrencyCodes.HUF && x.data.exchangeRate !== 1) !== undefined) {
+      this.bbxToastrService.show(
+        `Egy vagy több tétel esetében hibás árfolyam van megadva.`,
         Constants.TITLE_ERROR,
         Constants.TOASTR_ERROR
       );

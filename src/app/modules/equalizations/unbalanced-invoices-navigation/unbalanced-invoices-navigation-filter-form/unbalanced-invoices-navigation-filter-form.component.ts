@@ -22,6 +22,8 @@ import { CustomerService } from 'src/app/modules/customer/services/customer.serv
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { InvoiceNumberData } from './InvoiceNumberData';
+import { CustomerSelectTableDialogComponent } from 'src/app/modules/invoice/customer-select-table-dialog/customer-select-table-dialog.component';
+import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 
 @Component({
   selector: 'app-unbalanced-invoices-navigation-filter-form',
@@ -228,7 +230,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     })
 
     setTimeout(async () => {
-      this.filterFormNav.GenerateAndSetNavMatrices(true)
+      this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
 
       this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
@@ -556,10 +558,30 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     throw new Error('Method not implemented.');
   }
 
-  public ChooseDataForCustomerForm(): void {
-    throw new Error('Method not implemented.');
-  }
+  ChooseDataForCustomerForm(): void {
+    console.log("Selecting Customer from avaiable data.")
 
+    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    })
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res)
+      if (!!res) {
+        this.customerData = res
+        this.SetCustomerFormFields(res)
+
+        this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
+        this.keyboardService.SelectElementByCoordinate(0, 3)
+        this.keyboardService.ClickCurrentElement()
+      }
+    })
+  }
   public RefreshData(): void {
     throw new Error('Method not implemented.');
   }

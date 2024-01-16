@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService, NbSortRequest } from '@nebular/theme';
-import { of, Subscription, lastValueFrom, pairwise } from 'rxjs';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { of, lastValueFrom, pairwise } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -15,21 +15,16 @@ import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
-import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product, getPriceByPriceType, isProduct } from '../../product/models/Product';
-import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { InvoiceService } from '../services/invoice.service';
 import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
 import { ProductService } from '../../product/services/product.service';
-import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
-import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
-import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
@@ -46,7 +41,6 @@ import { PartnerLockService } from 'src/app/services/partner-lock.service';
 import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { PaymentMethods, OfflinePaymentMethods } from '../models/PaymentMethod';
 import { OfferService } from '../../offer/services/offer.service';
 import { GetOfferParamsModel } from '../../offer/models/GetOfferParamsModel';
@@ -55,6 +49,7 @@ import { GetCustomerParamListModel } from '../../customer/models/GetCustomerPara
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { OfflineVatRate } from '../../vat-rate/models/VatRate';
+import {CustomerSearchComponent} from "../customer-serach/customer-search.component";
 
 @Component({
   selector: 'app-invoice-manager',
@@ -67,9 +62,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
   title: string = ''
 
-  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
-
-  cachedCustomerName?: string;
+  @ViewChild('customerSearch')
+  private customerSearch!: CustomerSearchComponent
 
   private lastBuyerId: number|undefined
   get buyerData(): Customer {
@@ -80,16 +74,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     if (this.mode && !this.mode.incoming && this.mode.invoiceType === InvoiceTypes.INV && this.mode.invoiceCategory === InvoiceCategory.NORMAL) {
       this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(buyer.paymentDays, 0, 0))
     }
-  }
-
-  customerInputFilterString: string = '';
-
-  _searchByTaxtNumber: boolean = false;
-  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
-  set searchByTaxtNumber(value: boolean) {
-    this._searchByTaxtNumber = value;
-    this.cdref.detectChanges();
-    this.buyerFormNav.GenerateAndSetNavMatrices(false, true);
   }
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
@@ -144,10 +128,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   ]
 
   override outInvFormId: string = "outgoing-invoice-form";
-  override buyerFormId: string = "buyer-form";
 
   get invoiceIssueDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
+    if (!this.outInvForm) {
       return undefined;
     }
     const tmp = this.outInvForm.controls['invoiceIssueDate'].value;
@@ -156,7 +139,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   get invoiceDeliveryDateValue(): Date | undefined {
-    if (!!!this.outInvForm) {
+    if (!this.outInvForm) {
       return undefined;
     }
     const tmp = this.outInvForm.controls['invoiceDeliveryDate'].value;
@@ -175,12 +158,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   isPaymentDateInNavigation = true
-
-  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
-    this.buyerData = customer
-    this.cachedCustomerName = customer.customerName;
-    this.searchByTaxtNumber = false;
-  })
 
   override confirmAndCreateProductCallback?: any = (rowPos: number, productCode: string) => {
     HelperFunctions.confirm(this.dialogService, Constants.MSG_CONFIRMATION_PRODUCT_CREATE, () => {
@@ -216,7 +193,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     productCodeManagerService: ProductCodeManagerServiceService,
     printAndDownLoadService: PrintAndDownloadService,
     custDiscountService: CustomerDiscountService,
-    editCustomerDialog: EditCustomerDialogManagerService,
     private offerService: OfferService,
     private route: ActivatedRoute
   ) {
@@ -224,7 +200,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
       cs, productService, status, sideBarService, khs,
       activatedRoute, router, tokenService,
-      productCodeManagerService, printAndDownLoadService, editCustomerDialog, custDiscountService)
+      productCodeManagerService, printAndDownLoadService, custDiscountService)
 
     this.preventF12 = true
     this.InitialSetup();
@@ -265,7 +241,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         .finally(() => { })
 
       if (customer) {
-        this.SetDataForForm(customer)
+        this.buyerData = customer
 
         const controls = this.outInvForm.controls
         controls['paymentMethod'].setValue(customer.defPaymentMethodX)
@@ -372,22 +348,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     this.setupOutInvForm()
 
-    this.buyerForm = new FormGroup({
-      customerSearch: new FormControl('', []),
-    });
-
-    this.buyerFormNav = new InlineTableNavigatableForm(
-      this.buyerForm,
-      this.kbS,
-      this.cdref,
-      this.buyersData,
-      this.buyerFormId,
-      AttachDirection.DOWN,
-      this
-    );
-
-    this.buyerFormNav!.OuterJump = true;
-
     this.dbDataTable = new InlineEditableNavigatableTable(
       this.dataSourceBuilder,
       this.kbS,
@@ -406,7 +366,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     // Refresh data
     this.refresh();
-
   }
 
   private setupOutInvForm(): void {
@@ -518,24 +477,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.outInvFormNav!.OuterJump = true;
   }
 
-  changeSort(sortRequest: NbSortRequest): void {
-    this.dbDataDataSrc.sort(sortRequest);
-    this.sortColumn = sortRequest.column;
-    this.sortDirection = sortRequest.direction;
-
-    setTimeout(() => {
-      this.dbDataTable?.GenerateAndSetNavMatrices(false, true);
-    }, 50);
-  }
-
-  getDirection(column: string): NbSortDirection {
-    if (column === this.sortColumn) {
-      return this.sortDirection;
-    }
-    return NbSortDirection.NONE;
-  }
-
-  // invoiceDeliveryDate
   validateInvoiceDeliveryDate(control: AbstractControl): any {
     if (this.invoiceIssueDateValue === undefined) {
       return null;
@@ -600,10 +541,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       });
   }
 
-  ToFloat(p: any): number {
-    return p !== undefined || p === '' || p === ' ' ? parseFloat((p + '').replace(' ', '')) : 0;
-  }
-
   refresh(): void {
     const tempPaymentSubscription = this.invoiceService.GetTemporaryPaymentMethod().subscribe({
       next: d => {
@@ -639,10 +576,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       next: d => {
         // Possible buyers
         this.buyersData = d.data!;
-        this.buyerFormNav.Setup(this.buyersData);
+        this.customerSearch.searchFormNav.Setup(this.buyersData)
         console.log('Buyers: ', d);
-
-        // Set filters
 
         // Products
         this.dbData = [];
@@ -688,10 +623,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
+
+
   private async AfterViewInitSetup(): Promise<void> {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
-    this.buyerFormNav.GenerateAndSetNavMatrices(true);
+    this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true)
     this.outInvFormNav.GenerateAndSetNavMatrices(true);
 
     this.dbDataTable?.Setup(
@@ -710,18 +647,17 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     await this.handlePathParams()
 
     setTimeout(() => {
-      this.kbS.SetCurrentNavigatable(this.buyerFormNav);
+      this.kbS.SetCurrentNavigatable(this.customerSearch.searchFormNav);
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.EDIT);
 
       this.cdref.detectChanges();
     }, 500);
   }
+
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
-
-    this.editCustomerDialogSubscription.unsubscribe()
 
     this.mode.partnerLock?.unlockCustomer()
   }
@@ -769,7 +705,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   Save(): void {
-    this.buyerForm.markAllAsTouched();
     this.outInvForm.markAllAsTouched();
 
     let valid = true;
@@ -957,41 +892,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     })
   }
 
-  ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    });
-    dialogRef.onClose.subscribe(async (res: Customer) => {
-      console.log("Selected item: ", res);
-      if (!!res) {
-        this.buyerData = res;
-
-        this.isLoading = true
-        await this.loadCustomerDiscounts(this.buyerData.id)
-        this.isLoading = false
-
-        if (this.mode.useCustomersPaymentMethod) {
-          this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
-        }
-
-        this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-        this.kbS.SelectFirstTile();
-        this.kbS.setEditMode(KeyboardModes.EDIT);
-
-        if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-          this.bbxToastrService.showSuccess(Constants.MSG_WARNING_CUSTDISCOUNT_PREV, true);
-        }
-      }
-    });
-  }
+  ChooseDataForCustomerForm(): void {}
 
   RefreshData(): void { }
 
@@ -1088,136 +989,10 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         this.bbxToastrService.showError(HelperFunctions.StringFormat(Constants.MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER, product.productCode))
       }, 0);
     }
-    
+
     res.realQty = product.activeStockRealQty ?? 0
 
     return res;
-  }
-
-  IsNumber(val: string): boolean {
-    let val2 = val.replace(' ', '');
-    return !isNaN(parseFloat(val2));
-  }
-
-  FillFormWithFirstAvailableCustomer(event: any): void {
-    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
-    }
-
-    this.customerInputFilterString = event.target.value ?? '';
-    this.isLoading = true;
-
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.customerService.GetAll({
-      IsOwnData: false, PageNumber: '1', PageSize: '1', SearchString: this.customerInputFilterString, OrderBy: 'customerName'
-    } as GetCustomersParamListModel).subscribe({
-      next: async res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.buyerData = res.data[0];
-          this.cachedCustomerName = res.data[0].customerName;
-          this.searchByTaxtNumber = false;
-
-          this.isLoading = true
-          await this.loadCustomerDiscounts(this.buyerData.id)
-          this.isLoading = false
-
-          if (this.mode.useCustomersPaymentMethod) {
-            this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
-          }
-
-          if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-            this.bbxToastrService.showSuccess(Constants.MSG_WARNING_CUSTDISCOUNT_PREV, true);
-          }
-        } else {
-          if (this.customerInputFilterString.length >= 8 &&
-          this.IsNumber(this.customerInputFilterString)) {
-            this.searchByTaxtNumber = true;
-          } else {
-            this.searchByTaxtNumber = false;
-          }
-          this.buyerFormNav.FillForm({}, ['customerSearch']);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-        this.searchByTaxtNumber = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-
-  private async PrepareCustomer(data: Customer): Promise<Customer> {
-    console.log('Before: ', data);
-
-    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
-
-    const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
-
-    if (data.countryCode !== undefined && !!countryCodes && countryCodes.length > 0) {
-      data.countryCode = countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
-    }
-
-    return data;
-  }
-
-  override SetDataForForm(data: any): void {
-    if (!!data) {
-      this.buyerData = { ...data as Customer };
-
-      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
-      this.kbS.SelectFirstTile();
-      this.kbS.setEditMode(KeyboardModes.EDIT);
-    }
-  }
-
-  ChoseDataForFormByTaxtNumber(): void {
-    console.log("Selecting Customer from avaiable data by taxtnumber.");
-
-    this.isLoading = true;
-
-    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: async res => {
-        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-            context: {
-              data: await this.PrepareCustomer(res.data)
-            },
-            closeOnEsc: false
-          });
-          dialogRef.onClose.subscribe({
-            next: (res: Customer) => {
-              console.log("Selected item: ", res);
-              this.SetDataForForm(res);
-
-              if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
-                this.simpleToastrService.show(
-                  Constants.MSG_WARNING_CUSTDISCOUNT_PREV,
-                  Constants.TITLE_INFO,
-                  Constants.TOASTR_SUCCESS_5_SEC
-                );
-              }
-            },
-            error: err => {
-              this.cs.HandleError(err);
-            }
-          });
-        } else {
-          this.bbxToastrService.showError(Constants.MSG_ERROR_CUSTOMER_NOT_FOUND_BY_TAX_ID)
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
   }
 
   /////////////////////////////////////////////
@@ -1337,42 +1112,25 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           event.preventDefault();
           break
         }
-        case this.KeySetting[Actions.Search].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.ChooseDataForCustomerForm();
-          break;
-        }
-        case this.KeySetting[Actions.Create].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
-            HelperFunctions.StopEvent(event);
-            return;
-          }
-          event.preventDefault();
-          this.CreateCustomer(event);
-          break;
-        }
-        case this.KeySetting[Actions.Edit].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-
-          HelperFunctions.StopEvent(event)
-
-          this.editCustomer()
-
-          break;
-        }
       }
+    }
+  }
+
+  public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
+    this.buyerData = customer
+
+    if (this.mode.useCustomersPaymentMethod) {
+      this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
+    }
+
+    if (this.dbData.findIndex(x => x.data.custDiscounted) !== -1) {
+      this.bbxToastrService.showSuccess(Constants.MSG_WARNING_CUSTDISCOUNT_PREV, true);
+    }
+
+    if (shouldNavigate) {
+      this.kbS.SetCurrentNavigatable(this.outInvFormNav);
+      this.kbS.SelectFirstTile();
+      this.kbS.setEditMode(KeyboardModes.EDIT);
     }
   }
 }

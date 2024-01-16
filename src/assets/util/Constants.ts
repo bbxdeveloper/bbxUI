@@ -180,6 +180,8 @@ export module Constants {
 
     export const SearchInputId = 'active-prod-search'
 
+    export const ScrollbarWidthInPixels: number = 14;
+
     // Util
 
     export enum FileExtensions {

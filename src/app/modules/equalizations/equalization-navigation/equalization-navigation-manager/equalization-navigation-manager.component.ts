@@ -63,7 +63,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',
       defaultValue: '', type: 'onlyDate', fRequired: true, fInputType: 'date',
-      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: true, navMatrixCssClass: TileCssClass,
+      mask: '', colWidth: '110px', textAlign: 'left', fReadonly: true, navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Kiegyenlítendő', objectKey: 'payableAmount', colKey: 'payableAmount',
@@ -78,17 +78,17 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     {
       label: 'Dátum', objectKey: 'invPaymentDate', colKey: 'invPaymentDate',
       defaultValue: '', type: 'onlyDate', fInputType: 'date', navMatrixCssClass: TileCssClass,
-      mask: '', colWidth: '100px', textAlign: 'left', fReadonly: false
+      mask: '', colWidth: '110px', textAlign: 'left', fReadonly: false
     },
     {
       label: 'Pénznem', objectKey: 'currencyCodeX', colKey: 'currencyCodeX',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "125px", textAlign: "left", comboboxData$: new BehaviorSubject<string[]>([])
+      colWidth: "90px", textAlign: "left", comboboxData$: new BehaviorSubject<string[]>([])
     },
     {
       label: 'Árfolyam', objectKey: 'exchangeRate', colKey: 'exchangeRate',
       defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "125px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
+      colWidth: "90px", textAlign: "right", fInputType: 'formatted-number', fReadonly: false,
     },
     {
       label: 'Összeg', objectKey: 'invPaymentAmount', colKey: 'invPaymentAmount',
@@ -157,6 +157,7 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
 
     this.dbDataTableForm = new FormGroup({
       invoiceID: new FormControl(undefined, []),
+      customerID: new FormControl(undefined, []),
       invoiceNumber: new FormControl(undefined, []),
       customerName: new FormControl(undefined, []),
       paymentDate: new FormControl(undefined, []),
@@ -166,6 +167,8 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
       currencyCodeX: new FormControl(undefined, []),
       exchangeRate: new FormControl(undefined, []),
       invPaymentAmount: new FormControl(undefined, []),
+      invPaymentAmountHUF: new FormControl(undefined, []),
+      userName: new FormControl(undefined, []),
     });
 
     this.dbDataTable = new FlatDesignNavigatableTable(

@@ -36,8 +36,9 @@ import { lastValueFrom } from 'rxjs';
 import { SystemService } from '../../system/services/system.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
 import { ChooseCreateOfferProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { EditCustomerDialogManagerService } from '../../shared/services/edit-customer-dialog-manager.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import {EditCustomerDialogComponent} from "../../shared/edit-customer-dialog/edit-customer-dialog.component";
+import {GetCustomersParamListModel} from "../../customer/models/GetCustomersParamListModel";
 
 @Component({
   selector: 'app-offer-creator',
@@ -59,12 +60,7 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     return this.buyerForm?.controls['isBrutto'].value
   }
 
-  private editCustomerDialogSubscription = this.editCustomerDialog.refreshedCustomer.subscribe(customer => {
-    this.buyerData = customer
-    this.cachedCustomerName = customer.customerName;
-    this.SetCustomerFormFields(customer)
-    this.searchByTaxtNumber = false;
-  })
+
 
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
@@ -89,7 +85,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     custDiscountService: CustomerDiscountService,
     systemService: SystemService,
     productCodeManagerServiceService: ProductCodeManagerServiceService,
-    private readonly editCustomerDialog: EditCustomerDialogManagerService,
   ) {
     super(
       dialogService, fS, dataSourceBuilder, seInv, offerService,
@@ -258,8 +253,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
-
-    this.editCustomerDialogSubscription.unsubscribe()
   }
 
   private UpdateOutGoingData(): void {
@@ -395,6 +388,42 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
     });
   }
 
+  private onEditCustomer(result: boolean): void {
+    if (!result) {
+      return
+    }
+
+    const request = {
+      ID: this.buyerData.id,
+      PageSize: '1',
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
+    this.seC.GetAll(request)
+      .subscribe({
+        next: res => {
+          if (!res.succeeded) {
+            this.cs.HandleError(res.errors)
+          }
+
+          if (res.data && res.data.length > 0) {
+            this.buyerData = res.data[0]
+            this.cachedCustomerName = this.buyerData.customerName
+              this.SetCustomerFormFields(this.buyerData)
+              this.searchByTaxtNumber = false;
+          }
+        },
+        error: error => {
+          this.cs.HandleError(error)
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+        complete: () => {
+          this.status.pushProcessStatus(Constants.BlankProcessStatus);
+        }
+      })
+  }
+
   /////////////////////////////////////////////
   ////////////// KEYBOARD EVENTS //////////////
   /////////////////////////////////////////////
@@ -522,6 +551,25 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           this.CreateCustomer(event);
           break;
         }
+        case this.KeySetting[Actions.Edit].KeyCode: {
+          if (!isForm) {
+            return;
+          }
+
+          HelperFunctions.StopEvent(event)
+
+          if (this.kbS.IsCurrentNavigatable(this.buyerFormNav) && this.buyerData) {
+            this.dialogService
+              .open(EditCustomerDialogComponent, {
+                context: {
+                  customerId: this.buyerData.id
+                }
+              })
+              .onClose.subscribe(this.onEditCustomer.bind(this))
+          }
+
+          break;
+        }
         case this.KeySetting[Actions.ToggleAllDiscounts].KeyCode: {
           if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
             HelperFunctions.StopEvent(event);
@@ -556,19 +604,6 @@ export class OfferCreatorComponent extends BaseOfferEditorComponent implements O
           }
           event.preventDefault();
           this.SwitchUnitPriceAll();
-          break;
-        }
-        case this.KeySetting[Actions.Edit].KeyCode: {
-          if (!isForm) {
-            return;
-          }
-
-          HelperFunctions.StopEvent(event)
-
-          if (this.kbS.IsCurrentNavigatable(this.buyerFormNav)) {
-            this.editCustomerDialog.open(this.buyerData?.id)
-          }
-
           break;
         }
       }
