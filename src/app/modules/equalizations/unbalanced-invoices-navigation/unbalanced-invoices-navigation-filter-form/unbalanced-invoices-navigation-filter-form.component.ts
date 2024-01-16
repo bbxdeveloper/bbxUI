@@ -531,6 +531,31 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     });
   }
 
+  ChooseDataForCustomerForm(): void {
+    console.log("Selecting Customer from avaiable data.")
+
+    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    })
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res)
+      if (!!res) {
+        this.customerData = res
+        this.SetCustomerFormFields(res)
+
+        this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
+        this.keyboardService.SelectElementByCoordinate(0, 3)
+        this.keyboardService.ClickCurrentElement()
+      }
+    })
+  }
+
   //#endregion Customer
 
   //#region Validation
@@ -600,9 +625,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     throw new Error('Method not implemented.');
   }
 
-  ChooseDataForCustomerForm(): void {
-    throw new Error('Method not implemented.');
-  }
   public RefreshData(): void {
     throw new Error('Method not implemented.');
   }
