@@ -1,9 +1,4 @@
-// @import 'side-bar-form-dialog';
 @import 'flat-design-no-side-bar-manager-component-default';
-
-.checkbox-field {
-    min-width: 330px;
-}
 
 $label-w-min: 185px;
 
@@ -26,20 +21,6 @@ label {
 }
 label.label-checkbox {
     align-self: auto !important;
-}
-
-input[type="checkbox"],
-[type="radio"] {
-    box-sizing: border-box;
-    padding: 0;
-    -ms-transform: scale(1.5);
-    -moz-transform: scale(1.5);
-    -webkit-transform: scale(1.5);
-    -o-transform: scale(1.5);
-    transform: scale(1.5);
-    margin-bottom: 10px;
-    padding: 10px;
-    margin-left: 25px;
 }
 
 label {
@@ -125,4 +106,10 @@ form {
 
 .form-button {
     margin-left: 20px;
+}
+
+// common-styles.scss / checkbox-field overwrites
+
+.checkbox-field {
+    min-width: 330px;
 }

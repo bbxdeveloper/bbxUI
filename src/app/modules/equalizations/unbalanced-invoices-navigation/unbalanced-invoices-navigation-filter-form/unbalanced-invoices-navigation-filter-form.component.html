@@ -89,16 +89,18 @@
                 </div>
 
                 <div class="triple-column">
-                    <nb-form-field class="search-row-nb-form-field"
-                        (keydown.enter)="MoveToSearchButton($event, true, true, true)"
-                        (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'CustomerSearch')">
-                        <label>Ügyfél keresés</label>
-                        <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}}"
-                            (click)="filterFormNav.HandleFormFieldClick($event)" (input)="FillFormWithFirstAvailableCustomer($event)"
-                            [readonly]="isEditModeOff" maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
-                    </nb-form-field>
-                    <div>
-                        <button *ngIf="searchByTaxtNumber" nbButton
+                    <div class="field-wrapper">                        
+                        <nb-form-field class="search-row-nb-form-field"
+                            (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                            (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'CustomerSearch')">
+                            <label>Ügyfél keresés</label>
+                            <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}}"
+                                (click)="filterFormNav.HandleFormFieldClick($event)" (input)="FillFormWithFirstAvailableCustomer($event)"
+                                [readonly]="isEditModeOff" maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
+                        </nb-form-field>
+                    </div>
+                    <div *ngIf="searchByTaxtNumber">
+                        <button nbButton
                             [disabled]="isLoading"
                             [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                             (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>

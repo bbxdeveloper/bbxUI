@@ -10,6 +10,7 @@ import { BaseNavigatableComponentComponent } from '../../base-navigatable-compon
 import { NavigatableType } from 'src/assets/model/navigation/Navigatable';
 import { environment } from 'src/environments/environment';
 import { StatusService } from 'src/app/services/status.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-select-table-dialog',
@@ -21,6 +22,7 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   @Input() searchString: string = '';
   @Input() allColumns: string[] = [];
   @Input() colDefs: ModelFieldDescriptor[] = [];
+  @Input() dbDataTableId: any = "select-table-dialog-table";
 
   override NavigatableType = NavigatableType.dialog
 
@@ -63,6 +65,10 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
   ) {
     super();
     this.Setup();
+  }
+
+  GetColWidth(col: ModelFieldDescriptor): any {
+    return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId)
   }
 
   Setup(): void {

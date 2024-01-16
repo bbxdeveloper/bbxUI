@@ -1,12 +1,7 @@
-// @import 'side-bar-form-dialog';
 @import 'flat-design-no-side-bar-manager-component-default';
 
 $label-w-min: 185px;
 $input-width: 320px;
-
-.checkbox-field {
-    min-width: $input-width !important;
-}
 
 
 .label-type-1 {
@@ -28,20 +23,6 @@ label {
 }
 label.label-checkbox {
     align-self: auto !important;
-}
-
-input[type="checkbox"],
-[type="radio"] {
-    box-sizing: border-box;
-    padding: 0;
-    -ms-transform: scale(1.5);
-    -moz-transform: scale(1.5);
-    -webkit-transform: scale(1.5);
-    -o-transform: scale(1.5);
-    transform: scale(1.5);
-    margin-bottom: 10px;
-    padding: 10px;
-    margin-left: 25px;
 }
 
 label {
@@ -85,8 +66,9 @@ nb-card-body {
 
 form {
     display: grid;
-    grid-template-rows: 25% 25% 25% 25%;
+    grid-template-rows: 15% 25% 25% 25%;
     grid-template-columns: 100%;
+    column-gap: 10px;
     justify-items: start;
 }
 
@@ -104,7 +86,7 @@ form {
     align-items: flex-end;
     justify-content: space-evenly;
     margin-top: 10px;
-    column-gap: 0px;
+    column-gap: 5px;
 }
 
 .triple-column {
@@ -114,7 +96,7 @@ form {
     align-items: flex-end;
     justify-content: space-evenly;
     margin-top: 10px;
-    column-gap: 0px;
+    column-gap: 5px;
 
     .field-wrapper {
         min-width: $input-width !important;
@@ -127,21 +109,6 @@ form {
 
 .form-button {
     margin-left: 20px;
-}
-
-.checkbox-field {
-    display: flex;
-    flex-wrap: nowrap;
-    align-content: center;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 0px !important;
-    margin: 0px !important;
-    flex-direction: row;
-
-    label {
-        max-height: 10px;
-    }
 }
 
 .field-wrapper :has(label) {
@@ -157,4 +124,33 @@ form {
 input[type=text] {
     min-width: $input-width !important;
     max-width: $input-width !important;
+}
+
+// common-styles.scss / checkbox-field overwrites
+
+.checkbox-field {
+    flex-direction: row;
+    
+    align-content: center;
+    align-items: center;
+    
+    justify-content: flex-start;
+
+    padding: 0px !important;
+    margin: 0px !important;
+
+    min-width: $input-width !important;
+
+    label {
+        max-height: 10px;
+    }
+
+    input[type="checkbox"],
+    [type="radio"] {
+        box-sizing: border-box;
+        padding: 0;
+        margin-bottom: 10px;
+        padding: 10px;
+        margin-left: 25px;
+    }
 }

@@ -16,6 +16,8 @@ import { OneNumberInputDialogComponent } from "src/app/modules/shared/simple-dia
 import { createMask } from "@ngneat/input-mask";
 import { CurrencyCodes } from "src/app/modules/system/models/CurrencyCode";
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { ModelFieldDescriptor } from "../model/ModelFieldDescriptor";
+import { Constants } from "./Constants";
 
 const DATE_FORMATSTRING = 'YYYY-MM-DD';
 const DATE_REGEX = /^([0-9]{4}-[0-9]{2}-[0-9]{2}){0,1}$/g;
@@ -545,5 +547,46 @@ export module HelperFunctions {
             }
         });
         } catch (error) {}
+    }
+
+    export function HasVerticalScrollbar(id: string): boolean {
+        var element = document.getElementById(id)
+        if (!!!element) {
+            return false
+        }
+        return element.scrollHeight > element.clientHeight
+    }
+
+    export function GetHeaderColWidth(
+            col: ModelFieldDescriptor, all: string[],
+            id: string, scollbarWidth: number = Constants.ScrollbarWidthInPixels): any {
+        var unitOfMeasure = 'px'
+        if (col.colWidth?.includes(unitOfMeasure)) {
+            const key = col.objectKey
+            const lastCol = all[all.length - 1]
+            if (key === lastCol && HelperFunctions.HasVerticalScrollbar(id)) {
+                const withoutPixel = col.colWidth!.split(unitOfMeasure)[0]
+                return HelperFunctions.ToInt(withoutPixel) + scollbarWidth + unitOfMeasure
+            }
+        }
+        return col.colWidth!
+    }
+
+    export function GetElementWidthInPixel(id: string): number {
+        var element = document.getElementById(id)
+        if (!!!element) {
+            return 0
+        }
+        return HelperFunctions.ToInt(getComputedStyle(element).width.replace('px', ''))
+    }
+
+    export function GetElementWidthInPercent(id: string): number {
+        var element = document.getElementById(id)
+        if (!!!element || !!!element.parentElement!) {
+            return 0
+        }
+        return HelperFunctions.ToFloat(getComputedStyle(element).width.replace('px', ''))
+            / HelperFunctions.ToFloat(getComputedStyle(element.parentElement).width.replace('px', ''))
+            * 100
     }
 }

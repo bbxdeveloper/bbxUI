@@ -16,7 +16,7 @@
                     <ng-container [ngSwitch]="it.type">
                         <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef
                             [nbSortHeader]="getDirection(it.colKey)"
-                            [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth">
+                            [style.min-width]="GetColWidth(it)" [style.max-width]="GetColWidth(it)" [style.width]="GetColWidth(it)">
                             {{it.label}}
                         </th>
                     </ng-container>
