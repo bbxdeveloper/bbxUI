@@ -240,14 +240,6 @@ export class ProductStockInformationDialogComponent extends BaseNavigatableCompo
       [],
       undefined
     )
-    setTimeout(() => {
-      this.dbDataTable.GenerateAndSetNavMatrices(true, selectAfterRefresh);
-      if (setAsCurrent && this.dbDataTable.Matrix.length > 0 && this.dbDataTable.Matrix[0].length > 0) {
-        this.kbS.SetCurrentNavigatable(this.dbDataTable)
-        this.kbS.SelectFirstTile()
-      }
-      this.kbS.ClickCurrentElement(true)
-    }, 200);
   }
 
   async loadProductData(): Promise<void> {
