@@ -5,4 +5,7 @@ export interface PendingDeliveryInvoiceSummary {
     fullAddress: string,
     sumNetAmount: number,
     priceReview: boolean,
+    sumNetAmountDiscounted: number,
+    currencyCode: string,
+    currencyCodeX: string,
 }
