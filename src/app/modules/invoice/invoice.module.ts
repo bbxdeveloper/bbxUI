@@ -105,7 +105,8 @@ import { CustomerSearchComponent } from './customer-serach/customer-search.compo
     CustomerSelectTableDialogComponent,
     InvoiceIncomeManagerComponent,
     SummaryInvoiceComponent,
-    CustomerInvoiceSummaryManagerComponent
+    CustomerInvoiceSummaryManagerComponent,
+    CustomerSearchComponent
   ]
 })
 export class InvoiceModule { }

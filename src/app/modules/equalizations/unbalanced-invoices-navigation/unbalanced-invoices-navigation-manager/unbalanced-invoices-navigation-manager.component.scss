@@ -1,1 +1,12 @@
-@import 'flat-design-manager-component-default';
+@use 'flat-design-manager-component-default';
+@use 'bbx-atomic-styles';
+
+table.table-statistics-net-vat-gross {
+    column-gap: 25px;
+    padding: 5px;
+    border-spacing: 15px 0px;
+
+    td {
+        min-width: 200px;
+    }
+}

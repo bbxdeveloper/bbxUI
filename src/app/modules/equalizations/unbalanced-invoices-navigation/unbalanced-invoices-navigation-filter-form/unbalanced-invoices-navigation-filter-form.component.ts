@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, ReplaySubject, Subscription, firstValueFrom, lastValueFrom } from 'rxjs';
 import { validDate } from 'src/assets/model/Validators';
@@ -24,6 +24,7 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 import { InvoiceNumberData } from './InvoiceNumberData';
 import { CustomerSelectTableDialogComponent } from 'src/app/modules/invoice/customer-select-table-dialog/customer-select-table-dialog.component';
 import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
+import { CustomerSearchComponent } from 'src/app/modules/invoice/customer-serach/customer-search.component';
 
 @Component({
   selector: 'app-unbalanced-invoices-navigation-filter-form',
@@ -65,7 +66,20 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   }
   customerData?: Customer;
   customersData: Customer[] = [];
+
   isLoading: boolean = false
+
+  // customerData?: Customer;
+  // @ViewChild('customerSearch')
+  // private customerSearch!: CustomerSearchComponent
+  // customerSearchFocused: boolean = false
+  // private lastBuyerId: number | undefined
+  // get buyerData(): Customer {
+  //   return this.customerData!
+  // }
+  // set buyerData(buyer: Customer) {
+  //   this.customerData = buyer
+  // }
 
   @Input()
   public set componentFormData(formData: UnbalancedInvoicesFilterFormData | undefined) {
@@ -231,6 +245,11 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
 
     setTimeout(async () => {
       this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
+      this.filterFormNav.InnerJumpOnEnter = true
+      this.filterFormNav.OuterJump = true
+      // this.customerSearch.searchFormNav.attachDirection = AttachDirection.DOWN
+      // this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true, undefined, true)
+      // this.customerSearch.searchFormNav.Matrix[0].push(this.SearchButtonId)
 
       this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
@@ -242,17 +261,9 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       this.keyboardService.SelectFirstTile()
       this.keyboardService.ClickCurrentElement()
 
-      this.loadFilters()
+      await this.loadFilters()
 
       const filter = this.localStorage.get<UnbalancedInvoicesFilterFormData>(this.localStorageKey)
-      if (filter) {
-        if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
-          filter.CustomerID = undefined
-        } else {
-          await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
-          this.keyboardService.SelectElementByCoordinate(0, 5)
-        }
-      }
 
       if (filter) {
         this.filterForm.patchValue(filter)
@@ -265,15 +276,36 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     }, 500);
   }
 
-  private loadFilters(): void {
+  private async loadFilters(): Promise<void> {
     const filter = this.localStorage.get<UnbalancedInvoicesFilterFormData>(this.localStorageKey)
 
     if (!filter) {
       return
     }
 
+    await this.loadCustomerFilter(filter)
     this.loadMiscFilters(filter)
     this.loadDatesFromFilter(filter)
+  }
+
+  private async loadCustomerFilter(filter: UnbalancedInvoicesFilterFormData): Promise<void> {
+    const setControlValue = (filterValue: any, control: AbstractControl) => {
+      if (!filterValue) {
+        return
+      }
+      control.setValue(filterValue)
+    }
+
+    if (filter) {
+      if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
+        filter.CustomerID = undefined
+      } else {
+        await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
+        this.keyboardService.SelectElementByCoordinate(0, 5)
+      }
+    }
+
+    // this.customerSearch.search(filter.CustomerSearch)
   }
 
   private loadMiscFilters(filter: UnbalancedInvoicesFilterFormData): void {
@@ -330,11 +362,13 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
 
   private SetCustomerFormFields(data?: Customer) {
     if (data === undefined) {
+      this.filterForm.controls["CustomerName"].setValue(undefined);
       this.filterForm.controls['CustomerName'].setValue(undefined);
       this.filterForm.controls['CustomerAddress'].setValue(undefined);
       this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
       return;
     }
+    this.filterForm.controls["CustomerName"].setValue(data.customerName);
     this.filterForm.controls['CustomerName'].setValue(data.customerName);
     this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
     this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
@@ -347,7 +381,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
 
     this.customerInputFilterString = event.target.value ?? '';
 
-    if (this.customerInputFilterString.replace(' ', '') === '') {
+    if (this.customerInputFilterString.replace(' ', '') === '' || HelperFunctions.isEmptyOrSpaces(this.customerInputFilterString)) {
       this.customerData = undefined;
       this.SetCustomerFormFields(undefined);
       this.isLoading = false
@@ -359,6 +393,10 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   }
 
   private async searchCustomerAsync(term: string): Promise<void> {
+    if (HelperFunctions.isEmptyOrSpaces(term)) {
+      this.SetCustomerFormFields(undefined);
+    }
+
     const request = {
       IsOwnData: false,
       PageNumber: '1',
@@ -393,6 +431,10 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   }
 
   private searchCustomer(term: string): Subscription {
+    if (HelperFunctions.isEmptyOrSpaces(term)) {
+      this.SetCustomerFormFields(undefined);
+    }
+
     const request = {
       IsOwnData: false,
       PageNumber: '1',
@@ -489,6 +531,31 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     });
   }
 
+  ChooseDataForCustomerForm(): void {
+    console.log("Selecting Customer from avaiable data.")
+
+    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    })
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res)
+      if (!!res) {
+        this.customerData = res
+        this.SetCustomerFormFields(res)
+
+        this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
+        this.keyboardService.SelectElementByCoordinate(0, 3)
+        this.keyboardService.ClickCurrentElement()
+      }
+    })
+  }
+
   //#endregion Customer
 
   //#region Validation
@@ -558,30 +625,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     throw new Error('Method not implemented.');
   }
 
-  ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.")
-
-    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    })
-    dialogRef.onClose.subscribe((res: Customer) => {
-      console.log("Selected item: ", res)
-      if (!!res) {
-        this.customerData = res
-        this.SetCustomerFormFields(res)
-
-        this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
-        this.keyboardService.SelectElementByCoordinate(0, 3)
-        this.keyboardService.ClickCurrentElement()
-      }
-    })
-  }
   public RefreshData(): void {
     throw new Error('Method not implemented.');
   }
@@ -595,5 +638,22 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   }
 
   //#endregion Unimplemented
+
+  //#region customer search component
+
+  // public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
+  //   this.buyerData = customer
+  //   this.SetCustomerFormFields(customer)
+  // }
+
+  // public onFormSearchFocused(event?: any, formFieldName?: string): void {
+  //   this.customerSearchFocused = true;
+  // }
+
+  // public onFormSearchBlurred(event?: any, formFieldName?: string): void {
+  //   this.customerSearchFocused = false;
+  // }
+
+  //#endregion customer search component
 
 }
