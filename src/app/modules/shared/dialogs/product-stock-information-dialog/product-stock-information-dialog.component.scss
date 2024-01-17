@@ -1,6 +1,6 @@
-@import 'side-bar-form-dialog';
-@import 'common-styles';
-@import 'bbx-atomic-styles';
+@use 'side-bar-form-dialog';
+@use 'common-styles';
+@use 'bbx-atomic-styles';
 
 .modal-product-active {
     border: 4px yellow double;
