@@ -265,8 +265,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       params.PageNumber = override["PageNumber"]
     }
 
-    console.trace(params)
-
     return params
   }
 
