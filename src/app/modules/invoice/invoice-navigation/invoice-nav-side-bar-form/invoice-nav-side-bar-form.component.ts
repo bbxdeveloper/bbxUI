@@ -4,8 +4,8 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormSubject, SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { KeyBindings } from 'src/assets/util/KeyBindings';
-import { CustomerService } from '../../customer/services/customer.service';
-import { BaseSideBarFormComponent } from '../../shared/base-side-bar-form/base-side-bar-form.component';
+import { CustomerService } from '../../../customer/services/customer.service';
+import { BaseSideBarFormComponent } from '../../../shared/base-side-bar-form/base-side-bar-form.component';
 
 @Component({
   selector: 'app-invoice-nav-side-bar-form',
