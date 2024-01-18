@@ -29,6 +29,8 @@ import {BbxDialogServiceService} from 'src/app/services/bbx-dialog-service.servi
 import {WareHouse} from '../../warehouse/models/WareHouse';
 import {WareHouseService} from '../../warehouse/services/ware-house.service';
 import {GetUsersResponse} from "../models/GetUsersResponse";
+import {SystemService} from "../../system/services/system.service";
+import {UserLevel} from "../../system/models/UserLevel";
 
 @Component({
   selector: 'app-user-manager',
@@ -39,6 +41,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   @ViewChild('table') table?: NbTable<any>;
 
   wareHousesData: WareHouse[] = []
+  userLevels: UserLevel[] = []
 
   get IsPasswordRequired(): boolean {
     return this.dbDataTable?.flatDesignForm?.formMode !== undefined && this.dbDataTable?.flatDesignForm?.formMode === Constants.FormState.new;
@@ -194,7 +197,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     sts: StatusService,
     private khs: KeyboardHelperService,
     loggerService: LoggerService,
-    private wareHouseApi: WareHouseService
+    private wareHouseApi: WareHouseService,
+    private readonly systemService: SystemService,
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = 'active-prod-search';
@@ -387,73 +391,70 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   }
 
   override ProcessActionPut(data?: IUpdateRequest<User>): void {
-    if (!!data && !!data.data) {
-      this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
-      data.data.id = parseInt(data.data.id + ''); // TODO
-      console.log('ActionPut: ', data.data);
-      this.seInv
-        .Update({
-          id: data.data.id,
-          name: data.data.name,
-          email: data.data.email,
-          loginName: data.data.loginName,
-          password: data.data.password,
-          comment: data.data.comment,
-          active: data.data.active,
-          warehouseID: this.getWareHouseFromDescription(data.data.warehouseForCombo).id
-        } as UpdateUserRequest)
-        .subscribe({
-          next: async (d) => {
-            if (d.succeeded && !!d.data) {
-              await lastValueFrom(this.seInv.Get({ID: d.data.id}))
-                .then(async res => {
-                  if (res) {
-                    this.idParam = res.id;
-                    await this.RefreshAsync(this.getInputParams());
-                    setTimeout(() => {
-                      this.dbDataTable.SelectRowById(res.id);
-                      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                      this.bbxToastrService.show(
-                        Constants.MSG_SAVE_SUCCESFUL,
-                        Constants.TITLE_INFO,
-                        Constants.TOASTR_SUCCESS_5_SEC
-                      );
-                    }, 200);
-                  } else {
-                    this.bbxToastrService.show(
-                      Constants.MSG_USER_GET_FAILED + d.data?.name,
-                      Constants.TITLE_ERROR,
-                      Constants.TOASTR_ERROR_5_SEC
-                    );
-                    this.dbDataTable.SetFormReadonly(false)
-                    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
-                    this.kbS.ClickCurrentElement()
-                  }
-                })
-                .catch(err => {
-                  this.HandleError(err);
-                  this.dbDataTable.SetFormReadonly(false)
-                })
-                .finally(() => {
-                });
-            } else {
-              this.bbxToastrService.show(
-                d.errors!.join('\n'),
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR_5_SEC
-              );
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              this.dbDataTable.SetFormReadonly(false)
-              this.kbS.ClickCurrentElement()
-            }
-          },
-          error: (err) => {
-            this.HandleError(err);
-            this.dbDataTable.SetFormReadonly(false)
-          },
-        });
+    if (!data || !data.data) {
+      return
     }
+
+    this.sts.pushProcessStatus(Constants.CRUDPutStatuses[Constants.CRUDPutPhases.UPDATING]);
+    data.data.id = parseInt(data.data.id + ''); // TODO
+
+    const request = {
+      id: data.data.id,
+      name: data.data.name,
+      email: data.data.email,
+      loginName: data.data.loginName,
+      password: data.data.password,
+      comment: data.data.comment,
+      active: data.data.active,
+      warehouseID: this.getWareHouseFromDescription(data.data.warehouseForCombo).id,
+      userLevel: this.userLevels.find(x => x.text === data.data.userLevel)?.value
+    } as UpdateUserRequest
+
+    this.seInv
+      .Update(request)
+      .subscribe({
+        next: async (d) => {
+          if (!d.succeeded || !d.data) {
+            this.bbxToastrService.showError(d.errors!.join('\n'), true);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
+
+            return
+          }
+
+          await lastValueFrom(this.seInv.Get({ID: d.data.id}))
+            .then(async res => {
+              if (!res) {
+                this.bbxToastrService.showError(Constants.MSG_USER_GET_FAILED + d.data?.name, true);
+
+                this.dbDataTable.SetFormReadonly(false)
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+                this.kbS.ClickCurrentElement()
+
+                return
+              }
+
+              this.idParam = res.id;
+              await this.RefreshAsync(this.getInputParams());
+              setTimeout(() => {
+                this.dbDataTable.SelectRowById(res.id);
+                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+
+                this.bbxToastrService.showSuccess(Constants.MSG_SAVE_SUCCESFUL, true);
+              }, 200);
+            })
+            .catch(err => {
+              this.HandleError(err);
+              this.dbDataTable.SetFormReadonly(false)
+            })
+        },
+        error: (err) => {
+          this.HandleError(err);
+          this.dbDataTable.SetFormReadonly(false)
+        },
+      });
   }
 
   override ProcessActionDelete(data?: IUpdateRequest<User>): void {
@@ -515,9 +516,14 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     try {
       this.sts.waitForLoad()
 
-      const warehouseData = await this.wareHouseApi.GetAllPromise()
+      const warehouseRequest = this.wareHouseApi.GetAllPromise()
+      const userLevelsRequest = lastValueFrom(this.systemService.userLevels())
 
+      const warehouseData = await warehouseRequest
       this.wareHousesData = warehouseData.data ?? []
+
+      const userLevels = await userLevelsRequest
+      this.userLevels = userLevels ?? []
     } catch (error) {
       this.cs.HandleError(error)
     } finally {
