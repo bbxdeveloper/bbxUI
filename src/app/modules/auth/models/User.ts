@@ -1,30 +1,28 @@
 import { IEditable } from "src/assets/model/IEditable";
 
 export class User implements IEditable {
-    id: number;
-    name?: string;
-    loginName?: string;
-    email?: string;
-    comment?: string;
-    active?: boolean;
-
     password?: string;
 
-    warehouseID: number = 0
-    warehouse: string = ''
+    public static fromUserObject(user: User, warehouseForCombo: string|undefined): User {
+      return new User(user.id, user.name, user.loginName, user.email, user.comment, user.active, user.warehouseID, user.warehouse, warehouseForCombo, user.userLevelX, user.userLevel)
+    }
 
-    warehouseForCombo?: string
+    public static createEmpty(): User {
+      return new User(undefined, '', '', '', '', false, undefined, '', '', '', '')
+    }
 
-    constructor(Id?: number, Name?: string, LoginName?: string, Email?: string, Comment?: string, Active?: boolean, password?: string, WarehouseID?: number, Warehouse?: string, WarehouseForCombo?: string) {
-        this.id = Id ?? 0;
-        this.name = Name;
-        this.loginName = LoginName;
-        this.email = Email;
-        this.comment = Comment;
-        this.active = Active === undefined ? true : Active;
-        this.warehouseID = WarehouseID ?? 0
-        this.warehouse = Warehouse ?? ''
-        this.warehouseForCombo = WarehouseForCombo
+    constructor(
+        public id: number|undefined,
+        public name: string|undefined,
+        public loginName: string|undefined,
+        public email: string|undefined,
+        public comment: string|undefined,
+        public active: boolean|undefined,
+        public warehouseID: number|undefined,
+        public warehouse: string|undefined,
+        public warehouseForCombo: string|undefined,
+        public userLevel: string,
+        public userLevelX: string) {
     }
 
     IsUnfinished(): boolean {

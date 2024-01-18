@@ -7,6 +7,7 @@ import { GetExchangeRateParamsModel } from '../models/GetExchangeRateParamsModel
 import { ZipInfo } from '../models/ZipInfo';
 import { InvoiceType } from '../models/InvoiceType';
 import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
+import {UserLevel} from "../models/UserLevel";
 
 @Injectable({
   providedIn: 'root'
@@ -41,5 +42,9 @@ export class SystemService {
 
   public releaseLockedCustomers(): Observable<unknown> {
     return this.http.post(this.BaseUrl + '/unlockallcustomers', {})
+  }
+
+  public userLevels(): Observable<UserLevel[]> {
+    return this.http.get<UserLevel[]>(this.BaseUrl + '/userlevels')
   }
 }

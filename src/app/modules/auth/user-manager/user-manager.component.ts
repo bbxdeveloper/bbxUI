@@ -1,51 +1,50 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { FooterService } from 'src/app/services/footer.service';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { User } from '../models/User';
-import { UserService } from '../services/user.service';
-import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
-import { SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { IUpdateRequest } from 'src/assets/model/UpdaterInterfaces';
-import { CreateUserRequest } from '../models/CreateUserRequest';
-import { UpdateUserRequest } from '../models/UpdateUserRequest';
-import { DeleteUserRequest } from '../models/DeleteUserRequest';
-import { Constants } from 'src/assets/util/Constants';
-import { CommonService } from 'src/app/services/common.service';
-import { UpdateUserResponseDataToUser } from '../models/UpdateUserResponse';
-import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { AttachDirection, FlatDesignNavigatableTable, TileCssClass } from 'src/assets/model/navigation/Nav';
-import { GetUsersParamListModel } from '../models/GetUsersParamListModel';
-import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { StatusService } from 'src/app/services/status.service';
-import { lastValueFrom } from 'rxjs';
-import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
-import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
-import { LoggerService } from 'src/app/services/logger.service';
-import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { WareHouse } from '../../warehouse/models/WareHouse';
-import { WareHouseService } from '../../warehouse/services/ware-house.service';
+import {ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild} from '@angular/core';
+import {ModelFieldDescriptor} from 'src/assets/model/ModelFieldDescriptor';
+import {NbTable, NbTreeGridDataSourceBuilder} from '@nebular/theme';
+import {FooterService} from 'src/app/services/footer.service';
+import {KeyboardModes, KeyboardNavigationService} from 'src/app/services/keyboard-navigation.service';
+import {TreeGridNode} from 'src/assets/model/TreeGridNode';
+import {User} from '../models/User';
+import {UserService} from '../services/user.service';
+import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
+import {SideBarFormService} from 'src/app/services/side-bar-form.service';
+import {IUpdateRequest} from 'src/assets/model/UpdaterInterfaces';
+import {CreateUserRequest} from '../models/CreateUserRequest';
+import {UpdateUserRequest} from '../models/UpdateUserRequest';
+import {DeleteUserRequest} from '../models/DeleteUserRequest';
+import {Constants} from 'src/assets/util/Constants';
+import {CommonService} from 'src/app/services/common.service';
+import {BbxSidebarService} from 'src/app/services/bbx-sidebar.service';
+import {AttachDirection, FlatDesignNavigatableTable, TileCssClass} from 'src/assets/model/navigation/Nav';
+import {GetUsersParamListModel} from '../models/GetUsersParamListModel';
+import {BaseManagerComponent} from '../../shared/base-manager/base-manager.component';
+import {BbxToastrService} from 'src/app/services/bbx-toastr-service.service';
+import {StatusService} from 'src/app/services/status.service';
+import {lastValueFrom} from 'rxjs';
+import {Actions, KeyBindings} from 'src/assets/util/KeyBindings';
+import {KeyboardHelperService} from 'src/app/services/keyboard-helper.service';
+import {ConfirmationDialogComponent} from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
+import {LoggerService} from 'src/app/services/logger.service';
+import {BbxDialogServiceService} from 'src/app/services/bbx-dialog-service.service';
+import {WareHouse} from '../../warehouse/models/WareHouse';
+import {WareHouseService} from '../../warehouse/services/ware-house.service';
+import {GetUsersResponse} from "../models/GetUsersResponse";
 
 @Component({
   selector: 'app-user-manager',
   templateUrl: './user-manager.component.html',
   styleUrls: ['./user-manager.component.scss'],
 })
-export class UserManagerComponent extends BaseManagerComponent<User> implements OnInit
-{
+export class UserManagerComponent extends BaseManagerComponent<User> implements OnInit {
   @ViewChild('table') table?: NbTable<any>;
-  
+
   wareHousesData: WareHouse[] = []
 
   get IsPasswordRequired(): boolean {
     return this.dbDataTable?.flatDesignForm?.formMode !== undefined && this.dbDataTable?.flatDesignForm?.formMode === Constants.FormState.new;
   }
 
-  override allColumns = ['id', 'name', 'loginName', 'email', 'comment', 'active', 'warehouse'];
+  override allColumns = ['id', 'name', 'loginName', 'userLevel', 'email', 'comment', 'active', 'warehouse'];
   override colDefs: ModelFieldDescriptor[] = [
     {
       label: 'ID',
@@ -55,7 +54,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       type: 'string',
       fInputType: 'readonly',
       mask: '',
-      colWidth: '130px',
+      colWidth: '45px',
       textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
@@ -81,6 +80,19 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fInputType: 'text',
       mask: '',
       colWidth: '15%',
+      textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+      fRequired: true
+    },
+    {
+      label: 'Szint',
+      objectKey: 'userLevel',
+      colKey: 'userLevel',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      mask: '',
+      colWidth: '150px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
       fRequired: true
@@ -151,12 +163,9 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       fRequired: this.IsPasswordRequired
     },
   ];
-  customMaskPatterns = {
-    A: { pattern: new RegExp('[a-zA-Z0-9]') },
-    C: { pattern: new RegExp('[a-zA-Z0-9]') },
-  };
 
   idParam?: number;
+
   public override getInputParams(override?: Constants.Dct): GetUsersParamListModel {
     const params = {
       ID: this.idParam,
@@ -179,7 +188,6 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     cs: CommonService,
@@ -212,12 +220,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
+        {context: {msg: Constants.MSG_CONFIRMATION_SAVE}}
       );
       dialogRef.onClose.subscribe(res => {
         if (res) {
           if (this.searchString !== undefined && this.searchString.length > 0) {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, {context: {msg: Constants.MSG_CONFIRMATION_FILTER_DELETE}});
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
@@ -251,6 +259,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       this.ProcessActionNew(data);
     }
   }
+
   override ActionPut(data?: IUpdateRequest<User>): void {
     console.log("ActionPut: ", data);
 
@@ -263,12 +272,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
       const dialogRef = this.dialogService.open(
         ConfirmationDialogComponent,
-        { context: { msg: Constants.MSG_CONFIRMATION_SAVE } }
+        {context: {msg: Constants.MSG_CONFIRMATION_SAVE}}
       );
       dialogRef.onClose.subscribe(res => {
         if (res) {
           if (this.searchString !== undefined && this.searchString.length > 0) {
-            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, { context: { msg: Constants.MSG_CONFIRMATION_FILTER_DELETE } });
+            const dialogRef = this.dialogService.open(ConfirmationDialogComponent, {context: {msg: Constants.MSG_CONFIRMATION_FILTER_DELETE}});
             dialogRef.onClose.subscribe(res => {
               if (res) {
                 this.clearSearch();
@@ -321,7 +330,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         .subscribe({
           next: async (d) => {
             if (d.succeeded && !!d.data) {
-              await lastValueFrom(this.seInv.Get({ ID: d.data.id }))
+              await lastValueFrom(this.seInv.Get({ID: d.data.id}))
                 .then(async res => {
                   if (res) {
                     this.idParam = res.id;
@@ -329,14 +338,14 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                     setTimeout(() => {
                       this.dbDataTable.SelectRowById(res.id);
                       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                      this.simpleToastrService.show(
+                      this.bbxToastrService.show(
                         Constants.MSG_SAVE_SUCCESFUL,
                         Constants.TITLE_INFO,
                         Constants.TOASTR_SUCCESS_5_SEC
                       );
                     }, 200);
                   } else {
-                    this.simpleToastrService.show(
+                    this.bbxToastrService.show(
                       Constants.MSG_USER_GET_FAILED + d.data?.name,
                       Constants.TITLE_ERROR,
                       Constants.TOASTR_ERROR_5_SEC
@@ -350,14 +359,15 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                   this.HandleError(err);
                   this.dbDataTable.SetFormReadonly(false)
                 })
-                .finally(() => {});
+                .finally(() => {
+                });
             } else {
               console.log(
                 d.errors!,
                 d.errors!.join('\n'),
                 d.errors!.join(', ')
               );
-              this.simpleToastrService.show(
+              this.bbxToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR_5_SEC
@@ -395,7 +405,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         .subscribe({
           next: async (d) => {
             if (d.succeeded && !!d.data) {
-              await lastValueFrom(this.seInv.Get({ ID: d.data.id }))
+              await lastValueFrom(this.seInv.Get({ID: d.data.id}))
                 .then(async res => {
                   if (res) {
                     this.idParam = res.id;
@@ -403,14 +413,14 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                     setTimeout(() => {
                       this.dbDataTable.SelectRowById(res.id);
                       this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                      this.simpleToastrService.show(
+                      this.bbxToastrService.show(
                         Constants.MSG_SAVE_SUCCESFUL,
                         Constants.TITLE_INFO,
                         Constants.TOASTR_SUCCESS_5_SEC
                       );
                     }, 200);
                   } else {
-                    this.simpleToastrService.show(
+                    this.bbxToastrService.show(
                       Constants.MSG_USER_GET_FAILED + d.data?.name,
                       Constants.TITLE_ERROR,
                       Constants.TOASTR_ERROR_5_SEC
@@ -424,9 +434,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                   this.HandleError(err);
                   this.dbDataTable.SetFormReadonly(false)
                 })
-                .finally(() => { });
+                .finally(() => {
+                });
             } else {
-              this.simpleToastrService.show(
+              this.bbxToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR_5_SEC
@@ -460,7 +471,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
                 (x) => x.data.id === data.data.id
               );
               this.dbData.splice(di, 1);
-              this.simpleToastrService.show(
+              this.bbxToastrService.show(
                 Constants.MSG_DELETE_SUCCESFUL,
                 Constants.TITLE_INFO,
                 Constants.TOASTR_SUCCESS_5_SEC
@@ -469,7 +480,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               this.isLoading = false;
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             } else {
-              this.simpleToastrService.show(
+              this.bbxToastrService.show(
                 d.errors!.join('\n'),
                 Constants.TITLE_ERROR,
                 Constants.TOASTR_ERROR_5_SEC
@@ -478,7 +489,9 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
               this.sts.pushProcessStatus(Constants.BlankProcessStatus);
             }
           },
-          error: (err) => { this.HandleError(err); },
+          error: (err) => {
+            this.HandleError(err);
+          },
         });
     }
   }
@@ -518,7 +531,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
   validateRequiredPassword(control: AbstractControl): any {
     const wrong = this.IsPasswordRequired && (control.value === undefined || control.value === null || (control.value + "").trim() === "");
-    return wrong ? { required: { value: control.value } } : null;
+    return wrong ? {required: {value: control.value}} : null;
   }
 
   private Setup(): void {
@@ -529,6 +542,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       id: new FormControl(undefined, []),
       name: new FormControl(undefined, [Validators.required]),
       loginName: new FormControl(undefined, [Validators.required]),
+      userLevel: new FormControl(undefined, [Validators.required]),
       email: new FormControl(undefined, [Validators.required]),
       comment: new FormControl(undefined, []),
       active: new FormControl(true, [Validators.required]),
@@ -550,15 +564,13 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       this.bbxSidebarService,
       this.sidebarFormService,
       this,
-      () => {
-        return new User();
-      }
+      User.createEmpty
     );
     this.dbDataTable.PushFooterCommandList();
     this.dbDataTable.OuterJump = true;
     this.dbDataTable.NewPageSelected.subscribe({
       next: (newPageNumber: number) => {
-        this.Refresh(this.getInputParams({ 'PageNumber': newPageNumber }));
+        this.Refresh(this.getInputParams({'PageNumber': newPageNumber}));
       },
     });
 
@@ -579,39 +591,12 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
     this.refreshComboboxData()
 
     this.Subscription_Refresh = this.seInv.GetAll(params).subscribe({
-      next: (d) => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            this.dbData = d.data.map((x) => {
-              return {
-                data: new User(
-                  x.id,
-                  x.name,
-                  x.loginName,
-                  x.email,
-                  x.comment,
-                  x.active,
-                  undefined,
-                  x.warehouseID,
-                  x.warehouse,
-                  this.getDescriptionFromWareHouseField(x.warehouse)
-                ),
-                uid: this.nextUid(),
-              };
-            });
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable();
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
+      next: this.onGetUsersResponse.bind(this),
+      error: (err) => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.RefreshTable();
       },
-      error: (err) => { this.cs.HandleError(err); this.isLoading = false; this.RefreshTable(); },
       complete: () => {
         this.isLoading = false;
         this.RefreshTable();
@@ -621,46 +606,17 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
   async RefreshAsync(params?: GetUsersParamListModel): Promise<void> {
     console.log('Refreshing');
-    
+
     this.isLoading = true;
-    
+
     await this.refreshComboboxData()
 
     await lastValueFrom(this.seInv.GetAll(params))
-      .then(d => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            this.dbData = d.data.map((x) => {
-              return {
-                data: new User(
-                  x.id,
-                  x.name,
-                  x.loginName,
-                  x.email,
-                  x.comment,
-                  x.active,
-                  undefined,
-                  x.warehouseID,
-                  x.warehouse,
-                  this.getDescriptionFromWareHouseField(x.warehouse)
-                ),
-                uid: this.nextUid(),
-              };
-            });
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable();
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      })
+      .then(this.onGetUsersResponse.bind(this))
       .catch(err => {
-        this.cs.HandleError(err); this.isLoading = false; this.RefreshTable();
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.RefreshTable();
       })
       .finally(() => {
         this.isLoading = false;
@@ -668,9 +624,27 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       });
   }
 
+  private onGetUsersResponse(response: GetUsersResponse): void {
+    if (!response.succeeded && !response.data) {
+      this.bbxToastrService.showError(response.errors!.join('\n'), true);
+
+      return
+    }
+
+    this.dbData = response.data.map(user => ({
+      data: User.fromUserObject(user, this.getDescriptionFromWareHouseField(user.warehouse)),
+      uid: this.nextUid(),
+    }));
+    this.dbDataDataSrc.setData(this.dbData);
+    this.dbDataTable.SetPaginatorData(response);
+
+    this.RefreshTable();
+  }
+
   ngOnInit(): void {
     this.fS.pushCommands(this.commands);
   }
+
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
 
@@ -681,6 +655,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
 
     this.kbS.SelectFirstTile();
   }
+
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
@@ -780,7 +755,8 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         this.dbDataTable?.HandleKey(event)
         break
       }
-      default: { }
+      default: {
+      }
     }
   }
 }
