@@ -4,20 +4,14 @@
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
                 <div class="form-row">
-                    <nb-form-field
+                    <app-customer-search #customerSearch
                         class="customer-search-field"
-                        (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
-                        (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'CustomerSearch')">
-                        <label>Ügyfél keresés</label>
-                        <div class="flex">
-                            <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}} customer-input"
-                                (click)="filterFormNav.HandleFormFieldClick($event)" (input)="FillFormWithFirstAvailableCustomer($event)"
-                                [readonly]="isEditModeOff" maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
-                            <button *ngIf="searchByTaxtNumber" nbButton [disabled]="isLoading"
-                                [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
-                                (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
-                        </div>
-                    </nb-form-field>
+                        [customer]="customerData"
+                        (customerChanged)="customerChanged($event)"
+                        (focusIn)="onFormSearchFocused(undefined, $event)"
+                        (focusOut)="onFormSearchBlurred(undefined, $event)"
+                        [withDiscounts]="false"
+                        (loadingChanged)="isLoading = $event"></app-customer-search>
                     
                     <nb-form-field>
                         <label>Ügyfél</label>

@@ -1,30 +1,22 @@
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { BehaviorSubject, Subscription, firstValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { TokenStorageService } from 'src/app/modules/auth/services/token-storage.service';
 import { Customer } from 'src/app/modules/customer/models/Customer';
-import { GetCustomerByTaxNumberParams } from 'src/app/modules/customer/models/GetCustomerByTaxNumberParams';
-import { GetCustomersParamListModel } from 'src/app/modules/customer/models/GetCustomersParamListModel';
-import { CustomerService } from 'src/app/modules/customer/services/customer.service';
 import { WareHouseService } from 'src/app/modules/warehouse/services/ware-house.service';
-import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
 import { KeyboardNavigationService, KeyboardModes } from 'src/app/services/keyboard-navigation.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
 import { validDate } from 'src/assets/model/Validators';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 import { TileCssClass, AttachDirection } from 'src/assets/model/navigation/Navigatable';
-import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { CustomerSelectTableDialogComponent } from '../../customer-select-table-dialog/customer-select-table-dialog.component';
 import { ChosenDeliveryFilterOptionValue, ChosenIssueFilterOptionValue, DefaultChosenDateFilter, InvoiceNavFilter } from '../../models/InvoiceNavFilter';
-import { TaxNumberSearchCustomerEditDialogComponent } from '../../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { InvoiceType } from 'src/app/modules/system/models/InvoiceType';
 import { WareHouse } from 'src/app/modules/warehouse/models/WareHouse';
 import { SystemService } from 'src/app/modules/system/services/system.service';
+import { CustomerSearchComponent } from '../../customer-serach/customer-search.component';
 
 @Component({
   selector: 'app-invoice-nav-filter-form',
@@ -45,19 +37,18 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
 
   private localStorageKey: string
 
-  readonly SearchButtonId: string = 'customer-button-search';
-  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
-  customerInputFilterString: string = '';
-  cachedCustomerName?: string;
-  _searchByTaxtNumber: boolean = false;
-  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
-  set searchByTaxtNumber(value: boolean) {
-    this._searchByTaxtNumber = value;
-    this.cdref.detectChanges();
-    this.filterFormNav.GenerateAndSetNavMatrices(false, true, true);
-  }
   customerData?: Customer;
   customersData: Customer[] = [];
+  @ViewChild('customerSearch')
+  private customerSearch!: CustomerSearchComponent
+  customerSearchFocused: boolean = false
+  private lastBuyerId: number | undefined
+  get buyerData(): Customer {
+    return this.customerData!
+  }
+  set buyerData(buyer: Customer) {
+    this.customerData = buyer
+  }
 
   isLoading: boolean = false
 
@@ -73,7 +64,7 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
 
     const formData = {
       CustomerID: HelperFunctions.ToOptionalInt(this.customerData?.id),
-      CustomerSearch: controls['CustomerSearch'].value,
+      CustomerSearch: this.customerSearch?.searchForm?.controls['customerSearch']?.value,
       InvoiceType: controls['InvoiceType'].value,
       WarehouseCode: controls['WarehouseCode'].value,
       InvoiceIssueDateFrom: controls['InvoiceIssueDateFrom'].value,
@@ -181,10 +172,6 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     private readonly cdref: ChangeDetectorRef,
     private readonly localStorage: LocalStorageService,
     private readonly tokenService: TokenStorageService,
-    private readonly customerService: CustomerService,
-    private readonly warehouseService: WareHouseService,
-    private readonly bbxToastService: BbxToastrService,
-    private readonly dialogService: BbxDialogServiceService,
     private readonly systemService: SystemService
   ) {
     this.localStorageKey = 'invoiceNavKey.' + tokenService.user?.id ?? 'for-everyone'
@@ -210,7 +197,6 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
       ]),
       DateFilterChooser: new FormControl(undefined, []),
 
-      CustomerSearch: new FormControl(undefined, []),
       CustomerName: new FormControl(undefined, []),
       CustomerAddress: new FormControl(undefined, []),
       CustomerTaxNumber: new FormControl(undefined, []),
@@ -324,6 +310,9 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
         this.filterFormNav.HandleFormFieldClick(event);
       });
 
+      this.customerSearch.searchFormNav.attachDirection = AttachDirection.DOWN
+      this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true, undefined, true)
+
       this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
       this.filterFormNav.InnerJumpOnEnter = true
       this.filterFormNav.OuterJump = true
@@ -371,17 +360,7 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
       control.setValue(filterValue)
     }
 
-    const controls = this.filterForm.controls
-    setControlValue(filter.CustomerSearch, controls['CustomerSearch'])
-
-    if (filter) {
-      if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
-        filter.CustomerID = undefined
-      } else {
-        await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
-        this.keyboardService.SelectElementByCoordinate(0, 5)
-      }
-    }
+    this.customerSearch.search(filter.CustomerSearch)
   }
 
   private loadMiscFilters(filter: InvoiceNavFilter): void {
@@ -445,200 +424,6 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     }
   }
 
-  //#region Customer
-
-  private SetCustomerFormFields(data?: Customer) {
-    if (data === undefined) {
-      this.filterForm.controls["CustomerName"].setValue(undefined);
-      this.filterForm.controls['CustomerName'].setValue(undefined);
-      this.filterForm.controls['CustomerAddress'].setValue(undefined);
-      this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
-      return;
-    }
-    this.filterForm.controls["CustomerName"].setValue(data.customerName);
-    this.filterForm.controls['CustomerName'].setValue(data.customerName);
-    this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
-    this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
-  }
-
-  FillFormWithFirstAvailableCustomer(event: any): void {
-    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
-    }
-
-    this.customerInputFilterString = event.target.value ?? '';
-
-    if (this.customerInputFilterString.replace(' ', '') === '' || HelperFunctions.isEmptyOrSpaces(this.customerInputFilterString)) {
-      this.customerData = undefined;
-      this.SetCustomerFormFields(undefined);
-      this.isLoading = false
-      return;
-    }
-
-    this.isLoading = true;
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.searchCustomer(this.customerInputFilterString)
-  }
-
-  private async searchCustomerAsync(term: string): Promise<void> {
-    if (HelperFunctions.isEmptyOrSpaces(term)) {
-      this.SetCustomerFormFields(undefined);
-    }
-
-    const request = {
-      IsOwnData: false,
-      PageNumber: '1',
-      PageSize: '1',
-      SearchString: term,
-      OrderBy: 'customerName'
-    } as GetCustomersParamListModel
-
-    try {
-      const res = await firstValueFrom(this.customerService.GetAll(request))
-
-      if (!!res && res.data !== undefined && res.data.length > 0) {
-        this.customerData = res.data[0];
-        this.cachedCustomerName = res.data[0].customerName;
-        this.SetCustomerFormFields(res.data[0]);
-        this.searchByTaxtNumber = false;
-      } else {
-        if (this.customerInputFilterString.length >= 8 &&
-          HelperFunctions.IsNumber(this.customerInputFilterString)) {
-          this.searchByTaxtNumber = true;
-        } else {
-          this.searchByTaxtNumber = false;
-        }
-        this.SetCustomerFormFields(undefined);
-      }
-    }
-    catch (error) {
-      this.cs.HandleError(error);
-      this.isLoading = false;
-      this.searchByTaxtNumber = false;
-    }
-  }
-
-  private searchCustomer(term: string): Subscription {
-    if (HelperFunctions.isEmptyOrSpaces(term)) {
-      this.SetCustomerFormFields(undefined);
-    }
-
-    const request = {
-      IsOwnData: false,
-      PageNumber: '1',
-      PageSize: '1',
-      SearchString: term,
-      OrderBy: 'customerName'
-    } as GetCustomersParamListModel
-
-    return this.customerService.GetAll(request).subscribe({
-      next: res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.customerData = res.data[0];
-          this.cachedCustomerName = res.data[0].customerName;
-          this.SetCustomerFormFields(res.data[0]);
-          this.searchByTaxtNumber = false;
-        } else {
-          if (this.customerInputFilterString.length >= 8 &&
-            HelperFunctions.IsNumber(this.customerInputFilterString)) {
-            this.searchByTaxtNumber = true;
-          } else {
-            this.searchByTaxtNumber = false;
-          }
-          this.SetCustomerFormFields(undefined);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-        this.searchByTaxtNumber = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  private async PrepareCustomer(data: Customer): Promise<Customer> {
-    console.log('Before: ', data);
-
-    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
-
-    return data;
-  }
-
-  ChoseDataForFormByTaxtNumber(): void {
-    console.log("Selecting Customer from avaiable data by taxtnumber.");
-
-    this.isLoading = true;
-
-    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: async res => {
-        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
-          this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-
-          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-            context: {
-              data: await this.PrepareCustomer(res.data)
-            },
-            closeOnEsc: false
-          });
-          dialogRef.onClose.subscribe({
-            next: (res: Customer) => {
-              console.log("Selected item: ", res);
-              if (!!res) {
-                this.customerData = res;
-                this.filterForm.controls["CustomerName"].setValue(res.customerName);
-
-                this.keyboardService.SetCurrentNavigatable(this.filterFormNav);
-                this.keyboardService.SelectFirstTile();
-                this.keyboardService.setEditMode(KeyboardModes.EDIT);
-              }
-            },
-            error: err => {
-              this.cs.HandleError(err);
-            }
-          });
-        } else {
-          this.bbxToastService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.")
-
-    this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    })
-    dialogRef.onClose.subscribe((res: Customer) => {
-      console.log("Selected item: ", res)
-      if (!!res) {
-        this.customerData = res
-        this.SetCustomerFormFields(res)
-
-        this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
-        this.keyboardService.SelectElementByCoordinate(0, 3)
-        this.keyboardService.ClickCurrentElement()
-      }
-    })
-  }
-
-  //#endregion Customer
-
   //#region Validations
 
   validateInvoiceIssueDateFrom(control: AbstractControl): any {
@@ -693,6 +478,38 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     throw new Error('Method not implemented.');
   }
 
+  ChooseDataForCustomerForm(): void { }
+
   //#endregion Unimplemented
 
+  //#region customer search component
+
+  private SetCustomerFormFields(data?: Customer) {
+    if (data === undefined) {
+      this.filterForm.controls["CustomerName"].setValue(undefined);
+      this.filterForm.controls['CustomerName'].setValue(undefined);
+      this.filterForm.controls['CustomerAddress'].setValue(undefined);
+      this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
+      return;
+    }
+    this.filterForm.controls["CustomerName"].setValue(data.customerName);
+    this.filterForm.controls['CustomerName'].setValue(data.customerName);
+    this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
+    this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
+  }
+
+  public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
+    this.buyerData = customer
+    this.SetCustomerFormFields(customer)
+  }
+
+  public onFormSearchFocused(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = true;
+  }
+
+  public onFormSearchBlurred(event?: any, formFieldName?: string): void {
+    this.customerSearchFocused = false;
+  }
+
+  //#endregion customer search component
 }

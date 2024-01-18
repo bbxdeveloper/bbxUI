@@ -9,13 +9,6 @@
     width: 320px;
 }
 
-input.customer-input {
-    width: 100%;
-    width: -moz-fill-available;
-    width: -webkit-fill-available;
-    width: fill-available;
-
-    min-width: auto !important;
-
-    max-width: auto !important;
+.customer-search-field {
+    align-self: flex-end;
 }
