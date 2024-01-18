@@ -200,6 +200,7 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
         'customer',
         'fullAddress',
         'sumNetAmountDiscounted',
+        'currencyCodeX',
         'priceReview'
     ];
     export const ColDefs: ModelFieldDescriptor[] = [
@@ -247,6 +248,17 @@ export module PendingDeliveryInvoiceSummaryDialogTableSettings {
             mask: '',
             colWidth: '130px',
             textAlign: 'right',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Pénznem',
+            objectKey: 'currencyCodeX',
+            colKey: 'currencyCodeX',
+            defaultValue: '',
+            type: 'string',
+            mask: '',
+            colWidth: '90px',
+            textAlign: 'left',
             navMatrixCssClass: TileCssClass,
         },
         {

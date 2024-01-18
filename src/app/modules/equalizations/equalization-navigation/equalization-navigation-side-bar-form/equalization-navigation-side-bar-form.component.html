@@ -11,30 +11,23 @@
             <div class="bbx-fd-form-field-wrapper-div-row">
                 <nb-form-field class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Számla ID</label>
-                        <input nbInput type="text" formControlName="invoiceID" readonly>
+                        <label class="multicol-label-col-1">Számlaszám</label>
+                        <input nbInput type="text" formControlName="invoiceNumber" readonly>
                     </div>
                 </nb-form-field>
 
                 <nb-form-field class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div">
-                        <label class="multicol-label-col-2">Számlaszám</label>
-                        <input nbInput type="text" formControlName="invoiceNumber" readonly>
+                        <label class="multicol-label-col-2">Fiz.hat</label>
+                        <input nbInput type="datetime" formControlName="paymentDate" readonly mask="0000-00-00">
                     </div>
                 </nb-form-field>
             </div>
 
             <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field class="bbx-fd-form-field-50">
+                <nb-form-field class="bbx-fd-form-field-49">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
-                        <label class="multicol-label-col-1">Fiz.hat</label>
-                        <input nbInput type="datetime" formControlName="paymentDate" readonly mask="0000-00-00">
-                    </div>
-                </nb-form-field>
-
-                <nb-form-field class="bbx-fd-form-field-50">
-                    <div class="bbx-fd-form-field-inner-div">
-                        <label class="multicol-label-col-2">Partner ID</label>
+                        <label class="multicol-label-col-1">Partner ID</label>
                         <input nbInput type="text" formControlName="customerID" readonly>
                     </div>
                 </nb-form-field>

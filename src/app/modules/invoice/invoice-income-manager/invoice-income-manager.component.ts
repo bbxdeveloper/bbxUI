@@ -341,11 +341,9 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
   }
 
   InitFormDefaultValues(): void {
-    const dateStr = HelperFunctions.GenerateTodayFormFieldDateString();
-
-    this.outInvForm.controls['invoiceIssueDate'].setValue(dateStr);
-    this.outInvForm.controls['invoiceDeliveryDate'].setValue(dateStr);
-    this.outInvForm.controls['paymentDate'].setValue(dateStr);
+    this.outInvForm.controls['invoiceIssueDate'].setValue(undefined);
+    this.outInvForm.controls['invoiceDeliveryDate'].setValue(undefined);
+    this.outInvForm.controls['paymentDate'].setValue(undefined);
 
     this.outInvForm.controls['invoiceDeliveryDate'].valueChanges
       .pipe(pairwise())
@@ -776,7 +774,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.kbS.setEditMode(KeyboardModes.EDIT)
+      setTimeout(() => this.kbS.ClickCurrentElement(), 100)
 
       if (!priceChange) {
         return

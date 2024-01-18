@@ -71,6 +71,10 @@ export class SelectTableDialogComponent<T> extends BaseNavigatableComponentCompo
     return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId)
   }
 
+  GetColMinWidth(col: ModelFieldDescriptor): any {
+    return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId, 'min')
+  }
+
   Setup(): void {
     this.dbData = []; // this.allData;
     this.dbDataSource = this.dataSourceBuilder.create(this.dbData);

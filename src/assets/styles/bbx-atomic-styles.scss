@@ -2,7 +2,7 @@
     Variables
 */
 
-$loopUntil100: 100;
+$loopUntil: 50;
 
 /*
     Display
@@ -20,7 +20,7 @@ $loopUntil100: 100;
     Margins
 */
 
-@for $i from 0 through $loopUntil100 {
+@for $i from 0 through $loopUntil {
     .margin-#{$i} {
         margin:  #{$i}px !important;
     }
@@ -42,7 +42,7 @@ $loopUntil100: 100;
     Paddings
 */
 
-@for $i from 0 through $loopUntil100 {
+@for $i from 0 through $loopUntil {
     .padding-#{$i} {
         padding:  #{$i}px !important;
     }

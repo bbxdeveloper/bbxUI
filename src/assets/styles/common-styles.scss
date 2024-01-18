@@ -1,8 +1,9 @@
 // Width
 
 $widthManipulatorMax: 100;
-$pixelWidthManipulatorMax: 1000;
-$pixelHeightanipulatorMax: 1000;
+$pixelWidthManipulatorMax: 100;
+$pixelBlockWidthManipulatorMax: 500;
+$pixelHeightanipulatorMax: 100;
 
 // TODO: átszervezni bbx-atomic-styles.scss-be
 
@@ -24,7 +25,7 @@ $pixelHeightanipulatorMax: 1000;
     }
 }
 
-@for $i from 0 through $pixelWidthManipulatorMax {
+@for $i from 0 through $pixelBlockWidthManipulatorMax {
     .block-width-of-#{$i}px {
         display: block !important;
         width: #{$i}px !important;

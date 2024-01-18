@@ -1,6 +1,6 @@
 <as-split direction="horizontal">
     <as-split-area [size]="60">
-        <app-hozirontal-split-layout proportion="20" [hideDivider]="true">
+        <app-hozirontal-split-layout proportion="17" [hideDivider]="true">
             <app-head-line msg="Pénzügyi kiegyenlítések" title></app-head-line>
 
             <app-equalization-navigation-filter-form (refreshClicked)="refreshClicked($event)"
@@ -9,7 +9,7 @@
 
             <ng-container bottom>
                 <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-                    [heightMargin]="520" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                    [heightMargin]="402" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
                     [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
                     (focusOutTable)="focusOnTable(false)">
                 </app-flat-design-table>
