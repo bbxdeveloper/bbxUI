@@ -34,6 +34,7 @@ import { BaseInvoiceManagerComponent } from './base-invoice-manager/base-invoice
 import { InvoiceCustomerComponent } from './invoice-customer/invoice-customer.component';
 import { LoadInvoiceLinesDialogComponent } from './load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 import { CustomerSearchComponent } from './customer-serach/customer-search.component';
+import { InvoiceNavFilterFormComponent } from './invoice-navigation/invoice-nav-filter-form/invoice-nav-filter-form.component';
 
 
 
@@ -66,6 +67,7 @@ import { CustomerSearchComponent } from './customer-serach/customer-search.compo
     InvoiceCustomerComponent,
     LoadInvoiceLinesDialogComponent,
     CustomerSearchComponent,
+    InvoiceNavFilterFormComponent,
   ],
   imports: [
     CommonModule,

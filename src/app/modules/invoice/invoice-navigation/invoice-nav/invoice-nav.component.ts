@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, Optional } from '@angular/core';
 import { NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -9,7 +9,7 @@ import { KeyboardNavigationService, KeyboardModes } from 'src/app/services/keybo
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { StatusService } from 'src/app/services/status.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { TileCssClass, AttachDirection, TileCssColClass, NavMatrixOrientation } from 'src/assets/model/navigation/Navigatable';
+import { TileCssClass, AttachDirection, TileCssColClass } from 'src/assets/model/navigation/Navigatable';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { Constants } from 'src/assets/util/Constants';
 import { InvoiceService } from '../../services/invoice.service';
@@ -19,7 +19,6 @@ import { Invoice } from '../../models/Invoice';
 import { GetInvoicesParamListModel } from '../../models/GetInvoicesParamListModel';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { validDate } from 'src/assets/model/Validators';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { GetFooterCommandListFromKeySettings, InvoiceNavKeySettings, Actions, KeyBindings } from 'src/assets/util/KeyBindings';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
@@ -28,49 +27,20 @@ import { BaseManagerComponent } from '../../../shared/base-manager/base-manager.
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { TokenStorageService } from '../../../auth/services/token-storage.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { InvoiceNavFilter } from '../../models/InvoiceNavFilter';
 import { SystemService } from '../../../system/services/system.service';
 import { InvoiceType } from '../../../system/models/InvoiceType';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { CustomerService } from '../../../customer/services/customer.service';
-import { Subscription, firstValueFrom } from 'rxjs';
-import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
-import { Customer } from '../../../customer/models/Customer';
-import { GetCustomerByTaxNumberParams } from '../../../customer/models/GetCustomerByTaxNumberParams';
-import { GetCustomersParamListModel } from '../../../customer/models/GetCustomersParamListModel';
-import { CustomerSelectTableDialogComponent } from '../../customer-select-table-dialog/customer-select-table-dialog.component';
-import { TaxNumberSearchCustomerEditDialogComponent } from '../../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
-import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 
 @Component({
   selector: 'app-invoice-nav',
   templateUrl: './invoice-nav.component.html',
   styleUrls: ['./invoice-nav.component.scss']
 })
-export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
-  //#region Customer fields
-
-  readonly SearchButtonId: string = 'customer-button-search';
-  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
-  customerInputFilterString: string = '';
-  cachedCustomerName?: string;
-  _searchByTaxtNumber: boolean = false;
-  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
-  set searchByTaxtNumber(value: boolean) {
-    this._searchByTaxtNumber = value;
-    this.cdref.detectChanges();
-    this.filterFormNav.GenerateAndSetNavMatrices(false, true);
-    this.AddSearchButtonToFormMatrix();
-  }
-  customerData?: Customer;
-  customersData: Customer[] = [];
-
-  //#endregion Customer fields
-  
-  private readonly localStorageKey: string
+export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implements IFunctionHandler, IInlineManager, OnInit {
+  private filterData: InvoiceNavFilter = {} as InvoiceNavFilter
 
   TileCssClass = TileCssClass;
   TileCssColClass = TileCssColClass;
@@ -268,37 +238,32 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   ];
 
   public override getInputParams(override?: Constants.Dct): GetInvoicesParamListModel {
-    const controls = this.filterForm.controls
     const params = {
       PageNumber: 1,
       PageSize: parseInt(this.dbDataTable.pageSize),
 
-      InvoiceType: this.invoiceTypes.find(x => x.text === controls['InvoiceType'].value)?.value ?? '',
+      InvoiceType: this.invoiceTypes.find(x => x.text === this.filterData.InvoiceType)?.value ?? '',
 
       WarehouseCode: HelperFunctions
-        .ConvertChosenWareHouseToCode(controls['WarehouseCode'].value, this.warehouses, ''),
+        .ConvertChosenWareHouseToCode(this.filterData.WarehouseCode, this.warehouses, ''),
 
       // Radio 1
-      InvoiceIssueDateFrom: this.isIssueFilterSelected ? controls['InvoiceIssueDateFrom'].value : null,
-      InvoiceIssueDateTo: this.isIssueFilterSelected ? controls['InvoiceIssueDateTo'].value : null,
+      InvoiceIssueDateFrom: this.filterData.GetInvoiceIssueDateFrom,
+      InvoiceIssueDateTo: this.filterData.GetInvoiceIssueDateTo,
 
       // Radio 2
-      InvoiceDeliveryDateFrom: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateFrom'].value : null,
-      InvoiceDeliveryDateTo: this.isDeliveryFilterSelected ? controls['InvoiceDeliveryDateTo'].value : null,
+      InvoiceDeliveryDateFrom: this.filterData.GetInvoiceDeliveryDateFrom,
+      InvoiceDeliveryDateTo: this.filterData.GetInvoiceDeliveryDateTo,
+
       OrderBy: 'InvoiceNumber'
     }
+
     if (override && override["PageNumber"] !== undefined) {
       params.PageNumber = override["PageNumber"]
     }
+
     return params
   }
-
-  filterFormId = 'invoices-filter-form';
-  filterForm!: FormGroup;
-  filterFormNav!: InlineTableNavigatableForm;
-
-  readonly ChosenIssueFilterOptionValue: string = '1';
-  readonly ChosenDeliveryFilterOptionValue: string = '2';
 
   // WareHouse
   warehouses: WareHouse[] = [];
@@ -339,70 +304,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       .reduce((sum, current) => sum + current, 0);
   }
 
-  readonly DefaultChosenDateFilter: string = '1';
-  get chosenDateFilter(): string {
-    return this.filterForm.controls['DateFilterChooser'].value ?? this.DefaultChosenDateFilter;
-  }
-
-  get isIssueFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenIssueFilterOptionValue; }
-  get isDeliveryFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenDeliveryFilterOptionValue; }
-
-  get isIssueFilterSelectedAndValid(): boolean {
-    const controls = this.filterForm.controls
-
-    return this.isIssueFilterSelected
-      && controls['InvoiceIssueDateFrom'].value !== undefined && controls['InvoiceIssueDateFrom'].value.length > 0
-      && controls['InvoiceIssueDateTo'].value !== undefined && controls['InvoiceIssueDateTo'].value.length > 0
-      && controls['InvoiceIssueDateFrom'].valid && controls['InvoiceIssueDateTo'].valid
-      && controls['InvoiceType'].valid && controls['WarehouseCode'].valid;
-  }
-
-  get isDeliveryFilterSelectedAndValid(): boolean {
-    const controls = this.filterForm.controls
-
-    return this.isDeliveryFilterSelected
-      && controls['InvoiceDeliveryDateFrom'].value !== undefined && controls['InvoiceDeliveryDateFrom'].value.length > 0
-      && controls['InvoiceDeliveryDateTo'].value !== undefined && controls['InvoiceDeliveryDateTo'].value.length > 0
-      && controls['InvoiceDeliveryDateFrom'].valid && controls['InvoiceDeliveryDateTo'].valid
-      && controls['InvoiceType'].valid && controls['WarehouseCode'].valid;
-  }
-
-  get invoiceIssueDateFromValue(): Date | undefined {
-    if (!!!this.filterForm) {
-      return undefined;
-    }
-    const tmp = this.filterForm.controls['InvoiceIssueDateFrom'].value;
-
-    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
-  }
-
-  get invoiceIssueDateToValue(): Date | undefined {
-    if (!!!this.filterForm) {
-      return undefined;
-    }
-    const tmp = this.filterForm.controls['InvoiceIssueDateTo'].value;
-
-    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
-  }
-
-  get invoiceDeliveryDateFromValue(): Date | undefined {
-    if (!!!this.filterForm) {
-      return undefined;
-    }
-    const tmp = this.filterForm.controls['InvoiceDeliveryDateFrom'].value;
-
-    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
-  }
-
-  get invoiceDeliveryDateToValue(): Date | undefined {
-    if (!!!this.filterForm) {
-      return undefined;
-    }
-    const tmp = this.filterForm.controls['InvoiceDeliveryDateTo'].value;
-
-    return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
-  }
-
   //#endregion Getters
 
   constructor(
@@ -420,87 +321,21 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     sts: StatusService,
     private readonly keyboardHelperService: KeyboardHelperService,
     tokenStorage: TokenStorageService,
-    private readonly localStorage: LocalStorageService,
     private readonly systemService: SystemService,
     private readonly printAndDownloadService: PrintAndDownloadService,    
-    loggerService: LoggerService,
-    private readonly customerService: CustomerService
-  ) {
+    loggerService: LoggerService  ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
 
     this.searchInputId = 'active-prod-search';
     this.dbDataTableId = 'invoices-table';
     this.dbDataTableEditId = 'invoices-cell-edit-input';
 
-    this.localStorageKey = 'invoiceNavKey.' + tokenStorage.user?.id ?? 'for-everyone'
-
     this.kbS.ResetToRoot();
 
-    this.filterForm = new FormGroup({
-      InvoiceType: new FormControl(undefined, [Validators.required]),
-      WarehouseCode: new FormControl(undefined, []),
-      InvoiceIssueDateFrom: new FormControl(undefined, [
-        this.validateInvoiceIssueDateFrom.bind(this),
-        validDate
-      ]),
-      InvoiceIssueDateTo: new FormControl(undefined, [
-        this.validateInvoiceIssueDateTo.bind(this),
-        validDate
-      ]),
-      InvoiceDeliveryDateFrom: new FormControl(undefined, [
-        this.validateInvoiceDeliveryDateFrom.bind(this),
-        validDate
-      ]),
-      InvoiceDeliveryDateTo: new FormControl(undefined, [
-        this.validateInvoiceDeliveryDateTo.bind(this),
-        validDate
-      ]),
-      DateFilterChooser: new FormControl(undefined, []),
-
-      CustomerSearch: new FormControl(undefined, []),
-      CustomerName: new FormControl(undefined, []),
-      CustomerAddress: new FormControl(undefined, []),
-      CustomerTaxNumber: new FormControl(undefined, []),
-    });
-
     this.Setup();
+
+    this.isLoading = false;
   }
-
-  //#region Validations
-
-  validateInvoiceIssueDateFrom(control: AbstractControl): any {
-    if (this.invoiceIssueDateToValue === undefined) {
-      return null;
-    }
-    const wrong = new Date(control.value) > this.invoiceIssueDateToValue;
-    return wrong ? { maxDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceIssueDateTo(control: AbstractControl): any {
-    if (this.invoiceIssueDateFromValue === undefined) {
-      return null;
-    }
-    const wrong = new Date(control.value) < this.invoiceIssueDateFromValue;
-    return wrong ? { minDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceDeliveryDateFrom(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateToValue === undefined) {
-      return null;
-    }
-    const wrong = new Date(control.value) > this.invoiceDeliveryDateToValue;
-    return wrong ? { maxDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceDeliveryDateTo(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateFromValue === undefined) {
-      return null;
-    }
-    const wrong = new Date(control.value) < this.invoiceDeliveryDateFromValue;
-    return wrong ? { minDate: { value: control.value } } : null;
-  }
-
-  //#endregion Validations
 
   //#region Misc
 
@@ -512,25 +347,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     return parseInt(p + '');
   }
 
-  private navigateToTable() {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-    this.kbS.SetCurrentNavigatable(this.dbDataTable)
-    this.kbS.SelectElementByCoordinate(0, 0)
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-  }
-
   //#endregion Misc
 
   //#region Refresh
 
-  SearchButtonClicked(event: any): void {
-    this.localStorage.put(this.localStorageKey, this.filterForm.value)
-    this.Refresh()
-  }
-
   override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
-    console.trace("ez miért hívódik meg?????????????????????")
-
     this.sts.waitForLoad(true)
 
     try {
@@ -546,7 +367,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
         this.RefreshTable(undefined, true);
 
-        await this.getAndSetWarehouses()
+        await this.getWarehouses()
       } else {
         this.simpleToastrService.show(
           response.errors!.join('\n'),
@@ -563,7 +384,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
   }
 
-  private async getAndSetWarehouses(): Promise<void> {
+  private async getWarehouses(): Promise<void> {
     try {
       const response = await this.wareHouseApi.GetAllPromise();
       if (!!response && !!response.data) {
@@ -577,24 +398,25 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
   }
 
-  private async getAndSetInvoiceTypes(): Promise<void> {
+  private async getInvoiceTypes(): Promise<void> {
     try {
       const invoiceTypes = await this.systemService.getInvoiceTypes()
-
       if (invoiceTypes) {
         this.invoiceTypes = invoiceTypes
         this.invoiceTypes$.next(invoiceTypes.map(x => x.text))
-
-        const control = this.filterForm.controls['InvoiceType']
-
-        if (control.value === '') {
-          control.setValue(invoiceTypes.find(x => x.value === 'INV')?.text ?? '')
-        }
       }
     }
     catch (error) {
       this.cs.HandleError(error)
     }
+  }
+
+  public refreshClicked(filterData: InvoiceNavFilter | undefined): void {
+    this.filterData = filterData ?? {} as InvoiceNavFilter
+
+    this.UpdateKeySettingsAndCommand()
+
+    this.Refresh(this.getInputParams())
   }
 
   //#endregion Refresh
@@ -665,12 +487,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event'])
   public onKeyDown2(event: KeyboardEvent): void {
-    if (event.shiftKey && event.key == 'Enter') {
-      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
-      this.filterFormNav?.HandleFormShiftEnter(event)
-      return;
-    }
-    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+    if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
       event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
@@ -725,89 +542,31 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   //#region Init
 
-  private async loadFilters(): Promise<void> {
-    const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
-
-    if (!filter) {
-      return
-    }
-
-    await this.loadCustomerFilter(filter)
-  }
-
   public async ngOnInit(): Promise<void> {
     const requests = [
-      this.getAndSetWarehouses(),
-      this.getAndSetInvoiceTypes()
+      this.getWarehouses(),
+      this.getInvoiceTypes()
     ]
 
     await Promise.all(requests)
 
-    // await this.Refresh();
-
-    // if (this.localStorage.has(this.localStorageKey)) {
-    //   this.navigateToTable()
-    // }
-
     this.fS.pushCommands(this.commands);
 
-    setTimeout(async () => {
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-  
-      $('*[type=radio]').addClass(TileCssClass);
-      $('*[type=radio]').on('click', (event) => {
-        this.filterFormNav.HandleFormFieldClick(event);
-      });
-
-      this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true);
-      this.filterFormNav.DownNeighbour = this.dbDataTable;
-      this.filterFormNav.InnerJumpOnEnter = true
-      this.filterFormNav.OuterJump = true
-
-      this.dbDataTable.ReadonlySideForm = true;
-
-      this.kbS.SetCurrentNavigatable(this.filterFormNav)
-      this.kbS.SelectFirstTile()
-      this.kbS.ClickCurrentElement()
-
-      await this.setupFilterForm()      
-      await this.loadFilters()
-
-      const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)      
-      if (filter) {
-        this.filterForm.patchValue(filter)
-        this.Refresh()
-      }
-
-      setTimeout(() => {
-        this.cs.CloseAllHeaderMenuTrigger.next(true)
-      }, 500);
-    }, 500);
-  }
-
-  ngAfterViewInit(): void {
-    // console.log("[ngAfterViewInit]");
-
-    // this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    // $('*[type=radio]').addClass(TileCssClass);
-    // $('*[type=radio]').on('click', (event) => {
-    //   this.filterFormNav.HandleFormFieldClick(event);
-    // });
-
-    // this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
-
-    // this.dbDataTable.GenerateAndSetNavMatrices(true);
-    // this.dbDataTable.ReadonlySideForm = true;
-
-    // this.filterFormNav.DownNeighbour = this.dbDataTable;
-
-    // this.kbS.SelectFirstTile();
+    this.dbDataTable.ReadonlySideForm = true;
   }
 
   ngOnDestroy(): void {
     console.log('Detach');
     this.kbS.Detach();
+  }
+
+  public filterFormPageReady(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+
+    this.SetTableAndFormCommandListFromManager()
+
+    this.dbDataTable.PushFooterCommandList()
+    this.dbDataTable.GenerateAndSetNavMatrices(true)
   }
 
   private Setup(): void {
@@ -816,8 +575,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
     this.dbDataTableForm = new FormGroup({});
-
-    this.setupFilterForm()
 
     this.dbDataTableForm = new FormGroup({
       invoiceNumber: new FormControl(0, []),
@@ -871,339 +628,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.dbDataTable!.OuterJump = true;
   }
 
-  private async loadCustomerFilter(filter: InvoiceNavFilter): Promise<void> {
-    const setControlValue = (filterValue: any, control: AbstractControl) => {
-      if (!filterValue) {
-        return
-      }
-      control.setValue(filterValue)
-    }
-
-    if (filter) {
-      if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
-        filter.CustomerID = undefined
-      } else {
-        await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
-        this.kbS.SelectElementByCoordinate(0, 0)
-      }
-    }
-
-    // this.customerSearch.search(filter.CustomerSearch)
-  }
-
-  private async setupFilterForm(): Promise<void> {
-    let filterData = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
-
-    if (!filterData) {
-      filterData = InvoiceNavFilter.create()
-    }
-
-    // this.filterForm.patchValue(filterData)
-
-    // this.filterForm = new FormGroup({
-    //   InvoiceType: new FormControl(filterData.invoiceType, [Validators.required]),
-    //   WarehouseCode: new FormControl(filterData.warehouseCode, []),
-    //   InvoiceIssueDateFrom: new FormControl(filterData.invoiceIssueDateFrom, [
-    //     this.validateInvoiceIssueDateFrom.bind(this),
-    //     validDate
-    //   ]),
-    //   InvoiceIssueDateTo: new FormControl(filterData.invoiceIssueDateTo, [
-    //     this.validateInvoiceIssueDateTo.bind(this),
-    //     validDate
-    //   ]),
-    //   InvoiceDeliveryDateFrom: new FormControl(filterData.invoiceDeliveryDateFrom, [
-    //     this.validateInvoiceDeliveryDateFrom.bind(this),
-    //     validDate
-    //   ]),
-    //   InvoiceDeliveryDateTo: new FormControl(filterData.invoiceDeliveryDateTo, [
-    //     this.validateInvoiceDeliveryDateTo.bind(this),
-    //     validDate
-    //   ]),
-    //   DateFilterChooser: new FormControl(filterData.dateFilterChooser, []),
-
-    //   CustomerSearch: new FormControl(undefined, []),
-    //   CustomerName: new FormControl(undefined, []),
-    //   CustomerAddress: new FormControl(undefined, []),
-    //   CustomerTaxNumber: new FormControl(undefined, []),
-    // });
-
-    this.filterForm.valueChanges.subscribe(value => {
-      const filterData = {
-        InvoiceType: value.InvoiceType,
-        WarehouseCode: value.WarehouseCode,
-        InvoiceIssueDateFrom: value.InvoiceIssueDateFrom,
-        InvoiceIssueDateTo: value.InvoiceIssueDateTo,
-        InvoiceDeliveryDateFrom: value.InvoiceDeliveryDateFrom,
-        InvoiceDeliveryDateTo: value.InvoiceDeliveryDateTo,
-        DateFilterChooser: value.DateFilterChooser,
-      } as InvoiceNavFilter
-
-      this.localStorage.put(this.localStorageKey, filterData)
-    })
-
-    this.filterForm.controls['DateFilterChooser'].valueChanges.subscribe({
-      next: newValue => {
-        let x = this.kbS.p.x;
-        let y = this.kbS.p.y;
-        setTimeout(() => {
-          this.filterFormNav.GenerateAndSetNavMatrices(false, undefined, true);
-          this.kbS.SelectElementByCoordinate(x, y);
-        }, 200);
-      }
-    });
-
-    this.filterForm.controls['InvoiceIssueDateFrom'].valueChanges.subscribe({
-      next: newValue => {
-        if (!this.filterForm.controls['InvoiceIssueDateTo'].valid && this.filterForm.controls['InvoiceIssueDateFrom'].valid) {
-          this.filterForm.controls['InvoiceIssueDateTo'].setValue(this.filterForm.controls['InvoiceIssueDateTo'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['InvoiceIssueDateTo'].valueChanges.subscribe({
-      next: newValue => {
-        if (!this.filterForm.controls['InvoiceIssueDateFrom'].valid && this.filterForm.controls['InvoiceIssueDateTo'].valid) {
-          this.filterForm.controls['InvoiceIssueDateFrom'].setValue(this.filterForm.controls['InvoiceIssueDateFrom'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['InvoiceDeliveryDateFrom'].valueChanges.subscribe({
-      next: newValue => {
-        if (!this.filterForm.controls['InvoiceDeliveryDateTo'].valid && this.filterForm.controls['InvoiceDeliveryDateFrom'].valid) {
-          this.filterForm.controls['InvoiceDeliveryDateTo'].setValue(this.filterForm.controls['InvoiceDeliveryDateTo'].value);
-        }
-      }
-    });
-
-    this.filterForm.controls['InvoiceDeliveryDateTo'].valueChanges.subscribe({
-      next: newValue => {
-        if (!this.filterForm.controls['InvoiceDeliveryDateFrom'].valid && this.filterForm.controls['InvoiceDeliveryDateTo'].valid) {
-          this.filterForm.controls['InvoiceDeliveryDateFrom'].setValue(this.filterForm.controls['InvoiceDeliveryDateFrom'].value);
-        }
-        this.filterForm.controls['InvoiceDeliveryDateFrom'].markAsDirty();
-        this.cdref.detectChanges();
-      }
-    });
-
-    this.filterFormNav = new InlineTableNavigatableForm(
-      this.filterForm,
-      this.kbS,
-      this.cdref,
-      [],
-      this.filterFormId,
-      AttachDirection.DOWN,
-      this
-    )
-
-    this.filterFormNav.OuterJump = true;
-  }
-
   //#endregion Init
-
-  //#region Customer
-
-  private SetCustomerFormFields(data?: Customer) {
-    if (data === undefined) {
-      this.filterForm.controls["CustomerName"].setValue(undefined);
-      this.filterForm.controls['CustomerName'].setValue(undefined);
-      this.filterForm.controls['CustomerAddress'].setValue(undefined);
-      this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
-      return;
-    }
-    this.filterForm.controls["CustomerName"].setValue(data.customerName);
-    this.filterForm.controls['CustomerName'].setValue(data.customerName);
-    this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
-    this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
-  }
-
-  FillFormWithFirstAvailableCustomer(event: any): void {
-    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
-      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
-    }
-
-    this.customerInputFilterString = event.target.value ?? '';
-
-    if (this.customerInputFilterString.replace(' ', '') === '' || HelperFunctions.isEmptyOrSpaces(this.customerInputFilterString)) {
-      this.customerData = undefined;
-      this.SetCustomerFormFields(undefined);
-      this.isLoading = false
-      return;
-    }
-
-    this.isLoading = true;
-    this.Subscription_FillFormWithFirstAvailableCustomer = this.searchCustomer(this.customerInputFilterString)
-  }
-
-  private async searchCustomerAsync(term: string): Promise<void> {
-    if (HelperFunctions.isEmptyOrSpaces(term)) {
-      this.SetCustomerFormFields(undefined);
-    }
-
-    const request = {
-      IsOwnData: false,
-      PageNumber: '1',
-      PageSize: '1',
-      SearchString: term,
-      OrderBy: 'customerName'
-    } as GetCustomersParamListModel
-
-    try {
-      const res = await firstValueFrom(this.customerService.GetAll(request))
-
-      if (!!res && res.data !== undefined && res.data.length > 0) {
-        this.customerData = res.data[0];
-        this.cachedCustomerName = res.data[0].customerName;
-        this.SetCustomerFormFields(res.data[0]);
-        this.searchByTaxtNumber = false;
-      } else {
-        if (this.customerInputFilterString.length >= 8 &&
-          HelperFunctions.IsNumber(this.customerInputFilterString)) {
-          this.searchByTaxtNumber = true;
-        } else {
-          this.searchByTaxtNumber = false;
-        }
-        this.SetCustomerFormFields(undefined);
-      }
-    }
-    catch (error) {
-      this.cs.HandleError(error);
-      this.isLoading = false;
-      this.searchByTaxtNumber = false;
-    }
-  }
-
-  private searchCustomer(term: string): Subscription {
-    if (HelperFunctions.isEmptyOrSpaces(term)) {
-      this.SetCustomerFormFields(undefined);
-    }
-
-    const request = {
-      IsOwnData: false,
-      PageNumber: '1',
-      PageSize: '1',
-      SearchString: term,
-      OrderBy: 'customerName'
-    } as GetCustomersParamListModel
-
-    return this.customerService.GetAll(request).subscribe({
-      next: res => {
-        if (!!res && res.data !== undefined && res.data.length > 0) {
-          this.customerData = res.data[0];
-          this.cachedCustomerName = res.data[0].customerName;
-          this.SetCustomerFormFields(res.data[0]);
-          this.searchByTaxtNumber = false;
-        } else {
-          if (this.customerInputFilterString.length >= 8 &&
-            HelperFunctions.IsNumber(this.customerInputFilterString)) {
-            this.searchByTaxtNumber = true;
-          } else {
-            this.searchByTaxtNumber = false;
-          }
-          this.SetCustomerFormFields(undefined);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err);
-        this.isLoading = false;
-        this.searchByTaxtNumber = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  private async PrepareCustomer(data: Customer): Promise<Customer> {
-    console.log('Before: ', data);
-
-    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
-    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
-
-    // const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
-
-    // if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
-    //   data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
-    // }
-
-    return data;
-  }
-
-  ChoseDataForFormByTaxtNumber(): void {
-    console.log("Selecting Customer from avaiable data by taxtnumber.");
-
-    this.isLoading = true;
-
-    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
-      next: async res => {
-        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
-          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
-            context: {
-              data: await this.PrepareCustomer(res.data)
-            },
-            closeOnEsc: false
-          });
-          dialogRef.onClose.subscribe({
-            next: (res: Customer) => {
-              console.log("Selected item: ", res);
-              if (!!res) {
-                this.customerData = res;
-                this.filterForm.controls["CustomerName"].setValue(res.customerName);
-
-                this.kbS.SetCurrentNavigatable(this.filterFormNav);
-                this.kbS.SelectFirstTile();
-                this.kbS.setEditMode(KeyboardModes.EDIT);
-              }
-            },
-            error: err => {
-              this.cs.HandleError(err);
-            }
-          });
-        } else {
-          this.simpleToastrService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-        }
-      },
-      error: (err) => {
-        this.cs.HandleError(err); this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      },
-    });
-  }
-
-  ChooseDataForCustomerForm(): void {
-    console.log("Selecting Customer from avaiable data.")
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-
-    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
-      context: {
-        searchString: this.customerInputFilterString,
-        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
-        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
-      }
-    })
-    dialogRef.onClose.subscribe((res: Customer) => {
-      console.log("Selected item: ", res)
-      if (!!res) {
-        this.customerData = res
-        this.SetCustomerFormFields(res)
-
-        this.kbS.SetCurrentNavigatable(this.filterFormNav)
-        this.kbS.SelectElementByCoordinate(0, 3)
-        this.kbS.ClickCurrentElement()
-      }
-    })
-  }
-
-  private AddSearchButtonToFormMatrix(): void {
-    this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
-  }
-
-  //#endregion Customer
 
   //#region Unimplemented
 
@@ -1217,7 +642,11 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   Delete(): void { }
 
-  ChooseDataForTableRow(rowIndex: number): void {}
+  ChooseDataForTableRow(rowIndex: number): void { }
+  
+  ChooseDataForCustomerForm(): void {
+    throw new Error('Method not implemented.');
+  }
 
   //#endregion Unimplemented
 
