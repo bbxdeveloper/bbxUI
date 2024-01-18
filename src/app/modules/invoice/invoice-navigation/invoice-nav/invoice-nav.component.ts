@@ -98,6 +98,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       fInputType: 'text',
       mask: '',
       colWidth: '50%',
+      colMinWidth: '200px',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },

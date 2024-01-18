@@ -5,6 +5,17 @@
     column-gap: 5px;
 }
 
-.bbx-combobox, .bbx-radiogroup {
+.customer-search-field, .bbx-combobox, .bbx-radiogroup {
     width: 320px;
+}
+
+input.customer-input {
+    width: 100%;
+    width: -moz-fill-available;
+    width: -webkit-fill-available;
+    width: fill-available;
+
+    min-width: auto !important;
+
+    max-width: auto !important;
 }
