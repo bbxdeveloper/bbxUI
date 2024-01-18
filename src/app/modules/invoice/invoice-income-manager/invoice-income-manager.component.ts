@@ -777,6 +777,7 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
       this.kbS.setEditMode(KeyboardModes.EDIT)
+      setTimeout(() => this.kbS.ClickCurrentElement(), 100)
 
       if (!priceChange) {
         return
@@ -784,8 +785,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
       invoiceLine.newUnitPrice1HUF = priceChange.newUnitPrice1
       invoiceLine.newUnitPrice2HUF = priceChange.newUnitPrice2
-
-      this.kbS.ClickCurrentElement()
     })
   }
 
