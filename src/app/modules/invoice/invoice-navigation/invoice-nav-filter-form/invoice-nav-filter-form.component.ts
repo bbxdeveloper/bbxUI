@@ -69,11 +69,12 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     }
     this.filterForm.patchValue(formData)
   }
-  public get componentFormData() {
+  public get componentFormData(): InvoiceNavFilter {
     const controls = this.filterForm.controls
 
     const formData = {
       CustomerID: HelperFunctions.ToOptionalInt(this.customerData?.id),
+      CustomerSearch: controls['CustomerSearch'].value,
       InvoiceType: controls['InvoiceType'].value,
       WarehouseCode: controls['WarehouseCode'].value,
       InvoiceIssueDateFrom: controls['InvoiceIssueDateFrom'].value,
@@ -375,6 +376,9 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
       control.setValue(filterValue)
     }
 
+    const controls = this.filterForm.controls
+    setControlValue(filter.CustomerSearch, controls['CustomerSearch'])
+
     if (filter) {
       if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
         filter.CustomerID = undefined
@@ -396,8 +400,8 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     const controls = this.filterForm.controls
 
     setControlValue(filter.InvoiceType, controls['InvoiceType'])
-    setControlValue(filter.WarehouseCode, controls['WarehouseCode'])
     setControlValue(filter.DateFilterChooser, controls['DateFilterChooser'])
+    setControlValue(filter.WarehouseCode, controls['WarehouseCode'])
   }
 
   private loadDatesFromFilter(filter: InvoiceNavFilter): void {
@@ -417,8 +421,10 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
   }
 
   public Refresh(): void {
-    this.localStorage.put(this.localStorageKey, this.filterForm.value)
-    this.refreshClicked.emit(this.componentFormData)
+    var filter = this.componentFormData
+    this.refreshClicked.emit(filter)
+    filter.CustomerID = undefined
+    this.localStorage.put(this.localStorageKey, filter)
   }
 
   MoveToSearchButton(event: any, jumpNext: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {

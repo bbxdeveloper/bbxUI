@@ -255,12 +255,16 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       InvoiceDeliveryDateFrom: this.filterData.GetInvoiceDeliveryDateFrom,
       InvoiceDeliveryDateTo: this.filterData.GetInvoiceDeliveryDateTo,
 
+      CustomerID: HelperFunctions.ToOptionalInt(this.filterData.CustomerID),
+
       OrderBy: 'InvoiceNumber'
     }
 
     if (override && override["PageNumber"] !== undefined) {
       params.PageNumber = override["PageNumber"]
     }
+
+    console.trace(params)
 
     return params
   }
