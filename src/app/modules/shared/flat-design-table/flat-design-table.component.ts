@@ -70,6 +70,10 @@ export class FlatDesignTableComponent implements OnInit {
     return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId)
   }
 
+  GetColMinWidth(col: ModelFieldDescriptor): any {
+    return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId, 'min')
+  }
+
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)
   }
