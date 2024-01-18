@@ -1,4 +1,4 @@
-@import 'flat-design-manager-component-default';
+@use 'flat-design-manager-component-default';
 
 ::ng-deep nb-card-body:has(.card-table-wrapper-form) {
     padding: 0px !important;
