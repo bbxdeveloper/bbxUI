@@ -17,7 +17,6 @@ import { WareHouse } from '../../warehouse/models/WareHouse';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { Invoice } from '../models/Invoice';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
-import { FlatDesignNoTableNavigatableForm } from 'src/assets/model/navigation/FlatDesignNoTableNavigatableForm';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { validDate } from 'src/assets/model/Validators';
@@ -44,6 +43,7 @@ import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerB
 import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
 import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
 import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
+import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -295,7 +295,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   filterFormId = 'invoices-filter-form';
   filterForm!: FormGroup;
-  filterFormNav!: FlatDesignNoTableNavigatableForm;
+  filterFormNav!: InlineTableNavigatableForm;
 
   readonly ChosenIssueFilterOptionValue: string = '1';
   readonly ChosenDeliveryFilterOptionValue: string = '2';
@@ -529,6 +529,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
+    console.trace("ez miért hívódik meg?????????????????????")
+
     this.sts.waitForLoad(true)
 
     try {
@@ -757,7 +759,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.filterFormNav.HandleFormFieldClick(event);
       });
 
-      this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+      this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true);
       this.filterFormNav.DownNeighbour = this.dbDataTable;
       this.filterFormNav.InnerJumpOnEnter = true
       this.filterFormNav.OuterJump = true
@@ -944,7 +946,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         let x = this.kbS.p.x;
         let y = this.kbS.p.y;
         setTimeout(() => {
-          this.filterFormNav.GenerateAndSetNavMatrices(false, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+          this.filterFormNav.GenerateAndSetNavMatrices(false, undefined, true);
           this.kbS.SelectElementByCoordinate(x, y);
         }, 200);
       }
@@ -984,17 +986,15 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       }
     });
 
-    this.filterFormNav = new FlatDesignNoTableNavigatableForm(
+    this.filterFormNav = new InlineTableNavigatableForm(
       this.filterForm,
       this.kbS,
-      this.cdref, [], this.filterFormId,
+      this.cdref,
+      [],
+      this.filterFormId,
       AttachDirection.DOWN,
-      this.colDefs,
-      this.bbxSidebarService,
-      this.fS,
-      this.dbDataTable,
       this
-    );
+    )
 
     this.filterFormNav.OuterJump = true;
   }
