@@ -54,8 +54,7 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
   set searchByTaxtNumber(value: boolean) {
     this._searchByTaxtNumber = value;
     this.cdref.detectChanges();
-    this.filterFormNav.GenerateAndSetNavMatrices(false, true);
-    this.AddSearchButtonToFormMatrix();
+    this.filterFormNav.GenerateAndSetNavMatrices(false, true, true);
   }
   customerData?: Customer;
   customersData: Customer[] = [];
@@ -263,10 +262,6 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
         this.cdref.detectChanges();
       }
     });
-  }
-
-  private AddSearchButtonToFormMatrix(): void {
-    this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
   private async getWarehouses(): Promise<void> {
