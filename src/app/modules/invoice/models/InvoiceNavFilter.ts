@@ -1,25 +1,27 @@
 import { HelperFunctions } from "src/assets/util/HelperFunctions"
 
 export class InvoiceNavFilter {
-    public invoiceType: string = ''
-    public warehouseCode: string = ''
-    public invoiceIssueDateFrom: string = ''
-    public invoiceIssueDateTo: string = ''
-    public invoiceDeliveryDateFrom: string = ''
-    public invoiceDeliveryDateTo: string = ''
-    public dateFilterChooser: string = ''
-    public CustomerSearch: string = ''
+    public InvoiceType: string = ''
+    public WarehouseCode: string = ''
+    public InvoiceIssueDateFrom: string = ''
+    public InvoiceIssueDateTo: string = ''
+    public InvoiceDeliveryDateFrom: string = ''
+    public InvoiceDeliveryDateTo: string = ''
+    public DateFilterChooser: string = ''
+    public CustomerSearch?: string = undefined
+    public CustomerID?: number
 
     public static create(): InvoiceNavFilter {
         return {
-            invoiceType: '',
-            warehouseCode: '',
-            invoiceIssueDateFrom: HelperFunctions.GetDateString(0, 0, -1),
-            invoiceIssueDateTo: HelperFunctions.GetDateString(),
-            invoiceDeliveryDateFrom: HelperFunctions.GetDateString(),
-            invoiceDeliveryDateTo: HelperFunctions.GetDateString(),
-            dateFilterChooser: '1',
-            CustomerSearch: ''
+            InvoiceType: '',
+            WarehouseCode: '',
+            InvoiceIssueDateFrom: HelperFunctions.GetDateString(0, 0, -1),
+            InvoiceIssueDateTo: HelperFunctions.GetDateString(),
+            InvoiceDeliveryDateFrom: HelperFunctions.GetDateString(),
+            InvoiceDeliveryDateTo: HelperFunctions.GetDateString(),
+            DateFilterChooser: '1',
+            CustomerSearch: undefined,
+            CustomerID: undefined
         } as InvoiceNavFilter
     }
 

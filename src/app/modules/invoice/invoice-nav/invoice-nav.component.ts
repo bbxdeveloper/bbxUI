@@ -78,8 +78,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   IsTableFocused: boolean = false;
   isDeleteDisabled: boolean = false;
 
-  readonly ChosenIssueFilterOptionValue: string = '1';
-  readonly ChosenDeliveryFilterOptionValue: string = '2';
+  override KeySetting: Constants.KeySettingsDct = InvoiceNavKeySettings;
+  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   override allColumns = [
     'invoiceNumber',
@@ -297,12 +297,17 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   filterForm!: FormGroup;
   filterFormNav!: FlatDesignNoTableNavigatableForm;
 
+  readonly ChosenIssueFilterOptionValue: string = '1';
+  readonly ChosenDeliveryFilterOptionValue: string = '2';
+
   // WareHouse
   warehouses: WareHouse[] = [];
   wareHouseData$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
 
   invoiceTypes: InvoiceType[] = []
   invoiceTypes$: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
+
+  //#region Getters
 
   get isEditModeOff() {
     return !this.kbS.isEditModeActivated;
@@ -338,9 +343,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   get chosenDateFilter(): string {
     return this.filterForm.controls['DateFilterChooser'].value ?? this.DefaultChosenDateFilter;
   }
-
-  override KeySetting: Constants.KeySettingsDct = InvoiceNavKeySettings;
-  override readonly commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
   get isIssueFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenIssueFilterOptionValue; }
   get isDeliveryFilterSelected(): boolean { return this.chosenDateFilter === this.ChosenDeliveryFilterOptionValue; }
@@ -401,6 +403,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
+  //#endregion Getters
+
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
@@ -432,12 +436,37 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
     this.kbS.ResetToRoot();
 
+    this.filterForm = new FormGroup({
+      InvoiceType: new FormControl(undefined, [Validators.required]),
+      WarehouseCode: new FormControl(undefined, []),
+      InvoiceIssueDateFrom: new FormControl(undefined, [
+        this.validateInvoiceIssueDateFrom.bind(this),
+        validDate
+      ]),
+      InvoiceIssueDateTo: new FormControl(undefined, [
+        this.validateInvoiceIssueDateTo.bind(this),
+        validDate
+      ]),
+      InvoiceDeliveryDateFrom: new FormControl(undefined, [
+        this.validateInvoiceDeliveryDateFrom.bind(this),
+        validDate
+      ]),
+      InvoiceDeliveryDateTo: new FormControl(undefined, [
+        this.validateInvoiceDeliveryDateTo.bind(this),
+        validDate
+      ]),
+      DateFilterChooser: new FormControl(undefined, []),
+
+      CustomerSearch: new FormControl(undefined, []),
+      CustomerName: new FormControl(undefined, []),
+      CustomerAddress: new FormControl(undefined, []),
+      CustomerTaxNumber: new FormControl(undefined, []),
+    });
+
     this.Setup();
   }
 
-  override GetRecordName(data: Invoice): string | number | undefined {
-    return data.invoiceNumber
-  }
+  //#region Validations
 
   validateInvoiceIssueDateFrom(control: AbstractControl): any {
     if (this.invoiceIssueDateToValue === undefined) {
@@ -471,8 +500,312 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     return wrong ? { minDate: { value: control.value } } : null;
   }
 
+  //#endregion Validations
+
+  //#region Misc
+
+  override GetRecordName(data: Invoice): string | number | undefined {
+    return data.invoiceNumber
+  }
+
   ToInt(p: any): number {
     return parseInt(p + '');
+  }
+
+  private navigateToTable() {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+    this.kbS.SelectElementByCoordinate(0, 0)
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+  }
+
+  //#endregion Misc
+
+  //#region Refresh
+
+  SearchButtonClicked(event: any): void {
+    this.localStorage.put(this.localStorageKey, this.filterForm.value)
+    this.Refresh()
+  }
+
+  override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
+    this.sts.waitForLoad(true)
+
+    try {
+      const response = await this.invoiceService.getAllAsync(params ?? this.getInputParams())
+
+      if (response && response.succeeded && !!response.data) {
+        const tempData = response.data.map((x) => {
+          return { data: x, uid: this.nextUid() };
+        });
+        this.dbData = tempData;
+        this.dbDataDataSrc.setData(this.dbData);
+        this.dbDataTable.SetPaginatorData(response);
+
+        this.RefreshTable(undefined, true);
+
+        await this.getAndSetWarehouses()
+      } else {
+        this.simpleToastrService.show(
+          response.errors!.join('\n'),
+          Constants.TITLE_ERROR,
+          Constants.TOASTR_ERROR
+        );
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+    }
+    finally {
+      this.sts.waitForLoad(false)
+    }
+  }
+
+  private async getAndSetWarehouses(): Promise<void> {
+    try {
+      const response = await this.wareHouseApi.GetAllPromise();
+      if (!!response && !!response.data) {
+        this.warehouses = response.data;
+        this.wareHouseData$.next(this.warehouses.map(x => x.warehouseDescription));
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+      this.isLoading = false;
+    }
+  }
+
+  private async getAndSetInvoiceTypes(): Promise<void> {
+    try {
+      const invoiceTypes = await this.systemService.getInvoiceTypes()
+
+      if (invoiceTypes) {
+        this.invoiceTypes = invoiceTypes
+        this.invoiceTypes$.next(invoiceTypes.map(x => x.text))
+
+        const control = this.filterForm.controls['InvoiceType']
+
+        if (control.value === '') {
+          control.setValue(invoiceTypes.find(x => x.value === 'INV')?.text ?? '')
+        }
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error)
+    }
+  }
+
+  //#endregion Refresh
+
+  //#region Utility
+
+  public getCsv(): void {
+    HelperFunctions.confirm(this.dialogService, 'Export CSV formátumban?', () => {
+      try {
+        this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
+
+        const reportParams = {
+          report_params: this.getInputParams(),
+        } as Constants.Dct
+
+        this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
+      }
+      catch (error) {
+        this.cs.HandleError(error)
+      }
+      finally {
+        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+      }
+    })
+  }
+
+  private printSelectedInvoice(): void {
+    const selectedRow = this.dbDataTable.prevSelectedRow
+
+    const invoiceNumber = selectedRow?.data.invoiceNumber ?? ''
+
+    this.printAndDownloadService.openPrintDialog({
+      DialogTitle: Constants.TITLE_PRINT_INVOICE,
+      DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
+      MsgError: `A ${invoiceNumber} számla nyomtatása közben hiba történt.`,
+      MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
+      MsgFinish: `A ${invoiceNumber} számla nyomtatása véget ért.`,
+      Obs: this.invoiceService.GetReport.bind(this.invoiceService),
+      Reset: () => {},
+      ReportParams: {
+        id: selectedRow?.data.id,
+        copies: 1
+      } as Constants.Dct
+    } as PrintDialogRequest)
+  }
+
+  //#endregion Utility
+
+  //#region Keyboard
+
+  HandleFunctionKey(event: Event | KeyBindings): void {
+    const val = event instanceof Event ? (event as KeyboardEvent).code : event;
+    console.log(`[HandleFunctionKey]: ${val}`);
+    switch (val) {
+      // NEW
+      case this.KeySetting[Actions.Create].KeyCode:
+        break;
+      // EDIT
+      case this.KeySetting[Actions.Edit].KeyCode:
+        break;
+      // DELETE
+      case this.KeySetting[Actions.Delete].KeyCode:
+        break;
+    }
+  }
+
+  // F12 is special, it has to be handled in constructor with a special keydown event handling
+  // to prevent it from opening devtools
+  @HostListener('window:keydown', ['$event'])
+  public onKeyDown2(event: KeyboardEvent): void {
+    if (event.shiftKey && event.key == 'Enter') {
+      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
+      this.filterFormNav?.HandleFormShiftEnter(event)
+      return;
+    }
+    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+
+    if (this.keyboardHelperService.IsKeyboardBlocked) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      return;
+    }
+
+    switch (event.key) {
+      case this.KeySetting[Actions.Refresh].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break;
+      }
+      case this.KeySetting[Actions.Print].KeyCode: {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+
+        this.printSelectedInvoice()
+        break
+      }
+      case this.KeySetting[Actions.CSV].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.getCsv()
+        break
+      }
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
+        this.dbDataTable?.HandleKey(event);
+        break
+      }
+    }
+  }
+
+  //#endregion Keyboard
+
+  //#region Init
+
+  private async loadFilters(): Promise<void> {
+    const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
+
+    if (!filter) {
+      return
+    }
+
+    await this.loadCustomerFilter(filter)
+  }
+
+  public async ngOnInit(): Promise<void> {
+    const requests = [
+      this.getAndSetWarehouses(),
+      this.getAndSetInvoiceTypes()
+    ]
+
+    await Promise.all(requests)
+
+    // await this.Refresh();
+
+    // if (this.localStorage.has(this.localStorageKey)) {
+    //   this.navigateToTable()
+    // }
+
+    this.fS.pushCommands(this.commands);
+
+    setTimeout(async () => {
+      this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+  
+      $('*[type=radio]').addClass(TileCssClass);
+      $('*[type=radio]').on('click', (event) => {
+        this.filterFormNav.HandleFormFieldClick(event);
+      });
+
+      this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+      this.filterFormNav.DownNeighbour = this.dbDataTable;
+      this.filterFormNav.InnerJumpOnEnter = true
+      this.filterFormNav.OuterJump = true
+
+      this.dbDataTable.ReadonlySideForm = true;
+
+      this.kbS.SetCurrentNavigatable(this.filterFormNav)
+      this.kbS.SelectFirstTile()
+      this.kbS.ClickCurrentElement()
+
+      await this.setupFilterForm()      
+      await this.loadFilters()
+
+      const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)      
+      if (filter) {
+        this.filterForm.patchValue(filter)
+        this.Refresh()
+      }
+
+      setTimeout(() => {
+        this.cs.CloseAllHeaderMenuTrigger.next(true)
+      }, 500);
+    }, 500);
+  }
+
+  ngAfterViewInit(): void {
+    // console.log("[ngAfterViewInit]");
+
+    // this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    // $('*[type=radio]').addClass(TileCssClass);
+    // $('*[type=radio]').on('click', (event) => {
+    //   this.filterFormNav.HandleFormFieldClick(event);
+    // });
+
+    // this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
+
+    // this.dbDataTable.GenerateAndSetNavMatrices(true);
+    // this.dbDataTable.ReadonlySideForm = true;
+
+    // this.filterFormNav.DownNeighbour = this.dbDataTable;
+
+    // this.kbS.SelectFirstTile();
+  }
+
+  ngOnDestroy(): void {
+    console.log('Detach');
+    this.kbS.Detach();
   }
 
   private Setup(): void {
@@ -483,7 +816,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.dbDataTableForm = new FormGroup({});
 
     this.setupFilterForm()
-
 
     this.dbDataTableForm = new FormGroup({
       invoiceNumber: new FormControl(0, []),
@@ -537,49 +869,71 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.dbDataTable!.OuterJump = true;
   }
 
-  private setupFilterForm(): void {
+  private async loadCustomerFilter(filter: InvoiceNavFilter): Promise<void> {
+    const setControlValue = (filterValue: any, control: AbstractControl) => {
+      if (!filterValue) {
+        return
+      }
+      control.setValue(filterValue)
+    }
+
+    if (filter) {
+      if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
+        filter.CustomerID = undefined
+      } else {
+        await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
+        this.kbS.SelectElementByCoordinate(0, 0)
+      }
+    }
+
+    // this.customerSearch.search(filter.CustomerSearch)
+  }
+
+  private async setupFilterForm(): Promise<void> {
     let filterData = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
 
     if (!filterData) {
       filterData = InvoiceNavFilter.create()
     }
 
-    this.filterForm = new FormGroup({
-      InvoiceType: new FormControl(filterData.invoiceType, [Validators.required]),
-      WarehouseCode: new FormControl(filterData.warehouseCode, []),
-      InvoiceIssueDateFrom: new FormControl(filterData.invoiceIssueDateFrom, [
-        this.validateInvoiceIssueDateFrom.bind(this),
-        validDate
-      ]),
-      InvoiceIssueDateTo: new FormControl(filterData.invoiceIssueDateTo, [
-        this.validateInvoiceIssueDateTo.bind(this),
-        validDate
-      ]),
-      InvoiceDeliveryDateFrom: new FormControl(filterData.invoiceDeliveryDateFrom, [
-        this.validateInvoiceDeliveryDateFrom.bind(this),
-        validDate
-      ]),
-      InvoiceDeliveryDateTo: new FormControl(filterData.invoiceDeliveryDateTo, [
-        this.validateInvoiceDeliveryDateTo.bind(this),
-        validDate
-      ]),
-      DateFilterChooser: new FormControl(filterData.dateFilterChooser, []),
+    // this.filterForm.patchValue(filterData)
 
-      CustomerSearch: new FormControl(undefined, []),
-      CustomerName: new FormControl(undefined, []),
-      CustomerAddress: new FormControl(undefined, []),
-      CustomerTaxNumber: new FormControl(undefined, []),
-    });
+    // this.filterForm = new FormGroup({
+    //   InvoiceType: new FormControl(filterData.invoiceType, [Validators.required]),
+    //   WarehouseCode: new FormControl(filterData.warehouseCode, []),
+    //   InvoiceIssueDateFrom: new FormControl(filterData.invoiceIssueDateFrom, [
+    //     this.validateInvoiceIssueDateFrom.bind(this),
+    //     validDate
+    //   ]),
+    //   InvoiceIssueDateTo: new FormControl(filterData.invoiceIssueDateTo, [
+    //     this.validateInvoiceIssueDateTo.bind(this),
+    //     validDate
+    //   ]),
+    //   InvoiceDeliveryDateFrom: new FormControl(filterData.invoiceDeliveryDateFrom, [
+    //     this.validateInvoiceDeliveryDateFrom.bind(this),
+    //     validDate
+    //   ]),
+    //   InvoiceDeliveryDateTo: new FormControl(filterData.invoiceDeliveryDateTo, [
+    //     this.validateInvoiceDeliveryDateTo.bind(this),
+    //     validDate
+    //   ]),
+    //   DateFilterChooser: new FormControl(filterData.dateFilterChooser, []),
+
+    //   CustomerSearch: new FormControl(undefined, []),
+    //   CustomerName: new FormControl(undefined, []),
+    //   CustomerAddress: new FormControl(undefined, []),
+    //   CustomerTaxNumber: new FormControl(undefined, []),
+    // });
 
     this.filterForm.valueChanges.subscribe(value => {
       const filterData = {
-        invoiceType: value.InvoiceType,
-        warehouseCode: value.WarehouseCode,
-        invoiceIssueDateFrom: value.InvoiceIssueDateFrom,
-        invoiceIssueDateTo: value.InvoiceIssueDateTo,
-        invoiceDeliveryDateFrom: value.InvoiceDeliveryDateFrom,
-        invoiceDeliveryDateTo: value.InvoiceDeliveryDateTo,
-        dateFilterChooser: value.DateFilterChooser,
+        InvoiceType: value.InvoiceType,
+        WarehouseCode: value.WarehouseCode,
+        InvoiceIssueDateFrom: value.InvoiceIssueDateFrom,
+        InvoiceIssueDateTo: value.InvoiceIssueDateTo,
+        InvoiceDeliveryDateFrom: value.InvoiceDeliveryDateFrom,
+        InvoiceDeliveryDateTo: value.InvoiceDeliveryDateTo,
+        DateFilterChooser: value.DateFilterChooser,
       } as InvoiceNavFilter
 
       this.localStorage.put(this.localStorageKey, filterData)
@@ -645,249 +999,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.filterFormNav.OuterJump = true;
   }
 
-  override async Refresh(params?: GetInvoicesParamListModel): Promise<void> {
-    this.isLoading = true;
-
-    try {
-      const response = await this.invoiceService.getAllAsync(params ?? this.getInputParams())
-
-      if (response && response.succeeded && !!response.data) {
-        const tempData = response.data.map((x) => {
-          return { data: x, uid: this.nextUid() };
-        });
-        this.dbData = tempData;
-        this.dbDataDataSrc.setData(this.dbData);
-        this.dbDataTable.SetPaginatorData(response);
-
-        this.RefreshTable(undefined, true);
-
-        await this.getAndSetWarehouses()
-      } else {
-        this.simpleToastrService.show(
-          response.errors!.join('\n'),
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        );
-      }
-    }
-    catch (error) {
-      this.cs.HandleError(error);
-    }
-    finally {
-      this.isLoading = false
-    }
-  }
-
-  private async getAndSetWarehouses(): Promise<void> {
-    try {
-      const response = await this.wareHouseApi.GetAllPromise();
-      if (!!response && !!response.data) {
-        this.warehouses = response.data;
-        this.wareHouseData$.next(this.warehouses.map(x => x.warehouseDescription));
-      }
-    }
-    catch (error) {
-      this.cs.HandleError(error);
-      this.isLoading = false;
-    }
-  }
-
-  private async getAndSetInvoiceTypes(): Promise<void> {
-    try {
-      const invoiceTypes = await this.systemService.getInvoiceTypes()
-
-      if (invoiceTypes) {
-        this.invoiceTypes = invoiceTypes
-        this.invoiceTypes$.next(invoiceTypes.map(x => x.text))
-
-        const control = this.filterForm.controls['InvoiceType']
-
-        if (control.value === '') {
-          control.setValue(invoiceTypes.find(x => x.value === 'INV')?.text ?? '')
-        }
-      }
-    }
-    catch (error) {
-      this.cs.HandleError(error)
-    }
-  }
-
-  private navigateToTable() {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-    this.kbS.SetCurrentNavigatable(this.dbDataTable)
-    this.kbS.SelectElementByCoordinate(0, 0)
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
-  }
-
-  public async ngOnInit(): Promise<void> {
-    const requests = [
-      this.getAndSetWarehouses(),
-      this.getAndSetInvoiceTypes()
-    ]
-
-    await Promise.all(requests)
-
-    await this.Refresh();
-
-    if (this.localStorage.has(this.localStorageKey)) {
-      this.navigateToTable()
-    }
-
-    this.fS.pushCommands(this.commands);
-  }
-
-  ngAfterViewInit(): void {
-    console.log("[ngAfterViewInit]");
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    $('*[type=radio]').addClass(TileCssClass);
-    $('*[type=radio]').on('click', (event) => {
-      this.filterFormNav.HandleFormFieldClick(event);
-    });
-
-    this.filterFormNav.GenerateAndSetNavMatrices(true, true, NavMatrixOrientation.ONLY_HORIZONTAL);
-
-    this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.ReadonlySideForm = true;
-
-    this.filterFormNav.DownNeighbour = this.dbDataTable;
-
-    this.kbS.SelectFirstTile();
-  }
-
-  ngOnDestroy(): void {
-    console.log('Detach');
-    this.kbS.Detach();
-  }
-
-  RefreshData(): void { }
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
-  RecalcNetAndVat(): void { }
-
-  HandleFunctionKey(event: Event | KeyBindings): void {
-    const val = event instanceof Event ? (event as KeyboardEvent).code : event;
-    console.log(`[HandleFunctionKey]: ${val}`);
-    switch (val) {
-      // NEW
-      case this.KeySetting[Actions.Create].KeyCode:
-        break;
-      // EDIT
-      case this.KeySetting[Actions.Edit].KeyCode:
-        break;
-      // DELETE
-      case this.KeySetting[Actions.Delete].KeyCode:
-        break;
-    }
-  }
-
-  Create(): void { }
-
-  Edit(): void { }
-
-  Delete(): void { }
-
-  public getCsv(): void {
-    HelperFunctions.confirm(this.dialogService, 'Export CSV formátumban?', () => {
-      try {
-        this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
-
-        const reportParams = {
-          report_params: this.getInputParams(),
-        } as Constants.Dct
-
-        this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
-      }
-      catch (error) {
-        this.cs.HandleError(error)
-      }
-      finally {
-        this.sts.pushProcessStatus(Constants.BlankProcessStatus)
-      }
-    })
-  }
-
-  // F12 is special, it has to be handled in constructor with a special keydown event handling
-  // to prevent it from opening devtools
-  @HostListener('window:keydown', ['$event'])
-  public onKeyDown2(event: KeyboardEvent): void {
-    if (event.shiftKey && event.key == 'Enter') {
-      this.kbS.BalanceCheckboxAfterShiftEnter((event.target as any).id);
-      this.filterFormNav?.HandleFormShiftEnter(event)
-      return;
-    }
-    else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      return;
-    }
-
-    if (this.keyboardHelperService.IsKeyboardBlocked) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      return;
-    }
-
-    switch (event.key) {
-      case this.KeySetting[Actions.Refresh].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-
-        console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
-        this.dbDataTable?.HandleKey(event);
-        break;
-      }
-      case this.KeySetting[Actions.Print].KeyCode: {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-
-        this.printSelectedInvoice()
-        break
-      }
-      case this.KeySetting[Actions.CSV].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-
-        this.getCsv()
-        break
-      }
-      case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
-
-        console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
-        this.dbDataTable?.HandleKey(event);
-        break
-      }
-    }
-  }
-
-  private printSelectedInvoice(): void {
-    const selectedRow = this.dbDataTable.prevSelectedRow
-
-    const invoiceNumber = selectedRow?.data.invoiceNumber ?? ''
-
-    this.printAndDownloadService.openPrintDialog({
-      DialogTitle: Constants.TITLE_PRINT_INVOICE,
-      DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
-      MsgError: `A ${invoiceNumber} számla nyomtatása közben hiba történt.`,
-      MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
-      MsgFinish: `A ${invoiceNumber} számla nyomtatása véget ért.`,
-      Obs: this.invoiceService.GetReport.bind(this.invoiceService),
-      Reset: () => {},
-      ReportParams: {
-        id: selectedRow?.data.id,
-        copies: 1
-      } as Constants.Dct
-    } as PrintDialogRequest)
-  }
-
-  ChooseDataForTableRow(rowIndex: number): void {}
+  //#endregion Init
 
   //#region Customer
 
@@ -1092,4 +1204,21 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   //#endregion Customer
+
+  //#region Unimplemented
+
+  RefreshData(): void { }
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): void { }
+  RecalcNetAndVat(): void { }
+
+  Create(): void { }
+
+  Edit(): void { }
+
+  Delete(): void { }
+
+  ChooseDataForTableRow(rowIndex: number): void {}
+
+  //#endregion Unimplemented
+
 }

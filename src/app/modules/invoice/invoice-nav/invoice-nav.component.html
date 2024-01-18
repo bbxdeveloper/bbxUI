@@ -119,7 +119,7 @@
 
                         <div class="form-row">
                             <button nbButton class="{{TileCssClass}}"
-                                (click)="Refresh()" [disabled]="!!filterForm.invalid"
+                                (click)="SearchButtonClicked($event)" [disabled]="!!filterForm.invalid"
                                 status="primary">Keresés</button>
                         </div>
                     </form>
