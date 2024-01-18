@@ -8,6 +8,7 @@ export class InvoiceNavFilter {
     public invoiceDeliveryDateFrom: string = ''
     public invoiceDeliveryDateTo: string = ''
     public dateFilterChooser: string = ''
+    public CustomerSearch: string = ''
 
     public static create(): InvoiceNavFilter {
         return {
@@ -17,7 +18,8 @@ export class InvoiceNavFilter {
             invoiceIssueDateTo: HelperFunctions.GetDateString(),
             invoiceDeliveryDateFrom: HelperFunctions.GetDateString(),
             invoiceDeliveryDateTo: HelperFunctions.GetDateString(),
-            dateFilterChooser: '1'
+            dateFilterChooser: '1',
+            CustomerSearch: ''
         } as InvoiceNavFilter
     }
 

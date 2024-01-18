@@ -36,6 +36,14 @@ import { InvoiceType } from '../../system/models/InvoiceType';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { CustomerService } from '../../customer/services/customer.service';
+import { Subscription, firstValueFrom } from 'rxjs';
+import { CustomerDialogTableSettings } from 'src/assets/model/TableSettings';
+import { Customer } from '../../customer/models/Customer';
+import { GetCustomerByTaxNumberParams } from '../../customer/models/GetCustomerByTaxNumberParams';
+import { GetCustomersParamListModel } from '../../customer/models/GetCustomersParamListModel';
+import { CustomerSelectTableDialogComponent } from '../customer-select-table-dialog/customer-select-table-dialog.component';
+import { TaxNumberSearchCustomerEditDialogComponent } from '../tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -43,6 +51,25 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
   styleUrls: ['./invoice-nav.component.scss']
 })
 export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
+  //#region Customer fields
+
+  readonly SearchButtonId: string = 'customer-button-search';
+  private Subscription_FillFormWithFirstAvailableCustomer?: Subscription;
+  customerInputFilterString: string = '';
+  cachedCustomerName?: string;
+  _searchByTaxtNumber: boolean = false;
+  get searchByTaxtNumber(): boolean { return this._searchByTaxtNumber; }
+  set searchByTaxtNumber(value: boolean) {
+    this._searchByTaxtNumber = value;
+    this.cdref.detectChanges();
+    this.filterFormNav.GenerateAndSetNavMatrices(false, true);
+    this.AddSearchButtonToFormMatrix();
+  }
+  customerData?: Customer;
+  customersData: Customer[] = [];
+
+  //#endregion Customer fields
+  
   private readonly localStorageKey: string
 
   TileCssClass = TileCssClass;
@@ -64,7 +91,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     'invoiceNetAmount',
     'invoiceVatAmount',
     'invoiceGrossAmount',
-    'notice',
+    'invoicePaidAmount',
   ];
   override colDefs: ModelFieldDescriptor[] = [
     {
@@ -100,7 +127,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       type: 'string',
       fInputType: 'text',
       mask: '',
-      colWidth: '37%',
+      colWidth: '50%',
       textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
@@ -223,6 +250,19 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       mask: '',
       colWidth: '13%',
       textAlign: 'left',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Kiegyenlítve',
+      objectKey: 'invoicePaidAmount',
+      colKey: 'invoicePaidAmount',
+      defaultValue: '',
+      type: 'formatted-number',
+      fInputType: 'text',
+      fRequired: false,
+      mask: '',
+      colWidth: '120px',
+      textAlign: 'right',
       navMatrixCssClass: TileCssClass,
     },
   ];
@@ -378,8 +418,9 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     tokenStorage: TokenStorageService,
     private readonly localStorage: LocalStorageService,
     private readonly systemService: SystemService,
-    private readonly printAndDownloadService: PrintAndDownloadService,
-    loggerService: LoggerService
+    private readonly printAndDownloadService: PrintAndDownloadService,    
+    loggerService: LoggerService,
+    private readonly customerService: CustomerService
   ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
 
@@ -456,6 +497,12 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       invoiceNetAmount: new FormControl(undefined, []),
       invoiceVatAmount: new FormControl(undefined, []),
       invoiceGrossAmount: new FormControl(undefined, []),
+      invoicePaidAmount: new FormControl(undefined, []),
+      invoicePaidAmountHUF: new FormControl(undefined, []),
+      invoiceNetAmountHUF: new FormControl(undefined, []),
+      invoiceVatAmountHUF: new FormControl(undefined, []),
+      invoiceGrossAmountHUF: new FormControl(undefined, []),
+      invoicePaidDates: new FormControl(undefined, []),
       notice: new FormControl(undefined, [])
     });
 
@@ -516,7 +563,12 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
         this.validateInvoiceDeliveryDateTo.bind(this),
         validDate
       ]),
-      DateFilterChooser: new FormControl(filterData.dateFilterChooser, [])
+      DateFilterChooser: new FormControl(filterData.dateFilterChooser, []),
+
+      CustomerSearch: new FormControl(undefined, []),
+      CustomerName: new FormControl(undefined, []),
+      CustomerAddress: new FormControl(undefined, []),
+      CustomerTaxNumber: new FormControl(undefined, []),
     });
 
     this.filterForm.valueChanges.subscribe(value => {
@@ -836,5 +888,208 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   }
 
   ChooseDataForTableRow(rowIndex: number): void {}
-  ChooseDataForCustomerForm(): void {}
+
+  //#region Customer
+
+  private SetCustomerFormFields(data?: Customer) {
+    if (data === undefined) {
+      this.filterForm.controls["CustomerName"].setValue(undefined);
+      this.filterForm.controls['CustomerName'].setValue(undefined);
+      this.filterForm.controls['CustomerAddress'].setValue(undefined);
+      this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
+      return;
+    }
+    this.filterForm.controls["CustomerName"].setValue(data.customerName);
+    this.filterForm.controls['CustomerName'].setValue(data.customerName);
+    this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
+    this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
+  }
+
+  FillFormWithFirstAvailableCustomer(event: any): void {
+    if (!!this.Subscription_FillFormWithFirstAvailableCustomer && !this.Subscription_FillFormWithFirstAvailableCustomer.closed) {
+      this.Subscription_FillFormWithFirstAvailableCustomer.unsubscribe();
+    }
+
+    this.customerInputFilterString = event.target.value ?? '';
+
+    if (this.customerInputFilterString.replace(' ', '') === '' || HelperFunctions.isEmptyOrSpaces(this.customerInputFilterString)) {
+      this.customerData = undefined;
+      this.SetCustomerFormFields(undefined);
+      this.isLoading = false
+      return;
+    }
+
+    this.isLoading = true;
+    this.Subscription_FillFormWithFirstAvailableCustomer = this.searchCustomer(this.customerInputFilterString)
+  }
+
+  private async searchCustomerAsync(term: string): Promise<void> {
+    if (HelperFunctions.isEmptyOrSpaces(term)) {
+      this.SetCustomerFormFields(undefined);
+    }
+
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    try {
+      const res = await firstValueFrom(this.customerService.GetAll(request))
+
+      if (!!res && res.data !== undefined && res.data.length > 0) {
+        this.customerData = res.data[0];
+        this.cachedCustomerName = res.data[0].customerName;
+        this.SetCustomerFormFields(res.data[0]);
+        this.searchByTaxtNumber = false;
+      } else {
+        if (this.customerInputFilterString.length >= 8 &&
+          HelperFunctions.IsNumber(this.customerInputFilterString)) {
+          this.searchByTaxtNumber = true;
+        } else {
+          this.searchByTaxtNumber = false;
+        }
+        this.SetCustomerFormFields(undefined);
+      }
+    }
+    catch (error) {
+      this.cs.HandleError(error);
+      this.isLoading = false;
+      this.searchByTaxtNumber = false;
+    }
+  }
+
+  private searchCustomer(term: string): Subscription {
+    if (HelperFunctions.isEmptyOrSpaces(term)) {
+      this.SetCustomerFormFields(undefined);
+    }
+
+    const request = {
+      IsOwnData: false,
+      PageNumber: '1',
+      PageSize: '1',
+      SearchString: term,
+      OrderBy: 'customerName'
+    } as GetCustomersParamListModel
+
+    return this.customerService.GetAll(request).subscribe({
+      next: res => {
+        if (!!res && res.data !== undefined && res.data.length > 0) {
+          this.customerData = res.data[0];
+          this.cachedCustomerName = res.data[0].customerName;
+          this.SetCustomerFormFields(res.data[0]);
+          this.searchByTaxtNumber = false;
+        } else {
+          if (this.customerInputFilterString.length >= 8 &&
+            HelperFunctions.IsNumber(this.customerInputFilterString)) {
+            this.searchByTaxtNumber = true;
+          } else {
+            this.searchByTaxtNumber = false;
+          }
+          this.SetCustomerFormFields(undefined);
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err);
+        this.isLoading = false;
+        this.searchByTaxtNumber = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  private async PrepareCustomer(data: Customer): Promise<Customer> {
+    console.log('Before: ', data);
+
+    data.customerBankAccountNumber = data.customerBankAccountNumber ?? '';
+    data.taxpayerNumber = `${data.taxpayerId}-${data.vatCode ?? ''}-${data.countyCode ?? ''}`
+
+    // const countryCodes = await lastValueFrom(this.customerService.GetAllCountryCodes());
+
+    // if (!!countryCodes && countryCodes.length > 0 && data.countryCode !== undefined && this.countryCodes.length > 0) {
+    //   data.countryCode = this.countryCodes.find(x => x.value == data.countryCode)?.text ?? '';
+    // }
+
+    return data;
+  }
+
+  ChoseDataForFormByTaxtNumber(): void {
+    console.log("Selecting Customer from avaiable data by taxtnumber.");
+
+    this.isLoading = true;
+
+    this.customerService.GetByTaxNumber({ Taxnumber: this.customerInputFilterString } as GetCustomerByTaxNumberParams).subscribe({
+      next: async res => {
+        if (!!res && !!res.data && !!res.data.customerName && res.data.customerName.length > 0) {
+          this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+          const dialogRef = this.dialogService.open(TaxNumberSearchCustomerEditDialogComponent, {
+            context: {
+              data: await this.PrepareCustomer(res.data)
+            },
+            closeOnEsc: false
+          });
+          dialogRef.onClose.subscribe({
+            next: (res: Customer) => {
+              console.log("Selected item: ", res);
+              if (!!res) {
+                this.customerData = res;
+                this.filterForm.controls["CustomerName"].setValue(res.customerName);
+
+                this.kbS.SetCurrentNavigatable(this.filterFormNav);
+                this.kbS.SelectFirstTile();
+                this.kbS.setEditMode(KeyboardModes.EDIT);
+              }
+            },
+            error: err => {
+              this.cs.HandleError(err);
+            }
+          });
+        } else {
+          this.simpleToastrService.show(res.errors?.join('\n'), Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        }
+      },
+      error: (err) => {
+        this.cs.HandleError(err); this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  ChooseDataForCustomerForm(): void {
+    console.log("Selecting Customer from avaiable data.")
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+
+    const dialogRef = this.dialogService.open(CustomerSelectTableDialogComponent, {
+      context: {
+        searchString: this.customerInputFilterString,
+        allColumns: CustomerDialogTableSettings.CustomerSelectorDialogAllColumns,
+        colDefs: CustomerDialogTableSettings.CustomerSelectorDialogColDefs
+      }
+    })
+    dialogRef.onClose.subscribe((res: Customer) => {
+      console.log("Selected item: ", res)
+      if (!!res) {
+        this.customerData = res
+        this.SetCustomerFormFields(res)
+
+        this.kbS.SetCurrentNavigatable(this.filterFormNav)
+        this.kbS.SelectElementByCoordinate(0, 3)
+        this.kbS.ClickCurrentElement()
+      }
+    })
+  }
+
+  private AddSearchButtonToFormMatrix(): void {
+    this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
+  }
+
+  //#endregion Customer
 }

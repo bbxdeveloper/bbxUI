@@ -13,66 +13,125 @@
                     <input nbInput type="text" formControlName="invoiceNumber" readonly>
                 </div>
             </nb-form-field>
+            
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Raktár</label>
                     <input nbInput type="text" formControlName="warehouse" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Partner</label>
                     <input nbInput type="text" formControlName="customerName" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Partner címe</label>
                     <input nbInput type="text" formControlName="customerCity" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Fizetési mód</label>
                     <input nbInput type="text" formControlName="paymentMethodX" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Teljesítés</label>
                     <input nbInput type="datetime" mask="0000-00-00" formControlName="invoiceDeliveryDate" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Kelt.</label>
                     <input nbInput type="datetime" mask="0000-00-00" formControlName="invoiceIssueDate" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Fiz.hat.</label>
                     <input nbInput type="datetime" mask="0000-00-00" formControlName="paymentDate" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Nettó érték</label>
                     <input nbInput type="text" formControlName="invoiceNetAmount" [inputMask]="numberInputMask" placeholder="0.00" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Áfa értéke</label>
                     <input nbInput type="text" formControlName="invoiceVatAmount" [inputMask]="numberInputMask" placeholder="0.00" readonly>
                 </div>
             </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Bruttó érték</label>
                     <input nbInput type="text" formControlName="invoiceGrossAmount" [inputMask]="numberInputMask" placeholder="0.00" readonly>
                 </div>
             </nb-form-field>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Kiegyenlítve</label>
+                        <input nbInput type="text" formControlName="invoicePaidAmount" [inputMask]="numberInputMask" placeholder="0.00" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div">
+                        <label class="multicol-label-col-2">Kiegyenlítve HUF</label>
+                        <input nbInput type="text" formControlName="invoicePaidAmountHUF" [inputMask]="numberInputMask" placeholder="0.00" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Nettó HUF</label>
+                        <input nbInput type="text" formControlName="invoiceNetAmountHUF" [inputMask]="numberInputMask" placeholder="0.00" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div">
+                        <label class="multicol-label-col-2">Áfa HUF</label>
+                        <input nbInput type="text" formControlName="invoiceVatAmountHUF" [inputMask]="numberInputMask" placeholder="0.00" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Bruttó HUF</label>
+                        <input nbInput type="text" formControlName="invoiceGrossAmountHUF" [inputMask]="numberInputMask" placeholder="0.00" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <nb-form-field>
+                <div class="bbx-fd-form-field-inner-div">
+                    <label>Kiegyenlítések</label>
+                    <input nbInput type="text" formControlName="invoicePaidDates" readonly>
+                </div>
+            </nb-form-field>
+
             <nb-form-field (keydown.enter)="currentForm.HandleFormEnter($event)">
                 <div class="bbx-fd-form-field-inner-div">
                     <label>Megjegyzés</label>
