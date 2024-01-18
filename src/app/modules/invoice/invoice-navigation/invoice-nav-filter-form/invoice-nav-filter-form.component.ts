@@ -423,8 +423,10 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
   public Refresh(): void {
     var filter = this.componentFormData
     this.refreshClicked.emit(filter)
-    filter.CustomerID = undefined
-    this.localStorage.put(this.localStorageKey, filter)
+
+    var filter_cached = this.componentFormData
+    filter_cached.CustomerID = undefined
+    this.localStorage.put(this.localStorageKey, filter_cached)
   }
 
   MoveToSearchButton(event: any, jumpNext: boolean = true, toggleEditMode: boolean = true, preventEventInAnyCase: boolean = false): void {
