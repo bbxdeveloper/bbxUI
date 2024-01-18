@@ -774,7 +774,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.kbS.setEditMode(KeyboardModes.EDIT)
+      setTimeout(() => this.kbS.ClickCurrentElement(), 100)
 
       if (!priceChange) {
         return
