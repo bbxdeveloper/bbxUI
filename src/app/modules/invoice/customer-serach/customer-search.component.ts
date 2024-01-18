@@ -5,7 +5,7 @@ import {CustomerDiscountService} from "../../customer-discount/services/customer
 import {CommonService} from "../../../services/common.service";
 import {Customer} from "../../customer/models/Customer";
 import {CustDiscountForGet} from "../../customer-discount/models/CustDiscount";
-import {debounceTime, distinctUntilChanged, map, Subscription, switchMap, tap} from "rxjs";
+import {debounceTime, distinctUntilChanged, EMPTY, map, of, Subscription, switchMap, tap} from "rxjs";
 import {KeyboardModes, KeyboardNavigationService} from "../../../services/keyboard-navigation.service";
 import {CustomerSelectTableDialogComponent} from "../customer-select-table-dialog/customer-select-table-dialog.component";
 import {CustomerDialogTableSettings} from "../../../../assets/model/TableSettings";
@@ -101,6 +101,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(400),
         distinctUntilChanged(),
+        switchMap((filter: string) => filter !== '' ? of(filter) : EMPTY),
         tap(() => this.loadingChanged.emit(true)),
         tap((filter: string) => search = filter),
         map((filter: string) => ({
