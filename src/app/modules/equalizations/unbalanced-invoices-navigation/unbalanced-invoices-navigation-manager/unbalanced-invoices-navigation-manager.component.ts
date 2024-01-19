@@ -39,6 +39,32 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
   public override KeySetting: Constants.KeySettingsDct = UnbalancedInvoicesNavigationManagerComponentKeySettings;
   public override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
+  get sumGrossAmount(): any {
+    return this.dbData
+      .map(x => x.data)
+      .map(x => x.invoiceNetAmount ?? 0)
+      .reduce((sum, current) => sum + current, 0)
+      +
+      this.dbData
+        .map(x => x.data)
+        .map(x => x.invoiceVatAmount ?? 0)
+        .reduce((sum, current) => sum + current, 0);
+  }
+
+  get sumNetAmount(): any {
+    return this.dbData
+      .map(x => x.data)
+      .map(x => x.invoiceNetAmount ?? 0)
+      .reduce((sum, current) => sum + current, 0);
+  }
+
+  get sumInvoicePaidAmount(): any {
+    return this.dbData
+      .map(x => x.data)
+      .map(x => x.invoicePaidAmount ?? 0)
+      .reduce((sum, current) => sum + current, 0);
+  }
+
   override allColumns = [
     'invoiceNumber',
     'customerName',

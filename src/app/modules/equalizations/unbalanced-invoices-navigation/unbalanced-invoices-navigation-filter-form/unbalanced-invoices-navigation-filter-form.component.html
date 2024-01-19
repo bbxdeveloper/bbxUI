@@ -39,7 +39,7 @@
                     </nb-form-field>
     
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" left>
-                        <label>Dátum eleje</label>
+                        <label>Számla dátum eleje</label>
                         <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
@@ -47,7 +47,7 @@
                         </app-form-control-error>
                     </nb-form-field>
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" right>
-                        <label>Dátum vége</label>
+                        <label>Számla dátum vége</label>
                         <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
@@ -58,7 +58,7 @@
                 
                 <div class="triple-column">
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" left>
-                        <label>Fizetési határidő eleje</label>
+                        <label>Fizetési határidő kezdete</label>
                         <input nbInput type="datetime" formControlName='PaymentDateFrom' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
@@ -105,6 +105,15 @@
                             [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
                             (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
                     </div>
+                    <!-- <div class="field-wrapper">
+                        <app-customer-search #customerSearch
+                                 [customer]="buyerData" classes="field-wrapper"
+                                 (customerChanged)="customerChanged($event)"
+                                 (focusIn)="onFormSearchFocused(undefined, $event)"
+                                 (focusOut)="onFormSearchBlurred(undefined, $event)"
+                                 [withDiscounts]="false"
+                                 (loadingChanged)="isLoading = $event"></app-customer-search>
+                    </div>-->
                     <div class="field-wrapper">
                         <nb-form-field>
                             <label>Ügyfél</label>

@@ -9,7 +9,7 @@
             <ng-container *ngFor="let it of colDefs; let colPos = index" [nbTreeGridColumnDef]="it.colKey">
                 <ng-container [ngSwitch]="it.type">
                     <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef
-                    [style.min-width]="GetColWidth(it)" [style.max-width]="GetColWidth(it)" [style.width]="GetColWidth(it)">
+                    [style.min-width]="GetColMinWidth(it)" [style.max-width]="GetColWidth(it)" [style.width]="GetColWidth(it)">
                         {{it.label}}
                     </th>
                 </ng-container>
@@ -26,7 +26,7 @@
                         (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
                         [style.text-align]="it.textAlign"
                         (dblclick)="selectRow($event, row)"
-                        [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
+                        [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
                         
                         <ng-container>

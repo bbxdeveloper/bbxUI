@@ -1,5 +1,6 @@
-@import 'table-common';
-@import 'common-styles';
+@use 'table-common';
+@use 'common-styles';
+@use 'bbx-atomic-styles';
 
 $td-height: 30px;
 

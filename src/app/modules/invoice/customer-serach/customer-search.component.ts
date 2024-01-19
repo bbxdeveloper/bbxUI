@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {GetCustomersParamListModel} from "../../customer/models/GetCustomersParamListModel";
 import {CustomerService} from "../../customer/services/customer.service";
 import {CustomerDiscountService} from "../../customer-discount/services/customer-discount.service";
@@ -25,7 +25,8 @@ import {IInlineManager} from "../../../../assets/model/IInlineManager";
 @Component({
   selector: 'app-customer-search',
   templateUrl: './customer-search.component.html',
-  styleUrls: ['./customer-search.component.scss']
+  styleUrls: ['./customer-search.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class CustomerSearchComponent implements OnInit, OnDestroy {
   @Input() withDiscounts = false
@@ -86,6 +87,12 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     )
 
     this.searchFormNav.OuterJump = true
+  }
+
+  public search(customerSearchValue?: string): void {
+    if (customerSearchValue) {
+      this.searchForm.controls['customerSearch'].setValue(customerSearchValue)
+    }
   }
 
   public ngOnInit(): void {

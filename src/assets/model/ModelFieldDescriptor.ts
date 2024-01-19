@@ -20,6 +20,7 @@ export interface ModelFieldDescriptor {
 
     mask: string;
 
+    colMinWidth?: string;
     colWidth?: string;
     textAlign?: string;
 

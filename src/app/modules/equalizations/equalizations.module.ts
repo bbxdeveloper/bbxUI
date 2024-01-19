@@ -14,6 +14,7 @@ import { EqualizationNavigationManagerComponent } from './equalization-navigatio
 import { EqualizationNavigationSideBarFormComponent } from './equalization-navigation/equalization-navigation-side-bar-form/equalization-navigation-side-bar-form.component';
 import { UnbalancedInvoicesNavigationManagerComponent } from './unbalanced-invoices-navigation/unbalanced-invoices-navigation-manager/unbalanced-invoices-navigation-manager.component';
 import { UnbalancedInvoicesNavigationFilterFormComponent } from './unbalanced-invoices-navigation/unbalanced-invoices-navigation-filter-form/unbalanced-invoices-navigation-filter-form.component';
+import { InvoiceModule } from '../invoice/invoice.module';
 
 
 
@@ -54,6 +55,7 @@ import { UnbalancedInvoicesNavigationFilterFormComponent } from './unbalanced-in
     SharedModule,
     AngularEditorModule,
     InputMaskModule,
+    InvoiceModule
   ],
   exports: [
     EqualizationCreatorComponent,

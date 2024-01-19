@@ -559,17 +559,19 @@ export module HelperFunctions {
 
     export function GetHeaderColWidth(
             col: ModelFieldDescriptor, all: string[],
-            id: string, scollbarWidth: number = Constants.ScrollbarWidthInPixels): any {
-        var unitOfMeasure = 'px'
-        if (col.colWidth?.includes(unitOfMeasure)) {
+            id: string, type: 'min' | 'max' | 'specific' = 'specific',
+            scollbarWidth: number = Constants.ScrollbarWidthInPixels): any {
+        var unitOfMeasure = 'px'        
+        var colWidth = type === 'min' ? col.colMinWidth ?? col.colWidth : col.colWidth
+        if (colWidth?.includes(unitOfMeasure)) {
             const key = col.objectKey
             const lastCol = all[all.length - 1]
             if (key === lastCol && HelperFunctions.HasVerticalScrollbar(id)) {
-                const withoutPixel = col.colWidth!.split(unitOfMeasure)[0]
+                const withoutPixel = colWidth!.split(unitOfMeasure)[0]
                 return HelperFunctions.ToInt(withoutPixel) + scollbarWidth + unitOfMeasure
             }
         }
-        return col.colWidth!
+        return colWidth!
     }
 
     export function GetElementWidthInPixel(id: string): number {

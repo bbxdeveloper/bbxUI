@@ -53,12 +53,12 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
     {
       label: 'Számlaszám', objectKey: 'invoiceNumber', colKey: 'invoiceNumber',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "20%", textAlign: "left", fInputType: 'invoice-number'
+      colWidth: "130px", textAlign: "left", fInputType: 'invoice-number'
     },
     {
       label: 'Ügyfél', objectKey: 'customerName', colKey: 'customerName',
-      defaultValue: '', type: 'string', mask: "", fReadonly: true,
-      colWidth: "90%", textAlign: "left", navMatrixCssClass: TileCssClass,
+      defaultValue: '', type: 'string', mask: "", fReadonly: true, colMinWidth: '200px',
+      colWidth: "100%", textAlign: "left", navMatrixCssClass: TileCssClass,
     },
     {
       label: 'Fiz.hat', objectKey: 'paymentDate', colKey: 'paymentDate',

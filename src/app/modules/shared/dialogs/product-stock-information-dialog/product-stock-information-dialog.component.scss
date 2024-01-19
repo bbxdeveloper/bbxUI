@@ -1,5 +1,6 @@
-@import 'side-bar-form-dialog';
-@import 'bbx-atomic-styles';
+@use 'side-bar-form-dialog';
+@use 'common-styles';
+@use 'bbx-atomic-styles';
 
 .modal-product-active {
     border: 4px yellow double;
@@ -7,24 +8,22 @@
     min-width: 700px;
     max-height: 850px;
 
-    button {
-        margin-right: 25px;
-    }
-
     .modal-product-active-header {
-        border-bottom: 1px yellow solid;
-
-        padding-top: 15px;
-
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+
         align-content: center;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-
+        
+        border-bottom: 1px yellow solid;
+        
+        grid-row-gap: 5px;
         row-gap: 5px;
-
+        
         font-size: 1.1rem !important;
+        
+        padding: 10px;
     }
 
     .modal-product-active-footer {

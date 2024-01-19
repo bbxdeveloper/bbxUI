@@ -2,7 +2,7 @@
     <nb-card-header *ngIf="!!dbDataTable">
         <ng-content></ng-content>
     </nb-card-header>
-    <nb-card-body *ngIf="!!dbDataTable">
+    <nb-card-body *ngIf="!!dbDataTable" class="padding-top-10">
         <form class="card-table-wrapper-form {{themeClass}}">
             <table class="card-table-header {{themeClass}}" [ngClass]="getTableClasses()"  [nbTreeGrid]="dbDataDataSrc" [trackBy]="trackRows" equalColumnsWidth
                 nbSort (sort)="changeSort($event)" id="table_header">
@@ -16,7 +16,7 @@
                     <ng-container [ngSwitch]="it.type">
                         <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef
                             [nbSortHeader]="getDirection(it.colKey)"
-                            [style.min-width]="GetColWidth(it)" [style.max-width]="GetColWidth(it)" [style.width]="GetColWidth(it)">
+                            [style.min-width]="GetColMinWidth(it)" [style.max-width]="GetColWidth(it)" [style.width]="GetColWidth(it)">
                             {{it.label}}
                         </th>
                     </ng-container>
@@ -41,7 +41,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
@@ -55,7 +55,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ !!it.calc ? it.calc(row.data) : '' }}
@@ -68,7 +68,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ GetDateString(row.data[it.objectKey]) }}
@@ -81,7 +81,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] }}
@@ -94,7 +94,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'1.2':'fr' | replace:',':'.' }}
@@ -107,7 +107,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'2.0':'fr' | replace:',':'.' }}
@@ -120,7 +120,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'8.0':'fr' | removeWhitespaces }}
@@ -133,7 +133,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
-                                [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:'3.0':'fr' | removeWhitespaces }}
@@ -146,7 +146,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)" [style.width]="it.colWidth"
-                                [style.min-width]="it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
+                                [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth" [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ row.data[it.objectKey] | removeWhitespaces | number:(!!it.calc ? it.calc(row.data) : '8.0'):'fr' | removeWhitespaces }}
@@ -160,7 +160,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
@@ -175,7 +175,7 @@
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
                                 (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
                                 (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
-                                [style.width]="it.colWidth" [style.min-width]="it.colWidth" [style.max-width]="it.colWidth"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
                                 [style.text-align]="it.textAlign"
                                 class="{{it.navMatrixCssClass}}">
                                 <div class="innerhtml-table-cell" *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null"
@@ -189,7 +189,7 @@
             </table>
         </form>
     </nb-card-body>
-    <nb-card-footer class="footer-paginator" *ngIf="!!dbDataTable">
+    <nb-card-footer class="footer-paginator" *ngIf="!!dbDataTable && !hidePaginator">
         <app-paginator *ngIf="!!dbDataTable && dbDataTable.data.length !== 0" [paginator]="dbDataTable"></app-paginator>
         <span *ngIf="showMsgOnNoData && !!dbDataTable && !isLoading && dbDataTable.data.length === 0" class="msg">Nincs megjeleníthető adat!</span>
     </nb-card-footer>
