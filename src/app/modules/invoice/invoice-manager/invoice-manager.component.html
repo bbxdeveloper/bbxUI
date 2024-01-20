@@ -55,6 +55,7 @@
         <nb-card-body class="form-col-2">
             <form class="form-horizontal" [formGroup]="outInvForm" #formDirective="ngForm" [id]="outInvFormId"
                 (keydown.escape)="outInvFormNav.HandleFormEscape()">
+
                 <label class="single_label bbx-sidebar-combo" *ngIf="mode.Delivery">Szállítólevél</label>
                 <app-bbx-combo-box *ngIf="!mode.Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="paymentMethod" label="Fizetési mód"
                     [data$]="paymentMethodOptions$" [simpleMode]="true" [isReadonly]="editDisabled" [labelAboveField]="true">
@@ -85,7 +86,7 @@
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label>Fizetési határidő</label>
                     <input nbInput type="datetime" formControlName='paymentDate' required="true"
-                        [ngClass]="isPaymentDateInNavigation ? TileCssClass : ''" [readonly]="editDisabled" id="m03" mask="0000-00-00"
+                        [ngClass]="isPaymentDateInNavigation ? TileCssClass : ''" [readonly]="editDisabled" id="m04" mask="0000-00-00"
                         [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
 
                     <app-form-control-error [form]="outInvFormNav" controlName="paymentDate"
@@ -94,13 +95,25 @@
                     </app-form-control-error>
                 </nb-form-field>
 
+                <app-bbx-combo-box *ngIf="!mode.Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="currency" label="Pénznem"
+                                   [data$]="currencyCodes" [simpleMode]="false" [needBlankOption]="false" [isReadonly]="editDisabled" [labelAboveField]="true" id="currency">
+                </app-bbx-combo-box>
+
+                <nb-form-field *ngIf="exchangeRateVisible | async" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" id="exchange-rate">
+                    <label>Árfolyam</label>
+                    <input nbInput type="text" formControlName="exchangeRate" required="true" name="exchange-rate"
+                           [ngClass]="isPaymentDateInNavigation ? TileCssClass : ''" [readonly]="editDisabled" id="m06">
+
+                    <app-form-control-error [form]="outInvFormNav" controlName="exchangeRate"></app-form-control-error>
+                </nb-form-field>
+
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label *ngIf="mode.Delivery; else invoiceNumber">Bizonylat sorszáma</label>
                     <ng-template #invoiceNumber>
                         <label>Bizonylat sorszáma</label>
                     </ng-template>
                     <input nbInput type="text" formControlName='invoiceOrdinal' readonly
-                        [placeholder]="mode.Delivery ? 'Bizonylat sorszáma' : 'Bizonylat sorszáma'" id="m04">
+                        [placeholder]="mode.Delivery ? 'Bizonylat sorszáma' : 'Bizonylat sorszáma'" id="m07">
                 </nb-form-field>
 
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">

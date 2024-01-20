@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { of, lastValueFrom, pairwise } from 'rxjs';
+import { of, lastValueFrom, pairwise, BehaviorSubject, distinctUntilChanged, switchMap, EMPTY, tap, Subject } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -31,7 +31,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import {CurrencyCode, CurrencyCodes} from '../../system/models/CurrencyCode';
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { InvoiceCategory } from '../models/InvoiceCategory';
 import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
@@ -49,7 +49,9 @@ import { GetCustomerParamListModel } from '../../customer/models/GetCustomerPara
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { OfflineVatRate } from '../../vat-rate/models/VatRate';
-import {CustomerSearchComponent} from "../customer-serach/customer-search.component";
+import { CustomerSearchComponent } from "../customer-serach/customer-search.component";
+import { SystemService } from "../../system/services/system.service";
+import { GetExchangeRateParamsModel } from "../../system/models/GetExchangeRateParamsModel";
 
 @Component({
   selector: 'app-invoice-manager',
@@ -75,6 +77,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(buyer.paymentDays, 0, 0))
     }
   }
+
+  currencyCodes: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
+  currencyCodesData: CurrencyCode[] = []
+
+  public exchangeRateVisible = new BehaviorSubject<boolean>(false)
+  private exchangeRateQuery = new Subject<CurrencyCodes>()
 
   override colsToIgnore: string[] = ["productDescription", "lineNetAmount", "lineGrossAmount", "unitOfMeasureX"];
   requiredCols: string[] = ['productCode', 'quantity', 'unitPrice'];
@@ -194,7 +202,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     printAndDownLoadService: PrintAndDownloadService,
     custDiscountService: CustomerDiscountService,
     private offerService: OfferService,
-    private route: ActivatedRoute
+    private systemService: SystemService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
@@ -212,8 +220,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   private async handlePathParams(): Promise<void> {
-    if (this.route.snapshot.queryParamMap.has('offerId')) {
-      const offerId = parseInt(this.route.snapshot.queryParams['offerId'])
+    if (this.activatedRoute.snapshot.queryParamMap.has('offerId')) {
+      const offerId = parseInt(this.activatedRoute.snapshot.queryParams['offerId'])
       await this.loadOffer(offerId)
     }
   }
@@ -386,6 +394,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         this.validatePaymentDate.bind(this),
         validDate
       ]),
+      currency: new FormControl(''),
+      exchangeRate: new FormControl(''),
       invoiceOrdinal: new FormControl('', []), // in post response
       notice: new FormControl('', []),
     });
@@ -464,6 +474,29 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
       controls['paymentDate'].setValue(value)
     })
+
+    controls['currency'].valueChanges
+      .pipe(
+        distinctUntilChanged(),
+        switchMap((value: string) => HelperFunctions.isEmptyOrSpaces(value) ? EMPTY : of(value)),
+        switchMap(value => {
+          const currencyCode = this.currencyCodesData.find(x => x.text === value)?.value ?? ''
+          return of(currencyCode)
+        }),
+        tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
+        tap(() => setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(false), 100)),
+        tap(value => setTimeout(() => {
+          if (value === CurrencyCodes.HUF) {
+            this.kbS.ClickCurrentElement()
+          } else {
+            const elements = document.getElementsByName("exchange-rate")
+            this.kbS.ClickElement(elements[0].id)
+          }
+        }, 100)),
+        switchMap((value: string) => value !== CurrencyCodes.HUF ? of(value) : EMPTY),
+        tap((value: string) => this.exchangeRateQuery.next(value as CurrencyCodes)),
+      )
+      .subscribe()
 
     this.outInvFormNav = new InlineTableNavigatableForm(
       this.outInvForm,
@@ -569,7 +602,16 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       error: (err) => {
         this.cs.HandleError(err);
       },
-      complete: () => { },
+    })
+
+    this.systemService.GetAllCurrencyCodes().subscribe({
+      next: response => {
+        this.currencyCodesData = response
+        this.currencyCodes.next(response.map(x => x.text))
+
+        this.outInvForm.controls['currency'].setValue(this.currencyCodesData[0].text)
+      },
+      error: this.cs.HandleError.bind(this)
     })
 
     this.customerService.GetAll({ IsOwnData: false, OrderBy: 'customerName' }).subscribe({
@@ -618,12 +660,30 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   }
 
   ngOnInit(): void {
+    this.exchangeRateQuery
+      .pipe(
+        tap(value => this.isLoading = true),
+        switchMap((value: CurrencyCodes) => of({
+          Currency: value,
+          ExchengeRateDate: this.outInvForm.get('invoiceIssueDate')?.value ?? ''
+        } as GetExchangeRateParamsModel)),
+        switchMap(value => this.systemService.GetExchangeRate(value)),
+        tap(() => this.isLoading = false),
+      )
+      .subscribe({
+        next: (response) => this.outInvForm.controls['exchangeRate'].setValue(response),
+        error: error => {
+          this.cs.HandleError(error)
+          this.isLoading = false
+        },
+        complete: () => this.isLoading = false
+      })
+
     this.fS.pushCommands(this.commands);
   }
   ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
-
 
   private async AfterViewInitSetup(): Promise<void> {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
