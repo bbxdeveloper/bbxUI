@@ -1,57 +1,57 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { of, lastValueFrom, pairwise, BehaviorSubject, distinctUntilChanged, switchMap, EMPTY, tap, Subject } from 'rxjs';
-import { CommonService } from 'src/app/services/common.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { StatusService } from 'src/app/services/status.service';
-import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
-import { InlineEditableNavigatableTable } from 'src/assets/model/navigation/InlineEditableNavigatableTable';
-import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from 'src/assets/model/navigation/Nav';
-import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { validDate } from 'src/assets/model/Validators';
-import { Constants } from 'src/assets/util/Constants';
-import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
-import { CustomerService } from '../../customer/services/customer.service';
-import { Product, getPriceByPriceType, isProduct } from '../../product/models/Product';
-import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine } from '../models/InvoiceLine';
-import { InvoiceService } from '../services/invoice.service';
-import { SaveDialogComponent } from '../save-dialog/save-dialog.component';
-import { ProductService } from '../../product/services/product.service';
-import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
-import { Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings } from 'src/assets/util/KeyBindings';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
-import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
+import {AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild} from '@angular/core';
+import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
+import {NbTable, NbToastrService, NbTreeGridDataSourceBuilder} from '@nebular/theme';
+import {BehaviorSubject, distinctUntilChanged, EMPTY, lastValueFrom, of, pairwise, Subject, switchMap, tap} from 'rxjs';
+import {CommonService} from 'src/app/services/common.service';
+import {FooterService} from 'src/app/services/footer.service';
+import {KeyboardModes, KeyboardNavigationService} from 'src/app/services/keyboard-navigation.service';
+import {StatusService} from 'src/app/services/status.service';
+import {FooterCommandInfo} from 'src/assets/model/FooterCommandInfo';
+import {IInlineManager} from 'src/assets/model/IInlineManager';
+import {ModelFieldDescriptor} from 'src/assets/model/ModelFieldDescriptor';
+import {InlineEditableNavigatableTable} from 'src/assets/model/navigation/InlineEditableNavigatableTable';
+import {AttachDirection, NavigatableForm as InlineTableNavigatableForm} from 'src/assets/model/navigation/Nav';
+import {TreeGridNode} from 'src/assets/model/TreeGridNode';
+import {validDate} from 'src/assets/model/Validators';
+import {Constants} from 'src/assets/util/Constants';
+import {Customer, isTaxPayerNumberEmpty} from '../../customer/models/Customer';
+import {CustomerService} from '../../customer/services/customer.service';
+import {getPriceByPriceType, isProduct, Product} from '../../product/models/Product';
+import {CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest} from '../models/CreateOutgoingInvoiceRequest';
+import {InvoiceLine} from '../models/InvoiceLine';
+import {InvoiceService} from '../services/invoice.service';
+import {SaveDialogComponent} from '../save-dialog/save-dialog.component';
+import {ProductService} from '../../product/services/product.service';
+import {HelperFunctions} from 'src/assets/util/HelperFunctions';
+import {PrintAndDownloadService, PrintDialogRequest} from 'src/app/services/print-and-download.service';
+import {Actions, GetFooterCommandListFromKeySettings, GetUpdatedKeySettings, InvoiceManagerKeySettings, KeyBindings} from 'src/assets/util/KeyBindings';
+import {BbxToastrService} from 'src/app/services/bbx-toastr-service.service';
+import {BbxSidebarService} from 'src/app/services/bbx-sidebar.service';
+import {KeyboardHelperService} from 'src/app/services/keyboard-helper.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CustomerDiscountService} from '../../customer-discount/services/customer-discount.service';
+import {isTableKeyDownEvent, TableKeyDownEvent} from '../../shared/inline-editable-table/inline-editable-table.component';
 import {CurrencyCode, CurrencyCodes} from '../../system/models/CurrencyCode';
-import { InvoiceTypes } from '../models/InvoiceTypes';
-import { InvoiceCategory } from '../models/InvoiceCategory';
-import { InvoiceBehaviorFactoryService } from '../services/invoice-behavior-factory.service';
-import { TokenStorageService } from '../../auth/services/token-storage.service';
+import {InvoiceTypes} from '../models/InvoiceTypes';
+import {InvoiceCategory} from '../models/InvoiceCategory';
+import {InvoiceBehaviorFactoryService} from '../services/invoice-behavior-factory.service';
+import {TokenStorageService} from '../../auth/services/token-storage.service';
 import moment from 'moment';
-import { PartnerLockService } from 'src/app/services/partner-lock.service';
-import { PartnerLockHandlerService } from 'src/app/services/partner-lock-handler.service';
-import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
-import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { PaymentMethods, OfflinePaymentMethods } from '../models/PaymentMethod';
-import { OfferService } from '../../offer/services/offer.service';
-import { GetOfferParamsModel } from '../../offer/models/GetOfferParamsModel';
-import { Offer } from '../../offer/models/Offer';
-import { GetCustomerParamListModel } from '../../customer/models/GetCustomerParamListModel';
-import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { OfflineVatRate } from '../../vat-rate/models/VatRate';
-import { CustomerSearchComponent } from "../customer-serach/customer-search.component";
-import { SystemService } from "../../system/services/system.service";
-import { GetExchangeRateParamsModel } from "../../system/models/GetExchangeRateParamsModel";
+import {PartnerLockService} from 'src/app/services/partner-lock.service';
+import {PartnerLockHandlerService} from 'src/app/services/partner-lock-handler.service';
+import {BaseInvoiceManagerComponent} from '../base-invoice-manager/base-invoice-manager.component';
+import {ChooseProductRequest, ProductCodeManagerServiceService} from 'src/app/services/product-code-manager-service.service';
+import {OfflinePaymentMethods, PaymentMethods} from '../models/PaymentMethod';
+import {OfferService} from '../../offer/services/offer.service';
+import {GetOfferParamsModel} from '../../offer/models/GetOfferParamsModel';
+import {Offer} from '../../offer/models/Offer';
+import {GetCustomerParamListModel} from '../../customer/models/GetCustomerParamListModel';
+import {GetProductByCodeRequest} from '../../product/models/GetProductByCodeRequest';
+import {BbxDialogServiceService} from 'src/app/services/bbx-dialog-service.service';
+import {OfflineVatRate} from '../../vat-rate/models/VatRate';
+import {CustomerSearchComponent} from "../customer-serach/customer-search.component";
+import {SystemService} from "../../system/services/system.service";
+import {GetExchangeRateParamsModel} from "../../system/models/GetExchangeRateParamsModel";
 
 @Component({
   selector: 'app-invoice-manager',
@@ -483,6 +483,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           const currencyCode = this.currencyCodesData.find(x => x.text === value)?.value ?? ''
           return of(currencyCode)
         }),
+        tap(value => this.outGoingInvoiceData.currencyCode = value),
         tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
         tap(() => setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(false), 100)),
         tap(value => setTimeout(() => {
@@ -495,6 +496,24 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         }, 100)),
         switchMap((value: string) => value !== CurrencyCodes.HUF ? of(value) : EMPTY),
         tap((value: string) => this.exchangeRateQuery.next(value as CurrencyCodes)),
+      )
+      .subscribe()
+
+    controls['exchangeRate'].valueChanges
+      .pipe(
+        tap(value => {
+          this.outGoingInvoiceData.exchangeRate = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
+            ? 1
+            : HelperFunctions.ToFloat(value);
+          }
+        ),
+        tap(() => this.dbData
+            .map(x => x.data)
+            .forEach(invoiceLine => {
+              const price = invoiceLine.originalUnitPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
+              invoiceLine.unitPrice = HelperFunctions.Round2(price, 2)
+            })
+        )
       )
       .subscribe()
 
@@ -681,6 +700,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     this.fS.pushCommands(this.commands);
   }
+
   ngAfterViewInit(): void {
     this.AfterViewInitSetup();
   }
@@ -746,9 +766,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.outGoingInvoiceData.invoiceLines[i].quantity = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
-
-    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF;
-    this.outGoingInvoiceData.exchangeRate = 1;
 
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
@@ -1033,6 +1050,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       res.unitPrice = unitPrice;
     }
 
+    res.originalUnitPriceHUF = res.unitPrice
+
+    res.unitPrice = res.originalUnitPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
     res.unitPrice = HelperFunctions.currencyRound(res.unitPrice, this.outGoingInvoiceData.currencyCode, true)
 
     res.vatRateCode = product.vatRateCode;

@@ -16,7 +16,7 @@ import { Product } from '../../product/models/Product';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { OutGoingInvoiceFullData } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
-import { PaymentMethod } from '../models/PaymentMethod';
+import {PaymentMethod, PaymentMethods} from '../models/PaymentMethod';
 import { InvoiceService } from '../services/invoice.service';
 import { ProductService } from '../../product/services/product.service';
 import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
@@ -149,7 +149,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
-    if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+    if (_paymentMethod === PaymentMethods.Cash && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
     } else {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
