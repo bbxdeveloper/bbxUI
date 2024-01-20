@@ -17,6 +17,8 @@ import { InvoiceType } from 'src/app/modules/system/models/InvoiceType';
 import { WareHouse } from 'src/app/modules/warehouse/models/WareHouse';
 import { SystemService } from 'src/app/modules/system/services/system.service';
 import { CustomerSearchComponent } from '../../customer-serach/customer-search.component';
+import { StatusService } from 'src/app/services/status.service';
+import { FormHelper } from 'src/assets/util/FormHelper';
 
 @Component({
   selector: 'app-invoice-nav-filter-form',
@@ -172,7 +174,8 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     private readonly cdref: ChangeDetectorRef,
     private readonly localStorage: LocalStorageService,
     private readonly tokenService: TokenStorageService,
-    private readonly systemService: SystemService
+    private readonly systemService: SystemService,
+    private readonly statusService: StatusService
   ) {
     this.localStorageKey = 'invoiceNavKey.' + tokenService.user?.id ?? 'for-everyone'
 
@@ -202,6 +205,8 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
       CustomerTaxNumber: new FormControl(undefined, []),
     });
   }
+
+  //#region Init
 
   private async setupFilterForm(): Promise<void> {
     this.filterForm.controls['DateFilterChooser'].valueChanges.subscribe({
@@ -283,65 +288,82 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
   }
 
   public async ngOnInit(): Promise<void> {
-    const requests = [
-      this.getWarehouses(),
-      this.getInvoiceTypes()
-    ]
+    this.statusService.waitForLoad(true)
 
-    await Promise.all(requests)
+    try {
+      const requests = [
+        this.getWarehouses(),
+        this.getInvoiceTypes()
+      ]
 
-    this.setupFilterForm()
-    this.filterFormNav = new InlineTableNavigatableForm(
-      this.filterForm,
-      this.keyboardService,
-      this.cdref,
-      [],
-      this.filterFormId,
-      AttachDirection.DOWN,
-      this
-    )
-    this.filterFormNav.OuterJump = true
+      await Promise.all(requests)
 
-    setTimeout(async () => {
-      this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-
-      $('*[type=radio]').addClass(TileCssClass);
-      $('*[type=radio]').on('click', (event) => {
-        this.filterFormNav.HandleFormFieldClick(event);
-      });
-
-      this.customerSearch.searchFormNav.attachDirection = AttachDirection.DOWN
-      this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true, undefined, true)
-
-      this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
-      this.filterFormNav.InnerJumpOnEnter = true
+      this.setupFilterForm()
+      this.filterFormNav = new InlineTableNavigatableForm(
+        this.filterForm,
+        this.keyboardService,
+        this.cdref,
+        [],
+        this.filterFormId,
+        AttachDirection.DOWN,
+        this
+      )
       this.filterFormNav.OuterJump = true
 
-      this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
+      setTimeout(async () => {
+        this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
 
-      this.pageReady.emit()
+        $('*[type=radio]').addClass(TileCssClass);
+        $('*[type=radio]').on('click', (event) => {
+          this.filterFormNav.HandleFormFieldClick(event);
+        });
 
-      this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
-      this.keyboardService.SelectFirstTile()
-      this.keyboardService.ClickCurrentElement()
+        this.customerSearch.searchFormNav.attachDirection = AttachDirection.DOWN
+        this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true, undefined, true)
 
-      await this.loadFilters()
+        this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
+        this.filterFormNav.InnerJumpOnEnter = true
+        this.filterFormNav.OuterJump = true
 
-      const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
+        this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
-      if (filter) {
-        this.filterForm.patchValue(filter)
-        this.Refresh()
-      }
+        this.pageReady.emit()
 
-      setTimeout(() => {
-        this.cs.CloseAllHeaderMenuTrigger.next(true)
+        this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
+        this.keyboardService.SelectFirstTile()
+        this.keyboardService.ClickCurrentElement()
+
+        await this.loadFilters()
+
+        const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
+
+        if (filter) {
+          this.filterForm.patchValue(filter)
+          this.Refresh()
+        } else {
+          // Ha van elmentett szűrő, akkor nem kapcsoljuk ki a spinnert, mert a Refresh visszakapcsolná,
+          // ha nincs, akkor itt lekapcsoljuk - illetve kivétel esetén.
+          this.statusService.waitForLoad(false)
+        }
+
+        setTimeout(() => {
+          this.cs.CloseAllHeaderMenuTrigger.next(true)
+        }, 500);
       }, 500);
-    }, 500);
+    }
+    catch(error) {
+      this.statusService.waitForLoad(false)
+    }
   }
+
+  //#endregion Init
+
+  //#region Load filters
 
   private async loadFilters(): Promise<void> {
     const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
+
+    this.loadDefaultFilter()
 
     if (!filter) {
       return
@@ -352,47 +374,36 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     this.loadDatesFromFilter(filter)
   }
 
-  private async loadCustomerFilter(filter: InvoiceNavFilter): Promise<void> {
-    const setControlValue = (filterValue: any, control: AbstractControl) => {
-      if (!filterValue) {
-        return
-      }
-      control.setValue(filterValue)
-    }
+  private async loadDefaultFilter() {
+    const controls = this.filterForm.controls
 
+    FormHelper.SetControlValue(DefaultChosenDateFilter, controls['DateFilterChooser'])
+  }
+
+  private async loadCustomerFilter(filter: InvoiceNavFilter): Promise<void> {
     this.customerSearch.search(filter.CustomerSearch)
   }
 
   private loadMiscFilters(filter: InvoiceNavFilter): void {
-    const setControlValue = (filterValue: any, control: AbstractControl) => {
-      if (!filterValue) {
-        return
-      }
-      control.setValue(filterValue)
-    }
-
     const controls = this.filterForm.controls
 
-    setControlValue(filter.InvoiceType, controls['InvoiceType'])
-    setControlValue(filter.DateFilterChooser, controls['DateFilterChooser'])
-    setControlValue(filter.WarehouseCode, controls['WarehouseCode'])
+    FormHelper.SetControlValue(filter.InvoiceType, controls['InvoiceType'])
+    FormHelper.SetControlValue(filter.DateFilterChooser, controls['DateFilterChooser'])
+    FormHelper.SetControlValue(filter.WarehouseCode, controls['WarehouseCode'])
   }
 
   private loadDatesFromFilter(filter: InvoiceNavFilter): void {
-    const setControlValue = (filterValue: string, control: AbstractControl) => {
-      if (!filterValue) {
-        return
-      }
-      control.setValue(filterValue)
-    }
-
     const controls = this.filterForm.controls
 
-    setControlValue(filter.InvoiceDeliveryDateFrom, controls['InvoiceDeliveryDateFrom'])
-    setControlValue(filter.InvoiceDeliveryDateTo, controls['InvoiceDeliveryDateTo'])
-    setControlValue(filter.InvoiceIssueDateFrom, controls['InvoiceIssueDateFrom'])
-    setControlValue(filter.InvoiceIssueDateTo, controls['InvoiceIssueDateTo'])
+    FormHelper.SetControlValue(filter.InvoiceDeliveryDateFrom, controls['InvoiceDeliveryDateFrom'])
+    FormHelper.SetControlValue(filter.InvoiceDeliveryDateTo, controls['InvoiceDeliveryDateTo'])
+    FormHelper.SetControlValue(filter.InvoiceIssueDateFrom, controls['InvoiceIssueDateFrom'])
+    FormHelper.SetControlValue(filter.InvoiceIssueDateTo, controls['InvoiceIssueDateTo'])
   }
+
+  //#endregion Load filters
+
+  //#region Keyboard and refresh
 
   public Refresh(): void {
     var filter = this.componentFormData
@@ -423,6 +434,8 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
       return;
     }
   }
+
+  //#endregion Keyboard and refresh
 
   //#region Validations
 
