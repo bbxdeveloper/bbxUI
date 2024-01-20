@@ -52,11 +52,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   TileCssColClass = TileCssColClass;
 
   currencyCodes: CurrencyCode[] = []
-  // currencyCodes: string[] = []
-  // currencyCodeValues: { [key: string]: CurrencyCode } = {}
-  // get currencyCodeComboData$(): BehaviorSubject<string[]> {
-  //   return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
-  // }
 
   override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePaidAmount", "GetInvoicePaidAmountHUF", "invoiceGrossAmount"];
   override allColumns = [
@@ -170,26 +165,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.initialSetup();
   }
 
-  private async refreshComboboxData(setIsLoad = false): Promise<void> {
-    await lastValueFrom(this.systemService.GetAllCurrencyCodes())
-      .then(data => {
-        this.currencyCodes = data
-        // this.currencyCodes =
-        //   data?.map(x => {
-        //     let res = x.text;
-        //     this.currencyCodeValues[res] = x;
-        //     return x.text;
-        //   }) ?? [];
-
-        // this.currencyCodes =
-        //   data?.map(x => x.text) ?? [];
-        // this.currencyCodeComboData$.next(this.currencyCodes);
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => { });
-  }
+  //#region Init
 
   private initialSetup(): void {
     this.dbDataTableId = "offers-inline-table-invoice-line";
@@ -235,14 +211,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.isLoading = false
   }
 
-  refresh(): void {
-    this.dbData = [];
-    this.dbDataDataSrc.setData(this.dbData);
-
-    this.table?.renderRows();
-    this.RefreshTable();
-  }
-
   async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
     await this.refreshComboboxData()
@@ -255,65 +223,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
-  }
-
-  UpdateSaveData(): void {
-    this.invPaymentData.invPaymentItems =
-      this.dbDataTable.data
-        .filter(x => !x.data.IsUnfinished())
-        .map(x => x.data)
-        .filter(x => x.invoiceID > 0)
-
-    for (let i = 0; i < this.invPaymentData.invPaymentItems.length; i++) {
-      this.invPaymentData.invPaymentItems[i] = {
-        invoiceNumber: this.invPaymentData.invPaymentItems[i].invoiceNumber,
-        bankTransaction: this.invPaymentData.invPaymentItems[i].bankTransaction,
-        invPaymentDate: this.invPaymentData.invPaymentItems[i].invPaymentDate,
-        currencyCode: this.invPaymentData.invPaymentItems[i].currencyCode,
-        exchangeRate: HelperFunctions.ToFloat(this.invPaymentData.invPaymentItems[i].exchangeRate),
-        invPaymentAmount: HelperFunctions.ToFloat(this.invPaymentData.invPaymentItems[i].invPaymentAmount),
-        userID: this.invPaymentData.invPaymentItems[i].userID,
-      } as InvPaymentItemPost
-    }
-  }
-
-  Save(): void {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-
-    this.UpdateSaveData()
-
-    const confirmDialogRef = this.dialogService.open(ConfirmationWithAuthDialogComponent, { context: { title: Constants.MSG_CONFIRMATION_SAVE_DATA } });
-    confirmDialogRef.onClose.subscribe(async (res: ConfirmationWithAuthDialogesponse) => {
-      if (!res)
-        return
-
-      console.log('Save: ', this.invPaymentData);
-
-      try {
-        this.isSaveInProgress = true;
-        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
-
-        await lastValueFrom(this.invPaymentService.Create(this.invPaymentData))
-
-        this.simpleToastrService.show(
-          Constants.MSG_SAVE_SUCCESFUL,
-          Constants.TITLE_INFO,
-          Constants.TOASTR_SUCCESS_5_SEC
-        );
-
-        this.refresh()
-
-        setTimeout(() => {
-          this.kbS.SetCurrentNavigatable(this.dbDataTable)
-          this.kbS.SelectFirstTile()
-        }, 250)
-      } catch (error) {
-        this.cs.HandleError(error)
-      } finally {
-        this.isSaveInProgress = false
-        this.status.pushProcessStatus(Constants.BlankProcessStatus)
-      }
-    });
   }
 
   protected AfterViewInitSetup(): void {
@@ -334,7 +243,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
     this.cdref.detectChanges();
 
-    // TODO
     if (this.dbDataTable.data.length > 1) {
       this.dbDataTable.data = [this.dbDataTable.data[0]];
       this.dbDataDataSrc.setData(this.dbDataTable.data);
@@ -345,27 +253,66 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.kbS.ClickCurrentElement()
   }
 
+  //#endregion Init
+
+  //#region Refresh
+
+  refresh(): void {
+    this.dbData = [];
+    this.dbDataDataSrc.setData(this.dbData);
+
+    this.table?.renderRows();
+    this.RefreshTable();
+  }
+
+  private async refreshComboboxData(setIsLoad = false): Promise<void> {
+    await lastValueFrom(this.systemService.GetAllCurrencyCodes())
+      .then(data => {
+        this.currencyCodes = data
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => { });
+  }
+
+  //#endregion Refresh
+
+  //#region Util
+
   public isRowInErrorState(row: TreeGridNode<InvPaymentItem>): boolean {
     return !row.data.IsUnfinished() && row.data.invPaymentAmount == 0
   }
+
+  private async FromInvoice(res: Invoice): Promise<InvPaymentItem> {
+    let newPaymentItem = new InvPaymentItem()
+    newPaymentItem = HelperFunctions.PatchObject(res, newPaymentItem, [], [{ from: 'id', to: 'invoiceID'}])
+    
+    if (newPaymentItem.currencyCode === CurrencyCodes.HUF) {
+      newPaymentItem.exchangeRate = 1
+    } else {
+      const exchangeRate = await lastValueFrom(this.systemService.GetExchangeRate({
+        Currency: newPaymentItem.currencyCode,
+        ExchengeRateDate: res.invoiceIssueDate
+      } as GetExchangeRateParamsModel))
+        .catch(err => {
+          this.cs.HandleError(err)
+        })
+    }
+
+    return newPaymentItem
+  }
+
+  //#endregion Util
+
+  //#region Data change
 
   async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true) {
     if (res.id === undefined || res.id === -1) {
       return;
     }
 
-    let row = this.dbDataTable.data[rowIndex];
-    let count = this.dbDataTable.data.filter(x => x.data.invoiceNumber === res.invoiceNumber).length;
-    if (count > 1 || (count === 1 && res.invoiceNumber !== row.data.invoiceNumber)) {
-      this.dbDataTable.editedRow!.data.invoiceNumber = "";
-      this.kbS.ClickCurrentElement();
-      this.bbxToastrService.show(
-        Constants.MSG_INVOICE_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    } else if (checkIfCodeEqual && res.invoiceNumber === row.data.invoiceNumber) {
+    if (this.CheckIfRowAlreadyExists(res.invoiceNumber, rowIndex)) {
       this.bbxToastrService.show(
         Constants.MSG_INVOICE_ALREADY_THERE,
         Constants.TITLE_ERROR,
@@ -389,31 +336,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
     return;
   }
-
-  private async FromInvoice(res: Invoice): Promise<InvPaymentItem> {
-    let newPaymentItem = new InvPaymentItem()
-    newPaymentItem = HelperFunctions.PatchObject(res, newPaymentItem, [], [{ from: 'id', to: 'invoiceID'}])
-    
-    if (newPaymentItem.currencyCode === CurrencyCodes.HUF) {
-      newPaymentItem.exchangeRate = 1
-    } else {
-      const exchangeRate = await lastValueFrom(this.systemService.GetExchangeRate({
-        Currency: newPaymentItem.currencyCode,
-        ExchengeRateDate: res.invoiceIssueDate
-      } as GetExchangeRateParamsModel))
-        .catch(err => {
-          this.cs.HandleError(err)
-        })
-    }
-
-    return newPaymentItem
-  }
-
-  async HandleProductChoose(): Promise<void> {}
-  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
-  ChooseDataForCustomerForm(): void { }
-  RefreshData(): void { }
-  RecalcNetAndVat(): void { }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     if (!!event) {
@@ -499,8 +421,9 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    if (!changedData || !changedData.invoiceNumber)
+    if (!changedData || !changedData.invoiceNumber) {
       return
+    }
 
     if ((!!col && col === 'invoiceNumber') || col === undefined) {
       this.invoiceNumberChanged(changedData, index)
@@ -594,6 +517,10 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     })
   }
 
+  //#endregion Data change
+
+  //#region Save
+
   CheckSaveConditionsAndSave(): void {
     this.dateForm.markAllAsTouched();
 
@@ -618,9 +545,68 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.Save();
   }
 
-  /////////////////////////////////////////////
-  ////////////// KEYBOARD EVENTS //////////////
-  /////////////////////////////////////////////
+  UpdateSaveData(): void {
+    this.invPaymentData.invPaymentItems =
+      this.dbDataTable.data
+        .filter(x => !x.data.IsUnfinished())
+        .map(x => x.data)
+        .filter(x => x.invoiceID > 0)
+
+    for (let i = 0; i < this.invPaymentData.invPaymentItems.length; i++) {
+      this.invPaymentData.invPaymentItems[i] = {
+        invoiceNumber: this.invPaymentData.invPaymentItems[i].invoiceNumber,
+        bankTransaction: this.invPaymentData.invPaymentItems[i].bankTransaction,
+        invPaymentDate: this.invPaymentData.invPaymentItems[i].invPaymentDate,
+        currencyCode: this.invPaymentData.invPaymentItems[i].currencyCode,
+        exchangeRate: HelperFunctions.ToFloat(this.invPaymentData.invPaymentItems[i].exchangeRate),
+        invPaymentAmount: HelperFunctions.ToFloat(this.invPaymentData.invPaymentItems[i].invPaymentAmount),
+        userID: this.invPaymentData.invPaymentItems[i].userID,
+      } as InvPaymentItemPost
+    }
+  }
+
+  Save(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.UpdateSaveData()
+
+    const confirmDialogRef = this.dialogService.open(ConfirmationWithAuthDialogComponent, { context: { title: Constants.MSG_CONFIRMATION_SAVE_DATA } });
+    confirmDialogRef.onClose.subscribe(async (res: ConfirmationWithAuthDialogesponse) => {
+      if (!res)
+        return
+
+      console.log('Save: ', this.invPaymentData);
+
+      try {
+        this.isSaveInProgress = true;
+        this.status.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING])
+
+        await lastValueFrom(this.invPaymentService.Create(this.invPaymentData))
+
+        this.simpleToastrService.show(
+          Constants.MSG_SAVE_SUCCESFUL,
+          Constants.TITLE_INFO,
+          Constants.TOASTR_SUCCESS_5_SEC
+        );
+
+        this.refresh()
+
+        setTimeout(() => {
+          this.kbS.SetCurrentNavigatable(this.dbDataTable)
+          this.kbS.SelectFirstTile()
+        }, 250)
+      } catch (error) {
+        this.cs.HandleError(error)
+      } finally {
+        this.isSaveInProgress = false
+        this.status.pushProcessStatus(Constants.BlankProcessStatus)
+      }
+    });
+  }
+
+  //#endregion Save
+
+  //#region Keyboard
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
@@ -697,5 +683,15 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
-}
+  //#endregion Keyboard
 
+  //#region Unimplemented
+
+  async HandleProductChoose(): Promise<void> { }
+  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void { }
+  ChooseDataForCustomerForm(): void { }
+  RefreshData(): void { }
+  RecalcNetAndVat(): void { }
+
+  //#endregion Unimplemented
+}
