@@ -47,7 +47,9 @@ export class InvoiceLine extends MementoObject implements IEditable {
 
     unitOfMeasure: string = "";
 
+    @JsonIgnore
     originalUnitPriceHUF: number = 0
+
     unitPrice: number = 0.0; // editable
 
     @JsonIgnore
@@ -57,6 +59,9 @@ export class InvoiceLine extends MementoObject implements IEditable {
     newUnitPrice2HUF: number|undefined;
 
     vatRateCode: string = ''; // below table
+
+    @JsonIgnore
+    latestSupplyPriceHUF: number = 0
 
     @JsonIgnore
     latestSupplyPrice: number|undefined = undefined

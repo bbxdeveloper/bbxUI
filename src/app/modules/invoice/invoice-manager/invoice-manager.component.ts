@@ -491,8 +491,13 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           if (value === CurrencyCodes.HUF) {
             this.kbS.ClickCurrentElement()
           } else {
-            const elements = document.getElementsByName("exchange-rate")
-            this.kbS.ClickElement(elements[0].id)
+            const element = document.getElementsByName("exchange-rate")[0]
+
+            // @workaround - the input gets a `text-align: right` somehow
+            // reset here
+            element.style.textAlign = 'unset';
+
+            this.kbS.ClickElement(element.id)
           }
         }, 100)),
         switchMap((value: string) => value !== CurrencyCodes.HUF ? of(value) : EMPTY),
@@ -521,6 +526,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             .forEach(invoiceLine => {
               const price = invoiceLine.originalUnitPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
               invoiceLine.unitPrice = HelperFunctions.Round2(price, 2)
+
+              invoiceLine.latestSupplyPrice = invoiceLine.latestSupplyPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
 
               invoiceLine.ReCalc()
               invoiceLine.Save()
@@ -1040,6 +1047,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     product.productGroup = !!product.productGroup ? product.productGroup : '-';
     res.noDiscount = product.noDiscount;
 
+    res.latestSupplyPriceHUF = product.latestSupplyPrice ?? 0
     res.latestSupplyPrice = product.latestSupplyPrice
 
     let unitPrice: number
