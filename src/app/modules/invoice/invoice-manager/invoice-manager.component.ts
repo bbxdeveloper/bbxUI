@@ -523,6 +523,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
               invoiceLine.unitPrice = HelperFunctions.Round2(price, 2)
 
               invoiceLine.ReCalc()
+              invoiceLine.Save()
             })
 
           this.RecalcNetAndVat()
