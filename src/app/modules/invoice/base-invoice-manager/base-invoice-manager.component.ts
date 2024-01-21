@@ -1,42 +1,43 @@
-import { ChangeDetectorRef, Component, Optional } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { NbSortDirection, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { of, BehaviorSubject } from 'rxjs';
-import { CommonService } from 'src/app/services/common.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
-import { StatusService } from 'src/app/services/status.service';
-import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
-import { NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
-import { TreeGridNode } from 'src/assets/model/TreeGridNode';
-import { Constants } from 'src/assets/util/Constants';
-import { Customer } from '../../customer/models/Customer';
-import { CustomerService } from '../../customer/services/customer.service';
-import { Product } from '../../product/models/Product';
-import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
-import { OutGoingInvoiceFullData } from '../models/CreateOutgoingInvoiceRequest';
-import { InvoiceLine } from '../models/InvoiceLine';
-import { PaymentMethod } from '../models/PaymentMethod';
-import { InvoiceService } from '../services/invoice.service';
-import { ProductService } from '../../product/services/product.service';
-import { GetProductByCodeRequest } from '../../product/models/GetProductByCodeRequest';
-import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { GetFooterCommandListFromKeySettings, GetUpdatedKeySettings } from 'src/assets/util/KeyBindings';
-import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
-import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
-import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { InputFocusChangedEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
-import { TokenStorageService } from '../../auth/services/token-storage.service';
-import { CodeFieldChangeRequest, ProductCodeManagerServiceService } from 'src/app/services/product-code-manager-service.service';
-import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
-import { ProductStockInformationDialogComponent } from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
-import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { LoadInvoiceLinesDialogComponent } from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
-import { CustDiscountForGet } from '../../customer-discount/models/CustDiscount';
-import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
+import {ChangeDetectorRef, Component, Optional} from '@angular/core';
+import {FormGroup} from '@angular/forms';
+import {NbSortDirection, NbToastrService, NbTreeGridDataSourceBuilder} from '@nebular/theme';
+import {BehaviorSubject, of} from 'rxjs';
+import {CommonService} from 'src/app/services/common.service';
+import {FooterService} from 'src/app/services/footer.service';
+import {KeyboardModes, KeyboardNavigationService} from 'src/app/services/keyboard-navigation.service';
+import {StatusService} from 'src/app/services/status.service';
+import {FooterCommandInfo} from 'src/assets/model/FooterCommandInfo';
+import {NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass} from 'src/assets/model/navigation/Nav';
+import {TreeGridNode} from 'src/assets/model/TreeGridNode';
+import {Constants} from 'src/assets/util/Constants';
+import {Customer} from '../../customer/models/Customer';
+import {CustomerService} from '../../customer/services/customer.service';
+import {Product} from '../../product/models/Product';
+import {BaseInlineManagerComponent} from '../../shared/base-inline-manager/base-inline-manager.component';
+import {OutGoingInvoiceFullData} from '../models/CreateOutgoingInvoiceRequest';
+import {InvoiceLine} from '../models/InvoiceLine';
+import {PaymentMethod, PaymentMethods} from '../models/PaymentMethod';
+import {InvoiceService} from '../services/invoice.service';
+import {ProductService} from '../../product/services/product.service';
+import {GetProductByCodeRequest} from '../../product/models/GetProductByCodeRequest';
+import {HelperFunctions} from 'src/assets/util/HelperFunctions';
+import {GetFooterCommandListFromKeySettings, GetUpdatedKeySettings} from 'src/assets/util/KeyBindings';
+import {BbxToastrService} from 'src/app/services/bbx-toastr-service.service';
+import {BbxSidebarService} from 'src/app/services/bbx-sidebar.service';
+import {KeyboardHelperService} from 'src/app/services/keyboard-helper.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {InputFocusChangedEvent} from '../../shared/inline-editable-table/inline-editable-table.component';
+import {CurrencyCodes} from '../../system/models/CurrencyCode';
+import {InvoiceBehaviorMode} from '../models/InvoiceBehaviorMode';
+import {TokenStorageService} from '../../auth/services/token-storage.service';
+import {CodeFieldChangeRequest, ProductCodeManagerServiceService} from 'src/app/services/product-code-manager-service.service';
+import {PrintAndDownloadService} from 'src/app/services/print-and-download.service';
+import {ProductStockInformationDialogComponent} from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import {BbxDialogServiceService} from 'src/app/services/bbx-dialog-service.service';
+import {LoadInvoiceLinesDialogComponent} from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
+import {CustDiscountForGet} from '../../customer-discount/models/CustDiscount';
+import {CustomerDiscountService} from '../../customer-discount/services/customer-discount.service';
+import {InvoiceTypes} from "../models/InvoiceTypes";
 
 @Component({
   selector: 'app-base-invoice-manager',
@@ -149,10 +150,13 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
-    if (_paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+    if (this.mode.title === 'Számla') {
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, 1);
+    }
+    else if (_paymentMethod === PaymentMethods.Cash && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
     } else {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, 1);
     }
 
     this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
