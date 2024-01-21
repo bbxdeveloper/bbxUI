@@ -524,6 +524,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
               invoiceLine.ReCalc()
             })
+
+          this.RecalcNetAndVat()
         })
       )
       .subscribe()

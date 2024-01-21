@@ -149,11 +149,7 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
-    if (_paymentMethod === PaymentMethods.Cash && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
-    } else {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
-    }
+    this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, 1);
 
     this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
