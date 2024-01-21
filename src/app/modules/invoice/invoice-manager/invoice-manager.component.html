@@ -95,7 +95,7 @@
                     </app-form-control-error>
                 </nb-form-field>
 
-                <app-bbx-combo-box *ngIf="!mode.Delivery" class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="currency" label="Pénznem"
+                <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="currency" label="Pénznem"
                                    [data$]="currencyCodes" [simpleMode]="false" [needBlankOption]="false" [isReadonly]="editDisabled" [labelAboveField]="true" id="currency">
                 </app-bbx-combo-box>
 

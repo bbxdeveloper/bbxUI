@@ -7,11 +7,7 @@ import {FooterService} from 'src/app/services/footer.service';
 import {KeyboardModes, KeyboardNavigationService} from 'src/app/services/keyboard-navigation.service';
 import {StatusService} from 'src/app/services/status.service';
 import {FooterCommandInfo} from 'src/assets/model/FooterCommandInfo';
-import {
-  NavigatableForm as InlineTableNavigatableForm,
-  TileCssClass,
-  TileCssColClass
-} from 'src/assets/model/navigation/Nav';
+import {NavigatableForm as InlineTableNavigatableForm, TileCssClass, TileCssColClass} from 'src/assets/model/navigation/Nav';
 import {TreeGridNode} from 'src/assets/model/TreeGridNode';
 import {Constants} from 'src/assets/util/Constants';
 import {Customer} from '../../customer/models/Customer';
@@ -34,14 +30,9 @@ import {InputFocusChangedEvent} from '../../shared/inline-editable-table/inline-
 import {CurrencyCodes} from '../../system/models/CurrencyCode';
 import {InvoiceBehaviorMode} from '../models/InvoiceBehaviorMode';
 import {TokenStorageService} from '../../auth/services/token-storage.service';
-import {
-  CodeFieldChangeRequest,
-  ProductCodeManagerServiceService
-} from 'src/app/services/product-code-manager-service.service';
+import {CodeFieldChangeRequest, ProductCodeManagerServiceService} from 'src/app/services/product-code-manager-service.service';
 import {PrintAndDownloadService} from 'src/app/services/print-and-download.service';
-import {
-  ProductStockInformationDialogComponent
-} from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
+import {ProductStockInformationDialogComponent} from '../../shared/dialogs/product-stock-information-dialog/product-stock-information-dialog.component';
 import {BbxDialogServiceService} from 'src/app/services/bbx-dialog-service.service';
 import {LoadInvoiceLinesDialogComponent} from '../load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 import {CustDiscountForGet} from '../../customer-discount/models/CustDiscount';
