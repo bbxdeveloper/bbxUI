@@ -485,8 +485,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         }),
         tap(value => this.outGoingInvoiceData.currencyCode = value),
         tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
-        tap(() => setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(false), 100)),
         tap(value => setTimeout(() => {
+          this.outInvFormNav.GenerateAndSetNavMatrices(false)
+
           if (value === CurrencyCodes.HUF) {
             this.kbS.ClickCurrentElement()
           } else {
@@ -502,18 +503,28 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     controls['exchangeRate'].valueChanges
       .pipe(
         tap(value => {
+          if (HelperFunctions.isEmptyOrSpaces(value)) {
+            return
+          }
+
           this.outGoingInvoiceData.exchangeRate = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF
             ? 1
-            : HelperFunctions.ToFloat(value);
+            : HelperFunctions.ToFloat(value)
+        }),
+        tap(() => {
+          if (!this.outGoingInvoiceData.exchangeRate) {
+            return
           }
-        ),
-        tap(() => this.dbData
+
+          this.dbData
             .map(x => x.data)
             .forEach(invoiceLine => {
               const price = invoiceLine.originalUnitPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
               invoiceLine.unitPrice = HelperFunctions.Round2(price, 2)
+
+              invoiceLine.ReCalc()
             })
-        )
+        })
       )
       .subscribe()
 
