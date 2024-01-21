@@ -215,8 +215,20 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
       this.path = params[0].path
+      this.updateInvFormBasedOnMode()
     })
     this.isPageReady = true;
+  }
+
+  /**
+   * Additional form adjustments based on the determined behavior mode.
+   */
+  private updateInvFormBasedOnMode(): void {
+    if (this.mode.Delivery) {
+      // No paymentDate needed, invoiceDeliveryDate will be used
+      this.outInvForm.controls['paymentDate'] = new FormControl('', []);
+    }
+    this.outInvFormNav.GenerateAndSetNavMatrices(false, true, true)
   }
 
   private async handlePathParams(): Promise<void> {
@@ -770,7 +782,12 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
-    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+
+    if (this.mode.Delivery) {
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+    } else {
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+    }
 
     this.outGoingInvoiceData.paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
