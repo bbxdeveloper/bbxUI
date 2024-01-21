@@ -1,0 +1,36 @@
+<as-split direction="horizontal">
+    <as-split-area [size]="60">
+        <app-hozirontal-split-layout proportion="30" [hideDivider]="true">
+            <app-head-line msg="Bizonylatok" title></app-head-line>
+
+            <app-invoice-nav-filter-form (refreshClicked)="refreshClicked($event)" (pageReady)="filterFormPageReady()"
+                top>
+            </app-invoice-nav-filter-form>
+
+            <ng-container bottom>
+                <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+                    [heightMargin]="557" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                    [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
+                    (focusOutTable)="focusOnTable(false)">
+                </app-flat-design-table>
+
+                <nb-card>
+                    <nb-card-footer>
+                        <table class="table-statistics-net-vat-gross">
+                            <tr>
+                                <td>Összes nettó: {{sumNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                                <td>Összes ÁFA: {{sumVatAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                                <td>Összes bruttó: {{sumGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                            </tr>
+                        </table>
+                    </nb-card-footer>
+                </nb-card>
+
+                <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+            </ng-container>
+        </app-hozirontal-split-layout>
+    </as-split-area>
+    <as-split-area [size]="40" *ngIf="isSideBarOpened">
+        <app-invoice-nav-side-bar-form class="bbx-sidebar"></app-invoice-nav-side-bar-form>
+    </as-split-area>
+</as-split>
