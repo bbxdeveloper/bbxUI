@@ -1,4 +1,4 @@
-import { FormGroup } from "@angular/forms";
+import { AbstractControl, FormGroup } from "@angular/forms";
 import { HelperFunctions } from "./HelperFunctions";
 
 export module FormHelper {
@@ -8,5 +8,12 @@ export module FormHelper {
         }
 
         return HelperFunctions.ToInt(form.controls[controlName].value)
+    }
+
+    export function SetControlValue(filterValue: any, control: AbstractControl): void {
+        if (!filterValue) {
+            return
+        }
+        control.setValue(filterValue)
     }
 }

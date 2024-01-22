@@ -1,0 +1,105 @@
+<div class="filter-div">
+    <nb-card class="filter-card">
+        <nb-card-body class="filter-card-body">
+            <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId" class="form-with-rows"
+                (keydown.escape)="filterFormNav.HandleFormEscape()">
+                <div class="form-row">
+                    <app-customer-search #customerSearch
+                        class="customer-search-field"
+                        [customer]="customerData"
+                        (customerChanged)="customerChanged($event)"
+                        (focusIn)="onFormSearchFocused(undefined, $event)"
+                        (focusOut)="onFormSearchBlurred(undefined, $event)"
+                        [withDiscounts]="false"
+                        (loadingChanged)="isLoading = $event"></app-customer-search>
+                    
+                    <nb-form-field>
+                        <label>Ügyfél</label>
+                        <input nbInput type="text" formControlName='CustomerName' readonly>
+                    </nb-form-field>
+
+                    <nb-form-field>
+                        <label>Ügyfél Cím</label>
+                        <input nbInput type="text" formControlName='CustomerAddress' readonly>
+                    </nb-form-field>
+
+                    <nb-form-field>
+                        <label>Ügyfél Adószám</label>
+                        <input nbInput type="text" formControlName='CustomerTaxNumber' readonly>
+                    </nb-form-field>
+                </div>
+
+                <div class="form-row">
+                    <app-bbx-combo-box class="bbx-combobox" [currentForm]="filterFormNav"
+                        formFieldName="InvoiceType" label="Bizonylattípus" [labelAboveField]="true"
+                        [data$]="invoiceTypes$">
+                    </app-bbx-combo-box>
+
+                    <app-bbx-combo-box class="bbx-combobox" [currentForm]="filterFormNav"
+                        formFieldName="WarehouseCode" label="Raktár" [labelAboveField]="true" [data$]="wareHouseData$">
+                    </app-bbx-combo-box>
+
+                    <nb-radio-group formControlName="DateFilterChooser" class="bbx-radiogroup">
+                        <nb-radio (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                            [value]="ChosenIssueFilterOptionValue">Számla keltezés</nb-radio>
+                        <nb-radio (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                            [value]="ChosenDeliveryFilterOptionValue">Számla teljesítése</nb-radio>
+                    </nb-radio-group>
+
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                        *ngIf="isIssueFilterSelected">
+                        <label>Keltezés kezdete</label>
+                        <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
+                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                            [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceIssueDateFrom"
+                            [validationParameterDate]="invoiceIssueDateToValue">
+                        </app-form-control-error>
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                        *ngIf="isIssueFilterSelected">
+                        <label>Keltezés vége</label>
+                        <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
+                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                            [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceIssueDateTo"
+                            [validationParameterDate]="invoiceIssueDateFromValue">
+                        </app-form-control-error>
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                        *ngIf="isDeliveryFilterSelected">
+                        <label>Teljesítés kezdete</label>
+                        <input nbInput type="datetime" formControlName='InvoiceDeliveryDateFrom'
+                            class="{{TileCssClass}}" (click)="filterFormNav.HandleFormFieldClick($event)"
+                            [readonly]="isEditModeOff" id="m03" mask="0000-00-00" [dropSpecialCharacters]="false"
+                            [showMaskTyped]="true" [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceDeliveryDateFrom"
+                            [validationParameterDate]="invoiceDeliveryDateToValue">
+                        </app-form-control-error>
+                    </nb-form-field>
+
+                    <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
+                        *ngIf="isDeliveryFilterSelected">
+                        <label>Teljesítés vége</label>
+                        <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo' class="{{TileCssClass}}"
+                            (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
+                            mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
+                            [validation]="true">
+                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceDeliveryDateTo"
+                            [validationParameterDate]="invoiceDeliveryDateFromValue">
+                        </app-form-control-error>
+                    </nb-form-field>
+                </div>
+
+                <div class="form-row">
+                    <button nbButton class="{{TileCssClass}}" (click)="Refresh()"
+                        [disabled]="!!filterForm.invalid" status="primary">Keresés</button>
+                </div>
+            </form>
+        </nb-card-body>
+    </nb-card>
+</div>

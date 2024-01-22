@@ -84,7 +84,6 @@ export class CustomersHasPendingInvoiceComponent extends SelectTableDialogCompon
   public override async Refresh(): Promise<void> {
     this.isLoading = true
     const request = {
-      currencyCode: 'HUF',
       warehouseCode: this.tokenService.wareHouse?.warehouseCode ?? '',
       incoming: this.incoming
     }

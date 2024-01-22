@@ -265,14 +265,14 @@ export module HelperFunctions {
         return isEmptyOrSpaces(p) ? undefined : parseInt((p + '').replace(/\s/g, ''));
     }
 
-    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null, roundToFillér = false): number {
+    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null, roundToFillér = false, digits = 2): number {
         if (currency === CurrencyCodes.HUF) {
             return roundToFillér
                 ? Round2(value, 1)
                 : Round(value)
         }
         else {
-            return Round2(value, 2)
+            return Round2(value, digits)
         }
     }
 
@@ -561,7 +561,7 @@ export module HelperFunctions {
             col: ModelFieldDescriptor, all: string[],
             id: string, type: 'min' | 'max' | 'specific' = 'specific',
             scollbarWidth: number = Constants.ScrollbarWidthInPixels): any {
-        var unitOfMeasure = 'px'        
+        var unitOfMeasure = 'px'
         var colWidth = type === 'min' ? col.colMinWidth ?? col.colWidth : col.colWidth
         if (colWidth?.includes(unitOfMeasure)) {
             const key = col.objectKey
