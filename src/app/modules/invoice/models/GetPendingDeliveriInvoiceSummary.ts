@@ -1,5 +1,4 @@
 export interface GetPendingDeliveryInvoiceSummariesRequest {
     incoming: boolean,
-    warehouseCode: string,
-    currencyCode: string
+    warehouseCode: string
 }

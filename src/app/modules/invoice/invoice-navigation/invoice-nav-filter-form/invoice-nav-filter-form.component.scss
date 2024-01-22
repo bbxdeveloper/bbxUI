@@ -1,0 +1,14 @@
+@use 'filter-form-component-default';
+
+.form-row {
+    display: flex;
+    column-gap: 5px;
+}
+
+.customer-search-field, .bbx-combobox, .bbx-radiogroup {
+    width: 320px;
+}
+
+.customer-search-field {
+    align-self: flex-end;
+}

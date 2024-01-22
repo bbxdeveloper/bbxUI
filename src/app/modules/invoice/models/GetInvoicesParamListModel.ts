@@ -9,4 +9,5 @@ export interface GetInvoicesParamListModel {
     OrderBy?: string;
     PageSize?: number;
     PageNumber?: number;
+    CustomerID?: number;
 }
