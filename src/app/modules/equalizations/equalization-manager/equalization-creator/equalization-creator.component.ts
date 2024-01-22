@@ -307,7 +307,23 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
   //#region Data change
 
-  async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true) {
+  private CheckIfRowAlreadyExists(invoiceNumber?: string, index?: number): boolean {
+    if (invoiceNumber === undefined || index === undefined) {
+      return false
+    }
+    return this.dbData.findIndex((x, idx: number) => index !== idx && x.data.invoiceID > 0 && x.data.invoiceNumber === invoiceNumber) > -1
+  }
+
+  private HandleRowDataChangedError(index: number, key: string): void {
+    this.dbData[index].data.Restore()
+    const previousMode = this.kbS.currentKeyboardMode
+    this.dbDataTable.ClickByObjectKey(key)
+    setTimeout(() => {
+      this.kbS.setEditMode(previousMode)
+    }, 200);
+  }
+
+  async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true, moveNext: boolean = true) {
     if (res.id === undefined || res.id === -1) {
       return;
     }
@@ -327,7 +343,9 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     currentRow?.data.Save('invoiceNumber');
 
     this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    this.dbDataTable.MoveNextInTable();
+    if (moveNext) {
+      this.dbDataTable.MoveNextInTable();
+    }
     setTimeout(() => {
       this.kbS.setEditMode(KeyboardModes.EDIT);
       this.isLoading = false;
@@ -353,16 +371,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
-  private CheckIfRowAlreadyExists(invoiceNumber?: string, index?: number): boolean {
-    if (invoiceNumber === undefined || index === undefined) {
-      return false
-    }
-    return this.dbData.findIndex((x, idx: number) => index !== idx && x.data.invoiceID > 0 && x.data.invoiceNumber === invoiceNumber) > -1
-  }
-
   protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
     const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('invoiceNumber')
-
     // Már szerepel a tételek között
     if ((previousValue && changedData?.invoiceNumber === previousValue) || this.CheckIfRowAlreadyExists(changedData.invoiceNumber, rowPos)) {
       this.bbxToastrService.show(
@@ -375,8 +385,8 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
     if (!!changedData && !!changedData.invoiceNumber && changedData.invoiceNumber.length > 0) {
       let _invoice: Invoice = { id: -1 } as Invoice;
-      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
       
+      this.status.waitForLoad(true)
       this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
         .then(
           async (invoice: Invoice) => {
@@ -406,18 +416,42 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
           this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
         })
         .finally(() => {
-          this.status.pushProcessStatus(Constants.BlankProcessStatus)
+          this.status.waitForLoad(false)
         })
     }
   }
 
-  private HandleRowDataChangedError(index: number, key: string): void {
-    this.dbData[index].data.Restore()
-    const previousMode = this.kbS.currentKeyboardMode
-    this.dbDataTable.ClickByObjectKey(key)
-    setTimeout(() => {
-      this.kbS.setEditMode(previousMode)
-    }, 200);
+  private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
+    this.status.waitForLoad(true)
+    this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
+      .then(async (invoice: Invoice) => {
+        // Nem átutalásos
+        if (invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
+          this.bbxToastrService.show(
+            Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+          // Már szerepel a tételek között
+        } else if (this.CheckIfRowAlreadyExists(changedData.invoiceNumber, index)) {
+          this.bbxToastrService.show(
+            Constants.MSG_INVOICE_ALREADY_THERE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+          // Nincs hiba
+        } else if (index !== undefined) {
+          this.HandleProductSelection(invoice, index, true, false)
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err)
+      })
+      .finally(() => {
+        this.status.waitForLoad(false)
+      })
   }
 
   TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
@@ -425,7 +459,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       return
     }
 
-    if ((!!col && col === 'invoiceNumber') || col === undefined) {
+    if ((!!col && col === 'invoiceNumber') || col === undefined && this.kbS.currentKeyboardMode === KeyboardModes.NAVIGATION_EDIT) {
       this.invoiceNumberChanged(changedData, index)
     }
 
@@ -484,37 +518,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     else {
       changedData.Save()
     }
-  }
-
-  private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
-    this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
-      .then(async (invoice: Invoice) => {
-        // Nem átutalásos
-        if (invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
-          this.bbxToastrService.show(
-            Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          )
-          return
-        // Már szerepel a tételek között
-        } else if (this.CheckIfRowAlreadyExists(changedData.invoiceNumber, index)) {
-          this.bbxToastrService.show(
-            Constants.MSG_INVOICE_ALREADY_THERE,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          )
-          return
-        // Nincs hiba
-        } else if (index !== undefined) {
-          this.HandleProductSelection(invoice, index)
-        }
-
-        this.RecalcNetAndVat();
-      })
-    .catch(err => {
-      this.cs.HandleError(err)
-    })
   }
 
   //#endregion Data change
