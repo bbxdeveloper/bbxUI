@@ -357,7 +357,9 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   InitFormDefaultValues(): void {
     this.outInvForm.controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0,0,0));
-    this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    if (this.mode.Delivery) {
+      this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    }
     this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
 
     this.outInvForm.controls['invoiceDeliveryDate'].valueChanges
@@ -923,12 +925,24 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   private async fillTableWithPendingNotes(notes: PendingDeliveryNoteItem[]): Promise<void> {
     this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
+    debugger
+
     notes.forEach(note => {
       const invoiceDeliveryDate = new Date(note.invoiceDeliveryDate)
       const relDeliveryDate = new Date(note.relDeliveryDate)
 
       if (relDeliveryDate < invoiceDeliveryDate) {
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
+      }
+
+      if (!this.mode.Delivery) {
+        const formVal = this.outInvForm.controls['invoiceDeliveryDate'].value
+        if (!HelperFunctions.isEmptyOrSpaces(formVal)) {
+          const formDeliveryDate = new Date(formVal)
+          if (formDeliveryDate < relDeliveryDate) {
+            this.outInvForm.controls['invoiceDeliveryDate'].setValue(relDeliveryDate);
+          }
+        }
       }
 
       if (!this.mode.isSummaryInvoice) {
