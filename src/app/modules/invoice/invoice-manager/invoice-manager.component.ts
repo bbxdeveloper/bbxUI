@@ -720,7 +720,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
           // @workaround - the input gets a `text-align: right` somehow
           // reset here
-          element.style.textAlign = 'unset'
+          element.style.textAlign = 'unset !important'
 
           setTimeout(() => {
             this.kbS.SelectElement(element.id)
@@ -1023,6 +1023,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
+      debugger
       if (changedData.unitPrice < (changedData.latestSupplyPrice ?? 0)) {
         setTimeout(() => this.bbxToastrService.showError(Constants.MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE), 0)
 
@@ -1070,8 +1071,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     product.productGroup = !!product.productGroup ? product.productGroup : '-';
     res.noDiscount = product.noDiscount;
 
-    res.latestSupplyPriceHUF = product.latestSupplyPrice ?? 0
-    res.latestSupplyPrice = product.latestSupplyPrice
+    res.latestSupplyPriceHUF = (product.latestSupplyPrice ?? 0) * (this.outGoingInvoiceData?.exchangeRate ?? 1)
+    res.latestSupplyPrice = (res.latestSupplyPriceHUF ?? 0) / (this.outGoingInvoiceData?.exchangeRate ?? 0)
 
     let unitPrice: number
     if (this.buyerData) {

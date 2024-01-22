@@ -90,7 +90,6 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   override isLoading: boolean = false;
 
   constructor(
-    private simpleToastrService: BbxToastrService,
     private bbxToastrService: BbxToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
@@ -294,6 +293,10 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
 
     if (productRow.unitPrice2) {
       productRow.exhangedUnitPrice2 = this.calculatePriceBasedOnExchangeRate(productRow.unitPrice2)
+    }
+
+    if (productRow.latestSupplyPrice) {
+      productRow.latestSupplyPrice = this.calculatePriceBasedOnExchangeRate(productRow.latestSupplyPrice)
     }
 
     return { data: productRow, uid: this.nextUid() }
