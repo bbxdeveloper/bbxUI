@@ -357,7 +357,9 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   InitFormDefaultValues(): void {
     this.outInvForm.controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0,0,0));
-    this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    if (this.mode.Delivery) {
+      this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    }
     this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
 
     this.outInvForm.controls['invoiceDeliveryDate'].valueChanges
@@ -929,6 +931,20 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
       if (relDeliveryDate < invoiceDeliveryDate) {
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
+      }
+      
+      if (!this.mode.Delivery) {
+        const formVal = this.outInvForm.controls['invoiceDeliveryDate'].value
+        const deliveryDateString = HelperFunctions.GetDateStringFromDate(relDeliveryDate.toDateString())
+
+        if (!HelperFunctions.isEmptyOrSpaces(formVal)) {
+          const formDeliveryDate = new Date(formVal)
+          if (formDeliveryDate < relDeliveryDate) {
+            this.outInvForm.controls['invoiceDeliveryDate'].setValue(deliveryDateString);
+          }
+        } else {
+          this.outInvForm.controls['invoiceDeliveryDate'].setValue(deliveryDateString);
+        }
       }
 
       if (!this.mode.isSummaryInvoice) {
