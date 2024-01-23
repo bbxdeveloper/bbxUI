@@ -4,6 +4,37 @@
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
 
+                <div class="triple-column">
+                    <div class="field-wrapper">
+                        <app-customer-search #customerSearch
+                            class="customer-search-field"
+                            [customer]="customerData"
+                            (customerChanged)="customerChanged($event)"
+                            (focusIn)="onFormSearchFocused()"
+                            (focusOut)="onFormSearchBlurred()"
+                            [withDiscounts]="false"
+                            (loadingChanged)="isLoading = $event"></app-customer-search>
+                    </div>
+                    <div class="field-wrapper">
+                        <nb-form-field>
+                            <label>Ügyfél</label>
+                            <input nbInput type="text" formControlName='CustomerName' readonly>
+                        </nb-form-field>
+                    </div>
+                    <div class="field-wrapper">
+                        <nb-form-field>
+                            <label>Ügyfél Cím</label>
+                            <input nbInput type="text" formControlName='CustomerAddress' readonly>
+                        </nb-form-field>
+                    </div>
+                    <div class="field-wrapper">
+                        <nb-form-field>
+                            <label>Ügyfél Adószám</label>
+                            <input nbInput type="text" formControlName='CustomerTaxNumber' readonly>
+                        </nb-form-field>
+                    </div>
+                </div>
+
                 <div class="double-column">
                     <div class="checkbox-field" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label class="label-checkbox">Bejövő forgalom</label>
@@ -86,53 +117,6 @@
                             <input nbInput type="text" formControlName='CustomerInvoiceNumber' readonly>
                         </nb-form-field>
                     </div>
-                </div>
-
-                <div class="triple-column">
-                    <div class="field-wrapper">                        
-                        <nb-form-field class="search-row-nb-form-field"
-                            (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
-                            (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'CustomerSearch')">
-                            <label>Ügyfél keresés</label>
-                            <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}}"
-                                (click)="filterFormNav.HandleFormFieldClick($event)" (input)="FillFormWithFirstAvailableCustomer($event)"
-                                [readonly]="isEditModeOff" maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
-                        </nb-form-field>
-                    </div>
-                    <div *ngIf="searchByTaxtNumber">
-                        <button nbButton
-                            [disabled]="isLoading"
-                            [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
-                            (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
-                    </div>
-                    <!-- <div class="field-wrapper">
-                        <app-customer-search #customerSearch
-                                 [customer]="buyerData" classes="field-wrapper"
-                                 (customerChanged)="customerChanged($event)"
-                                 (focusIn)="onFormSearchFocused(undefined, $event)"
-                                 (focusOut)="onFormSearchBlurred(undefined, $event)"
-                                 [withDiscounts]="false"
-                                 (loadingChanged)="isLoading = $event"></app-customer-search>
-                    </div>-->
-                    <div class="field-wrapper">
-                        <nb-form-field>
-                            <label>Ügyfél</label>
-                            <input nbInput type="text" formControlName='CustomerName' readonly>
-                        </nb-form-field>
-                    </div>
-                    <div class="field-wrapper">
-                        <nb-form-field>
-                            <label>Ügyfél Cím</label>
-                            <input nbInput type="text" formControlName='CustomerAddress' readonly>
-                        </nb-form-field>
-                    </div>
-                    <div class="field-wrapper">
-                        <nb-form-field>
-                            <label>Ügyfél Adószám</label>
-                            <input nbInput type="text" formControlName='CustomerTaxNumber' readonly>
-                        </nb-form-field>
-                    </div>
-
                     <div class="form-button" right>
                         <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
                             status="primary">Keresés</button>
