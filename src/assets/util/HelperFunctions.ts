@@ -227,6 +227,23 @@ export module HelperFunctions {
             .format(formatString);
     }
 
+    export function GetArrayDateMax<T>(
+            arr: T[],
+            getter: (item: T) => any,
+            formatString: string = DATE_FORMATSTRING,
+            dateLocale: string = 'hu-HU'): string | undefined {
+        var l = arr.length
+        moment.locale(dateLocale);
+        var max = moment('1900-01-01')
+        arr.forEach(x => {
+            var d = getter(x)
+            if (d) {
+                max = moment.max([max, moment(d)])
+            }
+        })
+        return max.format(formatString) === '1900-01-01' ? undefined : max.format(formatString);
+    }
+
     export function IsDateStringValid(
         val: string | undefined,
         formatString: string = DATE_FORMATSTRING,

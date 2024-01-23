@@ -168,6 +168,8 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
       exchangeRate: new FormControl(undefined, []),
       invPaymentAmount: new FormControl(undefined, []),
       invPaymentAmountHUF: new FormControl(undefined, []),
+      invoiceGrossAmount: new FormControl(undefined, []),
+      invoiceGrossAmountHUF: new FormControl(undefined, []),
       userName: new FormControl(undefined, []),
     });
 

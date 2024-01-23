@@ -497,21 +497,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         }),
         tap(value => this.outGoingInvoiceData.currencyCode = value),
         tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
-        tap(value => setTimeout(() => {
-          this.outInvFormNav.GenerateAndSetNavMatrices(false)
-
-          if (value === CurrencyCodes.HUF) {
-            this.kbS.ClickCurrentElement()
-          } else {
-            const element = document.getElementsByName("exchange-rate")[0]
-
-            // @workaround - the input gets a `text-align: right` somehow
-            // reset here
-            element.style.textAlign = 'unset';
-
-            this.kbS.ClickElement(element.id)
-          }
-        }, 100)),
         switchMap((value: string) => value !== CurrencyCodes.HUF ? of(value) : EMPTY),
         tap((value: string) => this.exchangeRateQuery.next(value as CurrencyCodes)),
       )
@@ -721,9 +706,30 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         } as GetExchangeRateParamsModel)),
         switchMap(value => this.systemService.GetExchangeRate(value)),
         tap(() => this.isLoading = false),
+        tap(value => setTimeout(() => {
+          this.outInvForm.controls['exchangeRate'].setValue(value);
+
+          this.outInvFormNav.GenerateAndSetNavMatrices(false)
+
+          if (this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+            this.kbS.ClickCurrentElement()
+            return
+          }
+
+          const element = document.querySelector('[name="exchange-rate"] input') as HTMLInputElement
+
+          // @workaround - the input gets a `text-align: right` somehow
+          // reset here
+          element.style.textAlign = 'unset !important'
+
+          setTimeout(() => {
+            this.kbS.SelectElement(element.id)
+            this.kbS.ClickCurrentElement()
+          }, 150)
+        }, 100)),
       )
       .subscribe({
-        next: (response) => this.outInvForm.controls['exchangeRate'].setValue(response),
+        next: () => {},
         error: error => {
           this.cs.HandleError(error)
           this.isLoading = false
@@ -1017,6 +1023,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
+      debugger
       if (changedData.unitPrice < (changedData.latestSupplyPrice ?? 0)) {
         setTimeout(() => this.bbxToastrService.showError(Constants.MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE), 0)
 
@@ -1064,8 +1071,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     product.productGroup = !!product.productGroup ? product.productGroup : '-';
     res.noDiscount = product.noDiscount;
 
-    res.latestSupplyPriceHUF = product.latestSupplyPrice ?? 0
-    res.latestSupplyPrice = product.latestSupplyPrice
+    res.latestSupplyPriceHUF = (product.latestSupplyPrice ?? 0) * (this.outGoingInvoiceData?.exchangeRate ?? 1)
+    res.latestSupplyPrice = (res.latestSupplyPriceHUF ?? 0) / (this.outGoingInvoiceData?.exchangeRate ?? 0)
 
     let unitPrice: number
     if (this.buyerData) {
