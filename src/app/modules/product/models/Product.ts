@@ -43,34 +43,34 @@ export class ProductRow implements Product {
 
     unitOfMeasure?: any = OfflineUnitOfMeasures.PIECE.value
     unitOfMeasureX?: any = OfflineUnitOfMeasures.PIECE.text
-    
+
     unitPrice1?: number = 0
     unitPrice2?: number = 0
-    
+
     latestSupplyPrice?: number = 0
-    
+
     isStock?: boolean
     minStock?: number = 0
-    
+
     ordUnit?: number = 0
-    
+
     productFee?: number = 0
-    
+
     active?: boolean
 
     vtsz?: string = ''
     ean?: string = ''
-    
+
     vatRateCode: string = '27%'
     vatPercentage?: number = 0.27
-    
+
     noDiscount: boolean = false
-    
-    exhangedUnitPrice1?: number
-    exhangedUnitPrice2?: number
-    
+
+    exhangedUnitPrice1?: number = 0
+    exhangedUnitPrice2?: number = 0
+
     minMargin: number = 0
-    
+
     unitWeight?: number
 
     stocks?: ProductStockInfo[] = []
@@ -108,7 +108,7 @@ export function isProduct(val: any): boolean {
 
 export function ProductToProductRow(p: Product, activeWareHouseId?: number): ProductRow {
     let result = new ProductRow()
-    
+
     Object.keys(p).forEach(key => {
         (result as any)[key as keyof ProductRow] = p[key as keyof Product]
     })

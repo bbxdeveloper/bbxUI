@@ -14,7 +14,7 @@ import { InvCtrlPeriodManagerComponent } from './modules/inventory/inv-ctrl-peri
 import { InvRowNavComponent } from './modules/inventory/inv-row-nav/inv-row-nav.component';
 import { InvoiceIncomeManagerComponent } from './modules/invoice/invoice-income-manager/invoice-income-manager.component';
 import { InvoiceManagerComponent } from './modules/invoice/invoice-manager/invoice-manager.component';
-import { InvoiceNavComponent } from './modules/invoice/invoice-nav/invoice-nav.component';
+import { InvoiceNavComponent } from './modules/invoice/invoice-navigation/invoice-nav/invoice-nav.component';
 import { PriceReviewComponent } from './modules/invoice/price-review/price-review.component';
 import { ReceiptManagerComponent } from './modules/invoice/receipt-manager/receipt-manager.component';
 import { SummaryInvoiceComponent } from './modules/invoice/summary-invoice/summary-invoice.component';

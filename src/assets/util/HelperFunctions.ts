@@ -227,6 +227,23 @@ export module HelperFunctions {
             .format(formatString);
     }
 
+    export function GetArrayDateMax<T>(
+            arr: T[],
+            getter: (item: T) => any,
+            formatString: string = DATE_FORMATSTRING,
+            dateLocale: string = 'hu-HU'): string | undefined {
+        var l = arr.length
+        moment.locale(dateLocale);
+        var max = moment('1900-01-01')
+        arr.forEach(x => {
+            var d = getter(x)
+            if (d) {
+                max = moment.max([max, moment(d)])
+            }
+        })
+        return max.format(formatString) === '1900-01-01' ? undefined : max.format(formatString);
+    }
+
     export function IsDateStringValid(
         val: string | undefined,
         formatString: string = DATE_FORMATSTRING,
@@ -265,14 +282,14 @@ export module HelperFunctions {
         return isEmptyOrSpaces(p) ? undefined : parseInt((p + '').replace(/\s/g, ''));
     }
 
-    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null, roundToFillér = false): number {
+    export function currencyRound(value: number, currency: CurrencyCodes|string|undefined|null, roundToFillér = false, digits = 2): number {
         if (currency === CurrencyCodes.HUF) {
             return roundToFillér
                 ? Round2(value, 1)
                 : Round(value)
         }
         else {
-            return Round2(value, 2)
+            return Round2(value, digits)
         }
     }
 
@@ -561,7 +578,7 @@ export module HelperFunctions {
             col: ModelFieldDescriptor, all: string[],
             id: string, type: 'min' | 'max' | 'specific' = 'specific',
             scollbarWidth: number = Constants.ScrollbarWidthInPixels): any {
-        var unitOfMeasure = 'px'        
+        var unitOfMeasure = 'px'
         var colWidth = type === 'min' ? col.colMinWidth ?? col.colWidth : col.colWidth
         if (colWidth?.includes(unitOfMeasure)) {
             const key = col.objectKey

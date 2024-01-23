@@ -52,11 +52,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   TileCssColClass = TileCssColClass;
 
   currencyCodes: CurrencyCode[] = []
-  // currencyCodes: string[] = []
-  // currencyCodeValues: { [key: string]: CurrencyCode } = {}
-  // get currencyCodeComboData$(): BehaviorSubject<string[]> {
-  //   return this.colDefs.find(x => x.objectKey === 'currencyCode')!.comboboxData$!
-  // }
 
   override colsToIgnore: string[] = ["customerName", "paymentDate", "invoicePaidAmount", "GetInvoicePaidAmountHUF", "invoiceGrossAmount"];
   override allColumns = [
@@ -170,26 +165,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.initialSetup();
   }
 
-  private async refreshComboboxData(setIsLoad = false): Promise<void> {
-    await lastValueFrom(this.systemService.GetAllCurrencyCodes())
-      .then(data => {
-        this.currencyCodes = data
-        // this.currencyCodes =
-        //   data?.map(x => {
-        //     let res = x.text;
-        //     this.currencyCodeValues[res] = x;
-        //     return x.text;
-        //   }) ?? [];
-
-        // this.currencyCodes =
-        //   data?.map(x => x.text) ?? [];
-        // this.currencyCodeComboData$.next(this.currencyCodes);
-      })
-      .catch(err => {
-        this.cs.HandleError(err);
-      })
-      .finally(() => { });
-  }
+  //#region Init
 
   private initialSetup(): void {
     this.dbDataTableId = "offers-inline-table-invoice-line";
@@ -235,14 +211,6 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     this.isLoading = false
   }
 
-  refresh(): void {
-    this.dbData = [];
-    this.dbDataDataSrc.setData(this.dbData);
-
-    this.table?.renderRows();
-    this.RefreshTable();
-  }
-
   async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
     await this.refreshComboboxData()
@@ -255,6 +223,329 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
   ngOnDestroy(): void {
     console.log("Detach");
     this.kbS.Detach();
+  }
+
+  protected AfterViewInitSetup(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+
+    this.dbDataTable.Setup(
+      this.dbData,
+      this.dbDataDataSrc,
+      this.allColumns,
+      this.colDefs,
+      this.colsToIgnore,
+      'PRODUCT'
+    );
+    this.dbDataTable.GenerateAndSetNavMatrices(true);
+    this.dbDataTable.commandsOnTable = this.commands;
+    this.dbDataTable.commandsOnTableEditMode = this.commands;
+    this.dbDataTable.PushFooterCommandList();
+
+    this.cdref.detectChanges();
+
+    if (this.dbDataTable.data.length > 1) {
+      this.dbDataTable.data = [this.dbDataTable.data[0]];
+      this.dbDataDataSrc.setData(this.dbDataTable.data);
+    }
+
+    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+    this.kbS.SelectFirstTile()
+    this.kbS.ClickCurrentElement()
+  }
+
+  //#endregion Init
+
+  //#region Refresh
+
+  refresh(): void {
+    this.dbData = [];
+    this.dbDataDataSrc.setData(this.dbData);
+
+    this.table?.renderRows();
+    this.RefreshTable();
+  }
+
+  private async refreshComboboxData(setIsLoad = false): Promise<void> {
+    await lastValueFrom(this.systemService.GetAllCurrencyCodes())
+      .then(data => {
+        this.currencyCodes = data
+      })
+      .catch(err => {
+        this.cs.HandleError(err);
+      })
+      .finally(() => { });
+  }
+
+  //#endregion Refresh
+
+  //#region Util
+
+  public isRowInErrorState(row: TreeGridNode<InvPaymentItem>): boolean {
+    return !row.data.IsUnfinished() && row.data.invPaymentAmount == 0
+  }
+
+  private async FromInvoice(res: Invoice): Promise<InvPaymentItem> {
+    let newPaymentItem = new InvPaymentItem()
+    newPaymentItem = HelperFunctions.PatchObject(res, newPaymentItem, [], [{ from: 'id', to: 'invoiceID'}])
+    
+    if (newPaymentItem.currencyCode === CurrencyCodes.HUF) {
+      newPaymentItem.exchangeRate = 1
+    } else {
+      const exchangeRate = await lastValueFrom(this.systemService.GetExchangeRate({
+        Currency: newPaymentItem.currencyCode,
+        ExchengeRateDate: res.invoiceIssueDate
+      } as GetExchangeRateParamsModel))
+        .catch(err => {
+          this.cs.HandleError(err)
+        })
+    }
+
+    return newPaymentItem
+  }
+
+  //#endregion Util
+
+  //#region Data change
+
+  private CheckIfRowAlreadyExists(invoiceNumber?: string, index?: number): boolean {
+    if (invoiceNumber === undefined || index === undefined) {
+      return false
+    }
+    return this.dbData.findIndex((x, idx: number) => index !== idx && x.data.invoiceID > 0 && x.data.invoiceNumber === invoiceNumber) > -1
+  }
+
+  private HandleRowDataChangedError(index: number, key: string): void {
+    this.dbData[index].data.Restore()
+    const previousMode = this.kbS.currentKeyboardMode
+    this.dbDataTable.ClickByObjectKey(key)
+    setTimeout(() => {
+      this.kbS.setEditMode(previousMode)
+    }, 200);
+  }
+
+  async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true, moveNext: boolean = true) {
+    if (res.id === undefined || res.id === -1) {
+      return;
+    }
+
+    if (this.CheckIfRowAlreadyExists(res.invoiceNumber, rowIndex)) {
+      this.bbxToastrService.show(
+        Constants.MSG_INVOICE_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+
+    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
+      data: await this.FromInvoice(res)
+    }, ['invoiceNumber']);
+    currentRow?.data.Save('invoiceNumber');
+
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+    if (moveNext) {
+      this.dbDataTable.MoveNextInTable();
+    }
+    setTimeout(() => {
+      this.kbS.setEditMode(KeyboardModes.EDIT);
+      this.isLoading = false;
+      this.kbS.ClickCurrentElement();
+    }, 500);
+
+    return;
+  }
+
+  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    if (!!event) {
+      this.bbxToastrService.close();
+      event.stopPropagation();
+    }
+    if (this.isEditModeOff) {
+      this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
+      setTimeout(() => {
+        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+        this.kbS.ClickCurrentElement();
+      }, 50);
+    } else {
+      this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
+    }
+  }
+
+  protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
+    const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('invoiceNumber')
+    // Már szerepel a tételek között
+    if ((previousValue && changedData?.invoiceNumber === previousValue) || this.CheckIfRowAlreadyExists(changedData.invoiceNumber, rowPos)) {
+      this.bbxToastrService.show(
+        Constants.MSG_INVOICE_ALREADY_THERE,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return
+    }
+
+    if (!!changedData && !!changedData.invoiceNumber && changedData.invoiceNumber.length > 0) {
+      let _invoice: Invoice = { id: -1 } as Invoice;
+      
+      this.status.waitForLoad(true)
+      this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
+        .then(
+          async (invoice: Invoice) => {
+            if (!!invoice && !!invoice?.invoiceNumber) {
+              _invoice = invoice;
+              // Nem átutalásos
+              if (_invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
+                selectProcutCodeInTableInput()
+                this.bbxToastrService.show(
+                  Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
+                  Constants.TITLE_ERROR,
+                  Constants.TOASTR_ERROR
+                )
+              // Nincs hiba
+              } else {
+                await this.HandleProductSelection(_invoice, rowPos, false)
+              }
+            } else {
+              selectProcutCodeInTableInput()
+              this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
+            }
+          }
+        )
+        .catch(() => {
+          // Nem törölhetjük ki a rossz számlaszámot
+          this.dbDataTable.data[rowPos].data.Save('invoiceNumber')
+          this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
+        })
+        .finally(() => {
+          this.status.waitForLoad(false)
+        })
+    }
+  }
+
+  private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
+    this.status.waitForLoad(true)
+    this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
+      .then(async (invoice: Invoice) => {
+        // Nem átutalásos
+        if (invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
+          this.bbxToastrService.show(
+            Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+          // Már szerepel a tételek között
+        } else if (this.CheckIfRowAlreadyExists(changedData.invoiceNumber, index)) {
+          this.bbxToastrService.show(
+            Constants.MSG_INVOICE_ALREADY_THERE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+          return
+          // Nincs hiba
+        } else if (index !== undefined) {
+          this.HandleProductSelection(invoice, index, true, false)
+        }
+      })
+      .catch(err => {
+        this.cs.HandleError(err)
+      })
+      .finally(() => {
+        this.status.waitForLoad(false)
+      })
+  }
+
+  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
+    if (!changedData || !changedData.invoiceNumber) {
+      return
+    }
+
+    if ((!!col && col === 'invoiceNumber') || col === undefined && this.kbS.currentKeyboardMode === KeyboardModes.NAVIGATION_EDIT) {
+      this.invoiceNumberChanged(changedData, index)
+    }
+
+    else if (col === 'currencyCode' && index !== null && index !== undefined) {
+      if (this.currencyCodes.find(x => x.value.toLowerCase() === changedData.currencyCode.toLowerCase()) === undefined) {
+        setTimeout(() => {
+          this.bbxToastrService.show(
+            Constants.MSG_ERROR_INVALID_CURRENCY_CODE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+        }, 0);
+
+        this.HandleRowDataChangedError(index, 'currencyCode')
+      } else {
+        if (changedData.currencyCode === CurrencyCodes.HUF) {
+          changedData.exchangeRate = 1
+        }
+
+        changedData.Save()
+      }
+    }
+
+    else if (col === 'invPaymentDate' && index !== null && index !== undefined) {
+      if (!HelperFunctions.IsDateStringValid(changedData.invPaymentDate + '') ) {
+        setTimeout(() => {
+          this.bbxToastrService.show(
+            Constants.MSG_ERROR_INVALID_DATE,
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+        }, 0);
+
+        this.HandleRowDataChangedError(index, 'invPaymentDate')
+      } else {
+        changedData.Save()
+      }
+    }
+
+    else if (col === 'exchangeRate' && index !== null && index !== undefined) {
+      if (changedData.currencyCode === CurrencyCodes.HUF && changedData.exchangeRate !== 1) {
+        setTimeout(() => {
+          this.bbxToastrService.show(
+            HelperFunctions.StringFormat(Constants.MSG_EXCHANGE_RATE_SHOULD_BE, changedData.currencyCode, 1),
+            Constants.TITLE_ERROR,
+            Constants.TOASTR_ERROR
+          )
+        }, 0);
+
+        this.HandleRowDataChangedError(index, 'exchangeRate')
+      } else {
+        changedData.Save()
+      }
+    }
+
+    else {
+      changedData.Save()
+    }
+  }
+
+  //#endregion Data change
+
+  //#region Save
+
+  CheckSaveConditionsAndSave(): void {
+    this.dateForm.markAllAsTouched();
+
+    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
+      this.bbxToastrService.show(
+        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+
+    if (this.dbData.find(x => x.data.currencyCode === CurrencyCodes.HUF && x.data.exchangeRate !== 1) !== undefined) {
+      this.bbxToastrService.show(
+        `Egy vagy több tétel esetében hibás árfolyam van megadva.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+
+    this.Save();
   }
 
   UpdateSaveData(): void {
@@ -316,311 +607,9 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     });
   }
 
-  protected AfterViewInitSetup(): void {
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
+  //#endregion Save
 
-    this.dbDataTable.Setup(
-      this.dbData,
-      this.dbDataDataSrc,
-      this.allColumns,
-      this.colDefs,
-      this.colsToIgnore,
-      'PRODUCT'
-    );
-    this.dbDataTable.GenerateAndSetNavMatrices(true);
-    this.dbDataTable.commandsOnTable = this.commands;
-    this.dbDataTable.commandsOnTableEditMode = this.commands;
-    this.dbDataTable.PushFooterCommandList();
-
-    this.cdref.detectChanges();
-
-    // TODO
-    if (this.dbDataTable.data.length > 1) {
-      this.dbDataTable.data = [this.dbDataTable.data[0]];
-      this.dbDataDataSrc.setData(this.dbDataTable.data);
-    }
-
-    this.kbS.SetCurrentNavigatable(this.dbDataTable)
-    this.kbS.SelectFirstTile()
-    this.kbS.ClickCurrentElement()
-  }
-
-  public isRowInErrorState(row: TreeGridNode<InvPaymentItem>): boolean {
-    return !row.data.IsUnfinished() && row.data.invPaymentAmount == 0
-  }
-
-  async HandleProductSelection(res: Invoice, rowIndex: number, checkIfCodeEqual: boolean = true) {
-    if (res.id === undefined || res.id === -1) {
-      return;
-    }
-
-    let row = this.dbDataTable.data[rowIndex];
-    let count = this.dbDataTable.data.filter(x => x.data.invoiceNumber === res.invoiceNumber).length;
-    if (count > 1 || (count === 1 && res.invoiceNumber !== row.data.invoiceNumber)) {
-      this.dbDataTable.editedRow!.data.invoiceNumber = "";
-      this.kbS.ClickCurrentElement();
-      this.bbxToastrService.show(
-        Constants.MSG_INVOICE_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    } else if (checkIfCodeEqual && res.invoiceNumber === row.data.invoiceNumber) {
-      this.bbxToastrService.show(
-        Constants.MSG_INVOICE_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    }
-
-    let currentRow = this.dbDataTable.FillCurrentlyEditedRow({
-      data: await this.FromInvoice(res)
-    }, ['invoiceNumber']);
-    currentRow?.data.Save('invoiceNumber');
-
-    this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-    this.dbDataTable.MoveNextInTable();
-    setTimeout(() => {
-      this.kbS.setEditMode(KeyboardModes.EDIT);
-      this.isLoading = false;
-      this.kbS.ClickCurrentElement();
-    }, 500);
-
-    return;
-  }
-
-  private async FromInvoice(res: Invoice): Promise<InvPaymentItem> {
-    let newPaymentItem = new InvPaymentItem()
-    newPaymentItem = HelperFunctions.PatchObject(res, newPaymentItem, [], [{ from: 'id', to: 'invoiceID'}])
-    
-    if (newPaymentItem.currencyCode === CurrencyCodes.HUF) {
-      newPaymentItem.exchangeRate = 1
-    } else {
-      const exchangeRate = await lastValueFrom(this.systemService.GetExchangeRate({
-        Currency: newPaymentItem.currencyCode,
-        ExchengeRateDate: res.invoiceIssueDate
-      } as GetExchangeRateParamsModel))
-        .catch(err => {
-          this.cs.HandleError(err)
-        })
-    }
-
-    return newPaymentItem
-  }
-
-  async HandleProductChoose(): Promise<void> {}
-  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {}
-  ChooseDataForCustomerForm(): void { }
-  RefreshData(): void { }
-  RecalcNetAndVat(): void { }
-
-  HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    if (!!event) {
-      this.bbxToastrService.close();
-      event.stopPropagation();
-    }
-    if (this.isEditModeOff) {
-      this.dbDataTable.HandleGridEnter(row, rowPos, objectKey, colPos, inputId, fInputType);
-      setTimeout(() => {
-        this.kbS.setEditMode(KeyboardModes.NAVIGATION);
-        this.kbS.ClickCurrentElement();
-      }, 50);
-    } else {
-      this.TableCodeFieldChanged(row.data, rowPos, row, rowPos, objectKey, colPos, inputId, fInputType);
-    }
-  }
-
-  private CheckIfRowAlreadyExists(invoiceNumber?: string, index?: number): boolean {
-    if (invoiceNumber === undefined || index === undefined) {
-      return false
-    }
-    return this.dbData.findIndex((x, idx: number) => index !== idx && x.data.invoiceID > 0 && x.data.invoiceNumber === invoiceNumber) > -1
-  }
-
-  protected TableCodeFieldChanged(changedData: any, index: number, row: TreeGridNode<InvPaymentItem>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {
-    const previousValue = this.dbDataTable.data[rowPos].data?.GetSavedFieldValue('invoiceNumber')
-
-    // Már szerepel a tételek között
-    if ((previousValue && changedData?.invoiceNumber === previousValue) || this.CheckIfRowAlreadyExists(changedData.invoiceNumber, rowPos)) {
-      this.bbxToastrService.show(
-        Constants.MSG_INVOICE_ALREADY_THERE,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return
-    }
-
-    if (!!changedData && !!changedData.invoiceNumber && changedData.invoiceNumber.length > 0) {
-      let _invoice: Invoice = { id: -1 } as Invoice;
-      this.status.pushProcessStatus(Constants.LoadDataStatuses[Constants.LoadDataPhases.LOADING]);
-      
-      this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
-        .then(
-          async (invoice: Invoice) => {
-            if (!!invoice && !!invoice?.invoiceNumber) {
-              _invoice = invoice;
-              // Nem átutalásos
-              if (_invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
-                selectProcutCodeInTableInput()
-                this.bbxToastrService.show(
-                  Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
-                  Constants.TITLE_ERROR,
-                  Constants.TOASTR_ERROR
-                )
-              // Nincs hiba
-              } else {
-                await this.HandleProductSelection(_invoice, rowPos, false)
-              }
-            } else {
-              selectProcutCodeInTableInput()
-              this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
-            }
-          }
-        )
-        .catch(() => {
-          // Nem törölhetjük ki a rossz számlaszámot
-          this.dbDataTable.data[rowPos].data.Save('invoiceNumber')
-          this.bbxToastrService.showError(Constants.MSG_NO_INVOICE_FOUND);
-        })
-        .finally(() => {
-          this.status.pushProcessStatus(Constants.BlankProcessStatus)
-        })
-    }
-  }
-
-  private HandleRowDataChangedError(index: number, key: string): void {
-    this.dbData[index].data.Restore()
-    const previousMode = this.kbS.currentKeyboardMode
-    this.dbDataTable.ClickByObjectKey(key)
-    setTimeout(() => {
-      this.kbS.setEditMode(previousMode)
-    }, 200);
-  }
-
-  TableRowDataChanged(changedData?: any, index?: number, col?: string): void {
-    if (!changedData || !changedData.invoiceNumber)
-      return
-
-    if ((!!col && col === 'invoiceNumber') || col === undefined) {
-      this.invoiceNumberChanged(changedData, index)
-    }
-
-    else if (col === 'currencyCode' && index !== null && index !== undefined) {
-      if (this.currencyCodes.find(x => x.value.toLowerCase() === changedData.currencyCode.toLowerCase()) === undefined) {
-        setTimeout(() => {
-          this.bbxToastrService.show(
-            Constants.MSG_ERROR_INVALID_CURRENCY_CODE,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          )
-        }, 0);
-
-        this.HandleRowDataChangedError(index, 'currencyCode')
-      } else {
-        if (changedData.currencyCode === CurrencyCodes.HUF) {
-          changedData.exchangeRate = 1
-        }
-
-        changedData.Save()
-      }
-    }
-
-    else if (col === 'invPaymentDate' && index !== null && index !== undefined) {
-      if (!HelperFunctions.IsDateStringValid(changedData.invPaymentDate + '') ) {
-        setTimeout(() => {
-          this.bbxToastrService.show(
-            Constants.MSG_ERROR_INVALID_DATE,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          )
-        }, 0);
-
-        this.HandleRowDataChangedError(index, 'invPaymentDate')
-      } else {
-        changedData.Save()
-      }
-    }
-
-    else if (col === 'exchangeRate' && index !== null && index !== undefined) {
-      if (changedData.currencyCode === CurrencyCodes.HUF && changedData.exchangeRate !== 1) {
-        setTimeout(() => {
-          this.bbxToastrService.show(
-            HelperFunctions.StringFormat(Constants.MSG_EXCHANGE_RATE_SHOULD_BE, changedData.currencyCode, 1),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          )
-        }, 0);
-
-        this.HandleRowDataChangedError(index, 'exchangeRate')
-      } else {
-        changedData.Save()
-      }
-    }
-
-    else {
-      changedData.Save()
-    }
-  }
-
-  private invoiceNumberChanged(changedData: InvPaymentItem, index?: number): void {
-    this.invoiceService.GetInvoiceByInvoiceNumber({ invoiceNumber: changedData.invoiceNumber })
-      .then(async (invoice: Invoice) => {
-        // Nem átutalásos
-        if (invoice.paymentMethod !== OfflinePaymentMethods.Transfer.value) {
-          this.bbxToastrService.show(
-            Constants.MSG_EQUALIZATION_INVOICE_MUST_BE_TRANSFER,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          )
-          return
-        // Már szerepel a tételek között
-        } else if (this.CheckIfRowAlreadyExists(changedData.invoiceNumber, index)) {
-          this.bbxToastrService.show(
-            Constants.MSG_INVOICE_ALREADY_THERE,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          )
-          return
-        // Nincs hiba
-        } else if (index !== undefined) {
-          this.HandleProductSelection(invoice, index)
-        }
-
-        this.RecalcNetAndVat();
-      })
-    .catch(err => {
-      this.cs.HandleError(err)
-    })
-  }
-
-  CheckSaveConditionsAndSave(): void {
-    this.dateForm.markAllAsTouched();
-
-    if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
-      this.bbxToastrService.show(
-        `Legalább egy érvényesen megadott tétel szükséges a mentéshez.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    }
-
-    if (this.dbData.find(x => x.data.currencyCode === CurrencyCodes.HUF && x.data.exchangeRate !== 1) !== undefined) {
-      this.bbxToastrService.show(
-        `Egy vagy több tétel esetében hibás árfolyam van megadva.`,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
-      return;
-    }
-
-    this.Save();
-  }
-
-  /////////////////////////////////////////////
-  ////////////// KEYBOARD EVENTS //////////////
-  /////////////////////////////////////////////
+  //#region Keyboard
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key == 'Enter' && this.KeySetting[Actions.CloseAndSave].KeyCode === KeyBindings.CtrlEnter) {
@@ -697,5 +686,15 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
     }
   }
 
-}
+  //#endregion Keyboard
 
+  //#region Unimplemented
+
+  async HandleProductChoose(): Promise<void> { }
+  ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void { }
+  ChooseDataForCustomerForm(): void { }
+  RefreshData(): void { }
+  RecalcNetAndVat(): void { }
+
+  //#endregion Unimplemented
+}
