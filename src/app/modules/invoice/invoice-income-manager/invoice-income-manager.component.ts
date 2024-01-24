@@ -435,12 +435,11 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       this.RecalcNetAndVat();
     }
 
-    const canSuggestPriceChange = () => {
-      return (changedData.unitPrice < changedData.latestSupplyPrice || changedData.unitPrice > changedData.latestSupplyPrice)
-        && changedData.unitPrice !== changedData.previousUnitPrice;
-    }
+    const canSuggestPriceChange = (changedData.unitPrice < changedData.latestSupplyPrice || changedData.unitPrice > changedData.latestSupplyPrice)
+      && changedData.unitPrice !== changedData.previousUnitPrice
+      && changedData.quantity > 0
 
-    if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange()) {
+    if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange) {
       changedData.previousUnitPrice = changedData.unitPrice
 
       this.suggestPriceChange(this.dbData[index].data, false)
@@ -861,16 +860,19 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
     const regex = /PRODUCT-\d+-(\d+)/
     const match = this.kbS.Here.match(regex)
-    if (match) {
-      const rowIndex = parseInt(match[1])
+    if (!match) {
+      return;
+    }
 
-      if (rowIndex === this.dbData.length - 1) {
-        setTimeout(() => {
-          this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW);
-        }, 0);
-      } else {
-        this.suggestPriceChange(this.dbData[rowIndex].data, true)
-      }
+    const rowIndex = parseInt(match[1])
+    if (rowIndex === this.dbData.length - 1) {
+      setTimeout(() => this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW), 0);
+
+      return
+    }
+
+    if (this.dbData[rowIndex].data.quantity > 0) {
+      this.suggestPriceChange(this.dbData[rowIndex].data, true)
     }
   }
 
