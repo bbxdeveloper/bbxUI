@@ -493,7 +493,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         switchMap((value: string) => HelperFunctions.isEmptyOrSpaces(value) ? EMPTY : of(value)),
         switchMap(value => {
           const currencyCode = this.currencyCodesData.find(x => x.text === value)?.value ?? ''
-          return of(currencyCode)
+          return currencyCode ? of(currencyCode) : EMPTY
         }),
         tap(value => this.outGoingInvoiceData.currencyCode = value),
         tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
