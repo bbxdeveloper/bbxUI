@@ -314,12 +314,10 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       paymentMethod: new FormControl('', [Validators.required]),
       invoiceDeliveryDate: new FormControl('', [
         Validators.required,
-        this.validateInvoiceDeliveryDate.bind(this),
         validDate
       ]),
       invoiceIssueDate: new FormControl('', [
         Validators.required,
-        this.validateInvoiceIssueDate.bind(this),
         validDate
       ]),
       paymentDate: new FormControl('', [
@@ -330,31 +328,6 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
       invoiceNumber: new FormControl('', []), // in post response
       notice: new FormControl('', []),
     });
-  }
-
-  // invoiceDeliveryDate
-  validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
-      return null;
-    }
-
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
-
-    const wrong = deliveryDate?.isAfter(issueDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined) {
-      return null;
-    }
-
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
-
-    const wrong = issueDate?.isBefore(deliveryDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   // paymentDate

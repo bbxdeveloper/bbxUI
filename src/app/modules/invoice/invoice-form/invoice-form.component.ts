@@ -99,12 +99,10 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
       customerInvoiceNumber: new FormControl('', [this.customerInvoiceNumberRequired.bind(this)]),
       invoiceDeliveryDate: new FormControl('', [
         Validators.required,
-        this.validateInvoiceDeliveryDate.bind(this),
         validDate
       ]),
       invoiceIssueDate: new FormControl('', [
         Validators.required,
-        this.validateInvoiceIssueDate.bind(this),
         validDate
       ]),
       paymentDate: new FormControl('', [
@@ -139,18 +137,6 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     throw new Error('Method not implemented.');
   }
 
-  private validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
-
-    const wrong = deliveryDate?.isAfter(issueDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
   private customerInvoiceNumberRequired(control: AbstractControl): any {
     const incoming = this.mode?.Incoming ?? false
     if (!incoming) {
@@ -158,18 +144,6 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     }
 
     return control.value && control.value !== '' ? null : { required: { value: control.value } }
-  }
-
-  private validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
-
-    const wrong = issueDate?.isBefore(deliveryDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   private validatePaymentDate(control: AbstractControl): any {
