@@ -216,6 +216,9 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
     params.InvoiceNumber = params.InvoiceNumber
     params.CustomerInvoiceNumber = params.CustomerInvoiceNumber
 
+    params.Incoming = params.Incoming ?? false
+    params.Expired = params.Expired ?? false
+
     return params;
   }
 

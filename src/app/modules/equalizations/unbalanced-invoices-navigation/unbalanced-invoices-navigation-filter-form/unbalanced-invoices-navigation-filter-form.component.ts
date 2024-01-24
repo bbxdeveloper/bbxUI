@@ -147,8 +147,8 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     this.localStorageKey = 'unbalanced-invoices-navigation-manager-filter.' + tokenService.user?.id ?? 'everyone'
 
     this.filterForm = new FormGroup({
-      Incoming: new FormControl(false, [Validators.required]),
-      Expired: new FormControl(false, [Validators.required]),
+      Incoming: new FormControl(false, []),
+      Expired: new FormControl(false, []),
 
       InvoiceDeliveryDateFrom: new FormControl('', [
         this.validateFromDeliveryDate.bind(this),
