@@ -14,6 +14,7 @@ import { UnbalancedInvoicesFilterFormData } from './UnbalancedInvoicesFilterForm
 import { Customer } from 'src/app/modules/customer/models/Customer';
 import { InvoiceNumberData } from './InvoiceNumberData';
 import { CustomerSearchComponent } from 'src/app/modules/invoice/customer-serach/customer-search.component';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-unbalanced-invoices-navigation-filter-form',
@@ -65,6 +66,8 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     const controls = this.filterForm.controls
 
     const formData = {
+      InvoiceNumber: controls['InvoiceNumber'].value,
+      CustomerInvoiceNumber: controls['CustomerInvoiceNumber'].value,
       CustomerID: HelperFunctions.ToOptionalInt(this.customerData?.id),
       Incoming: controls['Incoming'].value,
       Expired: controls['Expired'].value,
@@ -139,7 +142,8 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     private readonly cs: CommonService,
     private readonly cdref: ChangeDetectorRef,
     private readonly localStorage: LocalStorageService,
-    tokenService: TokenStorageService  ) {
+    tokenService: TokenStorageService,
+    private readonly statusService: StatusService) {
     this.localStorageKey = 'unbalanced-invoices-navigation-manager-filter.' + tokenService.user?.id ?? 'everyone'
 
     this.filterForm = new FormGroup({
@@ -194,24 +198,22 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     )
     this.filterFormNav.OuterJump = true
 
-    this.invoiceNumberData$.subscribe({
-      next: data => {
-        if (data) {
-          this.filterForm.controls['InvoiceNumber'].setValue(data.InvoiceNumber)
-          this.filterForm.controls['CustomerInvoiceNumber'].setValue(data.CustomerInvoiceNumber)
-        } else {
-          this.filterForm.controls['InvoiceNumber'].setValue(undefined)
-          this.filterForm.controls['CustomerInvoiceNumber'].setValue(undefined)
-        }
-      }
-    })
-
     setTimeout(async () => {
       this.customerSearch.searchFormNav.attachDirection = AttachDirection.DOWN
       this.customerSearch.searchFormNav.GenerateAndSetNavMatrices(true, undefined, true)
       this.filterFormNav.GenerateAndSetNavMatrices(true, undefined, true)
       this.filterFormNav.InnerJumpOnEnter = true
       this.filterFormNav.OuterJump = true
+
+      this.filterForm.controls["Incoming"].valueChanges.subscribe({
+        next: v => {
+          this.statusService.waitForLoad(true)
+          setTimeout(() => {
+            this.filterFormNav.GenerateAndSetNavMatrices(false, undefined, true)
+            this.statusService.waitForLoad(false)
+          }, 200);
+        }
+      })
 
       this.keyboardService.SetCurrentNavigatable(this.filterFormNav)
 
@@ -251,16 +253,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   }
 
   private async loadCustomerFilter(filter: UnbalancedInvoicesFilterFormData): Promise<void> {
-
-    // if (filter) {
-    //   if (HelperFunctions.isEmptyOrSpaces(filter.CustomerSearch)) {
-    //     filter.CustomerID = undefined
-    //   } else {
-    //     await this.searchCustomerAsync(this.filterForm.controls['CustomerSearch'].value)
-    //     this.keyboardService.SelectElementByCoordinate(0, 5)
-    //   }
-    // }
-
     this.customerSearch.search(filter.CustomerSearch)
   }
 
@@ -273,6 +265,9 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     }
 
     const controls = this.filterForm.controls
+
+    setControlValue(filter.InvoiceNumber, controls['InvoiceNumber'])
+    setControlValue(filter.CustomerInvoiceNumber, controls['CustomerInvoiceNumber'])
 
     setControlValue(filter.Incoming, controls['Incoming'])
     setControlValue(filter.Expired, controls['Expired'])
@@ -289,7 +284,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     const controls = this.filterForm.controls
 
     setControlValue(filter.InvoiceDeliveryDateFrom, controls['InvoiceDeliveryDateFrom'])
-    setControlValue(filter.InvoiceDeliveryDateTo, controls['InvoiceDeliveryDateTo'])
     setControlValue(filter.InvoiceDeliveryDateTo, controls['InvoiceDeliveryDateTo'])
     setControlValue(filter.InvoiceIssueDateFrom, controls['InvoiceIssueDateFrom'])
     setControlValue(filter.InvoiceIssueDateTo, controls['InvoiceIssueDateTo'])

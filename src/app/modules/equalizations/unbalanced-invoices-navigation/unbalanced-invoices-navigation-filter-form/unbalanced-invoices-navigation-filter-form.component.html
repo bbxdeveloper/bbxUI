@@ -103,15 +103,17 @@
                     </nb-form-field>
 
                     <div class="field-wrapper">
-                        <nb-form-field>
+                        <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                             <label>Bizonylatszám</label>
-                            <input nbInput type="text" formControlName='InvoiceNumber' readonly>
+                            <input nbInput type="text" formControlName='InvoiceNumber' class="{{TileCssClass}}" 
+                                (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                         </nb-form-field>
                     </div>
                     <div class="field-wrapper" *ngIf="!!componentFormData?.Incoming">
-                        <nb-form-field>
+                        <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                             <label>Partner bizonylatszám</label>
-                            <input nbInput type="text" formControlName='CustomerInvoiceNumber' readonly>
+                            <input nbInput type="text" formControlName='CustomerInvoiceNumber' class="{{TileCssClass}}" 
+                                (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                         </nb-form-field>
                     </div>
                     <div class="form-button" right>

@@ -213,6 +213,9 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
     params.PageNumber = HelperFunctions.ToInt(this.dbDataTable.currentPage + '')
     params.PageSize = HelperFunctions.ToInt(this.dbDataTable.pageSize + '')
 
+    params.InvoiceNumber = params.InvoiceNumber
+    params.CustomerInvoiceNumber = params.CustomerInvoiceNumber
+
     return params;
   }
 
