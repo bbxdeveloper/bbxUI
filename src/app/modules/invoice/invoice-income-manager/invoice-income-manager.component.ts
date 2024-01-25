@@ -867,13 +867,15 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     const rowIndex = parseInt(match[1])
     if (rowIndex === this.dbData.length - 1) {
       setTimeout(() => this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW), 0);
-
       return
     }
 
-    if (this.dbData[rowIndex].data.quantity > 0) {
-      this.suggestPriceChange(this.dbData[rowIndex].data, true)
+    if (this.dbData[rowIndex].data.quantity < 0) {
+      setTimeout(() => this.bbxToastrService.showError(Constants.MSG_NOT_EDITABLE_WITH_NEGATIVE_QUANTITY), 0)
+      return
     }
+
+    this.suggestPriceChange(this.dbData[rowIndex].data, true)
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
