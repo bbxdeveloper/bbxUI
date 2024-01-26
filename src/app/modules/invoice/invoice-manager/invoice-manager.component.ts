@@ -493,6 +493,10 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           const currencyCode = this.currencyCodesData.find(x => x.text === value)?.value ?? ''
           return currencyCode ? of(currencyCode) : EMPTY
         }),
+        tap(value => {
+          if (value === CurrencyCodes.HUF)
+            controls['exchangeRate'].setValue(1)
+        }),
         tap(value => this.outGoingInvoiceData.currencyCode = value),
         tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
         switchMap((value: string) => value !== CurrencyCodes.HUF ? of(value) : EMPTY),
