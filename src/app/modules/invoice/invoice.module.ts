@@ -10,10 +10,10 @@ import { NgxMaskModule } from 'ngx-mask';
 import { SharedModule } from '../shared/shared.module';
 import { CustomerSelectTableDialogComponent } from './customer-select-table-dialog/customer-select-table-dialog.component';
 import { SaveDialogComponent } from './save-dialog/save-dialog.component';
-import { InvoiceNavComponent } from './invoice-nav/invoice-nav.component';
+import { InvoiceNavComponent } from './invoice-navigation/invoice-nav/invoice-nav.component';
 import { TaxNumberSearchCustomerEditDialogComponent } from './tax-number-search-customer-edit-dialog/tax-number-search-customer-edit-dialog.component';
 import { InvoiceIncomeManagerComponent } from './invoice-income-manager/invoice-income-manager.component';
-import { InvoiceNavSideBarFormComponent } from './invoice-nav-side-bar-form/invoice-nav-side-bar-form.component';
+import { InvoiceNavSideBarFormComponent } from './invoice-navigation/invoice-nav-side-bar-form/invoice-nav-side-bar-form.component';
 import { SummaryInvoiceComponent } from './summary-invoice/summary-invoice.component';
 import { CustomersHasPendingInvoiceComponent } from './customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryNotesSelectDialogComponent } from './pending-delivery-notes-select-dialog/pending-delivery-notes-select-dialog.component';
@@ -34,6 +34,7 @@ import { BaseInvoiceManagerComponent } from './base-invoice-manager/base-invoice
 import { InvoiceCustomerComponent } from './invoice-customer/invoice-customer.component';
 import { LoadInvoiceLinesDialogComponent } from './load-invoice-lines-dialog/load-invoice-lines-dialog.component';
 import { CustomerSearchComponent } from './customer-serach/customer-search.component';
+import { InvoiceNavFilterFormComponent } from './invoice-navigation/invoice-nav-filter-form/invoice-nav-filter-form.component';
 
 
 
@@ -66,6 +67,7 @@ import { CustomerSearchComponent } from './customer-serach/customer-search.compo
     InvoiceCustomerComponent,
     LoadInvoiceLinesDialogComponent,
     CustomerSearchComponent,
+    InvoiceNavFilterFormComponent,
   ],
   imports: [
     CommonModule,

@@ -9,7 +9,7 @@
             (focusout)="currentForm.HandleFormFocusOut()" (keydown.escape)="currentForm.HandleFormEscape($event)"
             (click)="currentForm.HandleFormClick()">
             <div class="bbx-fd-form-field-wrapper-div-row">
-                <nb-form-field class="bbx-fd-form-field-50">
+                <nb-form-field class="bbx-fd-form-field-49">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
                         <label class="multicol-label-col-1">Számlaszám</label>
                         <input nbInput type="text" formControlName="invoiceNumber" readonly>
@@ -51,7 +51,7 @@
                 <nb-form-field class="bbx-fd-form-field-50">
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Dátum</label>
-                        <input nbInput type="text" formControlName="invPaymentDate" readonly>
+                        <input nbInput type="datetime" formControlName="invPaymentDate" readonly mask="0000-00-00">
                     </div>
                 </nb-form-field>
             </div>
@@ -84,6 +84,22 @@
                     <div class="bbx-fd-form-field-inner-div-2">
                         <label class="multicol-label-col-2">Összeg forintban</label>
                         <input nbInput type="text" [inputMask]="numberInputMask" formControlName="invPaymentAmountHUF" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+
+            <div class="bbx-fd-form-field-wrapper-div-row">
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-inner-div-first">
+                        <label class="multicol-label-col-1">Bruttó</label>
+                        <input nbInput type="text" [inputMask]="numberInputMask" formControlName="invoiceGrossAmount" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="bbx-fd-form-field-50">
+                    <div class="bbx-fd-form-field-inner-div-2">
+                        <label class="multicol-label-col-2">Bruttó forintban</label>
+                        <input nbInput type="text" [inputMask]="numberInputMask" formControlName="invoiceGrossAmountHUF" readonly>
                     </div>
                 </nb-form-field>
             </div>

@@ -189,8 +189,20 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     this.activatedRoute.url.subscribe(params => {
       this.mode = behaviorFactory.create(params[0].path)
       this.path = params[0].path
+      this.updateInvFormBasedOnMode()
     })
     this.isPageReady = true;
+  }
+
+  /**
+   * Additional form adjustments based on the determined behavior mode.
+   */
+  private updateInvFormBasedOnMode(): void {
+    if (this.mode.Delivery) {
+      // No paymentDate needed, invoiceDeliveryDate will be used
+      this.outInvForm.controls['paymentDate'] = new FormControl('', []);
+    }
+    this.outInvFormNav.GenerateAndSetNavMatrices(false, true, true)
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -244,12 +256,10 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         ]),
         invoiceDeliveryDate: new FormControl('', [
           Validators.required,
-          this.validateInvoiceDeliveryDate.bind(this),
           validDate
         ]),
         invoiceIssueDate: new FormControl('', [
           Validators.required,
-          this.validateInvoiceIssueDate.bind(this),
           validDate
         ]),
         paymentDate: new FormControl('', [
@@ -300,31 +310,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         this.RecalcNetAndVat();
       }
     });
-  }
-
-  // invoiceDeliveryDate
-  validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
-
-    const wrong = deliveryDate?.isAfter(issueDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
-
-    const wrong = issueDate?.isBefore(deliveryDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   // paymentDate
@@ -579,7 +564,12 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
-    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+
+    if (this.mode.Delivery) {
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+    } else {
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+    }
 
     this.outGoingInvoiceData.paymentMethod = this.mode.Delivery ? this.DeliveryPaymentMethod :
       HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods);
@@ -774,7 +764,8 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
     })
 
     dialog.onClose.subscribe((priceChange: ProductPriceChange) => {
-      this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+      this.kbS.setEditMode(KeyboardModes.EDIT)
+      setTimeout(() => this.kbS.ClickCurrentElement(), 100)
 
       if (!priceChange) {
         return

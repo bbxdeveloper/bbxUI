@@ -197,8 +197,22 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       }
 
       this.InitialSetup()
+
+      this.updateInvFormBasedOnMode()
+
       this.isPageReady = true;
     })
+  }
+
+  /**
+   * Additional form adjustments based on the determined behavior mode.
+   */
+  private updateInvFormBasedOnMode(): void {
+    if (this.mode.Delivery) {
+      // No paymentDate needed, invoiceDeliveryDate will be used
+      this.outInvForm.controls['paymentDate'] = new FormControl('', []);
+    }
+    this.outInvFormNav.GenerateAndSetNavMatrices(false, true, true)
   }
 
   public override onFormSearchFocused(event?: any, formFieldName?: string): void {
@@ -254,12 +268,10 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         paymentMethod: new FormControl('', [Validators.required]),
         invoiceDeliveryDate: new FormControl('', [
           Validators.required,
-          this.validateInvoiceDeliveryDate.bind(this),
           validDate
         ]),
         invoiceIssueDate: new FormControl('', [
           Validators.required,
-          this.validateInvoiceIssueDate.bind(this),
           validDate
         ]),
         paymentDate: new FormControl('', [
@@ -317,31 +329,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     });
   }
 
-  // invoiceDeliveryDate
-  validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
-
-    const wrong = deliveryDate?.isAfter(issueDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
-
-    const wrong = issueDate?.isBefore(deliveryDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
   // paymentDate
   validatePaymentDate(control: AbstractControl): any {
     if (this.invoiceIssueDateValue === undefined) {
@@ -357,7 +344,9 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
   InitFormDefaultValues(): void {
     this.outInvForm.controls['invoiceIssueDate'].setValue(HelperFunctions.GetDateString(0,0,0));
-    this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    if (this.mode.Delivery) {
+      this.outInvForm.controls['invoiceDeliveryDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
+    }
     this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(0, 0, 0));
 
     this.outInvForm.controls['invoiceDeliveryDate'].valueChanges
@@ -687,7 +676,12 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
     this.outGoingInvoiceData.invoiceDeliveryDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
-    this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+
+    if (this.mode.Delivery) {
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+    } else {
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
+    }
 
     this.outGoingInvoiceData.paymentMethod = this.mode.isSummaryInvoice
       ? HelperFunctions.PaymentMethodToDescription(this.outInvForm.controls['paymentMethod'].value, this.paymentMethods)
@@ -929,6 +923,20 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
 
       if (relDeliveryDate < invoiceDeliveryDate) {
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
+      }
+      
+      if (!this.mode.Delivery) {
+        const formVal = this.outInvForm.controls['invoiceDeliveryDate'].value
+        const deliveryDateString = HelperFunctions.GetDateStringFromDate(relDeliveryDate.toDateString())
+
+        if (!HelperFunctions.isEmptyOrSpaces(formVal)) {
+          const formDeliveryDate = new Date(formVal)
+          if (formDeliveryDate < relDeliveryDate) {
+            this.outInvForm.controls['invoiceDeliveryDate'].setValue(deliveryDateString);
+          }
+        } else {
+          this.outInvForm.controls['invoiceDeliveryDate'].setValue(deliveryDateString);
+        }
       }
 
       if (!this.mode.isSummaryInvoice) {

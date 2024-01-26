@@ -90,7 +90,6 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
   override isLoading: boolean = false;
 
   constructor(
-    private simpleToastrService: BbxToastrService,
     private bbxToastrService: BbxToastrService,
     private cdref: ChangeDetectorRef,
     private cs: CommonService,
@@ -149,18 +148,22 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     }
     this.Refresh(this.getInputParams());
   }
+
   ngAfterViewInit(): void {
   }
-  ngAfterContentInit(): void {
-    $('*[type=radio]').addClass(TileCssClass);
 
-    $('*[type=radio]')[SearchMode.SEARCH_NAME_CODE].id = 'radio-0';
-    $('*[type=radio]')[SearchMode.SEARCH_NAME].id = 'radio-1';
-    $('*[type=radio]')[SearchMode.SEARCH_CODE].id = 'radio-2';
+  ngAfterContentInit(): void {
+    const element = $('*[type=radio]')
+    element.addClass(TileCssClass);
+
+    element[SearchMode.SEARCH_NAME_CODE].id = 'radio-0';
+    element[SearchMode.SEARCH_NAME].id = 'radio-1';
+    element[SearchMode.SEARCH_CODE].id = 'radio-2';
 
     this.kbS.SetWidgetNavigatable(this);
     this.kbS.SelectFirstTile();
   }
+
   ngAfterViewChecked(): void {
     if (!this.isLoaded) {
       $('#active-prod-search').val(this.searchString)
@@ -172,6 +175,7 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     }
     this.kbS.SelectCurrentElement();
   }
+
   ngOnDestroy(): void {
     if (!this.closedManually) {
       this.kbS.RemoveWidgetNavigatable();
@@ -195,7 +199,6 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
       this.MoveToSaveButtons(event)
       return
     }
-
 
     if ((event.key.length > 1 && event.key.toLowerCase() !== 'backspace') || event.ctrlKey || event.key == KeyBindings.F2 || IsKeyFunctionKey(event.key)) {
       return
@@ -258,52 +261,55 @@ export class ProductSelectTableDialogComponent extends SelectTableDialogComponen
     this.isLoading = true;
 
     this.Subscription_Search = this.productService.GetAll(params).subscribe({
-      next: (d) => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d); // TODO: only for debug
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: ProductToProductRow(x, this.tokenService.wareHouse?.id), uid: this.nextUid() };
-            });
-            tempData.forEach(x => {
-              x.data.exhangedUnitPrice1 = x.data.unitPrice1;
-              x.data.exhangedUnitPrice2 = x.data.unitPrice2;
-              if (x.data.exhangedUnitPrice1) {
-                x.data.exhangedUnitPrice1 = x.data.exhangedUnitPrice1 / this.exchangeRate;
-
-                if (this.currency !== CurrencyCodes.HUF) {
-                  x.data.exhangedUnitPrice1 = HelperFunctions.Round2(x.data.exhangedUnitPrice1, 2);
-                }
-              }
-              if (x.data.exhangedUnitPrice2) {
-                x.data.exhangedUnitPrice2 = x.data.exhangedUnitPrice2 / this.exchangeRate;
-
-                if (this.currency !== CurrencyCodes.HUF) {
-                  x.data.exhangedUnitPrice2 = HelperFunctions.Round2(x.data.exhangedUnitPrice2, 2);
-                }
-              }
-            });
-            this.dbData = tempData;
-            this.dbDataSource.setData(this.dbData);
-          }
-          this.RefreshTable();
-        } else {
-          this.bbxToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+      next: response => {
+        if (!response.succeeded || !response.data) {
+          this.bbxToastrService.showError(response.errors!.join('\n'));
+          return
         }
+
+        this.dbData = response.data.map(this.productToRow.bind(this))
+
+        this.dbDataSource.setData(this.dbData);
+
+        this.RefreshTable();
         this.isLoading = false;
       },
       error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
+        this.cs.HandleError(err);
         this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
       },
     });
+  }
+
+  private productToRow(product: Product): any {
+    const productRow = ProductToProductRow(product, this.tokenService.wareHouse?.id)
+
+    if (productRow.unitPrice1) {
+      productRow.exhangedUnitPrice1 = this.calculatePriceBasedOnExchangeRate(productRow.unitPrice1)
+    }
+
+    if (productRow.unitPrice2) {
+      productRow.exhangedUnitPrice2 = this.calculatePriceBasedOnExchangeRate(productRow.unitPrice2)
+    }
+
+    if (productRow.latestSupplyPrice) {
+      productRow.latestSupplyPrice = this.calculatePriceBasedOnExchangeRate(productRow.latestSupplyPrice)
+    }
+
+    return { data: productRow, uid: this.nextUid() }
+  }
+
+  private calculatePriceBasedOnExchangeRate(price: number): number {
+    let newPrice = price / this.exchangeRate
+
+    if (this.currency !== CurrencyCodes.HUF) {
+      newPrice = HelperFunctions.Round2(newPrice, 2)
+    }
+
+    return newPrice
   }
 
   override Search(searchString: string): void {

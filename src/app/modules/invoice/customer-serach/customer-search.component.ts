@@ -101,7 +101,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(400),
         distinctUntilChanged(),
-        switchMap((filter: string) => filter !== '' ? of(filter) : EMPTY),
+        switchMap((filter: string) => HelperFunctions.isEmptyOrSpaces(filter) ? EMPTY : of(filter)),
         tap(() => this.loadingChanged.emit(true)),
         tap((filter: string) => search = filter),
         map((filter: string) => ({

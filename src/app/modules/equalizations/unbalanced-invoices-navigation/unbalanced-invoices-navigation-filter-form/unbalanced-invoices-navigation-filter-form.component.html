@@ -4,6 +4,37 @@
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
 
+                <div class="triple-column">
+                    <div class="field-wrapper">
+                        <app-customer-search #customerSearch
+                            class="customer-search-field"
+                            [customer]="customerData"
+                            (customerChanged)="customerChanged($event)"
+                            (focusIn)="onFormSearchFocused()"
+                            (focusOut)="onFormSearchBlurred()"
+                            [withDiscounts]="false"
+                            (loadingChanged)="isLoading = $event"></app-customer-search>
+                    </div>
+                    <div class="field-wrapper">
+                        <nb-form-field>
+                            <label>Ügyfél</label>
+                            <input nbInput type="text" formControlName='CustomerName' readonly>
+                        </nb-form-field>
+                    </div>
+                    <div class="field-wrapper">
+                        <nb-form-field>
+                            <label>Ügyfél Cím</label>
+                            <input nbInput type="text" formControlName='CustomerAddress' readonly>
+                        </nb-form-field>
+                    </div>
+                    <div class="field-wrapper">
+                        <nb-form-field>
+                            <label>Ügyfél Adószám</label>
+                            <input nbInput type="text" formControlName='CustomerTaxNumber' readonly>
+                        </nb-form-field>
+                    </div>
+                </div>
+
                 <div class="double-column">
                     <div class="checkbox-field" (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label class="label-checkbox">Bejövő forgalom</label>
@@ -26,16 +57,12 @@
                         <input nbInput type="datetime" formControlName='InvoiceDeliveryDateFrom' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceDeliveryDateFrom">
-                        </app-form-control-error>
                     </nb-form-field>
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" right>
                         <label>Teljesítés vége</label>
                         <input nbInput type="datetime" formControlName='InvoiceDeliveryDateTo' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceDeliveryDateFrom">
-                        </app-form-control-error>
                     </nb-form-field>
     
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" left>
@@ -43,17 +70,22 @@
                         <input nbInput type="datetime" formControlName='InvoiceIssueDateFrom' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceIssueDateFrom">
-                        </app-form-control-error>
                     </nb-form-field>
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" right>
                         <label>Számla dátum vége</label>
                         <input nbInput type="datetime" formControlName='InvoiceIssueDateTo' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" controlName="InvoiceIssueDateTo">
-                        </app-form-control-error>
                     </nb-form-field>
+                    
+                    <app-form-control-error [form]="filterFormNav" controlName="InvoiceDeliveryDateFrom" label="teljesítés kezdete">
+                    </app-form-control-error>
+                    <app-form-control-error [form]="filterFormNav" controlName="InvoiceDeliveryDateTo" label="teljesítés vége">
+                    </app-form-control-error>
+                    <app-form-control-error [form]="filterFormNav" controlName="InvoiceIssueDateFrom" label="számla dátuma eleje">
+                    </app-form-control-error>
+                    <app-form-control-error [form]="filterFormNav" controlName="InvoiceIssueDateTo" label="számla dátum vége">
+                    </app-form-control-error>
                 </div>
                 
                 <div class="triple-column">
@@ -62,81 +94,37 @@
                         <input nbInput type="datetime" formControlName='PaymentDateFrom' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" controlName="PaymentDateFrom">
-                        </app-form-control-error>
                     </nb-form-field>
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)" right>
                         <label>Fizetési határidő vége</label>
                         <input nbInput type="datetime" formControlName='PaymentDateTo' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m03"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true" [validation]="true">
-                        <app-form-control-error [form]="filterFormNav" controlName="PaymentDateTo">
-                        </app-form-control-error>
                     </nb-form-field>
 
                     <div class="field-wrapper">
-                        <nb-form-field>
+                        <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                             <label>Bizonylatszám</label>
-                            <input nbInput type="text" formControlName='InvoiceNumber' readonly>
+                            <input nbInput type="text" formControlName='InvoiceNumber' class="{{TileCssClass}}" 
+                                (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                         </nb-form-field>
                     </div>
                     <div class="field-wrapper" *ngIf="!!componentFormData?.Incoming">
-                        <nb-form-field>
+                        <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                             <label>Partner bizonylatszám</label>
-                            <input nbInput type="text" formControlName='CustomerInvoiceNumber' readonly>
+                            <input nbInput type="text" formControlName='CustomerInvoiceNumber' class="{{TileCssClass}}" 
+                                (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff">
                         </nb-form-field>
                     </div>
-                </div>
-
-                <div class="triple-column">
-                    <div class="field-wrapper">                        
-                        <nb-form-field class="search-row-nb-form-field"
-                            (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)"
-                            (keydown.F2)="filterFormNav.HandleKeyNoCrud($event, 'CustomerSearch')">
-                            <label>Ügyfél keresés</label>
-                            <input formControlName="CustomerSearch" nbInput type="text" class="{{TileCssClass}}"
-                                (click)="filterFormNav.HandleFormFieldClick($event)" (input)="FillFormWithFirstAvailableCustomer($event)"
-                                [readonly]="isEditModeOff" maxlength="80" placeholder="Keresés" autocomplete="off" id="r00" />
-                        </nb-form-field>
-                    </div>
-                    <div *ngIf="searchByTaxtNumber">
-                        <button nbButton
-                            [disabled]="isLoading"
-                            [ngClass]="searchByTaxtNumber ? 'btn-show' : 'btn-hide'" class="{{TileCssClass}}"
-                            (click)="ChoseDataForFormByTaxtNumber()" status="primary" tabindex="-1">NAV</button>
-                    </div>
-                    <!-- <div class="field-wrapper">
-                        <app-customer-search #customerSearch
-                                 [customer]="buyerData" classes="field-wrapper"
-                                 (customerChanged)="customerChanged($event)"
-                                 (focusIn)="onFormSearchFocused(undefined, $event)"
-                                 (focusOut)="onFormSearchBlurred(undefined, $event)"
-                                 [withDiscounts]="false"
-                                 (loadingChanged)="isLoading = $event"></app-customer-search>
-                    </div>-->
-                    <div class="field-wrapper">
-                        <nb-form-field>
-                            <label>Ügyfél</label>
-                            <input nbInput type="text" formControlName='CustomerName' readonly>
-                        </nb-form-field>
-                    </div>
-                    <div class="field-wrapper">
-                        <nb-form-field>
-                            <label>Ügyfél Cím</label>
-                            <input nbInput type="text" formControlName='CustomerAddress' readonly>
-                        </nb-form-field>
-                    </div>
-                    <div class="field-wrapper">
-                        <nb-form-field>
-                            <label>Ügyfél Adószám</label>
-                            <input nbInput type="text" formControlName='CustomerTaxNumber' readonly>
-                        </nb-form-field>
-                    </div>
-
                     <div class="form-button" right>
                         <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
                             status="primary">Keresés</button>
                     </div>
+
+                    <app-form-control-error [form]="filterFormNav" controlName="PaymentDateFrom" label="fizetési határidő kezdete">
+                    </app-form-control-error>
+                    <app-form-control-error [form]="filterFormNav" controlName="PaymentDateTo" label="fizetési határidő vége">
+                    </app-form-control-error>
                 </div>
             </form>
         </nb-card-body>

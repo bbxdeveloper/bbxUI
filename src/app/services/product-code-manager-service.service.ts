@@ -136,7 +136,8 @@ export class ProductCodeManagerServiceService {
         searchString: request.dbDataTable.editedRow?.data.productCode ?? '',
         allColumns: ProductDialogTableSettings.ProductSelectorDialogAllColumns,
         colDefs: ProductDialogTableSettings.ProductSelectorDialogColDefs,
-        exchangeRate: request.data.exchangeRate ?? 1
+        exchangeRate: request.data.exchangeRate ?? 1,
+        currency: request.data.currencyCode
       }
     })
     return dialogRef.onClose

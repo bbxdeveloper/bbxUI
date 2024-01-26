@@ -37,6 +37,7 @@ export interface InvPaymentItemFull extends InvPaymentItemPost {
     userID: number
     userName: string
     invoiceGrossAmount: number
+    invoiceGrossAmountHUF: number
 }
 
 export class InvPaymentItem extends MementoObject implements IEditable, InvPaymentItemFull {
@@ -79,6 +80,8 @@ export class InvPaymentItem extends MementoObject implements IEditable, InvPayme
     invoicePaidAmountHUF: number = 0
     @JsonIgnore
     invoiceGrossAmount: number = 0
+    @JsonIgnore
+    invoiceGrossAmountHUF: number = 0
 
     @JsonIgnore
     get GetInvoicePaidAmountHUF(): number {
