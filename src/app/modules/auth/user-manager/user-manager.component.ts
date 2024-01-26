@@ -93,7 +93,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
       colKey: 'userLevel',
       defaultValue: '',
       type: 'string',
-      fInputType: 'text',
+      fInputType: '',
       mask: '',
       colWidth: '150px',
       textAlign: 'left',
@@ -543,7 +543,7 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   private Setup(): void {
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
-    // TODO: FormGroup generator
+
     this.dbDataTableForm = new FormGroup({
       id: new FormControl(undefined, []),
       name: new FormControl(undefined, [Validators.required]),
