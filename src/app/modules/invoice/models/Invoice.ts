@@ -11,7 +11,7 @@ export interface Invoice {
     paymentDate: string,
     supplierID: number,
     supplierName: string,
-    SupplierBankAccountNumber?: any,
+    supplierBankAccountNumber?: any,
     supplierTaxpayerNumber: string,
     supplierCountryCode: string,
     supplierPostalCode: string,
