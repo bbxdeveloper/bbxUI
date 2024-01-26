@@ -650,7 +650,7 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         customerBankAccountNumber: response.customerBankAccountNumber,
         taxpayerNumber: response.customerTaxpayerNumber,
         thirdStateTaxId: response.customerThirdStateTaxId,
-        comment: response.CustomerComment,
+        comment: response.customerComment,
         customerVatStatus: response.customerVatStatus,
       } as Customer
 

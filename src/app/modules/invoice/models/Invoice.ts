@@ -31,7 +31,7 @@ export interface Invoice {
     customerAdditionalAddressDetail: string,
     customerInvoiceNumber: string,
     customerVatStatus: string,
-    CustomerComment?: any,
+    customerComment?: any,
     paymentMethod: string,
     paymentMethodX: string,
     notice: string,
