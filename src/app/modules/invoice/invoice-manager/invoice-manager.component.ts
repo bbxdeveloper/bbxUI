@@ -524,7 +524,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
               invoiceLine.latestSupplyPrice = invoiceLine.latestSupplyPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
 
-              invoiceLine.ReCalc()
+              invoiceLine.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes)
               invoiceLine.Save()
             })
 
@@ -997,7 +997,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
-      debugger
       if (changedData.unitPrice < (changedData.latestSupplyPrice ?? 0)) {
         setTimeout(() => this.bbxToastrService.showError(Constants.MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE), 0)
 
@@ -1079,7 +1078,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     res.vatRate = product.vatPercentage ?? 1;
 
-    res.ReCalc();
+    res.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes);
 
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;

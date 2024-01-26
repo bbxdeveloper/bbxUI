@@ -1,8 +1,9 @@
-import { IEditable } from "src/assets/model/IEditable";
-import { MementoObject } from "src/assets/model/MementoObject";
-import { JsonIgnore } from "src/assets/model/navigation/DynamicObject";
-import { HelperFunctions } from "src/assets/util/HelperFunctions";
-import { Price } from "src/assets/util/Price";
+import {IEditable} from "src/assets/model/IEditable";
+import {MementoObject} from "src/assets/model/MementoObject";
+import {JsonIgnore} from "src/assets/model/navigation/DynamicObject";
+import {HelperFunctions} from "src/assets/util/HelperFunctions";
+import {Price} from "src/assets/util/Price";
+import {CurrencyCodes} from "../../system/models/CurrencyCode";
 
 /**
  * Price data for invocielines.
@@ -216,7 +217,7 @@ export class InvoiceLine extends MementoObject implements IEditable {
      * Calcs price related values based mainly on @see this.unitPrice, @see this.quantity, @see this.vatRate
      * Ignores: @see this.discount
      */
-    public ReCalc(): void {
+    public ReCalc(currency = CurrencyCodes.HUF): void {
         // console.log("");
         // console.log("==========================");
         // console.log("[InvoiceLine ReCalc]");
@@ -234,8 +235,10 @@ export class InvoiceLine extends MementoObject implements IEditable {
 
         this.unitPrice = HelperFunctions.Round2(HelperFunctions.ToFloat(this.unitPrice), 2);
 
-        this.lineNetAmount = HelperFunctions.Round2(this.unitPrice * this.quantity, 1);
-        this.lineVatAmount = HelperFunctions.Round2(this.lineNetAmount * this.vatRate, 1);
+        const fractionalDigits = currency === CurrencyCodes.HUF ? 1 : 2
+
+        this.lineNetAmount = HelperFunctions.Round2(this.unitPrice * this.quantity, fractionalDigits);
+        this.lineVatAmount = HelperFunctions.Round2(this.lineNetAmount * this.vatRate, fractionalDigits);
         this.lineGrossAmount = this.lineVatAmount + this.lineNetAmount;
 
         // console.log("AFTER");
