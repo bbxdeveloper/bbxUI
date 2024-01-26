@@ -62,6 +62,8 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription|undefined
 
+  private navDialogOpened = false
+
   constructor(
     private readonly customerService: CustomerService,
     private readonly customerDiscountService: CustomerDiscountService,
@@ -257,6 +259,12 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   }
 
   public ChoseDataForFormByTaxNumber(): void {
+    if (this.navDialogOpened) {
+      return
+    }
+
+    this.navDialogOpened = true
+
     this.loadingChanged.emit(true)
 
     const filter = this.searchForm.get('customerSearch')?.value
@@ -280,6 +288,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.commonService.HandleError(err)
         this.loadingChanged.emit(false)
+        this.navDialogOpened = false
       },
       complete: () => {
         this.loadingChanged.emit(false)
@@ -295,7 +304,11 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       closeOnEsc: false
     });
     dialogRef.onClose.subscribe({
-      next: (customer: Customer) => this.raiseCustomerChanged(customer, true),
+      next: (customer: Customer) => {
+        this.raiseCustomerChanged(customer, true);
+
+        this.navDialogOpened = false
+      },
       error: err => this.commonService.HandleError(err)
     });
   }
