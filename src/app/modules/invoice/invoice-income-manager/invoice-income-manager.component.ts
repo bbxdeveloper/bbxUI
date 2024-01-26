@@ -854,28 +854,37 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
   @HostListener('window:keydown.f9', ['$event'])
   public onF9(event: Event): void {
-    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+    let rowIndex = this.canSuggestPriceChange()
+    if (rowIndex === -1) {
       return
+    }
+
+    this.suggestPriceChange(this.dbData[rowIndex].data, true)
+  }
+
+  private canSuggestPriceChange(): number {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+      return -1
     }
 
     const regex = /PRODUCT-\d+-(\d+)/
     const match = this.kbS.Here.match(regex)
     if (!match) {
-      return;
+      return -1
     }
 
     const rowIndex = parseInt(match[1])
     if (rowIndex === this.dbData.length - 1) {
       setTimeout(() => this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW), 0);
-      return
+      return -1
     }
 
     if (this.dbData[rowIndex].data.quantity < 0) {
       setTimeout(() => this.bbxToastrService.showError(Constants.MSG_NOT_EDITABLE_WITH_NEGATIVE_QUANTITY), 0)
-      return
+      return -1
     }
 
-    this.suggestPriceChange(this.dbData[rowIndex].data, true)
+    return rowIndex
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
