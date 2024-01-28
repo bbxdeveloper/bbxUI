@@ -317,77 +317,68 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   }
 
   override ProcessActionNew(data?: IUpdateRequest<User>): void {
-    if (!!data && !!data.data) {
-      data.data.id = parseInt(data.data.id + ''); // TODO
-      console.log('ActionNew: ', data.data);
-      this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
-      this.seInv
-        .Create({
-          name: data.data.name,
-          email: data.data.email,
-          loginName: data.data.loginName,
-          password: data.data.password,
-          comment: data.data.comment,
-          active: data.data.active,
-          warehouseID: this.getWareHouseFromDescription(data.data.warehouseForCombo).id
-        } as CreateUserRequest)
-        .subscribe({
-          next: async (d) => {
-            if (d.succeeded && !!d.data) {
-              await lastValueFrom(this.seInv.Get({ID: d.data.id}))
-                .then(async res => {
-                  if (res) {
-                    this.idParam = res.id;
-                    await this.RefreshAsync(this.getInputParams());
-                    setTimeout(() => {
-                      this.dbDataTable.SelectRowById(res.id);
-                      this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-                      this.bbxToastrService.show(
-                        Constants.MSG_SAVE_SUCCESFUL,
-                        Constants.TITLE_INFO,
-                        Constants.TOASTR_SUCCESS_5_SEC
-                      );
-                    }, 200);
-                  } else {
-                    this.bbxToastrService.show(
-                      Constants.MSG_USER_GET_FAILED + d.data?.name,
-                      Constants.TITLE_ERROR,
-                      Constants.TOASTR_ERROR_5_SEC
-                    );
-                    this.dbDataTable.SetFormReadonly(false)
-                    this.sts.pushProcessStatus(Constants.BlankProcessStatus)
-                    this.kbS.ClickCurrentElement()
-                  }
-                })
-                .catch(err => {
-                  this.HandleError(err);
-                  this.dbDataTable.SetFormReadonly(false)
-                })
-                .finally(() => {
-                });
-            } else {
-              console.log(
-                d.errors!,
-                d.errors!.join('\n'),
-                d.errors!.join(', ')
-              );
-              this.bbxToastrService.show(
-                d.errors!.join('\n'),
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR_5_SEC
-              );
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-              this.dbDataTable.SetFormReadonly(false)
-              this.kbS.ClickCurrentElement()
-            }
-          },
-          error: (err) => {
-            this.HandleError(err);
-            this.dbDataTable.SetFormReadonly(false)
-          },
-        });
+    if (!data || !data.data) {
+      return
     }
+
+    data.data.id = parseInt(data.data.id + ''); // TODO
+    console.log('ActionNew: ', data.data);
+    this.sts.pushProcessStatus(Constants.CRUDSavingStatuses[Constants.CRUDSavingPhases.SAVING]);
+    this.seInv
+      .Create({
+        name: data.data.name,
+        email: data.data.email,
+        loginName: data.data.loginName,
+        password: data.data.password,
+        comment: data.data.comment,
+        active: data.data.active,
+        userLevel: this.userLevels.find(x => x.text === data.data.userLevel)?.value,
+        warehouseID: this.getWareHouseFromDescription(data.data.warehouseForCombo).id
+      } as CreateUserRequest)
+      .subscribe({
+        next: async (d) => {
+          if (d.succeeded && !!d.data) {
+            await lastValueFrom(this.seInv.Get({ID: d.data.id}))
+              .then(async res => {
+                if (res) {
+                  this.idParam = res.id;
+                  await this.RefreshAsync(this.getInputParams());
+                  setTimeout(() => {
+                    this.dbDataTable.SelectRowById(res.id);
+                    this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+                    this.bbxToastrService.show(Constants.MSG_SAVE_SUCCESFUL, true);
+                  }, 200);
+                } else {
+                  this.bbxToastrService.showError(Constants.MSG_USER_GET_FAILED + d.data?.name, true);
+                  this.dbDataTable.SetFormReadonly(false)
+                  this.sts.pushProcessStatus(Constants.BlankProcessStatus)
+                  this.kbS.ClickCurrentElement()
+                }
+              })
+              .catch(err => {
+                this.HandleError(err);
+                this.dbDataTable.SetFormReadonly(false)
+              })
+              .finally(() => {
+              });
+          } else {
+            console.log(
+              d.errors!,
+              d.errors!.join('\n'),
+              d.errors!.join(', ')
+            );
+            this.bbxToastrService.showError(d.errors!.join('\n'), true);
+            this.isLoading = false;
+            this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+            this.dbDataTable.SetFormReadonly(false)
+            this.kbS.ClickCurrentElement()
+          }
+        },
+        error: (err) => {
+          this.HandleError(err);
+          this.dbDataTable.SetFormReadonly(false)
+        },
+      });
   }
 
   override ProcessActionPut(data?: IUpdateRequest<User>): void {
@@ -458,43 +449,41 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
   }
 
   override ProcessActionDelete(data?: IUpdateRequest<User>): void {
-    if (!!data && data.data?.id !== undefined) {
-      this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
-      console.log('ActionDelete: ', data.rowIndex);
-      this.seInv
-        .Delete({
-          id: data.data?.id,
-        } as DeleteUserRequest)
-        .subscribe({
-          next: (d) => {
-            if (d.succeeded && !!d.data) {
-              const di = this.dbData.findIndex(
-                (x) => x.data.id === data.data.id
-              );
-              this.dbData.splice(di, 1);
-              this.bbxToastrService.show(
-                Constants.MSG_DELETE_SUCCESFUL,
-                Constants.TITLE_INFO,
-                Constants.TOASTR_SUCCESS_5_SEC
-              );
-              this.HandleGridSelectionAfterDelete(di);
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            } else {
-              this.bbxToastrService.show(
-                d.errors!.join('\n'),
-                Constants.TITLE_ERROR,
-                Constants.TOASTR_ERROR_5_SEC
-              );
-              this.isLoading = false;
-              this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            }
-          },
-          error: (err) => {
-            this.HandleError(err);
-          },
-        });
+    if (!data || !data.data?.id) {
+      return
     }
+    this.sts.pushProcessStatus(Constants.DeleteStatuses[Constants.DeletePhases.DELETING]);
+    console.log('ActionDelete: ', data.rowIndex);
+    this.seInv
+      .Delete({
+        id: data.data?.id,
+      } as DeleteUserRequest)
+      .subscribe({
+        next: (d) => {
+          if (!d.succeeded || !d.data) {
+            this.bbxToastrService.showError(d.errors!.join('\n'), true);
+
+            return
+          }
+
+          const di = this.dbData.findIndex(
+            (x) => x.data.id === data.data.id
+          );
+          this.dbData.splice(di, 1);
+          this.bbxToastrService.showSuccess(Constants.MSG_DELETE_SUCCESFUL, true);
+
+          this.HandleGridSelectionAfterDelete(di);
+        },
+        error: (err) => {
+          this.HandleError(err);
+          this.isLoading = false;
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        },
+        complete: () => {
+          this.isLoading = false;
+          this.sts.pushProcessStatus(Constants.BlankProcessStatus);
+        }
+      });
   }
 
   private getWareHouseFromDescription(desc?: string): WareHouse {
