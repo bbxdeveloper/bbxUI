@@ -45,6 +45,7 @@ export module Constants {
     export const MSG_LOAD_REMAINING_TSC: string = "Biztos be szeretné tölteni a még nem kiválasztott termékcsoportokat?";
     export const MSG_CANNOT_ON_EDIT_ROW: string = "A kijelölt sor új elemek felvételére alkalmas! A kért művelet nem végezhető el rajta.";
     export const MSG_WHS_ONLY_READY_CAN_BE_FINALIZED = "Csak 'Elkészült' státuszban lévő raktárközi bizonylatokat lehet véglegesíteni!"
+    export const MSG_NOT_EDITABLE_WITH_NEGATIVE_QUANTITY = 'Beszerzési ár nem szerkeszthető negatív mennyiség esetén.'
     export const MSG_INVALID_CREDENTIALS: string = 'Helytelen felhasználónév vagy jelszó.'
 
     export const MSG_ERROR_NO_DISCOUNT: string = 'A termékre engedmény tiltás van beállítva!'
