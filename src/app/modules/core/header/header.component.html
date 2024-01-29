@@ -95,7 +95,7 @@
                     Elhelyezések kezelése
                 </button>
             </nb-card-body>
-            <nb-card-body *ngIf="isLoggedIn" class="card-body-submenu-button cl-header-menu-sub">
+            <nb-card-body *ngIf="isLoggedIn && isUserHasLevel1()" class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-base-sub-8" [disabled]="InProgress && !isLoggedIn"
                     (click)="goTo('admin/user')">
                     Felhasználók kezelése
@@ -174,7 +174,7 @@
                     Letárból kimaradt cikkek
                 </button>
             </nb-card-body>
-            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+            <nb-card-body *ngIf="isUserHasLevel1()" class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-inventory-sub-5" [disabled]="InProgress"
                     (click)="goTo('inventory/cont-invctrl')">
                     Folyamatos leltár

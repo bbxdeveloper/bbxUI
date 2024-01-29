@@ -15,21 +15,21 @@
 
                                 <input class="{{TileCssClass}}" nbInput type="text" [formControlName]="it.objectKey"
                                     (click)="currentForm.HandleFormFieldClick($event)"
-                                    [readonly]="isReadonly" 
+                                    [readonly]="isReadonly"
                                     [required]="it.fRequired ?? false">
                             </ng-container>
                         </div>
                     </nb-form-field>
                     <app-form-control-error [form]="currentForm" [controlName]="it.objectKey" [label]="it.label" [label]="it.label"></app-form-control-error>
                 </ng-container>
-                
+
                 <ng-container *ngSwitchCase="'number'">
                     <nb-form-field
                         (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                         <div class="bbx-fd-form-field-inner-div">
                             <ng-container [ngSwitch]="it.fInputType">
                                 <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
-                
+
                                 <input class="{{TileCssClass}}" nbInput type="number" [formControlName]="it.objectKey"
                                     (click)="currentForm.HandleFormFieldClick($event)" [required]="it.fRequired ?? false">
                             </ng-container>
@@ -59,7 +59,7 @@
                                 <label>{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
 
                                 <input class="{{TileCssClass}}" nbInput type="password" [formControlName]="it.objectKey"
-                                    [readonly]="isReadonly" 
+                                    [readonly]="isReadonly"
                                     (click)="currentForm.HandleFormFieldClick($event)"
                                     [required]="it.fRequired ?? false">
                             </ng-container>
@@ -71,7 +71,7 @@
                 <div class="bbx-fd-form-field-wrapper-div-row" *ngSwitchCase="'bool'" (keydown.enter)="it.fLast ? currentForm.HandleFormLastEnter($event) : currentForm.HandleFormEnter($event)">
                     <div class="bbx-fd-form-field-inner-div-2 bbx-fd-form-field-33 checkbox-wrapper">
                         <label class="label-checkbox">{{it.label}}{{it.fRequired ?? false ? '*' : ''}}</label>
-    
+
                         <input class="bbx-fd-checkbox" class="{{TileCssClass}}" type="checkbox"
                             [readonly]="isReadonly"
                             [formControlName]="it.objectKey" (click)="currentForm.HandleFormFieldClick($event)">
@@ -80,9 +80,13 @@
                 </div>
             </ng-container>
 
+            <app-bbx-combo-box [isReadonly]="isReadonly" [needBlankOption]="false" class="bbx-sidebar-combo"
+                               [currentForm]="currentForm" formFieldName="userLevel" label="Szint" [data$]="userLevel$"></app-bbx-combo-box>
+
             <app-bbx-combo-box [isReadonly]="isReadonly" [needBlankOption]="false" [lastFormField]="true"
                 class="bbx-sidebar-combo" [currentForm]="currentForm" formFieldName="warehouseForCombo" label="Alapértelmezett raktár"
                 [data$]="wareHouseComboData$"></app-bbx-combo-box>
+
         </form>
     </nb-card-body>
 </nb-card>
