@@ -231,7 +231,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       postalCode: invoice.supplierPostalCode,
       city: invoice.supplierCity,
       additionalAddressDetail: invoice.supplierAdditionalAddressDetail,
-      customerBankAccountNumber: invoice.SupplierBankAccountNumber,
+      customerBankAccountNumber: invoice.supplierBankAccountNumber,
       taxpayerNumber: invoice.supplierTaxpayerNumber,
       thirdStateTaxId: invoice.supplierThirdStateTaxId,
       comment: invoice.supplierComment,
@@ -247,7 +247,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       customerBankAccountNumber: invoice.customerBankAccountNumber,
       taxpayerNumber: invoice.customerTaxpayerNumber,
       thirdStateTaxId: invoice.customerThirdStateTaxId,
-      comment: invoice.CustomerComment,
+      comment: invoice.customerComment,
       customerVatStatus: invoice.customerVatStatus,
     } as Customer
 
