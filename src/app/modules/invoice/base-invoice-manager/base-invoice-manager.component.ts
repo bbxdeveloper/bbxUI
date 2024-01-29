@@ -150,8 +150,15 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
 
     this.outGoingInvoiceData.lineGrossAmount = this.outGoingInvoiceData.invoiceNetAmount + this.outGoingInvoiceData.invoiceVatAmount;
 
+    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
+
     if (this.mode.title === 'Számla') {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, 1);
+      const fractions = this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF ? 1 : 2
+
+      this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, fractions);
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, fractions);
+
+      return
     }
     else if (_paymentMethod === PaymentMethods.Cash && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
@@ -160,7 +167,6 @@ export class BaseInvoiceManagerComponent extends BaseInlineManagerComponent<Invo
     }
 
     this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
-    this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
   HandleGridCodeFieldEnter(event: any, row: TreeGridNode<InvoiceLine>, rowPos: number, objectKey: string, colPos: number, inputId: string, fInputType?: string): void {

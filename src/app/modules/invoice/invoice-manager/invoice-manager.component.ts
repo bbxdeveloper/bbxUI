@@ -493,6 +493,10 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           const currencyCode = this.currencyCodesData.find(x => x.text === value)?.value ?? ''
           return currencyCode ? of(currencyCode) : EMPTY
         }),
+        tap(value => {
+          if (value === CurrencyCodes.HUF)
+            controls['exchangeRate'].setValue(1)
+        }),
         tap(value => this.outGoingInvoiceData.currencyCode = value),
         tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
         switchMap((value: string) => value !== CurrencyCodes.HUF ? of(value) : EMPTY),
@@ -524,7 +528,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
               invoiceLine.latestSupplyPrice = invoiceLine.latestSupplyPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
 
-              invoiceLine.ReCalc()
+              invoiceLine.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes)
               invoiceLine.Save()
             })
 
@@ -1078,7 +1082,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     res.vatRate = product.vatPercentage ?? 1;
 
-    res.ReCalc();
+    res.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes);
 
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
