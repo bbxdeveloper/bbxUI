@@ -997,7 +997,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
-      debugger
       if (changedData.unitPrice < (changedData.latestSupplyPrice ?? 0)) {
         setTimeout(() => this.bbxToastrService.showError(Constants.MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE), 0)
 
