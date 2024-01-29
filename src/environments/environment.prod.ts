@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   electron: false,
-  apiUrl: "https://bbxbe.azurewebsites.net/",
+  apiUrl: "https://localhost:4444/",
   apiVersion: "/v1/",
 
   buildType: 'production - dev test',
