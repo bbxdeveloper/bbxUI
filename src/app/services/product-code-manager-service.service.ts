@@ -116,7 +116,7 @@ export class ProductCodeManagerServiceService {
       case 'minus-delivery-note':
       case 'minus-incoming-delivery-note':
         return this.ChooseDataForSummaryInvoiceTableRow(request)
-        case 'offers-edit':
+      case 'offers-edit':
         return this.ChooseDataForEditOfferTableRow(request)
       case 'offers-create':
         return this.ChooseDataForCreateOfferTableRow(request)
