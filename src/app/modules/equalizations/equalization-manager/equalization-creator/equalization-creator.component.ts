@@ -536,6 +536,24 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       return;
     }
 
+    if (this.dbData.find(x => !x.data.IsUnfinished() && HelperFunctions.isEmptyOrSpaces(x.data.bankTransaction)) !== undefined) {
+      this.bbxToastrService.show(
+        `Egy vagy több tétel esetében nincs kitöltve a banki azonosító.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+
+    if (this.dbData.find(x => !x.data.IsUnfinished() && HelperFunctions.isEmptyOrSpaces(x.data.invPaymentDate)) !== undefined) {
+      this.bbxToastrService.show(
+        `Egy vagy több tétel esetében nincs kitöltve a dátum.`,
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR
+      );
+      return;
+    }
+
     if (this.dbData.find(x => x.data.currencyCode === CurrencyCodes.HUF && x.data.exchangeRate !== 1) !== undefined) {
       this.bbxToastrService.show(
         `Egy vagy több tétel esetében hibás árfolyam van megadva.`,
@@ -575,7 +593,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
 
     const confirmDialogRef = this.dialogService.open(ConfirmationWithAuthDialogComponent, { context: { title: Constants.MSG_CONFIRMATION_SAVE_DATA } });
     confirmDialogRef.onClose.subscribe(async (res: ConfirmationWithAuthDialogesponse) => {
-      if (!res)
+      if (!res || !res.answer)
         return
 
       console.log('Save: ', this.invPaymentData);
@@ -659,7 +677,7 @@ export class EqualizationCreatorComponent extends BaseInlineManagerComponent<Inv
       let _event = event.Event;
       switch (_event.key) {
         case this.KeySetting[Actions.Delete].KeyCode: {
-          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+          if (this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked || !this.dbDataTable?.CanDelete()) {
             HelperFunctions.StopEvent(_event);
             return;
           }
