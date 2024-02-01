@@ -768,7 +768,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
 
     if (this.mode.Delivery) {
-      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceIssueDate'].value;
     } else {
       this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
     }
