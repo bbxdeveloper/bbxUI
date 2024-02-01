@@ -909,8 +909,12 @@ export class InlineEditableNavigatableTable<T extends IEditable> implements INav
         this.parentComponent.RecalcNetAndVat();
     }
 
+    CanDelete(): boolean {
+        return this.data.length > 1
+    }
+
     HandleGridDelete(event: Event, row: TreeGridNode<T>, rowPos: number, col: string): void {
-        if (rowPos !== this.data.length - 1 && !this.kbS.isEditModeActivated) {
+        if (this.CanDelete() && rowPos !== this.data.length - 1 && !this.kbS.isEditModeActivated) {
             this.data.splice(rowPos, 1);
             this.dataSource.setData(this.data);
 
