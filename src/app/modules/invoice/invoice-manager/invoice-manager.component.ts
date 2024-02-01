@@ -393,12 +393,10 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       paymentMethod: new FormControl('', [Validators.required]),
       invoiceDeliveryDate: new FormControl('', [
         Validators.required,
-        this.validateInvoiceDeliveryDate.bind(this),
         validDate
       ]),
       invoiceIssueDate: new FormControl('', [
         Validators.required,
-        this.validateInvoiceIssueDate.bind(this),
         validDate
       ]),
       paymentDate: new FormControl('', [
@@ -493,7 +491,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
         switchMap((value: string) => HelperFunctions.isEmptyOrSpaces(value) ? EMPTY : of(value)),
         switchMap(value => {
           const currencyCode = this.currencyCodesData.find(x => x.text === value)?.value ?? ''
-          return of(currencyCode)
+          return currencyCode ? of(currencyCode) : EMPTY
+        }),
+        tap(value => {
+          if (value === CurrencyCodes.HUF)
+            controls['exchangeRate'].setValue(1)
         }),
         tap(value => this.outGoingInvoiceData.currencyCode = value),
         tap(value => this.exchangeRateVisible.next(value !== CurrencyCodes.HUF)),
@@ -526,7 +528,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
               invoiceLine.latestSupplyPrice = invoiceLine.latestSupplyPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
 
-              invoiceLine.ReCalc()
+              invoiceLine.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes)
               invoiceLine.Save()
             })
 
@@ -545,30 +547,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this
     );
     this.outInvFormNav!.OuterJump = true;
-  }
-
-  validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined) {
-      return null;
-    }
-
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
-
-    const wrong = deliveryDate?.isAfter(issueDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined) {
-      return null;
-    }
-
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
-
-    const wrong = issueDate?.isBefore(deliveryDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   validatePaymentDate(control: AbstractControl): any {
@@ -1023,7 +1001,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     }
 
     if (col === 'unitPrice') {
-      debugger
       if (changedData.unitPrice < (changedData.latestSupplyPrice ?? 0)) {
         setTimeout(() => this.bbxToastrService.showError(Constants.MSG_ERROR_PRICE_IS_LESS_THAN_LATEST_SUPPLY_PRICE), 0)
 
@@ -1105,7 +1082,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     res.vatRate = product.vatPercentage ?? 1;
 
-    res.ReCalc();
+    res.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes);
 
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;

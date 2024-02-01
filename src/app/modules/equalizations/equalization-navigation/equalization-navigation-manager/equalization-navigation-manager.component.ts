@@ -390,8 +390,6 @@ export class EqualizationNavigationManagerComponent extends BaseManagerComponent
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
-
-        this.dbDataTable?.HandleKey(event);
         break;
       }
       default: { }

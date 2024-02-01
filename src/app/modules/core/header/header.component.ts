@@ -23,6 +23,7 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 import { SystemService } from '../../system/services/system.service';
 import { SendDataToNavComponent } from '../nav/send-data-to-nav/send-data-to-nav.component';
 import { NavTechnicalCancelDialogComponent } from '../nav/nav-technical-cancel-dialog/nav-technical-cancel-dialog.component';
+import {UserLevels} from "../../system/models/UserLevels";
 
 @Component({
   selector: 'app-header',
@@ -44,36 +45,29 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   get InProgress(): boolean { return this.statusService.InProgress || this.isLoading; }
 
   get keyboardMode(): string {
-    var mode = this.keyboardService.currentKeyboardMode;
+    const mode = this.keyboardService.currentKeyboardMode;
     switch (mode) {
       case KeyboardModes.NAVIGATION:
         return "Mód: Navigáció";
-        break;
       case KeyboardModes.EDIT:
         return "Mód: Szerkesztés";
-        break;
       case KeyboardModes.NAVIGATION_EDIT:
         return "Mód: Javítás";
-        break;
       default:
         return "Mód: Ismeretlen";
-        break;
     }
   }
 
   get keyboardModeStatus(): string {
-    var mode = this.keyboardService.currentKeyboardMode;
+    const mode = this.keyboardService.currentKeyboardMode;
     switch (mode) {
       case KeyboardModes.NAVIGATION:
         return "primary";
-        break;
       case KeyboardModes.EDIT:
         return "warning";
-        break;
       case KeyboardModes.NAVIGATION_EDIT:
       default:
         return "danger";
-        break;
     }
   }
 
@@ -163,7 +157,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           const nextSubId = subItems[o];
 
           // If no available mapping for the menu, initialize it
-          if (!!!this.SubMapping[nextId]) {
+          if (!this.SubMapping[nextId]) {
             this.SubMapping[nextId] = new SubMappingNavigatable();
           }
 
@@ -421,5 +415,9 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
         }
       });
     });
+  }
+
+  public isUserHasLevel1(): boolean {
+    return this.tokenService.user?.userLevel === UserLevels.Level1
   }
 }

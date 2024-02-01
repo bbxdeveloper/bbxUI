@@ -161,7 +161,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       }
     });
     result.forEach(x => {
-      x.Value = HelperFunctions.currencyRound(x.Value, this.data.currencyCode, false, 1)
+      x.Value = HelperFunctions.currencyRound(x.Value, this.data.currencyCode, false, 2)
     });
     this.vatRateCodes = result;
   }
@@ -246,7 +246,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       discountedInvoiceNetAmount = this.invoiceStats.SummaryInvoiceDiscountedNetAmountSum;
     }
 
-    discountedInvoiceNetAmount = HelperFunctions.currencyRound(discountedInvoiceNetAmount, this.data.currencyCode, false, 1)
+    discountedInvoiceNetAmount = HelperFunctions.currencyRound(discountedInvoiceNetAmount, this.data.currencyCode, false, 2)
     this.sumForm.controls['discountedInvoiceNetAmount'].setValue(discountedInvoiceNetAmount);
 
     if (!this.isAggregate){
@@ -255,11 +255,11 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       if (this.negativeDiscount) {
         invoiceDiscountValue = -invoiceDiscountValue
       }
-      invoiceDiscountValue = HelperFunctions.currencyRound(invoiceDiscountValue, this.data.currencyCode, false, 1)
+      invoiceDiscountValue = HelperFunctions.currencyRound(invoiceDiscountValue, this.data.currencyCode, false, 2)
 
       this.sumForm.controls['invoiceDiscountValue'].setValue(invoiceDiscountValue);
     } else {
-      const discountedValue = HelperFunctions.currencyRound(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum, this.data.currencyCode, false, 1)
+      const discountedValue = HelperFunctions.currencyRound(this.invoiceStats.SummaryInvoiceInvoiceLineDiscountValueSum, this.data.currencyCode, false, 2)
       this.sumForm.controls['invoiceDiscountValue'].setValue(discountedValue);
 
       this.sumForm.controls['invoiceNetAmount'].setValue(this.invoiceStats.SummaryInvoiceInvoiceLineNetSum);
@@ -282,7 +282,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
         .map(x => HelperFunctions.ToFloat(x.discountedData!.lineVatAmount))
         .reduce((sum, current) => sum + current, 0);
 
-      discountedVatAmount = HelperFunctions.currencyRound(discountedVatAmount, this.data.currencyCode, false, 1)
+      discountedVatAmount = HelperFunctions.currencyRound(discountedVatAmount, this.data.currencyCode, false, 2)
 
       discountedGross = discountedInvoiceNetAmount + discountedVatAmount;
     }

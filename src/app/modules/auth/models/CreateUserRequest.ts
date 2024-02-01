@@ -6,4 +6,5 @@ export interface CreateUserRequest {
     comment: string
     active: boolean
     warehouseID: number
+    userLevel: string
 }

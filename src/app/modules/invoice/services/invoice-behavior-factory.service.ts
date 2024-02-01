@@ -74,7 +74,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceCategory = InvoiceCategory.NORMAL
     result.invoiceType = InvoiceTypes.INC
     result.incoming = true
-    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.quantityValidators = [new NotZeroQuantityValidator]
     result.title = 'Be. Számla'
     result.checkCustomerLimit = false
     return result
@@ -121,7 +121,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceCategory = InvoiceCategory.NORMAL
     result.invoiceType = InvoiceTypes.INV
     result.incoming = false
-    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.quantityValidators = [new NotZeroQuantityValidator]
     result.isSummaryInvoice = false
     result.checkCustomerLimit = true
     result.title = 'Számla'

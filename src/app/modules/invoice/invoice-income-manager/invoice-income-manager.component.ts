@@ -256,12 +256,10 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         ]),
         invoiceDeliveryDate: new FormControl('', [
           Validators.required,
-          this.validateInvoiceDeliveryDate.bind(this),
           validDate
         ]),
         invoiceIssueDate: new FormControl('', [
           Validators.required,
-          this.validateInvoiceIssueDate.bind(this),
           validDate
         ]),
         paymentDate: new FormControl('', [
@@ -312,31 +310,6 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
         this.RecalcNetAndVat();
       }
     });
-  }
-
-  // invoiceDeliveryDate
-  validateInvoiceDeliveryDate(control: AbstractControl): any {
-    if (this.invoiceIssueDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceIssueDateValue.toDateString());
-
-    const wrong = deliveryDate?.isAfter(issueDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
-  }
-
-  validateInvoiceIssueDate(control: AbstractControl): any {
-    if (this.invoiceDeliveryDateValue === undefined || this.mode.incoming) {
-      return null;
-    }
-
-    let issueDate = HelperFunctions.GetDateIfDateStringValid(control.value);
-    let deliveryDate = HelperFunctions.GetDateIfDateStringValid(this.invoiceDeliveryDateValue.toDateString());
-
-    const wrong = issueDate?.isBefore(deliveryDate, "day")
-    return wrong ? { wrongDate: { value: control.value } } : null;
   }
 
   // paymentDate
@@ -435,12 +408,11 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
       this.RecalcNetAndVat();
     }
 
-    const canSuggestPriceChange = () => {
-      return (changedData.unitPrice < changedData.latestSupplyPrice || changedData.unitPrice > changedData.latestSupplyPrice)
-        && changedData.unitPrice !== changedData.previousUnitPrice;
-    }
+    const canSuggestPriceChange = (changedData.unitPrice < changedData.latestSupplyPrice || changedData.unitPrice > changedData.latestSupplyPrice)
+      && changedData.unitPrice !== changedData.previousUnitPrice
+      && changedData.quantity > 0
 
-    if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange()) {
+    if (col === 'unitPrice' && index >= 0 && canSuggestPriceChange) {
       changedData.previousUnitPrice = changedData.unitPrice
 
       this.suggestPriceChange(this.dbData[index].data, false)
@@ -855,23 +827,37 @@ export class InvoiceIncomeManagerComponent extends BaseInvoiceManagerComponent i
 
   @HostListener('window:keydown.f9', ['$event'])
   public onF9(event: Event): void {
-    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+    let rowIndex = this.canSuggestPriceChange()
+    if (rowIndex === -1) {
       return
+    }
+
+    this.suggestPriceChange(this.dbData[rowIndex].data, true)
+  }
+
+  private canSuggestPriceChange(): number {
+    if (!this.kbS.IsCurrentNavigatable(this.dbDataTable) || this.khs.IsDialogOpened || this.khs.IsKeyboardBlocked) {
+      return -1
     }
 
     const regex = /PRODUCT-\d+-(\d+)/
     const match = this.kbS.Here.match(regex)
-    if (match) {
-      const rowIndex = parseInt(match[1])
-
-      if (rowIndex === this.dbData.length - 1) {
-        setTimeout(() => {
-          this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW);
-        }, 0);
-      } else {
-        this.suggestPriceChange(this.dbData[rowIndex].data, true)
-      }
+    if (!match) {
+      return -1
     }
+
+    const rowIndex = parseInt(match[1])
+    if (rowIndex === this.dbData.length - 1) {
+      setTimeout(() => this.bbxToastrService.showError(Constants.MSG_CANNOT_ON_EDIT_ROW), 0);
+      return -1
+    }
+
+    if (this.dbData[rowIndex].data.quantity < 0) {
+      setTimeout(() => this.bbxToastrService.showError(Constants.MSG_NOT_EDITABLE_WITH_NEGATIVE_QUANTITY), 0)
+      return -1
+    }
+
+    return rowIndex
   }
 
   @HostListener('window:keydown', ['$event']) onFunctionKeyDown(event: KeyboardEvent) {
