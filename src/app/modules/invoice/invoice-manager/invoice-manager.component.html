@@ -101,8 +101,6 @@
 
                 <nb-form-field *ngIf="exchangeRateVisible | async" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" id="exchange-rate">
                     <label>Árfolyam</label>
-<!--                    <input nbInput type="text" formControlName="exchangeRate" required="true" name="exchange-rate"-->
-<!--                           class="{{TileCssClass}}" [readonly]="editDisabled" id="m06" [inputMask]="numberInputMask">-->
 
                     <app-bbx-numeric-input
                         name="exchange-rate"
