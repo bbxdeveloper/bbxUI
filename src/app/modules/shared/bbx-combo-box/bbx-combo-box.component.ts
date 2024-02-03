@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { BlankComboBoxValue, FlatDesignNavigatableForm, TileCssClass, TileCssColClass } from 'src/assets/model/navigation/Nav';
@@ -25,6 +25,8 @@ export class BbxComboBoxComponent implements AfterViewInit {
   @Input() needBlankOption: boolean = true;
   @Input() autoFillFirstAvailableValue: boolean = false;
   @Input() lastFormField: boolean = false;
+
+  @Output() focusout = new EventEmitter
 
   @Input() blankOptionText: string = BlankComboBoxValue;
 
@@ -98,5 +100,13 @@ export class BbxComboBoxComponent implements AfterViewInit {
 
     input.selectionStart = 0
     input.selectionEnd = input.value.length
+  }
+
+  public onFocusout(event: any, autoCorrectSelectCaseInsensitive: boolean): void {
+    if (autoCorrectSelectCaseInsensitive) {
+      this.currentForm?.AutoCorrectSelectCaseInsensitive(event, this.currentDataCount, this.currentFilteredData, this.currentTypedData, false, this.lastFormField, this.formFieldName)
+    }
+
+    this.focusout.emit(event)
   }
 }

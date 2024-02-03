@@ -549,6 +549,15 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.outInvFormNav!.OuterJump = true;
   }
 
+  public isCurrencyValid(event: any): void {
+    const value = this.outInvForm.controls['currency'].value
+    const currency = this.currencyCodesData.find(x => x.text === value)
+
+    if (!currency) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NON_EXISTENT_CURRENCY)
+    }
+  }
+
   validatePaymentDate(control: AbstractControl): any {
     if (this.invoiceIssueDateValue === undefined) {
       return null;
