@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
-import { of, lastValueFrom, pairwise } from 'rxjs';
+import { of, lastValueFrom, pairwise, tap, Subject, switchMap, map, EMPTY } from 'rxjs';
 import { CommonService } from 'src/app/services/common.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -33,7 +33,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerDiscountService } from '../../customer-discount/services/customer-discount.service';
 import { TableKeyDownEvent, isTableKeyDownEvent } from '../../shared/inline-editable-table/inline-editable-table.component';
-import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { CurrencyCode, CurrencyCodes } from '../../system/models/CurrencyCode';
 import { CustomersHasPendingInvoiceComponent } from '../customers-has-pending-invoice/customers-has-pending-invoice.component';
 import { PendingDeliveryInvoiceSummary } from '../models/PendingDeliveriInvoiceSummary';
 import { PendingDeliveryNoteItem } from '../models/PendingDeliveryNoteItem';
@@ -47,6 +47,9 @@ import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoic
 import { InvoiceTypes } from '../models/InvoiceTypes';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import {CustomerSearchComponent} from "../customer-serach/customer-search.component";
+import { SystemService } from '../../system/services/system.service';
+import { GetExchangeRateParamsModel } from '../../system/models/GetExchangeRateParamsModel';
+import moment from 'moment';
 
 @Component({
   selector: 'app-summary-invoice',
@@ -63,6 +66,10 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   buyerData!: Customer;
 
   customerInputFilterString: string = '';
+
+  currencyVisible = false
+  currencyCodesData: CurrencyCode[] = []
+  exchangeQuery = new Subject<CurrencyCodes>()
 
   override colsToIgnore: string[] = ["productDescription", "unitOfMeasureX", 'unitPrice', 'rowNetPrice','rowGrossPriceRounded'];
   requiredCols: string[] = ['productCode', 'quantity'];
@@ -173,6 +180,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     printAndDownLoadService: PrintAndDownloadService,
     custDiscountService: CustomerDiscountService,
     public readonly invoiceStatisticsService: InvoiceStatisticsService,
+    private readonly systemService: SystemService,
   ) {
     super(dialogService, footerService, dataSourceBuilder, invoiceService,
       customerService, cdref, kbS, simpleToastrService, bbxToastrService,
@@ -263,32 +271,49 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     this.dbData = [];
     this.dbDataDataSrc = this.dataSourceBuilder.create(this.dbData);
 
-    if (this.outInvForm === undefined) {
-      this.outInvForm = new FormGroup({
-        paymentMethod: new FormControl('', [Validators.required]),
-        invoiceDeliveryDate: new FormControl('', [
-          Validators.required,
-          validDate
-        ]),
-        invoiceIssueDate: new FormControl('', [
-          Validators.required,
-          validDate
-        ]),
-        paymentDate: new FormControl('', [
-          Validators.required,
-          this.validatePaymentDate.bind(this),
-          validDate
-        ]),
-        invoiceOrdinal: new FormControl('', []), // in post response
-        notice: new FormControl('', []),
-      });
-      if (this.mode.incoming) {
-        this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
-          Validators.required
-        ]));
-      }
-    } else {
-      this.outInvForm.reset(undefined);
+    this.outInvForm = new FormGroup({
+      paymentMethod: new FormControl('', [Validators.required]),
+      invoiceDeliveryDate: new FormControl('', [
+        Validators.required,
+        validDate
+      ]),
+      invoiceIssueDate: new FormControl('', [
+        Validators.required,
+        validDate
+      ]),
+      paymentDate: new FormControl('', [
+        Validators.required,
+        this.validatePaymentDate.bind(this),
+        validDate
+      ]),
+      invoiceOrdinal: new FormControl('', []), // in post response
+      notice: new FormControl('', []),
+      currency: new FormControl(''),
+      exchangeRate: new FormControl(''),
+    });
+
+    this.outInvForm.controls['currency'].valueChanges
+      .pipe(
+        switchMap((value: string) => {
+          const currency = this.currencyCodesData.find(x => x.text === value)
+
+          return currency ? of(currency.value as CurrencyCodes) : EMPTY
+        }),
+        tap(currency => this.outGoingInvoiceData.currencyCode = currency),
+        tap((value: CurrencyCodes) => {
+          if (value !== CurrencyCodes.HUF) {
+            this.currencyVisible = true
+
+            this.exchangeQuery.next(value as CurrencyCodes)
+          }
+        })
+      )
+      .subscribe()
+
+    if (this.mode.incoming) {
+      this.outInvForm.addControl('customerInvoiceNumber', new FormControl('', [
+        Validators.required
+      ]));
     }
 
     this.outInvFormNav = new InlineTableNavigatableForm(
@@ -493,11 +518,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       }
 
       setTimeout(() => {
-        this.bbxToastrService.show(
-          validationResult,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        )
+        this.bbxToastrService.showError(validationResult)
       }, 0);
       this.dbData[index].data.Restore()
 
@@ -583,6 +604,39 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   }
 
   ngOnInit(): void {
+    this.isLoading = true
+    this.systemService.GetAllCurrencyCodes()
+      .subscribe({
+        next: codes => this.currencyCodesData = codes,
+        error: (error) => {
+          this.cs.HandleError(error)
+          this.isLoading = true
+        },
+        complete: () => this.isLoading = false
+      })
+
+    this.exchangeQuery
+      .pipe(
+        tap(() => this.isLoading = true),
+        map((currencyCode: CurrencyCodes) => ({
+          Currency: currencyCode.toString(),
+          ExchengeRateDate: moment().format('YYYY-MM-DD')
+        } as GetExchangeRateParamsModel)),
+        switchMap(request => this.systemService.GetExchangeRate(request)),
+        tap(() => this.isLoading = false),
+        tap(value => this.outInvForm.controls['exchangeRate'].setValue(value)),
+        tap(() => this.outInvFormNav.GenerateAndSetNavMatrices(false)),
+        tap(value => this.outGoingInvoiceData.exchangeRate = value)
+      )
+      .subscribe({
+        next: () => {},
+        error: error => {
+          this.cs.HandleError(error)
+          this.isLoading = false
+        },
+        complete: () => this.isLoading = false
+      })
+
     this.fS.pushCommands(this.commands);
   }
 
@@ -629,7 +683,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
         closeOnBackdropClick: false
       });
 
-      dialog.onClose.subscribe({ next: this.customerSelected.bind(this) })
+      dialog.onClose.subscribe(this.customerSelected.bind(this))
     }, 500);
   }
 
@@ -637,6 +691,8 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     if (!x) {
       return;
     }
+
+    this.outInvForm.controls['currency'].setValue(x.currencyCodeX)
 
     try {
       const customer = await lastValueFrom(this.customerService.Get({ ID: x.customerID }))
@@ -697,9 +753,6 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       this.outGoingInvoiceData.invoiceLines[i].quantity = HelperFunctions.ToFloat(this.outGoingInvoiceData.invoiceLines[i].quantity);
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
-
-    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF;
-    this.outGoingInvoiceData.exchangeRate = 1;
 
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? '';
 
@@ -924,7 +977,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       if (relDeliveryDate < invoiceDeliveryDate) {
         this.outGoingInvoiceData.invoiceDeliveryDate = note.relDeliveryDate
       }
-      
+
       if (!this.mode.Delivery) {
         const formVal = this.outInvForm.controls['invoiceDeliveryDate'].value
         const deliveryDateString = HelperFunctions.GetDateStringFromDate(relDeliveryDate.toDateString())
