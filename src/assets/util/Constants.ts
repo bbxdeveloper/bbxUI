@@ -7,6 +7,7 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 export module Constants {
     // Messages
+    export const MSG_ERROR_NON_EXISTENT_CURRENCY = 'Nincs ilyen pénznem.'
     export const MSG_ERROR_DATE_OUT_OF_RANGE: string = 'A dátum a megadott értékhatáron kívülre esik.'
     export const MSG_ERROR_INVALID_FORM: string = 'Az űrlap hibásan van kitöltve.'
     export const MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD = 'Legalább egy érvényesen megadott tétel szükséges a mentéshez.'
