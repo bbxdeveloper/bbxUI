@@ -1101,7 +1101,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
 
-        if (!this.mode.incoming && !this.customerData.isFA && product.vatRateCode === OfflineVatRate.FA.vatRateCode) {
+    if (!this.mode.incoming && !this.customerData.isFA && product.vatRateCode === OfflineVatRate.FA.vatRateCode) {
       setTimeout(() => {
         this.bbxToastrService.showError(HelperFunctions.StringFormat(Constants.MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER, product.productCode))
       }, 0);
