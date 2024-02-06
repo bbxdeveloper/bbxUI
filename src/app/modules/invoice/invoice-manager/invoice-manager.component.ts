@@ -835,6 +835,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       valid = false;
     }
 
+    if (this.outGoingInvoiceData.lineGrossAmount < 0) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NEGATIVE_LINE_GROSS_AMOUNT)
+      valid = false
+    }
+
     if (!valid) {
       return;
     }
