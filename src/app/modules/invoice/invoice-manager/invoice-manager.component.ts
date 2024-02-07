@@ -549,6 +549,15 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.outInvFormNav!.OuterJump = true;
   }
 
+  public isCurrencyValid(event: any): void {
+    const value = this.outInvForm.controls['currency'].value
+    const currency = this.currencyCodesData.find(x => x.text === value)
+
+    if (!currency) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NON_EXISTENT_CURRENCY)
+    }
+  }
+
   validatePaymentDate(control: AbstractControl): any {
     if (this.invoiceIssueDateValue === undefined) {
       return null;
@@ -768,7 +777,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     this.outGoingInvoiceData.invoiceIssueDate = this.outInvForm.controls['invoiceIssueDate'].value;
 
     if (this.mode.Delivery) {
-      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceDeliveryDate'].value;
+      this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['invoiceIssueDate'].value;
     } else {
       this.outGoingInvoiceData.paymentDate = this.outInvForm.controls['paymentDate'].value;
     }
@@ -824,6 +833,11 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     if (this.dbData.find(x => !x.data.IsUnfinished()) === undefined) {
       this.bbxToastrService.showError(`Legalább egy érvényesen megadott tétel szükséges a mentéshez.`);
       valid = false;
+    }
+
+    if (this.outGoingInvoiceData.lineGrossAmount < 0) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NEGATIVE_LINE_GROSS_AMOUNT)
+      valid = false
     }
 
     if (!valid) {

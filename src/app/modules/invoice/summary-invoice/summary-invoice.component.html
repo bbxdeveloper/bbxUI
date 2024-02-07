@@ -96,6 +96,26 @@
                         placeholder="Bizonylat sorszáma" id="m04">
                 </nb-form-field>
 
+                <nb-form-field id="currency" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" *ngIf="!mode.Delivery && currencyVisible">
+                    <label>Pénznem</label>
+                    <input nbInput type="text" formControlName="currency" [readonly]="true" id="m04">
+                </nb-form-field>
+
+                <nb-form-field id="exchange-rate" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" *ngIf="!mode.Delivery && currencyVisible">
+                    <label>Árfolyam</label>
+                    <app-bbx-numeric-input
+                        formControlName="exchangeRate"
+                        formCtrlName="exchangeRate"
+                        class="display-contents"
+                        input_class="{{TileCssClass}}"
+                        placeholder="0.00"
+                        (click)="outInvFormNav.HandleFormFieldClick($event)"
+                        [inputmask]="numberInputMask"
+                        [usedForm]="outInvForm"
+                        [readonly]="editDisabled">
+                    </app-bbx-numeric-input>
+                </nb-form-field>
+
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <div class="notice">
                         <label>Egyéb adatok</label>

@@ -28,7 +28,7 @@
                         [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth" [style.width]="it.colWidth"
                         [style.text-align]="it.textAlign"
                         id="{{'TABLE-CELL-' + colPos + '-' + rowPos}}">
-                        
+
                         <ng-container>
                             <ng-container *ngSwitchCase="'code-field'">
                                 <div>
@@ -91,17 +91,6 @@
             </ng-container>
         </table>
 
-        <div class="flex justify-center pending-notes-function-row">
-            <nb-actions size="medium" >
-                <nb-action>
-                    <span class="fkey-key">F6</span>
-                    <span class="fkey-value">Szállító szerint</span>
-                </nb-action>
-                <nb-action>
-                    <span class="fkey-key">F7</span>
-                    <span class="fkey-value">Összes</span>
-                </nb-action>
-            </nb-actions>
-        </div>
+        <app-function-row [keys]="[['F6', 'Szállító szerint'], ['F7', 'Összes']]"></app-function-row>
     </nb-card-body>
 </nb-card>

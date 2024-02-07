@@ -7,6 +7,7 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 export module Constants {
     // Messages
+    export const MSG_ERROR_NON_EXISTENT_CURRENCY = 'Nincs ilyen pénznem.'
     export const MSG_ERROR_DATE_OUT_OF_RANGE: string = 'A dátum a megadott értékhatáron kívülre esik.'
     export const MSG_ERROR_INVALID_FORM: string = 'Az űrlap hibásan van kitöltve.'
     export const MSG_ERROR_NEED_AT_LEAST_ONE_VALID_RECORD = 'Legalább egy érvényesen megadott tétel szükséges a mentéshez.'
@@ -48,6 +49,7 @@ export module Constants {
     export const MSG_NOT_EDITABLE_WITH_NEGATIVE_QUANTITY = 'Beszerzési ár nem szerkeszthető negatív mennyiség esetén.'
     export const MSG_INVALID_CREDENTIALS: string = 'Helytelen felhasználónév vagy jelszó.'
 
+    export const MSG_ERROR_NEGATIVE_LINE_GROSS_AMOUNT = 'A bizonylat végösszege nem lehet negatív!'
     export const MSG_ERROR_NO_DISCOUNT: string = 'A termékre engedmény tiltás van beállítva!'
     export const MSG_ERROR_NO_WAREHOUSE_SELECTED = "Nincs kiválasztott raktár. A művelethez bejelentkezés szükséges!"
     export const MSG_ERROR_NO_PRODUCT_SELECTED = "Nincs kiválasztott termék!"

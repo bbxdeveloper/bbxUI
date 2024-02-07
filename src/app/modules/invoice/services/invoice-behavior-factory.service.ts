@@ -63,7 +63,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceCategory = InvoiceCategory.NORMAL
     result.invoiceType = InvoiceTypes.DNI
     result.incoming = true
-    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.quantityValidators = [new NotZeroQuantityValidator]
     result.title = 'Be. Szállítólevél'
     result.checkCustomerLimit = false
     return result
@@ -173,7 +173,7 @@ export class InvoiceBehaviorFactoryService {
     result.invoiceCategory = InvoiceCategory.AGGREGATE
     result.invoiceType = InvoiceTypes.INC
     result.incoming = true
-    result.quantityValidators = [new NotZeroQuantityValidator, new PositiveQuantityValidator]
+    result.quantityValidators = [new NotZeroQuantityValidator]
     result.isSummaryInvoice = true
     result.title = 'Be. Gyűjtőszámla'
     result.unitPriceColumnTitle = 'Besz.Ár'

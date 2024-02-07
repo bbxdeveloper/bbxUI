@@ -96,13 +96,12 @@
                 </nb-form-field>
 
                 <app-bbx-combo-box class="bbx-sidebar-combo" [currentForm]="outInvFormNav" formFieldName="currency" label="Pénznem"
-                                   [data$]="currencyCodes" [simpleMode]="false" [needBlankOption]="false" [isReadonly]="editDisabled" [labelAboveField]="true" id="currency">
+                                   [data$]="currencyCodes" [simpleMode]="false" [needBlankOption]="false" [isReadonly]="editDisabled" [labelAboveField]="true" id="currency"
+                                   (focusout)="isCurrencyValid($event)">
                 </app-bbx-combo-box>
 
                 <nb-form-field *ngIf="exchangeRateVisible | async" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" id="exchange-rate">
                     <label>Árfolyam</label>
-<!--                    <input nbInput type="text" formControlName="exchangeRate" required="true" name="exchange-rate"-->
-<!--                           class="{{TileCssClass}}" [readonly]="editDisabled" id="m06" [inputMask]="numberInputMask">-->
 
                     <app-bbx-numeric-input
                         name="exchange-rate"
