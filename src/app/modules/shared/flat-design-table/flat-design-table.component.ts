@@ -15,6 +15,7 @@ import { Status } from "../Status";
 import { StatusService } from 'src/app/services/status.service';
 import { CommonService } from 'src/app/services/common.service';
 import { HtmlStringSanitizerPipe } from '../pipes/html-string-sanitizer.pipe';
+import { isICellStatusProvider } from '../ICellStatusProvider';
 
 export const FORMATTED_NUMBER_COL_TYPES = [
   'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
@@ -144,15 +145,27 @@ export class FlatDesignTableComponent implements OnInit {
     return classes;
   }
 
-  private getStatus(row: TreeGridNode<any>): Status {
+  private getRowStatus(row: TreeGridNode<any>): Status {
     return isIRowStatusProvider(row.data) ? row.data.getRowStatus() : Status.None
   }
 
   public isRowSuccess(row: TreeGridNode<any>): boolean {
-    return this.getStatus(row) === Status.Success
+    return this.getRowStatus(row) === Status.Success
   }
 
   public isRowWarning(row: TreeGridNode<any>): boolean {
-    return this.getStatus(row) === Status.Warning
+    return this.getRowStatus(row) === Status.Warning
+  }
+
+  public getCellStatus(row: TreeGridNode<any>, cell: string): Status {
+    return isICellStatusProvider(row.data) ? row.data.getCellStatus(cell) : Status.None
+  }
+
+  public isCellSuccess(row: TreeGridNode<any>, cell: string): boolean {
+    return this.getCellStatus(row, cell) === Status.Success
+  }
+
+  public isCellWarning(row: TreeGridNode<any>, cell: string): boolean {
+    return this.getCellStatus(row, cell) === Status.Warning
   }
 }
