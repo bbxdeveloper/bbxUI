@@ -418,33 +418,24 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
 
   override Refresh(params?: GetStockCardsParamsModel): void {
     if (this.filterForm.invalid) {
-      this.bbxToastrService.show(
-        Constants.MSG_INVALID_FILTER_FORM,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      );
+      this.bbxToastrService.showError(Constants.MSG_INVALID_FILTER_FORM);
       return;
     }
+
     this.isLoading = true;
     this.stockCardService.GetAll(params).subscribe({
       next: (d) => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.bbxToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+        if (!d.succeeded || !d.data) {
+          this.bbxToastrService.showError(d.errors!.join('\n'));
+          return
         }
+
+        this.dbData = d.data.map((x) => {
+          return { data: Object.assign(new StockCard(), x), uid: this.nextUid() };
+        });
+        this.dbDataDataSrc.setData(this.dbData);
+        this.dbDataTable.SetPaginatorData(d);
+        this.RefreshTable(undefined, true);
       },
       error: (err) => {
         { this.cs.HandleError(err); this.isLoading = false; };
