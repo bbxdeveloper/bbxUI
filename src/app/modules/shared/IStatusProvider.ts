@@ -1,9 +1,9 @@
 import { Status } from "./Status"
 
-export interface IStatusProvider {
-    getStatus(): Status
+export interface IRowStatusProvider {
+    getRowStatus(): Status
 }
 
-export function isIStatusProvider(obj: unknown): obj is IStatusProvider {
-    return (obj as IStatusProvider).getStatus !== undefined
+export function isIRowStatusProvider(obj: unknown): obj is IRowStatusProvider {
+    return (obj as IRowStatusProvider).getRowStatus !== undefined
 }

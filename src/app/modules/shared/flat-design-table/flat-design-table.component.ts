@@ -10,7 +10,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
-import { isIStatusProvider } from '../IStatusProvider';
+import { isIRowStatusProvider } from '../IStatusProvider';
 import { Status } from "../Status";
 import { StatusService } from 'src/app/services/status.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -65,7 +65,7 @@ export class FlatDesignTableComponent implements OnInit {
     private sideBarService: BbxSidebarService,
     private statusService: StatusService,
     private commonService: CommonService) {}
-  
+
   GetColWidth(col: ModelFieldDescriptor): any {
     return HelperFunctions.GetHeaderColWidth(col, this.allColumns, this.dbDataTableId)
   }
@@ -145,7 +145,7 @@ export class FlatDesignTableComponent implements OnInit {
   }
 
   private getStatus(row: TreeGridNode<any>): Status {
-    return isIStatusProvider(row.data) ? row.data.getStatus() : Status.None
+    return isIRowStatusProvider(row.data) ? row.data.getRowStatus() : Status.None
   }
 
   public isRowSuccess(row: TreeGridNode<any>): boolean {

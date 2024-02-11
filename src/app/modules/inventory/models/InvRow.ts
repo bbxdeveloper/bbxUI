@@ -1,8 +1,8 @@
-import { IStatusProvider } from "../../shared/IStatusProvider";
+import { IRowStatusProvider } from "../../shared/IStatusProvider";
 import { Status } from "../../shared/Status";
 import { InvCtrlItemForGet } from "./InvCtrlItem";
 
-export class InvRow implements IStatusProvider {
+export class InvRow implements IRowStatusProvider {
     public static fromInvCtrlItemForGet(value: InvCtrlItemForGet): InvRow {
         const res = new InvRow();
 
@@ -23,7 +23,7 @@ export class InvRow implements IStatusProvider {
     oRealAmount: number = 0;
     nRealAmount: number = 0;
 
-    getStatus(): Status {
+    getRowStatus(): Status {
         if (this.oRealQty < this.nRealQty) {
             return Status.Success
         }
