@@ -10,7 +10,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { DefaultKeySettings } from 'src/assets/util/KeyBindings';
 import { environment } from 'src/environments/environment';
-import { isIRowStatusProvider } from '../IStatusProvider';
+import { isIRowStatusProvider } from '../IRowStatusProvider';
 import { Status } from "../Status";
 import { StatusService } from 'src/app/services/status.service';
 import { CommonService } from 'src/app/services/common.service';

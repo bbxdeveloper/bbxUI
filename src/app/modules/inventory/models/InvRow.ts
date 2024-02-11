@@ -1,4 +1,4 @@
-import { IRowStatusProvider } from "../../shared/IStatusProvider";
+import { IRowStatusProvider } from "../../shared/IRowStatusProvider";
 import { Status } from "../../shared/Status";
 import { InvCtrlItemForGet } from "./InvCtrlItem";
 
