@@ -47,6 +47,26 @@
             </app-form-control-error>
         </nb-form-field>
 
+        <nb-form-field id="currency" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" *ngIf="currencyVisible">
+            <label>Pénznem</label>
+            <input nbInput type="text" formControlName="currency" [readonly]="true" id="m04">
+        </nb-form-field>
+
+        <nb-form-field id="exchange-rate" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)" *ngIf="currencyVisible">
+            <label>Árfolyam</label>
+            <app-bbx-numeric-input
+                formControlName="exchangeRate"
+                formCtrlName="exchangeRate"
+                class="display-contents"
+                input_class="{{tileCssClass}}"
+                placeholder="0.00"
+                (click)="outInvFormNav.HandleFormFieldClick($event)"
+                [inputmask]="numberInputMask"
+                [usedForm]="outInvForm"
+                [readonly]="true">
+            </app-bbx-numeric-input>
+        </nb-form-field>
+
         <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
             <label>Bizonylat sorszáma</label>
             <input nbInput type="text" formControlName="invoiceOrdinal" readonly

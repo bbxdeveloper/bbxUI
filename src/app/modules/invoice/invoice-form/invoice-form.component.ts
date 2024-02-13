@@ -12,6 +12,8 @@ import { InvoiceFormData } from './InvoiceFormData';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 
 @Component({
   selector: 'app-invoice-form',
@@ -32,16 +34,21 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     }
     const paymentMethod = this.paymentMethods.find(x => x.value === invoiceFormData.paymentMethod)?.text ?? 'Átutalás'
 
-    const controls = this.outInvForm.controls
-    controls['paymentMethod'].setValue(paymentMethod)
-    controls['customerInvoiceNumber'].setValue(invoiceFormData.customerInvoiceNumber)
-    controls['invoiceDeliveryDate'].setValue(invoiceFormData.invoiceDeliveryDate)
-    controls['invoiceIssueDate'].setValue(invoiceFormData.invoiceIssueDate)
-    controls['paymentDate'].setValue(invoiceFormData.paymentDate)
-    controls['invoiceOrdinal'].setValue(invoiceFormData.invoiceOrdinal)
-    controls['notice'].setValue(invoiceFormData.notice)
+    this.currencyVisible = invoiceFormData.currency !== CurrencyCodes.HUF
+
+    this.outInvForm.patchValue({
+      paymentMethod: paymentMethod,
+      customerInvoiceNumber: invoiceFormData.customerInvoiceNumber,
+      invoiceDeliveryDate: invoiceFormData.invoiceDeliveryDate,
+      invoiceIssueDate: invoiceFormData.invoiceIssueDate,
+      paymentDate: invoiceFormData.paymentDate,
+      invoiceOrdinal: invoiceFormData.invoiceOrdinal,
+      notice: invoiceFormData.notice,
+      currency: invoiceFormData.currency,
+      exchangeRate: invoiceFormData.exchangeRate,
+    })
   }
-  public get invoiceFormData() {
+  public get invoiceFormData(): InvoiceFormData {
     const controls = this.outInvForm.controls
 
     const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod'].value)?.value
@@ -52,10 +59,16 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
       invoiceIssueDate: controls['invoiceIssueDate'].value,
       paymentDate: controls['paymentDate'].value,
       invoiceOrdinal: controls['invoiceOrdinal'].value,
-      notice: controls['notice'].value
+      notice: controls['notice'].value,
+      currency: controls['currency'].value,
+      exchangeRate: controls['exchangeRate'].value,
     } as InvoiceFormData
     return formData
   }
+
+  public currencyVisible = false
+
+  public numberInputMask = NgNeatInputMasks.numberInputMask
 
   public tileCssClass = TileCssClass
 
@@ -110,8 +123,10 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
         this.validatePaymentDate.bind(this),
         validDate
       ]),
-      invoiceOrdinal: new FormControl('', []), // in post response
-      notice: new FormControl('', []),
+      invoiceOrdinal: new FormControl(''), // in post response
+      notice: new FormControl(''),
+      currency: new FormControl(''),
+      exchangeRate: new FormControl(''),
     });
   }
 

@@ -54,5 +54,6 @@ export interface Invoice {
     summaryByVatRates: any[],
     invPayments: any[],
     currencyCode: string,
+    exchangeRate: number,
     invoicePaidDates?: string,
 }
