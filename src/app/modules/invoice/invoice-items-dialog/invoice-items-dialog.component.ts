@@ -11,6 +11,7 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { StatusService } from 'src/app/services/status.service';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 @Component({
   selector: 'app-invoice-items-dialog',
@@ -23,6 +24,9 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
 
   @Input()
   public checkedLineItems: InvoiceLine[] = []
+
+  @Input()
+  public currency = CurrencyCodes.HUF
 
   @Output()
   public selectedItemsChanged = new EventEmitter<InvoiceLine[]>(false)

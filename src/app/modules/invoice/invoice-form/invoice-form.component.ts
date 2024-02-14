@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, pairwise } from 'rxjs';
 import { validDate } from 'src/assets/model/Validators';
@@ -48,23 +48,9 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
       exchangeRate: invoiceFormData.exchangeRate,
     })
   }
-  public get invoiceFormData(): InvoiceFormData {
-    const controls = this.outInvForm.controls
 
-    const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod'].value)?.value
-    const formData = {
-      paymentMethod: paymentMethod,
-      customerInvoiceNumber: controls['customerInvoiceNumber'].value,
-      invoiceDeliveryDate: controls['invoiceDeliveryDate'].value,
-      invoiceIssueDate: controls['invoiceIssueDate'].value,
-      paymentDate: controls['paymentDate'].value,
-      invoiceOrdinal: controls['invoiceOrdinal'].value,
-      notice: controls['notice'].value,
-      currency: controls['currency'].value,
-      exchangeRate: controls['exchangeRate'].value,
-    } as InvoiceFormData
-    return formData
-  }
+  @Output()
+  public formDataChanged = new EventEmitter<InvoiceFormData>()
 
   public currencyVisible = false
 
@@ -128,6 +114,17 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
       currency: new FormControl(''),
       exchangeRate: new FormControl(''),
     });
+
+    this.outInvForm.valueChanges.subscribe(value => {
+      const paymentMethod = this.paymentMethods.find(x => x.value === value.paymentMethod)?.text ?? 'Átutalás'
+
+      const valami = {
+        ...value,
+        paymentMethod
+      } as InvoiceFormData
+
+      this.formDataChanged.emit(valami)
+    })
   }
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {

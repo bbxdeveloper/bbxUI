@@ -188,6 +188,7 @@ export class ProductCodeManagerServiceService {
         checkedLineItems: request.dbData?.map(x => x.data) ?? [],
         allColumns: InvoiceItemsDialogTableSettings.AllColumns,
         colDefs: InvoiceItemsDialogTableSettings.ColDefs,
+        currency: request.data.currencyCode as CurrencyCodes,
         selectedItemsChanged: event
       }
     })
