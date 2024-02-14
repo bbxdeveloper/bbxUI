@@ -933,7 +933,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       mode: this.mode,
       originalCustomerID: this.originalCustomerID,
       fillTableWithDataCallback: this.fillTableWithPendingNotes.bind(this),
-      showWorkNumber: !this.mode.incoming
+      showWorkNumber: !this.mode.incoming,
     } as ChooseSummaryInvoiceProductRequest);
   }
 

@@ -46,7 +46,7 @@ export interface ChooseSummaryInvoiceProductRequest extends ChooseProductRequest
   fillTableWithDataCallback: any
   originalCustomerID: number
   showWorkNumber?: boolean
-  mode: InvoiceBehaviorMode
+  mode: InvoiceBehaviorMode,
 }
 
 export interface ChooseCreateOfferProductRequest extends ChooseProductRequest<CreateOfferRequest> {
