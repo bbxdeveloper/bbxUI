@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, O
 import { NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { CorrectionInvoiceSelectionDialogComponent } from '../correction-invoice-selection-dialog/correction-invoice-selection-dialog.component';
 import { Invoice } from '../models/Invoice';
-import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
+import { Customer, isCustomerPrivatePerson, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
 import { BaseInlineManagerComponent } from '../../shared/base-inline-manager/base-inline-manager.component';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
@@ -260,6 +260,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       notice: invoice.notice,
     } as InvoiceFormData
 
+    this.outGoingInvoiceData.invoiceCategory = invoice.invoiceCategory
     this.outGoingInvoiceData.originalInvoiceID = invoice.id
     this.outGoingInvoiceData.invoiceDiscountPercent = invoice.invoiceDiscountPercent
 
@@ -451,7 +452,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
   private Save(): void {
     if (this.mode.invoiceType === InvoiceTypes.INV &&
-      !this.buyerData.privatePerson &&
+      !isCustomerPrivatePerson(this.buyerData) &&
       (isTaxPayerNumberEmpty(this.buyerData) && HelperFunctions.isEmptyOrSpaces(this.buyerData.thirdStateTaxId))) {
 
       this.bbxToasterService.showError(Constants.MSG_ERROR_TAX_PAYER_NUMBER_IS_EMPTY)

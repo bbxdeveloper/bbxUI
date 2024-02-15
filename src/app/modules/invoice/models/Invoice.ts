@@ -35,6 +35,7 @@ export interface Invoice {
     paymentMethod: string,
     paymentMethodX: string,
     notice: string,
+    invoiceCategory: string,
     invoiceNetAmount: number,
     invoiceVatAmount: number,
     invoiceGrossAmount: number,
