@@ -11,6 +11,7 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { StatusService } from 'src/app/services/status.service';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
 
 @Component({
   selector: 'app-invoice-items-dialog',
@@ -105,7 +106,12 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
 
       this.dbData = response.invoiceLines
         .filter(x => x.quantity > 0)
-        .map(x => ({ data: Object.assign(new InvoiceLine(), x), uid: this.nextUid() }))
+        .map(x => {
+          const invoiceLine = Object.assign(new InvoiceLine(), x)
+          invoiceLine.currency = response.currencyCode as CurrencyCodes
+          return invoiceLine
+        })
+        .map(x => ({ data: x, uid: this.nextUid() }))
 
       this.dbDataSource.setData(this.dbData)
 
