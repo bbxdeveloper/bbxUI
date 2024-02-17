@@ -354,14 +354,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           this.tokenService.user = response?.data?.user;
           this.tokenService.wareHouse = res.wareHouse
 
-          this.bbxToastrService.show(Constants.MSG_LOGIN_SUCCESFUL, true);
+          this.bbxToastrService.showSuccess(Constants.MSG_LOGIN_SUCCESFUL, true);
         } else {
-          this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.showError(Constants.MSG_LOGIN_FAILED);
           this.isLoading = false;
           this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
         }
       } catch (error) {
-        this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        this.bbxToastrService.showError(Constants.MSG_LOGIN_FAILED);
         this.isLoading = false;
         this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
       }
