@@ -90,7 +90,7 @@ export class WhsTransferService {
   }
 
   GetPaymentWhsTransferStatuses(): Observable<WhsTransferStatus[]> {
-        return this.http.get<WhsTransferStatus[]>(this.baseUrl + '/whstransferstatus');
+    return this.http.get<WhsTransferStatus[]>(this.baseUrl + '/whstransferstatus');
   }
 
   async GetAllWhsTransferStatusPromise(): Promise<WhsTransferStatus[]> {
