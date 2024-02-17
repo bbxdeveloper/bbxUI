@@ -473,7 +473,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         }
       },
       error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
+        this.cs.HandleError(err)
         this.isLoading = false;
       },
       complete: () => {
@@ -488,7 +488,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     });
   }
 
-  async RefreshAsync(params?: WhsTransferQueryParams): Promise<void> {
+  private async RefreshAsync(params?: WhsTransferQueryParams): Promise<void> {
     console.log('Refreshing');
     this.isLoading = true;
 
@@ -599,7 +599,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         },
         closeOnEsc: false
       })
-        
+
         dialogRef.onClose.subscribe(res => {
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.ClickCurrentElement()
