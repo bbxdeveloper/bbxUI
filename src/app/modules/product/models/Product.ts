@@ -1,6 +1,7 @@
 import { HelperFunctions } from "src/assets/util/HelperFunctions"
 import { UnitPriceTypes } from "../../customer/models/UnitPriceType"
 import { OfflineUnitOfMeasures } from "./UnitOfMeasure"
+import { VatRate } from "../../vat-rate/models/VatRate"
 
 export interface Product {
     id: number,
@@ -104,6 +105,11 @@ export function getPriceByPriceType(product: Product, priceType: UnitPriceTypes|
 
 export function isProduct(val: any): boolean {
     return val && Object.keys(val).includes('productCode') && !HelperFunctions.isEmptyOrSpaces(val.productCode)
+}
+
+export function setProductVatRate(product: Product, vatRate: VatRate): void {
+    product.vatRateCode = vatRate.vatRateCode
+    product.vatPercentage = vatRate.vatPercentage
 }
 
 export function ProductToProductRow(p: Product, activeWareHouseId?: number): ProductRow {
