@@ -813,9 +813,9 @@ export class PriceReviewComponent extends BaseInlineManagerComponent<InvoiceLine
         await this.printAndDownLoadService.openPrintDialog({
           DialogTitle: Constants.TITLE_PRINT_INVOICE,
           DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
-          MsgError: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-          MsgCancel: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-          MsgFinish: `A ${response.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+          MsgError: `A(z) ${response.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+          MsgCancel: `A(z) ${response.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+          MsgFinish: `A(z) ${response.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
           Obs: this.invoiceService.GetReport.bind(this.invoiceService),
           Reset: this.DelayedReset.bind(this),
           ReportParams: {
