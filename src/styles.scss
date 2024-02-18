@@ -267,8 +267,26 @@ tr.parent-of-current-keyboard-nav-selected {
   display: flex;
 }
 
+.gap-25 {
+  gap: 25px;
+}
+
 .justify-center {
   justify-content: center;
+}
+
+.justify-end {
+  justify-content: end;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+// font
+
+.text-1\.1 {
+  font-size: 1.1rem;
 }
 
 // Height margin
