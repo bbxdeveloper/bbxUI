@@ -428,7 +428,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, 2);
     }
 
-    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
+    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF ? 1 : 2);
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 

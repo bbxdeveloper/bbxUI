@@ -960,6 +960,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     line.workNumber = value.workNumber
     line.unitPriceDiscounted = value.unitPriceDiscounted
     line.limit = value.quantity
+    line.currency = this.outGoingInvoiceData.currencyCode as CurrencyCodes
 
     line.DeafultFieldList = ['productCode', 'quantity']
     line.Save()
