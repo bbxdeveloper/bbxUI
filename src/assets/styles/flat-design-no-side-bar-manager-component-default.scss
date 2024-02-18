@@ -86,7 +86,7 @@ nb-card {
     display: inline-table !important;
     position: sticky;
     top: 0;
-    
+
     max-height: calc(100vh - 260px) !important;
 
     tr > th {
@@ -440,6 +440,7 @@ form.form-with-rows {
     .form-row {
         display: flex;
         justify-content: flex-start;
+        column-gap: 4px;
     }
 }
 
