@@ -46,7 +46,7 @@ export interface ChooseSummaryInvoiceProductRequest extends ChooseProductRequest
   fillTableWithDataCallback: any
   originalCustomerID: number
   showWorkNumber?: boolean
-  mode: InvoiceBehaviorMode
+  mode: InvoiceBehaviorMode,
 }
 
 export interface ChooseCreateOfferProductRequest extends ChooseProductRequest<CreateOfferRequest> {
@@ -188,6 +188,7 @@ export class ProductCodeManagerServiceService {
         checkedLineItems: request.dbData?.map(x => x.data) ?? [],
         allColumns: InvoiceItemsDialogTableSettings.AllColumns,
         colDefs: InvoiceItemsDialogTableSettings.ColDefs,
+        currency: request.data.currencyCode as CurrencyCodes,
         selectedItemsChanged: event
       }
     })

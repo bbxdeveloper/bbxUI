@@ -16,19 +16,19 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Auth';
+  private readonly BaseUrl = environment.apiUrl + 'api' + environment.apiVersion + 'Auth/';
 
   constructor(private http: HttpClient, private tokenService: TokenStorageService) { }
 
   public login(nm: string, pswd: string): Promise<LoginResponse> {
     const loginData = { loginName: nm, password: pswd };
-    const response = this.http.post<LoginResponse>(this.BaseUrl + '/auth' + environment.apiVersion + 'login', loginData, httpOptions);
+    const response = this.http.post<LoginResponse>(this.BaseUrl + 'login', loginData, httpOptions);
 
     return firstValueFrom(response)
   }
 
   public logout(): Observable<any> {
-    return this.http.post(this.BaseUrl + '/auth' + environment.apiVersion + 'logout', {}, httpOptions);
+    return this.http.post(this.BaseUrl + 'logout', {}, httpOptions);
   }
 
   public getLoggedUser(): Observable<User | null> {
