@@ -11,7 +11,6 @@ import { GetInvoiceRequest } from '../models/GetInvoiceRequest';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { StatusService } from 'src/app/services/status.service';
 import { CurrencyCodes } from '../../system/models/CurrencyCode';
-import { InvoiceLineWithCurrency } from './InvoiceLine';
 import { InvoiceLine } from '../models/InvoiceLine';
 
 
@@ -20,7 +19,7 @@ import { InvoiceLine } from '../models/InvoiceLine';
   templateUrl: './invoice-items-dialog.component.html',
   styleUrls: ['./invoice-items-dialog.component.scss']
 })
-export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<InvoiceLineWithCurrency> implements OnInit, OnDestroy {
+export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<InvoiceLine> implements OnInit, OnDestroy {
   @Input()
   public invoiceId = -1
 
@@ -39,7 +38,7 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
   constructor(
     private readonly keyboardService: KeyboardNavigationService,
     dialogRef: NbDialogRef<InvoiceItemsDialogComponent>,
-    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLineWithCurrency>>,
+    dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<InvoiceLine>>,
     private readonly invoiceService: InvoiceService,
     private readonly commonService: CommonService,
     cdref: ChangeDetectorRef,
@@ -49,7 +48,7 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
     const navMap: string[][] = [[]];
     this.Matrix = navMap
 
-    this.dbDataTable = new SimpleNavigatableTable<InvoiceLineWithCurrency>(dataSourceBuilder, keyboardService, cdref, this.dbData, '', AttachDirection.DOWN, this)
+    this.dbDataTable = new SimpleNavigatableTable<InvoiceLine>(dataSourceBuilder, keyboardService, cdref, this.dbData, '', AttachDirection.DOWN, this)
   }
 
   public override ngOnInit(): void {
@@ -145,7 +144,7 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
     }, 200);
   }
 
-  override selectRow(event: any, row: TreeGridNode<InvoiceLineWithCurrency>): void {
+  override selectRow(event: any, row: TreeGridNode<InvoiceLine>): void {
     HelperFunctions.StopEvent(event)
 
     this.close()
@@ -162,7 +161,7 @@ export class InvoiceItemsDialogComponent extends SelectTableDialogComponent<Invo
     this.selectedItemsChanged.emit(this.dbData.map(x => x.data))
   }
 
-  HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<InvoiceLineWithCurrency>, rowPos: number, col: string, colPos: number, upward: boolean): void {
+  HandleGridMovement(event: KeyboardEvent, row: TreeGridNode<InvoiceLine>, rowPos: number, col: string, colPos: number, upward: boolean): void {
     this.dbDataTable.HandleGridMovement(event, row, rowPos, col, colPos, true);
   }
 }
