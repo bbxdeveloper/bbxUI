@@ -258,6 +258,8 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       invoiceDeliveryDate: invoice.invoiceDeliveryDate,
       invoiceIssueDate: invoice.invoiceIssueDate,
       notice: invoice.notice,
+      currency: invoice.currencyCode,
+      exchangeRate: invoice.exchangeRate,
     } as InvoiceFormData
 
     this.outGoingInvoiceData.invoiceCategory = invoice.invoiceCategory
@@ -355,17 +357,24 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
     }
   }
 
+  public onFormDataChanged(event: InvoiceFormData): void {
+    this.outGoingInvoiceData.notice = event.notice;
+
+    this.outGoingInvoiceData.invoiceDeliveryDate = event.invoiceDeliveryDate
+    this.outGoingInvoiceData.invoiceIssueDate = event.invoiceIssueDate
+    this.outGoingInvoiceData.paymentDate = event.paymentDate
+
+    this.outGoingInvoiceData.customerInvoiceNumber = event.customerInvoiceNumber
+    this.outGoingInvoiceData.paymentMethod = event.paymentMethod
+
+    this.outGoingInvoiceData.currencyCode = event.currency
+    this.outGoingInvoiceData.exchangeRate = event.exchangeRate
+
+    this.RecalcNetAndVat()
+  }
+
   private UpdateOutGoingData(): CreateOutgoingInvoiceRequest<InvoiceLine> {
     this.outGoingInvoiceData.customerID = this.buyerData.id;
-
-    this.outGoingInvoiceData.notice = this.invoiceForm!.invoiceFormData!.notice;
-
-    this.outGoingInvoiceData.invoiceDeliveryDate = this.invoiceForm.invoiceFormData!.invoiceDeliveryDate
-    this.outGoingInvoiceData.invoiceIssueDate = this.invoiceForm.invoiceFormData!.invoiceIssueDate
-    this.outGoingInvoiceData.paymentDate = this.invoiceForm.invoiceFormData!.paymentDate
-
-    this.outGoingInvoiceData.customerInvoiceNumber = this.invoiceForm.invoiceFormData!.customerInvoiceNumber
-    this.outGoingInvoiceData.paymentMethod = this.invoiceForm.invoiceFormData!.paymentMethod
 
     this.outGoingInvoiceData.warehouseCode = this.tokenService.wareHouse?.warehouseCode ?? ""
 
@@ -380,16 +389,11 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       this.outGoingInvoiceData.invoiceLines[i].lineNumber = HelperFunctions.ToInt(i + 1);
     }
 
-    this.outGoingInvoiceData.currencyCode = CurrencyCodes.HUF
-    this.outGoingInvoiceData.exchangeRate = 1;
-
     this.outGoingInvoiceData.incoming = this.mode.incoming
     this.outGoingInvoiceData.invoiceType = this.mode.invoiceType
     this.outGoingInvoiceData.invoiceCategory = this.mode.invoiceCategory
 
     this.outGoingInvoiceData.invoiceCorrection = true
-
-    console.log('[UpdateOutGoingData]: ', this.outGoingInvoiceData, this.invoiceForm.invoiceFormData!.paymentMethod)
 
     this.outGoingInvoiceData.loginName = this.tokenService.user?.name
     this.outGoingInvoiceData.username = this.tokenService.user?.loginName
@@ -415,7 +419,7 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       .map(x => x.rowGrossPrice)
       .reduce((sum, current) => sum + current, 0);
 
-    const paymentMethod = this.invoiceForm.invoiceFormData?.paymentMethod
+    const paymentMethod = this.outGoingInvoiceData.paymentMethod
 
     if (paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
       this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);

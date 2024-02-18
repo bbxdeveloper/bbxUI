@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, pairwise } from 'rxjs';
 import { validDate } from 'src/assets/model/Validators';
@@ -12,6 +12,8 @@ import { InvoiceFormData } from './InvoiceFormData';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { InvoiceBehaviorMode } from '../models/InvoiceBehaviorMode';
+import { CurrencyCodes } from '../../system/models/CurrencyCode';
+import { NgNeatInputMasks } from 'src/assets/model/NgNeatInputMasks';
 
 @Component({
   selector: 'app-invoice-form',
@@ -32,30 +34,27 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     }
     const paymentMethod = this.paymentMethods.find(x => x.value === invoiceFormData.paymentMethod)?.text ?? 'Átutalás'
 
-    const controls = this.outInvForm.controls
-    controls['paymentMethod'].setValue(paymentMethod)
-    controls['customerInvoiceNumber'].setValue(invoiceFormData.customerInvoiceNumber)
-    controls['invoiceDeliveryDate'].setValue(invoiceFormData.invoiceDeliveryDate)
-    controls['invoiceIssueDate'].setValue(invoiceFormData.invoiceIssueDate)
-    controls['paymentDate'].setValue(invoiceFormData.paymentDate)
-    controls['invoiceOrdinal'].setValue(invoiceFormData.invoiceOrdinal)
-    controls['notice'].setValue(invoiceFormData.notice)
-  }
-  public get invoiceFormData() {
-    const controls = this.outInvForm.controls
+    this.currencyVisible = invoiceFormData.currency !== CurrencyCodes.HUF
 
-    const paymentMethod = this.paymentMethods.find(x => x.text === controls['paymentMethod'].value)?.value
-    const formData = {
+    this.outInvForm.patchValue({
       paymentMethod: paymentMethod,
-      customerInvoiceNumber: controls['customerInvoiceNumber'].value,
-      invoiceDeliveryDate: controls['invoiceDeliveryDate'].value,
-      invoiceIssueDate: controls['invoiceIssueDate'].value,
-      paymentDate: controls['paymentDate'].value,
-      invoiceOrdinal: controls['invoiceOrdinal'].value,
-      notice: controls['notice'].value
-    } as InvoiceFormData
-    return formData
+      customerInvoiceNumber: invoiceFormData.customerInvoiceNumber,
+      invoiceDeliveryDate: invoiceFormData.invoiceDeliveryDate,
+      invoiceIssueDate: invoiceFormData.invoiceIssueDate,
+      paymentDate: invoiceFormData.paymentDate,
+      invoiceOrdinal: invoiceFormData.invoiceOrdinal,
+      notice: invoiceFormData.notice,
+      currency: invoiceFormData.currency,
+      exchangeRate: invoiceFormData.exchangeRate,
+    })
   }
+
+  @Output()
+  public formDataChanged = new EventEmitter<InvoiceFormData>()
+
+  public currencyVisible = false
+
+  public numberInputMask = NgNeatInputMasks.numberInputMask
 
   public tileCssClass = TileCssClass
 
@@ -110,9 +109,22 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
         this.validatePaymentDate.bind(this),
         validDate
       ]),
-      invoiceOrdinal: new FormControl('', []), // in post response
-      notice: new FormControl('', []),
+      invoiceOrdinal: new FormControl(''), // in post response
+      notice: new FormControl(''),
+      currency: new FormControl(''),
+      exchangeRate: new FormControl(''),
     });
+
+    this.outInvForm.valueChanges.subscribe(value => {
+      const paymentMethod = this.paymentMethods.find(x => x.value === value.paymentMethod)?.text ?? 'Átutalás'
+
+      const valami = {
+        ...value,
+        paymentMethod
+      } as InvoiceFormData
+
+      this.formDataChanged.emit(valami)
+    })
   }
 
   public ChooseDataForTableRow(rowIndex: number, wasInNavigationMode: boolean): void {

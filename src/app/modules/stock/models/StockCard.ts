@@ -1,7 +1,7 @@
 import { ICellStatusProvider } from "../../shared/ICellStatusProvider";
 import { Status } from "../../shared/Status";
 
-type PickAsFunction<T, U extends keyof T> =  { [P in U]: (stockCard: StockCard) => Status}
+type PickAsFunction<T, U extends keyof T> =  { [P in U]: (input: T) => Status}
 
 type StockCardIntersectionForCellStatusProvider = Required<PickAsFunction<StockCard, 'xRealQty'>>
 

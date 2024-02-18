@@ -1,3 +1,5 @@
+import { CurrencyCodes } from "../../system/models/CurrencyCode";
+
 export interface InvoiceFormData {
     paymentMethod: string,
     invoiceDeliveryDate: string,
@@ -6,4 +8,6 @@ export interface InvoiceFormData {
     invoiceOrdinal: string, // in post response
     notice: string,
     customerInvoiceNumber: string,
+    currency: CurrencyCodes,
+    exchangeRate: number,
 }
