@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
-import { NbIconConfig, NbPopoverDirective, NbToastrService } from '@nebular/theme';
+import { NbIconConfig, NbPopoverDirective } from '@nebular/theme';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { StatusService } from 'src/app/services/status.service';
 import { Constants } from 'src/assets/util/Constants';
@@ -92,7 +92,6 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     private readonly authService: AuthService,
     private readonly tokenService: TokenStorageService,
     private readonly bbxToastrService: BbxToastrService,
-    private readonly simpleToastrService: NbToastrService,
     private readonly keyboardHelperService: KeyboardHelperService,
     private readonly commonService: CommonService,
     private readonly loggerService: LoggerService,
@@ -355,18 +354,14 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           this.tokenService.user = response?.data?.user;
           this.tokenService.wareHouse = res.wareHouse
 
-          this.simpleToastrService.show(
-            Constants.MSG_LOGIN_SUCCESFUL,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
+          this.bbxToastrService.showSuccess(Constants.MSG_LOGIN_SUCCESFUL, true);
         } else {
-          this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          this.bbxToastrService.showError(Constants.MSG_LOGIN_FAILED);
           this.isLoading = false;
           this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
         }
       } catch (error) {
-        this.bbxToastrService.show(Constants.MSG_LOGIN_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+        this.bbxToastrService.showError(Constants.MSG_LOGIN_FAILED);
         this.isLoading = false;
         this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
       }
@@ -395,11 +390,8 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       this.statusService.pushProcessStatus(Constants.LogoutSavingStatuses[Constants.LogoutSavingPhases.LOGGING_OUT]);
       this.authService.logout().subscribe({
         next: res => {
-          this.simpleToastrService.show(
-            Constants.MSG_LOGOUT_SUCCESFUL,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
+          this.bbxToastrService.showSuccess(Constants.MSG_LOGOUT_SUCCESFUL, true);
+
           this.tokenService.signOut();
           this.router.navigate(['/home']);
           setTimeout(() => {
@@ -408,6 +400,7 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
           }, 200);
         },
         error: err => {
+          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
           this.bbxToastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
         },
         complete: () => {
