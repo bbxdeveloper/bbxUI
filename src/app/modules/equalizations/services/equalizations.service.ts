@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { catchError, lastValueFrom, Observable, of } from 'rxjs';
+import { catchError, EMPTY, lastValueFrom, Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonService } from 'src/app/services/common.service';
 import { environment } from 'src/environments/environment';
@@ -7,7 +7,6 @@ import { CreateInvPaymentResponse } from '../models/CreateInvPaymentResponse';
 import { GetInvPaymentsParamListModel } from '../models/GetInvPaymentsParamListModel';
 import { GetInvPaymentsResponse } from '../models/GetInvPaymentsResponse';
 import { InvPayment } from '../models/InvPayment';
-import { GetUnbalancedInvoicesParamListModel } from '../models/GetUnbalancedInvoicesParamListModel';
 
 @Injectable({
   providedIn: 'root'
@@ -40,9 +39,9 @@ export class EqualizationsService {
 
   async GetAllPromise(params?: GetInvPaymentsParamListModel): Promise<GetInvPaymentsResponse> {
     return lastValueFrom(this.GetAll(params).pipe(
-      catchError((err, c) => {
+      catchError(err => {
         this.cs.HandleError(err);
-        return c;
+        return EMPTY
       })
     ));
   }
