@@ -41,6 +41,7 @@ import { ProductStockInformationDialogComponent } from '../../shared/dialogs/pro
 import { ProductService } from '../../product/services/product.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { InvoiceTypes } from '../models/InvoiceTypes';
+import { PaymentMethods } from '../models/PaymentMethod';
 
 @Component({
   selector: 'app-correction-invoice',
@@ -421,13 +422,17 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
 
     const paymentMethod = this.outGoingInvoiceData.paymentMethod
 
-    if (paymentMethod === "CASH" && this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
+    if (this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF) {
+      if (paymentMethod === PaymentMethods.Cash) {
+        this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.CashRound(this.outGoingInvoiceData.lineGrossAmount);
+      } else {
+        this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, 1)
+      }
     } else {
-      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round(this.outGoingInvoiceData.lineGrossAmount);
+      this.outGoingInvoiceData.lineGrossAmount = HelperFunctions.Round2(this.outGoingInvoiceData.lineGrossAmount, 2);
     }
 
-    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, 1);
+    this.outGoingInvoiceData.invoiceNetAmount = HelperFunctions.Round2(this.outGoingInvoiceData.invoiceNetAmount, this.outGoingInvoiceData.currencyCode === CurrencyCodes.HUF ? 1 : 2);
     this.outGoingInvoiceData.invoiceVatAmount = HelperFunctions.Round(this.outGoingInvoiceData.invoiceVatAmount);
   }
 
