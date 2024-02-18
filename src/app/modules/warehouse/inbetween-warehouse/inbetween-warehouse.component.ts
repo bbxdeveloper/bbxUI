@@ -627,9 +627,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       await this.printAndDownloadService.openPrintDialog({
         DialogTitle: Constants.TITLE_PRINT_INVOICE,
         DefaultCopies: 1,
-        MsgError: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása közben hiba történt.`,
-        MsgCancel: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
-        MsgFinish: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása véget ért.`,
+        MsgError: `A(z) ${response.data?.whsTransferNumber ?? ''} számla nyomtatása közben hiba történt.`,
+        MsgCancel: `A(z) ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
+        MsgFinish: `A(z) ${response.data?.whsTransferNumber ?? ''} számla nyomtatása véget ért.`,
         Obs: this.whsTransferService.getReport.bind(this.whsTransferService),
         Reset: this.DelayedReset.bind(this),
         ReportParams: {
@@ -671,9 +671,9 @@ export class InbetweenWarehouseComponent extends BaseInlineManagerComponent<Inbe
       await this.printAndDownloadService.openPrintDialog({
         DialogTitle: Constants.TITLE_PRINT_INVOICE_2,
         DefaultCopies: 1,
-        MsgError: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása közben hiba történt.`,
-        MsgCancel: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
-        MsgFinish: `A ${response.data?.whsTransferNumber ?? ''} számla nyomtatása véget ért.`,
+        MsgError: `A(z) ${response.data?.whsTransferNumber ?? ''} számla nyomtatása közben hiba történt.`,
+        MsgCancel: `A(z) ${response.data?.whsTransferNumber ?? ''} számla nyomtatása nem történt meg.`,
+        MsgFinish: `A(z) ${response.data?.whsTransferNumber ?? ''} számla nyomtatása véget ért.`,
         Obs: this.whsTransferService.getReport.bind(this.whsTransferService),
         Reset: this.ExitToNav.bind(this),
         ReportParams: {

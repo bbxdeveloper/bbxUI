@@ -553,9 +553,9 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.printAndDownloadService.openPrintDialog({
       DialogTitle: Constants.TITLE_PRINT_INVOICE,
       DefaultCopies: 1,
-      MsgError: `A ${whsNumber} bizonylat nyomtatása közben hiba történt.`,
-      MsgCancel: `A ${whsNumber} bizonylat nyomtatása nem történt meg.`,
-      MsgFinish: `A ${whsNumber} bizonylat nyomtatása véget ért.`,
+      MsgError: `A(z) ${whsNumber} bizonylat nyomtatása közben hiba történt.`,
+      MsgCancel: `A(z) ${whsNumber} bizonylat nyomtatása nem történt meg.`,
+      MsgFinish: `A(z) ${whsNumber} bizonylat nyomtatása véget ért.`,
       Obs: this.whsService.GetReport.bind(this.whsService),
       Reset: () => { },
       ReportParams: {
