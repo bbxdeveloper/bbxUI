@@ -25,9 +25,7 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   CheckLoginNameAndPwd(params?: LoginNameAndPwdRequest): Observable<LoginNameAndPwdResponse> {
-    const queryParams = HelperFunctions.ParseObjectAsQueryString(params);
-
-    return this.http.get<LoginNameAndPwdResponse>(this.BaseUrl + '/loginnameandpwd' + '?' + queryParams);
+    return this.http.post<LoginNameAndPwdResponse>(this.BaseUrl + '/loginnameandpwd', params);
   }
 
   GetAll(params?: GetUsersParamListModel): Observable<GetUsersResponse> {
