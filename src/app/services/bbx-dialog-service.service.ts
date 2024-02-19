@@ -7,6 +7,12 @@ import { NB_DIALOG_CONFIG, NB_DOCUMENT, NbDialogConfig, NbDialogRef, NbDialogSer
 export class BbxDialogServiceService extends NbDialogService {
   private refCache: NbDialogRef<any>[] = []
 
+  private _isDialogOpened = false
+
+  public get isDialogOpened(): boolean {
+    return this._isDialogOpened
+  }
+
   constructor(@Inject(NB_DOCUMENT) document: any,
     @Inject(NB_DIALOG_CONFIG) globalConfig: any,
     positionBuilder: NbPositionBuilderService,
@@ -18,8 +24,20 @@ export class BbxDialogServiceService extends NbDialogService {
 
   override open<T>(content: Type<T> | TemplateRef<T>, userConfig: Partial<NbDialogConfig<Partial<T> | string>> = {}): NbDialogRef<T> {
     const dialogRef = super.open<T>(content, userConfig)
-    this.refCache.push(dialogRef)
+    this._isDialogOpened = true
+
+    const index = this.refCache.push(dialogRef)
+
+    dialogRef.onClose.subscribe(this.onDialogClose(index))
+
     return dialogRef
+  }
+
+  private onDialogClose(index: number): () => void {
+    return () => {
+      this.refCache.splice(index, 1)
+      this._isDialogOpened = false
+    }
   }
 
   closeAll(): void {

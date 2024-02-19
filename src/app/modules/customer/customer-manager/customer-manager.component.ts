@@ -756,6 +756,10 @@ export class CustomerManagerComponent extends BaseManagerComponent<Customer> imp
           break
         }
 
+        if (this.isDialogOpened) {
+          return
+        }
+
         this.loggerService.info(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
