@@ -152,8 +152,11 @@ export class InvoiceLine extends MementoObject implements IEditable {
 
     @JsonIgnore
     public get rowGrossPriceRounded(): number {
-        return HelperFunctions.Round2(this.rowGrossPrice, 0);
+        return Price.currencyGrossRound(this.rowGrossPrice, this.currency);
     }
+
+    @JsonIgnore
+    currency = CurrencyCodes.HUF
     //#endregion Gyűjtő számla
 
     //#region Készlet
