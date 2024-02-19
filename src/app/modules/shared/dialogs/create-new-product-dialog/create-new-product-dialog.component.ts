@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
@@ -36,7 +36,7 @@ import { fixCursorPosition } from 'src/assets/util/input/fixCursorPosition';
 })
 export class CreateNewProductDialogComponent extends BaseNavigatableComponentComponent implements OnDestroy, AfterViewInit {
   @Input() productCode?: string
-  
+
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
   }
@@ -109,9 +109,9 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
     this.productForm = new FormGroup({
       productCode: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
-      productGroup: new FormControl(undefined, []),
-      origin: new FormControl(undefined, []),
-      unitOfMeasure: new FormControl(undefined, [Validators.required]),
+      productGroup: new FormControl(undefined, [this.isProductGroupValid.bind(this)]),
+      origin: new FormControl(undefined, [this.isOriginValid.bind(this)]),
+      unitOfMeasure: new FormControl(undefined, [Validators.required, this.isUnitOfMeasureValid.bind(this)]),
       unitPrice1: new FormControl(0, []),
       unitPrice2: new FormControl(0, []),
       latestSupplyPrice: new FormControl(0, []),
@@ -122,12 +122,32 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
       active: new FormControl(true, []),
       vtsz: new FormControl(undefined, [Validators.required]),
       ean: new FormControl(undefined, []),
-      vatRateCode: new FormControl(undefined, [Validators.required]),
+      vatRateCode: new FormControl(undefined, [Validators.required, this.isVatRateCodeValid.bind(this)]),
       noDiscount: new FormControl(false, []),
       unitWeight: new FormControl(undefined, [])
     });
 
     this.refreshComboboxData();
+  }
+
+  private isOriginValid(control: AbstractControl): ValidationErrors | null {
+    const origin = this._origins.find(x => x.originDescription === control.value)
+    return !origin ? { wrongDate: { value: control.value } } : null
+  }
+
+  private isUnitOfMeasureValid(control: AbstractControl): ValidationErrors|null {
+    const unitOfMeasure = this._uom.find(x => x.text === control.value)
+    return !unitOfMeasure ? { wrongDate: { value: control.value } } : null
+  }
+
+  private isVatRateCodeValid(control: AbstractControl): ValidationErrors|null {
+    const vatRate = this._vatRates.find(x => x.vatRateDescription === control.value)
+    return !vatRate ? { wrongDate: { value: control.value } } : null
+  }
+
+  private isProductGroupValid(control: AbstractControl): ValidationErrors|null {
+    const productGroup = this._productGroups.find(x => x.productGroupDescription === control.value)
+    return !productGroup ? { wrongDate: { value: control.value } } : null
   }
 
   private Setup(): void {
@@ -342,7 +362,7 @@ export class CreateNewProductDialogComponent extends BaseNavigatableComponentCom
         this._uom = data ?? [];
         this.uom = data?.map(x => x.text) ?? [];
         this.uomComboData$.next(this.uom);
-        
+
         if (this.uom.length > 0 && HelperFunctions.isEmptyOrSpaces(this.productForm.controls['unitOfMeasure'].value)) {
           this.productForm.controls['unitOfMeasure'].setValue(
             this._uom.find(x => x.value === OfflineUnitOfMeasures.PIECE.value)?.text
