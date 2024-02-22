@@ -10,7 +10,6 @@ import * as $ from 'jquery';
 import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable-component/base-navigatable-component.component';
 import { ConfirmationDialogComponent } from '../../shared/simple-dialogs/confirmation-dialog/confirmation-dialog.component';
 import { LoginDialogComponent } from '../../auth/login-dialog/login-dialog.component';
-import { LoginDialogResponse } from '../../auth/models/LoginDialogResponse';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { SubMappingNavigatable } from 'src/assets/model/navigation/Nav';
@@ -337,51 +336,18 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
   login(event: any): void {
     event?.preventDefault();
     const dialogRef = this.dialogService.open(LoginDialogComponent, { context: {}, closeOnEsc: false });
-    this.isLoading = true;
 
     dialogRef.onClose.subscribe(this.onLoginDialogClose.bind(this));
   }
 
-  private async onLoginDialogClose(res: LoginDialogResponse): Promise<void> {
-    if (!!res && res.answer && res.wareHouse) {
-      try {
-        this.statusService.pushProcessStatus(Constants.LoggingInStatus)
+  private onLoginDialogClose(): void {
+    setTimeout(() => {
+      this.GenerateAndSetNavMatrices()
+      this.keyboardService.SelectFirstTile();
+      this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
+    }, 200);
 
-        const response = await this.authService.login(res.name, res.pswd)
-
-        if (response.succeeded && !HelperFunctions.isEmptyOrSpaces(response?.data?.token) && response?.data?.user) {
-          this.tokenService.token = response?.data?.token;
-          this.tokenService.user = response?.data?.user;
-          this.tokenService.wareHouse = res.wareHouse
-
-          this.bbxToastrService.showSuccess(Constants.MSG_LOGIN_SUCCESFUL, true);
-        } else {
-          this.bbxToastrService.showError(Constants.MSG_LOGIN_FAILED);
-          this.isLoading = false;
-          this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-        }
-      } catch (error) {
-        this.bbxToastrService.showError(Constants.MSG_LOGIN_FAILED);
-        this.isLoading = false;
-        this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-      }
-      finally {
-        setTimeout(() => {
-          this.GenerateAndSetNavMatrices();
-          this.keyboardService.SelectFirstTile();
-          this.isLoading = false;
-          this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-        }, 200);
-
-        this.statusService.pushProcessStatus(Constants.BlankProcessStatus)
-      }
-    } else {
-      setTimeout(() => {
-        this.keyboardService.SelectFirstTile();
-        this.isLoading = false;
-        this.keyboardService.setEditMode(KeyboardModes.NAVIGATION);
-      }, 200);
-    }
+    this.bbxToastrService.showSuccess(Constants.MSG_LOGIN_SUCCESFUL, true);
   }
 
   logout(event: any): void {
