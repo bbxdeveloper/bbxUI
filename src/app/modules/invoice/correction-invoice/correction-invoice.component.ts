@@ -224,8 +224,12 @@ export class CorrectionInvoiceComponent extends BaseInlineManagerComponent<Invoi
       .onClose.subscribe(this.onCorrentionInvoiceSelectionDialogClosed.bind(this))
   }
 
-  private onCorrentionInvoiceSelectionDialogClosed(invoice: Invoice): void {
+  private onCorrentionInvoiceSelectionDialogClosed(invoice: Invoice|undefined): void {
     this.kbS.SetCurrentNavigatable(this.invoiceForm.outInvFormNav)
+
+    if (!invoice) {
+      return
+    }
 
     this.senderData = {
       customerName: invoice.supplierName,
