@@ -5,7 +5,7 @@ import { validDate } from 'src/assets/model/Validators';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { PaymentMethod } from '../models/PaymentMethod';
+import { PaymentMethod, PaymentMethods } from '../models/PaymentMethod';
 import { InvoiceService } from '../services/invoice.service';
 import { CommonService } from 'src/app/services/common.service';
 import { InvoiceFormData } from './InvoiceFormData';
@@ -116,7 +116,7 @@ export class InvoiceFormComponent implements OnInit, IInlineManager {
     });
 
     this.outInvForm.valueChanges.subscribe(value => {
-      const paymentMethod = this.paymentMethods.find(x => x.value === value.paymentMethod)?.text ?? 'Átutalás'
+      const paymentMethod = this.paymentMethods.find(x => x.value === value.paymentMethod)?.value ?? PaymentMethods.Transfer
 
       const valami = {
         ...value,
