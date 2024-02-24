@@ -1,15 +1,11 @@
 import { Injectable, Optional } from '@angular/core';
-import { BehaviorSubject, lastValueFrom, Observable, of, Subscription } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, of, Subscription } from 'rxjs';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { StatusService } from './status.service';
-import { NbToastrService } from '@nebular/theme';
-import { InvoiceService } from '../modules/invoice/services/invoice.service';
 import { CommonService } from './common.service';
-import { OfferService } from '../modules/offer/services/offer.service';
 import { BbxToastrService } from './bbx-toastr-service.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { OneTextInputDialogComponent } from '../modules/shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { OneNumberInputDialogComponent } from '../modules/shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component';
 import { createMask } from '@ngneat/input-mask';
 import { BbxDialogServiceService } from './bbx-dialog-service.service';
@@ -61,12 +57,8 @@ export class PrintAndDownloadService {
 
   constructor(
     @Optional() private dialogService: BbxDialogServiceService,
-    private invS: InvoiceService,
-    private offerService: OfferService,
     private sts: StatusService,
-    private simpleToastrService: NbToastrService,
     private bbxToastrService: BbxToastrService,
-    private toastrService: NbToastrService,
     private cs: CommonService) { }
 
   public async printPreview(request: PrintDialogRequest): Promise<void> {
@@ -75,7 +67,7 @@ export class PrintAndDownloadService {
         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-          this.simpleToastrService.show(
+          this.bbxToastrService.show(
             `Az árajánlat riport elkészítve.`,
             Constants.TITLE_INFO,
             Constants.TOASTR_SUCCESS_5_SEC
@@ -109,7 +101,7 @@ export class PrintAndDownloadService {
           console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
           if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-            this.simpleToastrService.show(
+            this.bbxToastrService.show(
               request.MsgFinish,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
@@ -135,7 +127,7 @@ export class PrintAndDownloadService {
       }
       await this.printReport(request.ReportParams, request.Obs, true);
     }, async () => {
-      this.simpleToastrService.show(
+      this.bbxToastrService.show(
         request.MsgCancel,
         Constants.TITLE_INFO,
         Constants.TOASTR_SUCCESS_5_SEC
@@ -238,7 +230,7 @@ export class PrintAndDownloadService {
           try {
             await request.Reset();
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            this.simpleToastrService.show(
+            this.bbxToastrService.show(
               request.MsgCancel,
               Constants.TITLE_INFO,
               Constants.TOASTR_SUCCESS_5_SEC
