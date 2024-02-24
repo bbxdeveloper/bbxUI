@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 import { EMPTY, Observable, Subscription, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { IPartnerLock } from 'src/app/services/IPartnerLock';
 import { StatusService } from 'src/app/services/status.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-correction-invoice-selection-dialog',
@@ -160,9 +161,7 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
       this.navigateable.HandleFormEnter(event)
     }
     else {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      event.stopPropagation()
+      HelperFunctions.StopEvent(event)
 
       this.keyboardService.Jump(AttachDirection.DOWN, false)
       this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
@@ -195,15 +194,15 @@ export class CorrectionInvoiceSelectionDialogComponent extends BaseNavigatableCo
     return result?.succeeded
   }
 
-  public close(): void {
+  public async close(): Promise<void> {
     this.dialogRef.close(undefined)
 
-    this.backToHeader()
+    await this.backToHeader()
   }
 
-  private backToHeader(): void {
+  private async backToHeader(): Promise<void> {
     this.keyboardService.RemoveWidgetNavigatable();
-    this.router.navigate(["home"])
+    await this.router.navigate(["home"])
     setTimeout(() => {
       this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
       this.keyboardService.ResetToRoot()
