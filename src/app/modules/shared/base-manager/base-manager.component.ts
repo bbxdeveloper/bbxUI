@@ -516,9 +516,7 @@ export class BaseManagerComponent<T> {
   @HostListener('window:keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
       case DefaultKeySettings[Actions.Search].KeyCode: {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break

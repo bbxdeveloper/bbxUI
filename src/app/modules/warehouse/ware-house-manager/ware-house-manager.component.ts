@@ -369,16 +369,12 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
     if (this.khs.IsKeyboardBlocked) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
+      HelperFunctions.StopEvent(event)
       return;
     }
     switch (event.key) {
       case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break;
       }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
@@ -387,18 +383,14 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
           return;
         }
 
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -409,9 +401,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         break;
       }
       case this.KeySetting[Actions.Create].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -422,9 +412,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         break;
       }
       case this.KeySetting[Actions.Refresh].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           return
@@ -435,9 +423,7 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.kbS.ElementIdSelected.value === this.searchInputId) {
           break
@@ -452,18 +438,14 @@ export class WareHouseManagerComponent extends BaseManagerComponent<WareHouse> i
         break;
       }
       case this.KeySetting[Actions.Delete].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Reset].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           return

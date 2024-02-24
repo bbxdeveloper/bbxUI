@@ -599,16 +599,12 @@ export class InvCtrlPeriodManagerComponent
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
     if (this.khs.IsKeyboardBlocked) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
+      HelperFunctions.StopEvent(event)
       return;
     }
     switch (event.key) {
       case KeyBindings.F11: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break
       }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
@@ -617,18 +613,14 @@ export class InvCtrlPeriodManagerComponent
           return;
         }
 
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -639,9 +631,7 @@ export class InvCtrlPeriodManagerComponent
         break;
       }
       case this.KeySetting[Actions.Create].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -652,9 +642,7 @@ export class InvCtrlPeriodManagerComponent
         break;
       }
       case this.KeySetting[Actions.Refresh].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -665,9 +653,7 @@ export class InvCtrlPeriodManagerComponent
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -678,27 +664,21 @@ export class InvCtrlPeriodManagerComponent
         break;
       }
       case this.KeySetting[Actions.Delete].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.Lock].KeyLabel} Pressed: ${this.KeySetting[Actions.Lock].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Reset].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break

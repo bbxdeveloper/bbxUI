@@ -23,6 +23,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 
 @Component({
   selector: 'app-product-group-manager',
@@ -394,22 +395,16 @@ export class ProductGroupManagerComponent
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
     if (this.khs.IsKeyboardBlocked) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
+      HelperFunctions.StopEvent(event)
       return;
     }
     switch (event.key) {
       case KeyBindings.F11: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break
       }
       case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break;
       }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
@@ -418,18 +413,14 @@ export class ProductGroupManagerComponent
           return;
         }
 
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -440,9 +431,7 @@ export class ProductGroupManagerComponent
         break;
       }
       case this.KeySetting[Actions.Create].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -453,9 +442,7 @@ export class ProductGroupManagerComponent
         break;
       }
       case this.KeySetting[Actions.Refresh].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -466,9 +453,7 @@ export class ProductGroupManagerComponent
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
@@ -483,18 +468,14 @@ export class ProductGroupManagerComponent
         break;
       }
       case this.KeySetting[Actions.Delete].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Reset].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.isDialogOpened) {
           break
