@@ -690,22 +690,16 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
   // to prevent it from opening devtools
   @HostListener('window:keydown', ['$event']) onKeyDown2(event: KeyboardEvent) {
     if (this.khs.IsKeyboardBlocked) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
+      HelperFunctions.StopEvent(event)
       return;
     }
     switch (event.key) {
       case KeyBindings.F11: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break
       }
       case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break;
       }
       case this.KeySetting[Actions.JumpToForm].KeyCode: {
@@ -714,47 +708,53 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
           return;
         }
 
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.JumpToForm].KeyLabel} Pressed: ${this.KeySetting[Actions.JumpToForm].FunctionLabel}`);
         this.dbDataTable?.HandleSearchFieldTab();
         break;
       }
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Create].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Refresh].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
+
+        if (this.isDialogOpened) {
           break
         }
 
@@ -763,18 +763,18 @@ export class ProductManagerComponent extends BaseManagerComponent<Product> imple
         break;
       }
       case this.KeySetting[Actions.Delete].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
 
         console.log(`${this.KeySetting[Actions.Delete].KeyLabel} Pressed: ${this.KeySetting[Actions.Delete].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Reset].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event)
