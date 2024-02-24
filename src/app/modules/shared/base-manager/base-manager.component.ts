@@ -519,6 +519,11 @@ export class BaseManagerComponent<T> {
         event.preventDefault();
         event.stopImmediatePropagation();
         event.stopPropagation();
+
+        if (this.isDialogOpened) {
+          break
+        }
+
         if (this.searchInputId !== undefined) {
           this.loggerService.info("F2 pressed, focusing search input");
           $(`#${this.searchInputId}`).trigger('focus');

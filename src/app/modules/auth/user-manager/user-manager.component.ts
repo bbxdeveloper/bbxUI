@@ -697,6 +697,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         event.stopPropagation();
         event.preventDefault();
 
+        if (this.isDialogOpened) {
+          break
+        }
+
         console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
@@ -706,6 +710,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         event.stopPropagation();
         event.preventDefault();
 
+        if (this.isDialogOpened) {
+          break
+        }
+
         console.log(`${this.KeySetting[Actions.Create].KeyLabel} Pressed: ${this.KeySetting[Actions.Create].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
@@ -714,6 +722,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
@@ -725,6 +737,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         event.preventDefault();
 
         if (this.kbS.ElementIdSelected.value === this.searchInputId) {
+          break
+        }
+
+        if (this.isDialogOpened) {
           break
         }
 
@@ -745,6 +761,10 @@ export class UserManagerComponent extends BaseManagerComponent<User> implements 
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         this.loggerService.info(`${this.KeySetting[Actions.Reset].KeyLabel} Pressed: ${this.KeySetting[Actions.Reset].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event)

@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -745,6 +745,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
         event.stopPropagation();
         event.preventDefault();
 
+        if (this.isDialogOpened) {
+          break
+        }
+
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
@@ -754,6 +758,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
         event.stopPropagation();
         event.preventDefault();
 
+        if (this.isDialogOpened) {
+          break
+        }
+
         console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
@@ -762,6 +770,10 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
         event.stopImmediatePropagation();
         event.stopPropagation();
         event.preventDefault();
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
