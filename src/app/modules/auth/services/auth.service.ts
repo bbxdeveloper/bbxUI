@@ -20,8 +20,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, private tokenService: TokenStorageService) { }
 
-  public login(nm: string, pswd: string): Promise<LoginResponse> {
-    const loginData = { loginName: nm, password: pswd };
+  public login(loginName: string, password: string): Promise<LoginResponse> {
+    const loginData = { loginName: loginName, password: password };
     const response = this.http.post<LoginResponse>(this.BaseUrl + 'login', loginData, httpOptions);
 
     return firstValueFrom(response)

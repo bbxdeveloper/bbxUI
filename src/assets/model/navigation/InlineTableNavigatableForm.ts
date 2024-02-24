@@ -339,8 +339,8 @@ export class InlineTableNavigatableForm implements INavigatable {
 
     /**
      * Navigational matrix generation
-     * @param attach 
-     * @param stayAtSamePoseAfterGenerate 
+     * @param attach
+     * @param stayAtSamePoseAfterGenerate
      * @param includeDisabledMiscControls Include by default disabled buttons, eg. search buttons, radiobuttons...
      */
     GenerateAndSetNavMatrices(attach: boolean, stayAtSamePoseAfterGenerate: boolean = false, includeDisabledMiscControls: boolean = false): void {
