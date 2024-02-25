@@ -1,5 +1,5 @@
 import { Injectable, Optional } from '@angular/core';
-import { BehaviorSubject, lastValueFrom, of, Subscription } from 'rxjs';
+import { lastValueFrom, of, Subject } from 'rxjs';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { StatusService } from './status.service';
@@ -52,8 +52,7 @@ export class PrintDialogRequest {
   providedIn: 'root'
 })
 export class PrintAndDownloadService {
-  CommandEnded: BehaviorSubject<Constants.CommandDescriptor | undefined> =
-    new BehaviorSubject<Constants.CommandDescriptor | undefined>(undefined);
+  CommandEnded = new Subject<Constants.CommandDescriptor>();
 
   constructor(
     @Optional() private dialogService: BbxDialogServiceService,
@@ -138,7 +137,9 @@ export class PrintAndDownloadService {
   public async openPrintDialog(request: PrintDialogRequest): Promise<void> {
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-    var dialogRef;
+    this.CommandEnded = new Subject()
+
+    let dialogRef;
     try {
       dialogRef = this.dialogService.open(OneNumberInputDialogComponent, {
         context: {
@@ -170,23 +171,17 @@ export class PrintAndDownloadService {
       next: async res => {
         console.log("OneTextInputDialogComponent: ", res);
         if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
-          let commandEndedSubscription: Subscription|undefined = undefined
-          commandEndedSubscription = this.CommandEnded.subscribe({
+          this.CommandEnded.subscribe({
             next: async cmdEnded => {
               try {
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
                 if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                  commandEndedSubscription?.unsubscribe();
-
-                  request.Reset();
+                  await request.Reset();
 
                   this.bbxToastrService.showSuccess(request.MsgFinish, true);
                 }
               } catch (error) {
-                if (commandEndedSubscription && !commandEndedSubscription.closed) {
-                  commandEndedSubscription.unsubscribe()
-                }
                 await request.Reset()
                 this.cs.HandleError(error)
               }
@@ -194,18 +189,12 @@ export class PrintAndDownloadService {
             error: async cmdEnded => {
               try {
                 console.log(`CommandEnded error received: ${cmdEnded?.ResultCmdType}`);
-                commandEndedSubscription?.unsubscribe()
-
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await request.Reset();
 
                 this.bbxToastrService.showError(request.MsgError);
 
               } catch (error) {
-                if (commandEndedSubscription && !commandEndedSubscription.closed) {
-                  commandEndedSubscription.unsubscribe()
-                }
                 await request.Reset()
                 this.cs.HandleError(error)
               } finally {
@@ -213,9 +202,7 @@ export class PrintAndDownloadService {
               }
             },
             complete: () => {
-              if (commandEndedSubscription && !commandEndedSubscription.closed) {
-                commandEndedSubscription.unsubscribe()
-              }
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus)
             }
           });
 
@@ -375,26 +362,23 @@ export class PrintAndDownloadService {
           iframe.style.display = 'none';
           iframe.src = blobURL;
 
-          const stS = this.sts;
-          const commandEnded = this.CommandEnded;
-
           iframe.onload = () => {
             console.log(`Sending for printer...`);
 
             this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.SEND_TO_PRINTER]);
             // Print
-            setTimeout(function () {
+            setTimeout(() => {
               console.log(`Start printing...`);
 
               iframe.focus();
               iframe.contentWindow!.print();
 
               console.log(`Printing is in progress...`);
-              stS.pushProcessStatus(Constants.BlankProcessStatus);
-              commandEnded.next(REPORT_ENDED);
+              this.CommandEnded.next(REPORT_ENDED);
+              this.CommandEnded.complete()
             }, 1);
 
-            // Waiting 10 minute to make sure printing is done, then removing the iframe
+            // Waiting 10 minutes to make sure printing is done, then removing the iframe
             setTimeout(function () {
               document.body.removeChild(iframe);
             }, 600000);
