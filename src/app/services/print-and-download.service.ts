@@ -66,11 +66,7 @@ export class PrintAndDownloadService {
         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-          this.bbxToastrService.show(
-            `Az árajánlat riport elkészítve.`,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
+          this.bbxToastrService.showSuccess(`Az árajánlat riport elkészítve.`, true);
           commandEndedSubscription.unsubscribe();
         }
       },
@@ -78,11 +74,7 @@ export class PrintAndDownloadService {
         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
         commandEndedSubscription.unsubscribe();
-        this.bbxToastrService.show(
-          `Az árajánlat riport készítése közben hiba történt.`,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        );
+        this.bbxToastrService.showError(`Az árajánlat riport készítése közben hiba történt.`);
       }
     });
 
@@ -100,11 +92,7 @@ export class PrintAndDownloadService {
           console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
           if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-            this.bbxToastrService.show(
-              request.MsgFinish,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            this.bbxToastrService.showSuccess(request.MsgFinish, true);
             commandEndedSubscription.unsubscribe();
           }
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -113,11 +101,7 @@ export class PrintAndDownloadService {
           console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
           commandEndedSubscription.unsubscribe();
-          this.bbxToastrService.show(
-            request.MsgError,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+          this.bbxToastrService.showError(request.MsgError);
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
@@ -126,11 +110,7 @@ export class PrintAndDownloadService {
       }
       await this.printReport(request.ReportParams, request.Obs, true);
     }, async () => {
-      this.bbxToastrService.show(
-        request.MsgCancel,
-        Constants.TITLE_INFO,
-        Constants.TOASTR_SUCCESS_5_SEC
-      );
+      this.bbxToastrService.showSuccess(request.MsgCancel, true);
     });
   }
 
@@ -217,11 +197,7 @@ export class PrintAndDownloadService {
           try {
             await request.Reset();
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            this.bbxToastrService.show(
-              request.MsgCancel,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            this.bbxToastrService.showSuccess(request.MsgCancel, true);
           } catch (error) {
             this.cs.HandleError(error)
             await request.Reset()
