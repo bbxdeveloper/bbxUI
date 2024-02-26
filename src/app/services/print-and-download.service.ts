@@ -1,15 +1,11 @@
 import { Injectable, Optional } from '@angular/core';
-import { BehaviorSubject, lastValueFrom, Observable, of, Subscription } from 'rxjs';
+import { lastValueFrom, of, Subject } from 'rxjs';
 import { Constants } from 'src/assets/util/Constants';
 import { environment } from 'src/environments/environment';
 import { StatusService } from './status.service';
-import { NbToastrService } from '@nebular/theme';
-import { InvoiceService } from '../modules/invoice/services/invoice.service';
 import { CommonService } from './common.service';
-import { OfferService } from '../modules/offer/services/offer.service';
 import { BbxToastrService } from './bbx-toastr-service.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
-import { OneTextInputDialogComponent } from '../modules/shared/simple-dialogs/one-text-input-dialog/one-text-input-dialog.component';
 import { OneNumberInputDialogComponent } from '../modules/shared/simple-dialogs/one-number-input-dialog/one-number-input-dialog.component';
 import { createMask } from '@ngneat/input-mask';
 import { BbxDialogServiceService } from './bbx-dialog-service.service';
@@ -56,17 +52,12 @@ export class PrintDialogRequest {
   providedIn: 'root'
 })
 export class PrintAndDownloadService {
-  CommandEnded: BehaviorSubject<Constants.CommandDescriptor | undefined> =
-    new BehaviorSubject<Constants.CommandDescriptor | undefined>(undefined);
+  CommandEnded = new Subject<Constants.CommandDescriptor>();
 
   constructor(
     @Optional() private dialogService: BbxDialogServiceService,
-    private invS: InvoiceService,
-    private offerService: OfferService,
     private sts: StatusService,
-    private simpleToastrService: NbToastrService,
     private bbxToastrService: BbxToastrService,
-    private toastrService: NbToastrService,
     private cs: CommonService) { }
 
   public async printPreview(request: PrintDialogRequest): Promise<void> {
@@ -75,11 +66,7 @@ export class PrintAndDownloadService {
         console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
         if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-          this.simpleToastrService.show(
-            `Az árajánlat riport elkészítve.`,
-            Constants.TITLE_INFO,
-            Constants.TOASTR_SUCCESS_5_SEC
-          );
+          this.bbxToastrService.showSuccess(`Az árajánlat riport elkészítve.`, true);
           commandEndedSubscription.unsubscribe();
         }
       },
@@ -87,11 +74,7 @@ export class PrintAndDownloadService {
         console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
         commandEndedSubscription.unsubscribe();
-        this.bbxToastrService.show(
-          `Az árajánlat riport készítése közben hiba történt.`,
-          Constants.TITLE_ERROR,
-          Constants.TOASTR_ERROR
-        );
+        this.bbxToastrService.showError(`Az árajánlat riport készítése közben hiba történt.`);
       }
     });
 
@@ -109,11 +92,7 @@ export class PrintAndDownloadService {
           console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
           if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-            this.simpleToastrService.show(
-              request.MsgFinish,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            this.bbxToastrService.showSuccess(request.MsgFinish, true);
             commandEndedSubscription.unsubscribe();
           }
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
@@ -122,11 +101,7 @@ export class PrintAndDownloadService {
           console.log(`CommandEnded error received: ${cmdEnded?.CmdType}`);
 
           commandEndedSubscription.unsubscribe();
-          this.bbxToastrService.show(
-            request.MsgError,
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR
-          );
+          this.bbxToastrService.showError(request.MsgError);
           this.sts.pushProcessStatus(Constants.BlankProcessStatus);
         }
       });
@@ -135,18 +110,16 @@ export class PrintAndDownloadService {
       }
       await this.printReport(request.ReportParams, request.Obs, true);
     }, async () => {
-      this.simpleToastrService.show(
-        request.MsgCancel,
-        Constants.TITLE_INFO,
-        Constants.TOASTR_SUCCESS_5_SEC
-      );
+      this.bbxToastrService.showSuccess(request.MsgCancel, true);
     });
   }
 
   public async openPrintDialog(request: PrintDialogRequest): Promise<void> {
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
-    var dialogRef;
+    this.CommandEnded = new Subject()
+
+    let dialogRef;
     try {
       dialogRef = this.dialogService.open(OneNumberInputDialogComponent, {
         context: {
@@ -178,23 +151,17 @@ export class PrintAndDownloadService {
       next: async res => {
         console.log("OneTextInputDialogComponent: ", res);
         if (res && res.answer && HelperFunctions.ToInt(res.value) > 0) {
-          let commandEndedSubscription: Subscription|undefined = undefined
-          commandEndedSubscription = this.CommandEnded.subscribe({
+          this.CommandEnded.subscribe({
             next: async cmdEnded => {
               try {
                 console.log(`CommandEnded received: ${cmdEnded?.ResultCmdType}`);
 
                 if (cmdEnded?.ResultCmdType === Constants.CommandType.PRINT_REPORT) {
-                  commandEndedSubscription?.unsubscribe();
-
-                  request.Reset();
+                  await request.Reset();
 
                   this.bbxToastrService.showSuccess(request.MsgFinish, true);
                 }
               } catch (error) {
-                if (commandEndedSubscription && !commandEndedSubscription.closed) {
-                  commandEndedSubscription.unsubscribe()
-                }
                 await request.Reset()
                 this.cs.HandleError(error)
               }
@@ -202,18 +169,12 @@ export class PrintAndDownloadService {
             error: async cmdEnded => {
               try {
                 console.log(`CommandEnded error received: ${cmdEnded?.ResultCmdType}`);
-                commandEndedSubscription?.unsubscribe()
-
-                this.sts.pushProcessStatus(Constants.BlankProcessStatus);
 
                 await request.Reset();
 
                 this.bbxToastrService.showError(request.MsgError);
 
               } catch (error) {
-                if (commandEndedSubscription && !commandEndedSubscription.closed) {
-                  commandEndedSubscription.unsubscribe()
-                }
                 await request.Reset()
                 this.cs.HandleError(error)
               } finally {
@@ -221,9 +182,7 @@ export class PrintAndDownloadService {
               }
             },
             complete: () => {
-              if (commandEndedSubscription && !commandEndedSubscription.closed) {
-                commandEndedSubscription.unsubscribe()
-              }
+              this.sts.pushProcessStatus(Constants.BlankProcessStatus)
             }
           });
 
@@ -238,11 +197,7 @@ export class PrintAndDownloadService {
           try {
             await request.Reset();
             this.sts.pushProcessStatus(Constants.BlankProcessStatus);
-            this.simpleToastrService.show(
-              request.MsgCancel,
-              Constants.TITLE_INFO,
-              Constants.TOASTR_SUCCESS_5_SEC
-            );
+            this.bbxToastrService.showSuccess(request.MsgCancel, true);
           } catch (error) {
             this.cs.HandleError(error)
             await request.Reset()
@@ -383,26 +338,23 @@ export class PrintAndDownloadService {
           iframe.style.display = 'none';
           iframe.src = blobURL;
 
-          const stS = this.sts;
-          const commandEnded = this.CommandEnded;
-
           iframe.onload = () => {
             console.log(`Sending for printer...`);
 
             this.sts.pushProcessStatus(Constants.PrintReportStatuses[Constants.PrintReportProcessPhases.SEND_TO_PRINTER]);
             // Print
-            setTimeout(function () {
+            setTimeout(() => {
               console.log(`Start printing...`);
 
               iframe.focus();
               iframe.contentWindow!.print();
 
               console.log(`Printing is in progress...`);
-              stS.pushProcessStatus(Constants.BlankProcessStatus);
-              commandEnded.next(REPORT_ENDED);
+              this.CommandEnded.next(REPORT_ENDED);
+              this.CommandEnded.complete()
             }, 1);
 
-            // Waiting 10 minute to make sure printing is done, then removing the iframe
+            // Waiting 10 minutes to make sure printing is done, then removing the iframe
             setTimeout(function () {
               document.body.removeChild(iframe);
             }, 600000);
