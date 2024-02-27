@@ -1,3 +1,4 @@
+import { HelperFunctions } from "src/assets/util/HelperFunctions";
 import { OfflinePaymentMethods } from "../../invoice/models/PaymentMethod";
 import { OfflineCountryCodes } from "./CountryCode";
 import { OfflineUnitPriceTypes, UnitPriceTypes } from "./UnitPriceType";
@@ -65,6 +66,10 @@ export function isTaxPayerNumberEmpty(customer: Customer): boolean {
 
     const taxpayerNumberLengthWidthoutDashes = 11
     return customer.taxpayerNumber.replace(/-/g, '').length !== taxpayerNumberLengthWidthoutDashes
+}
+
+export function isCustomerForeign(customer: Customer) {
+    return customer.countryCode !== OfflineCountryCodes.Hu.value && !HelperFunctions.isEmptyOrSpaces(customer.thirdStateTaxId)
 }
 
 export function BlankCustomer(): Customer {

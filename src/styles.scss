@@ -257,6 +257,12 @@ tr.parent-of-current-keyboard-nav-selected {
   -moz-text-security: disc !important;
 }
 
+// height
+
+.h-inherit {
+  height: inherit;
+}
+
 // General, short
 
 .display-contents {
@@ -283,13 +289,17 @@ tr.parent-of-current-keyboard-nav-selected {
   justify-content: space-around;
 }
 
+.align-center {
+  align-items: center;
+}
+
 // font
 
 .text-1\.1 {
   font-size: 1.1rem;
 }
 
-// Height margin
+// top margin
 
 .mt-8 {
   margin-top: 8px;
