@@ -69,7 +69,8 @@ export function isTaxPayerNumberEmpty(customer: Customer): boolean {
 }
 
 export function isCustomerForeign(customer: Customer) {
-    return customer.countryCode !== OfflineCountryCodes.Hu.value && !HelperFunctions.isEmptyOrSpaces(customer.thirdStateTaxId)
+    return customer.countryCode !== OfflineCountryCodes.Hu.value &&
+        !HelperFunctions.isEmptyOrSpaces(customer.thirdStateTaxId)
 }
 
 export function BlankCustomer(): Customer {

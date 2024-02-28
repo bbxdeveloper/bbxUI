@@ -165,6 +165,7 @@
             <app-customer-search #customerSearch
                                  [customer]="buyerData"
                                  [withDiscounts]="true"
+                                 [canSearch]="isCustomerChangeable.bind(this)"
                                  (customerChanged)="customerChanged($event)"
                                  (customerDiscountsChanged)="customerDiscountsChanged($event)"
                                  (focusIn)="onFormSearchFocused(undefined, $event)"
