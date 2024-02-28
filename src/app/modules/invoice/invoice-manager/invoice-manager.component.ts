@@ -611,9 +611,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   private toggleKbaet(invoiceLine: InvoiceLine): void
   private toggleKbaet(invoiceLine: InvoiceLine, value: boolean): void
   private toggleKbaet(invoiceLine: InvoiceLine, value?: boolean): void {
-    const isKbaet = value !== undefined
+    const isKbaet = value === undefined
       ? this.outInvForm.get('isKbaet')?.value as boolean
-      : false
+      : value
 
     if (isKbaet) {
       invoiceLine.vatRate = 0
