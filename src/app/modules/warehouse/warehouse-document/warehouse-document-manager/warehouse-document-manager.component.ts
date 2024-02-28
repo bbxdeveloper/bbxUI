@@ -473,7 +473,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         }
       },
       error: (err) => {
-        { this.cs.HandleError(err); this.isLoading = false; };
+        this.cs.HandleError(err)
         this.isLoading = false;
       },
       complete: () => {
@@ -488,7 +488,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     });
   }
 
-  async RefreshAsync(params?: WhsTransferQueryParams): Promise<void> {
+  private async RefreshAsync(params?: WhsTransferQueryParams): Promise<void> {
     console.log('Refreshing');
     this.isLoading = true;
 
@@ -553,9 +553,9 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
     this.printAndDownloadService.openPrintDialog({
       DialogTitle: Constants.TITLE_PRINT_INVOICE,
       DefaultCopies: 1,
-      MsgError: `A ${whsNumber} bizonylat nyomtatása közben hiba történt.`,
-      MsgCancel: `A ${whsNumber} bizonylat nyomtatása nem történt meg.`,
-      MsgFinish: `A ${whsNumber} bizonylat nyomtatása véget ért.`,
+      MsgError: `A(z) ${whsNumber} bizonylat nyomtatása közben hiba történt.`,
+      MsgCancel: `A(z) ${whsNumber} bizonylat nyomtatása nem történt meg.`,
+      MsgFinish: `A(z) ${whsNumber} bizonylat nyomtatása véget ért.`,
       Obs: this.whsService.GetReport.bind(this.whsService),
       Reset: () => { },
       ReportParams: {
@@ -599,7 +599,7 @@ export class WarehouseDocumentManagerComponent extends BaseManagerComponent<WhsT
         },
         closeOnEsc: false
       })
-        
+
         dialogRef.onClose.subscribe(res => {
           this.kbS.SetCurrentNavigatable(this.dbDataTable)
           this.kbS.ClickCurrentElement()

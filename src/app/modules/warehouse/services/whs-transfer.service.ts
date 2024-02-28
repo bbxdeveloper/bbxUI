@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, firstValueFrom, lastValueFrom, throwError } from 'rxjs';
+import { EMPTY, Observable, catchError, firstValueFrom, lastValueFrom, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CreateWhsTransferRequest } from '../models/whs/CreateWhsTransferRequest';
 import { CreateWhsTransferResponse } from '../models/whs/CreateWhsTransferResponse';
@@ -8,7 +8,7 @@ import { Constants } from 'src/assets/util/Constants';
 import { CommonService } from 'src/app/services/common.service';
 import { IResponseSingleData } from 'src/assets/model/IResponse';
 import { GetWhsTransfersResponse } from '../models/whs/GetWhsTransfersResponse';
-import { WhsTransferFull, WhsTransferBase, WhsTransferUpdate } from '../models/whs/WhsTransfer';
+import { WhsTransferFull, WhsTransferUpdate } from '../models/whs/WhsTransfer';
 import { WhsTransferQueryParams } from '../models/whs/WhsTransferQueryParams';
 import { WhsTransferStatus } from '../models/whs/WhsTransferStatus';
 import { FinalizeWhsTransferRequest } from '../models/whs/FinalizeWhsTransferRequest';
@@ -65,9 +65,9 @@ export class WhsTransferService {
 
   async GetAllPromise(params?: WhsTransferQueryParams): Promise<GetWhsTransfersResponse> {
     return lastValueFrom(this.GetAll(params).pipe(
-      catchError((err, c) => {
+      catchError(err => {
         this.cs.HandleError(err);
-        return c;
+        return EMPTY
       })
     ));
   }
@@ -95,9 +95,9 @@ export class WhsTransferService {
 
   async GetAllWhsTransferStatusPromise(): Promise<WhsTransferStatus[]> {
     return lastValueFrom(this.GetPaymentWhsTransferStatuses().pipe(
-      catchError((err, c) => {
+      catchError(err => {
         this.cs.HandleError(err);
-        return c;
+        return EMPTY
       })
     ));
   }

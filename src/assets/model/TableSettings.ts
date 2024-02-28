@@ -666,6 +666,7 @@ export module InvoiceItemsDialogTableSettings {
         'lineDescription',
         'quantity',
         'unitOfMeasureX',
+        'currency',
         'lineNetAmount',
     ];
     export const ColDefs: ModelFieldDescriptor[] = [
@@ -713,6 +714,18 @@ export module InvoiceItemsDialogTableSettings {
             mask: '',
             colWidth: '70px',
             textAlign: 'left',
+            navMatrixCssClass: TileCssClass,
+        },
+        {
+            label: 'Pénznem',
+            objectKey: 'currency',
+            colKey: 'currency',
+            defaultValue: '',
+            type: 'string',
+            fRequired: true,
+            mask: '',
+            colWidth: '80px',
+            textAlign: 'right',
             navMatrixCssClass: TileCssClass,
         },
         {

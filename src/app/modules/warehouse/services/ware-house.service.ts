@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { catchError, lastValueFrom, Observable, of } from 'rxjs';
+import { catchError, EMPTY, lastValueFrom, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetWareHousesParamListModel } from '../models/GetWareHousesParamListModel';
@@ -12,7 +12,6 @@ import { UpdateWareHouseRequest } from '../models/UpdateWareHouseRequest';
 import { UpdateWareHouseResponse } from '../models/UpdateWareHouseResponse';
 import { DeleteWareHouseRequest } from '../models/DeleteWareHouseRequest';
 import { DeleteWareHouseResponse } from '../models/DeleteWareHouseResponse';
-import { map } from 'jquery';
 import { CommonService } from 'src/app/services/common.service';
 import {HelperFunctions} from "../../../../assets/util/HelperFunctions";
 
@@ -40,9 +39,9 @@ export class WareHouseService {
 
   async GetAllPromise(params?: GetWareHousesParamListModel): Promise<GetWareHousesResponse> {
     return lastValueFrom(this.GetAll(params).pipe(
-      catchError((err, c) => {
+      catchError(err => {
         this.cs.HandleError(err);
-        return c;
+        return EMPTY
       })
     ));
   }

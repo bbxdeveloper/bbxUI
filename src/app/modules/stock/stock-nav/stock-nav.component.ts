@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -696,24 +696,18 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       return;
     }
     else if ((event.shiftKey && event.key == 'Tab') || event.key == 'Tab') {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
+      HelperFunctions.StopEvent(event)
       return;
     }
 
     if (this.khs.IsKeyboardBlocked) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
+      HelperFunctions.StopEvent(event)
       return;
     }
 
     switch (event.key) {
       case KeyBindings.F11: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break
       }
       case this.KeySetting[Actions.CSV].KeyCode:
@@ -726,42 +720,44 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       case this.KeySetting[Actions.Print].KeyCode:
       case this.KeySetting[Actions.JumpToForm].KeyCode:
       case this.KeySetting[Actions.Details].KeyCode:
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
+        HelperFunctions.StopEvent(event)
         this.HandleFunctionKey(event);
         break;
     }
 
     switch (event.key) {
       case this.KeySetting[Actions.Lock].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
         break;
       }
       case this.KeySetting[Actions.Edit].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Edit].KeyLabel} Pressed: ${this.KeySetting[Actions.Edit].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.ToggleForm].KeyLabel} Pressed: ${this.KeySetting[Actions.ToggleForm].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);
         break;
       }
       case this.KeySetting[Actions.Refresh].KeyCode: {
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-        event.preventDefault();
+        HelperFunctions.StopEvent(event)
+
+        if (this.isDialogOpened) {
+          break
+        }
 
         console.log(`${this.KeySetting[Actions.Refresh].KeyLabel} Pressed: ${this.KeySetting[Actions.Refresh].FunctionLabel}`);
         this.dbDataTable?.HandleKey(event);

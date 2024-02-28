@@ -325,7 +325,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     private readonly keyboardHelperService: KeyboardHelperService,
     tokenStorage: TokenStorageService,
     private readonly systemService: SystemService,
-    private readonly printAndDownloadService: PrintAndDownloadService,    
+    private readonly printAndDownloadService: PrintAndDownloadService,
     loggerService: LoggerService  ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
 
@@ -454,9 +454,9 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     this.printAndDownloadService.openPrintDialog({
       DialogTitle: Constants.TITLE_PRINT_INVOICE,
       DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
-      MsgError: `A ${invoiceNumber} számla nyomtatása közben hiba történt.`,
-      MsgCancel: `A ${invoiceNumber} számla nyomtatása nem történt meg.`,
-      MsgFinish: `A ${invoiceNumber} számla nyomtatása véget ért.`,
+      MsgError: `A(z) ${invoiceNumber} számla nyomtatása közben hiba történt.`,
+      MsgCancel: `A(z) ${invoiceNumber} számla nyomtatása nem történt meg.`,
+      MsgFinish: `A(z) ${invoiceNumber} számla nyomtatása véget ért.`,
       Obs: this.invoiceService.GetReport.bind(this.invoiceService),
       Reset: () => {},
       ReportParams: {
@@ -646,7 +646,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
   Delete(): void { }
 
   ChooseDataForTableRow(rowIndex: number): void { }
-  
+
   ChooseDataForCustomerForm(): void {
     throw new Error('Method not implemented.');
   }

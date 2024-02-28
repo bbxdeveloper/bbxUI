@@ -16,7 +16,7 @@ import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
 import { Customer } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
-import { Product } from '../../product/models/Product';
+import { Product, setProductVatRate } from '../../product/models/Product';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
 import { InvoiceLine } from '../models/InvoiceLine';
 import { InvoiceService } from '../services/invoice.service';
@@ -38,6 +38,7 @@ import { ChooseProductRequest, ProductCodeManagerServiceService } from 'src/app/
 import { BaseInvoiceManagerComponent } from '../base-invoice-manager/base-invoice-manager.component';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { OfflineVatRate } from '../../vat-rate/models/VatRate';
 
 @Component({
   selector: 'app-receipt-manager',
@@ -430,9 +431,9 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
                 await this.printAndDownLoadService.openPrintDialog({
                   DialogTitle: Constants.TITLE_PRINT_INVOICE,
                   DefaultCopies: 1,
-                  MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                  MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                  MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+                  MsgError: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+                  MsgCancel: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+                  MsgFinish: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
                   Obs: this.invoiceService.GetReport.bind(this.invoiceService),
                   Reset: this.DelayedReset.bind(this),
                   ReportParams: {
@@ -527,36 +528,40 @@ export class ReceiptManagerComponent extends BaseInvoiceManagerComponent impleme
     }
   }
 
-  override async ProductToInvoiceLine(p: Product): Promise<InvoiceLine> {
-    if (p.noDiscount) {
+  override async ProductToInvoiceLine(product: Product): Promise<InvoiceLine> {
+    if (product.noDiscount) {
       setTimeout(() => this.bbxToastrService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
+    }
+
+    if (product.vatRateCode === OfflineVatRate.FA.vatRateCode) {
+      setProductVatRate(product, OfflineVatRate.VatRate27)
     }
 
     let res = new InvoiceLine(this.requiredCols);
 
-    res.productCode = p.productCode!;
+    res.productCode = product.productCode!;
 
-    res.productDescription = p.description ?? '';
+    res.productDescription = product.description ?? '';
 
     res.quantity = 0;
 
-    p.productGroup = !!p.productGroup ? p.productGroup : '-';
-    res.noDiscount = p.noDiscount;
-    res.custDiscounted = !p.noDiscount
-    res.unitPrice = HelperFunctions.currencyRound(p.unitPrice2!, this.outGoingInvoiceData.currencyCode)
+    product.productGroup = !!product.productGroup ? product.productGroup : '-';
+    res.noDiscount = product.noDiscount;
+    res.custDiscounted = !product.noDiscount
+    res.unitPrice = HelperFunctions.currencyRound(product.unitPrice2!, this.outGoingInvoiceData.currencyCode)
 
-    res.vatRateCode = p.vatRateCode;
+    res.vatRateCode = product.vatRateCode;
 
-    res.vatRate = p.vatPercentage ?? 1;
+    res.vatRate = product.vatPercentage ?? 1;
 
     res.ReCalc();
 
-    res.unitOfMeasure = p.unitOfMeasure;
-    res.unitOfMeasureX = p.unitOfMeasureX;
+    res.unitOfMeasure = product.unitOfMeasure;
+    res.unitOfMeasureX = product.unitOfMeasureX;
 
-    res.realQty = p.activeStockRealQty ?? 0
+    res.realQty = product.activeStockRealQty ?? 0
 
-    console.log('ProductToInvoiceLine res: ', res, 'product: ', p);
+    console.log('ProductToInvoiceLine res: ', res, 'product: ', product);
 
     return res;
   }

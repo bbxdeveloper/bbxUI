@@ -16,7 +16,7 @@ import {validDate} from 'src/assets/model/Validators';
 import {Constants} from 'src/assets/util/Constants';
 import {Customer, isTaxPayerNumberEmpty} from '../../customer/models/Customer';
 import {CustomerService} from '../../customer/services/customer.service';
-import {getPriceByPriceType, isProduct, Product} from '../../product/models/Product';
+import {getPriceByPriceType, isProduct, Product, setProductVatRate} from '../../product/models/Product';
 import {CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest} from '../models/CreateOutgoingInvoiceRequest';
 import {InvoiceLine} from '../models/InvoiceLine';
 import {InvoiceService} from '../services/invoice.service';
@@ -931,9 +931,9 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
             await this.printAndDownLoadService.openPrintDialog({
               DialogTitle: Constants.TITLE_PRINT_INVOICE,
               DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
-              MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-              MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-              MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+              MsgError: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+              MsgCancel: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+              MsgFinish: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
               Obs: this.invoiceService.GetReport.bind(this.invoiceService),
               Reset: this.DelayedReset.bind(this),
               ReportParams: {
@@ -1051,6 +1051,14 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       setTimeout(() => this.bbxToastrService.showSuccess(Constants.MSG_ERROR_NO_DISCOUNT), 0)
     }
 
+    if (!this.mode.incoming && !this.customerData.isFA && product.vatRateCode === OfflineVatRate.FA.vatRateCode) {
+      setProductVatRate(product, OfflineVatRate.VatRate27)
+
+      setTimeout(() => {
+        this.bbxToastrService.showError(HelperFunctions.StringFormat(Constants.MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER, product.productCode))
+      }, 0);
+    }
+
     const res = new InvoiceLine(this.requiredCols);
 
     res.productCode = product.productCode!;
@@ -1100,12 +1108,6 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
 
     res.unitOfMeasure = product.unitOfMeasure;
     res.unitOfMeasureX = product.unitOfMeasureX;
-
-    if (!this.mode.incoming && !this.customerData.isFA && product.vatRateCode === OfflineVatRate.FA.vatRateCode) {
-      setTimeout(() => {
-        this.bbxToastrService.showError(HelperFunctions.StringFormat(Constants.MSG_ERROR_PRODUCT_FA_NOT_AVAILABLE_IN_CUSTOMER, product.productCode))
-      }, 0);
-    }
 
     res.realQty = product.activeStockRealQty ?? 0
 

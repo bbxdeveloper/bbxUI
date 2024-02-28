@@ -864,9 +864,9 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
               await this.printAndDownLoadService.openPrintDialog({
                 DialogTitle: Constants.TITLE_PRINT_INVOICE,
                 DefaultCopies: Constants.OutgoingIncomingInvoiceDefaultPrintCopy,
-                MsgError: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
-                MsgCancel: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
-                MsgFinish: `A ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
+                MsgError: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása közben hiba történt.`,
+                MsgCancel: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása nem történt meg.`,
+                MsgFinish: `A(z) ${d.data?.invoiceNumber ?? ''} számla nyomtatása véget ért.`,
                 Obs: this.invoiceService.GetReport.bind(this.invoiceService),
                 Reset: this.DelayedReset.bind(this),
                 ReportParams: {
@@ -933,7 +933,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       mode: this.mode,
       originalCustomerID: this.originalCustomerID,
       fillTableWithDataCallback: this.fillTableWithPendingNotes.bind(this),
-      showWorkNumber: !this.mode.incoming
+      showWorkNumber: !this.mode.incoming,
     } as ChooseSummaryInvoiceProductRequest);
   }
 
@@ -960,6 +960,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
     line.workNumber = value.workNumber
     line.unitPriceDiscounted = value.unitPriceDiscounted
     line.limit = value.quantity
+    line.currency = this.outGoingInvoiceData.currencyCode as CurrencyCodes
 
     line.DeafultFieldList = ['productCode', 'quantity']
     line.Save()

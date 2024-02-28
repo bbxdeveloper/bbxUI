@@ -6,25 +6,25 @@
             <div class="login_row" (keydown.enter)="loginFormNav.HandleFormEnter($event)">
                 <label>Felhasználó</label>
                 <input class="{{TileCssClass}}" nbInput type="text" formControlName='username' required="true"
-                 (click)="loginFormNav.HandleFormFieldClick($event)" (blur)="autoFillWareHouse()">
+                 (click)="loginFormNav.HandleFormFieldClick($event)">
             </div>
-    
+
             <div class="login_row" (keydown.enter)="loginFormNav.HandleFormEnter($event)">
                 <label>Jelszó</label>
                 <input class="{{TileCssClass}}" nbInput type="password" formControlName='password' required="true"
                  (click)="loginFormNav.HandleFormFieldClick($event)" (blur)="autoFillWareHouse()">
             </div>
 
-            <div class="login_row">
+            <div class="login_row" (keydown.enter)="MoveToSaveButtons($event)">
                 <label>Raktár</label>
                 <app-bbx-combo-box [lastFormField]="true" [labelAboveField]="false" [needErrorMsg]="false" [currentForm]="loginFormNav"
-                    formFieldName="wareHouse" label="" [needBlankOption]="false" [simpleMode]="false" [data$]="wareHouseComboData$">
+                    formFieldName="warehouse" label="" [needBlankOption]="false" [simpleMode]="false" [data$]="warehouseComboData$">
                 </app-bbx-combo-box>
             </div>
         </form>
     </nb-card-body>
     <nb-card-footer>
-        <button class="{{TileCssClass}}" id="login-button-login" nbButton (click)="close(true)" status="primary" tabindex="-1">Belépés</button>
-        <button class="{{TileCssClass}}" id="login-button-cancel" nbButton (click)="close(false)" status="danger" tabindex="-1">Mégse</button>
+        <button class="{{TileCssClass}}" id="login-button-login" nbButton (click)="close()" status="primary" tabindex="-1">Belépés</button>
+        <button class="{{TileCssClass}}" id="login-button-cancel" nbButton (click)="cancel()" status="danger" tabindex="-1">Mégse</button>
     </nb-card-footer>
 </nb-card>

@@ -16,11 +16,7 @@ export class CommonService {
 
   ShowErrorMessage(err: string): void {
     setTimeout(() => {
-      this.bbxToastrService.show(
-        err,
-        Constants.TITLE_ERROR,
-        Constants.TOASTR_ERROR
-      )
+      this.bbxToastrService.showError(err)
     }, 0)
   }
 

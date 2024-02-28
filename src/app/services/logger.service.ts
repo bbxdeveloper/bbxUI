@@ -47,9 +47,9 @@ export class LoggerService {
   }
 
   /**
-   * 
-   * @param msg 
-   * @param environmentFlag 
+   *
+   * @param msg
+   * @param environmentFlag
    */
   console_log(message?: any, ...optionalParams: any[]): void {
     if (environment.production) {
@@ -111,7 +111,7 @@ export class LoggerService {
     l.TimeStamp = date
 
     this.logStack.push(l)
-    
+
     if (this.logStack.length > stackLimit) {
       this.logStack.splice(0, 1)
     }

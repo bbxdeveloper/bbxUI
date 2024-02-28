@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { catchError, firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
+import { catchError, EMPTY, firstValueFrom, lastValueFrom, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GetInvoicesParamListModel } from '../models/GetInvoicesParamListModel';
@@ -24,8 +24,6 @@ import { PricePreviewRequest } from '../models/PricePreviewRequest';
 import { TokenStorageService } from '../../auth/services/token-storage.service';
 import { GetCustomerInvoiceSummariesResponse } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummariesResponse';
 import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
-import { CreateOutgoingInvoiceResponseData } from '../models/CreateOutgoingInvoiceResponseData';
-import { GetInvPaymentsResponse } from '../../equalizations/models/GetInvPaymentsResponse';
 import { GetUnbalancedInvoicesParamListModel } from '../../equalizations/models/GetUnbalancedInvoicesParamListModel';
 import { CommonService } from 'src/app/services/common.service';
 
@@ -230,9 +228,9 @@ export class InvoiceService {
 
   async GetAllUnbalancedPromise(params?: GetUnbalancedInvoicesParamListModel): Promise<GetInvoicesResponse> {
     return lastValueFrom(this.GetAllUnbalanced(params).pipe(
-      catchError((err, c) => {
+      catchError(err => {
         this.commonService.HandleError(err);
-        return c;
+        return EMPTY
       })
     ));
   }
