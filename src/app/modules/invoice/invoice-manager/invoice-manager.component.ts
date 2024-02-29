@@ -1269,10 +1269,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
     this.buyerData = customer
 
-    if (isCustomerForeign(customer)) {
-      this.isKbaetVisible = true
-      this.outInvForm.get('isKbaet')?.setValue(true)
-    }
+    this.kbeatCheck(customer)
 
     if (this.mode.useCustomersPaymentMethod) {
       this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
@@ -1287,5 +1284,18 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.EDIT);
     }
+  }
+
+  private kbeatCheck(customer: Customer): void {
+    if (isCustomerForeign(customer)) {
+      this.isKbaetVisible = true
+      this.outInvForm.get('isKbaet')?.setValue(true)
+    }
+    else {
+      this.isKbaetVisible = false
+      this.outInvForm.get('isKbaet')?.setValue(false)
+    }
+
+    setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(false), 100)
   }
 }
