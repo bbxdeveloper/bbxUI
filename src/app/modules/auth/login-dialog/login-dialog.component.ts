@@ -5,7 +5,7 @@ import { BaseNavigatableComponentComponent } from '../../shared/base-navigatable
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AttachDirection, NavigatableForm, TileCssClass } from 'src/assets/model/navigation/Nav';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, EMPTY, catchError } from 'rxjs';
 import { WareHouseService } from '../../warehouse/services/ware-house.service';
 import { CommonService } from 'src/app/services/common.service';
 import { WareHouse } from '../../warehouse/models/WareHouse';
@@ -110,16 +110,27 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
 
   cancel(): void {
     this.authService.logout()
+      .pipe(
+        catchError(error => {
+          if (error.status === 401 || error.status === 404) {
+            return EMPTY
+          }
+
+          throw error
+        })
+      )
+      .subscribe()
+
     this.tokenService.signOut()
 
-    this.close()
+    this.close(false)
   }
 
-  close() {
+  close(answer: boolean) {
     this.closedManually = true;
     this.kbS.RemoveWidgetNavigatable();
 
-    this.dialogRef.close();
+    this.dialogRef.close(answer);
   }
 
   async autoFillWareHouse(): Promise<void> {
