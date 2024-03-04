@@ -14,7 +14,7 @@ import {AttachDirection, NavigatableForm as InlineTableNavigatableForm} from 'sr
 import {TreeGridNode} from 'src/assets/model/TreeGridNode';
 import {validDate} from 'src/assets/model/Validators';
 import {Constants} from 'src/assets/util/Constants';
-import {Customer, isTaxPayerNumberEmpty} from '../../customer/models/Customer';
+import {Customer, isCustomerForeign, isTaxPayerNumberEmpty} from '../../customer/models/Customer';
 import {CustomerService} from '../../customer/services/customer.service';
 import {getPriceByPriceType, isProduct, Product, setProductVatRate} from '../../product/models/Product';
 import {CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest} from '../models/CreateOutgoingInvoiceRequest';
@@ -77,6 +77,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.outInvForm.controls['paymentDate'].setValue(HelperFunctions.GetDateString(buyer.paymentDays, 0, 0))
     }
   }
+
+  isKbaetVisible = false
 
   currencyCodes: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([])
   currencyCodesData: CurrencyCode[] = []
@@ -408,9 +410,17 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       exchangeRate: new FormControl(''),
       invoiceOrdinal: new FormControl('', []), // in post response
       notice: new FormControl('', []),
+      isKbaet: new FormControl(false)
     });
 
     const controls = this.outInvForm.controls
+
+    controls['isKbaet'].valueChanges.subscribe((value: boolean) => {
+      this.dbData.forEach(x => {
+        this.toggleKbaet(x.data, value);
+        x.data.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes)
+      })
+    })
 
     controls["invoiceDeliveryDate"].valueChanges.subscribe({
       next: v => {
@@ -596,6 +606,23 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
           }
         }
       });
+  }
+
+  private toggleKbaet(invoiceLine: InvoiceLine): void
+  private toggleKbaet(invoiceLine: InvoiceLine, value: boolean): void
+  private toggleKbaet(invoiceLine: InvoiceLine, value?: boolean): void {
+    const isKbaet = value === undefined
+      ? this.outInvForm.get('isKbaet')?.value as boolean
+      : value
+
+    if (isKbaet) {
+      invoiceLine.vatRate = 0
+      invoiceLine.vatRateCode = 'KBAET'
+    }
+    else {
+      invoiceLine.vatRate = invoiceLine.originalVatRate
+      invoiceLine.vatRateCode = invoiceLine.originalVatRateCode
+    }
   }
 
   refresh(): void {
@@ -1100,9 +1127,13 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
     res.unitPrice = res.originalUnitPriceHUF / (this.outGoingInvoiceData.exchangeRate ?? 1)
     res.unitPrice = HelperFunctions.currencyRound(res.unitPrice, this.outGoingInvoiceData.currencyCode, true)
 
+    res.originalVatRateCode = product.vatRateCode
     res.vatRateCode = product.vatRateCode;
 
     res.vatRate = product.vatPercentage ?? 1;
+    res.originalVatRate = res.vatRate
+
+    this.toggleKbaet(res)
 
     res.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes);
 
@@ -1238,6 +1269,8 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
   public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
     this.buyerData = customer
 
+    this.kbeatCheck(customer)
+
     if (this.mode.useCustomersPaymentMethod) {
       this.outInvForm.controls['paymentMethod'].setValue(this.buyerData.defPaymentMethodX)
     }
@@ -1251,5 +1284,18 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.kbS.SelectFirstTile();
       this.kbS.setEditMode(KeyboardModes.EDIT);
     }
+  }
+
+  private kbeatCheck(customer: Customer): void {
+    if (isCustomerForeign(customer)) {
+      this.isKbaetVisible = true
+      this.outInvForm.get('isKbaet')?.setValue(true)
+    }
+    else {
+      this.isKbaetVisible = false
+      this.outInvForm.get('isKbaet')?.setValue(false)
+    }
+
+    setTimeout(() => this.outInvFormNav.GenerateAndSetNavMatrices(false), 100)
   }
 }

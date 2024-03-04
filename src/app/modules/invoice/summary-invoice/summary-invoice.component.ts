@@ -14,7 +14,7 @@ import { AttachDirection, NavigatableForm as InlineTableNavigatableForm } from '
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { validDate } from 'src/assets/model/Validators';
 import { Constants } from 'src/assets/util/Constants';
-import { Customer, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
+import { Customer, isCustomerForeign, isTaxPayerNumberEmpty } from '../../customer/models/Customer';
 import { CustomerService } from '../../customer/services/customer.service';
 import { Product } from '../../product/models/Product';
 import { CreateOutgoingInvoiceRequest, OutGoingInvoiceFullData, OutGoingInvoiceFullDataToRequest } from '../models/CreateOutgoingInvoiceRequest';
@@ -241,6 +241,19 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
       this.commands = GetFooterCommandListFromKeySettings(k);
       this.fS.pushCommands(this.commands);
     }
+  }
+
+  public isCustomerChangeable(): boolean {
+    if (this.mode.invoiceType !== InvoiceTypes.INV) {
+      return true
+    }
+
+    if (isCustomerForeign(this.buyerData)) {
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NOT_ABLE_TO_CHOOSE_FOREIGN_COUNTRY_CUSTOMER)
+      return false
+    }
+
+    return true
   }
 
   private InitialSetup(): void {
@@ -1282,6 +1295,7 @@ export class SummaryInvoiceComponent extends BaseInvoiceManagerComponent impleme
   }
 
   public customerChanged([customer, shouldNavigate]: [Customer, boolean]): void {
+
     this.buyerData = customer
 
     if (this.mode.useCustomersPaymentMethod) {

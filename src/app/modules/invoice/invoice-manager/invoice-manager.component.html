@@ -117,6 +117,14 @@
                     <app-form-control-error [form]="outInvFormNav" controlName="exchangeRate"></app-form-control-error>
                 </nb-form-field>
 
+                <div *ngIf="isKbaetVisible" class="checkbox-field" (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
+                    <label>0 áfa, KBAET</label>
+
+                    <div class="flex justify-center align-center h-inherit">
+                        <input class="{{TileCssClass}} bbx-fd-checkbox" type="checkbox" formControlName="isKbaet">
+                    </div>
+                </div>
+
                 <nb-form-field (keydown.enter)="outInvFormNav.HandleFormEnter($event, true)">
                     <label *ngIf="mode.Delivery; else invoiceNumber">Bizonylat sorszáma</label>
                     <ng-template #invoiceNumber>
