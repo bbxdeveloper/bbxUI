@@ -23,6 +23,7 @@ import { SystemService } from '../../system/services/system.service';
 import { SendDataToNavComponent } from '../nav/send-data-to-nav/send-data-to-nav.component';
 import { NavTechnicalCancelDialogComponent } from '../nav/nav-technical-cancel-dialog/nav-technical-cancel-dialog.component';
 import {UserLevels} from "../../system/models/UserLevels";
+import { EMPTY, catchError } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -340,7 +341,11 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     dialogRef.onClose.subscribe(this.onLoginDialogClose.bind(this));
   }
 
-  private onLoginDialogClose(): void {
+  private onLoginDialogClose(answer: boolean): void {
+    if (!answer) {
+      return
+    }
+
     setTimeout(() => {
       this.GenerateAndSetNavMatrices()
       this.keyboardService.SelectFirstTile();
@@ -354,25 +359,35 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
     event?.preventDefault();
     HelperFunctions.confirm(this.dialogService, Constants.MSG_LOGOUT_CONFIGM, () => {
       this.statusService.pushProcessStatus(Constants.LogoutSavingStatuses[Constants.LogoutSavingPhases.LOGGING_OUT]);
-      this.authService.logout().subscribe({
-        next: res => {
-          this.bbxToastrService.showSuccess(Constants.MSG_LOGOUT_SUCCESFUL, true);
+      this.authService.logout()
+        .pipe(
+          catchError(error => {
+            if (error.status === 401 || error.status === 404) {
+              return EMPTY
+            }
 
-          this.tokenService.signOut();
-          this.router.navigate(['/home']);
-          setTimeout(() => {
-            this.GenerateAndSetNavMatrices();
-            this.keyboardService.SelectFirstTile();
-          }, 200);
-        },
-        error: err => {
-          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-          this.bbxToastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
-        },
-        complete: () => {
-          this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
-        }
-      });
+            throw error
+          })
+        )
+        .subscribe({
+          next: res => {
+            this.bbxToastrService.showSuccess(Constants.MSG_LOGOUT_SUCCESFUL, true);
+
+            this.tokenService.signOut();
+            this.router.navigate(['/home']);
+            setTimeout(() => {
+              this.GenerateAndSetNavMatrices();
+              this.keyboardService.SelectFirstTile();
+            }, 200);
+          },
+          error: err => {
+            this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+            this.bbxToastrService.show(Constants.MSG_LOGOUT_FAILED, Constants.TITLE_ERROR, Constants.TOASTR_ERROR);
+          },
+          complete: () => {
+            this.statusService.pushProcessStatus(Constants.BlankProcessStatus);
+          }
+        });
     });
   }
 
