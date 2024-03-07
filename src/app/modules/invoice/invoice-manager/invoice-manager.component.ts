@@ -419,6 +419,7 @@ export class InvoiceManagerComponent extends BaseInvoiceManagerComponent impleme
       this.dbData.forEach(x => {
         this.toggleKbaet(x.data, value);
         x.data.ReCalc(this.outGoingInvoiceData.currencyCode as CurrencyCodes)
+        this.RecalcNetAndVat()
       })
     })
 
