@@ -1,1 +1,3 @@
-<p>nav-sent-data works!</p>
+<app-head-line msg="NAV adatküldések"></app-head-line>
+
+<app-nav-sent-data-filter (searchChanged)="searchChanged$.next($event)"></app-nav-sent-data-filter>

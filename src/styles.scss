@@ -248,6 +248,12 @@ tr.parent-of-current-keyboard-nav-selected {
 
 .alert-error {
   color: nb-theme(form-error-message-color);
+  font-weight: bold;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+  margin-top: 5px;
+  text-align: center;
+  max-width: 40ch;
 }
 
 // Input
@@ -271,6 +277,26 @@ tr.parent-of-current-keyboard-nav-selected {
 
 .flex {
   display: flex;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+.flex-shrink-1 {
+  flex-shrink: 1;
+}
+
+.flex-basis-full {
+  flex-basis: 100%;
+}
+
+.gap-4 {
+  gap: 4px;
 }
 
 .gap-25 {

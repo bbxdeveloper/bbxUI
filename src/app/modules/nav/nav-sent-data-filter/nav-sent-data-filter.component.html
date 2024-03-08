@@ -1,0 +1,50 @@
+<nb-card>
+    <nb-card-body>
+        <form [id]="filterFormId" nbForm [formGroup]="filterForm" class="flex flex-wrap gap-4">
+            <nb-form-field>
+                <label>Kezdődátum</label>
+                <input nbInput type="text" formControlName="createTimeFrom">
+
+                <app-form-control-error [form]="filterFormNav" controlName="createTimeFrom"></app-form-control-error>
+            </nb-form-field>
+
+            <nb-form-field>
+                <label>Végdátum</label>
+                <input nbInput type="text" formControlName="createTimeTo">
+
+                <app-form-control-error [form]="filterFormNav" controlName="createTimeTo"></app-form-control-error>
+
+                <div *ngIf="filterForm.errors?.['valami']" class="alert-error alert-danger">
+                    Helytelen dátum!
+                </div>
+            </nb-form-field>
+
+            <nb-form-field>
+                <label>Bizonylatszám</label>
+                <input nbInput type="text" formControlName="invoiceNumber">
+            </nb-form-field>
+
+            <div class="checkbox-field">
+                <label>Figyelmeztetések</label>
+
+                <div class="flex justify-center align-center h-inherit">
+                    <input class="{{TileCssClass}} bbx-fd-checkbox" type="checkbox" formControlName="warningView">
+                </div>
+            </div>
+
+            <div class="checkbox-field">
+                <label>Hiba nézet</label>
+
+                <div class="flex justify-center align-center h-inherit">
+                    <input class="{{TileCssClass}} bbx-fd-checkbox" type="checkbox" formControlName="errorView">
+                </div>
+            </div>
+
+            <div class="flex-grow-1 flex-shrink-1 flex-basis-full">
+                <button nbButton status="primary" (click)="searchClicked$.next(null)">
+                    Keresés
+                </button>
+            </div>
+        </form>
+    </nb-card-body>
+</nb-card>
