@@ -5,6 +5,7 @@ import { NavSentDataFilterComponent } from './nav-sent-data-filter/nav-sent-data
 import { SharedModule } from "../shared/shared.module";
 import { NbButtonModule, NbCardModule, NbFormFieldModule, NbInputModule } from '@nebular/theme';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AngularSplitModule } from 'angular-split';
 
 @NgModule({
     declarations: [
@@ -22,7 +23,8 @@ import { ReactiveFormsModule } from '@angular/forms';
         NbCardModule,
         NbButtonModule,
         CommonModule,
-        SharedModule
+        SharedModule,
+        AngularSplitModule,
     ]
 })
 export class NavModule { }

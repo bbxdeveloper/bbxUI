@@ -1,3 +1,19 @@
-<app-head-line msg="NAV adatküldések"></app-head-line>
+<as-split direction="horizontal">
+    <as-split-area [size]="67">
+        <app-head-line msg="NAV adatküldések"></app-head-line>
 
-<app-nav-sent-data-filter (searchChanged)="searchChanged$.next($event)"></app-nav-sent-data-filter>
+        <app-nav-sent-data-filter (searchChanged)="searchChanged$.next($event)"></app-nav-sent-data-filter>
+
+        <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+            [heightMargin]="365"
+            [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+
+        <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
+
+    </as-split-area>
+    <as-split-area [size]="33" *ngIf="isSideBarOpened">
+        <!-- <app-product-side-bar-form class="bbx-sidebar"></app-product-side-bar-form> -->
+    </as-split-area>
+</as-split>

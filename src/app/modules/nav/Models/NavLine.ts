@@ -24,12 +24,14 @@ export class NavLine {
     navxResultsCount: number = 0
     navxResults = []
 
-    public static create(object: NavLine): NavLine {
-        if (!object) {
-            throw new Error('object cannot be null or undefined')
-        }
-
+    public static create(): NavLine
+    public static create(object: NavLine): NavLine
+    public static create(object?: NavLine): NavLine {
         const navLine = new NavLine()
+
+        if (!object) {
+            return navLine
+        }
 
         const objectKeys = Object.getOwnPropertyNames(object)
         const navLineKeys = Object.getOwnPropertyNames(navLine)

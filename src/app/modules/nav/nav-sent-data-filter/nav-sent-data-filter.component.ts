@@ -50,8 +50,8 @@ export class NavSentDataFilterComponent implements OnInit, OnDestroy {
       tap(filterData => this.localStorage.put(this.localStorageKey, filterData)),
       map((formValues: FilterData) => {
         return {
-          createTimeFrom: moment(formValues.createTimeFrom).format('DD-MM-YYYY'),
-          createTimeTo: formValues.createTimeTo !== '' ? moment(formValues.createTimeTo).format('DD-MM-YYYY') : '',
+          createTimeFrom: moment(formValues.createTimeFrom).format('YYYY-MM-DD'),
+          createTimeTo: formValues.createTimeTo !== '' ? moment(formValues.createTimeTo).format('YYYY-MM-DD') : '',
           invoiceNumber: formValues.invoiceNumber,
           warningView: formValues.warningView,
           errorView: formValues.errorView,
@@ -75,6 +75,7 @@ export class NavSentDataFilterComponent implements OnInit, OnDestroy {
     const data = this.localStorage.get<FilterData>(this.localStorageKey)
     if (data) {
       this.filterForm.patchValue(data)
+      this.searchClicked$.next(null)
     }
     else {
       controls['createTimeFrom'].setValue(moment().format('YYYY-MM-DD'), { emitEvent: false })
