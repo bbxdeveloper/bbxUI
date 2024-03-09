@@ -1,6 +1,9 @@
 import moment from "moment"
+import { IRowStatusProvider } from "../../shared/IRowStatusProvider"
+import { Status } from "../../shared/Status"
+import { NavLineStatus } from "./NavLineStatus"
 
-export class NavLine {
+export class NavLine implements IRowStatusProvider {
     id: number = 0
     createTime: Date = new Date
     invoiceID: number = 0
@@ -64,5 +67,13 @@ export class NavLine {
         navLine.navxResults = object.navxResults
 
         return navLine
+    }
+
+    public getRowStatus(): Status {
+        const isError = this.status === NavLineStatus.Error ||
+            this.status === NavLineStatus.Aborted ||
+            this.status === NavLineStatus.Unknown
+
+        return isError ? Status.Danger : Status.None
     }
 }

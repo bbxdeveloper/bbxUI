@@ -157,6 +157,10 @@ export class FlatDesignTableComponent implements OnInit {
     return this.getRowStatus(row) === Status.Warning
   }
 
+  public isRowDanger(row: TreeGridNode<any>): boolean {
+    return this.getRowStatus(row) === Status.Danger
+  }
+
   public getCellStatus(row: TreeGridNode<any>, cell: string): Status {
     return isICellStatusProvider(row.data) ? row.data.getCellStatus(cell) : Status.None
   }

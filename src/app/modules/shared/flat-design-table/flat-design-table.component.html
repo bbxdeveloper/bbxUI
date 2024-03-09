@@ -28,7 +28,7 @@
                  *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
                  equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
                 <ng-container *ngIf="allColumns.length > 0">
-                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [class.success]="isRowSuccess(row)" [class.warning]="isRowWarning(row)"></tr>
+                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [class.success]="isRowSuccess(row)" [class.warning]="isRowWarning(row)" [class.danger]="isRowDanger(row)"></tr>
                 </ng-container>
                 <ng-container *ngIf="allColumns.length === 0">
                     <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: (allColumnsAsync | async)"></tr>
