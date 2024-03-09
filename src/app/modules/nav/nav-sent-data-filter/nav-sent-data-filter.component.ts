@@ -23,6 +23,7 @@ export class NavSentDataFilterComponent implements OnInit, OnDestroy {
   public readonly searchChanged = new EventEmitter<FilterData>()
 
   public readonly filterFormId = 'nav-sent-data-filter-form-id'
+
   public readonly filterForm = new FormGroup({
     createTimeFrom: new FormControl('', [Validators.required]),
     createTimeTo: new FormControl(''),
@@ -30,6 +31,7 @@ export class NavSentDataFilterComponent implements OnInit, OnDestroy {
     warningView: new FormControl(''),
     errorView: new FormControl('')
   }, { validators: this.isCreateTimeToBiggerThanCreateTimeFrom.bind(this) })
+
   public readonly filterFormNav = new InlineTableNavigatableForm(
     this.filterForm,
     this.keyboardService,
@@ -45,16 +47,16 @@ export class NavSentDataFilterComponent implements OnInit, OnDestroy {
   private readonly fireSearchChangedSubscription = this.searchClicked$
     .pipe(
       switchMap(() => of(this.filterForm.value)),
+      tap(filterData => this.localStorage.put(this.localStorageKey, filterData)),
       map((formValues: FilterData) => {
         return {
           createTimeFrom: moment(formValues.createTimeFrom).format('DD-MM-YYYY'),
-          createTimeTo: moment(formValues.createTimeTo).format('DD-MM-YYYY'),
+          createTimeTo: formValues.createTimeTo !== '' ? moment(formValues.createTimeTo).format('DD-MM-YYYY') : '',
           invoiceNumber: formValues.invoiceNumber,
           warningView: formValues.warningView,
           errorView: formValues.errorView,
         } as FilterData
       }),
-      tap(filterData => this.localStorage.put(this.localStorageKey, filterData)),
     )
     .subscribe((values: FilterData) => this.searchChanged.emit(values))
 
