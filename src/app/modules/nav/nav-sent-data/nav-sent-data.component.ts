@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, EMPTY, Subject, catchError, combineLatest, map, switchMap, takeUntil, tap } from 'rxjs';
 import { FilterData } from '../Models/FilterData';
 import { NavHttpService } from '../Services/nav-http.service';
@@ -23,6 +23,9 @@ import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IQueryExchangeRequest } from '../Models/QueryExchangeRequest';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
+import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
+import { HelperFunctions } from 'src/assets/util/HelperFunctions';
+import { ShowNavXResultsDialogComponent } from '../show-nav-xresults-dialog/show-nav-xresults-dialog.component';
 
 @Component({
   selector: 'app-nav-sent-data',
@@ -179,6 +182,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
   constructor(
     private readonly navService: NavHttpService,
     private readonly commonService: CommonService,
+    private readonly keyboardHelper: KeyboardHelperService,
     dialogService: BbxDialogServiceService,
     keyboardService: KeyboardNavigationService,
     footerService: FooterService,
@@ -244,4 +248,22 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     this.destroy$.unsubscribe()
   }
 
+  @HostListener('keydown', ['$event'])
+  public onKeyDown2(event: KeyboardEvent): void {
+    if (this.keyboardHelper.IsKeyboardBlocked) {
+      HelperFunctions.StopEvent(event)
+      return
+    }
+    switch(event.key) {
+      case this.KeySetting[Actions.Print].KeyCode: {
+        HelperFunctions.StopEvent(event)
+
+        this.dialogService.open(ShowNavXResultsDialogComponent, {
+          context: {
+            results: this.dbData[8].data.navxResults
+          }
+        })
+      }
+    }
+  }
 }

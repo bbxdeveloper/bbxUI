@@ -2,6 +2,7 @@ import moment from "moment"
 import { IRowStatusProvider } from "../../shared/IRowStatusProvider"
 import { Status } from "../../shared/Status"
 import { NavLineStatus } from "./NavLineStatus"
+import { INavXResult } from "./NavXResult"
 
 export class NavLine implements IRowStatusProvider {
     id: number = 0
@@ -25,7 +26,7 @@ export class NavLine implements IRowStatusProvider {
     queryMessage: string = ''
     transactionID: string = ''
     navxResultsCount: number = 0
-    navxResults = []
+    navxResults: INavXResult[] = []
 
     public static create(): NavLine
     public static create(object: NavLine): NavLine
@@ -64,7 +65,7 @@ export class NavLine implements IRowStatusProvider {
         navLine.queryMessage = object.queryMessage
         navLine.transactionID = object.transactionID
         navLine.navxResultsCount = object.navxResultsCount
-        navLine.navxResults = object.navxResults
+        navLine.navxResults = object.navxResults ? object.navxResults : []
 
         return navLine
     }

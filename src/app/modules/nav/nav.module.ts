@@ -3,14 +3,16 @@ import { CommonModule } from '@angular/common';
 import { NavSentDataComponent } from './nav-sent-data/nav-sent-data.component';
 import { NavSentDataFilterComponent } from './nav-sent-data-filter/nav-sent-data-filter.component';
 import { SharedModule } from "../shared/shared.module";
-import { NbButtonModule, NbCardModule, NbFormFieldModule, NbInputModule } from '@nebular/theme';
+import { NbButtonModule, NbCardModule, NbFormFieldModule, NbInputModule, NbTreeGridModule } from '@nebular/theme';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
+import { ShowNavXResultsDialogComponent } from './show-nav-xresults-dialog/show-nav-xresults-dialog.component';
 
 @NgModule({
     declarations: [
         NavSentDataComponent,
-        NavSentDataFilterComponent
+        NavSentDataFilterComponent,
+        ShowNavXResultsDialogComponent
     ],
     exports: [
         NavSentDataFilterComponent,
@@ -22,6 +24,7 @@ import { AngularSplitModule } from 'angular-split';
         NbInputModule,
         NbCardModule,
         NbButtonModule,
+        NbTreeGridModule,
         CommonModule,
         SharedModule,
         AngularSplitModule,
