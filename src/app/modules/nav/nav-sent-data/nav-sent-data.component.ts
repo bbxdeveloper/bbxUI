@@ -14,7 +14,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { ModelFieldDescriptor } from 'src/assets/model/ModelFieldDescriptor';
 import { Constants } from 'src/assets/util/Constants';
-import { Actions, KeyBindings } from 'src/assets/util/KeyBindings';
+import { Actions, GetFooterCommandListFromKeySettings, KeyBindings, NavSentDataKeySettings } from 'src/assets/util/KeyBindings';
 import { NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
@@ -22,6 +22,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IQueryExchangeRequest } from '../Models/QueryExchangeRequest';
+import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 
 @Component({
   selector: 'app-nav-sent-data',
@@ -30,6 +31,9 @@ import { IQueryExchangeRequest } from '../Models/QueryExchangeRequest';
 })
 export class NavSentDataComponent extends BaseManagerComponent<NavLine> implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject()
+
+  public override KeySetting: Constants.KeySettingsDct = NavSentDataKeySettings;
+  public override commands : FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting)
 
   override allColumns = [
     'invoiceNumber',
@@ -145,7 +149,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
         errorView: filterData.errorView,
         warningView: filterData.warningView,
         PageSize: Number(this.dbDataTable.pageSize),
-        PageNumber: pageNumber
+        PageNumber: pageNumber,
+        OrderBy: 'ID'
       } as IQueryExchangeRequest)),
       switchMap((filterData: IQueryExchangeRequest) => this.navService.exchange(filterData)
         .pipe(
@@ -227,6 +232,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     )
 
     this.dbDataTable.NewPageSelected.subscribe(newPageNumber => this.newPageSelected$.next(newPageNumber))
+
+    this.UpdateKeySettingsAndCommand()
   }
 
   ngOnInit(): void {
