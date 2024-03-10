@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { EMPTY, Subject, catchError, switchMap, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, EMPTY, Subject, catchError, combineLatest, map, switchMap, takeUntil, tap } from 'rxjs';
 import { FilterData } from '../Models/FilterData';
 import { NavHttpService } from '../Services/nav-http.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -21,6 +21,7 @@ import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesi
 import { FormControl, FormGroup } from '@angular/forms';
 import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
+import { IQueryExchangeRequest } from '../Models/QueryExchangeRequest';
 
 @Component({
   selector: 'app-nav-sent-data',
@@ -132,11 +133,21 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
   ];
 
   public readonly searchChanged$ = new Subject<FilterData>()
+  private readonly newPageSelected$ = new BehaviorSubject<number>(1)
 
-  private readonly searchChangedSubscription = this.searchChanged$
+  private readonly searchChangedSubscription = combineLatest([this.searchChanged$, this.newPageSelected$])
     .pipe(
       tap(() => this.isLoading = true),
-      switchMap((filterData: FilterData) => this.navService.exchange(filterData)
+      map(([filterData, pageNumber]: [FilterData, number]) => ({
+        createTimeFrom: filterData.createTimeFrom,
+        createTimeTo: filterData.createTimeTo,
+        invoiceNumber: filterData.invoiceNumber,
+        errorView: filterData.errorView,
+        warningView: filterData.warningView,
+        PageSize: Number(this.dbDataTable.pageSize),
+        PageNumber: pageNumber
+      } as IQueryExchangeRequest)),
+      switchMap((filterData: IQueryExchangeRequest) => this.navService.exchange(filterData)
         .pipe(
           takeUntil(this.destroy$),
           catchError(error => {
@@ -214,6 +225,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       this,
       NavLine.create
     )
+
+    this.dbDataTable.NewPageSelected.subscribe(newPageNumber => this.newPageSelected$.next(newPageNumber))
   }
 
   ngOnInit(): void {
