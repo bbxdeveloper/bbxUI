@@ -172,8 +172,13 @@ export class LoginDialogComponent extends BaseNavigatableComponentComponent impl
       }
 
       this.loginFormNav.SetValue('warehouse', loginData.data.user.warehouse.split('-')[1])
-    } catch (error) {
-      this.commonService.HandleError(error)
+    } catch (err) {
+      const error = err as any
+      if (error.status == 401 || error.status == 403) {
+        this.commonService.HandleError({ error: { Message: Constants.MSG_ERROR_WRONG_USERNAME_OR_PASSWORD } })
+      } else {
+        this.commonService.HandleError(err)
+      }
     } finally {
       this.statusService.waitForLoad(false)
     }
