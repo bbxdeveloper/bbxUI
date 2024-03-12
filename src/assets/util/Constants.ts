@@ -123,6 +123,7 @@ export module Constants {
     export const MSG_LOGIN_FAILED: string = 'Sikertelen bejelentkezés!'
     export const MSG_LOGOUT_SUCCESFUL: string = 'Sikeres kijelentkezés!'
     export const MSG_LOGOUT_FAILED: string = 'Sikertelen kijelentkezés!'
+    export const MSG_ERROR_WRONG_USERNAME_OR_PASSWORD = 'Rossz felhasználónév vagy jelszó.'
 
     export const MSG_LOGOUT_CONFIGM: string = 'Biztos ki szeretne jelentkezni?';
 
