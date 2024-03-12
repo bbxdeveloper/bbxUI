@@ -18,6 +18,8 @@ export module Constants {
     export const MSG_ERROR_INVALID_DATE: string = 'Érvénytelen dátum!'
     export const MSG_ERROR_INVALID_CURRENCY_CODE: string = 'Érvénytelen pénznem!'
 
+    export const MSG_ERROR_NOT_ABLE_TO_CHOOSE_FOREIGN_COUNTRY_CUSTOMER = 'Külföldi vevő nem változtatható meg a gyűjtőszámlán!'
+
     export const OutgoingIncomingInvoiceDefaultPrintCopy: number = 2
 
     export const MSG_ERROR_USERDATA_NEEDED = 'A mentés előtt érvényes bejelentkezési adatok megadása szükséges!'

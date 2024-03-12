@@ -5,7 +5,7 @@ import {CustomerDiscountService} from "../../customer-discount/services/customer
 import {CommonService} from "../../../services/common.service";
 import {Customer} from "../../customer/models/Customer";
 import {CustDiscountForGet} from "../../customer-discount/models/CustDiscount";
-import {debounceTime, distinctUntilChanged, EMPTY, map, of, Subscription, switchMap, tap} from "rxjs";
+import {debounceTime, distinctUntilChanged, EMPTY, filter, map, of, pipe, Subscription, switchMap, tap} from "rxjs";
 import {KeyboardModes, KeyboardNavigationService} from "../../../services/keyboard-navigation.service";
 import {CustomerSelectTableDialogComponent} from "../customer-select-table-dialog/customer-select-table-dialog.component";
 import {CustomerDialogTableSettings} from "../../../../assets/model/TableSettings";
@@ -36,6 +36,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
   @Input() canEdit = true
   @Input() canGetFromNav = true
   @Input() searchFormId = 'customer-search-form'
+  @Input() canSearch = () => true
 
   @Output() customerChanged = new EventEmitter<[Customer, boolean]>()
   @Output() customerDiscountsChanged = new EventEmitter<CustDiscountForGet[]>(true)
@@ -104,6 +105,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((filter: string) => HelperFunctions.isEmptyOrSpaces(filter) ? EMPTY : of(filter)),
+        switchMap((filter: string) => this.canSearch() ? of(filter) : EMPTY),
         tap(() => this.loadingChanged.emit(true)),
         tap((filter: string) => search = filter),
         map((filter: string) => ({
