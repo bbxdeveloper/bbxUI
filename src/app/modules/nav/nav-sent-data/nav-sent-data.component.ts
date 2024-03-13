@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, EMPTY, Subject, catchError, combineLatest, map, switchMap, takeUntil, tap } from 'rxjs';
 import { FilterData } from '../Models/FilterData';
 import { NavHttpService } from '../Services/nav-http.service';
@@ -7,7 +7,7 @@ import { IQueryExchangeResponse } from '../Models/QueryExchangeResponse';
 import { NavLine } from '../Models/NavLine';
 import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
-import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
+import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { StatusService } from 'src/app/services/status.service';
@@ -19,7 +19,7 @@ import { NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
 import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesignNavigatableTable';
 import { FormControl, FormGroup } from '@angular/forms';
-import { AttachDirection } from 'src/assets/model/navigation/Navigatable';
+import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
 import { IQueryExchangeRequest } from '../Models/QueryExchangeRequest';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
@@ -32,7 +32,7 @@ import { ShowNavXResultsDialogComponent } from '../show-nav-xresults-dialog/show
   templateUrl: './nav-sent-data.component.html',
   styleUrls: ['./nav-sent-data.component.scss']
 })
-export class NavSentDataComponent extends BaseManagerComponent<NavLine> implements OnInit, OnDestroy {
+export class NavSentDataComponent extends BaseManagerComponent<NavLine> implements OnInit, OnDestroy, AfterViewInit {
   private readonly destroy$ = new Subject()
 
   public override KeySetting: Constants.KeySettingsDct = NavSentDataKeySettings;
@@ -58,6 +58,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "140px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -65,6 +66,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
       colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -72,6 +74,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -79,6 +82,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "160px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -86,6 +90,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
       colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -93,6 +98,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "80px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -100,6 +106,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
       colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -107,6 +114,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "80px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -114,6 +122,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
       colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -121,6 +130,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "80px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -128,6 +138,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "30%", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
@@ -135,6 +146,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
       colWidth: "30%", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
+      navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
   ];
@@ -190,7 +202,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     statusService: StatusService,
     loggerService: LoggerService,
     dataSourceBuilder: NbTreeGridDataSourceBuilder<TreeGridNode<NavLine>>,
-    cdref: ChangeDetectorRef,
+    private readonly cdref: ChangeDetectorRef,
     sidebarFormService: SideBarFormService,
   ) {
     super(dialogService, keyboardService, footerService, sidebarService, commonService, statusService, loggerService);
@@ -216,14 +228,15 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       navxResultsCount: new FormControl(),
     })
 
+    this.dbDataTableId = 'nav-sent-data-table-id'
     this.dbDataDataSrc = dataSourceBuilder.create(this.dbData)
     this.dbDataTable = new FlatDesignNavigatableTable(
       this.dbDataTableForm,
       'nav-data',
       dataSourceBuilder,
-      keyboardService,
-      footerService,
-      cdref,
+      this.kbS,
+      this.fS,
+      this.cdref,
       this.dbData,
       this.dbDataTableId,
       AttachDirection.DOWN,
@@ -232,10 +245,37 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       sidebarService,
       sidebarFormService,
       this,
-      NavLine.create
+      NavLine.create,
+      false
     )
 
+    this.dbDataTable.OuterJump = true
+    this.dbDataTable.SetFormReadonly(true)
     this.dbDataTable.NewPageSelected.subscribe(newPageNumber => this.newPageSelected$.next(newPageNumber))
+    this.dbDataTable.flatDesignForm.FillFormWithObject = (data: NavLine): void => {
+      if (!data) {
+        return
+      }
+
+      this.dbDataTable.flatDesignForm.form.setValue({
+        id: data.id,
+        invoiceNumber: data.invoiceNumber,
+        createTime: data.createTime,
+        status: data.statusX,
+        operation: data.operationX,
+        tokenTime: data.tokenTime,
+        tokenFuncCode: data.tokenFuncCode,
+        tokenMessage: data.tokenMessage,
+        sendTime: data.sendTime,
+        sendFuncCode: data.sendFuncCode,
+        sendMessage: data.sendMessage,
+        queryTime: data.queryTime,
+        queryFuncCode: data.queryFuncCode,
+        queryMessage: data.queryMessage,
+        transactionId: data.transactionID,
+        navxResultsCount: data.navxResultsCount
+      })
+    }
 
     this.UpdateKeySettingsAndCommand()
   }
@@ -243,9 +283,23 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
   ngOnInit(): void {
   }
 
+  ngAfterViewInit(): void {
+    this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+    this.dbDataTable.GenerateAndSetNavMatrices(true)
+
+    this.cdref.detectChanges()
+
+    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+    this.kbS.SelectFirstTile()
+    this.kbS.ClickCurrentElement()
+  }
+
   ngOnDestroy(): void {
     this.searchChangedSubscription.unsubscribe()
+    this.destroy$.next(true)
     this.destroy$.unsubscribe()
+
+    this.kbS.Detach()
   }
 
   @HostListener('keydown', ['$event'])
@@ -255,6 +309,12 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       return
     }
     switch(event.key) {
+      case this.KeySetting[Actions.ToggleForm].KeyCode: {
+        HelperFunctions.StopEvent(event)
+
+        this.dbDataTable.HandleKey(event)
+        break
+      }
       case this.KeySetting[Actions.Print].KeyCode: {
         HelperFunctions.StopEvent(event)
 
@@ -263,6 +323,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
             results: this.dbData[8].data.navxResults
           }
         })
+        break
       }
     }
   }

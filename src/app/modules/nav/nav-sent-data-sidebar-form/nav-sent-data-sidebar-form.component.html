@@ -1,0 +1,7 @@
+<nb-card>
+    <nb-card-body>
+        <form *ngIf="currentForm" ngForm [formGroup]="currentForm.form">
+            <input nbInput type="text" formControlName="id">
+        </form>
+    </nb-card-body>
+</nb-card>

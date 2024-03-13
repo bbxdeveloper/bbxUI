@@ -7,12 +7,14 @@ import { NbButtonModule, NbCardModule, NbFormFieldModule, NbInputModule, NbTreeG
 import { ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { ShowNavXResultsDialogComponent } from './show-nav-xresults-dialog/show-nav-xresults-dialog.component';
+import { NavSentDataSidebarFormComponent } from './nav-sent-data-sidebar-form/nav-sent-data-sidebar-form.component';
 
 @NgModule({
     declarations: [
         NavSentDataComponent,
         NavSentDataFilterComponent,
-        ShowNavXResultsDialogComponent
+        ShowNavXResultsDialogComponent,
+        NavSentDataSidebarFormComponent
     ],
     exports: [
         NavSentDataFilterComponent,
