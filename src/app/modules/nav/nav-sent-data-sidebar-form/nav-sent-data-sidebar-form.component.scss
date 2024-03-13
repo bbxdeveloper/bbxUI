@@ -1,0 +1,11 @@
+.form {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    input {
+        max-width: unset;
+    }
+
+    label {
+        text-align: end;
+    }
+}

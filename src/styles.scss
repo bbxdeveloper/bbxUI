@@ -275,6 +275,8 @@ tr.parent-of-current-keyboard-nav-selected {
   display: contents !important;
 }
 
+// flex
+
 .flex {
   display: flex;
 }
@@ -295,6 +297,16 @@ tr.parent-of-current-keyboard-nav-selected {
   flex-basis: 100%;
 }
 
+// grid
+
+.grid {
+  display: grid;
+}
+
+.col-span-3 {
+  grid-column: span 3 / span 3;
+}
+
 .gap-4 {
   gap: 4px;
 }
@@ -302,6 +314,16 @@ tr.parent-of-current-keyboard-nav-selected {
 .gap-25 {
   gap: 25px;
 }
+
+.gap-row-4 {
+  row-gap: 4px;
+}
+
+.gap-col-10 {
+  column-gap: 10px;
+}
+
+// justify
 
 .justify-center {
   justify-content: center;
@@ -314,6 +336,8 @@ tr.parent-of-current-keyboard-nav-selected {
 .justify-around {
   justify-content: space-around;
 }
+
+// align
 
 .align-center {
   align-items: center;
