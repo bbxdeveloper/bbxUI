@@ -346,6 +346,10 @@ export class HeaderComponent extends BaseNavigatableComponentComponent implement
       return
     }
 
+    if (this.tokenService.user === null || this.tokenService.user === undefined) {
+      return
+    }
+
     setTimeout(() => {
       this.GenerateAndSetNavMatrices()
       this.keyboardService.SelectFirstTile();
