@@ -1,3 +1,7 @@
+nb-card {
+    height: -webkit-fill-available;
+}
+
 .form {
     grid-template-columns: repeat(4, minmax(0, 1fr));
 

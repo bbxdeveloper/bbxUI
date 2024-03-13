@@ -26,6 +26,7 @@ import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { ShowNavXResultsDialogComponent } from '../show-nav-xresults-dialog/show-nav-xresults-dialog.component';
+import moment from 'moment';
 
 @Component({
   selector: 'app-nav-sent-data',
@@ -260,16 +261,16 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       this.dbDataTable.flatDesignForm.form.setValue({
         id: data.id,
         invoiceNumber: data.invoiceNumber,
-        createTime: data.createTime,
+        createTime: moment(data.createTime).format('YYYY-MM-DD hh:mm'),
         status: data.statusX,
         operation: data.operationX,
-        tokenTime: data.tokenTime,
+        tokenTime: moment(data.tokenTime).format('YYYY-MM-DD hh:mm'),
         tokenFuncCode: data.tokenFuncCode,
         tokenMessage: data.tokenMessage,
-        sendTime: data.sendTime,
+        sendTime: moment(data.sendTime).format('YYYY-MM-DD hh:mm'),
         sendFuncCode: data.sendFuncCode,
         sendMessage: data.sendMessage,
-        queryTime: data.queryTime,
+        queryTime: moment(data.queryTime).format('YYYY-MM-DD hh:mm'),
         queryFuncCode: data.queryFuncCode,
         queryMessage: data.queryMessage,
         transactionId: data.transactionID,
