@@ -3,7 +3,7 @@ nb-card {
 }
 
 .form {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: 1fr 204px 1fr 160px;
 
     input {
         max-width: unset;
@@ -11,5 +11,6 @@ nb-card {
 
     label {
         text-align: end;
+        white-space: nowrap;
     }
 }

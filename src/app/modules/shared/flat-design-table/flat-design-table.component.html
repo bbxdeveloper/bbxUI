@@ -79,6 +79,20 @@
                             </td>
                         </ng-container>
 
+                        <ng-container *ngSwitchCase="'dateTime'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [class.success]="isCellSuccess(row, it.objectKey)" [class.warning]="isCellWarning(row, it.objectKey)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
+                                    {{ GetDateTimeString(row.data[it.objectKey]) }}
+                                </div>
+                            </td>
+                        </ng-container>
+
                         <ng-container *ngSwitchCase="'number'">
                             <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
                                 (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"

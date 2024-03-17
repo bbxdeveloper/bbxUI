@@ -16,6 +16,7 @@ import { StatusService } from 'src/app/services/status.service';
 import { CommonService } from 'src/app/services/common.service';
 import { HtmlStringSanitizerPipe } from '../pipes/html-string-sanitizer.pipe';
 import { isICellStatusProvider } from '../ICellStatusProvider';
+import moment from 'moment';
 
 export const FORMATTED_NUMBER_COL_TYPES = [
   'formatted-number', 'formatted-number-integer', 'param-padded-formatted-integer'
@@ -77,6 +78,10 @@ export class FlatDesignTableComponent implements OnInit {
 
   GetDateString(val: string): string {
     return HelperFunctions.GetDateStringFromDate(val)
+  }
+
+  GetDateTimeString(val: string): string {
+    return moment(val).format('YYYY-MM-DD hh:mm')
   }
 
   changeSort(sortRequest: NbSortRequest): void {

@@ -68,8 +68,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     },
     {
       label: 'Kezdés', objectKey: 'createTime', colKey: 'createTime',
-      defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
-      colWidth: "120px", textAlign: "left", fInputType: 'code-field',
+      defaultValue: '', type: 'dateTime', mask: Constants.ProductCodeMask,
+      colWidth: "160px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
@@ -92,8 +92,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     },
     {
       label: 'Token küld.', objectKey: 'tokenTime', colKey: 'tokenTime',
-      defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
-      colWidth: "120px", textAlign: "left", fInputType: 'code-field',
+      defaultValue: '', type: 'dateTime', mask: Constants.ProductCodeMask,
+      colWidth: "160px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
@@ -108,8 +108,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     },
     {
       label: 'Adat küld.', objectKey: 'sendTime', colKey: 'sendTime',
-      defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
-      colWidth: "120px", textAlign: "left", fInputType: 'code-field',
+      defaultValue: '', type: 'dateTime', mask: Constants.ProductCodeMask,
+      colWidth: "160px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
@@ -124,8 +124,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     },
     {
       label: 'Lekérd.küld.', objectKey: 'queryTime', colKey: 'queryTime',
-      defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
-      colWidth: "120px", textAlign: "left", fInputType: 'code-field',
+      defaultValue: '', type: 'dateTime', mask: Constants.ProductCodeMask,
+      colWidth: "160px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
@@ -141,15 +141,15 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     {
       label: 'Tranzakció ID', objectKey: 'transactionID', colKey: 'transactionID',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "210px", textAlign: "left", fInputType: 'code-field',
+      colMinWidth: '210px', colWidth: "40%", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
       label: 'Ért. száma', objectKey: 'navxResultsCount', colKey: 'navxResultsCount',
-      defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "120px", textAlign: "left", fInputType: 'code-field',
+      defaultValue: '', type: 'number', mask: Constants.ProductCodeMask,
+      colWidth: "120px", textAlign: 'right', fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
