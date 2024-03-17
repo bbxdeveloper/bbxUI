@@ -269,6 +269,12 @@ tr.parent-of-current-keyboard-nav-selected {
   height: inherit;
 }
 
+// width
+
+.w-150 {
+  width: 150px;
+}
+
 // General, short
 
 .display-contents {
@@ -338,6 +344,10 @@ tr.parent-of-current-keyboard-nav-selected {
 }
 
 // align
+
+.align-start {
+  align-items: start;
+}
 
 .align-center {
   align-items: center;

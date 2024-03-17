@@ -1,47 +1,54 @@
 <nb-card>
     <nb-card-body>
-        <form [id]="filterFormId" nbForm [formGroup]="filterForm" class="flex flex-wrap gap-4">
-            <nb-form-field>
+        <form [id]="filterFormId" nbForm [formGroup]="filterForm" class="flex flex-wrap gap-4 align-start">
+            <nb-form-field class="w-150" (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
                 <label>Kezdődátum</label>
-                <input nbInput type="text" formControlName="createTimeFrom">
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="createTimeFrom" mask="0000-00-00" [showMaskTyped]="true" [readOnly]="editDisabled">
 
                 <app-form-control-error [form]="filterFormNav" controlName="createTimeFrom"></app-form-control-error>
-            </nb-form-field>
 
-            <nb-form-field>
-                <label>Végdátum</label>
-                <input nbInput type="text" formControlName="createTimeTo">
-
-                <app-form-control-error [form]="filterFormNav" controlName="createTimeTo"></app-form-control-error>
-
-                <div *ngIf="filterForm.errors?.['valami']" class="alert-error alert-danger">
+                <div *ngIf="createTimeFrom?.errors?.['invalid']" class="alert-error alert-danger">
                     Helytelen dátum!
                 </div>
             </nb-form-field>
 
-            <nb-form-field>
-                <label>Bizonylatszám</label>
-                <input nbInput type="text" formControlName="invoiceNumber">
+            <nb-form-field class="w-150" (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                <label>Végdátum</label>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="createTimeTo" mask="0000-00-00" [showMaskTyped]="true" [readOnly]="editDisabled">
+
+                <app-form-control-error [form]="filterFormNav" controlName="createTimeTo"></app-form-control-error>
+
+                <div *ngIf="filterForm.errors?.['invalid']" class="alert-error alert-danger">
+                    Korábbi mint a kezdődátum.
+                </div>
+                <div *ngIf="createTimeTo?.errors?.['invalid']" class="alert-error alert-danger">
+                    Helytelen dátum!
+                </div>
             </nb-form-field>
 
-            <div class="checkbox-field">
+            <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                <label>Bizonylatszám</label>
+                <input class="{{TileCssClass}}" nbInput type="text" formControlName="invoiceNumber" [readOnly]="editDisabled">
+            </nb-form-field>
+
+            <div class="checkbox-field" (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
                 <label>Figyelmeztetések</label>
 
                 <div class="flex justify-center align-center h-inherit">
-                    <input class="{{TileCssClass}} bbx-fd-checkbox" type="checkbox" formControlName="warningView">
+                    <input class="{{TileCssClass}} bbx-fd-checkbox" type="checkbox" formControlName="warningView" [readOnly]="editDisabled">
                 </div>
             </div>
 
-            <div class="checkbox-field">
+            <div class="checkbox-field" (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
                 <label>Hiba nézet</label>
 
                 <div class="flex justify-center align-center h-inherit">
-                    <input class="{{TileCssClass}} bbx-fd-checkbox" type="checkbox" formControlName="errorView">
+                    <input class="{{TileCssClass}} bbx-fd-checkbox" type="checkbox" formControlName="errorView" [readOnly]="editDisabled">
                 </div>
             </div>
 
-            <div class="flex-grow-1 flex-shrink-1 flex-basis-full">
-                <button nbButton status="primary" (click)="searchClicked$.next(null)">
+            <div class="flex-grow-1 flex-shrink-1 flex-basis-full" (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+                <button nbButton class="{{TileCssClass}}" status="primary" type="button" (click)="searchClicked$.next(null)">
                     Keresés
                 </button>
             </div>

@@ -8,6 +8,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { ShowNavXResultsDialogComponent } from './show-nav-xresults-dialog/show-nav-xresults-dialog.component';
 import { NavSentDataSidebarFormComponent } from './nav-sent-data-sidebar-form/nav-sent-data-sidebar-form.component';
+import { NgxMaskModule } from 'ngx-mask';
+import { InputMaskModule } from '@ngneat/input-mask';
 
 @NgModule({
     declarations: [
@@ -30,6 +32,8 @@ import { NavSentDataSidebarFormComponent } from './nav-sent-data-sidebar-form/na
         CommonModule,
         SharedModule,
         AngularSplitModule,
+        NgxMaskModule.forChild(),
+        InputMaskModule,
     ]
 })
 export class NavModule { }

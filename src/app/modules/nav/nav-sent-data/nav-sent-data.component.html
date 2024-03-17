@@ -2,7 +2,7 @@
     <as-split-area [size]="67">
         <app-head-line msg="NAV adatküldések"></app-head-line>
 
-        <app-nav-sent-data-filter (searchChanged)="searchChanged$.next($event)"></app-nav-sent-data-filter>
+        <app-nav-sent-data-filter #filter (searchChanged)="searchChanged$.next($event)"></app-nav-sent-data-filter>
 
         <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
             [heightMargin]="365"

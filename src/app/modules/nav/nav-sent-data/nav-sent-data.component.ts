@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, EMPTY, Subject, catchError, combineLatest, map, switchMap, takeUntil, tap } from 'rxjs';
 import { FilterData } from '../Models/FilterData';
 import { NavHttpService } from '../Services/nav-http.service';
@@ -27,6 +27,7 @@ import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service'
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { ShowNavXResultsDialogComponent } from '../show-nav-xresults-dialog/show-nav-xresults-dialog.component';
 import moment from 'moment';
+import { INavigation } from '../nav-sent-data-filter/INavigation';
 
 @Component({
   selector: 'app-nav-sent-data',
@@ -38,6 +39,9 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
 
   public override KeySetting: Constants.KeySettingsDct = NavSentDataKeySettings;
   public override commands : FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting)
+
+  @ViewChild('filter')
+  public filter: INavigation|undefined
 
   override allColumns = [
     'invoiceNumber',
@@ -286,11 +290,12 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
 
   ngAfterViewInit(): void {
     this.kbS.setEditMode(KeyboardModes.NAVIGATION)
+    this.filter?.GenerateAndSetMatrixes()
     this.dbDataTable.GenerateAndSetNavMatrices(true)
 
     this.cdref.detectChanges()
 
-    this.kbS.SetCurrentNavigatable(this.dbDataTable)
+    this.kbS.SetCurrentNavigatable(this.filter?.filterFormNav ?? this.dbDataTable)
     this.kbS.SelectFirstTile()
     this.kbS.ClickCurrentElement()
   }
