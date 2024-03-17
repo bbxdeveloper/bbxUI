@@ -320,15 +320,23 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
         HelperFunctions.StopEvent(event)
 
+        if (this.dialogService.isDialogOpened) {
+          break
+        }
+
         this.dbDataTable.HandleKey(event)
         break
       }
       case this.KeySetting[Actions.Print].KeyCode: {
         HelperFunctions.StopEvent(event)
 
+        if (this.dialogService.isDialogOpened) {
+          break
+        }
+
         this.dialogService.open(ShowNavXResultsDialogComponent, {
           context: {
-            results: this.dbData[8].data.navxResults
+            results: this.dbData[this.dbDataTable.prevSelectedRowPos ?? 0].data.navxResults
           }
         })
         break

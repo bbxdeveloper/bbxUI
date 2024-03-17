@@ -4,6 +4,6 @@ export interface INavXResult {
     errorCode: string,
     message: string,
     tag: string,
-    value: number|null|undefined,
+    value: string|null|undefined,
     line: string|null|undefined,
 }
