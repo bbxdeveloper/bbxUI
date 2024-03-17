@@ -15,7 +15,9 @@ export class SimplePaginator {
 
     allPages: number = 1;
 
-    pageSize: string = '10';
+    private readonly defaultPageSize = '50'
+
+    pageSize: string = this.defaultPageSize;
 
     totalItems: number = 0;
     totalUnfilteredItems: number = 0;
@@ -30,7 +32,7 @@ export class SimplePaginator {
 
     resetPaginator(resetPageSize: boolean = false, quiet: boolean = true): void {
         if (resetPageSize) {
-            this.pageSize = '10';
+            this.pageSize = this.defaultPageSize;
         }
         if (quiet) {
             this._currentPage = 1;

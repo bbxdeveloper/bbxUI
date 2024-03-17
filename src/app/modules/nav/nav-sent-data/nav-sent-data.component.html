@@ -5,7 +5,7 @@
         <app-nav-sent-data-filter #filter (searchChanged)="searchChanged$.next($event)"></app-nav-sent-data-filter>
 
         <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-            [heightMargin]="365"
+            [heightMargin]="460"
             [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
         </app-flat-design-table>

@@ -101,13 +101,13 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     {
       label: 'Token func.', objectKey: 'tokenFuncCode', colKey: 'tokenFuncCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "80px", textAlign: "left", fInputType: 'code-field',
+      colWidth: "140px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
-      label: 'Adat küld', objectKey: 'sendTime', colKey: 'sendTime',
+      label: 'Adat küld.', objectKey: 'sendTime', colKey: 'sendTime',
       defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
       colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
@@ -115,15 +115,15 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
-      label: 'Adat func', objectKey: 'sendFuncCode', colKey: 'sendFuncCode',
+      label: 'Adat func.', objectKey: 'sendFuncCode', colKey: 'sendFuncCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "80px", textAlign: "left", fInputType: 'code-field',
+      colWidth: "110px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
-      label: 'Lekérd.küld', objectKey: 'queryTime', colKey: 'queryTime',
+      label: 'Lekérd.küld.', objectKey: 'queryTime', colKey: 'queryTime',
       defaultValue: '', type: 'onlyDate', mask: Constants.ProductCodeMask,
       colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
@@ -131,9 +131,9 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
     },
     {
-      label: 'Lekérd.func', objectKey: 'queryFuncCode', colKey: 'queryFuncCode',
+      label: 'Lekérd.func.', objectKey: 'queryFuncCode', colKey: 'queryFuncCode',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "80px", textAlign: "left", fInputType: 'code-field',
+      colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
@@ -141,7 +141,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     {
       label: 'Tranzakció ID', objectKey: 'transactionID', colKey: 'transactionID',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "30%", textAlign: "left", fInputType: 'code-field',
+      colWidth: "210px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
@@ -149,7 +149,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     {
       label: 'Ért. száma', objectKey: 'navxResultsCount', colKey: 'navxResultsCount',
       defaultValue: '', type: 'string', mask: Constants.ProductCodeMask,
-      colWidth: "30%", textAlign: "left", fInputType: 'code-field',
+      colWidth: "120px", textAlign: "left", fInputType: 'code-field',
       keyAction: Actions.Create,
       navMatrixCssClass: TileCssClass,
       keySettingsRow: { KeyCode: KeyBindings.F3, KeyLabel: KeyBindings.F3, FunctionLabel: 'Termék felvétele', KeyType: Constants.KeyTypes.Fn }
@@ -192,6 +192,8 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       this.dbData = response.data.map(x => ({ data: NavLine.create(x), uid: this.nextUid() }))
       this.dbDataDataSrc.setData(this.dbData)
       this.dbDataTable.SetPaginatorData(response)
+
+      this.kbS.SetCurrentNavigatable(this.dbDataTable)
 
       this.RefreshTable()
     })
