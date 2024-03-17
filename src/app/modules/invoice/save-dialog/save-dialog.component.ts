@@ -175,47 +175,46 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       return
     }
 
-    if (this.data.paymentMethod !== 'TRANSFER' && this.data.paymentMethod !== 'CARD') {
+    if (this.data.paymentMethod !== PaymentMethods.Transfer && this.data.paymentMethod !== PaymentMethods.Card) {
       if (!(this.data.isDelivery && !this.data.incoming)) {
         return
       }
     }
 
     try {
-      if (this.data.customerID !== undefined) {
-        const maxLimit = HelperFunctions.ToInt(this.customer?.maxLimit)
-        const warningLimit = HelperFunctions.ToInt(this.customer?.warningLimit)
-
-        if (maxLimit === 0 || warningLimit === 0) {
-          return
-        }
-
-        var discountedPrice = HelperFunctions.ToFloat(this.sumForm.controls['discountedInvoiceNetAmount'].value)
-        var customerUnpaidAmount = await this.invoiceService.GetCustomerUnpaidAmount({ CustomerID: this.data.customerID })
-        var sum = discountedPrice + customerUnpaidAmount
-
-        if (sum > maxLimit) {
-          HelperFunctions.confirmOneButtonAsync(
-            this.dialogService,
-            `A partner kiegyenlítetlen összege elérte a maximális értéket (${maxLimit})!`,
-            `Visszalépés`,
-            () => {
-              this.checkCustomerLimit = false
-              this.close(false)
-            }
-          )
-        }
-
-        else if (sum > warningLimit) {
-          HelperFunctions.confirmAsync(
-            this.dialogService,
-            `A partner kiegyenlítetlen összege elérte a figyelmeztetés limitet (${warningLimit})!`,
-            () => { this.customerLimitsChecked = true },
-            () => { this.checkCustomerLimit = false; this.close(false) }
-          )
-        }
-      } else {
+      if (this.data.customerID === undefined) {
         throw new Error("Partnert kötelező választani!")
+      }
+
+      const maxLimit = HelperFunctions.ToInt(this.customer?.maxLimit)
+      const warningLimit = HelperFunctions.ToInt(this.customer?.warningLimit)
+
+      if (maxLimit === 0 || warningLimit === 0) {
+        return
+      }
+
+      const discountedPrice = HelperFunctions.ToFloat(this.sumForm.controls['lineGrossAmount'].value)
+      const customerUnpaidAmount = await this.invoiceService.GetCustomerUnpaidAmount({ CustomerID: this.data.customerID })
+      const sum = discountedPrice + customerUnpaidAmount
+
+      if (sum > maxLimit) {
+        HelperFunctions.confirmOneButtonAsync(
+          this.dialogService,
+          `A partner kiegyenlítetlen összege elérte a maximális értéket (${maxLimit})!`,
+          `Visszalépés`,
+          () => {
+            this.checkCustomerLimit = false
+            this.close(false)
+          }
+        )
+      }
+      else if (sum > warningLimit) {
+        HelperFunctions.confirmAsync(
+          this.dialogService,
+          `A partner kiegyenlítetlen összege elérte a figyelmeztetés limitet (${warningLimit})!`,
+          () => { this.customerLimitsChecked = true },
+          () => { this.checkCustomerLimit = false; this.close(false) }
+        )
       }
     }
     catch (error) {
