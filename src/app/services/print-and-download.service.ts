@@ -234,7 +234,7 @@ export class PrintAndDownloadService {
     this.sts.pushProcessStatus(Constants.BlankProcessStatus);
   }
 
-  public async download_csv(params: Constants.Dct = {}, obs: Constants.ServiceFunctionGenericParams): Promise<void> {
+  public async downloadCsvOrXml(params: Constants.Dct = {}, obs: Constants.ServiceFunctionGenericParams): Promise<void> {
     await this.download(obs, params, 'text/csv');
   }
 
@@ -475,16 +475,16 @@ export class PrintAndDownloadService {
           console.log(`Data acquired.`);
 
           this.sts.pushProcessStatus(Constants.DownloadStatuses[Constants.DownloadProcessPhases.PROC_RESP]);
-          var blob = new Blob([res.body], { type: mimeType });
-          var blobURL = URL.createObjectURL(blob);
+          const blob = new Blob([res.body], { type: mimeType });
+          const blobURL = URL.createObjectURL(blob);
 
-          let a = document.createElement('a');
+          const a = document.createElement('a');
 
           document.body.appendChild(a);
           a.setAttribute('style', 'display: none');
           a.href = blobURL;
 
-          let fileName = PrintAndDownloadService.GetFileNameFromHeaders(res) ?? res.filename ?? res.fileName ?? '';
+          const fileName = PrintAndDownloadService.GetFileNameFromHeaders(res) ?? res.filename ?? res.fileName ?? '';
           a.download = fileName;
 
           a.click();

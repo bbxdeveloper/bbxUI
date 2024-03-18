@@ -28,6 +28,7 @@ import { HelperFunctions } from 'src/assets/util/HelperFunctions';
 import { ShowNavXResultsDialogComponent } from '../show-nav-xresults-dialog/show-nav-xresults-dialog.component';
 import moment from 'moment';
 import { INavigation } from '../nav-sent-data-filter/INavigation';
+import { PrintAndDownloadService } from 'src/app/services/print-and-download.service';
 
 @Component({
   selector: 'app-nav-sent-data',
@@ -202,6 +203,7 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     private readonly navService: NavHttpService,
     private readonly commonService: CommonService,
     private readonly keyboardHelper: KeyboardHelperService,
+    private readonly printAndDownloadService: PrintAndDownloadService,
     dialogService: BbxDialogServiceService,
     keyboardService: KeyboardNavigationService,
     footerService: FooterService,
@@ -310,19 +312,30 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
     this.kbS.Detach()
   }
 
+  private downloadAsXml(): void {
+    const id = this.dbData[this.dbDataTable.prevSelectedRowPos ?? 0].data.id
+
+    this.printAndDownloadService.downloadCsvOrXml({
+      report_params: {
+        id: id
+      }
+    } as Constants.Dct, this.navService.exchangeAsXml.bind(this.navService))
+  }
+
   @HostListener('keydown', ['$event'])
   public onKeyDown2(event: KeyboardEvent): void {
     if (this.keyboardHelper.IsKeyboardBlocked) {
       HelperFunctions.StopEvent(event)
       return
     }
+
+    if (this.dialogService.isDialogOpened) {
+      return
+    }
+
     switch(event.key) {
       case this.KeySetting[Actions.ToggleForm].KeyCode: {
         HelperFunctions.StopEvent(event)
-
-        if (this.dialogService.isDialogOpened) {
-          break
-        }
 
         this.dbDataTable.HandleKey(event)
         break
@@ -330,15 +343,18 @@ export class NavSentDataComponent extends BaseManagerComponent<NavLine> implemen
       case this.KeySetting[Actions.Print].KeyCode: {
         HelperFunctions.StopEvent(event)
 
-        if (this.dialogService.isDialogOpened) {
-          break
-        }
-
         this.dialogService.open(ShowNavXResultsDialogComponent, {
           context: {
             results: this.dbData[this.dbDataTable.prevSelectedRowPos ?? 0].data.navxResults
           }
         })
+        break
+      }
+      case this.KeySetting[Actions.CSV].KeyCode: {
+        HelperFunctions.StopEvent(event)
+
+        HelperFunctions.confirm(this.dialogService, 'Adatküldés számla XML letöltése?', this.downloadAsXml.bind(this), () => {})
+
         break
       }
     }
