@@ -435,7 +435,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
           report_params: this.getInputParams(),
         } as Constants.Dct
 
-        this.printAndDownloadService.download_csv(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
+        this.printAndDownloadService.downloadCsvOrXml(reportParams, this.invoiceService.getCsv.bind(this.invoiceService))
       }
       catch (error) {
         this.cs.HandleError(error)

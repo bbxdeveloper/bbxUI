@@ -15,7 +15,9 @@ export class SimplePaginator {
 
     allPages: number = 1;
 
-    pageSize: string = '50';
+    private readonly defaultPageSize = '50'
+
+    pageSize: string = this.defaultPageSize;
 
     totalItems: number = 0;
     totalUnfilteredItems: number = 0;
@@ -30,7 +32,7 @@ export class SimplePaginator {
 
     resetPaginator(resetPageSize: boolean = false, quiet: boolean = true): void {
         if (resetPageSize) {
-            this.pageSize = '50';
+            this.pageSize = this.defaultPageSize;
         }
         if (quiet) {
             this._currentPage = 1;
@@ -51,7 +53,7 @@ export class SimplePaginator {
         this.totalUnfilteredItems = response.recordsTotal;
         this.itemsOnCurrentPage = response?.data?.length ?? 0;
         console.log(
-            `[SetPaginatorData]: pageNumber: ${this._currentPage}, allPages: ${this.allPages}, recordsFiltered: ${response.recordsFiltered}, pageSize: ${response.pageSize}, totalItems: ${this.totalItems}, itemsOnCurrentPage: ${this.itemsOnCurrentPage}` 
+            `[SetPaginatorData]: pageNumber: ${this._currentPage}, allPages: ${this.allPages}, recordsFiltered: ${response.recordsFiltered}, pageSize: ${response.pageSize}, totalItems: ${this.totalItems}, itemsOnCurrentPage: ${this.itemsOnCurrentPage}`
         );
     }
 

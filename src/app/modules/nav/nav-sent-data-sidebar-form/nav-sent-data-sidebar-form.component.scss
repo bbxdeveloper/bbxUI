@@ -1,0 +1,16 @@
+nb-card {
+    height: -webkit-fill-available;
+}
+
+.form {
+    grid-template-columns: 1fr 204px 1fr 160px;
+
+    input {
+        max-width: unset;
+    }
+
+    label {
+        text-align: end;
+        white-space: nowrap;
+    }
+}
