@@ -1,5 +1,5 @@
 <as-split direction="horizontal">
-    <app-hozirontal-split-layout proportion="300" [hideDivider]="true" [usePixelForProportions]="true">
+    <app-hozirontal-split-layout proportion="355" [hideDivider]="true" [usePixelForProportions]="true">
         <app-head-line msg="Kiegyenlítetlen számlák" [compact]="true" title></app-head-line>
 
         <app-unbalanced-invoices-navigation-filter-form (refreshClicked)="refreshClicked($event)"
@@ -8,7 +8,7 @@
 
         <ng-container bottom>
             <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-                [heightMargin]="600" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                [heightMargin]="635" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
                 [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
                 (focusOutTable)="focusOnTable(false)">
             </app-flat-design-table>
