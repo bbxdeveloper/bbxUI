@@ -9,10 +9,16 @@
 
             <ng-container bottom>
                 <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
-                    [heightMargin]="520" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
+                    [heightMargin]="540" [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId"
                     [trackRows]="trackRows" [isLoading]="isLoading" (focusInTable)="focusOnTable(true)"
                     (focusOutTable)="focusOnTable(false)">
                 </app-flat-design-table>
+
+                <div class="flex gap-25 text-1.1 ml-10">
+                    <div>Nettó összesen: {{ summaryNet  | number:'1.2':'fr' | replace:',':'.' }}</div>
+                    <div>Áfa összesen: {{ summaryVat | number:'1.2':'fr' | replace:',':'.' }}</div>
+                    <div>Bruttó összesen: {{ summaryGross | number:'1.2':'fr' | replace:',':'.' }}</div>
+                </div>
 
                 <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
             </ng-container>
