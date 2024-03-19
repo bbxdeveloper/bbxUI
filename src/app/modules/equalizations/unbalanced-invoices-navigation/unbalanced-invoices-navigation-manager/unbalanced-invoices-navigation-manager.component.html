@@ -18,6 +18,7 @@
                     <table class="table-statistics-net-vat-gross">
                         <tr>
                             <td>Összes nettó: {{sumNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                            <td>Összes áfa: {{summaryVat | number:'1.2':'fr' | replace:',':'.'}}</td>
                             <td>Összes bruttó: {{sumGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
                             <td>Összes kiegyenlített: {{sumInvoicePaidAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
                         </tr>
