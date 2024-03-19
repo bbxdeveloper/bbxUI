@@ -369,6 +369,10 @@ tr.parent-of-current-keyboard-nav-selected {
   margin-left: 8px !important;
 }
 
+.ml-10 {
+  margin-left: 10px;
+}
+
 $marginMax: 1000;
 $i: 0;
 @while $i < $marginMax {

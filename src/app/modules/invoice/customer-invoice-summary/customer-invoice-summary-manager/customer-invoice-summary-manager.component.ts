@@ -25,6 +25,7 @@ import { GetCustomerInvoiceSummaryParamListModel } from '../../models/CustomerIn
 import { InvoiceService } from '../../services/invoice.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { GetCustomerInvoiceSummariesResponse } from '../../models/CustomerInvoiceSummary/GetCustomerInvoiceSummariesResponse';
 
 @Component({
   selector: 'app-customer-invoice-summary-manager',
@@ -143,6 +144,10 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     }
   }
 
+  summaryNet = 0
+  summaryVat = 0
+  summaryGross = 0
+
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
     fS: FooterService,
@@ -227,25 +232,7 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     console.log('Refreshing');
     this.isLoading = true;
     this.invoiceService.GetAllCustomerInvoiceSummary(params).subscribe({
-      next: async (d) => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      },
+      next: (response) => this.setData(response),
       error: (err) => {
         { this.cs.HandleError(err); this.isLoading = false; };
         this.isLoading = false;
@@ -261,31 +248,36 @@ export class CustomerInvoiceSummaryManagerComponent extends BaseManagerComponent
     this.isLoading = true;
 
     await lastValueFrom(this.invoiceService.GetAllCustomerInvoiceSummary(params))
-      .then(async d => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      })
+      .then(response => this.setData(response))
       .catch(err => {
         this.cs.HandleError(err);
       })
       .finally(() => {
         this.isLoading = false;
       })
+  }
+
+  private setData(response: GetCustomerInvoiceSummariesResponse): void {
+    if (!response.succeeded || !response.data) {
+      this.simpleToastrService.show(
+        response.errors!.join('\n'),
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR_5_SEC
+      );
+      return
+    }
+
+    this.summaryNet = response.summaryNet
+    this.summaryVat = response.summaryVat
+    this.summaryGross = response.summaryGross
+
+    const tempData = response.data.map((x) => {
+      return { data: x, uid: this.nextUid() };
+    });
+    this.dbData = tempData;
+    this.dbDataDataSrc.setData(this.dbData);
+    this.dbDataTable.SetPaginatorData(response);
+    this.RefreshTable(undefined, true);
   }
 
   ngOnInit(): void {

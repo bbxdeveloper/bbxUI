@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { NbTable, NbToastrService, NbTreeGridDataSourceBuilder } from '@nebular/theme';
-import { BehaviorSubject, Observable, ReplaySubject, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 import { BaseManagerComponent } from 'src/app/modules/shared/base-manager/base-manager.component';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { CommonService } from 'src/app/services/common.service';
@@ -25,6 +25,7 @@ import { UnbalancedInvoicesFilterFormData } from '../unbalanced-invoices-navigat
 import { InvoiceService } from 'src/app/modules/invoice/services/invoice.service';
 import { Invoice } from 'src/app/modules/invoice/models/Invoice';
 import { InvoiceNumberData } from '../unbalanced-invoices-navigation-filter-form/InvoiceNumberData';
+import { GetInvoicesResponse } from 'src/app/modules/invoice/models/GetInvoicesResponse';
 
 @Component({
   selector: 'app-unbalanced-invoices-navigation-manager',
@@ -39,24 +40,9 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
   public override KeySetting: Constants.KeySettingsDct = UnbalancedInvoicesNavigationManagerComponentKeySettings;
   public override commands: FooterCommandInfo[] = GetFooterCommandListFromKeySettings(this.KeySetting);
 
-  get sumGrossAmount(): any {
-    return this.dbData
-      .map(x => x.data)
-      .map(x => x.invoiceNetAmount ?? 0)
-      .reduce((sum, current) => sum + current, 0)
-      +
-      this.dbData
-        .map(x => x.data)
-        .map(x => x.invoiceVatAmount ?? 0)
-        .reduce((sum, current) => sum + current, 0);
-  }
-
-  get sumNetAmount(): any {
-    return this.dbData
-      .map(x => x.data)
-      .map(x => x.invoiceNetAmount ?? 0)
-      .reduce((sum, current) => sum + current, 0);
-  }
+  sumGrossAmount = 0
+  sumNetAmount = 0
+  summaryVat = 0
 
   get sumInvoicePaidAmount(): any {
     return this.dbData
@@ -202,14 +188,14 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
 
     params.CustomerID = HelperFunctions.ToOptionalInt(params.CustomerID)
     params.ID = HelperFunctions.ToOptionalInt(params.ID)
-    
+
     params.InvoiceDeliveryDateFrom = HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateFrom) ? undefined : params.InvoiceDeliveryDateFrom
     params.InvoiceDeliveryDateTo = HelperFunctions.isEmptyOrSpaces(params.InvoiceDeliveryDateTo) ? undefined : params.InvoiceDeliveryDateTo
     params.InvoiceIssueDateFrom = HelperFunctions.isEmptyOrSpaces(params.InvoiceIssueDateFrom) ? undefined : params.InvoiceIssueDateFrom
     params.InvoiceIssueDateTo = HelperFunctions.isEmptyOrSpaces(params.InvoiceIssueDateTo) ? undefined : params.InvoiceIssueDateTo
     params.PaymentDateFrom = HelperFunctions.isEmptyOrSpaces(params.PaymentDateFrom) ? undefined : params.PaymentDateFrom
     params.PaymentDateTo = HelperFunctions.isEmptyOrSpaces(params.PaymentDateTo) ? undefined : params.PaymentDateTo
-    
+
     params.PageNumber = HelperFunctions.ToInt(this.dbDataTable.currentPage + '')
     params.PageSize = HelperFunctions.ToInt(this.dbDataTable.pageSize + '')
 
@@ -330,25 +316,7 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
     console.log('Refreshing');
     this.isLoading = true;
     this.invoiceService.GetAllUnbalanced(params).subscribe({
-      next: async (d) => {
-        if (d.succeeded && !!d.data) {
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      },
+      next: (response) => this.setData(response),
       error: (err) => {
         this.cs.HandleError(err)
         this.isLoading = false
@@ -370,32 +338,37 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
     this.isLoading = true;
 
     await lastValueFrom(this.invoiceService.GetAllUnbalanced(params))
-      .then(async d => {
-        if (d.succeeded && !!d.data) {
-          console.log('GetProducts response: ', d);
-          if (!!d) {
-            const tempData = d.data.map((x) => {
-              return { data: x, uid: this.nextUid() };
-            });
-            this.dbData = tempData;
-            this.dbDataDataSrc.setData(this.dbData);
-            this.dbDataTable.SetPaginatorData(d);
-          }
-          this.RefreshTable(undefined, true);
-        } else {
-          this.simpleToastrService.show(
-            d.errors!.join('\n'),
-            Constants.TITLE_ERROR,
-            Constants.TOASTR_ERROR_5_SEC
-          );
-        }
-      })
+      .then(response => this.setData(response))
       .catch(err => {
         this.cs.HandleError(err);
       })
       .finally(() => {
         this.isLoading = false;
       })
+  }
+
+  private setData(response: GetInvoicesResponse): void {
+    if (!response.succeeded || !response.data) {
+      this.simpleToastrService.show(
+        response.errors!.join('\n'),
+        Constants.TITLE_ERROR,
+        Constants.TOASTR_ERROR_5_SEC
+      );
+      return
+    }
+
+    console.log('GetProducts response: ', response);
+    this.sumGrossAmount = response.summaryGross
+    this.sumNetAmount = response.summaryNet
+    this.summaryVat = response.summaryVat
+
+    const tempData = response.data.map((x) => {
+      return { data: x, uid: this.nextUid() };
+    });
+    this.dbData = tempData;
+    this.dbDataDataSrc.setData(this.dbData);
+    this.dbDataTable.SetPaginatorData(response);
+    this.RefreshTable(undefined, true);
   }
 
   ngOnInit(): void {
