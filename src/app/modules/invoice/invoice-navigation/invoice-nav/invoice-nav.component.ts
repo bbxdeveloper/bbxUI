@@ -281,31 +281,9 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     return !this.kbS.isEditModeActivated;
   }
 
-  get sumGrossAmount(): any {
-    return this.dbData
-      .map(x => x.data)
-      .map(x => x.invoiceNetAmount ?? 0)
-      .reduce((sum, current) => sum + current, 0)
-      +
-      this.dbData
-        .map(x => x.data)
-        .map(x => x.invoiceVatAmount ?? 0)
-        .reduce((sum, current) => sum + current, 0);
-  }
-
-  get sumNetAmount(): any {
-    return this.dbData
-      .map(x => x.data)
-      .map(x => x.invoiceNetAmount ?? 0)
-      .reduce((sum, current) => sum + current, 0);
-  }
-
-  get sumVatAmount(): any {
-    return this.dbData
-      .map(x => x.data)
-      .map(x => x.invoiceVatAmount ?? 0)
-      .reduce((sum, current) => sum + current, 0);
-  }
+  sumGrossAmount = 0
+  sumNetAmount = 0
+  sumVatAmount = 0
 
   //#endregion Getters
 
@@ -361,6 +339,10 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       const response = await this.invoiceService.getAllAsync(params ?? this.getInputParams())
 
       if (response && response.succeeded && !!response.data) {
+        this.sumGrossAmount = response.summaryGross
+        this.sumNetAmount = response.summaryNet
+        this.sumVatAmount = response.summaryVat
+
         const tempData = response.data.map((x) => {
           return { data: x, uid: this.nextUid() };
         });

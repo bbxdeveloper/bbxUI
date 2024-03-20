@@ -8,7 +8,7 @@ export interface GetInvoicesResponse {
     succeeded: boolean,
     message?: string,
     errors?: any[],
-    data: Invoice[]
+    data: Invoice[],
     summaryNet: number,
     summaryVat: number,
     summaryGross: number,
