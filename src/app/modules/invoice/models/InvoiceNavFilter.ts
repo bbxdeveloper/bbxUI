@@ -43,18 +43,19 @@ export class InvoiceNavFilter {
     }
 
     public static create(): InvoiceNavFilter {
-        return {
-            InvoiceType: '',
-            WarehouseCode: '',
-            InvoiceIssueDateFrom: HelperFunctions.GetDateString(0, 0, -1),
-            InvoiceIssueDateTo: HelperFunctions.GetDateString(),
-            InvoiceDeliveryDateFrom: HelperFunctions.GetDateString(),
-            InvoiceDeliveryDateTo: HelperFunctions.GetDateString(),
-            DateFilterChooser: '1',
-            CustomerSearch: undefined,
-            CustomerID: undefined
-        } as InvoiceNavFilter
+        const filter = new InvoiceNavFilter()
+        filter.InvoiceType = ''
+        filter.WarehouseCode = ''
+        filter.InvoiceIssueDateFrom = HelperFunctions.GetDateString(0, 0, -1)
+        filter.InvoiceIssueDateTo = HelperFunctions.GetDateString()
+        filter.InvoiceDeliveryDateFrom = HelperFunctions.GetDateString()
+        filter.InvoiceDeliveryDateTo = HelperFunctions.GetDateString()
+        filter.DateFilterChooser = '1'
+        filter.CustomerSearch = undefined
+        filter.CustomerID = undefined
+
+        return filter
     }
 
-    private constructor() { }
+    public constructor() { }
 }
