@@ -36,6 +36,7 @@ import { EqualizationCreatorComponent } from './modules/equalizations/equalizati
 import { EqualizationNavigationManagerComponent } from './modules/equalizations/equalization-navigation/equalization-navigation-manager/equalization-navigation-manager.component';
 import { UnbalancedInvoicesNavigationManagerComponent } from './modules/equalizations/unbalanced-invoices-navigation/unbalanced-invoices-navigation-manager/unbalanced-invoices-navigation-manager.component';
 import { NavSentDataComponent } from './modules/nav/nav-sent-data/nav-sent-data/nav-sent-data.component';
+import { InvoicesForNavComponent } from './modules/nav/invoices-for-nav/invoices-for-nav.component';
 
 const routes: Routes = [
   {
@@ -276,6 +277,10 @@ const routes: Routes = [
       {
         path: 'nav-sent-data',
         component: NavSentDataComponent,
+      },
+      {
+        path: 'invoices-for-nav',
+        component: InvoicesForNavComponent,
       }
     ]
   },

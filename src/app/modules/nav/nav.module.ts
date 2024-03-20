@@ -10,13 +10,15 @@ import { ShowNavXResultsDialogComponent } from './nav-sent-data/show-nav-xresult
 import { NavSentDataSidebarFormComponent } from './nav-sent-data/nav-sent-data-sidebar-form/nav-sent-data-sidebar-form.component';
 import { NgxMaskModule } from 'ngx-mask';
 import { InputMaskModule } from '@ngneat/input-mask';
+import { InvoicesForNavComponent } from './invoices-for-nav/invoices-for-nav.component';
 
 @NgModule({
     declarations: [
         NavSentDataComponent,
         NavSentDataFilterComponent,
         ShowNavXResultsDialogComponent,
-        NavSentDataSidebarFormComponent
+        NavSentDataSidebarFormComponent,
+        InvoicesForNavComponent
     ],
     exports: [
         NavSentDataFilterComponent,
