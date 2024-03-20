@@ -64,17 +64,17 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
   public get componentFormData(): InvoiceNavFilter {
     const controls = this.filterForm.controls
 
-    const formData = {
-      CustomerID: HelperFunctions.ToOptionalInt(this.customerData?.id),
-      CustomerSearch: this.customerSearch?.searchForm?.controls['customerSearch']?.value,
-      InvoiceType: controls['InvoiceType'].value,
-      WarehouseCode: controls['WarehouseCode'].value,
-      InvoiceIssueDateFrom: controls['InvoiceIssueDateFrom'].value,
-      InvoiceIssueDateTo: controls['InvoiceIssueDateTo'].value,
-      InvoiceDeliveryDateFrom: controls['InvoiceDeliveryDateFrom'].value,
-      InvoiceDeliveryDateTo: controls['InvoiceDeliveryDateTo'].value,
-      DateFilterChooser: controls['DateFilterChooser'].value,
-    } as InvoiceNavFilter
+    const formData = new InvoiceNavFilter()
+    formData.CustomerID = HelperFunctions.ToOptionalInt(this.customerData?.id)
+    formData.CustomerSearch = this.customerSearch?.searchForm?.controls['customerSearch']?.value
+    formData.InvoiceType = controls['InvoiceType'].value
+    formData.WarehouseCode = controls['WarehouseCode'].value
+    formData.InvoiceIssueDateFrom = controls['InvoiceIssueDateFrom'].value
+    formData.InvoiceIssueDateTo = controls['InvoiceIssueDateTo'].value
+    formData.InvoiceDeliveryDateFrom = controls['InvoiceDeliveryDateFrom'].value
+    formData.InvoiceDeliveryDateTo = controls['InvoiceDeliveryDateTo'].value
+    formData.DateFilterChooser = controls['DateFilterChooser'].value
+
     return formData
   }
 
