@@ -35,7 +35,7 @@ import { CustomerInvoiceSummaryManagerComponent } from './modules/invoice/custom
 import { EqualizationCreatorComponent } from './modules/equalizations/equalization-manager/equalization-creator/equalization-creator.component';
 import { EqualizationNavigationManagerComponent } from './modules/equalizations/equalization-navigation/equalization-navigation-manager/equalization-navigation-manager.component';
 import { UnbalancedInvoicesNavigationManagerComponent } from './modules/equalizations/unbalanced-invoices-navigation/unbalanced-invoices-navigation-manager/unbalanced-invoices-navigation-manager.component';
-import { NavSentDataComponent } from './modules/nav/nav-sent-data/nav-sent-data.component';
+import { NavSentDataComponent } from './modules/nav/nav-sent-data/nav-sent-data/nav-sent-data.component';
 
 const routes: Routes = [
   {
