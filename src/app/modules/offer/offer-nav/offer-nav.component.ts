@@ -928,7 +928,7 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       const id = this.dbData[this.kbS.p.y].data.id;
 
       this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD]);
-      this.printAndDownLoadService.download_csv(
+      this.printAndDownLoadService.downloadCsvOrXml(
         {
           "report_params":
           {

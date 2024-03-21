@@ -1,0 +1,53 @@
+<nb-card>
+    <nb-card-body>
+        <form *ngIf="currentForm" ngForm [formGroup]="currentForm.form" class="grid form justify-end align-center gap-row-4 gap-col-10">
+            <label>ID</label>
+            <input nbInput type="text" formControlName="id" class="col-span-3">
+
+            <label>Bizonylatszám</label>
+            <input nbInput type="text" formControlName="invoiceNumber">
+
+            <label>Kezdés</label>
+            <input nbInput type="datetime" formControlName="createTime">
+
+            <label>Státusz</label>
+            <input nbInput type="text" formControlName="status" class="col-span-3">
+
+            <label>Művelet</label>
+            <input nbInput type="text" formControlName="operation" class="col-span-3">
+
+            <label>Token küld.</label>
+            <input nbInput type="text" formControlName="tokenTime">
+
+            <label>Token func.</label>
+            <input nbInput type="text" formControlName="tokenFuncCode">
+
+            <label>Tokenüzenet</label>
+            <input nbInput type="text" formControlName="tokenMessage" class="col-span-3">
+
+            <label>Adat küld.</label>
+            <input nbInput type="text" formControlName="sendTime">
+
+            <label>Adat func.</label>
+            <input nbInput type="text" formControlName="sendFuncCode">
+
+            <label>Adatüzenet</label>
+            <input nbInput type="text" formControlName="sendMessage" class="col-span-3">
+
+            <label>Lekérd. küld.</label>
+            <input nbInput type="text" formControlName="queryTime">
+
+            <label>Lekérd. func.</label>
+            <input nbInput type="text" formControlName="queryFuncCode">
+
+            <label>Lekérd.üzenet</label>
+            <input nbInput type="text" formControlName="queryMessage" class="col-span-3">
+
+            <label>Tranzakció ID</label>
+            <input nbInput type="text" formControlName="transactionId">
+
+            <label>Értesítések száma</label>
+            <input nbInput type="text" formControlName="navxResultsCount">
+        </form>
+    </nb-card-body>
+</nb-card>

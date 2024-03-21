@@ -28,7 +28,7 @@
                  *ngIf="(!!dbDataTable && dbDataTable.data.length !== 0) || (!!dbDataTable && !showMsgOnNoData && dbDataTable.data.length === 0)"
                  equalColumnsWidth (focusin)="focusOnTable(true)" (focusout)="focusOnTable(false)">
                 <ng-container *ngIf="allColumns.length > 0">
-                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [class.success]="isRowSuccess(row)" [class.warning]="isRowWarning(row)"></tr>
+                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [class.success]="isRowSuccess(row)" [class.warning]="isRowWarning(row)" [class.danger]="isRowDanger(row)"></tr>
                 </ng-container>
                 <ng-container *ngIf="allColumns.length === 0">
                     <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: (allColumnsAsync | async)"></tr>
@@ -75,6 +75,20 @@
                                 [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
                                 <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
                                     {{ GetDateString(row.data[it.objectKey]) }}
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'dateTime'">
+                            <td [tabindex]="row.tabindex" class="td-focusable" nbTreeGridCell *nbTreeGridCellDef="let row; let rowPos = index"
+                                (keydown.escape)="dbDataTable.HandleGridEscape(row, rowPos, it.objectKey, colPos)"
+                                (keydown.tab)="dbDataTable.JumpToFlatDesignForm($event, row, rowPos, it.objectKey, colPos)"
+                                (click)="dbDataTable.HandleGridClick(row, rowPos, it.objectKey, colPos)"
+                                [class.success]="isCellSuccess(row, it.objectKey)" [class.warning]="isCellWarning(row, it.objectKey)"
+                                [style.width]="it.colWidth" [style.min-width]="it.colMinWidth ?? it.colWidth" [style.max-width]="it.colWidth"
+                                [style.text-align]="it.textAlign" class="{{it.navMatrixCssClass}}">
+                                <div *ngIf="row.data[it.objectKey] !== undefined && row.data[it.objectKey] !== null">
+                                    {{ GetDateTimeString(row.data[it.objectKey]) }}
                                 </div>
                             </td>
                         </ng-container>

@@ -453,7 +453,7 @@ export class InvRowNavComponent extends BaseNoFormManagerComponent<InvRow> imple
 
     this.sts.pushProcessStatus(Constants.DownloadReportStatuses[Constants.DownloadOfferNavCSVProcessPhases.PROC_CMD])
 
-    this.printAndDownLoadService.download_csv({
+    this.printAndDownLoadService.downloadCsvOrXml({
       report_params: {
         InvCtrlPeriodID: Number(this.SelectedInvCtrlPeriod?.id),
         SearchString: this.filterForm.controls['searchString'].value ?? '',

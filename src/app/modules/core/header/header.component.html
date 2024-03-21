@@ -352,7 +352,7 @@
     </ng-template>
 
     <nb-action *ngIf="isLoggedIn" id="header-nav" class="cl-header-menu" tabIndex="9" nbPopoverTrigger="focus"
-        data-sub="header-nav-sub-1,header-nav-sub-2" nbPopoverPlacement="bottom" [nbPopover]="sub_nav"
+        data-sub="header-nav-sub-1,header-nav-sub-2,header-nav-sub-3" nbPopoverPlacement="bottom" [nbPopover]="sub_nav"
         [disabled]="InProgress">NAV
     </nb-action>
     <nb-action *ngIf="!isLoggedIn" id="header-nav" class="cl-header-menu" tabIndex="9" data-sub="" disabled>NAV</nb-action>
@@ -366,6 +366,11 @@
             <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
                 <button nbButton status="primary" id="header-nav-sub-2" [disabled]="InProgress" (click)="openNavTechnicalCancel()">
                     NAV technikai visszavonás
+                </button>
+            </nb-card-body>
+            <nb-card-body class="card-body-submenu-button cl-header-menu-sub">
+                <button nbButton status="primary" id="header-nav-sub-3" [disabled]="InProgress" (click)="goTo('nav/nav-sent-data')">
+                    NAV adatküldések
                 </button>
             </nb-card-body>
         </nb-card>
