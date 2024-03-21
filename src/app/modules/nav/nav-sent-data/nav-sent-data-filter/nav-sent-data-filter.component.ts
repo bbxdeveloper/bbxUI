@@ -2,13 +2,13 @@ import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output }
 import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { EMPTY, Subject, map, of, switchMap, tap } from 'rxjs';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
-import { FilterData } from '../Models/FilterData';
+import { FilterData } from '../../Models/FilterData';
 import moment from 'moment';
 import { InlineTableNavigatableForm } from 'src/assets/model/navigation/InlineTableNavigatableForm';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { IInlineManager } from 'src/assets/model/IInlineManager';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { TokenStorageService } from '../../auth/services/token-storage.service';
+import { TokenStorageService } from '../../../auth/services/token-storage.service';
 import { INavigation } from './INavigation';
 
 @Component({

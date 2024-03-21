@@ -26,6 +26,7 @@ import { GetCustomerInvoiceSummariesResponse } from '../models/CustomerInvoiceSu
 import { GetCustomerInvoiceSummaryParamListModel } from '../models/CustomerInvoiceSummary/GetCustomerInvoiceSummaryParamListModel';
 import { GetUnbalancedInvoicesParamListModel } from '../../equalizations/models/GetUnbalancedInvoicesParamListModel';
 import { CommonService } from 'src/app/services/common.service';
+import { IQueryUnsentResponse } from '../../nav/Models/QueryUnsentResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -233,5 +234,9 @@ export class InvoiceService {
         return EMPTY
       })
     ));
+  }
+
+  public queryUnsent(): Observable<IQueryUnsentResponse> {
+    return this.http.get<IQueryUnsentResponse>(this.BaseUrl + '/queryunsent')
   }
 }

@@ -1,11 +1,11 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, EMPTY, Subject, catchError, combineLatest, map, switchMap, takeUntil, tap } from 'rxjs';
-import { FilterData } from '../Models/FilterData';
-import { NavHttpService } from '../Services/nav-http.service';
+import { FilterData } from '../../Models/FilterData';
+import { NavHttpService } from '../../Services/nav-http.service';
 import { CommonService } from 'src/app/services/common.service';
-import { IQueryExchangeResponse } from '../Models/QueryExchangeResponse';
-import { NavLine } from '../Models/NavLine';
-import { BaseManagerComponent } from '../../shared/base-manager/base-manager.component';
+import { IQueryExchangeResponse } from '../../Models/QueryExchangeResponse';
+import { NavLine } from '../../Models/NavLine';
+import { BaseManagerComponent } from '../../../shared/base-manager/base-manager.component';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
 import { KeyboardModes, KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FooterService } from 'src/app/services/footer.service';
@@ -21,7 +21,7 @@ import { FlatDesignNavigatableTable } from 'src/assets/model/navigation/FlatDesi
 import { FormControl, FormGroup } from '@angular/forms';
 import { AttachDirection, TileCssClass } from 'src/assets/model/navigation/Navigatable';
 import { SideBarFormService } from 'src/app/services/side-bar-form.service';
-import { IQueryExchangeRequest } from '../Models/QueryExchangeRequest';
+import { IQueryExchangeRequest } from '../../Models/QueryExchangeRequest';
 import { FooterCommandInfo } from 'src/assets/model/FooterCommandInfo';
 import { KeyboardHelperService } from 'src/app/services/keyboard-helper.service';
 import { HelperFunctions } from 'src/assets/util/HelperFunctions';

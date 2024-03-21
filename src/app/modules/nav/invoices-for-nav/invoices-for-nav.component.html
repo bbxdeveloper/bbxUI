@@ -1,0 +1,16 @@
+<app-head-line msg="NAV-hoz küldendő számlák"></app-head-line>
+
+
+<div class="ml-25">
+    <form [id]="searchFormId" nbForm [formGroup]="searchForm">
+        <button nbButton class="{{TileCssClass}}" status="primary" type="button" (click)="searchClicked$.next(null)">
+            Keresés
+        </button>
+    </form>
+</div>
+
+<app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataDataSrc"
+    [heightMargin]="460"
+    [dbDataTable]="dbDataTable" [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="isLoading"
+    (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+</app-flat-design-table>

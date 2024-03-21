@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { SelectTableDialogComponent } from '../../shared/dialogs/select-table-dialog/select-table-dialog.component';
-import { INavXResult } from '../Models/NavXResult';
+import { SelectTableDialogComponent } from '../../../shared/dialogs/select-table-dialog/select-table-dialog.component';
+import { INavXResult } from '../../Models/NavXResult';
 import { NbDialogRef, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { TreeGridNode } from 'src/assets/model/TreeGridNode';
