@@ -61,6 +61,7 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     'invoiceNetAmount',
     'invoiceVatAmount',
     'invoiceGrossAmount',
+    'currencyCode',
     'invoicePaidAmount',
   ];
   override colDefs: ModelFieldDescriptor[] = [
@@ -195,6 +196,19 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
       mask: '',
       colWidth: '120px',
       textAlign: 'right',
+      navMatrixCssClass: TileCssClass,
+    },
+    {
+      label: 'Pénznem',
+      objectKey: 'currencyCode',
+      colKey: 'currencyCode',
+      defaultValue: '',
+      type: 'string',
+      fInputType: 'text',
+      fRequired: false,
+      mask: '',
+      colWidth: '100px',
+      textAlign: 'left',
       navMatrixCssClass: TileCssClass,
     },
     {
