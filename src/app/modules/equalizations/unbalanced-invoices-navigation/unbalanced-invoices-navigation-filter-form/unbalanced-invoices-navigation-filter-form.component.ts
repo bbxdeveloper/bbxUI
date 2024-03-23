@@ -153,7 +153,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       InvoiceDeliveryDateFrom: new FormControl('', [
         this.validateFromDeliveryDate.bind(this),
         validDate,
-        Validators.required
       ]),
       InvoiceDeliveryDateTo: new FormControl('', [
         this.validateToDeliveryDate.bind(this),
