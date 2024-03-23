@@ -317,6 +317,10 @@ tr.parent-of-current-keyboard-nav-selected {
   grid-column: span 3 / span 3;
 }
 
+.col-start-4 {
+  grid-column-start: 4;
+}
+
 // gap
 
 .gap-4 {
@@ -359,6 +363,10 @@ tr.parent-of-current-keyboard-nav-selected {
 
 .justify-between-i {
   justify-content: space-between !important;
+}
+
+.justify-self-end-i {
+  justify-self: end !important;
 }
 
 // align

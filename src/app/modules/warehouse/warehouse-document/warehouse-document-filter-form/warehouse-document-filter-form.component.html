@@ -36,6 +36,10 @@
 
                 <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
                     status="primary">Keresés</button>
+
+                <button nbButton class="col-start-4 justify-self-end-i" (click)="resetFilter()" status="primary">
+                    Szűrés törlése
+                </button>
             </form>
         </nb-card-body>
     </nb-card>
