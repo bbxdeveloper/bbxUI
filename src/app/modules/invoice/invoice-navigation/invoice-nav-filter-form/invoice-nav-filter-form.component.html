@@ -98,7 +98,7 @@
                 <div class="form-row w-full justify-between-i">
                     <button nbButton class="{{TileCssClass}}" (click)="Refresh()"
                         [disabled]="!!filterForm.invalid" status="primary">Keresés</button>
-                    <button nbButton (click)="removeFilterFromStorage()" status="primary">
+                    <button nbButton (click)="resetFilter()" status="primary">
                         Szűrés törlése
                     </button>
                 </div>

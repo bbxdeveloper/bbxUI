@@ -37,7 +37,7 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
 
   IsTableFocused: boolean = false
 
-  private localStorageKey: string
+  private readonly localStorageKey: string
 
   customerData?: Customer;
   customersData: Customer[] = [];
@@ -401,8 +401,9 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     FormHelper.SetControlValue(filter.InvoiceIssueDateTo, controls['InvoiceIssueDateTo'])
   }
 
-  public removeFilterFromStorage(): void {
+  public resetFilter(): void {
     this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
   }
 
   //#endregion filters
