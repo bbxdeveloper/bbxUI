@@ -47,9 +47,12 @@
                 </div>
             </div>
 
-            <div class="flex-grow-1 flex-shrink-1 flex-basis-full" (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
+            <div class="flex-grow-1 flex-shrink-1 flex-basis-full flex justify-between" (keydown.enter)="filterFormNav.HandleFormEnter($event, true)">
                 <button nbButton class="{{TileCssClass}}" status="primary" type="button" (click)="searchClicked$.next(null)">
                     Keresés
+                </button>
+                <button nbButton status="primary" type="button" (click)="removeFilterFromStorage()">
+                    Szűrés törlése
                 </button>
             </div>
         </form>
