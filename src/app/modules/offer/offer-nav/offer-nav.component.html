@@ -99,7 +99,7 @@
             </form>
         </nb-card-body>
         <nb-card-footer class="offer-footer">
-            <div class="form-row-flex">
+            <div class="form-row-flex justify-between">
                 <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshAndJumpToTable()" status="primary"
                     tabindex="-1">Keresés</button>
 
@@ -113,6 +113,10 @@
                     </app-form-control-error>
                 <app-form-control-error [form]="filterFormNav" label="érvényesség dátumig" controlName="OfferVaidityDateTo">
                     </app-form-control-error>
+
+                <button nbButton (click)="resetFilter()" status="primary">
+                    Szűrő törlése
+                </button>
             </div>
         </nb-card-footer>
     </nb-card>
