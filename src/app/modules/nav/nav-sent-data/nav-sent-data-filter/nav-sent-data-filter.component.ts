@@ -149,4 +149,9 @@ export class NavSentDataFilterComponent implements OnInit, OnDestroy, INavigatio
   public GenerateAndSetMatrixes(): void {
     this.filterFormNav.GenerateAndSetNavMatrices(true)
   }
+
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
 }

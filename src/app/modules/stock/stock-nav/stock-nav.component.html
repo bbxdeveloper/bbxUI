@@ -42,9 +42,13 @@
                     </form>
                 </nb-card-body>
                 <nb-card-footer class="offer-footer">
-                    <div class="form-row">
+                    <div class="flex justify-between-i">
                         <button [id]="SearchButtonId" nbButton class="{{TileCssClass}}" (click)="RefreshButtonClicked()"
                             [disabled]="filterForm?.invalid ?? true" status="primary" tabindex="-1">Keresés</button>
+
+                        <button nbButton (click)="resetFilter()" status="primary">
+                            Szűrés törlése
+                        </button>
                     </div>
                 </nb-card-footer>
             </nb-card>

@@ -43,7 +43,7 @@ import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.ser
 export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAbsent> implements IFunctionHandler, IInlineManager, OnInit, AfterViewInit {
   @ViewChild('table') table?: NbTable<any>;
 
-  private localStorageKey: string
+  private readonly localStorageKey: string
 
   public get keyBindings(): typeof KeyBindings {
     return KeyBindings;
@@ -222,7 +222,6 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
     private cdref: ChangeDetectorRef,
     kbS: KeyboardNavigationService,
     private bbxToastrService: BbxToastrService,
-    private simpleToastrService: NbToastrService,
     sidebarService: BbxSidebarService,
     private sidebarFormService: SideBarFormService,
     private inventoryService: InventoryService,
@@ -505,6 +504,11 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         this.Print();
         break;
     }
+  }
+
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
   }
 
   Print(): void {

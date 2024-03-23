@@ -330,4 +330,9 @@ export class WarehouseDocumentFilterFormComponent implements OnInit, IInlineMana
     event.stopPropagation();
     this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
   }
+
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
 }
