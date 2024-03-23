@@ -227,7 +227,8 @@ export class UnbalancedInvoicesNavigationManagerComponent extends BaseManagerCom
     cs: CommonService,
     sts: StatusService,
     private khs: KeyboardHelperService,
-    loggerService: LoggerService  ) {
+    loggerService: LoggerService
+  ) {
     super(dialogService, kbS, fS, sidebarService, cs, sts, loggerService);
     this.searchInputId = Constants.SearchInputId;
     this.dbDataTableId = 'product-table';

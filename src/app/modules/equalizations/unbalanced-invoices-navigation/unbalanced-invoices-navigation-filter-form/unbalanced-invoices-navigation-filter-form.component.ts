@@ -48,12 +48,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   @ViewChild('customerSearch')
   private customerSearch!: CustomerSearchComponent
   customerSearchFocused: boolean = false
-  get buyerData(): Customer {
-    return this.customerData!
-  }
-  set buyerData(buyer: Customer) {
-    this.customerData = buyer
-  }
 
   @Input()
   public set componentFormData(formData: UnbalancedInvoicesFilterFormData | undefined) {
@@ -68,7 +62,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     const formData = {
       InvoiceNumber: controls['InvoiceNumber'].value,
       CustomerInvoiceNumber: controls['CustomerInvoiceNumber'].value,
-      CustomerID: HelperFunctions.ToOptionalInt(this.customerData?.id),
+      CustomerID: HelperFunctions.ToOptionalInt(controls['CustomerID'].value),
       Incoming: controls['Incoming'].value,
       Expired: controls['Expired'].value,
       InvoiceDeliveryDateFrom: controls['InvoiceDeliveryDateFrom'].value,
@@ -178,6 +172,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       InvoiceNumber: new FormControl(undefined, []),
       CustomerInvoiceNumber: new FormControl(undefined, []),
 
+      CustomerID: new FormControl(),
       CustomerSearch: new FormControl(undefined, []),
       CustomerName: new FormControl(undefined, []),
       CustomerAddress: new FormControl(undefined, []),
@@ -224,9 +219,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
       this.keyboardService.SelectFirstTile()
       this.keyboardService.ClickCurrentElement()
 
-      await this.loadFilters()
-
-      const filter = this.localStorage.get<UnbalancedInvoicesFilterFormData>(this.localStorageKey)
+      const filter = this.loadFilters()
 
       if (filter) {
         this.filterForm.patchValue(filter)
@@ -239,19 +232,21 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     }, 500);
   }
 
-  private async loadFilters(): Promise<void> {
+  private loadFilters(): UnbalancedInvoicesFilterFormData|undefined {
     const filter = this.localStorage.get<UnbalancedInvoicesFilterFormData>(this.localStorageKey)
 
     if (!filter) {
-      return
+      return undefined
     }
 
-    await this.loadCustomerFilter(filter)
+    this.loadCustomerFilter(filter)
     this.loadMiscFilters(filter)
     this.loadDatesFromFilter(filter)
+
+    return filter
   }
 
-  private async loadCustomerFilter(filter: UnbalancedInvoicesFilterFormData): Promise<void> {
+  private loadCustomerFilter(filter: UnbalancedInvoicesFilterFormData): void {
     this.customerSearch.search(filter.CustomerSearch)
   }
 
@@ -393,8 +388,14 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   //#region customer search component
 
   public customerChanged([customer]: [Customer, boolean]): void {
-    this.buyerData = customer
-    this.SetCustomerFormFields(customer)
+    this.customerData = customer
+
+    this.filterForm.patchValue({
+      CustomerID: customer.id,
+      CustomerName: customer.customerName,
+      CustomerAddress: customer.postalCode + ', ' + customer.city,
+      CustomerTaxNumber: customer.taxpayerNumber
+    })
   }
 
   public onFormSearchFocused(): void {
@@ -404,21 +405,6 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   public onFormSearchBlurred(): void {
     this.customerSearchFocused = false;
   }
-
-  private SetCustomerFormFields(data?: Customer) {
-    if (data === undefined) {
-      this.filterForm.controls["CustomerName"].setValue(undefined);
-      this.filterForm.controls['CustomerName'].setValue(undefined);
-      this.filterForm.controls['CustomerAddress'].setValue(undefined);
-      this.filterForm.controls['CustomerTaxNumber'].setValue(undefined);
-      return;
-    }
-    this.filterForm.controls["CustomerName"].setValue(data.customerName);
-    this.filterForm.controls['CustomerName'].setValue(data.customerName);
-    this.filterForm.controls['CustomerAddress'].setValue(data.postalCode + ', ' + data.city);
-    this.filterForm.controls['CustomerTaxNumber'].setValue(data.taxpayerNumber);
-  }
-
 
   //#endregion customer search component
 
