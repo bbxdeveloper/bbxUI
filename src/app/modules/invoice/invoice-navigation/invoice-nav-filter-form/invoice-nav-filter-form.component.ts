@@ -358,7 +358,7 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
 
   //#endregion Init
 
-  //#region Load filters
+  //#region filters
 
   private async loadFilters(): Promise<void> {
     const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
@@ -401,7 +401,11 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     FormHelper.SetControlValue(filter.InvoiceIssueDateTo, controls['InvoiceIssueDateTo'])
   }
 
-  //#endregion Load filters
+  public removeFilterFromStorage(): void {
+    this.localStorage.remove(this.localStorageKey)
+  }
+
+  //#endregion filters
 
   //#region Keyboard and refresh
 

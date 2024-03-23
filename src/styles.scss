@@ -275,6 +275,10 @@ tr.parent-of-current-keyboard-nav-selected {
   width: 150px;
 }
 
+.w-full {
+  width: 100%;
+}
+
 // General, short
 
 .display-contents {
@@ -345,6 +349,10 @@ tr.parent-of-current-keyboard-nav-selected {
 
 .justify-between {
   justify-content: space-between;
+}
+
+.justify-between-i {
+  justify-content: space-between !important;
 }
 
 // align
