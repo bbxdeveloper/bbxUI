@@ -291,6 +291,11 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     setControlValue(filter.PaymentDateTo, controls['PaymentDateTo'])
   }
 
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
+
   public Refresh(): void {
     this.localStorage.put(this.localStorageKey, this.filterForm.value)
     this.refreshClicked.emit(this.componentFormData)
