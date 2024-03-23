@@ -15,9 +15,9 @@
                 </app-flat-design-table>
 
                 <div class="flex gap-25 text-1.1 ml-10">
-                    <div>Nettó összesen: {{ summaryNet  | number:'1.2':'fr' | replace:',':'.' }}</div>
-                    <div>Áfa összesen: {{ summaryVat | number:'1.2':'fr' | replace:',':'.' }}</div>
-                    <div>Bruttó összesen: {{ summaryGross | number:'1.2':'fr' | replace:',':'.' }}</div>
+                    <div>Nettó összesen: {{ summaryNet  | number:'1.2':'fr' | replace:',':'.' }} Ft.</div>
+                    <div>Áfa összesen: {{ summaryVat | number:'1.2':'fr' | replace:',':'.' }} Ft.</div>
+                    <div>Bruttó összesen: {{ summaryGross | number:'1.2':'fr' | replace:',':'.' }} Ft.</div>
                 </div>
 
                 <app-fkey-buttons-row [flexWrap]="true" *ngIf="isSideBarOpened"></app-fkey-buttons-row>
