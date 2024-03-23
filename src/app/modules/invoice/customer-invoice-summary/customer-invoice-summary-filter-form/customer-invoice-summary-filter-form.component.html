@@ -66,15 +66,18 @@
                     </div>
                 </div>
 
-                <div class="double-column">
+                <div class="flex w-full align-end">
                     <app-bbx-combo-box class="bbx-sidebar-combo nav-configuration" [currentForm]="filterFormNav"
                         formFieldName="WarehouseCode" label="Kiadás raktár"
                         [needBlankOption]="false" [data$]="wareHouseData$" [labelAboveField]="true" top>
                     </app-bbx-combo-box>
 
-                    <div class="form-button" right>
+                    <div class="form-button flex w-full justify-between-i align-end" right>
                         <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
                             status="primary">Keresés</button>
+                        <button nbButton (click)="removeFilterFromStorage()" status="primary">
+                            Szűrés törlése
+                        </button>
                     </div>
                 </div>
             </form>
