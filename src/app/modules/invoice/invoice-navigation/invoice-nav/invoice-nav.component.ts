@@ -33,6 +33,7 @@ import { InvoiceType } from '../../../system/models/InvoiceType';
 import { PrintAndDownloadService, PrintDialogRequest } from 'src/app/services/print-and-download.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { BbxDialogServiceService } from 'src/app/services/bbx-dialog-service.service';
+import { InvoiceLinesDialogComponent } from 'src/app/modules/shared/dialogs/invoice-lines-dialog/invoice-lines-dialog.component';
 
 @Component({
   selector: 'app-invoice-nav',
@@ -380,6 +381,8 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
     finally {
       this.sts.waitForLoad(false)
+      // TODO: DELETE
+      this.openDetails()
     }
   }
 
@@ -462,6 +465,16 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     } as PrintDialogRequest)
   }
 
+  private openDetails(): void {
+    const selectedRow = this.dbDataTable.prevSelectedRow?.data
+    this.dialogService.open(InvoiceLinesDialogComponent, {
+      context: {
+        // TODO: DELETE
+        invoice: { id: 15373 } as Invoice // {...selectedRow}
+      }
+    })
+  }
+
   //#endregion Utility
 
   //#region Keyboard
@@ -501,6 +514,15 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
 
     switch (event.key) {
+      case this.KeySetting[Actions.Details].KeyCode: {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log(`${this.KeySetting[Actions.Details].KeyLabel} Pressed: ${this.KeySetting[Actions.Details].FunctionLabel}`);
+        this.openDetails()
+        break;
+      }
       case this.KeySetting[Actions.Refresh].KeyCode: {
         event.stopImmediatePropagation();
         event.stopPropagation();

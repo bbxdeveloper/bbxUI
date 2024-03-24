@@ -1,0 +1,53 @@
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>Bizonylat részletek</span>
+        <button nbButton (click)="close()" status="primary" tabindex="-1" id="confirm-dialog-button-close"
+            class="padding-0 width-of-30px height-of-30px">X</button>
+    </nb-card-header>
+    <nb-card-body class="modal-product-active-body padding-top-0 padding-bottom-0">
+        <form *ngIf="!!_form" [id]="sumFormId" [formGroup]="_form.form" #formDirective="ngForm" class="form-rows">
+            <div class="form-row">
+                <nb-form-field>
+                    <div class="form-field-inner">
+                        <label>Bizonylatszám</label>
+                        <input nbInput type="text" formControlName="invoiceNumber" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="form-field-inner">
+                        <label>Partner</label>
+                        <input nbInput type="text" formControlName="supplierName" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="form-field-inner">
+                        <label>Teljesítés</label>
+                        <input nbInput type="datetime" formControlName="invoiceIssueDate" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="form-field-inner">
+                        <label>Dátum</label>
+                        <input nbInput type="datetime" formControlName="invoiceDeliveryDate" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="form-field-inner">
+                        <label>Fiz.hat.</label>
+                        <input nbInput type="datetime" formControlName="paymentDate" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+        </form>
+
+        <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataSource"
+            [heightMargin]="812" [compact]="true" [hidePaginator]="true" [dbDataTable]="dbDataTable"
+            [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="false"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+    </nb-card-body>
+</nb-card>
