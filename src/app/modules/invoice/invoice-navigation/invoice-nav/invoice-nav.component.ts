@@ -381,8 +381,6 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
     }
     finally {
       this.sts.waitForLoad(false)
-      // TODO: DELETE
-      this.openDetails()
     }
   }
 
@@ -467,12 +465,15 @@ export class InvoiceNavComponent extends BaseManagerComponent<Invoice> implement
 
   private openDetails(): void {
     const selectedRow = this.dbDataTable.prevSelectedRow?.data
-    this.dialogService.open(InvoiceLinesDialogComponent, {
-      context: {
-        // TODO: DELETE
-        invoice: { id: 15373 } as Invoice // {...selectedRow}
-      }
-    })
+    if (!selectedRow) {
+      this.simpleToastrService.showError(Constants.MSG_ERROR_NO_ROW_SELECTED)
+    } else {
+      this.dialogService.open(InvoiceLinesDialogComponent, {
+        context: {
+          invoice: { ...selectedRow! }
+        }
+      })
+    }
   }
 
   //#endregion Utility

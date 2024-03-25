@@ -4,8 +4,8 @@
 .modal-product-active {
     border: 4px yellow double;
 
-    min-width: 1200px;
-    max-height: 1000px;
+    min-width: 1320px;
+    max-height: 1090px;
 
     .modal-product-active-header {
         display: flex;
@@ -140,4 +140,11 @@ form.form-rows {
             max-width: 200px;
         }
     }
+}
+
+.status {
+    width: 100%;
+    margin: 25px;
+    text-align: center;
+    font-weight: bold;
 }

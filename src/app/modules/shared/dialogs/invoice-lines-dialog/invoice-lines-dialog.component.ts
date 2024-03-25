@@ -31,6 +31,8 @@ import { InvoiceService } from 'src/app/modules/invoice/services/invoice.service
 export class InvoiceLinesDialogComponent extends BaseNavigatableComponentComponent implements AfterContentInit, OnDestroy, OnInit, AfterViewChecked, AfterViewInit {
   @Input() invoice?: Invoice
 
+  invoiceLinesLoaded: boolean = false
+
   //#region Table
 
   allColumns: string[] = [
@@ -232,16 +234,8 @@ export class InvoiceLinesDialogComponent extends BaseNavigatableComponentCompone
   async loadInvoiceLines(): Promise<void> {
     this.sts.waitForLoad(true)
 
-    const wareHouse = this.tokenService.wareHouse
-
-    if (!wareHouse) {
-      this.bbxToastrService.showError(Constants.MSG_ERROR_NO_WAREHOUSE_SELECTED)
-      this.sts.waitForLoad(false)
-      return
-    }
-
     if (!this.invoice) {
-      this.bbxToastrService.showError(Constants.MSG_ERROR_NO_PRODUCT_SELECTED)
+      this.bbxToastrService.showError(Constants.MSG_ERROR_NO_INVOICE_SELECTED)
       this.sts.waitForLoad(false)
       return
     }
@@ -254,6 +248,8 @@ export class InvoiceLinesDialogComponent extends BaseNavigatableComponentCompone
     this.fillInvoiceLinesTable()
 
     this.sts.waitForLoad(false)
+
+    this.invoiceLinesLoaded = true
   }
 
   private fillInvoiceLinesTable(): void {

@@ -44,8 +44,15 @@
             </div>
         </form>
 
+        <div class="status" *ngIf="!invoiceLinesLoaded">
+            Betöltés...
+        </div>
+        <div class="status" *ngIf="invoiceLinesLoaded && invoice && invoice.invoiceLines.length === 0">
+            A kiválasztott bizonylat nem rendelkezik tételekkel.
+        </div>
         <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataSource"
-            [heightMargin]="812" [compact]="true" [hidePaginator]="true" [dbDataTable]="dbDataTable"
+            *ngIf="invoiceLinesLoaded && !(invoice && invoice.invoiceLines.length === 0)"
+            [heightMargin]="718" [compact]="true" [hidePaginator]="true" [dbDataTable]="dbDataTable"
             [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="false"
             (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
         </app-flat-design-table>
