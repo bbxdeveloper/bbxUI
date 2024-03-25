@@ -41,7 +41,6 @@ export class InvoiceLinesDialogComponent extends BaseNavigatableComponentCompone
     'unitPrice',
     'lineNetAmount',
     'lineVatAmount',
-    'invoiceNetAmount',
     'lineGrossAmountNormal'
   ]
   colDefs: ModelFieldDescriptor[] = [
@@ -77,11 +76,6 @@ export class InvoiceLinesDialogComponent extends BaseNavigatableComponentCompone
     },
     {
       label: 'Áfa', objectKey: 'lineVatAmount', colKey: 'lineVatAmount',
-      defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
-      colWidth: "130px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
-    },
-    {
-      label: 'Bizonylat Nettó', objectKey: 'invoiceNetAmount', colKey: 'invoiceNetAmount',
       defaultValue: '', type: 'formatted-number', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "130px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
