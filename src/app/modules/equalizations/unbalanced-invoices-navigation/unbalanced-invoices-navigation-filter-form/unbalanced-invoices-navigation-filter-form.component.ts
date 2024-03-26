@@ -36,7 +36,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
 
   IsTableFocused: boolean = false
 
-  private localStorageKey: string
+  private readonly localStorageKey: string
 
   get isEditModeOff(): boolean {
     return !this.keyboardService.isEditModeActivated
@@ -137,7 +137,8 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
     private readonly cdref: ChangeDetectorRef,
     private readonly localStorage: LocalStorageService,
     tokenService: TokenStorageService,
-    private readonly statusService: StatusService) {
+    private readonly statusService: StatusService
+  ) {
     this.localStorageKey = 'unbalanced-invoices-navigation-manager-filter.' + tokenService.user?.id ?? 'everyone'
 
     this.filterForm = new FormGroup({
@@ -291,7 +292,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   }
 
   public Refresh(): void {
-    this.localStorage.put(this.localStorageKey, this.filterForm.value)
+        this.localStorage.put(this.localStorageKey, this.filterForm.value)
     this.refreshClicked.emit(this.componentFormData)
   }
 
