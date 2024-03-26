@@ -292,7 +292,7 @@ export class UnbalancedInvoicesNavigationFilterFormComponent implements OnInit, 
   }
 
   public Refresh(): void {
-        this.localStorage.put(this.localStorageKey, this.filterForm.value)
+    this.localStorage.put(this.localStorageKey, this.filterForm.value)
     this.refreshClicked.emit(this.componentFormData)
   }
 
