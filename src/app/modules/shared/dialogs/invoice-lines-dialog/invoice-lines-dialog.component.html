@@ -8,37 +8,37 @@
         <form *ngIf="!!_form" [id]="sumFormId" [formGroup]="_form.form" #formDirective="ngForm" class="form-rows">
             <div class="form-row">
                 <nb-form-field>
-                    <div class="form-field-inner">
+                    <div class="form-field-inner" style="width: 200px;">
                         <label>Bizonylatszám</label>
                         <input nbInput type="text" formControlName="invoiceNumber" readonly>
                     </div>
                 </nb-form-field>
 
-                <nb-form-field>
-                    <div class="form-field-inner">
+                <nb-form-field class="no-max-width fill-available-width">
+                    <div class="form-field-inner fill-available-width">
                         <label>Partner</label>
-                        <input nbInput type="text" formControlName="supplierName" readonly>
+                        <input nbInput type="text" formControlName="supplierName" class="no-max-width full-width" readonly>
                     </div>
                 </nb-form-field>
 
                 <nb-form-field>
-                    <div class="form-field-inner">
+                    <div class="form-field-inner" style="width: 130px;">
                         <label>Teljesítés</label>
-                        <input nbInput type="datetime" formControlName="invoiceIssueDate" readonly>
+                        <input nbInput type="datetime" formControlName="invoiceIssueDate" mask="0000-00-00" readonly>
                     </div>
                 </nb-form-field>
 
                 <nb-form-field>
-                    <div class="form-field-inner">
+                    <div class="form-field-inner" style="width: 130px;">
                         <label>Dátum</label>
-                        <input nbInput type="datetime" formControlName="invoiceDeliveryDate" readonly>
+                        <input nbInput type="datetime" formControlName="invoiceDeliveryDate" mask="0000-00-00" readonly>
                     </div>
                 </nb-form-field>
 
                 <nb-form-field>
-                    <div class="form-field-inner">
+                    <div class="form-field-inner" style="width: 130px;">
                         <label>Fiz.hat.</label>
-                        <input nbInput type="datetime" formControlName="paymentDate" readonly>
+                        <input nbInput type="datetime" formControlName="paymentDate" mask="0000-00-00" readonly>
                     </div>
                 </nb-form-field>
             </div>

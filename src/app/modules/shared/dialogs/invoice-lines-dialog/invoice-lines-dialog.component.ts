@@ -39,7 +39,7 @@ export class InvoiceLinesDialogComponent extends BaseNavigatableComponentCompone
     'productCode',
     'lineDescription',
     'quantity',
-    'unitOfMeasure',
+    'unitOfMeasureX',
     'unitPrice',
     'lineNetAmount',
     'lineVatAmount',
@@ -62,7 +62,7 @@ export class InvoiceLinesDialogComponent extends BaseNavigatableComponentCompone
       colWidth: "100px", textAlign: "right", fInputType: 'formatted-number', fReadonly: true,
     },
     {
-      label: 'Me.e.', objectKey: 'unitOfMeasure', colKey: 'unitOfMeasure',
+      label: 'Me.e.', objectKey: 'unitOfMeasureX', colKey: 'unitOfMeasureX',
       defaultValue: '', type: 'string', mask: "", navMatrixCssClass: TileCssClass,
       colWidth: "70px", textAlign: "left", fInputType: ''
     },

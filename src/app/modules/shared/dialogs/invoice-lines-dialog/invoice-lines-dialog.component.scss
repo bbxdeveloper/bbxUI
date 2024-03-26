@@ -126,18 +126,17 @@ form.form-rows {
 
     .form-row {
         display: flex;
-        justify-content: space-between;
+        
+        justify-content: flex-start;
         align-items: center;
+        
         min-width: 100%;
 
-        input[type="text"] {
-            margin-right: 25px !important;
-        }
+        column-gap: 5px;
 
         .form-field-inner {
             display: flex;
             flex-direction: column;
-            max-width: 200px;
         }
     }
 }
