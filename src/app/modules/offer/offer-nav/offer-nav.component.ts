@@ -217,10 +217,10 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   public override getInputParams(override?: Constants.Dct): GetOffersParamsModel {
-    let issueFrom = this.filterForm.controls['OfferIssueDateFrom'].value ?? "";
-    let issueTo = this.filterForm.controls['OfferIssueDateTo'].value ?? "";
-    let vaidityFrom = this.filterForm.controls['OfferVaidityDateForm'].value ?? "";
-    let vaidityTo = this.filterForm.controls['OfferVaidityDateTo'].value ?? "";
+    const issueFrom = this.filterForm.controls['OfferIssueDateFrom'].value ?? "";
+    const issueTo = this.filterForm.controls['OfferIssueDateTo'].value ?? "";
+    const vaidityFrom = this.filterForm.controls['OfferValidityDateForm'].value ?? "";
+    const vaidityTo = this.filterForm.controls['OfferValidityDateTo'].value ?? "";
 
     const params = {
       PageNumber: 1,
@@ -233,8 +233,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       OfferIssueDateFrom: issueFrom.length > 0 ? issueFrom : undefined,
       OfferIssueDateTo: issueTo.length > 0 ? issueTo : undefined,
 
-      OfferVaidityDateForm: vaidityFrom.length > 0 ? vaidityFrom : undefined,
-      OfferVaidityDateTo: vaidityTo.length > 0 ? vaidityTo : undefined,
+      OfferValidityDateForm: vaidityFrom.length > 0 ? vaidityFrom : undefined,
+      OfferValidityDateTo: vaidityTo.length > 0 ? vaidityTo : undefined,
     }
 
     if (override && override["PageNumber"] !== undefined) {
@@ -277,16 +277,16 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     if (!!!this.filterForm) {
       return undefined;
     }
-    const tmp = this.filterForm.controls['OfferVaidityDateForm'].value;
+    const tmp = this.filterForm.controls['OfferValidityDateForm'].value;
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
 
-  get invoiceOfferVaidityDateTo(): Date | undefined {
+  get OfferValidityDateTo(): Date | undefined {
     if (!!!this.filterForm) {
       return undefined;
     }
-    const tmp = this.filterForm.controls['OfferVaidityDateTo'].value;
+    const tmp = this.filterForm.controls['OfferValidityDateTo'].value;
 
     return !HelperFunctions.IsDateStringValid(tmp) ? undefined : new Date(tmp);
   }
@@ -361,12 +361,12 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
   }
 
   validateOfferValidityDateFrom(control: AbstractControl): any {
-    if (!HelperFunctions.IsDateStringValid(control.value) || !this.invoiceOfferVaidityDateTo) {
+    if (!HelperFunctions.IsDateStringValid(control.value) || !this.OfferValidityDateTo) {
       return null;
     }
 
     let v = new Date(control.value);
-    let wrong = v > this.invoiceOfferVaidityDateTo;
+    let wrong = v > this.OfferValidityDateTo;
 
     return wrong ? { maxDate: { value: control.value } } : null;
   }
@@ -459,11 +459,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         this.validateOfferIssueDateTo.bind(this),
       ]),
 
-      OfferVaidityDateForm: new FormControl(filterData.offerValidityDateFrom, [
+      OfferValidityDateForm: new FormControl(filterData.offerValidityDateFrom, [
         validDate,
         this.validateOfferValidityDateFrom.bind(this),
       ]),
-      OfferVaidityDateTo: new FormControl(filterData.offerValidityDateTo, [
+      OfferValidityDateTo: new FormControl(filterData.offerValidityDateTo, [
         validDate,
         this.validateOfferValidityDateTo.bind(this),
       ]),
@@ -486,8 +486,8 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
         customerTaxNumber: value.CustomerTaxNumber,
         offerIssueDateFrom: value.OfferIssueDateFrom,
         offerIssueDateTo: value.OfferIssueDateTo,
-        offerValidityDateFrom: value.OfferVaidityDateForm,
-        offerValidityDateTo: value.offerValidityDateTo,
+        offerValidityDateFrom: value.OfferValidityDateForm,
+        offerValidityDateTo: value.OfferValidityDateTo,
       } as OfferFilter
 
       this.localStorage.put(this.localStorageKey, filterData)
@@ -509,20 +509,20 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
       }
     });
 
-    this.filterForm.controls['OfferVaidityDateForm'].valueChanges.subscribe({
+    this.filterForm.controls['OfferValidityDateForm'].valueChanges.subscribe({
       next: newValue => {
-        if (!this.filterForm.controls['OfferVaidityDateTo'].valid && this.filterForm.controls['OfferVaidityDateForm'].valid) {
-          this.filterForm.controls['OfferVaidityDateTo'].setValue(this.filterForm.controls['OfferVaidityDateTo'].value);
+        if (!this.filterForm.controls['OfferValidityDateTo'].valid && this.filterForm.controls['OfferValidityDateForm'].valid) {
+          this.filterForm.controls['OfferValidityDateTo'].setValue(this.filterForm.controls['OfferValidityDateTo'].value);
         }
       }
     });
 
-    this.filterForm.controls['OfferVaidityDateTo'].valueChanges.subscribe({
+    this.filterForm.controls['OfferValidityDateTo'].valueChanges.subscribe({
       next: newValue => {
-        if (!this.filterForm.controls['OfferVaidityDateForm'].valid && this.filterForm.controls['OfferVaidityDateTo'].valid) {
-          this.filterForm.controls['OfferVaidityDateForm'].setValue(this.filterForm.controls['OfferVaidityDateForm'].value);
+        if (!this.filterForm.controls['OfferValidityDateForm'].valid && this.filterForm.controls['OfferValidityDateTo'].valid) {
+          this.filterForm.controls['OfferValidityDateForm'].setValue(this.filterForm.controls['OfferValidityDateForm'].value);
         }
-        this.filterForm.controls['OfferVaidityDateForm'].markAsDirty();
+        this.filterForm.controls['OfferValidityDateForm'].markAsDirty();
         this.cdref.detectChanges();
       }
     });

@@ -82,7 +82,7 @@
 
                     <nb-form-field (keydown.enter)="filterFormNav.HandleFormEnter($event, true, true, true)">
                         <label>Érvényesség dátumától</label>
-                        <input nbInput type="datetime" formControlName='OfferVaidityDateForm' class="{{TileCssClass}}"
+                        <input nbInput type="datetime" formControlName='OfferValidityDateForm' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                             [validation]="true">
@@ -90,7 +90,7 @@
 
                     <nb-form-field (keydown.enter)="MoveToSaveButtons($event)">
                         <label>Érvényesség dátumig</label>
-                        <input nbInput type="datetime" formControlName='OfferVaidityDateTo' class="{{TileCssClass}}"
+                        <input nbInput type="datetime" formControlName='OfferValidityDateTo' class="{{TileCssClass}}"
                             (click)="filterFormNav.HandleFormFieldClick($event)" [readonly]="isEditModeOff" id="m02"
                             mask="0000-00-00" [dropSpecialCharacters]="false" [showMaskTyped]="true"
                             [validation]="true">
@@ -109,9 +109,9 @@
                     </app-form-control-error>
                 <app-form-control-error [form]="filterFormNav" label="kiállítás dátumig" controlName="OfferIssueDateTo">
                     </app-form-control-error>
-                <app-form-control-error [form]="filterFormNav" label="érvényesség dátumától" controlName="OfferVaidityDateForm">
+                <app-form-control-error [form]="filterFormNav" label="érvényesség dátumától" controlName="OfferValidityDateForm">
                     </app-form-control-error>
-                <app-form-control-error [form]="filterFormNav" label="érvényesség dátumig" controlName="OfferVaidityDateTo">
+                <app-form-control-error [form]="filterFormNav" label="érvényesség dátumig" controlName="OfferValidityDateTo">
                     </app-form-control-error>
 
                 <button nbButton (click)="resetFilter()" status="primary">

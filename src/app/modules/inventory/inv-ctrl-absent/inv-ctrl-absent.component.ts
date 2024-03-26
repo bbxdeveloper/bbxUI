@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
-import { NbTable, NbDialogService, NbTreeGridDataSourceBuilder, NbToastrService } from '@nebular/theme';
+import { NbTable, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BbxSidebarService } from 'src/app/services/bbx-sidebar.service';
 import { BbxToastrService } from 'src/app/services/bbx-toastr-service.service';
@@ -266,10 +266,6 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
       searchString: new FormControl(undefined, [])
     });
 
-    this.filterForm.valueChanges.subscribe(newValue => {
-      this.localStorage.put(this.localStorageKey, newValue as FilterForm)
-    })
-
     this.filterFormNav = new FlatDesignNoTableNavigatableForm(
       this.filterForm,
       this.kbS,
@@ -440,6 +436,10 @@ export class InvCtrlAbsentComponent extends BaseNoFormManagerComponent<InvCtrlAb
         this.filterForm.controls['invCtrlPeriod'].setValue(undefined);
       }
     }
+
+    this.filterForm.valueChanges.subscribe(newValue => {
+      this.localStorage.put(this.localStorageKey, newValue as FilterForm)
+    })
 
     await this.Refresh(undefined, false, false);
   }

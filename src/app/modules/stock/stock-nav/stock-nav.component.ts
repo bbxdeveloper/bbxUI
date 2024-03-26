@@ -611,6 +611,7 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
       this.localStorageService.put(this.localStorageKey, {
         WarehouseID: value.WarehouseID,
         SearchString: value.SearchString,
+        ProductName: value.ProductName,
       });
     })
 
