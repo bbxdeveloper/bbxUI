@@ -18,9 +18,9 @@
                     <nb-card-footer>
                         <table class="table-statistics-net-vat-gross">
                             <tr>
-                                <td>Összes nettó: {{sumNetAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-                                <td>Összes ÁFA: {{sumVatAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
-                                <td>Összes bruttó: {{sumGrossAmount | number:'1.2':'fr' | replace:',':'.'}}</td>
+                                <td>Összes nettó: {{sumNetAmount | number:'1.2':'fr' | replace:',':'.'}} Ft.</td>
+                                <td>Összes ÁFA: {{sumVatAmount | number:'1.2':'fr' | replace:',':'.'}} Ft.</td>
+                                <td>Összes bruttó: {{sumGrossAmount | number:'1.2':'fr' | replace:',':'.'}} Ft.</td>
                             </tr>
                         </table>
                     </nb-card-footer>

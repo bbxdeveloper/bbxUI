@@ -95,9 +95,12 @@
                     </nb-form-field>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row w-full justify-between-i">
                     <button nbButton class="{{TileCssClass}}" (click)="Refresh()"
                         [disabled]="!!filterForm.invalid" status="primary">Keresés</button>
+                    <button nbButton (click)="resetFilter()" status="primary">
+                        Szűrés törlése
+                    </button>
                 </div>
             </form>
         </nb-card-body>

@@ -478,4 +478,8 @@ export class CustomerInvoiceSummaryFilterFormComponent implements OnInit, IInlin
     this.filterFormNav.Matrix[this.filterFormNav.Matrix.length - 1].push(this.SearchButtonId);
   }
 
+  public removeFilterFromStorage(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
 }

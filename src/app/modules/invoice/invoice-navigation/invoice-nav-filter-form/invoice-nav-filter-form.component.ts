@@ -37,7 +37,7 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
 
   IsTableFocused: boolean = false
 
-  private localStorageKey: string
+  private readonly localStorageKey: string
 
   customerData?: Customer;
   customersData: Customer[] = [];
@@ -358,7 +358,7 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
 
   //#endregion Init
 
-  //#region Load filters
+  //#region filters
 
   private async loadFilters(): Promise<void> {
     const filter = this.localStorage.get<InvoiceNavFilter>(this.localStorageKey)
@@ -401,7 +401,12 @@ export class InvoiceNavFilterFormComponent implements OnInit, IInlineManager {
     FormHelper.SetControlValue(filter.InvoiceIssueDateTo, controls['InvoiceIssueDateTo'])
   }
 
-  //#endregion Load filters
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
+
+  //#endregion filters
 
   //#region Keyboard and refresh
 

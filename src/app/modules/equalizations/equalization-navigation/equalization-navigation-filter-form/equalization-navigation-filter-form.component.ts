@@ -227,4 +227,9 @@ export class EqualizationNavigationFilterFormComponent implements OnInit, IInlin
     event.stopPropagation();
     this.keyboardService.setEditMode(KeyboardModes.NAVIGATION)
   }
+
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
 }

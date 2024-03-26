@@ -597,6 +597,11 @@ export class StockNavComponent extends BaseManagerComponent<ExtendedStockData> i
 
   //#endregion Refresh
 
+  public resetFilter(): void {
+    this.localStorageService.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
+
   async ngOnInit(): Promise<void> {
     this.fS.pushCommands(this.commands);
 

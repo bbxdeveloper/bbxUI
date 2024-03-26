@@ -677,6 +677,11 @@ export class OfferNavComponent extends BaseNoFormManagerComponent<Offer> impleme
     this.Refresh(params);
   }
 
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
+  }
+
   MoveToSaveButtons(event: any): void {
     if (this.isEditModeOff) {
       this.filterFormNav!.HandleFormEnter(event, true, true, true);

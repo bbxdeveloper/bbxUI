@@ -5,7 +5,7 @@ import {CustomerDiscountService} from "../../customer-discount/services/customer
 import {CommonService} from "../../../services/common.service";
 import {Customer} from "../../customer/models/Customer";
 import {CustDiscountForGet} from "../../customer-discount/models/CustDiscount";
-import {debounceTime, distinctUntilChanged, EMPTY, filter, map, of, pipe, Subscription, switchMap, tap} from "rxjs";
+import {debounceTime, distinctUntilChanged, EMPTY, map, of, Subscription, switchMap, tap} from "rxjs";
 import {KeyboardModes, KeyboardNavigationService} from "../../../services/keyboard-navigation.service";
 import {CustomerSelectTableDialogComponent} from "../customer-select-table-dialog/customer-select-table-dialog.component";
 import {CustomerDialogTableSettings} from "../../../../assets/model/TableSettings";

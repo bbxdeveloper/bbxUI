@@ -265,7 +265,7 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
     return this.kbS.IsCurrentNavigatable(this.dbDataTable);
   }
 
-  private localStorageKey: string
+  private readonly localStorageKey: string
 
   constructor(
     @Optional() dialogService: BbxDialogServiceService,
@@ -445,6 +445,11 @@ export class StockCardNavComponent extends BaseManagerComponent<StockCard> imple
         this.isLoading = false;
       },
     });
+  }
+
+  public resetFilter(): void {
+    this.localStorage.remove(this.localStorageKey)
+    this.filterForm.reset()
   }
 
   async ngOnInit(): Promise<void> {

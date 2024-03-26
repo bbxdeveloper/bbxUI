@@ -1,6 +1,6 @@
 <div class="filter-div">
     <nb-card class="filter-card">
-        <nb-card-body class="filter-card-body">
+        <nb-card-body class="filter-card-body justify-between-i">
             <form [formGroup]="filterForm" #formDirective="ngForm" [id]="filterFormId"
                 (keydown.escape)="filterFormNav.HandleFormEscape()">
 
@@ -31,6 +31,10 @@
                 <button nbButton class="{{TileCssClass}}" (click)="Refresh()" [disabled]="!!filterForm.invalid"
                     status="primary">Keresés</button>
             </form>
+
+            <button nbButton status="primary" (click)="resetFilter()">
+                Szűrés törlése
+            </button>
         </nb-card-body>
     </nb-card>
 </div>
