@@ -1,5 +1,5 @@
 import { AfterContentInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { NbDialogRef, NbDialogService } from '@nebular/theme';
+import { NbDialogRef } from '@nebular/theme';
 import { KeyboardNavigationService } from 'src/app/services/keyboard-navigation.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { KeyboardModes } from 'src/app/services/keyboard-navigation.service';
@@ -200,7 +200,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       if (sum > maxLimit) {
         HelperFunctions.confirmOneButtonAsync(
           this.dialogService,
-          `A partner kiegyenlítetlen összege elérte a maximális értéket (${maxLimit})!`,
+          `A partner kiegyenlítetlen összege elérte a maximális értéket (${maxLimit.toFixed(2)})!`,
           `Visszalépés`,
           () => {
             this.checkCustomerLimit = false
@@ -211,7 +211,7 @@ export class SaveDialogComponent extends BaseNavigatableComponentComponent imple
       else if (sum > warningLimit) {
         HelperFunctions.confirmAsync(
           this.dialogService,
-          `A partner kiegyenlítetlen összege elérte a figyelmeztetés limitet (${warningLimit})!`,
+          `A partner kiegyenlítetlen összege elérte a figyelmeztetés limitet (${warningLimit.toFixed(2)})!`,
           () => { this.customerLimitsChecked = true },
           () => { this.checkCustomerLimit = false; this.close(false) }
         )
