@@ -67,3 +67,22 @@ $loopUntil: 50;
 .no-overflow-y {
     overflow-y: hidden;
 }
+
+/*
+    Fill space
+*/
+
+.full-width {
+    min-width: 100%;
+}
+
+.fill-available-width {
+    width: 100%;
+    width: -webkit-fill-available;
+    width: -moz-available;
+    width: fill-available;
+}
+
+.no-max-width {
+    max-width: none !important;
+}

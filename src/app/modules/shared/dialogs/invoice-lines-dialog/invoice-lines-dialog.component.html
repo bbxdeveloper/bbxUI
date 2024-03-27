@@ -1,0 +1,60 @@
+<nb-card class="modal-product-active">
+    <nb-card-header class="modal-product-active-header">
+        <span>Bizonylat részletek</span>
+        <button nbButton (click)="close()" status="primary" tabindex="-1" id="confirm-dialog-button-close"
+            class="padding-0 width-of-30px height-of-30px">X</button>
+    </nb-card-header>
+    <nb-card-body class="modal-product-active-body padding-top-0 padding-bottom-0">
+        <form *ngIf="!!_form" [id]="sumFormId" [formGroup]="_form.form" #formDirective="ngForm" class="form-rows">
+            <div class="form-row">
+                <nb-form-field>
+                    <div class="form-field-inner" style="width: 130px;">
+                        <label>Bizonylatszám</label>
+                        <input nbInput type="text" formControlName="invoiceNumber" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field class="no-max-width fill-available-width">
+                    <div class="form-field-inner fill-available-width">
+                        <label>Partner</label>
+                        <input nbInput type="text" formControlName="supplierName" class="no-max-width full-width" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="form-field-inner" style="width: 130px;">
+                        <label>Teljesítés</label>
+                        <input nbInput type="datetime" formControlName="invoiceIssueDate" mask="0000-00-00" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="form-field-inner" style="width: 130px;">
+                        <label>Dátum</label>
+                        <input nbInput type="datetime" formControlName="invoiceDeliveryDate" mask="0000-00-00" readonly>
+                    </div>
+                </nb-form-field>
+
+                <nb-form-field>
+                    <div class="form-field-inner" style="width: 130px;">
+                        <label>Fiz.hat.</label>
+                        <input nbInput type="datetime" formControlName="paymentDate" mask="0000-00-00" readonly>
+                    </div>
+                </nb-form-field>
+            </div>
+        </form>
+
+        <div class="status" *ngIf="!invoiceLinesLoaded">
+            Betöltés...
+        </div>
+        <div class="status" *ngIf="invoiceLinesLoaded && invoice && invoice.invoiceLines.length === 0">
+            A kiválasztott bizonylat nem rendelkezik tételekkel.
+        </div>
+        <app-flat-design-table [allColumns]="allColumns" [colDefs]="colDefs" [dbDataDataSrc]="dbDataSource"
+            *ngIf="invoiceLinesLoaded && !(invoice && invoice.invoiceLines.length === 0)"
+            [heightMargin]="718" [compact]="true" [hidePaginator]="true" [dbDataTable]="dbDataTable"
+            [dbDataTableId]="dbDataTableId" [trackRows]="trackRows" [isLoading]="false"
+            (focusInTable)="focusOnTable(true)" (focusOutTable)="focusOnTable(false)">
+        </app-flat-design-table>
+    </nb-card-body>
+</nb-card>

@@ -52,6 +52,7 @@ import { AuthFieldsComponent } from './auth/auth-form/auth-fields.component';
 import { ConfirmationWithAuthDialogComponent } from './simple-dialogs/confirmation-with-auth-dialog/confirmation-with-auth-dialog.component';
 import { BbxInlineTableComboBoxComponent } from './custom-inputs/bbx-inline-table-combo-box/bbx-inline-table-combo-box.component';
 import { FunctionRowComponent } from './function-row/function-row.component';
+import { InvoiceLinesDialogComponent } from './dialogs/invoice-lines-dialog/invoice-lines-dialog.component';
 
 
 @NgModule({
@@ -101,7 +102,8 @@ import { FunctionRowComponent } from './function-row/function-row.component';
     AuthFieldsComponent,
     ConfirmationWithAuthDialogComponent,
     BbxInlineTableComboBoxComponent,
-    FunctionRowComponent
+    FunctionRowComponent,
+    InvoiceLinesDialogComponent
   ],
   imports: [
     CommonModule,
@@ -175,7 +177,8 @@ import { FunctionRowComponent } from './function-row/function-row.component';
         AuthFieldsComponent,
         ConfirmationWithAuthDialogComponent,
         BbxInlineTableComboBoxComponent,
-        FunctionRowComponent
+        FunctionRowComponent,
+        InvoiceLinesDialogComponent
     ],
   providers: [
     ConfirmationDialogComponent
